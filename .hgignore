@@ -1,0 +1,10 @@
+syntax: re
+
+~$
+\.pyc$
+\.pyo$
+(^|/)TAGS$
+(^|/)\.DS_Store$
+\.bak$
+\.orig$
+(^|/)\..*/
