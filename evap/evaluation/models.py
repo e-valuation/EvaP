@@ -1,17 +1,29 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
 
-class Semester(models.Model):
+class AutoLocalizeMixin(object):
+    def __getattr__(self, name):
+        localized_name = "%s_%s" % (name, get_language())
+        if hasattr(self, localized_name):
+            return getattr(self, localized_name)
+        raise AttributeError()
+
+
+class Semester(models.Model, AutoLocalizeMixin):
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    
+    def __unicode__(self):
+        return self.name
     
     class Meta:
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")
 
 
-class Course(models.Model):
+class Course(models.Model, AutoLocalizeMixin):
     """Models a single course, i.e. the Math 101 course of 2002."""
 
     semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
@@ -24,23 +36,29 @@ class Course(models.Model):
     
     publish_date = models.DateField(null=True, verbose_name=_(u"publishing date"))
     
+    def __unicode__(self):
+        return self.name
+    
     class Meta:
         verbose_name = _(u"course")
         verbose_name_plural = _(u"courses")
 
 
-class QuestionGroup(models.Model):
+class QuestionGroup(models.Model, AutoLocalizeMixin):
     """A named collection of questions."""
     
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    
+    def __unicode__(self):
+        return self.name
     
     class Meta:
         verbose_name = _(u"question group")
         verbose_name_plural = _(u"question groups")
 
 
-class Question(models.Model):
+class Question(models.Model, AutoLocalizeMixin):
     """A question including a type."""
     
     QUESTION_KINDS = (
@@ -63,6 +81,9 @@ class Questionnaire(models.Model):
     """A questionnaire connects a course and optionally a lecturer to a question group."""
     course = models.ForeignKey(Course, verbose_name=_(u"course"))
     question_group = models.ForeignKey(QuestionGroup, verbose_name=_(u"question group"))
+    
+    def __unicode__(self):
+        return u"%s: %s" % (self.course.name, self.question_group.name)
     
     class Meta:
         verbose_name = _(u"questionnaire")
