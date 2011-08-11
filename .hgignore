@@ -3,6 +3,7 @@ syntax: re
 ~$
 \.pyc$
 \.pyo$
+\.mo$
 (^|/)TAGS$
 (^|/)\.DS_Store$
 \.bak$
