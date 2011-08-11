@@ -1,0 +1,123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: EvaP\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-08-11 12:48+0200\n"
+"PO-Revision-Date: 2011-08-11 13:01+0100\n"
+"Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: .\evaluation\models.py:6
+#: .\evaluation\models.py:18
+#: .\evaluation\models.py:35
+msgid "name (german)"
+msgstr "Name (deutsch)"
+
+#: .\evaluation\models.py:7
+#: .\evaluation\models.py:19
+#: .\evaluation\models.py:36
+msgid "name (english)"
+msgstr "Name (englisch)"
+
+#: .\evaluation\models.py:10
+#: .\evaluation\models.py:17
+msgid "semester"
+msgstr "Semester"
+
+#: .\evaluation\models.py:11
+msgid "semesters"
+msgstr "Semester"
+
+#: .\evaluation\models.py:20
+msgid "participants"
+msgstr "Teilnehmer"
+
+#: .\evaluation\models.py:22
+msgid "first date to vote"
+msgstr "Erster Abstimmungstag"
+
+#: .\evaluation\models.py:23
+msgid "last date to vote"
+msgstr "Letzter Abstimmungstag"
+
+#: .\evaluation\models.py:25
+msgid "publishing date"
+msgstr "Veröffentlichungsdatum"
+
+#: .\evaluation\models.py:28
+#: .\evaluation\models.py:64
+msgid "course"
+msgstr "Veranstaltung"
+
+#: .\evaluation\models.py:29
+msgid "courses"
+msgstr "Veranstaltungen"
+
+#: .\evaluation\models.py:39
+#: .\evaluation\models.py:65
+msgid "question group"
+msgstr "Fragegruppe"
+
+#: .\evaluation\models.py:40
+msgid "question groups"
+msgstr "Fragegruppen"
+
+#: .\evaluation\models.py:47
+msgid "Text Question"
+msgstr "Textfrage"
+
+#: .\evaluation\models.py:48
+msgid "Grade Question"
+msgstr "Auswahlfrage"
+
+#: .\evaluation\models.py:52
+msgid "question text (german)"
+msgstr "Fragetext (deutsch)"
+
+#: .\evaluation\models.py:53
+msgid "question text (english)"
+msgstr "Fragetext (englisch)"
+
+#: .\evaluation\models.py:55
+msgid "kind of question"
+msgstr "Frageart"
+
+#: .\evaluation\models.py:58
+msgid "question"
+msgstr "Frage"
+
+#: .\evaluation\models.py:59
+msgid "questions"
+msgstr "Fragen"
+
+#: .\evaluation\models.py:68
+msgid "questionnaire"
+msgstr "Fragebogen"
+
+#: .\evaluation\models.py:69
+msgid "questionnaires"
+msgstr "Fragebögen"
+
+#: .\evaluation\models.py:80
+#: .\evaluation\models.py:87
+#: .\evaluation\models.py:91
+msgid "answer"
+msgstr "Antwort"
+
+#: .\evaluation\models.py:81
+msgid "answers"
+msgstr "Antworten"
+
+#: .\templates\base.html.py:17
+msgid "EvaP evaluation platform"
+msgstr "EvaP Evaluierungsplattform"
+
