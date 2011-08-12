@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-11 12:48+0200\n"
-"PO-Revision-Date: 2011-08-11 13:01+0100\n"
+"POT-Creation-Date: 2011-08-12 17:18+0200\n"
+"PO-Revision-Date: 2011-08-12 17:19+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,108 +16,132 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: .\evaluation\models.py:6
-#: .\evaluation\models.py:18
-#: .\evaluation\models.py:35
+#: .\evaluation\forms.py:10
+msgid "no answer"
+msgstr "Keine Angabe"
+
+#: .\evaluation\models.py:16
+#: .\evaluation\models.py:31
+#: .\evaluation\models.py:71
 msgid "name (german)"
 msgstr "Name (deutsch)"
 
-#: .\evaluation\models.py:7
-#: .\evaluation\models.py:19
-#: .\evaluation\models.py:36
+#: .\evaluation\models.py:17
+#: .\evaluation\models.py:32
+#: .\evaluation\models.py:72
 msgid "name (english)"
 msgstr "Name (englisch)"
 
-#: .\evaluation\models.py:10
-#: .\evaluation\models.py:17
+#: .\evaluation\models.py:23
+#: .\evaluation\models.py:30
 msgid "semester"
 msgstr "Semester"
 
-#: .\evaluation\models.py:11
+#: .\evaluation\models.py:24
 msgid "semesters"
 msgstr "Semester"
 
-#: .\evaluation\models.py:20
+#: .\evaluation\models.py:35
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: .\evaluation\models.py:22
+#: .\evaluation\models.py:38
+msgid "voters"
+msgstr "Wähler"
+
+#: .\evaluation\models.py:41
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: .\evaluation\models.py:23
+#: .\evaluation\models.py:42
 msgid "last date to vote"
 msgstr "Letzter Abstimmungstag"
 
-#: .\evaluation\models.py:25
+#: .\evaluation\models.py:44
 msgid "publishing date"
 msgstr "Veröffentlichungsdatum"
 
-#: .\evaluation\models.py:28
 #: .\evaluation\models.py:64
+#: .\evaluation\models.py:117
 msgid "course"
 msgstr "Veranstaltung"
 
-#: .\evaluation\models.py:29
+#: .\evaluation\models.py:65
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: .\evaluation\models.py:39
-#: .\evaluation\models.py:65
+#: .\evaluation\models.py:78
+#: .\evaluation\models.py:118
 msgid "question group"
 msgstr "Fragegruppe"
 
-#: .\evaluation\models.py:40
+#: .\evaluation\models.py:79
 msgid "question groups"
 msgstr "Fragegruppen"
 
-#: .\evaluation\models.py:47
+#: .\evaluation\models.py:86
 msgid "Text Question"
 msgstr "Textfrage"
 
-#: .\evaluation\models.py:48
+#: .\evaluation\models.py:87
 msgid "Grade Question"
 msgstr "Auswahlfrage"
 
-#: .\evaluation\models.py:52
+#: .\evaluation\models.py:91
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: .\evaluation\models.py:53
+#: .\evaluation\models.py:92
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: .\evaluation\models.py:55
+#: .\evaluation\models.py:94
 msgid "kind of question"
 msgstr "Frageart"
 
-#: .\evaluation\models.py:58
+#: .\evaluation\models.py:111
 msgid "question"
 msgstr "Frage"
 
-#: .\evaluation\models.py:59
+#: .\evaluation\models.py:112
 msgid "questions"
 msgstr "Fragen"
 
-#: .\evaluation\models.py:68
+#: .\evaluation\models.py:128
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: .\evaluation\models.py:69
+#: .\evaluation\models.py:129
 msgid "questionnaires"
 msgstr "Fragebögen"
 
-#: .\evaluation\models.py:80
-#: .\evaluation\models.py:87
-#: .\evaluation\models.py:91
+#: .\evaluation\models.py:140
+#: .\evaluation\models.py:147
+#: .\evaluation\models.py:151
 msgid "answer"
 msgstr "Antwort"
 
-#: .\evaluation\models.py:81
+#: .\evaluation\models.py:141
 msgid "answers"
 msgstr "Antworten"
 
-#: .\templates\base.html.py:17
+#: .\evaluation\views.py:45
+msgid "Your vote was recorded."
+msgstr "Ihre Stimme wurde aufgezeichnet."
+
+#: .\templates\base.html.py:12
+msgid "evaluation platform"
+msgstr "Evaluierungsplattform"
+
+#: .\templates\base.html.py:22
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
+
+#: .\templates\evaluation\student_index.html.py:8
+msgid "You can vote on the following courses:"
+msgstr "Sie können die folgenden Veranstaltungen bewerten:"
+
+#: .\templates\evaluation\student_index.html.py:15
+msgid "You cannot vote on any courses right now."
+msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
 
