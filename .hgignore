@@ -9,3 +9,7 @@ syntax: re
 \.bak$
 \.orig$
 (^|/)\..*/
+
+^evap/staticfiles$
+^evap/media$
+^evap/database.sqlite3$
