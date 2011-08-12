@@ -8,28 +8,43 @@
     <link href="{% get_static_prefix %}base.css" rel="stylesheet"/>
 </head>
 <body>
-    <div id="header">
-        {% trans "evaluation platform" %}
-        <img src="{% get_static_prefix %}logo.png" class="header_logo">
-        {% block header %}{% endblock %}
-        <hr>
-    </div>
-    <div id="content">
-        {% block content %}{% endblock %}
-    </div>
-    <div id="footer">
-        <hr>
-        {% trans "EvaP evaluation platform" %}
-        <form action="/i18n/setlang/" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="language" value="de"/>
-            <input type="submit" value="german">
-        </form>
-        <form action="/i18n/setlang/" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="language" value="en"/>
-            <input type="submit" value="english">
-        </form>
+    <div id="main">
+        <div id="header">
+            <div id="header_left">
+                <a href="/" class="noa">
+                    {% trans "evaluation platform" %}
+                </a>
+            </div>
+            <div id="header_right">
+                <img src="{% get_static_prefix %}logo.png" id="header_logo">
+            </div>
+        </div>
+        <div id="content">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+        <div id="footer">
+            {% trans "EvaP evaluation platform" %}
+            &middot;
+            <form action="/i18n/setlang/" method="POST" class="textform">
+                {% csrf_token %}
+                <input type="hidden" name="language" value="de"/>
+                <input type="submit" value="Deutsch">
+            </form>
+            &middot;
+            <form action="/i18n/setlang/" method="POST" class="textform">
+                {% csrf_token %}
+                <input type="hidden" name="language" value="en"/>
+                <input type="submit" value="English">
+            </form>
+        </div>
     </div>
 </body>
 </html>

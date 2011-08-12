@@ -1,0 +1,58 @@
+body {
+	background: #dfe1e1;
+	font-family: Verdana;}
+
+a {
+	text-decoration: none;}
+
+a,  a:focus,  a:link,  a:visited {
+	color: #af0034;}
+
+a:active,  a:hover {
+	color: #c74c71;}
+
+#main {
+	background-color: #fff;
+	padding: 10px;
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;}
+
+#header {
+	color: #af0034;
+	height: 100px;
+	position: relative;}
+
+#header #header_left {
+	position: absolute;
+	bottom: 0;
+	font-size: 200%;
+	line-height: 150%;}
+
+#header #header_right {
+	position: absolute;
+	bottom: 0;
+	right: 0;}
+
+#content {
+	border-top: 1px dotted #aeb3b4;
+	border-bottom: 1px dotted #aeb3b4;
+	clear: both;}
+
+#footer {
+	font-size: 80%;}
+
+ul.messages {
+	background: #cce4ec;}
+
+form.textform {
+	display: inline;}
+
+form.textform input[type=submit], form.textform input[type=button] {
+	background: transparent;
+	border: none;
+	display: inline;
+	font: inherit;
+	margin: 0;
+	padding: 0;}
+
