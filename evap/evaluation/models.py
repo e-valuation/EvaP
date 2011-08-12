@@ -5,11 +5,16 @@ from django.utils.translation import get_language
 from datetime import datetime
 
 class AutoLocalizeMixin(object):
+    """Mixin class that returns a value in the current language, e.g. if there
+    is a member `text_de` and the current language is `de`, then a class with
+    this mixin will return the `text_de` value when it is asked for the value
+    of `text`."""
+    
     def __getattr__(self, name):
-        localized_name = "%s_%s" % (name, get_language())
-        if hasattr(self, localized_name):
-            return getattr(self, localized_name)
-        return getattr(super(AutoLocalizeMixin, self), name)
+        try:
+            return getattr(self, "%s_%s" % (name, get_language()))
+        except AttributeError:
+            return getattr(super(AutoLocalizeMixin, self), name)
 
 
 class Semester(models.Model, AutoLocalizeMixin):
