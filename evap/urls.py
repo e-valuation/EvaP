@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r"^student/$", 'evaluation.views.student_index'),
     url(r"^student/vote/(?P<course_id>\d+)/$", 'evaluation.views.student_vote'),
     
+    url(r"^i18n/", include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),
 )

@@ -12,7 +12,10 @@ from evaluation.models import Course, GradeAnswer, TextAnswer
 @login_required
 def student_index(request):
     courses = Course.for_user(request.user)
-    return render_to_response("evaluation/student_index.html", dict(courses=courses))
+    return render_to_response(
+        "evaluation/student_index.html",
+        dict(courses=courses),
+        context_instance=RequestContext(request))
 
 
 @login_required

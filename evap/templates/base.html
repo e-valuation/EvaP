@@ -20,6 +20,16 @@
     <div id="footer">
         <hr>
         {% trans "EvaP evaluation platform" %}
+        <form action="/i18n/setlang/" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="language" value="de"/>
+            <input type="submit" value="german">
+        </form>
+        <form action="/i18n/setlang/" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="language" value="en"/>
+            <input type="submit" value="english">
+        </form>
     </div>
 </body>
 </html>
