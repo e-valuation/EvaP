@@ -2,13 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import get_language
+from datetime import datetime
 
 class AutoLocalizeMixin(object):
     def __getattr__(self, name):
         localized_name = "%s_%s" % (name, get_language())
         if hasattr(self, localized_name):
             return getattr(self, localized_name)
-        raise AttributeError()
+        return getattr(super(AutoLocalizeMixin, self), name)
 
 
 class Semester(models.Model, AutoLocalizeMixin):
@@ -36,6 +37,16 @@ class Course(models.Model, AutoLocalizeMixin):
     
     publish_date = models.DateField(null=True, verbose_name=_(u"publishing date"))
     
+    @classmethod
+    def for_user(cls, user):
+        """Returns a list of courses that a specific user can vote on right now"""
+        # FIXME: What if the user already voted?
+        return cls.objects.filter(
+            vote_start_date__lte=datetime.now(),
+            vote_end_date__gte=datetime.now(),
+            participants=user
+        )
+        
     def __unicode__(self):
         return self.name
     

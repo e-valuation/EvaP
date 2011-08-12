@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>
+    {% if courses %}
+        {% trans "You can vote on the following courses:" %}
+        <ul>
+        {% for course in courses %}
+            <li><a href="/student/vote/{{ course.id }}/">{{ course.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        {% trans "You cannot vote on any courses right now." %}
+    {% endif %}
+    </p>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% load i18n %}
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}EvaP{% endblock %}</title>
+    <link href="{% get_static_prefix %}base.css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="header">
+        {% trans "evaluation platform" %}
+        <img src="{% get_static_prefix %}logo.png" class="header_logo">
+        {% block header %}{% endblock %}
+        <hr>
+    </div>
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+    <div id="footer">
+        <hr>
+        {% trans "EvaP evaluation platform" %}
+    </div>
+</body>
+</html>
