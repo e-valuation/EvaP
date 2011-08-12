@@ -30,21 +30,31 @@ class Course(models.Model, AutoLocalizeMixin):
     semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
-    participants = models.ManyToManyField(User, verbose_name=_(u"participants"))
+    
+    # students that are allowed to vote
+    participants = models.ManyToManyField(User, verbose_name=_(u"participants"),
+                                          blank=True)
+    # students that already voted
+    voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True,
+                                    related_name='+')
     
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
     publish_date = models.DateField(null=True, verbose_name=_(u"publishing date"))
     
+    def can_user_vote(self, user):
+        return user in self.participants.all() and not user in self.voters.all()
+    
     @classmethod
     def for_user(cls, user):
         """Returns a list of courses that a specific user can vote on right now"""
-        # FIXME: What if the user already voted?
         return cls.objects.filter(
             vote_start_date__lte=datetime.now(),
             vote_end_date__gte=datetime.now(),
             participants=user
+        ).exclude(
+            voters=user
         )
         
     def __unicode__(self):
@@ -83,6 +93,20 @@ class Question(models.Model, AutoLocalizeMixin):
     kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
                             verbose_name=_(u"kind of question"))
     
+    def answer_class(self):
+        if self.kind == u"T":
+            return TextAnswer
+        elif self.kind == u"G":
+            return GradeAnswer
+        else:
+            raise Exception("Unknown answer kind: %r" % self.kind)
+    
+    def is_text_question(self):
+        return self.answer_class() == TextAnswer
+    
+    def is_grade_question(self):
+        return self.answer_class() == GradeAnswer
+    
     class Meta:
         verbose_name = _(u"question")
         verbose_name_plural = _(u"questions")
@@ -95,6 +119,10 @@ class Questionnaire(models.Model):
     
     def __unicode__(self):
         return u"%s: %s" % (self.course.name, self.question_group.name)
+    
+    def questions(self):
+        """Shortcut method to retrieve all questions"""
+        return self.question_group.question_set.all()
     
     class Meta:
         verbose_name = _(u"questionnaire")
