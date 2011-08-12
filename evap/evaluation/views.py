@@ -4,6 +4,7 @@ from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 
 from evaluation.forms import QuestionsForms
 from evaluation.models import Course, GradeAnswer, TextAnswer
@@ -39,7 +40,7 @@ def student_vote(request, course_id):
             course.voters.add(request.user)
         
         messages.add_message(request, messages.INFO, _("Your vote was recorded."))
-        return redirect("/student")
+        return redirect('evaluation.views.student_index')
     else:
         return render_to_response(
             "evaluation/student_vote.html",
