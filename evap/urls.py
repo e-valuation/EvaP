@@ -7,6 +7,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r"^$", 'views.index'),
+    
     url(r"^student/$", 'evaluation.views.student_index'),
     url(r"^student/vote/(?P<course_id>\d+)/$", 'evaluation.views.student_vote'),
     
