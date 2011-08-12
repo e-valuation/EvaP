@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render_to_response, HttpResponse
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 
 from evaluation.forms import QuestionsForms
@@ -18,7 +19,7 @@ def student_vote(request, course_id):
     # retrieve course and make sure that the user is allowed to vote
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
-        return HttpResponse(status=403)
+        return HttpResponseForbidden()
     
     # retrieve questionnaires and build form
     questionnaires = course.questionnaire_set.all()
