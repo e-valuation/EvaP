@@ -98,6 +98,13 @@ class Question(models.Model, AutoLocalizeMixin):
     kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
                             verbose_name=_(u"kind of question"))
     
+    class Meta:
+        verbose_name = _(u"question")
+        verbose_name_plural = _(u"questions")
+        
+        order_with_respect_to = 'question_group'
+    
+    
     def answer_class(self):
         if self.kind == u"T":
             return TextAnswer
@@ -111,10 +118,7 @@ class Question(models.Model, AutoLocalizeMixin):
     
     def is_grade_question(self):
         return self.answer_class() == GradeAnswer
-    
-    class Meta:
-        verbose_name = _(u"question")
-        verbose_name_plural = _(u"questions")
+
 
 
 class Questionnaire(models.Model):
