@@ -6,8 +6,8 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evaluation.forms import QuestionsForms
 from evaluation.models import Course, GradeAnswer, TextAnswer
+from student.forms import QuestionsForms
 
 @login_required
 def index(request):

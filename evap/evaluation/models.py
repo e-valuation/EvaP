@@ -64,6 +64,11 @@ class Course(models.Model):
     voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True,
                                     related_name='+')
     
+    primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"),
+                                               blank=True, related_name='primary_courses')
+    secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"),
+                                                 blank=True, related_name='secondary_courses')
+    
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
@@ -160,6 +165,8 @@ class Questionnaire(models.Model):
     
     course = models.ForeignKey(Course, verbose_name=_(u"course"))
     question_group = models.ForeignKey(QuestionGroup, verbose_name=_(u"question group"))
+    lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), related_name='+',
+                                 null=True, blank=True)
     
     def __unicode__(self):
         return u"%s: %s" % (self.course.name, self.question_group.name)
