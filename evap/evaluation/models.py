@@ -165,6 +165,8 @@ class Questionnaire(models.Model):
     
     course = models.ForeignKey(Course, verbose_name=_(u"course"))
     question_group = models.ForeignKey(QuestionGroup, verbose_name=_(u"question group"))
+    lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), related_name='+',
+                                 null=True, blank=True)
     
     def __unicode__(self):
         return u"%s: %s" % (self.course.name, self.question_group.name)
