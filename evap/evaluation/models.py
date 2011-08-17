@@ -24,6 +24,10 @@ class Semester(models.Model, AutoLocalizeMixin):
     def __unicode__(self):
         return self.name
     
+    @classmethod
+    def current(cls):
+        return cls.objects.all().reverse()[0]
+    
     class Meta:
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block menu %}
+    <li><a href="{% url fsr.views.fsr_import %}">Import</a></li>
+{% endblock %}
+
+{% block content %}
+    <p>
+    {% if courses %}
+        {% trans "Courses in the current semester: " %}
+        <ul>
+        {% for course in courses %}
+            <li>{{ course.name }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        {% trans "There are no courses for the current semster yet." %}&nbsp; <a href=""
+    {% endif %}
+    </p>
+{% endblock %}

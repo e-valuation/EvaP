@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>
+        {% trans "Upload semester data from excel file. This will create all containing students, teachers and courses and connect them." %}
+        <form enctype="multipart/form-data" method="POST">
+        {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <input type="submit" value="Import"/>
+        </form>
+    </p>
+{% endblock %}

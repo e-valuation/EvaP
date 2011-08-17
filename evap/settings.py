@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'evaluation',
+    'fsr',
 )
 
 # A sample logging configuration. The only tangible logging
