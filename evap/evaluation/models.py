@@ -71,6 +71,11 @@ class Course(models.Model):
     
     def can_user_vote(self, user):
         return user in self.participants.all() and not user in self.voters.all()
+        
+    def voted_percentage(self):
+        if self.participants.count() == 0:
+            return '-'
+        return (self.voters.count() / self.participants.count()) * 100.0
     
     @classmethod
     def for_user(cls, user):

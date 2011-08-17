@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 import xlrd
 
 from evaluation.models import Semester, Course
-from fsr.forms import ImportForm, SemesterForm
+from fsr.forms import ImportForm, SemesterForm, CourseForm
 from fsr.tools import find_course, find_student
 
 @login_required
@@ -78,5 +78,17 @@ def fsr_semester_import(request, semester_id):
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
-
+@login_required
+def fsr_course_edit(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    form = CourseForm(request.POST or None, instance = course)
+    
+    if form.is_valid():
+        form.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully updated course."))
+        return redirect('fsr.views.fsr_semester_view', semester_id)
+    else:
+        return render_to_response("fsr_course_edit.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
     
