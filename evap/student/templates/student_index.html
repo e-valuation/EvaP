@@ -8,7 +8,7 @@
         {% trans "You can vote on the following courses:" %}
         <ul>
         {% for course in courses %}
-            <li><a href="/student/vote/{{ course.id }}/">{{ course.name }}</a></li>
+            <li><a href="{% url student.views.vote course.id %}">{{ course.name }}</a></li>
         {% endfor %}
         </ul>
     {% else %}
