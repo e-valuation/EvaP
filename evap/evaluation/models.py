@@ -64,6 +64,11 @@ class Course(models.Model):
     voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True,
                                     related_name='+')
     
+    primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"),
+                                               blank=True, related_name='primary_courses')
+    secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"),
+                                                 blank=True, related_name='secondary_courses')
+    
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
