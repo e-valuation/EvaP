@@ -1,25 +1,38 @@
 from django.db import models
+from django.db.models.base import ModelBase
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import get_language
 from datetime import datetime
 
-class AutoLocalizeMixin(object):
-    """Mixin class that returns a value in the current language, e.g. if there
-    is a member `text_de` and the current language is `de`, then a class with
-    this mixin will return the `text_de` value when it is asked for the value
-    of `text`."""
+Translate = object()
+
+class LocalizeModelBase(ModelBase):
+    """This meta-class provides automatically translated content properties. Set
+    a model field to `Translate` and it will automatically return the property
+    with the name of the current language. E.g. if there is a normal member
+    `text_de`, a member `text = Translate` and the current language is `de`, then
+    an object will return the content of `text_de` when it is asked for the value
+    of `text`.
+    """
+    def __new__(metacls, classname, bases, classDict):
+        for key in classDict.keys():
+            if classDict[key] is Translate:
+                def make_property(k):
+                    return property(lambda self: getattr(self, "%s_%s" % (k, get_language())))
+                classDict[key] = make_property(key)
+        return super(LocalizeModelBase, metacls).__new__(metacls, classname, bases, classDict)
+
+
+class Semester(models.Model):
+    """"""
     
-    def __getattr__(self, name):
-        try:
-            return getattr(self, "%s_%s" % (name, get_language()))
-        except AttributeError:
-            return getattr(super(AutoLocalizeMixin, self), name)
-
-
-class Semester(models.Model, AutoLocalizeMixin):
+    __metaclass__ = LocalizeModelBase
+    
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    
+    name = Translate
     
     def __unicode__(self):
         return self.name
@@ -29,12 +42,16 @@ class Semester(models.Model, AutoLocalizeMixin):
         verbose_name_plural = _(u"semesters")
 
 
-class Course(models.Model, AutoLocalizeMixin):
+class Course(models.Model):
     """Models a single course, i.e. the Math 101 course of 2002."""
+    
+    __metaclass__ = LocalizeModelBase
 
     semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    
+    name = Translate
     
     # students that are allowed to vote
     participants = models.ManyToManyField(User, verbose_name=_(u"participants"),
@@ -70,11 +87,15 @@ class Course(models.Model, AutoLocalizeMixin):
         verbose_name_plural = _(u"courses")
 
 
-class QuestionGroup(models.Model, AutoLocalizeMixin):
+class QuestionGroup(models.Model):
     """A named collection of questions."""
+    
+    __metaclass__ = LocalizeModelBase
     
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    
+    name = Translate
     
     def __unicode__(self):
         return self.name
@@ -84,8 +105,10 @@ class QuestionGroup(models.Model, AutoLocalizeMixin):
         verbose_name_plural = _(u"question groups")
 
 
-class Question(models.Model, AutoLocalizeMixin):
+class Question(models.Model):
     """A question including a type."""
+    
+    __metaclass__ = LocalizeModelBase
     
     QUESTION_KINDS = (
         (u"T", _(u"Text Question")),
@@ -97,6 +120,8 @@ class Question(models.Model, AutoLocalizeMixin):
     text_en = models.TextField(verbose_name=_(u"question text (english)"))
     kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
                             verbose_name=_(u"kind of question"))
+    
+    text = Translate
     
     class Meta:
         verbose_name = _(u"question")
@@ -123,6 +148,7 @@ class Question(models.Model, AutoLocalizeMixin):
 
 class Questionnaire(models.Model):
     """A questionnaire connects a course and optionally a lecturer to a question group."""
+    
     course = models.ForeignKey(Course, verbose_name=_(u"course"))
     question_group = models.ForeignKey(QuestionGroup, verbose_name=_(u"question group"))
     
