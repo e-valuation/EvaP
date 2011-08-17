@@ -3,7 +3,6 @@
 {% load i18n %}
 
 {% block content %}
-    <p>
     {% if courses %}
         <table>
             <tr>
@@ -11,21 +10,29 @@
                 <th>{% trans "Participants" %}</th>
                 <th>{% trans "Voted (abs.)" %}</th>
                 <th>{% trans "Voted (%)" %}</th>
+                <th>{% trans "Actions" %}</th>
             </tr>
             
             {% for course in courses %}
                 <tr>
-                    <td><a href="{% url fsr.views.fsr_course_edit semester.id, course.id %}">{{ course.name }}</a></td>
+                    <td><a href="{% url fsr.views.fsr_course_view semester.id, course.id %}">{{ course.name }}</a></td>
                     <td>{{ course.participants.all|length}}</td>
                     <td>{{ course.voted.all|length}}</td>
                     <td>{{ course.voted_percentage }}</td>
+                    <td>
+                        <a href="{% url fsr.views.fsr_course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
+                        <a>{% trans "Censor" %}</a>
                 </tr>
             {% endfor %}
         </table>
     {% else %}
-        {% trans "There are no courses for this semster yet." %}
+        <p>{% trans "There are no courses for this semster yet." %}</p>
     {% endif %}
-    </p>
     
-    <p><a href="{% url fsr.views.fsr_semester_edit semester.id %}">{% trans "Edit this semester" %}</a>
+    
+    <p>{% trans "Tasks:" %}</p>
+    <ul>
+        <li><a href="{% url fsr.views.fsr_course_create semester.id %}">{% trans "Create course" %}</a></li>
+        <li><a href="{% url fsr.views.fsr_semester_edit semester.id %}">{% trans "Edit this semester" %}</a></li>
+    </ul>
 {% endblock %}

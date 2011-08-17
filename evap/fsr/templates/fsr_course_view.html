@@ -1,0 +1,12 @@
+{% extends "fsr_semester_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>TODO</p>
+    
+    <p>{% trans "Tasks:" %}</p>
+    <ul>
+        <li><a href="{% url fsr.views.fsr_course_edit semester.id, course.id %}">{% trans "Edit this course" %}</a></li>
+    </ul>
+{% endblock %}

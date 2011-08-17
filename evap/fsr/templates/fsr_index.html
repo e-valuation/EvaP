@@ -16,5 +16,8 @@
     {% endif %}
     </p>
     
-    <p><a href="{% url fsr.views.fsr_semester_create %}">{% trans "Create a new semester" %}</a>
+    <p>{% trans "Tasks:" %}</p>
+    <ul>
+        <li><a href="{% url fsr.views.fsr_semester_create %}">{% trans "Create a new semester" %}</a></li>
+    </ul>
 {% endblock %}
