@@ -19,6 +19,11 @@
                 <img src="{% get_static_prefix %}logo.png" id="header_logo">
             </div>
         </div>
+        <div id="menu">
+            <ul>
+                {% block menu %}{% endblock %}
+            </ul>
+        </div>
         <div id="content">
             {% if messages %}
             <ul class="messages">
