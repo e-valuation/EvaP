@@ -10,16 +10,16 @@ from evaluation.forms import QuestionsForms
 from evaluation.models import Course, GradeAnswer, TextAnswer
 
 @login_required
-def student_index(request):
+def index(request):
     courses = Course.for_user(request.user)
     return render_to_response(
-        "evaluation/student_index.html",
+        "student_index.html",
         dict(courses=courses),
         context_instance=RequestContext(request))
 
 
 @login_required
-def student_vote(request, course_id):
+def vote(request, course_id):
     # retrieve course and make sure that the user is allowed to vote
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
@@ -43,9 +43,9 @@ def student_vote(request, course_id):
             course.voters.add(request.user)
         
         messages.add_message(request, messages.INFO, _("Your vote was recorded."))
-        return redirect('evaluation.views.student_index')
+        return redirect('student.views.index')
     else:
         return render_to_response(
-            "evaluation/student_vote.html",
+            "student_vote.html",
             dict(form=form),
             context_instance=RequestContext(request))

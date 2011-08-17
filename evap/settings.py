@@ -147,6 +147,7 @@ INSTALLED_APPS = (
     'south',
     'evaluation',
     'fsr',
+    'student',
 )
 
 # A sample logging configuration. The only tangible logging
