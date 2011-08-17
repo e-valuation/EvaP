@@ -9,8 +9,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r"^$", 'views.index'),
     
-    url(r"^student/$", 'evaluation.views.student_index'),
-    url(r"^student/vote/(?P<course_id>\d+)/$", 'evaluation.views.student_vote'),
+    url(r"^student/$", 'student.views.index'),
+    url(r"^student/vote/(?P<course_id>\d+)/$", 'student.views.vote'),
     
     url(r"^fsr/", include('fsr.urls')),
     
