@@ -25,7 +25,7 @@ class LocalizeModelBase(ModelBase):
 
 
 class Semester(models.Model):
-    """"""
+    """Represents a semester, e.g. the winter term of 2011/2012."""
     
     __metaclass__ = LocalizeModelBase
     
@@ -47,7 +47,7 @@ class Semester(models.Model):
 
 
 class Course(models.Model):
-    """Models a single course, i.e. the Math 101 course of 2002."""
+    """Models a single course, e.g. the Math 101 course of 2002."""
     
     __metaclass__ = LocalizeModelBase
 
