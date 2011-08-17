@@ -7,6 +7,5 @@ urlpatterns = patterns('',
     url(r"^(\d+)/create$", 'fsr.views.fsr_course_create'),
     url(r"^(\d+)/edit$", 'fsr.views.fsr_semester_edit'),
     url(r"^(\d+)/import$", 'fsr.views.fsr_semester_import'),
-    url(r"^(\d+)/(\d+)$", 'fsr.views.fsr_course_view'),
     url(r"^(\d+)/(\d+)/edit$", 'fsr.views.fsr_course_edit'),
 )

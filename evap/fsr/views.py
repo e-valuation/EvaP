@@ -79,12 +79,6 @@ def fsr_semester_import(request, semester_id):
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @login_required
-def fsr_course_view(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-    return render_to_response("fsr_course_view.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
-
-@login_required
 def fsr_course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     form = CourseForm(request.POST or None)

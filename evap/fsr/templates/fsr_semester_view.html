@@ -15,7 +15,7 @@
             
             {% for course in courses %}
                 <tr>
-                    <td><a href="{% url fsr.views.fsr_course_view semester.id, course.id %}">{{ course.name }}</a></td>
+                    <td>{{ course.name }}</td>
                     <td>{{ course.participants.all|length}}</td>
                     <td>{{ course.voted.all|length}}</td>
                     <td>{{ course.voted_percentage }}</td>
