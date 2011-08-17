@@ -1,22 +1,20 @@
-{% extends "base.html" %}
+{% extends "fsr_base.html" %}
 
 {% load i18n %}
 
-{% block menu %}
-    <li><a href="{% url fsr.views.fsr_import %}">Import</a></li>
-{% endblock %}
-
 {% block content %}
     <p>
-    {% if courses %}
-        {% trans "Courses in the current semester: " %}
+    {% if semesters %}
+        {% trans "Select a semester: " %}
         <ul>
-        {% for course in courses %}
-            <li>{{ course.name }}</li>
+        {% for semester in semesters %}
+            <li><a href="{% url fsr.views.fsr_semester_view semester.id %}">{{ semester.name }}</a></li>
         {% endfor %}
         </ul>
     {% else %}
-        {% trans "There are no courses for the current semster yet." %}&nbsp; <a href=""
+        {% trans "There are no semesters yet." %}
     {% endif %}
     </p>
+    
+    <p><a href="{% url fsr.views.fsr_semester_create %}">{% trans "Create a new semester" %}</a>
 {% endblock %}

@@ -1,0 +1,15 @@
+{% extends "fsr_semester_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <input type="submit" value="{% trans "Update semester" %}"/>
+        </form>
+    </p>
+{% endblock %}

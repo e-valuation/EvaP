@@ -1,0 +1,5 @@
+<ul>
+{% for semester in semesters %}
+    <li><a href="{% url fsr.views.fsr_semester_view semester.id%}">{{ semester.name }}</a></li>
+{% endfor %}
+</ul>

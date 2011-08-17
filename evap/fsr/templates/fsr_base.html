@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load semesters %}
+
+{% block menu %}
+    <li><a href="{% url fsr.views.fsr_index %}">{% trans "Semesters" %}</a>
+        {% show_semesters %}
+    </li>
+{% endblock %}

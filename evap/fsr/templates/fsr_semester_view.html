@@ -1,0 +1,20 @@
+{% extends "fsr_semester_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>
+    {% if courses %}
+        {% trans "Courses in this semester: " %}
+        <ul>
+        {% for course in courses %}
+            <li>{{ course.name }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        {% trans "There are no courses for this semster yet." %}
+    {% endif %}
+    </p>
+    
+    <p><a href="{% url fsr.views.fsr_semester_edit semester.id %}">{% trans "Edit this semester" %}</a>
+{% endblock %}
