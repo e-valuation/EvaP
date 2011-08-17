@@ -9,9 +9,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r"^$", 'views.index'),
     
-    url(r"^student/$", 'student.views.index'),
-    url(r"^student/vote/(?P<course_id>\d+)/$", 'student.views.vote'),
-    
+    url(r"^student/", include('student.urls')),
     url(r"^fsr/", include('fsr.urls')),
     
     url(r"^i18n/", include('django.conf.urls.i18n')),
