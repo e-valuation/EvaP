@@ -4,7 +4,11 @@ from django.utils.translation import ugettext_lazy as _
 from evaluation.models import Semester, Course
 
 class ImportForm(forms.Form):
-    excel_file = forms.FileField()
+    vote_start_date = forms.DateField(label = _(u"first date to vote"))
+    vote_end_date = forms.DateField(label = _(u"last date to vote"))
+    publish_date = forms.DateField(label = _(u"publishing date"))
+    
+    excel_file = forms.FileField(label = _(u"excel file"))
     
 class SemesterForm(forms.ModelForm):
     class Meta:

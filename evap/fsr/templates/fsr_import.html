@@ -4,7 +4,7 @@
 
 {% block content %}
     <p>
-        {% trans "Upload semester data from excel file. This will create all containing students, teachers and courses and connect them." %}
+        {% trans "Upload semester data from excel file. This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses." %}
         <form enctype="multipart/form-data" method="POST">
         {% csrf_token %}
             <table>

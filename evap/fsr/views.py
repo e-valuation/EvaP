@@ -10,7 +10,7 @@ import xlrd
 
 from evaluation.models import Semester, Course
 from fsr.forms import ImportForm, SemesterForm, CourseForm
-from fsr.tools import find_course, find_student
+from fsr.tools import find_or_create_course, find_or_create_user
 
 @login_required
 def index(request):
@@ -54,7 +54,13 @@ def semester_import(request, semester_id):
     form = ImportForm(request.POST or None, request.FILES or None)
     
     if form.is_valid():
+        # extract data from form
         book = xlrd.open_workbook(file_contents=form.cleaned_data['excel_file'].read())
+        vote_start_date = form.cleaned_data['vote_start_date']
+        vote_end_date = form.cleaned_data['vote_end_date']
+        publish_date = form.cleaned_data['publish_date']
+        
+        # parse table
         with transaction.commit_on_success():
             for sheet in book.sheets():
                 try:
@@ -63,11 +69,16 @@ def semester_import(request, semester_id):
                         data = [sheet.cell(row,col).value for col in range(sheet.ncols)]
                         
                         # find or create student
-                        student = find_student(data)
+                        student = find_or_create_user(username=data[3], first_name=data[1], last_name=data[2])
+                        
+                        # find or create primary lecturer
+                        lecturer = find_or_create_user(username=data[9], first_name=data[7], last_name=data[8])
                         
                         # find or create course
-                        course = find_course(semester, data)
+                        course = find_or_create_course(semester, name_de=data[5], name_en=data[6], vote_start_date=vote_start_date, vote_end_date=vote_end_date, publish_date=publish_date)
+                        
                         course.participants.add(student)
+                        course.primary_lecturers.add(lecturer)
                     messages.add_message(request, messages.INFO, _("Successfully imported sheet '%s'.") % (sheet.name))
                 except Exception,e:
                     messages.add_message(request, messages.ERROR, _("Error while importing sheet Successfully imported sheet '%s'. All changes undone") % (sheet.name))
