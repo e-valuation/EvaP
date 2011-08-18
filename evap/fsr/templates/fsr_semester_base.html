@@ -2,8 +2,7 @@
 
 {% load i18n %}
 
-{% block menu %}
-    <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import" %}</a></li>
-    </br>
+{% block actions %}
+    <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import courses" %}</a></li>
     {{ block.super }}
 {% endblock %}

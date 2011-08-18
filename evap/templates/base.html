@@ -20,11 +20,13 @@
     </div>
     <div id="page-wrap">
         <div id="main-sidebar">
+            {% block menu %}{% endblock %}
+            
+            <p>{% trans "Modules" %}:</p>
             <ul>
                 <li><a href="{% url student.views.index %}">{% trans "evaluate courses" %}</a></li>
                 <li><a href="{% url fsr.views.index %}">{% trans "student representatives" %}</a></li>
             </ul>
-            {% block menu %}{% endblock %}
         </div>
         <div id="main-content">
             {% if messages %}

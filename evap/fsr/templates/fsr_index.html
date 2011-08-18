@@ -2,6 +2,11 @@
 
 {% load i18n %}
 
+{% block actions %}
+    <li><a href="{% url fsr.views.semester_create %}">{% trans "Create new semester" %}</a></li>
+    {{ block.super }}
+{% endblock %}
+
 {% block content %}
     <p>
     {% if semesters %}
@@ -15,9 +20,4 @@
         {% trans "There are no semesters yet." %}
     {% endif %}
     </p>
-    
-    <p>{% trans "Tasks:" %}</p>
-    <ul>
-        <li><a href="{% url fsr.views.semester_create %}">{% trans "Create a new semester" %}</a></li>
-    </ul>
 {% endblock %}

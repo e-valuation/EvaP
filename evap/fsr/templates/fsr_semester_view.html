@@ -2,6 +2,12 @@
 
 {% load i18n %}
 
+{% block actions %}
+    <li><a href="{% url fsr.views.course_create semester.id %}">{% trans "Create new course" %}</a></li>
+    <li><a href="{% url fsr.views.semester_edit semester.id %}">{% trans "Edit this semester" %}</a></li>    
+    {{ block.super }}
+{% endblock %}
+
 {% block content %}
     {% if courses %}
         <table>
@@ -28,11 +34,4 @@
     {% else %}
         <p>{% trans "There are no courses for this semster yet." %}</p>
     {% endif %}
-    
-    
-    <p>{% trans "Tasks:" %}</p>
-    <ul>
-        <li><a href="{% url fsr.views.course_create semester.id %}">{% trans "Create course" %}</a></li>
-        <li><a href="{% url fsr.views.semester_edit semester.id %}">{% trans "Edit this semester" %}</a></li>
-    </ul>
 {% endblock %}
