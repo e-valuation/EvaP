@@ -8,23 +8,25 @@
     <link href="{% get_static_prefix %}base.css" rel="stylesheet"/>
 </head>
 <body>
-    <div id="main">
-        <div id="header">
-            <div id="header_left">
-                <a href="/" class="noa">
-                    {% trans "evaluation platform" %}
-                </a>
-            </div>
-            <div id="header_right">
-                <img src="{% get_static_prefix %}logo.png" id="header_logo">
-            </div>
+    <div id="header">
+        <div id="header_left">
+            <a href="/" class="noa">
+                {% trans "evaluation platform" %}
+            </a>
         </div>
-        <div id="menu">
-            <ul>
-                {% block menu %}{% endblock %}
-            </ul>
+        <div id="header_right">
+            <img src="{% get_static_prefix %}logo.png" id="header_logo">
         </div>
-        <div id="content">
+    </div>
+    <!--<div id="topmenu">
+        <a href="{% url student.views.index %}">{% trans "evaluate courses" %}</a>
+        <a href="{% url fsr.views.fsr_index %}">{% trans "student representatives" %}</a>
+    </div>-->
+    <div id="page-wrap">
+        <div id="main-sidebar">
+            {% block menu %}{% endblock %}
+        </div>
+        <div id="main-content">
             {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
@@ -32,24 +34,24 @@
                 {% endfor %}
             </ul>
             {% endif %}
-
             {% block content %}{% endblock %}
         </div>
-        <div id="footer">
-            {% trans "EvaP evaluation platform" %}
-            &middot;
-            <form action="/i18n/setlang/" method="POST" class="textform">
-                {% csrf_token %}
-                <input type="hidden" name="language" value="de"/>
-                <input type="submit" value="Deutsch">
-            </form>
-            &middot;
-            <form action="/i18n/setlang/" method="POST" class="textform">
-                {% csrf_token %}
-                <input type="hidden" name="language" value="en"/>
-                <input type="submit" value="English">
-            </form>
-        </div>
+    </div>
+    
+    <div id="footer">
+        {% trans "EvaP evaluation platform" %}
+        &middot;
+        <form action="/i18n/setlang/" method="POST" class="textform">
+            {% csrf_token %}
+            <input type="hidden" name="language" value="de"/>
+            <input type="submit" value="Deutsch">
+        </form>
+        &middot;
+        <form action="/i18n/setlang/" method="POST" class="textform">
+            {% csrf_token %}
+            <input type="hidden" name="language" value="en"/>
+            <input type="submit" value="English">
+        </form>
     </div>
 </body>
 </html>

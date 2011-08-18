@@ -1,27 +1,46 @@
-body {
-	background: #dfe1e1;
-	font-family: Verdana;}
+p, ul {
+	margin: 0;}
 
-a {
+body {
+	background: #fff;
+	font-family: Tahoma;}
+
+body a {
 	text-decoration: none;}
 
-a,  a:focus,  a:link,  a:visited {
+body a,  body a:focus,  body a:link,  body a:visited {
 	color: #af0034;}
 
-a:active,  a:hover {
+body a:active,  body a:hover {
 	color: #c74c71;}
 
-#main {
-	background-color: #fff;
-	padding: 10px;
-	width: 800px;
-	margin-left: auto;
-	margin-right: auto;}
+body, div {
+	margin: 0;
+	padding: 0;}
+
+#page-wrap {
+	max-width: 960px;
+	min-width: 560px;
+	margin: 5px auto;
+	position: relative;}
 
 #header {
-	color: #af0034;
+	max-width: 960px;
+	min-width: 560px;
+	margin: 15px auto 0;
 	height: 100px;
-	position: relative;}
+	position: relative;
+	background: #fff;
+	border-bottom: 1px dotted #aeb3b4;}
+
+#header a {
+	text-decoration: none;}
+
+#header a,  #header a:focus,  #header a:link,  #header a:visited {
+	color: #5e676a;}
+
+#header a:active,  #header a:hover {
+	color: #8e9496;}
 
 #header #header_left {
 	position: absolute;
@@ -34,12 +53,28 @@ a:active,  a:hover {
 	bottom: 0;
 	right: 0;}
 
-#content {
-	border-top: 1px dotted #aeb3b4;
-	border-bottom: 1px dotted #aeb3b4;
-	clear: both;}
+#main-content {
+	background: #fff;
+	padding: 0 0 0 190px;
+	clear: both;
+	min-height: 300px;}
+
+#main-sidebar {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 160px;
+	bottom: 0;
+	background: #dfe1e1;
+	padding: 0 10px;}
 
 #footer {
+	max-width: 960px;
+	min-width: 560px;
+	margin: 0 auto 15px;}
+
+#footer {
+	border-top: 1px dotted #aeb3b4;
 	font-size: 80%;}
 
 ul.messages {

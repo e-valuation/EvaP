@@ -19,36 +19,53 @@ $hpiBlue70:     #4ca2bb;
 $hpiBlue50:     #7fbcce;
 $hpiBlue20:     #cce4ec;
 
-$link:          $hpiRed100;
-$linkActive:    $hpiRed70;
+@mixin link-colors($normal, $active) {
+     a {
+        text-decoration: none;
+        &, &:focus, &:link, &:visited {
+            color: $normal;
+        }
+        &:active, &:hover {
+            color: $active;
+        }
+    }
+}
+
+p, ul {
+    margin: 0;
+}
 
 body {
-    background: $hpiGray20;
-    font-family: Verdana;
+    background: white;
+    font-family: Tahoma;
+    
+    @include link-colors($hpiRed100, $hpiRed70);
 }
 
-a {
-    text-decoration: none;
-    &, &:focus, &:link, &:visited {
-        color: $link;
-    }
-    &:active, &:hover {
-        color: $linkActive;
-    }
+body, div {
+    margin: 0;
+    padding: 0;
 }
 
-#main {
-    background-color: white;
-    padding: 10px;
-    width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+#page-wrap {
+    max-width: 960px; 
+    min-width: 560px; 
+    margin: 5px auto;
+    position: relative;
 }
 
-#header {
-    color: $hpiRed100;
+#header { 
+    max-width: 960px; 
+    min-width: 560px; 
+    margin: 15px auto 0;
+    
     height: 100px;
     position: relative;
+    
+    background: white;
+    border-bottom: 1px dotted $hpiGray50;
+    
+    @include link-colors($hpiGray100, $hpiGray70);
     
     #header_left {
         position: absolute;
@@ -61,16 +78,34 @@ a {
         position: absolute;
         bottom: 0;
         right: 0;
-    }    
+    }
 }
 
-#content {
-    border-top: 1px dotted $hpiGray50;
-    border-bottom: 1px dotted $hpiGray50;
+#main-content {
+    background: white;
+    padding: 0 0 0 190px;
     clear: both;
+    min-height: 300px;
+}
+
+#main-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 160px;
+    bottom: 0;
+    background: $hpiGray20;
+    padding: 0 10px;
+}
+                      
+#footer {
+    max-width: 960px;
+    min-width: 560px;
+    margin: 0 auto 15px;
 }
 
 #footer {
+    border-top: 1px dotted $hpiGray50;
     font-size: 80%;
 }
 
