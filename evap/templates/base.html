@@ -5,7 +5,8 @@
 <html>
 <head>
     <title>{% block title %}EvaP{% endblock %}</title>
-    <link href="{% get_static_prefix %}base.css" rel="stylesheet"/>
+    <link href="{% get_static_prefix %}css/base.css" rel="stylesheet"/>
+    {% block header %}{% endblock %}
 </head>
 <body>
     <div id="header">
@@ -15,7 +16,7 @@
             </a>
         </div>
         <div id="header_right">
-            <img src="{% get_static_prefix %}logo.png" id="header_logo">
+            <img src="{% get_static_prefix %}images/logo.png" id="header_logo">
         </div>
     </div>
     <div id="page-wrap">
