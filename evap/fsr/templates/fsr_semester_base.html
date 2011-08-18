@@ -1,6 +1,12 @@
 {% extends "fsr_base.html" %}
 
 {% load i18n %}
+{% load static %}
+
+{% block header %}
+    <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/fsr.css" />
+    {{ block.super }}
+{% endblock %}
 
 {% block actions %}
     <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import courses" %}</a></li>

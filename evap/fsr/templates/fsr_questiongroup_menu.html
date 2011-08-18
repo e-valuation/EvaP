@@ -1,0 +1,5 @@
+<ul>
+{% for questiongroup in questiongroups %}
+    <li><a href="{% url fsr.views.questiongroup_view questiongroup.id%}">{{ questiongroup.name }}</a></li>
+{% endfor %}
+</ul>

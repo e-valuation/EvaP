@@ -2,14 +2,13 @@
 
 {% load i18n %}
 {% load static %}
-{% load semesters %}
+{% load listers %}
 
 {% block header %}
     <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/ui-lightness/jquery-ui.css" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js"></script>
     
-    <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/fsr.css" />
     <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/ui.multiselect.css" />
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/localisation/jquery.localisation-min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/scrollTo/jquery.scrollTo-min.js"></script>
@@ -21,7 +20,11 @@
     <ul>{% block actions %}{% endblock %}</ul>
     </br>
     
-    <p><a href="{% url fsr.views.index %}">{% trans "Semesters" %}</a></p>
+    <p><a href="{% url fsr.views.questiongroup_index %}">{% trans "Question Groups" %}</a></p>
+    {% show_questiongroups %}
+    </br>
+    
+    <p><a href="{% url fsr.views.semester_index %}">{% trans "Semesters" %}</a></p>
     {% show_semesters %}
     </br>
 {% endblock %}

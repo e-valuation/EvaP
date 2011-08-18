@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
+from django.forms.models import inlineformset_factory
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -8,14 +9,14 @@ from django.utils.translation import ugettext as _
 
 import xlrd
 
-from evaluation.models import Semester, Course
-from fsr.forms import ImportForm, SemesterForm, CourseForm
+from evaluation.models import Semester, Course, Question, QuestionGroup
+from fsr.forms import ImportForm, SemesterForm, CourseForm, QuestionGroupForm, QuestionGroupPreviewForm
 from fsr.tools import find_or_create_course, find_or_create_user
 
 @login_required
-def index(request):
+def semester_index(request):
     semesters = Semester.objects.all()
-    return render_to_response("fsr_index.html", dict(semesters=semesters), context_instance=RequestContext(request))
+    return render_to_response("fsr_semester_index.html", dict(semesters=semesters), context_instance=RequestContext(request))
 
 @login_required
 def semester_view(request, semester_id):
@@ -115,4 +116,45 @@ def course_edit(request, semester_id, course_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_edit.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+
+@login_required
+def questiongroup_index(request):
+    questiongroups = QuestionGroup.objects.all()
+    return render_to_response("fsr_questiongroup_index.html", dict(questiongroups=questiongroups), context_instance=RequestContext(request))
+
+@login_required
+def questiongroup_view(request, questiongroup_id):
+    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
+    form = QuestionGroupPreviewForm(None, questiongroup=questiongroup)
+    return render_to_response("fsr_questiongroup_view.html", dict(form=form, questiongroup=questiongroup), context_instance=RequestContext(request))
+
+@login_required
+def questiongroup_create(request):
+    form = QuestionGroupForm(request.POST or None)
+    
+    if form.is_valid():
+        qg = form.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully created question group."))
+        return redirect('fsr.views.questiongroup_view', qg.id)
+    else:
+        return render_to_response("fsr_questiongroup_create.html", dict(form=form), context_instance=RequestContext(request))
+
+@login_required
+def questiongroup_edit(request, questiongroup_id):
+    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
+    QuestionFormset = inlineformset_factory(QuestionGroup, Question, extra=1, can_order=True)
+    
+    form = QuestionGroupForm(request.POST or None, instance=questiongroup)
+    formset = QuestionFormset(request.POST or None, instance=questiongroup)
+    
+    if form.is_valid() and formset.is_valid():
+        form.save()
+        formset.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully updated question group."))
+        return redirect('fsr.views.questiongroup_view', questiongroup_id)
+    else:
+        return render_to_response("fsr_questiongroup_edit.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
+
     

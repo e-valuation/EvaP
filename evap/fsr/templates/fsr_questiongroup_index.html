@@ -1,0 +1,36 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block actions %}
+    <li><a href="{% url fsr.views.questiongroup_create %}">{% trans "Create new question group" %}</a></li>
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    <p>
+    {% if questiongroups %}
+        <table>
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "# of Questions" %}</th>
+                <th>{% trans "Usages (abs.)" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </tr>
+            
+            {% for questiongroup in questiongroups %}
+                <tr>
+                    <td>{{ questiongroup.name }}</td>
+                    <td>{{ questiongroup.question_set.all|length }}</td>
+                    <td>{{ questiongroup.questionnaire_set.all|length }}</td>
+                    <td>
+                        <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
+                        <a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview" %}</a>&nbsp;
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        {% trans "There are no question groups yet." %}
+    {% endif %}
+    </p>
+{% endblock %}

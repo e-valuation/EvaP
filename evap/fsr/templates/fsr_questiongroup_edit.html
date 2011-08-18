@@ -1,0 +1,24 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block actions %}
+    <li><a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview this question group" %}</a></li>
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <p>--------------------------------------------------------------</p>
+            <table>
+                {{ formset }}
+            </table>
+            <input type="submit" value="{% trans "Update question group" %}"/>
+        </form>
+    </p>
+{% endblock %}
