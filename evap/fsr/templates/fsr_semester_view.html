@@ -22,8 +22,8 @@
             {% for course in courses %}
                 <tr>
                     <td>{{ course.name }}</td>
-                    <td>{{ course.participants.all|length}}</td>
-                    <td>{{ course.voted.all|length}}</td>
+                    <td>{{ course.participants.all|length }}</td>
+                    <td>{{ course.voters.all|length }}</td>
                     <td>{{ course.voted_percentage }}</td>
                     <td>
                         <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;

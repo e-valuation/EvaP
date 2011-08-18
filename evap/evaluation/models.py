@@ -80,7 +80,7 @@ class Course(models.Model):
     def voted_percentage(self):
         if self.participants.count() == 0:
             return '-'
-        return (self.voters.count() / self.participants.count()) * 100.0
+        return ((self.voters.count()*1.0) / self.participants.count()) * 100.0
     
     @classmethod
     def for_user(cls, user):
