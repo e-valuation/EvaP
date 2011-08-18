@@ -8,7 +8,7 @@
         {% trans "Select a semester: " %}
         <ul>
         {% for semester in semesters %}
-            <li><a href="{% url fsr.views.fsr_semester_view semester.id %}">{{ semester.name }}</a></li>
+            <li><a href="{% url fsr.views.semester_view semester.id %}">{{ semester.name }}</a></li>
         {% endfor %}
         </ul>
     {% else %}
@@ -18,6 +18,6 @@
     
     <p>{% trans "Tasks:" %}</p>
     <ul>
-        <li><a href="{% url fsr.views.fsr_semester_create %}">{% trans "Create a new semester" %}</a></li>
+        <li><a href="{% url fsr.views.semester_create %}">{% trans "Create a new semester" %}</a></li>
     </ul>
 {% endblock %}

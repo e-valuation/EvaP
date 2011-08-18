@@ -18,12 +18,12 @@
             <img src="{% get_static_prefix %}logo.png" id="header_logo">
         </div>
     </div>
-    <!--<div id="topmenu">
-        <a href="{% url student.views.index %}">{% trans "evaluate courses" %}</a>
-        <a href="{% url fsr.views.fsr_index %}">{% trans "student representatives" %}</a>
-    </div>-->
     <div id="page-wrap">
         <div id="main-sidebar">
+            <ul>
+                <li><a href="{% url student.views.index %}">{% trans "evaluate courses" %}</a></li>
+                <li><a href="{% url fsr.views.index %}">{% trans "student representatives" %}</a></li>
+            </ul>
             {% block menu %}{% endblock %}
         </div>
         <div id="main-content">

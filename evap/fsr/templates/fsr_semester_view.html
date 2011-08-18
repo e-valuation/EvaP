@@ -20,7 +20,7 @@
                     <td>{{ course.voted.all|length}}</td>
                     <td>{{ course.voted_percentage }}</td>
                     <td>
-                        <a href="{% url fsr.views.fsr_course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
+                        <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
                         <a>{% trans "Censor" %}</a>
                 </tr>
             {% endfor %}
@@ -32,7 +32,7 @@
     
     <p>{% trans "Tasks:" %}</p>
     <ul>
-        <li><a href="{% url fsr.views.fsr_course_create semester.id %}">{% trans "Create course" %}</a></li>
-        <li><a href="{% url fsr.views.fsr_semester_edit semester.id %}">{% trans "Edit this semester" %}</a></li>
+        <li><a href="{% url fsr.views.course_create semester.id %}">{% trans "Create course" %}</a></li>
+        <li><a href="{% url fsr.views.semester_edit semester.id %}">{% trans "Edit this semester" %}</a></li>
     </ul>
 {% endblock %}

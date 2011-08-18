@@ -4,7 +4,7 @@
 {% load semesters %}
 
 {% block menu %}
-    <li><a href="{% url fsr.views.fsr_index %}">{% trans "Semesters" %}</a>
+    <li><a href="{% url fsr.views.index %}">{% trans "Semesters" %}</a>
         {% show_semesters %}
     </li>
 {% endblock %}
