@@ -27,9 +27,7 @@
             });
             
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-            $( "#id_participants" ).multiselect();
-            $( "#id_primary_lecturers" ).multiselect();
-            $( "#id_secondary_lecturers" ).multiselect();
+            $( ".multiselect-form select" ).multiselect();
         });
     </script>
 {% endblock %}
