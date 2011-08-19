@@ -2,6 +2,16 @@
 
 {% load i18n %}
 
+{% block header %}
+    {{ block.super }}
+    
+    <script type="text/javascript">
+        $(function() {
+            $('#question_table tbody tr').formset();
+        })
+    </script>
+{% endblock %}
+
 {% block actions %}
     <li><a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview this question group" %}</a></li>
     {{ block.super }}
@@ -11,13 +21,32 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <table>
-                {{ form.as_table }}
-            </table>
-            <p>--------------------------------------------------------------</p>
-            <table>
-                {{ formset }}
-            </table>
+            <fieldset>
+                <label>{% trans "General Options" %}:</label>
+                <table>{{ form.as_table }}</table>
+            </fieldset>
+            
+            <fieldset>
+                {{ formset.management_form }}
+                <label>{% trans "Questions" %}:</label>
+                <table id="question_table">
+                    <tr>
+                        {% for field in formset.form %}
+                            <th>{{ field.label }}</th>
+                        {% endfor %}
+                        <th>{% trans "Delete?" %}</th>
+                    </tr>
+                    <tbody>
+                        {% for form_element in formset %}
+                            <tr>
+                            {% for field in form_element %}
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </fieldset>
             <input type="submit" value="{% trans "Update question group" %}"/>
         </form>
     </p>

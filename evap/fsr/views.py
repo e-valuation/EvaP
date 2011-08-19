@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 import xlrd
 
 from evaluation.models import Semester, Course, Question, QuestionGroup
-from fsr.forms import ImportForm, SemesterForm, CourseForm, QuestionGroupForm, QuestionGroupPreviewForm
+from fsr.forms import ImportForm, SemesterForm, CourseForm, QuestionGroupForm, QuestionGroupPreviewForm, QuestionForm
 from fsr.tools import find_or_create_course, find_or_create_user
 
 @login_required
@@ -143,7 +143,7 @@ def questiongroup_create(request):
 @login_required
 def questiongroup_edit(request, questiongroup_id):
     questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
-    QuestionFormset = inlineformset_factory(QuestionGroup, Question, extra=1, can_order=True)
+    QuestionFormset = inlineformset_factory(QuestionGroup, Question, form=QuestionForm, extra=1, exclude=('question_group'))
     
     form = QuestionGroupForm(request.POST or None, instance=questiongroup)
     formset = QuestionFormset(request.POST or None, instance=questiongroup)

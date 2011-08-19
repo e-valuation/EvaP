@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from evaluation.models import Semester, Course, QuestionGroup
+from evaluation.models import Semester, Course, QuestionGroup, Question
 from student.forms import GRADE_CHOICES, coerce_grade
 
 class ImportForm(forms.Form):
@@ -23,6 +23,15 @@ class CourseForm(forms.ModelForm):
 class QuestionGroupForm(forms.ModelForm):
     class Meta:
         model = QuestionGroup
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+    
+    def __init__(self, *args, **kwargs):
+        super(QuestionForm, self).__init__(*args, **kwargs)
+        self.fields['text_de'].widget=forms.TextInput()
+        self.fields['text_en'].widget=forms.TextInput()
 
 class QuestionGroupPreviewForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass an iterable
