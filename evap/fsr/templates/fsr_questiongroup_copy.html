@@ -12,10 +12,13 @@
 {% block content %}
     <p>
         <form method="POST">
-        {% csrf_token %}
-        <table>
-        {{ form.as_table }}
-        </table>
+            {% csrf_token %}
+            <fieldset>
+                <label>{% trans "General Options" %}:</label>
+                <table>{{ form.as_table }}</table>
+            </fieldset>
+            
+            <input type="submit" value="{% trans "Create question group" %}"/>
         </form>
     </p>
 {% endblock %}

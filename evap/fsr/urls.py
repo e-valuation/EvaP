@@ -15,4 +15,6 @@ urlpatterns = patterns('fsr.views',
     url(r"^questiongroup/create$", 'questiongroup_create'),
     url(r"^questiongroup/(\d+)$", 'questiongroup_view'),
     url(r"^questiongroup/(\d+)/edit$", 'questiongroup_edit'),
+    url(r"^questiongroup/(\d+)/copy$", 'questiongroup_copy'),
+    url(r"^questiongroup/(\d+)/delete$", 'questiongroup_delete'),
 )

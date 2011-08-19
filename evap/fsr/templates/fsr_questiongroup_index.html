@@ -26,6 +26,8 @@
                     <td>
                         <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview" %}</a>&nbsp;
+                        <a href="{% url fsr.views.questiongroup_copy questiongroup.id %}">{% trans "Copy" %}</a>&nbsp;
+                        <a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete" %}</a>
                 </tr>
             {% endfor %}
         </table>

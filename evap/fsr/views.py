@@ -133,15 +133,19 @@ def questiongroup_view(request, questiongroup_id):
 
 @login_required
 def questiongroup_create(request):
+    QuestionFormset = inlineformset_factory(QuestionGroup, Question, form=QuestionForm, extra=1, exclude=('question_group'))
+
     form = QuestionGroupForm(request.POST or None)
+    formset = QuestionFormset(request.POST or None)
     
-    if form.is_valid():
+    if form.is_valid() and formset.is_valid():
         qg = form.save()
+        formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created question group."))
         return redirect('fsr.views.questiongroup_view', qg.id)
     else:
-        return render_to_response("fsr_questiongroup_create.html", dict(form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_questiongroup_create.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
 @login_required
 def questiongroup_edit(request, questiongroup_id):
@@ -160,4 +164,30 @@ def questiongroup_edit(request, questiongroup_id):
     else:
         return render_to_response("fsr_questiongroup_edit.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
 
+@login_required
+def questiongroup_copy(request, questiongroup_id):
+    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
+    form = QuestionGroupForm(request.POST or None)
+    
+    if form.is_valid():
+        qg = form.save()
+        for question in questiongroup.question_set.all():
+            question.pk = None
+            question.question_group = qg
+            question.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully copied question group."))
+        return redirect('fsr.views.questiongroup_view', qg.id)
+    else:
+        return render_to_response("fsr_questiongroup_copy.html", dict(form=form), context_instance=RequestContext(request))
+
+@login_required
+def questiongroup_delete(request, questiongroup_id):
+    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
+    
+    if request.method == 'POST':
+        questiongroup.delete()
+        return redirect('fsr.views.questiongroup_index')
+    else:
+        return render_to_response("fsr_questiongroup_delete.html", dict(questiongroup=questiongroup), context_instance=RequestContext(request))
     
