@@ -4,6 +4,7 @@ from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
+from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evaluation.models import Course, GradeAnswer, TextAnswer
@@ -26,12 +27,19 @@ def vote(request, course_id):
     if not course.can_user_vote(request.user):
         return HttpResponseForbidden()
     
-    # retrieve questionnaires and build form
-    form = QuestionsForms(request.POST or None, course=course)
+    # build forms
+    forms = SortedDict()
+    for question_group, lecturer in questiongroups_and_lecturers(course):
+        form = QuestionsForms(request.POST or None,
+                              question_group=question_group,
+                              lecturer=lecturer)
+        forms[(question_group, lecturer)] = form
     
-    if form.is_valid():
+    if all(form.is_valid() for form in forms.values()):
+        # begin vote operation
         with transaction.commit_on_success():
-            for question_group, lecturer in questiongroups_and_lecturers(course):
+            for k, form in forms.items():
+                question_group, lecturer = k
                 for question in question_group.question_set.all():
                     identifier = make_form_identifier(question_group,
                                                       question,
@@ -53,5 +61,5 @@ def vote(request, course_id):
     else:
         return render_to_response(
             "student_vote.html",
-            dict(form=form),
+            dict(forms=forms.values()),
             context_instance=RequestContext(request))

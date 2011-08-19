@@ -7,9 +7,14 @@
         <form method="POST">
         {% csrf_token %}
         <table>
-        {{ form.as_table }}
+        {% for form in forms %}
+            <tr>
+                <th colspan="2">{{ form.caption }}</th>
+            </tr>
+            {{ form.as_table }}
+        {% endfor %}
         </table>
-        <input type="submit"/>
+        <input type="submit" value="{% trans "vote" %}"/>
         </form>
     </p>
 {% endblock %}

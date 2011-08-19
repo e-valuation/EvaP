@@ -21,31 +21,42 @@ def coerce_grade(s):
     return int(s)
 
 class QuestionsForms(forms.Form):
-    """Dynamic form class that adds one field per question. Pass a course
-    as `course` argument to the initializer.
+    """Dynamic form class that adds one field per question. Pass the arguments
+    `question_group` and `lecturer` to the constructor.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
-        course = kwargs.pop('course')
+        self.question_group = kwargs.pop('question_group')
+        self.lecturer = kwargs.pop('lecturer')
+        
         super(QuestionsForms, self).__init__(*args, **kwargs)
         
-        for question_group, lecturer in questiongroups_and_lecturers(course):
-            for question in question_group.question_set.all():
-                # generic arguments for all kinds of fields
-                field_args = dict(label=question.text)
-                
-                if question.is_text_question():
-                    field = forms.CharField(widget=forms.Textarea(),
-                                            required=False,
-                                            **field_args)
-                elif question.is_grade_question():
-                    field = forms.TypedChoiceField(widget=forms.RadioSelect(),
-                                                   choices=GRADE_CHOICES,
-                                                   coerce=coerce_grade,
-                                                   **field_args)
-                
-                identifier = make_form_identifier(question_group,
-                                                  question,
-                                                  lecturer)
-                self.fields[identifier] = field
+        for question in self.question_group.question_set.all():
+            # generic arguments for all kinds of fields
+            field_args = dict(label=question.text)
+            
+            if question.is_text_question():
+                field = forms.CharField(widget=forms.Textarea(),
+                                        required=False,
+                                        **field_args)
+            elif question.is_grade_question():
+                field = forms.TypedChoiceField(widget=forms.RadioSelect(),
+                                               choices=GRADE_CHOICES,
+                                               coerce=coerce_grade,
+                                               **field_args)
+            
+            identifier = make_form_identifier(self.question_group,
+                                              question,
+                                              self.lecturer)
+            self.fields[identifier] = field
+
+    def caption(self):
+        if self.lecturer:
+            # FIXME needs better lecturer label
+            return u"%s: %s" % (
+                self.lecturer.username,
+                self.question_group.name
+            )
+        else:
+            return self.question_group.name
