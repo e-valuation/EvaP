@@ -87,7 +87,7 @@ class Course(models.Model):
     
     # different kinds of question_groups
     general_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("course question groups"), related_name="general_courses")
-    primary_lectuerer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("primary lecturer question groups"), related_name="primary_courses")
+    primary_lecturer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("primary lecturer question groups"), related_name="primary_courses")
     secondary_lecturer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("secondary lecturer question groups"), related_name="secondary_courses")
     
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
