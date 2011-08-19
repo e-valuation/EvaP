@@ -1,5 +1,5 @@
 /* multiselect styles */
-form select {
+.multiselect-form select {
     width: 460px;
     height: 200px;
 }
