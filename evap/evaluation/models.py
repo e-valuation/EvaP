@@ -57,6 +57,9 @@ class Course(models.Model):
     
     name = Translate
     
+    # type of course: lecture, seminar, project
+    kind = models.CharField(max_length=100, verbose_name=_(u"type"))
+    
     # students that are allowed to vote
     participants = models.ManyToManyField(User, verbose_name=_(u"participants"),
                                           blank=True)
