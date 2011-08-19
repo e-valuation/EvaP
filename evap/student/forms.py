@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from student.tools import make_form_identifier, questiongroups_and_lecturers
+
 GRADE_CHOICES = (
     (u"1", u"1"),
     (u"2", u"2"),
@@ -18,20 +20,18 @@ def coerce_grade(s):
         return None
     return int(s)
 
-
 class QuestionsForms(forms.Form):
-    """Dynamic form class that adds one field per question. Pass an iterable
-    of questionnaires as `questionnaires` argument to the initializer.
+    """Dynamic form class that adds one field per question. Pass a course
+    as `course` argument to the initializer.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
-        questionnaires = kwargs.pop('questionnaires')
+        course = kwargs.pop('course')
         super(QuestionsForms, self).__init__(*args, **kwargs)
         
-        # iterate over all questions in all questionnaires
-        for questionnaire in questionnaires:
-            for question in questionnaire.questions():
+        for question_group, lecturer in questiongroups_and_lecturers(course):
+            for question in question_group.question_set.all():
                 # generic arguments for all kinds of fields
                 field_args = dict(label=question.text)
                 
@@ -44,6 +44,8 @@ class QuestionsForms(forms.Form):
                                                    choices=GRADE_CHOICES,
                                                    coerce=coerce_grade,
                                                    **field_args)
-                # create a field for the question, using the ids of both the
-                # questionnaire and the question
-                self.fields['question_%d_%d' % (questionnaire.id, question.id)] = field
+                
+                identifier = make_form_identifier(question_group,
+                                                  question,
+                                                  lecturer)
+                self.fields[identifier] = field

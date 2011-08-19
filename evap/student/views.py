@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evaluation.models import Course, GradeAnswer, TextAnswer
 from student.forms import QuestionsForms
+from student.tools import make_form_identifier, questiongroups_and_lecturers
 
 @login_required
 def index(request):
@@ -26,18 +27,23 @@ def vote(request, course_id):
         return HttpResponseForbidden()
     
     # retrieve questionnaires and build form
-    questionnaires = course.questionnaire_set.all()
-    form = QuestionsForms(request.POST or None, questionnaires=questionnaires)
+    form = QuestionsForms(request.POST or None, course=course)
     
     if form.is_valid():
         with transaction.commit_on_success():
-            # iterate over all questions in all questionnaires
-            for questionnaire in questionnaires:
-                for question in questionnaire.questions():
-                    # stores the answer if one was given
-                    value = form.cleaned_data.get("question_%d_%d" % (questionnaire.id, question.id))
+            for question_group, lecturer in questiongroups_and_lecturers(course):
+                for question in question_group.question_set.all():
+                    identifier = make_form_identifier(question_group,
+                                                      question,
+                                                      lecturer)
+                    value = form.cleaned_data.get(identifier)
+                    # store the answer if one was given
                     if value:
-                        answer = question.answer_class()(questionnaire=questionnaire, question=question, answer=value)
+                        answer = question.answer_class()(
+                            course=course,
+                            question=question,
+                            lecturer=None,
+                            answer=value)
                         answer.save()
             # remember that the user voted already
             course.voters.add(request.user)
