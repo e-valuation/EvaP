@@ -10,6 +10,7 @@ syntax: re
 \.orig$
 (^|/)\..*/
 
+^evap/localsettings\.py$
 ^evap/staticfiles$
 ^evap/media$
 ^evap/database.sqlite3$
