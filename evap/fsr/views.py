@@ -62,7 +62,9 @@ def semester_import(request, semester_id):
         publish_date = form.cleaned_data['publish_date']
         
         # parse table
+        
         with transaction.commit_on_success():
+            count = 0
             for sheet in book.sheets():
                 try:
                     for row in range(1, sheet.nrows):
@@ -80,12 +82,13 @@ def semester_import(request, semester_id):
                         
                         course.participants.add(student)
                         course.primary_lecturers.add(lecturer)
+                        count = count + 1
                     messages.add_message(request, messages.INFO, _("Successfully imported sheet '%s'.") % (sheet.name))
                 except Exception,e:
-                    messages.add_message(request, messages.ERROR, _("Error while importing sheet Successfully imported sheet '%s'. All changes undone") % (sheet.name))
+                    messages.add_message(request, messages.ERROR, _("Error while importing sheet Successfully imported sheet '%s'. All changes undone. The error message has been: '%s'") % (sheet.name, e))
                     raise
+            messages.add_message(request, messages.INFO, _("Successfully imported %d courses.") % (count,))
         
-        messages.add_message(request, messages.INFO, _("Import successful."))
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))

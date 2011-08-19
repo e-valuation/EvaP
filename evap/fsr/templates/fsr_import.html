@@ -1,6 +1,33 @@
 {% extends "fsr_semester_base.html" %}
 
 {% load i18n %}
+{% load static %}
+
+{% block header %}
+    {{ block.super }}
+    
+    <script>
+	$(function() {
+            $( "#id_vote_start_date" ).datepicker({
+                showOn: "button",
+		buttonImage: "{% get_static_prefix %}images/calendar.gif",
+		buttonImageOnly: true
+            });
+            
+            $( "#id_vote_end_date" ).datepicker({
+                showOn: "button",
+		buttonImage: "{% get_static_prefix %}images/calendar.gif",
+		buttonImageOnly: true
+            });
+            
+            $( "#id_publish_date" ).datepicker({
+                showOn: "button",
+		buttonImage: "{% get_static_prefix %}images/calendar.gif",
+		buttonImageOnly: true
+            });
+        });
+    </script>
+{% endblock %}
 
 {% block content %}
     <p>
