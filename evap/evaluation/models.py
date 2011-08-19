@@ -45,6 +45,22 @@ class Semester(models.Model):
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")
 
+class QuestionGroup(models.Model):
+    """A named collection of questions."""
+    
+    __metaclass__ = LocalizeModelBase
+    
+    name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
+    
+    name = Translate
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = _(u"question group")
+        verbose_name_plural = _(u"question groups")
 
 class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
@@ -61,16 +77,18 @@ class Course(models.Model):
     kind = models.CharField(max_length=100, verbose_name=_(u"type"))
     
     # students that are allowed to vote
-    participants = models.ManyToManyField(User, verbose_name=_(u"participants"),
-                                          blank=True)
-    # students that already voted
-    voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True,
-                                    related_name='+')
+    participants = models.ManyToManyField(User, verbose_name=_(u"participants"), blank=True)
     
-    primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"),
-                                               blank=True, related_name='primary_courses')
-    secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"),
-                                                 blank=True, related_name='secondary_courses')
+    # students that already voted
+    voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True, related_name='+')
+    
+    primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"), blank=True, related_name='primary_courses')
+    secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"), blank=True, related_name='secondary_courses')
+    
+    # different kinds of question_groups
+    general_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("course question groups"), related_name="general_courses")
+    primary_lectuerer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("primary lecturer question groups"), related_name="primary_courses")
+    secondary_lecturer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("secondary lecturer question groups"), related_name="secondary_courses")
     
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
@@ -104,22 +122,7 @@ class Course(models.Model):
         verbose_name_plural = _(u"courses")
 
 
-class QuestionGroup(models.Model):
-    """A named collection of questions."""
-    
-    __metaclass__ = LocalizeModelBase
-    
-    name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
-    
-    name = Translate
-    
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = _(u"question group")
-        verbose_name_plural = _(u"question groups")
+
 
 
 class Question(models.Model):
@@ -162,33 +165,13 @@ class Question(models.Model):
         return self.answer_class() == GradeAnswer
 
 
-
-class Questionnaire(models.Model):
-    """A questionnaire connects a course and optionally a lecturer to a question group."""
-    
-    course = models.ForeignKey(Course, verbose_name=_(u"course"))
-    question_group = models.ForeignKey(QuestionGroup, verbose_name=_(u"question group"))
-    lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), related_name='+',
-                                 null=True, blank=True)
-    
-    def __unicode__(self):
-        return u"%s: %s" % (self.course.name, self.question_group.name)
-    
-    def questions(self):
-        """Shortcut method to retrieve all questions"""
-        return self.question_group.question_set.all()
-    
-    class Meta:
-        verbose_name = _(u"questionnaire")
-        verbose_name_plural = _(u"questionnaires")
-
-
 class Answer(models.Model):
     """An answer to a question. For anonymity purposes, the answering user
     ist not stored in the answer."""
     
     question = models.ForeignKey(Question)
-    questionnaire = models.ForeignKey(Questionnaire)
+    course = models.ForeignKey(Course, related_name="+")
+    lecturer = models.ForeignKey(User, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
     
     class Meta:
         verbose_name = _(u"answer")

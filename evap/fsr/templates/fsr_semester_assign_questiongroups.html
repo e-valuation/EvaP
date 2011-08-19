@@ -1,0 +1,26 @@
+{% extends "fsr_semester_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block header %}
+    {{ block.super }}
+    
+    <script>
+	$(function() {
+            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            $( ".multiselect-form select" ).multiselect();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <p>
+        {% trans "Select the question groups to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
+        <form method="POST" class="multiselect-form">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <input type="submit" value="{% trans "Assign question groups" %}"/>
+        </form>
+    </p>
+{% endblock %}

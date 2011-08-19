@@ -9,6 +9,7 @@ urlpatterns = patterns('fsr.views',
     url(r"^semester/(\d+)/create$", 'course_create'),
     url(r"^semester/(\d+)/edit$", 'semester_edit'),
     url(r"^semester/(\d+)/import$", 'semester_import'),
+    url(r"^semester/(\d+)/assign$", 'semester_assign_questiongroups'),
     url(r"^semester/(\d+)/(\d+)/edit$", 'course_edit'),
     
     url(r"^questiongroup$", 'questiongroup_index'),

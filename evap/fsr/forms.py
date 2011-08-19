@@ -45,7 +45,6 @@ class QuestionGroupPreviewForm(forms.Form):
         
         # iterate over all questions in the questiongroup
         for question in questiongroup.question_set.all():
-            print "asd"
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
             
@@ -57,3 +56,19 @@ class QuestionGroupPreviewForm(forms.Form):
             # create a field for the question, using the ids of both the
             # questionnaire and the question
             self.fields['question_%d' % (question.id)] = field
+
+class QuestionGroupsAssignForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        semester = kwargs.pop('semester')
+        extras = kwargs.pop('extras', ())
+        super(QuestionGroupsAssignForm, self).__init__(*args, **kwargs)
+        
+        # course kinds
+        for kind_ele in semester.course_set.values("kind").distinct():
+            kind = kind_ele['kind']
+            self.fields[kind] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.all())
+        
+        # extra kinds
+        for extra in extras:
+            self.fields[extra] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.all())

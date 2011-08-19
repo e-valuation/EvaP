@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 import xlrd
 
 from evaluation.models import Semester, Course, Question, QuestionGroup
-from fsr.forms import ImportForm, SemesterForm, CourseForm, QuestionGroupForm, QuestionGroupPreviewForm, QuestionForm
+from fsr.forms import *
 from fsr.tools import find_or_create_course, find_or_create_user
 
 @login_required
@@ -92,6 +92,32 @@ def semester_import(request, semester_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+
+@login_required
+def semester_assign_questiongroups(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    form = QuestionGroupsAssignForm(request.POST or None, semester=semester, extras=('primary_lecturers', 'secondary_lecturers'))
+    
+    if form.is_valid():
+        for course in semester.course_set.all():
+            # check course itself
+            if form.cleaned_data[course.kind]:
+                course.general_questions = form.cleaned_data[course.kind]
+            
+            # check primary lecturer
+            if form.cleaned_data['primary_lecturers']:
+                course.primary_lectuerer_questions = form.cleaned_data['primary_lecturers']
+            
+            # check secondary lecturer
+            if form.cleaned_data['secondary_lecturers']:
+                course.secondary_lecturer_questions = form.cleaned_data['secondary_lecturers']
+            
+            course.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully assigned question groups."))
+        return redirect('fsr.views.semester_view', semester_id)
+    else:
+        return render_to_response("fsr_semester_assign_questiongroups.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @login_required
 def course_create(request, semester_id):
