@@ -42,9 +42,12 @@ body a:active,  body a:hover {
 
 #header #header_left {
 	position: absolute;
-	bottom: 0;
-	font-size: 200%;
-	line-height: 150%;}
+	bottom: 10px;
+	font-size: 200%;}
+
+#header #header_left .subtitle {
+	color: #8e9496;
+	font-size: 60%;}
 
 #header #header_right {
 	position: absolute;
@@ -140,4 +143,31 @@ form.textform input[type=submit], form.textform input[type=button] {
 	font: inherit;
 	margin: 0;
 	padding: 0;}
+
+form.vote ul {
+	margin: 0;
+	padding: 0;}
+
+form.vote ul li {
+	background: #dfe1e1;
+	border-radius: 5px;
+	padding: 4px;
+	display: inline-block;
+	min-width: 3.5em;
+	text-align: center;}
+
+form.vote ul li:first-child {
+	background: #b3f4a3;}
+
+form.vote ul li:first-child+li {
+	background: #d8f4a3;}
+
+form.vote ul li:first-child+li+li {
+	background: #f4eca3;}
+
+form.vote ul li:first-child+li+li+li {
+	background: #f4c7a3;}
+
+form.vote ul li:first-child+li+li+li+li {
+	background: #f4a3a3;}
 

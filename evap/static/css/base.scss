@@ -1,5 +1,4 @@
 // HPI color definitions
-
 $hpiGray100:    #5e676a;
 $hpiGray70:     #8e9496;
 $hpiGray50:     #aeb3b4;
@@ -21,6 +20,12 @@ $hpiBlue70:     #4ca2bb;
 $hpiBlue50:     #7fbcce;
 $hpiBlue20:     #cce4ec;
 
+// Vote color definitions
+$vote1: hsl(0.300, 80%, 80%);
+$vote2: hsl(0.225, 80%, 80%);
+$vote3: hsl(0.150, 80%, 80%);
+$vote4: hsl(0.075, 80%, 80%);
+$vote5: hsl(0.000, 80%, 80%);
 
 @mixin link-colors($normal, $active) {
     // a mixin set sets all link colors
@@ -87,9 +92,13 @@ body {
     
     #header_left {
         position: absolute;
-        bottom: 0;
+        bottom: 10px;
         font-size: 200%;
-        line-height: 150%;
+        
+        .subtitle {
+            color: $hpiGray70;
+            font-size: 60%;
+        }
     }
     
     #header_right {
@@ -176,5 +185,26 @@ form.textform {
         font: inherit;
         margin: 0;
         padding: 0;
+    }
+}
+
+form.vote {
+    ul {
+        margin: 0;
+        padding: 0;
+        li {
+            background: $hpiGray20;
+            border-radius: 5px;
+            padding: 4px;
+            display: inline-block;
+            min-width: 3.5em;
+            text-align: center;
+        }
+        
+        li:first-child { background: $vote1; }
+        li:first-child+li { background: $vote2; }
+        li:first-child+li+li { background: $vote3; }
+        li:first-child+li+li+li { background: $vote4; }
+        li:first-child+li+li+li+li { background: $vote5; }
     }
 }

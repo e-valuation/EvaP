@@ -50,8 +50,9 @@ def vote(request, course_id):
                         answer = question.answer_class()(
                             course=course,
                             question=question,
-                            lecturer=None,
+                            lecturer=lecturer,
                             answer=value)
+                        print repr(answer.answer)
                         answer.save()
             # remember that the user voted already
             course.voters.add(request.user)
@@ -61,5 +62,6 @@ def vote(request, course_id):
     else:
         return render_to_response(
             "student_vote.html",
-            dict(forms=forms.values()),
+            dict(forms=forms.values(),
+                 course=course),
             context_instance=RequestContext(request))
