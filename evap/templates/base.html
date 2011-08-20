@@ -11,9 +11,12 @@
 <body>
     <div id="header">
         <div id="header_left">
-            <a href="/" class="noa">
+            <a href="/">
                 {% trans "evaluation platform" %}
             </a>
+            <div class="subtitle">
+                {% block subtitle %}&nbsp;{% endblock %}
+            </div>
         </div>
         <div id="header_right">
             <img src="{% get_static_prefix %}images/logo.png" id="header_logo">
@@ -22,12 +25,11 @@
     <div id="page-wrap">
         <div id="main-sidebar">
             <div id="main-sidebar-wrapper">
-                <p>{% trans "Modules" %}:</p>
+                <p>{% trans "Modules" %}</p>
                 <ul>
                     <li><a href="{% url student.views.index %}">{% trans "Evaluate Courses" %}</a></li>
                     <li><a href="{% url fsr_root %}">{% trans "Student Representatives" %}</a></li>
                 </ul>
-                <hr>
                 {% block menu %}{% endblock %}                
             </div>
         </div>
