@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <p>
         {% trans "Select the question groups to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
         <form method="POST" class="multiselect-form">

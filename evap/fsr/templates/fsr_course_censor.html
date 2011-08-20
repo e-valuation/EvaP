@@ -6,17 +6,18 @@
     {{ block.super }}
 
     <script>
-		function checkAll() {
-		    $(".multiselect-form INPUT[type='checkbox']").each(function() {
-				if(this['id'].substr(-7) == "checked") {
-					this['checked'] = true;
-				}
-			});
-		}
+        function checkAll() {
+            $(".multiselect-form INPUT[type='checkbox']").each(function() {
+                if(this['id'].substr(-7) == "checked") {
+                    this['checked'] = true;
+                }
+            });
+        }
     </script>
 {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <p>
         <form method="POST" class="multiselect-form">
             {% csrf_token %}

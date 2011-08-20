@@ -21,13 +21,15 @@
     </div>
     <div id="page-wrap">
         <div id="main-sidebar">
-            {% block menu %}{% endblock %}
-            
-            <p>{% trans "Modules" %}:</p>
-            <ul>
-                <li><a href="{% url student.views.index %}">{% trans "evaluate courses" %}</a></li>
-                <li><a href="{% url fsr_root %}">{% trans "student representatives" %}</a></li>
-            </ul>
+            <div id="main-sidebar-wrapper">
+                <p>{% trans "Modules" %}:</p>
+                <ul>
+                    <li><a href="{% url student.views.index %}">{% trans "Evaluate Courses" %}</a></li>
+                    <li><a href="{% url fsr_root %}">{% trans "Student Representatives" %}</a></li>
+                </ul>
+                <hr>
+                {% block menu %}{% endblock %}                
+            </div>
         </div>
         <div id="main-content">
             {% if messages %}
@@ -39,6 +41,7 @@
             {% endif %}
             {% block content %}{% endblock %}
         </div>
+        <br clear="both">
     </div>
     
     <div id="footer">

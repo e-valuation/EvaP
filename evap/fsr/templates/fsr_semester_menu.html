@@ -1,5 +1,8 @@
+{% load i18n %}
+
 <ul>
 {% for semester in semesters %}
-    <li><a href="{% url fsr.views.semester_view semester.id%}">{{ semester.name }}</a></li>
+    <li><a href="{% url fsr.views.semester_view semester.id %}">{{ semester.name }}</a></li>
 {% endfor %}
+    <li><a href="{% url fsr.views.semester_create %}">{% trans "New..." %}</a></li>
 </ul>

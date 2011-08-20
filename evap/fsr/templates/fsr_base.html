@@ -20,15 +20,15 @@
 {% endblock %}
 
 {% block menu %}
-    <p>{% trans "Actions" %}:</p>
-    <ul>{% block actions %}{% endblock %}</ul>
-    </br>
-    
+    {{ block.super }}
     <p><a href="{% url fsr.views.questiongroup_index %}">{% trans "Question Groups" %}</a></p>
     {% show_questiongroups %}
-    </br>
     
     <p><a href="{% url fsr.views.semester_index %}">{% trans "Semesters" %}</a></p>
     {% show_semesters %}
-    </br>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <ul id="actions">{% block actions %}{% endblock %}</ul>
 {% endblock %}

@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <p>
     {% if semesters %}
         {% trans "Select a semester: " %}

@@ -1,3 +1,5 @@
+// HPI color definitions
+
 $hpiGray100:    #5e676a;
 $hpiGray70:     #8e9496;
 $hpiGray50:     #aeb3b4;
@@ -19,7 +21,9 @@ $hpiBlue70:     #4ca2bb;
 $hpiBlue50:     #7fbcce;
 $hpiBlue20:     #cce4ec;
 
+
 @mixin link-colors($normal, $active) {
+    // a mixin set sets all link colors
      a {
         text-decoration: none;
         &, &:focus, &:link, &:visited {
@@ -31,6 +35,7 @@ $hpiBlue20:     #cce4ec;
     }
 }
 
+// reset some default margins
 p, ul {
     margin: 0;
 }
@@ -42,24 +47,15 @@ body {
     @include link-colors($hpiRed100, $hpiRed70);
 }
 
-body, div {
-    margin: 0;
-    padding: 0;
-}
-
 #page-wrap {
-    max-width: 960px; 
-    min-width: 560px; 
     margin: 5px auto;
-    position: relative;
+    width: 960px;     
 }
 
 #header { 
-    max-width: 960px; 
-    min-width: 560px; 
     margin: 15px auto 0;
-    
     height: 100px;
+    width: 960px; 
     position: relative;
     
     background: white;
@@ -82,25 +78,67 @@ body, div {
 }
 
 #main-content {
-    background: white;
-    padding: 0 0 0 190px;
-    clear: both;
-    min-height: 300px;
+    float: right;
+    width: 790px;
+    
+    ul#actions {
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+        border-bottom: 1px dotted $hpiGray50;
+        width: 790px;
+        li {
+            display: inline-block;
+            margin: 0;
+            padding: 2px 5px 2px 2px;
+            font-size: 80%;
+        }
+    }
 }
 
 #main-sidebar {
-    position: absolute;
-    left: 0;
-    top: 0;
+    float: left;
     width: 160px;
-    bottom: 0;
-    background: $hpiGray20;
-    padding: 0 10px;
+    
+    background: $hpiGray20 * 1.05;
+    
+    #main-sidebar-wrapper {
+        padding: 5px;
+        font-size: 80%;
+    }
+    
+    ul {
+        padding-left: 0;
+        margin-bottom: 1em;
+        li {
+            list-style: none;
+            margin-left: 1em;
+            &:before {
+                // use lighter-gray squares as list bullets
+                content:'\25AA';
+                display: block;
+                position: relative;
+                max-width: 0px;
+                max-height: 0px;
+                left: -0.7em;
+                top: 0px;
+                color: $hpiGray100;
+            }
+        }
+    }
+    
+    hr {
+        background: $hpiGray100;
+        color: $hpiGray100;
+        border: 0;
+        height: 1px;
+    }
 }
                       
 #footer {
-    max-width: 960px;
-    min-width: 560px;
+    width: 960px;
     margin: 0 auto 15px;
 }
 
