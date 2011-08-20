@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from evaluation.models import Semester, Course, QuestionGroup, Question
+from evaluation.models import *
 from student.forms import GRADE_CHOICES, coerce_grade
 
 class ImportForm(forms.Form):
@@ -23,6 +23,11 @@ class CourseForm(forms.ModelForm):
 class QuestionGroupForm(forms.ModelForm):
     class Meta:
         model = QuestionGroup
+        
+class CensorTextAnswerForm(forms.ModelForm):
+    class Meta:
+        model = TextAnswer
+        exclude = ("question", "course", "lecturer")
 
 class QuestionForm(forms.ModelForm):
     class Meta:

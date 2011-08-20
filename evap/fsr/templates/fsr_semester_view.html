@@ -21,7 +21,9 @@
                     <td>{{ course.voted_percentage }}</td>
                     <td>
                         <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
-                        <a>{% trans "Censor" %}</a>
+                        {% if not course.fully_checked %}
+                            <a href="{% url fsr.views.course_censor semester.id, course.id %}">{% trans "Censor" %}</a>
+                        {% endif %}
                 </tr>
             {% endfor %}
         </table>

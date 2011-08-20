@@ -103,6 +103,15 @@ class Course(models.Model):
             return '-'
         return ((self.voters.count()*1.0) / self.participants.count()) * 100.0
     
+    @property
+    def textanswer_set(self):
+        """Pseudo relationship to all text answers for this course"""
+        return TextAnswer.objects.filter(course=self)
+    
+    def fully_checked(self):
+        """Shortcut for finding out whether all textanswers to this course have been checked"""
+        return self.textanswer_set.filter(checked=False).count() == 0
+    
     @classmethod
     def for_user(cls, user):
         """Returns a list of courses that a specific user can vote on right now"""
@@ -185,5 +194,21 @@ class GradeAnswer(Answer):
 
 
 class TextAnswer(Answer):
-    answer = models.TextField(verbose_name = _(u"answer"))
+    def __init__(self, *args, **kwargs):
+        value = kwargs.pop('answer', '')
+        super(TextAnswer, self).__init__(*args, **kwargs)
+        
+        self.original_answer = value
+    
+    censored_answer = models.TextField(verbose_name = _(u"censored answer"), blank=True, null=True)
+    original_answer = models.TextField(verbose_name = _("original answer"), blank=True)
+    
+    checked = models.BooleanField(verbose_name = _("answer checked"))
+    hidden = models.BooleanField(verbose_name = _("hide answer"))
+    
+    @property
+    def answer(self):
+        return self.censored_answer or self.original_answer
+    
+    
 

@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
-from django.forms.models import inlineformset_factory
+from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -145,6 +145,24 @@ def course_edit(request, semester_id, course_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_edit.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        
+@login_required
+def course_censor(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    censorFS = modelformset_factory(TextAnswer, form=CensorTextAnswerForm, can_order=False, can_delete=False, extra=0)
+    
+    formset = censorFS(request.POST or None, queryset=course.textanswer_set)
+    
+    if formset.is_valid():
+        formset.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully censored course answers."))
+        return redirect('fsr.views.semester_view', semester_id)
+    else:
+        if request.method == "POST":
+            print formset.errors
+        return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
 
 @login_required
 def questiongroup_index(request):

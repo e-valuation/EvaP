@@ -11,6 +11,7 @@ urlpatterns = patterns('fsr.views',
     url(r"^semester/(\d+)/import$", 'semester_import'),
     url(r"^semester/(\d+)/assign$", 'semester_assign_questiongroups'),
     url(r"^semester/(\d+)/(\d+)/edit$", 'course_edit'),
+    url(r"^semester/(\d+)/(\d+)/censor$", 'course_censor'),
     
     url(r"^questiongroup$", 'questiongroup_index'),
     url(r"^questiongroup/create$", 'questiongroup_create'),

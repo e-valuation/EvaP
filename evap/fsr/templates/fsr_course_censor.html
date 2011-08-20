@@ -1,0 +1,44 @@
+{% extends "fsr_semester_base.html" %}
+
+{% load i18n %}
+
+{% block header %}
+    {{ block.super }}
+
+    <script>
+		function checkAll() {
+		    $(".multiselect-form INPUT[type='checkbox']").each(function() {
+				if(this['id'].substr(-7) == "checked") {
+					this['checked'] = true;
+				}
+			});
+		}
+    </script>
+{% endblock %}
+
+{% block content %}
+    <p>
+        <form method="POST" class="multiselect-form">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            <table id="question_table">
+                <tr>
+                    {% for field in formset.form %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                </tr>
+                <tbody>
+                    {% for form_element in formset %}
+                        <tr>
+                        {% for field in form_element %}
+                            <td>{{ field }}</td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="submit" value="{% trans "Censor" %}"/>
+            <input type="button" value="{% trans "Check All" %}" onClick="checkAll();">
+        </form>
+    </p>
+{% endblock %}
