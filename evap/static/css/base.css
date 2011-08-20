@@ -107,7 +107,23 @@ body a:active,  body a:hover {
 	font-size: 80%;}
 
 ul.messages {
-	background: #cce4ec;}
+	margin: 0 0 10px 0;
+	padding: 0;}
+
+ul.messages li {
+	list-style: none;
+	margin-left: 1em;
+	color: #007a9e;}
+
+ul.messages li:before {
+	content: '\25AA';
+	display: block;
+	position: relative;
+	max-width: 0;
+	max-height: 0;
+	left: -0.7em;
+	top: 0;
+	color: #5e676a;}
 
 form.textform {
 	display: inline;}

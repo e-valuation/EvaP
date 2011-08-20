@@ -35,6 +35,22 @@ $hpiBlue20:     #cce4ec;
     }
 }
 
+@mixin enhanced-bullets {
+    // use lighter-gray squares as list bullets
+    list-style: none;
+    margin-left: 1em;
+    &:before {
+        content:'\25AA';
+        display: block;
+        position: relative;
+        max-width: 0px;
+        max-height: 0px;
+        left: -0.7em;
+        top: 0px;
+        color: $hpiGray100;
+    }
+}
+
 // reset some default margins
 p, ul {
     margin: 0;
@@ -113,19 +129,7 @@ body {
         padding-left: 0;
         margin-bottom: 1em;
         li {
-            list-style: none;
-            margin-left: 1em;
-            &:before {
-                // use lighter-gray squares as list bullets
-                content:'\25AA';
-                display: block;
-                position: relative;
-                max-width: 0px;
-                max-height: 0px;
-                left: -0.7em;
-                top: 0px;
-                color: $hpiGray100;
-            }
+            @include enhanced-bullets;
         }
     }
     
@@ -148,7 +152,12 @@ body {
 }
 
 ul.messages {
-    background: $hpiBlue20;
+    margin: 0 0 10px 0;
+    padding: 0;
+    li {
+        @include enhanced-bullets;
+        color: $hpiBlue100;
+    }
 }
 
 form.textform {
