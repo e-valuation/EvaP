@@ -83,11 +83,11 @@ def semester_import(request, semester_id):
                         course.participants.add(student)
                         course.primary_lecturers.add(lecturer)
                         count = count + 1
-                    messages.add_message(request, messages.INFO, _("Successfully imported sheet '%s'.") % (sheet.name))
+                    messages.add_message(request, messages.INFO, _("Successfully imported sheet '%s'.") % sheet.name)
                 except Exception,e:
-                    messages.add_message(request, messages.ERROR, _("Error while importing sheet Successfully imported sheet '%s'. All changes undone. The error message has been: '%s'") % (sheet.name, e))
+                    messages.add_message(request, messages.ERROR, _("Error while importing sheet '%(name)s'. All changes undone. The error message has been: '%(error)s'") % dict(name=sheet.name, error=e))
                     raise
-            messages.add_message(request, messages.INFO, _("Successfully imported %d courses.") % (count,))
+            messages.add_message(request, messages.INFO, _("Successfully imported %d courses.") % count)
         
         return redirect('fsr.views.semester_view', semester_id)
     else:
