@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% block content %}
+    {{ block.super }}
     <p>
     {% if courses %}
         {% trans "You can vote on the following courses:" %}

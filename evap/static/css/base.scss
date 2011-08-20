@@ -56,22 +56,28 @@ p, ul {
     margin: 0;
 }
 
+fieldset {
+    border: none;
+    padding: 5px 0;
+}
+
 body {
     background: white;
     font-family: Tahoma;
+    margin: 0;
     
     @include link-colors($hpiRed100, $hpiRed70);
 }
 
 #page-wrap {
     margin: 5px auto;
-    width: 960px;     
+    width: 940px;     
 }
 
 #header { 
     margin: 15px auto 0;
     height: 100px;
-    width: 960px; 
+    width: 940px; 
     position: relative;
     
     background: white;
@@ -95,7 +101,7 @@ body {
 
 #main-content {
     float: right;
-    width: 790px;
+    width: 780px;
     
     ul#actions {
         display: block;
@@ -104,7 +110,7 @@ body {
         padding-bottom: 5px;
         margin-bottom: 5px;
         border-bottom: 1px dotted $hpiGray50;
-        width: 790px;
+        width: 100%;
         li {
             display: inline-block;
             margin: 0;
@@ -116,7 +122,7 @@ body {
 
 #main-sidebar {
     float: left;
-    width: 160px;
+    width: 150px;
     
     background: $hpiGray20 * 1.05;
     
@@ -142,7 +148,7 @@ body {
 }
                       
 #footer {
-    width: 960px;
+    width: 940px;
     margin: 0 auto 15px;
 }
 

@@ -1,9 +1,14 @@
 p, ul {
 	margin: 0;}
 
+fieldset {
+	border: none;
+	padding: 5px 0;}
+
 body {
 	background: #fff;
-	font-family: Tahoma;}
+	font-family: Tahoma;
+	margin: 0;}
 
 body a {
 	text-decoration: none;}
@@ -16,12 +21,12 @@ body a:active,  body a:hover {
 
 #page-wrap {
 	margin: 5px auto;
-	width: 960px;}
+	width: 940px;}
 
 #header {
 	margin: 15px auto 0;
 	height: 100px;
-	width: 960px;
+	width: 940px;
 	position: relative;
 	background: #fff;
 	border-bottom: 1px dotted #aeb3b4;}
@@ -48,7 +53,7 @@ body a:active,  body a:hover {
 
 #main-content {
 	float: right;
-	width: 790px;}
+	width: 780px;}
 
 #main-content ul#actions {
 	display: block;
@@ -57,7 +62,7 @@ body a:active,  body a:hover {
 	padding-bottom: 5px;
 	margin-bottom: 5px;
 	border-bottom: 1px dotted #aeb3b4;
-	width: 790px;}
+	width: 100%;}
 
 #main-content ul#actions li {
 	display: inline-block;
@@ -67,7 +72,7 @@ body a:active,  body a:hover {
 
 #main-sidebar {
 	float: left;
-	width: 160px;
+	width: 150px;
 	background: #eaecec;}
 
 #main-sidebar #main-sidebar-wrapper {
@@ -99,7 +104,7 @@ body a:active,  body a:hover {
 	height: 1px;}
 
 #footer {
-	width: 960px;
+	width: 940px;
 	margin: 0 auto 15px;}
 
 #footer {

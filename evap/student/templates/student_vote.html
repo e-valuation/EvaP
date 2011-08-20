@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% block content %}
+    {{ block.super }}
     <p>
         <form method="POST">
         {% csrf_token %}
