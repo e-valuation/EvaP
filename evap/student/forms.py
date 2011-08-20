@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from student.tools import make_form_identifier, questiongroups_and_lecturers
+
 GRADE_CHOICES = (
     (u"1", u"1"),
     (u"2", u"2"),
@@ -18,32 +20,43 @@ def coerce_grade(s):
         return None
     return int(s)
 
-
 class QuestionsForms(forms.Form):
-    """Dynamic form class that adds one field per question. Pass an iterable
-    of questionnaires as `questionnaires` argument to the initializer.
+    """Dynamic form class that adds one field per question. Pass the arguments
+    `question_group` and `lecturer` to the constructor.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
-        questionnaires = kwargs.pop('questionnaires')
+        self.question_group = kwargs.pop('question_group')
+        self.lecturer = kwargs.pop('lecturer')
+        
         super(QuestionsForms, self).__init__(*args, **kwargs)
         
-        # iterate over all questions in all questionnaires
-        for questionnaire in questionnaires:
-            for question in questionnaire.questions():
-                # generic arguments for all kinds of fields
-                field_args = dict(label=question.text)
-                
-                if question.is_text_question():
-                    field = forms.CharField(widget=forms.Textarea(),
-                                            required=False,
-                                            **field_args)
-                elif question.is_grade_question():
-                    field = forms.TypedChoiceField(widget=forms.RadioSelect(),
-                                                   choices=GRADE_CHOICES,
-                                                   coerce=coerce_grade,
-                                                   **field_args)
-                # create a field for the question, using the ids of both the
-                # questionnaire and the question
-                self.fields['question_%d_%d' % (questionnaire.id, question.id)] = field
+        for question in self.question_group.question_set.all():
+            # generic arguments for all kinds of fields
+            field_args = dict(label=question.text)
+            
+            if question.is_text_question():
+                field = forms.CharField(widget=forms.Textarea(),
+                                        required=False,
+                                        **field_args)
+            elif question.is_grade_question():
+                field = forms.TypedChoiceField(widget=forms.RadioSelect(),
+                                               choices=GRADE_CHOICES,
+                                               coerce=coerce_grade,
+                                               **field_args)
+            
+            identifier = make_form_identifier(self.question_group,
+                                              question,
+                                              self.lecturer)
+            self.fields[identifier] = field
+
+    def caption(self):
+        if self.lecturer:
+            # FIXME needs better lecturer label
+            return u"%s: %s" % (
+                self.lecturer.username,
+                self.question_group.name
+            )
+        else:
+            return self.question_group.name

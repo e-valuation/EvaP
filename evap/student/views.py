@@ -4,10 +4,12 @@ from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
+from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evaluation.models import Course, GradeAnswer, TextAnswer
 from student.forms import QuestionsForms
+from student.tools import make_form_identifier, questiongroups_and_lecturers
 
 @login_required
 def index(request):
@@ -25,19 +27,31 @@ def vote(request, course_id):
     if not course.can_user_vote(request.user):
         return HttpResponseForbidden()
     
-    # retrieve questionnaires and build form
-    questionnaires = course.questionnaire_set.all()
-    form = QuestionsForms(request.POST or None, questionnaires=questionnaires)
+    # build forms
+    forms = SortedDict()
+    for question_group, lecturer in questiongroups_and_lecturers(course):
+        form = QuestionsForms(request.POST or None,
+                              question_group=question_group,
+                              lecturer=lecturer)
+        forms[(question_group, lecturer)] = form
     
-    if form.is_valid():
+    if all(form.is_valid() for form in forms.values()):
+        # begin vote operation
         with transaction.commit_on_success():
-            # iterate over all questions in all questionnaires
-            for questionnaire in questionnaires:
-                for question in questionnaire.questions():
-                    # stores the answer if one was given
-                    value = form.cleaned_data.get("question_%d_%d" % (questionnaire.id, question.id))
+            for k, form in forms.items():
+                question_group, lecturer = k
+                for question in question_group.question_set.all():
+                    identifier = make_form_identifier(question_group,
+                                                      question,
+                                                      lecturer)
+                    value = form.cleaned_data.get(identifier)
+                    # store the answer if one was given
                     if value:
-                        answer = question.answer_class()(questionnaire=questionnaire, question=question, answer=value)
+                        answer = question.answer_class()(
+                            course=course,
+                            question=question,
+                            lecturer=None,
+                            answer=value)
                         answer.save()
             # remember that the user voted already
             course.voters.add(request.user)
@@ -47,5 +61,5 @@ def vote(request, course_id):
     else:
         return render_to_response(
             "student_vote.html",
-            dict(form=form),
+            dict(forms=forms.values()),
             context_instance=RequestContext(request))
