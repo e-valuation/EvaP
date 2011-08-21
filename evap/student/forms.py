@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from student.tools import make_form_identifier, questiongroups_and_lecturers
+from student.tools import make_form_identifier
+from evaluation.tools import questiongroups_and_lecturers
 
 GRADE_CHOICES = (
     (u"1", u"1"),

@@ -8,8 +8,10 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evaluation.models import Course, GradeAnswer, TextAnswer
+from evaluation.tools import questiongroups_and_lecturers
 from student.forms import QuestionsForms
-from student.tools import make_form_identifier, questiongroups_and_lecturers
+from student.tools import make_form_identifier
+
 
 @login_required
 def index(request):
