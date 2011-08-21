@@ -184,6 +184,7 @@ def questiongroup_create(request):
     
     if form.is_valid() and formset.is_valid():
         qg = form.save()
+        formset = QuestionFormset(request.POST or None, instance=qg)
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created question group."))
