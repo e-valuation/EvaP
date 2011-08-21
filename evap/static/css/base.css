@@ -5,6 +5,28 @@ fieldset {
 	border: none;
 	padding: 5px 0;}
 
+h1, h2, h3, h4, h5, h6 {
+	font: inherit;
+	margin: 0;}
+
+h1 {
+	font-size: 180%;}
+
+h2 {
+	font-size: 140%;}
+
+h3 {
+	font-size: 130%;}
+
+h4 {
+	font-size: 120%;}
+
+h5 {
+	font-size: 115%;}
+
+h6 {
+	font-size: 110%;}
+
 body {
 	background: #fff;
 	font-family: Tahoma;
@@ -42,12 +64,13 @@ body a:active,  body a:hover {
 
 #header #header_left {
 	position: absolute;
-	bottom: 10px;
-	font-size: 200%;}
+	bottom: 10px;}
 
-#header #header_left .subtitle {
-	color: #8e9496;
-	font-size: 60%;}
+#header #header_left h1 {
+	color: #5e676a;}
+
+#header #header_left h2 {
+	color: #8e9496;}
 
 #header #header_right {
 	position: absolute;
