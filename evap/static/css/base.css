@@ -163,7 +163,8 @@ form.textform input[type=submit], form.textform input[type=button] {
 	display: inline;
 	font: inherit;
 	margin: 0;
-	padding: 0;}
+	padding: 0;
+	cursor: pointer;}
 
 form.vote ul {
 	margin: 0;
