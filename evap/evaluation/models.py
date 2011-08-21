@@ -45,8 +45,8 @@ class QuestionGroup(models.Model):
         
         ordering = ('name_de',)
     
-        def __unicode__(self):
-            return self.name
+    def __unicode__(self):
+        return self.name
 
 
 class Course(models.Model):
