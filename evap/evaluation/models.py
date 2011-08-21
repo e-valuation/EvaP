@@ -16,8 +16,10 @@ class LocalizeModelBase(ModelBase):
     of `text`.
     """
     def __new__(metacls, classname, bases, classDict):
+        # find all classDict entries that point to `Translate`
         for key in classDict.keys():
             if classDict[key] is Translate:
+                # replace them with a getter that uses the current language
                 def make_property(k):
                     return property(lambda self: getattr(self, "%s_%s" % (k, get_language())))
                 classDict[key] = make_property(key)
@@ -34,16 +36,18 @@ class Semester(models.Model):
     
     name = Translate
     
+    visible = models.BooleanField(verbose_name=_(u"visible"), default=False)
+    created_at = models.DateField(verbose_name=_(u"created at"), auto_now_add=True)
+    
     def __unicode__(self):
         return self.name
-    
-    @classmethod
-    def current(cls):
-        return cls.objects.all().reverse()[0]
     
     class Meta:
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")
+        
+        ordering = ('created_at',)
+
 
 class QuestionGroup(models.Model):
     """A named collection of questions."""
@@ -96,8 +100,14 @@ class Course(models.Model):
     
     publish_date = models.DateField(null=True, verbose_name=_(u"publishing date"))
     
+    class Meta:
+        verbose_name = _(u"course")
+        verbose_name_plural = _(u"courses")
+        
+        ordering = ('semester', 'name_de')
+    
     def can_user_vote(self, user):
-        return user in self.participants.all() and not user in self.voters.all()
+        return user in self.participants.all() and user not in self.voters.all()
         
     def voted_percentage(self):
         if self.participants.count() == 0:
@@ -123,15 +133,9 @@ class Course(models.Model):
         ).exclude(
             voters=user
         )
-        
+    
     def __unicode__(self):
         return self.name
-    
-    class Meta:
-        verbose_name = _(u"course")
-        verbose_name_plural = _(u"courses")
-        
-        ordering = ('semester', 'name_de')
 
 
 class Question(models.Model):
@@ -157,7 +161,6 @@ class Question(models.Model):
         verbose_name_plural = _(u"questions")
         
         order_with_respect_to = 'question_group'
-    
     
     def answer_class(self):
         if self.kind == u"T":
