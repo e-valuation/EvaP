@@ -62,6 +62,7 @@ class QuestionGroup(models.Model):
         verbose_name = _(u"question group")
         verbose_name_plural = _(u"question groups")
 
+
 class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
     
@@ -129,9 +130,8 @@ class Course(models.Model):
     class Meta:
         verbose_name = _(u"course")
         verbose_name_plural = _(u"courses")
-
-
-
+        
+        ordering = ('semester', 'name_de')
 
 
 class Question(models.Model):
@@ -175,8 +175,9 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    """An answer to a question. For anonymity purposes, the answering user
-    ist not stored in the answer."""
+    """An abstract answer to a question. For anonymity purposes, the answering
+    user ist not stored in the object. Concrete subclasses are `GradeAnswer` and
+    `TextAnswer`."""
     
     question = models.ForeignKey(Question)
     course = models.ForeignKey(Course, related_name="+")
@@ -191,24 +192,28 @@ class Answer(models.Model):
 
 class GradeAnswer(Answer):
     answer = models.IntegerField(verbose_name = _(u"answer"))
+    
+    class Meta:
+        verbose_name = _(u"grade answer")
+        verbose_name_plural = _(u"grade answers")
 
 
 class TextAnswer(Answer):
-    def __init__(self, *args, **kwargs):
-        value = kwargs.pop('answer', '')
-        super(TextAnswer, self).__init__(*args, **kwargs)
-        
-        self.original_answer = value
-    
     censored_answer = models.TextField(verbose_name = _(u"censored answer"), blank=True, null=True)
-    original_answer = models.TextField(verbose_name = _("original answer"), blank=True)
+    original_answer = models.TextField(verbose_name = _(u"original answer"), blank=True)
     
-    checked = models.BooleanField(verbose_name = _("answer checked"))
-    hidden = models.BooleanField(verbose_name = _("hide answer"))
+    checked = models.BooleanField(verbose_name = _(u"answer checked"))
+    hidden = models.BooleanField(verbose_name = _(u"hide answer"))
     
-    @property
-    def answer(self):
+    class Meta:
+        verbose_name = _(u"text answer")
+        verbose_name_plural = _(u"text answers")
+    
+    def _answer_get(self):
         return self.censored_answer or self.original_answer
     
+    def _answer_set(self, value):
+        self.original_answer = value
+        self.censored_answer = None
     
-
+    answer = property(_answer_get, _answer_set)
