@@ -125,7 +125,9 @@ def course_create(request, semester_id):
     form = CourseForm(request.POST or None)
     
     if form.is_valid():
-        form.save()
+        course = form.save(commit=False)
+        course.semester = semester
+        course.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created course."))
         return redirect('fsr.views.semester_view', semester_id)
