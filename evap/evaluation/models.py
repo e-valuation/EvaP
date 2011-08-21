@@ -19,14 +19,14 @@ class Semester(models.Model):
     visible = models.BooleanField(verbose_name=_(u"visible"), default=False)
     created_at = models.DateField(verbose_name=_(u"created at"), auto_now_add=True)
     
-    def __unicode__(self):
-        return self.name
-    
     class Meta:
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")
         
-        ordering = ('created_at',)
+        ordering = ('created_at', 'name_de')
+    
+    def __unicode__(self):
+        return self.name
 
 
 class QuestionGroup(models.Model):
@@ -39,12 +39,14 @@ class QuestionGroup(models.Model):
     
     name = Translate
     
-    def __unicode__(self):
-        return self.name
-    
     class Meta:
         verbose_name = _(u"question group")
         verbose_name_plural = _(u"question groups")
+        
+        ordering = ('name_de',)
+    
+        def __unicode__(self):
+            return self.name
 
 
 class Course(models.Model):
@@ -87,12 +89,15 @@ class Course(models.Model):
         ordering = ('semester', 'name_de')
     
     def can_user_vote(self, user):
+        """Returns whether the user is allowed to vote on this course."""
         return user in self.participants.all() and user not in self.voters.all()
         
     def voted_percentage(self):
-        if self.participants.count() == 0:
-            return '-'
-        return ((self.voters.count()*1.0) / self.participants.count()) * 100.0
+        """Return the percentage of participants who voted on this course.
+        Returns None if there is no participant."""
+        if not self.participants.exists():
+            return None
+        return (float(self.voters.count()) / self.participants.count()) * 100.0
     
     @property
     def textanswer_set(self):
@@ -101,7 +106,7 @@ class Course(models.Model):
     
     def fully_checked(self):
         """Shortcut for finding out whether all textanswers to this course have been checked"""
-        return self.textanswer_set.filter(checked=False).count() == 0
+        return not self.textanswer_set.filter(checked=False).exists()
     
     @classmethod
     def for_user(cls, user):

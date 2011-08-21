@@ -19,7 +19,7 @@
                     <td>{{ course.name }}</td>
                     <td>{{ course.participants.all|length }}</td>
                     <td>{{ course.voters.all|length }}</td>
-                    <td>{{ course.voted_percentage|floatformat:1 }}</td>
+                    <td>{{ course.voted_percentage|floatformat:1|default:"-" }}</td>
                     <td>
                         <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
                         {% if not course.fully_checked %}
