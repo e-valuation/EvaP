@@ -7,23 +7,25 @@
     {{ block.super }}
     
     <script>
-	$(function() {
+    $(function() {
+            $.datepicker.setDefaults($.datepicker.regional["{{ LANGUAGE_CODE }}"]);
+            
             $( "#id_vote_start_date" ).datepicker({
                 showOn: "button",
-		buttonImage: "{% get_static_prefix %}images/calendar.gif",
-		buttonImageOnly: true
+                buttonImage: "{% get_static_prefix %}images/calendar.gif",
+                buttonImageOnly: true
             });
             
             $( "#id_vote_end_date" ).datepicker({
                 showOn: "button",
-		buttonImage: "{% get_static_prefix %}images/calendar.gif",
-		buttonImageOnly: true
+                buttonImage: "{% get_static_prefix %}images/calendar.gif",
+                buttonImageOnly: true
             });
             
             $( "#id_publish_date" ).datepicker({
                 showOn: "button",
-		buttonImage: "{% get_static_prefix %}images/calendar.gif",
-		buttonImageOnly: true
+                buttonImage: "{% get_static_prefix %}images/calendar.gif",
+                buttonImageOnly: true
             });
         });
     </script>

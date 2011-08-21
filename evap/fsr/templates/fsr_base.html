@@ -5,9 +5,11 @@
 {% load listers %}
 
 {% block header %}
-    <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/ui-lightness/jquery-ui.css" />
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js"></script>
+    <!-- jquery ui -->
+    <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/jquery-ui-1.6.2-ui-lightness.css" />
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker-{{ LANGUAGE_CODE }}.js"></script>
     
     <!-- multi-select plugin -->
     <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/ui.multiselect.css" />
