@@ -70,8 +70,7 @@ class QuestionGroupsAssignForm(forms.Form):
         super(QuestionGroupsAssignForm, self).__init__(*args, **kwargs)
         
         # course kinds
-        for kind_ele in semester.course_set.values("kind").distinct():
-            kind = kind_ele['kind']
+        for kind in semester.course_set.values_list('kind', flat=True).distinct():
             self.fields[kind] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.all())
         
         # extra kinds

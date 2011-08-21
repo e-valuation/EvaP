@@ -15,7 +15,6 @@
             <tr>
                 <th>{% trans "Name" %}</th>
                 <th>{% trans "# of Questions" %}</th>
-                <th>{% trans "Usages (abs.)" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
             
@@ -23,12 +22,12 @@
                 <tr>
                     <td>{{ questiongroup.name }}</td>
                     <td>{{ questiongroup.question_set.all|length }}</td>
-                    <td>{{ questiongroup.questionnaire_set.all|length }}</td>
                     <td>
                         <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_copy questiongroup.id %}">{% trans "Copy" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete" %}</a>
+                    </td>
                 </tr>
             {% endfor %}
         </table>
