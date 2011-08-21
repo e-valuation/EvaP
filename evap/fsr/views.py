@@ -224,7 +224,7 @@ def questiongroup_copy(request, questiongroup_id):
         messages.add_message(request, messages.INFO, _("Successfully copied question group."))
         return redirect('fsr.views.questiongroup_view', qg.id)
     else:
-        return render_to_response("fsr_questiongroup_copy.html", dict(form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_questiongroup_copy.html", dict(questiongroup=questiongroup, form=form), context_instance=RequestContext(request))
 
 @login_required
 def questiongroup_delete(request, questiongroup_id):
