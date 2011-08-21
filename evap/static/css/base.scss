@@ -74,13 +74,13 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 180%; }
 h2 { font-size: 140%; }
 h3 { font-size: 130%; }
-h4 { font-size: 120%; }
-h5 { font-size: 115%; }
-h6 { font-size: 110%; }
+h4 { font-size: 115%; }
+h5 { font-size: 110%; }
+h6 { font-size: 105%; }
 
 body {
     background: white;
-    font-family: Tahoma;
+    font: 10pt Verdana;
     margin: 0;
     
     @include link-colors($hpiRed100, $hpiRed70);
@@ -138,7 +138,6 @@ body {
             display: inline-block;
             margin: 0;
             padding: 2px 5px 2px 2px;
-            font-size: 80%;
         }
     }
 }
@@ -151,7 +150,6 @@ body {
     
     #main-sidebar-wrapper {
         padding: 5px;
-        font-size: 80%;
     }
     
     ul {

@@ -19,17 +19,17 @@ h3 {
 	font-size: 130%;}
 
 h4 {
-	font-size: 120%;}
-
-h5 {
 	font-size: 115%;}
 
-h6 {
+h5 {
 	font-size: 110%;}
+
+h6 {
+	font-size: 105%;}
 
 body {
 	background: #fff;
-	font-family: Tahoma;
+	font: 10pt Verdana;
 	margin: 0;}
 
 body a {
@@ -93,8 +93,7 @@ body a:active,  body a:hover {
 #main-content ul#actions li {
 	display: inline-block;
 	margin: 0;
-	padding: 2px 5px 2px 2px;
-	font-size: 80%;}
+	padding: 2px 5px 2px 2px;}
 
 #main-sidebar {
 	float: left;
@@ -102,8 +101,7 @@ body a:active,  body a:hover {
 	background: #eaecec;}
 
 #main-sidebar #main-sidebar-wrapper {
-	padding: 5px;
-	font-size: 80%;}
+	padding: 5px;}
 
 #main-sidebar ul {
 	padding-left: 0;
