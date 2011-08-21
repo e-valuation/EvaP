@@ -147,6 +147,7 @@ INSTALLED_APPS = (
     'south',
     'evaluation',
     'fsr',
+    'results',
     'student',
 )
 

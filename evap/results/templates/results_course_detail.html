@@ -1,0 +1,19 @@
+{% extends "results_base.html" %}
+
+{% block content %}
+    {{ block.super }}
+    
+    <h3>{{ course.name }} ({{ course.semester.name }})</h3>
+    
+    {% for group, lecturer, questions in results %}
+        <h4>{% if lecturer %}{{ lecturer }}: {% endif %}{{ group }}</h4>
+        <table>
+        {% for question, average in questions %}
+            <tr>
+                <td>{{ question.text }}</td>
+                <td>{{ average|floatformat:1 }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endfor %}   
+{% endblock %}

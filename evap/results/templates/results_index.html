@@ -1,0 +1,19 @@
+{% extends "results_base.html" %}
+
+{% block content %}
+    {{ block.super }}
+    
+    {% for object in objects %}
+        <h3>
+            {{ object.semester.name }}
+        </h3>
+        <table>
+        {% for course in object.courses %}
+            <tr>
+                <td><a href="{% url results.views.course_detail course.id %}">{{ course }}</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endfor %}
+    
+{% endblock %}
