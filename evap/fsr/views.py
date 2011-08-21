@@ -34,7 +34,7 @@ def semester_create(request):
         messages.add_message(request, messages.INFO, _("Successfully created semester."))
         return redirect('fsr.views.semester_view', s.id)
     else:
-        return render_to_response("fsr_semester_create.html", dict(form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_form.html", dict(form=form), context_instance=RequestContext(request))
 
 @login_required
 def semester_edit(request, semester_id):
@@ -47,7 +47,7 @@ def semester_edit(request, semester_id):
         messages.add_message(request, messages.INFO, _("Successfully updated semester."))
         return redirect('fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_edit.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @login_required
 def semester_import(request, semester_id):   
@@ -132,7 +132,7 @@ def course_create(request, semester_id):
         messages.add_message(request, messages.INFO, _("Successfully created course."))
         return redirect('fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_create.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @login_required
 def course_edit(request, semester_id, course_id):
@@ -146,7 +146,7 @@ def course_edit(request, semester_id, course_id):
         messages.add_message(request, messages.INFO, _("Successfully updated course."))
         return redirect('fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_edit.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
         
 @login_required
 def course_censor(request, semester_id, course_id):
@@ -185,14 +185,14 @@ def questiongroup_create(request):
     formset = QuestionFormset(request.POST or None)
     
     if form.is_valid() and formset.is_valid():
-        qg = form.save()
-        formset = QuestionFormset(request.POST or None, instance=qg)
+        questiongroup = form.save()
+        formset = QuestionFormset(request.POST or None, instance=questiongroup)
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created question group."))
-        return redirect('fsr.views.questiongroup_view', qg.id)
+        return redirect('fsr.views.questiongroup_view', questiongroup.id)
     else:
-        return render_to_response("fsr_questiongroup_create.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_questiongroup_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
 @login_required
 def questiongroup_edit(request, questiongroup_id):
@@ -209,7 +209,7 @@ def questiongroup_edit(request, questiongroup_id):
         messages.add_message(request, messages.INFO, _("Successfully updated question group."))
         return redirect('fsr.views.questiongroup_view', questiongroup_id)
     else:
-        return render_to_response("fsr_questiongroup_edit.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_questiongroup_form.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
 
 @login_required
 def questiongroup_copy(request, questiongroup_id):

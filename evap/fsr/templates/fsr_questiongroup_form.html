@@ -13,9 +13,11 @@
 {% endblock %}
 
 {% block actions %}
+    {% if form.instance.pk %}
     <li><a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview this question group" %}</a></li>
     <li><a href="{% url fsr.views.questiongroup_copy questiongroup.id %}">{% trans "Copy this question group" %}</a></li>
     <li><a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete this question group" %}</a></li>
+    {% endif %}
     {{ block.super }}
 {% endblock %}
 
@@ -50,7 +52,7 @@
                     </tbody>
                 </table>
             </fieldset>
-            <input type="submit" value="{% trans "Update question group" %}"/>
+            <input type="submit" value="{% trans "Save question group" %}"/>
         </form>
     </p>
 {% endblock %}
