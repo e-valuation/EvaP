@@ -2,13 +2,6 @@
 
 {% load i18n %}
 
-{% block actions %}
-    <li><a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit this question group" %}</a></li>
-    <li><a href="{% url fsr.views.questiongroup_copy questiongroup.id %}">{% trans "Copy this question group" %}</a></li>
-    <li><a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete this question group" %}</a></li>
-    {{ block.super }}
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
     <p>
