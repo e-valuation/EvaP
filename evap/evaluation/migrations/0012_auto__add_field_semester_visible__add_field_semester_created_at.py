@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.add_column('evaluation_semester', 'visible', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
         # Adding field 'Semester.created_at'
-        db.add_column('evaluation_semester', 'created_at', self.gf('django.db.models.fields.DateField')(auto_now_add=True, default=False, blank=True), keep_default=False)
+        db.add_column('evaluation_semester', 'created_at', self.gf('django.db.models.fields.DateField')(auto_now_add=True, default=datetime.date.today(), blank=True), keep_default=False)
 
 
     def backwards(self, orm):
