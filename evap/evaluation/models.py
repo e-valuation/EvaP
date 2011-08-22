@@ -63,6 +63,9 @@ class Course(models.Model):
     # type of course: lecture, seminar, project
     kind = models.CharField(max_length=100, verbose_name=_(u"type"))
     
+    # show in results app
+    visible = models.BooleanField(verbose_name=_(u"visible"), default=False)
+    
     # students that are allowed to vote
     participants = models.ManyToManyField(User, verbose_name=_(u"participants"), blank=True)
     
@@ -79,8 +82,6 @@ class Course(models.Model):
     
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
-    
-    publish_date = models.DateField(null=True, verbose_name=_(u"publishing date"))
     
     class Meta:
         verbose_name = _(u"course")

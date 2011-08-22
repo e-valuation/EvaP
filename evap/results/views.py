@@ -15,7 +15,7 @@ def index(request):
     for semester in Semester.objects.filter(visible=True).order_by('-created_at'):
         objects.append({
             'semester': semester,
-            'courses': semester.course_set.filter(publish_date__lte=datetime.now())
+            'courses': semester.course_set.filter(visible=True)
         })
     
     return render_to_response(
@@ -26,7 +26,7 @@ def index(request):
 @login_required
 def course_detail(request, id):
     course = get_object_or_404(
-        Course.objects.filter(publish_date__lte=datetime.now()),
+        Course.objects.filter(visible=True),
         id=id)
     
     results = calculate_results(course)
