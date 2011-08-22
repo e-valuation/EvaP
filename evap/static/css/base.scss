@@ -83,7 +83,7 @@ body {
     font: 10pt Verdana;
     margin: 0;
     
-    @include link-colors($hpiRed100, $hpiRed70);
+    @include link-colors($hpiBlue100, $hpiBlue70);
 }
 
 #page-wrap {
@@ -125,6 +125,10 @@ body {
 #main-content {
     float: right;
     width: 780px;
+    
+    p, ul, h1, h2, h3, h4, h5, h6 {
+        margin: 5px 0;
+    }
     
     ul#actions {
         display: block;
@@ -187,6 +191,10 @@ ul.messages {
     }
 }
 
+ul.errorlist {
+    color: $hpiRed100;
+}
+
 form.textform {
     display: inline;
     
@@ -202,22 +210,51 @@ form.textform {
 }
 
 form.vote {
-    ul {
-        margin: 0;
-        padding: 0;
-        li {
-            background: $hpiGray20;
-            border-radius: 5px;
-            padding: 4px;
-            display: inline-block;
-            min-width: 3.5em;
-            text-align: center;
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    tr.vote-group {
+        font: inherit;
+        th {
+            vertical-align: middle;
+            text-align: left;
         }
-        
-        li:first-child { background: $vote1; }
-        li:first-child+li { background: $vote2; }
-        li:first-child+li+li { background: $vote3; }
-        li:first-child+li+li+li { background: $vote4; }
-        li:first-child+li+li+li+li { background: $vote5; }
+    }
+    
+    tr.vote-row {
+        th+td {
+            width: 70%;
+        }
+        th, td {
+            border-top: 1px dotted $hpiGray50;
+            font: inherit;
+            text-align: left;
+            vertical-align: middle;
+        }
+        div.vote-buttons {
+            ul {
+                margin: 0;
+                padding: 0;
+                li {
+                    background: $hpiGray20;
+                    border-radius: 5px;
+                    display: inline-block;
+                    min-width: 12%;
+                    padding: 1%;
+                    text-align: center;
+                }
+                
+                li:first-child { background: $vote1; }
+                li:first-child+li { background: $vote2; }
+                li:first-child+li+li { background: $vote3; }
+                li:first-child+li+li+li { background: $vote4; }
+                li:first-child+li+li+li+li { background: $vote5; }
+            }
+        }
+        textarea {
+            width: 98%;
+        }
     }
 }

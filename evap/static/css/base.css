@@ -36,10 +36,10 @@ body a {
 	text-decoration: none;}
 
 body a,  body a:focus,  body a:link,  body a:visited {
-	color: #af0034;}
+	color: #007a9e;}
 
 body a:active,  body a:hover {
-	color: #c74c71;}
+	color: #4ca2bb;}
 
 #page-wrap {
 	margin: 5px auto;
@@ -80,6 +80,9 @@ body a:active,  body a:hover {
 #main-content {
 	float: right;
 	width: 780px;}
+
+#main-content p, #main-content ul, #main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6 {
+	margin: 5px 0;}
 
 #main-content ul#actions {
 	display: block;
@@ -154,6 +157,9 @@ ul.messages li:before {
 	top: 0;
 	color: #5e676a;}
 
+ul.errorlist {
+	color: #af0034;}
+
 form.textform {
 	display: inline;}
 
@@ -166,30 +172,53 @@ form.textform input[type=submit], form.textform input[type=button] {
 	padding: 0;
 	cursor: pointer;}
 
-form.vote ul {
+form.vote table {
+	border-collapse: collapse;
+	width: 100%;}
+
+form.vote tr.vote-group {
+	font: inherit;}
+
+form.vote tr.vote-group th {
+	vertical-align: middle;
+	text-align: left;}
+
+form.vote tr.vote-row th + td {
+	width: 70%;}
+
+form.vote tr.vote-row th, form.vote tr.vote-row td {
+	border-top: 1px dotted #aeb3b4;
+	font: inherit;
+	text-align: left;
+	vertical-align: middle;}
+
+form.vote tr.vote-row div.vote-buttons ul {
 	margin: 0;
 	padding: 0;}
 
-form.vote ul li {
+form.vote tr.vote-row div.vote-buttons ul li {
 	background: #dfe1e1;
 	border-radius: 5px;
-	padding: 4px;
 	display: inline-block;
-	min-width: 3.5em;
+	min-width: 12%;
+	padding: 1%;
 	text-align: center;}
 
-form.vote ul li:first-child {
+form.vote tr.vote-row div.vote-buttons ul li:first-child {
 	background: #b3f4a3;}
 
-form.vote ul li:first-child+li {
+form.vote tr.vote-row div.vote-buttons ul li:first-child+li {
 	background: #d8f4a3;}
 
-form.vote ul li:first-child+li+li {
+form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li {
 	background: #f4eca3;}
 
-form.vote ul li:first-child+li+li+li {
+form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li {
 	background: #f4c7a3;}
 
-form.vote ul li:first-child+li+li+li+li {
+form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li+li {
 	background: #f4a3a3;}
+
+form.vote tr.vote-row textarea {
+	width: 98%;}
 

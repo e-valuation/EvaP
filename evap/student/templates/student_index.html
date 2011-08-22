@@ -6,14 +6,19 @@
 
 {% block content %}
     {{ block.super }}
+    
     <p>
     {% if courses %}
         {% trans "You can vote on the following courses:" %}
-        <ul>
-        {% for course in courses %}
-            <li><a href="{% url student.views.vote course.id %}">{{ course.name }}</a></li>
+        {% regroup courses by semester as semesters %}
+        {% for semester in semesters %}
+            <h3>{{ semester.grouper.name }}</h3>
+            <ul>
+            {% for course in courses %}
+                <li><a href="{% url student.views.vote course.id %}">{{ course.name }}</a></li>
+            {% endfor %}
+            </ul>
         {% endfor %}
-        </ul>
     {% else %}
         {% trans "You cannot vote on any courses right now." %}
     {% endif %}

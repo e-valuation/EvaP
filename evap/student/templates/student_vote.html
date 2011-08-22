@@ -11,10 +11,25 @@
         {% csrf_token %}
         <table>
         {% for form in forms %}
-            <tr>
-                <th colspan="2">{{ form.caption }}</th>
+            <tr class="vote-group">
+                <th colspan="2">
+                    <h4>
+                    {{ form.caption }}
+                    </h4>
+                    {{ form.non_field_errors }}
+                </th>
             </tr>
-            {{ form.as_table }}
+            {% for field in form %}
+            <tr class="vote-row">
+                <th>
+                    {{ field.label_tag }}
+                </th>
+                <td>
+                    {{ field.errors }}
+                    <div class="vote-buttons">{{ field }}</div>
+                </td>
+            </tr>
+            {% endfor %}
         {% endfor %}
         </table>
         <input type="submit" value="{% trans "vote" %}"/>
