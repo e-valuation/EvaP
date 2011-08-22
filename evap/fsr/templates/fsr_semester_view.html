@@ -4,7 +4,7 @@
 
 {% block content %}
     {{ block.super }}
-    {% if courses %}
+    {% if semester.course_set.exists %}
         <table>
             <tr>
                 <th>{% trans "Name" %}</th>
@@ -14,7 +14,7 @@
                 <th>{% trans "Actions" %}</th>
             </tr>
             
-            {% for course in courses %}
+            {% for course in semester.course_set.all %}
                 <tr>
                     <td>{{ course.name }}</td>
                     <td>{{ course.participants.all|length }}</td>

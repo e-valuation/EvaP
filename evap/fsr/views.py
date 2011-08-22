@@ -21,8 +21,7 @@ def semester_index(request):
 @login_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.all()
-    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses=courses), context_instance=RequestContext(request))
+    return render_to_response("fsr_semester_view.html", dict(semester=semester), context_instance=RequestContext(request))
 
 @login_required
 def semester_create(request):
@@ -42,10 +41,10 @@ def semester_edit(request, semester_id):
     form = SemesterForm(request.POST or None, instance = semester)
     
     if form.is_valid():
-        form.save()
+        s = form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated semester."))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('fsr.views.semester_view', s.id)
     else:
         return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -125,13 +124,11 @@ def semester_assign_questiongroups(request, semester_id):
 @login_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = CourseForm(request.POST or None)
+    form = CourseForm(request.POST or None, initial={'semester':semester})
     
     if form.is_valid():
-        course = form.save(commit=False)
-        course.semester = semester
-        course.save()
-        
+        form.save()
+
         messages.add_message(request, messages.INFO, _("Successfully created course."))
         return redirect('fsr.views.semester_view', semester_id)
     else:
@@ -182,18 +179,18 @@ def questiongroup_view(request, questiongroup_id):
 
 @login_required
 def questiongroup_create(request):
+    questiongroup = QuestionGroup()
     QuestionFormset = inlineformset_factory(QuestionGroup, Question, form=QuestionForm, extra=1, exclude=('question_group'))
 
-    form = QuestionGroupForm(request.POST or None)
-    formset = QuestionFormset(request.POST or None)
+    form = QuestionGroupForm(request.POST or None, instance=questiongroup)
+    formset = QuestionFormset(request.POST or None, instance=questiongroup)
     
     if form.is_valid() and formset.is_valid():
-        questiongroup = form.save()
-        formset = QuestionFormset(request.POST or None, instance=questiongroup)
+        q = form.save()
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created question group."))
-        return redirect('fsr.views.questiongroup_view', questiongroup.id)
+        return redirect('fsr.views.questiongroup_view', q.id)
     else:
         return render_to_response("fsr_questiongroup_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
