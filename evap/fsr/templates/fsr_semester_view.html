@@ -11,6 +11,7 @@
                 <th>{% trans "Participants" %}</th>
                 <th>{% trans "Voted (abs.)" %}</th>
                 <th>{% trans "Voted (%)" %}</th>
+                <th>{% trans "Published" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
             
@@ -20,10 +21,15 @@
                     <td>{{ course.participants.all|length }}</td>
                     <td>{{ course.voters.all|length }}</td>
                     <td>{{ course.voted_percentage|floatformat:1|default:"-" }}</td>
+                    <td>{{ course.visible|yesno }}
                     <td>
                         <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
                         {% if not course.fully_checked %}
                             <a href="{% url fsr.views.course_censor semester.id, course.id %}">{% trans "Censor" %}</a>
+                        {% else %}
+                            {% if not course.visible %}
+                                <a href="{% url fsr.views.course_publish semester.id, course.id %}">{% trans "Publish" %}</a>
+                            {% endif %}
                         {% endif %}
                 </tr>
             {% endfor %}

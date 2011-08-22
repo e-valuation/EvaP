@@ -167,6 +167,17 @@ def course_censor(request, semester_id, course_id):
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
 
 @login_required
+def course_publish(request, semester_id, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    
+    # publish
+    course.visible = True;
+    course.save()
+    
+    messages.add_message(request, messages.INFO, _("Successfully published course."))
+    return redirect('fsr.views.semester_view', semester_id)
+    
+@login_required
 def questiongroup_index(request):
     questiongroups = QuestionGroup.objects.all()
     return render_to_response("fsr_questiongroup_index.html", dict(questiongroups=questiongroups), context_instance=RequestContext(request))
