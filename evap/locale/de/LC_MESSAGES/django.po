@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-20 20:37+0200\n"
-"PO-Revision-Date: 2011-08-20 20:37+0100\n"
+"POT-Creation-Date: 2011-08-23 11:27+0200\n"
+"PO-Revision-Date: 2011-08-23 11:29+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,208 +16,261 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: .\evaluation\models.py:32
-#: .\evaluation\models.py:54
-#: .\evaluation\models.py:73
+#: .\evaluation\models.py:14
+#: .\evaluation\models.py:37
+#: .\evaluation\models.py:58
 msgid "name (german)"
 msgstr "Name (deutsch)"
 
-#: .\evaluation\models.py:33
-#: .\evaluation\models.py:55
-#: .\evaluation\models.py:74
+#: .\evaluation\models.py:15
+#: .\evaluation\models.py:38
+#: .\evaluation\models.py:59
 msgid "name (english)"
 msgstr "Name (englisch)"
 
-#: .\evaluation\models.py:45
-#: .\evaluation\models.py:72
+#: .\evaluation\models.py:19
+#: .\evaluation\models.py:67
+msgid "visible"
+msgstr "sichtbar"
+
+#: .\evaluation\models.py:20
+msgid "created at"
+msgstr "erstellt am"
+
+#: .\evaluation\models.py:23
+#: .\evaluation\models.py:57
 msgid "semester"
 msgstr "Semester"
 
-#: .\evaluation\models.py:46
+#: .\evaluation\models.py:24
 msgid "semesters"
 msgstr "Semester"
 
-#: .\evaluation\models.py:63
+#: .\evaluation\models.py:43
 msgid "question group"
 msgstr "Fragegruppe"
 
-#: .\evaluation\models.py:64
+#: .\evaluation\models.py:44
 msgid "question groups"
 msgstr "Fragegruppen"
 
-#: .\evaluation\models.py:79
+#: .\evaluation\models.py:64
 msgid "type"
 msgstr "Typ"
 
-#: .\evaluation\models.py:82
+#: .\evaluation\models.py:70
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: .\evaluation\models.py:85
+#: .\evaluation\models.py:73
 msgid "voters"
 msgstr "Wähler"
 
-#: .\evaluation\models.py:87
+#: .\evaluation\models.py:75
 msgid "primary lecturers"
 msgstr "Primäre Dozenten"
 
-#: .\evaluation\models.py:88
+#: .\evaluation\models.py:76
 msgid "secondary lecturers"
 msgstr "Sekundäre Dozenten"
 
-#: .\evaluation\models.py:91
+#: .\evaluation\models.py:79
 msgid "course question groups"
 msgstr "Fragegruppen zur Veranstaltung"
 
-#: .\evaluation\models.py:92
+#: .\evaluation\models.py:80
 msgid "primary lecturer question groups"
 msgstr "Fragegruppen zu den primären Dozenten"
 
-#: .\evaluation\models.py:93
+#: .\evaluation\models.py:81
 msgid "secondary lecturer question groups"
 msgstr "Fragegruppen zu den sekundären Dozenten"
 
-#: .\evaluation\models.py:95
+#: .\evaluation\models.py:83
 #: .\fsr\forms.py:8
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: .\evaluation\models.py:96
+#: .\evaluation\models.py:84
 #: .\fsr\forms.py:9
 msgid "last date to vote"
 msgstr "Letzter Abstimmungstag"
 
-#: .\evaluation\models.py:98
-#: .\fsr\forms.py:10
-msgid "publishing date"
-msgstr "Veröffentlichungsdatum"
-
-#: .\evaluation\models.py:132
+#: .\evaluation\models.py:87
 msgid "course"
 msgstr "Veranstaltung"
 
-#: .\evaluation\models.py:133
+#: .\evaluation\models.py:88
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: .\evaluation\models.py:142
+#: .\evaluation\models.py:133
 msgid "Text Question"
 msgstr "Textfrage"
 
-#: .\evaluation\models.py:143
+#: .\evaluation\models.py:134
 msgid "Grade Question"
 msgstr "Auswahlfrage"
 
-#: .\evaluation\models.py:147
+#: .\evaluation\models.py:138
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: .\evaluation\models.py:148
+#: .\evaluation\models.py:139
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: .\evaluation\models.py:150
+#: .\evaluation\models.py:141
 msgid "kind of question"
 msgstr "Frageart"
 
-#: .\evaluation\models.py:155
+#: .\evaluation\models.py:146
 msgid "question"
 msgstr "Frage"
 
-#: .\evaluation\models.py:156
+#: .\evaluation\models.py:147
 msgid "questions"
 msgstr "Fragen"
 
-#: .\evaluation\models.py:184
-#: .\evaluation\models.py:191
+#: .\evaluation\models.py:176
+#: .\evaluation\models.py:183
 msgid "answer"
 msgstr "Antwort"
 
-#: .\evaluation\models.py:185
+#: .\evaluation\models.py:177
 msgid "answers"
 msgstr "Antworten"
 
-#: .\evaluation\models.py:200
+#: .\evaluation\models.py:186
+msgid "grade answer"
+msgstr "Auswahlantwort"
+
+#: .\evaluation\models.py:187
+msgid "grade answers"
+msgstr "Auswahlantworten"
+
+#: .\evaluation\models.py:191
 msgid "censored answer"
 msgstr "Zensierte Antwort"
 
-#: .\evaluation\models.py:201
+#: .\evaluation\models.py:192
 msgid "original answer"
 msgstr "Originale Antwort"
 
-#: .\evaluation\models.py:203
+#: .\evaluation\models.py:194
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: .\evaluation\models.py:204
+#: .\evaluation\models.py:195
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: .\fsr\forms.py:12
+#: .\evaluation\models.py:198
+msgid "text answer"
+msgstr "Textantwort"
+
+#: .\evaluation\models.py:199
+msgid "text answers"
+msgstr "Textantworten"
+
+#: .\fsr\forms.py:11
 msgid "excel file"
 msgstr "Exceldatei"
 
-#: .\fsr\views.py:34
+#: .\fsr\views.py:33
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: .\fsr\views.py:47
+#: .\fsr\views.py:46
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: .\fsr\views.py:86
+#: .\fsr\views.py:84
 #, python-format
 msgid "Successfully imported sheet '%s'."
 msgstr "Blatt '%s' erfolgreich importiert."
 
-#: .\fsr\views.py:88
+#: .\fsr\views.py:86
 #, python-format
 msgid "Error while importing sheet '%(name)s'. All changes undone. The error message has been: '%(error)s'"
 msgstr "Fehler beim Importieren von Blatt '%(name)s'. Alle Änderungen rückgängig gemacht. Die Fehlermeldung war: '%(error)s'"
 
-#: .\fsr\views.py:90
+#: .\fsr\views.py:88
 #, python-format
 msgid "Successfully imported %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: .\fsr\views.py:117
+#: .\fsr\views.py:118
 msgid "Successfully assigned question groups."
 msgstr "Erfolgreich Fragegruppen zugeordnet."
 
-#: .\fsr\views.py:130
+#: .\fsr\views.py:131
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: .\fsr\views.py:144
+#: .\fsr\views.py:145
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: .\fsr\views.py:160
+#: .\fsr\views.py:161
 msgid "Successfully censored course answers."
 msgstr "Anworten erfolgreich zensiert."
 
-#: .\fsr\views.py:189
+#: .\fsr\views.py:176
+msgid "Successfully published course."
+msgstr "Veranstaltung erfolgreich veröffentlicht."
+
+#: .\fsr\views.py:202
 msgid "Successfully created question group."
 msgstr "Fragegruppe erfolgreich erstellt."
 
-#: .\fsr\views.py:206
+#: .\fsr\views.py:219
 msgid "Successfully updated question group."
 msgstr "Fragegruppe erfolgreich geändert."
 
-#: .\fsr\views.py:223
+#: .\fsr\views.py:236
 msgid "Successfully copied question group."
 msgstr "Fragegruppe erfolgreich kopiert."
 
-#: .\fsr\templates\fsr_base.html.py:24
+#: .\fsr\templates\fsr_base.html.py:29
 msgid "Question Groups"
 msgstr "Fragegruppen"
 
-#: .\fsr\templates\fsr_base.html.py:27
+#: .\fsr\templates\fsr_base.html.py:32
 msgid "Semesters"
 msgstr "Semester"
 
+#: .\fsr\templates\fsr_base.html.py:40
+msgid "Edit this question group"
+msgstr "Fragegruppe bearbeiten"
+
+#: .\fsr\templates\fsr_base.html.py:41
+msgid "Copy this question group"
+msgstr "Fragegruppe kopieren"
+
+#: .\fsr\templates\fsr_base.html.py:42
+msgid "Delete this question group"
+msgstr "Fragegruppe löschen"
+
+#: .\fsr\templates\fsr_base.html.py:46
+msgid "Create new course"
+msgstr "Neue Veranstaltung anlegen"
+
+#: .\fsr\templates\fsr_base.html.py:47
+msgid "Edit this semester"
+msgstr "Semester bearbeiten"
+
+#: .\fsr\templates\fsr_base.html.py:48
+msgid "Import courses"
+msgstr "Veranstaltungen importieren"
+
+#: .\fsr\templates\fsr_base.html.py:49
+#: .\fsr\templates\fsr_semester_assign_questiongroups.html.py:24
+msgid "Assign question groups"
+msgstr "Fragegruppen zuordnen"
+
 #: .\fsr\templates\fsr_course_censor.html.py:41
-#: .\fsr\templates\fsr_semester_view.html.py:26
+#: .\fsr\templates\fsr_semester_view.html.py:28
 msgid "Censor"
 msgstr "Zensieren"
 
@@ -225,78 +278,46 @@ msgstr "Zensieren"
 msgid "Check All"
 msgstr "Alle auswählen"
 
-#: .\fsr\templates\fsr_course_create.html.py:43
-msgid "Create course"
-msgstr "Veranstaltung anlegen"
+#: .\fsr\templates\fsr_course_form.html.py:43
+msgid "Save course"
+msgstr "Veranstaltung speichern"
 
-#: .\fsr\templates\fsr_course_edit.html.py:43
-msgid "Update course"
-msgstr "Veranstaltung bearbeiten"
-
-#: .\fsr\templates\fsr_import.html.py:35
+#: .\fsr\templates\fsr_import.html.py:37
 msgid "Upload semester data from excel file. This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses."
 msgstr "Semesterdaten via Exceldatei hochladen: Alle in der Datei enthaltenen Studenten, Dozenten und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
 
-#: .\fsr\templates\fsr_questiongroup_copy.html.py:6
-#: .\fsr\templates\fsr_questiongroup_delete.html.py:6
-#: .\fsr\templates\fsr_questiongroup_view.html.py:6
-msgid "Edit this question group"
-msgstr "Fragegruppe bearbeiten"
-
-#: .\fsr\templates\fsr_questiongroup_copy.html.py:7
-#: .\fsr\templates\fsr_questiongroup_delete.html.py:7
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:17
-#: .\fsr\templates\fsr_questiongroup_view.html.py:7
-msgid "Copy this question group"
-msgstr "Fragegruppe kopieren"
-
-#: .\fsr\templates\fsr_questiongroup_copy.html.py:8
-#: .\fsr\templates\fsr_questiongroup_delete.html.py:8
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:18
-#: .\fsr\templates\fsr_questiongroup_view.html.py:8
-msgid "Delete this question group"
-msgstr "Fragegruppe löschen"
-
-#: .\fsr\templates\fsr_questiongroup_copy.html.py:18
-#: .\fsr\templates\fsr_questiongroup_create.html.py:21
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:28
+#: .\fsr\templates\fsr_questiongroup_copy.html.py:11
+#: .\fsr\templates\fsr_questiongroup_form.html.py:21
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
-#: .\fsr\templates\fsr_questiongroup_copy.html.py:22
-#: .\fsr\templates\fsr_questiongroup_create.html.py:46
+#: .\fsr\templates\fsr_questiongroup_copy.html.py:15
 msgid "Create question group"
 msgstr "Neue Fragegruppe anlegen"
 
-#: .\fsr\templates\fsr_questiongroup_create.html.py:27
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:34
-msgid "Questions"
-msgstr "Fragen"
-
-#: .\fsr\templates\fsr_questiongroup_create.html.py:33
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:40
-msgid "Delete?"
-msgstr "Löschen?"
-
-#: .\fsr\templates\fsr_questiongroup_delete.html.py:17
+#: .\fsr\templates\fsr_questiongroup_delete.html.py:10
 msgid "Do you really want to delete this question group?"
 msgstr "Soll diese Fragegruppe wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_questiongroup_delete.html.py:18
+#: .\fsr\templates\fsr_questiongroup_delete.html.py:11
 msgid "Yes"
 msgstr "Ja"
 
-#: .\fsr\templates\fsr_questiongroup_delete.html.py:19
+#: .\fsr\templates\fsr_questiongroup_delete.html.py:12
 msgid "No"
 msgstr "Nein"
 
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:16
-msgid "Preview this question group"
-msgstr "Vorschau dieser Fragegruppe"
+#: .\fsr\templates\fsr_questiongroup_form.html.py:27
+msgid "Questions"
+msgstr "Fragen"
 
-#: .\fsr\templates\fsr_questiongroup_edit.html.py:53
-msgid "Update question group"
-msgstr "Fragegruppe bearbeiten"
+#: .\fsr\templates\fsr_questiongroup_form.html.py:33
+msgid "Delete?"
+msgstr "Löschen?"
+
+#: .\fsr\templates\fsr_questiongroup_form.html.py:46
+msgid "Save question group"
+msgstr "Fragegruppe speichern"
 
 #: .\fsr\templates\fsr_questiongroup_index.html.py:6
 msgid "Create new question group"
@@ -312,32 +333,28 @@ msgid "# of Questions"
 msgstr "Frageanzahl"
 
 #: .\fsr\templates\fsr_questiongroup_index.html.py:18
-msgid "Usages (abs.)"
-msgstr "Benutzt (abs.)"
-
-#: .\fsr\templates\fsr_questiongroup_index.html.py:19
-#: .\fsr\templates\fsr_semester_view.html.py:14
+#: .\fsr\templates\fsr_semester_view.html.py:15
 msgid "Actions"
 msgstr "Aktionen"
 
-#: .\fsr\templates\fsr_questiongroup_index.html.py:28
-#: .\fsr\templates\fsr_semester_view.html.py:24
+#: .\fsr\templates\fsr_questiongroup_index.html.py:26
+#: .\fsr\templates\fsr_semester_view.html.py:26
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: .\fsr\templates\fsr_questiongroup_index.html.py:29
+#: .\fsr\templates\fsr_questiongroup_index.html.py:27
 msgid "Preview"
 msgstr "Vorschau"
 
-#: .\fsr\templates\fsr_questiongroup_index.html.py:30
+#: .\fsr\templates\fsr_questiongroup_index.html.py:28
 msgid "Copy"
 msgstr "Kopieren"
 
-#: .\fsr\templates\fsr_questiongroup_index.html.py:31
+#: .\fsr\templates\fsr_questiongroup_index.html.py:29
 msgid "Delete"
 msgstr "Löschen"
 
-#: .\fsr\templates\fsr_questiongroup_index.html.py:36
+#: .\fsr\templates\fsr_questiongroup_index.html.py:35
 msgid "There are no question groups yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
@@ -350,30 +367,9 @@ msgstr "Neu..."
 msgid "Select the question groups to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
 msgstr ""
 
-#: .\fsr\templates\fsr_semester_assign_questiongroups.html.py:24
-#: .\fsr\templates\fsr_semester_base.html.py:15
-msgid "Assign question groups"
-msgstr "Fragegruppen zuordnen"
-
-#: .\fsr\templates\fsr_semester_base.html.py:12
-msgid "Create new course"
-msgstr "Neue Veranstaltung anlegen"
-
-#: .\fsr\templates\fsr_semester_base.html.py:13
-msgid "Edit this semester"
-msgstr "Semester bearbeiten"
-
-#: .\fsr\templates\fsr_semester_base.html.py:14
-msgid "Import courses"
-msgstr "Veranstaltungen importieren"
-
-#: .\fsr\templates\fsr_semester_create.html.py:13
-msgid "Create semester"
-msgstr "Semester anlegen"
-
-#: .\fsr\templates\fsr_semester_edit.html.py:13
-msgid "Update semester"
-msgstr "Semester bearbeiten"
+#: .\fsr\templates\fsr_semester_form.html.py:13
+msgid "Save semester"
+msgstr "Semester speichern"
 
 #: .\fsr\templates\fsr_semester_index.html.py:6
 msgid "Create new semester"
@@ -399,15 +395,28 @@ msgstr "Wähler (abs.)"
 msgid "Voted (%)"
 msgstr "Wähler (%)"
 
-#: .\fsr\templates\fsr_semester_view.html.py:32
+#: .\fsr\templates\fsr_semester_view.html.py:14
+msgid "Published"
+msgstr "Veröffentlicht"
+
+#: .\fsr\templates\fsr_semester_view.html.py:31
+msgid "Publish"
+msgstr "Veröffentlichen"
+
+#: .\fsr\templates\fsr_semester_view.html.py:38
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\student\forms.py:12
+#: .\results\templates\results_base.html.py:5
+#: .\templates\base.html.py:34
+msgid "Results"
+msgstr "Ergebnisse"
+
+#: .\student\forms.py:13
 msgid "no answer"
 msgstr "Keine Angabe"
 
-#: .\student\views.py:60
+#: .\student\views.py:62
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -415,11 +424,11 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 msgid "My Courses"
 msgstr "Meine Veranstaltungen"
 
-#: .\student\templates\student_index.html.py:11
+#: .\student\templates\student_index.html.py:12
 msgid "You can vote on the following courses:"
 msgstr "Sie können die folgenden Veranstaltungen bewerten:"
 
-#: .\student\templates\student_index.html.py:18
+#: .\student\templates\student_index.html.py:23
 msgid "You cannot vote on any courses right now."
 msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
 
@@ -427,29 +436,47 @@ msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
 msgid "Course Evaluation:"
 msgstr "Veranstaltung bewerten:"
 
-#: .\student\templates\student_vote.html.py:20
+#: .\student\templates\student_vote.html.py:35
 msgid "vote"
 msgstr "Abstimmen"
 
-#: .\templates\base.html.py:15
+#: .\templates\base.html.py:16
 msgid "evaluation platform"
 msgstr "Evaluierungsplattform"
 
-#: .\templates\base.html.py:28
+#: .\templates\base.html.py:30
 msgid "Modules"
 msgstr "Module"
 
-#: .\templates\base.html.py:30
+#: .\templates\base.html.py:32
 msgid "Evaluate Courses"
 msgstr "Veranstaltungen bewerten"
 
-#: .\templates\base.html.py:31
+#: .\templates\base.html.py:33
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
-#: .\templates\base.html.py:51
+#: .\templates\base.html.py:54
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
+
+#~ msgid "publishing date"
+#~ msgstr "Veröffentlichungsdatum"
+
+#~ msgid "Update course"
+#~ msgstr "Veranstaltung bearbeiten"
+
+#~ msgid "Preview this question group"
+#~ msgstr "Vorschau dieser Fragegruppe"
+
+#~ msgid "Update question group"
+#~ msgstr "Fragegruppe bearbeiten"
+
+#~ msgid "Usages (abs.)"
+#~ msgstr "Benutzt (abs.)"
+
+#~ msgid "Update semester"
+#~ msgstr "Semester bearbeiten"
 
 #~ msgid "questionnaire"
 #~ msgstr "Fragebogen"
