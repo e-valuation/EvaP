@@ -7,7 +7,6 @@ from student.forms import GRADE_CHOICES, coerce_grade
 class ImportForm(forms.Form):
     vote_start_date = forms.DateField(label = _(u"first date to vote"))
     vote_end_date = forms.DateField(label = _(u"last date to vote"))
-    publish_date = forms.DateField(label = _(u"publishing date"))
     
     excel_file = forms.FileField(label = _(u"excel file"))
     
