@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from datetime import datetime
 
 # see evaluation.meta for the use of Translate in this file
 from evaluation.meta import LocalizeModelBase, Translate
@@ -114,17 +113,6 @@ class Course(models.Model):
     def fully_checked(self):
         """Shortcut for finding out whether all textanswers to this course have been checked"""
         return not self.textanswer_set.filter(checked=False).exists()
-    
-    @classmethod
-    def for_user(cls, user):
-        """Returns a list of courses that a specific user can vote on right now"""
-        return cls.objects.filter(
-            vote_start_date__lte=datetime.now(),
-            vote_end_date__gte=datetime.now(),
-            participants=user
-        ).exclude(
-            voters=user
-        )
     
     def __unicode__(self):
         return self.name

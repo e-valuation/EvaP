@@ -12,13 +12,23 @@ from evaluation.tools import questiongroups_and_lecturers
 from student.forms import QuestionsForm
 from student.tools import make_form_identifier
 
+from datetime import datetime
 
 @login_required
 def index(request):
-    courses = Course.for_user(request.user)
+    users_courses = Course.objects.filter(
+            vote_end_date__gte=datetime.now(),
+            participants=request.user
+        ).exclude(
+            voters=request.user
+        )
+    current_courses = users_courses.filter(vote_start_date__lte=datetime.now())
+    future_courses = users_courses.exclude(vote_start_date__lte=datetime.now())
+    
     return render_to_response(
         "student_index.html",
-        dict(courses=courses),
+        dict(current_courses=current_courses,
+             future_courses=future_courses),
         context_instance=RequestContext(request))
 
 
