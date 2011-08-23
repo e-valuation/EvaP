@@ -3,16 +3,16 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from datetime import datetime
 
+# see evaluation.meta for the use of Translate in this file
 from evaluation.meta import LocalizeModelBase, Translate
-
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
     
     __metaclass__ = LocalizeModelBase
     
-    name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
     
     name = Translate
     
@@ -20,10 +20,9 @@ class Semester(models.Model):
     created_at = models.DateField(verbose_name=_(u"created at"), auto_now_add=True)
     
     class Meta:
+        ordering = ('created_at', 'name_de')
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")
-        
-        ordering = ('created_at', 'name_de')
     
     def __unicode__(self):
         return self.name
@@ -40,10 +39,9 @@ class QuestionGroup(models.Model):
     name = Translate
     
     class Meta:
+        ordering = ('name_de',)
         verbose_name = _(u"question group")
         verbose_name_plural = _(u"question groups")
-        
-        ordering = ('name_de',)
     
     def __unicode__(self):
         return self.name
@@ -84,10 +82,13 @@ class Course(models.Model):
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
     class Meta:
+        ordering = ('semester', 'name_de')
+        unique_together = (
+            ('semester', 'name_de'),
+            ('semester', 'name_en'),
+        )
         verbose_name = _(u"course")
         verbose_name_plural = _(u"courses")
-        
-        ordering = ('semester', 'name_de')
     
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
@@ -143,10 +144,9 @@ class Question(models.Model):
     text = Translate
     
     class Meta:
+        order_with_respect_to = 'question_group'
         verbose_name = _(u"question")
         verbose_name_plural = _(u"questions")
-        
-        order_with_respect_to = 'question_group'
     
     def answer_class(self):
         if self.kind == u"T":
@@ -173,10 +173,9 @@ class Answer(models.Model):
     lecturer = models.ForeignKey(User, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
     
     class Meta:
+        abstract = True
         verbose_name = _(u"answer")
         verbose_name_plural = _(u"answers")
-        
-        abstract = True
 
 
 class GradeAnswer(Answer):
