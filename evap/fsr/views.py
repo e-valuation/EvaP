@@ -70,7 +70,7 @@ def semester_import(request, semester_id):
                         data = [sheet.cell(row,col).value for col in range(sheet.ncols)]
                         
                         # find or create student
-                        student = find_or_create_user(username=data[3], first_name=data[1], last_name=data[2])
+                        student = find_or_create_user(username=data[3], first_name=data[2], last_name=data[1])
                         
                         # find or create primary lecturer
                         lecturer = find_or_create_user(username=data[9], first_name=data[7], last_name=data[8])
