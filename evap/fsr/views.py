@@ -76,7 +76,7 @@ def semester_import(request, semester_id):
                         lecturer = find_or_create_user(username=data[9], first_name=data[7], last_name=data[8])
                         
                         # find or create course
-                        course = find_or_create_course(semester, name_de=data[5], name_en=data[6], vote_start_date=vote_start_date, vote_end_date=vote_end_date)
+                        course = find_or_create_course(semester, name_de=data[5], name_en=data[6], kind=data[4], vote_start_date=vote_start_date, vote_end_date=vote_end_date)
                         
                         course.participants.add(student)
                         course.primary_lecturers.add(lecturer)
