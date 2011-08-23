@@ -38,6 +38,11 @@ class QuestionGroup(models.Model):
     
     name = Translate
     
+    description_de = models.TextField(verbose_name=_(u"description (german)"), blank=True, null=True)
+    description_en = models.TextField(verbose_name=_(u"description (english)"), blank=True, null=True)
+    
+    description = Translate
+    
     class Meta:
         ordering = ('name_de',)
         verbose_name = _(u"question group")
