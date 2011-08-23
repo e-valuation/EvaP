@@ -157,6 +157,13 @@ ul.messages li:before {
 	top: 0;
 	color: #5e676a;}
 
+ul.messages li.warning {
+	color: #af0034;}
+
+ul.messages li.error {
+	color: #af0034;
+	font-weight: bold;}
+
 ul.errorlist {
 	color: #af0034;}
 

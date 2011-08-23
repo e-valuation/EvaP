@@ -189,6 +189,13 @@ ul.messages {
         @include enhanced-bullets;
         color: $hpiOrange100;
     }
+    li.warning {
+        color: $hpiRed100;
+    }
+    li.error {
+        color: $hpiRed100;
+        font-weight: bold;
+    }
 }
 
 ul.errorlist {
