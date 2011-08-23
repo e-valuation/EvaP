@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 
 from evaluation.models import Course, GradeAnswer, TextAnswer
 from evaluation.tools import questiongroups_and_lecturers
-from student.forms import QuestionsForms
+from student.forms import QuestionsForm
 from student.tools import make_form_identifier
 
 
@@ -32,9 +32,9 @@ def vote(request, course_id):
     # build forms
     forms = SortedDict()
     for question_group, lecturer in questiongroups_and_lecturers(course):
-        form = QuestionsForms(request.POST or None,
-                              question_group=question_group,
-                              lecturer=lecturer)
+        form = QuestionsForm(request.POST or None,
+                             question_group=question_group,
+                             lecturer=lecturer)
         forms[(question_group, lecturer)] = form
     
     if all(form.is_valid() for form in forms.values()):
@@ -49,12 +49,17 @@ def vote(request, course_id):
                     value = form.cleaned_data.get(identifier)
                     # store the answer if one was given
                     if value:
-                        answer = question.answer_class()(
+                        answer_args = dict(
                             course=course,
                             question=question,
                             lecturer=lecturer,
-                            answer=value)
-                        print repr(answer.answer)
+                        )
+                        if question.is_grade_question():
+                            answer = GradeAnswer(answer=value, **answer_args)
+                        elif question.is_text_question():
+                            answer = TextAnswer(answer=value[0],
+                                                publication_desired=value[1],
+                                                **answer_args)
                         answer.save()
             # remember that the user voted already
             course.voters.add(request.user)

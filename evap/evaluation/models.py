@@ -198,6 +198,9 @@ class TextAnswer(Answer):
     checked = models.BooleanField(verbose_name = _(u"answer checked"))
     hidden = models.BooleanField(verbose_name = _(u"hide answer"))
     
+    # True if the user wants the comment published, even if anonymity cannot be assured
+    publication_desired = models.BooleanField(verbose_name = _(u"publication desired"))
+    
     class Meta:
         verbose_name = _(u"text answer")
         verbose_name_plural = _(u"text answers")

@@ -21,7 +21,40 @@ def coerce_grade(s):
         return None
     return int(s)
 
-class QuestionsForms(forms.Form):
+
+class TextAnswerWidget(forms.MultiWidget):
+    def __init__(self, *args, **kwargs):
+        self.textfield = kwargs.pop('textfield')
+        self.boolfield = kwargs.pop('boolfield')
+        kwargs['widgets'] = [self.textfield.widget, self.boolfield.widget]
+        super(TextAnswerWidget, self).__init__(*args, **kwargs)
+    
+    def format_output(self, rendered_widgets):
+        # FIXME use actual html <label>
+        return u"%s<br/>%s %s" % (rendered_widgets[0], rendered_widgets[1],
+                                  self.boolfield.label)
+    
+    def decompress(self, value):
+        if value:
+            return value
+        else:
+            return "", False
+
+
+class TextAnswerField(forms.MultiValueField):
+    def __init__(self, *args, **kwargs):
+        fields = (
+            forms.CharField(required=False, widget=forms.Textarea()),
+            forms.BooleanField(required=False, label=_(u"Publish text even if anonymity cannot be assured."))
+        )
+        super(TextAnswerField, self).__init__(fields, *args, **kwargs)
+        self.widget = TextAnswerWidget(textfield=fields[0], boolfield=fields[1])
+    
+    def compress(self, data_list):
+        return data_list
+
+
+class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
     `question_group` and `lecturer` to the constructor.
     
@@ -31,15 +64,14 @@ class QuestionsForms(forms.Form):
         self.question_group = kwargs.pop('question_group')
         self.lecturer = kwargs.pop('lecturer')
         
-        super(QuestionsForms, self).__init__(*args, **kwargs)
+        super(QuestionsForm, self).__init__(*args, **kwargs)
         
         for question in self.question_group.question_set.all():
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
             
             if question.is_text_question():
-                field = forms.CharField(widget=forms.Textarea(),
-                                        required=False,
+                field = TextAnswerField(required=False,
                                         **field_args)
             elif question.is_grade_question():
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(),
