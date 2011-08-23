@@ -97,9 +97,6 @@ def semester_assign_questiongroups(request, semester_id):
     form = QuestionGroupsAssignForm(request.POST or None, semester=semester, extras=('primary_lecturers', 'secondary_lecturers'))
     
     if form.is_valid():
-        print request.POST
-        print form.cleaned_data
-        
         for course in semester.course_set.all():
             # check course itself
             if form.cleaned_data[course.kind]:
