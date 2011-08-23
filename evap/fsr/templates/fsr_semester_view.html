@@ -24,6 +24,7 @@
                     <td>{{ course.visible|yesno }}
                     <td>
                         <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
+                        <a href="{% url fsr.views.course_delete semester.id, course.id %}">{% trans "Delete" %}</a>&nbsp;
                         {% if not course.fully_checked %}
                             <a href="{% url fsr.views.course_censor semester.id, course.id %}">{% trans "Censor" %}</a>
                         {% else %}

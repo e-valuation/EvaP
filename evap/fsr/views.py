@@ -143,7 +143,18 @@ def course_edit(request, semester_id, course_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
-        
+
+@login_required
+def course_delete(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    
+    if request.method == 'POST':
+        course.delete()
+        return redirect('fsr.views.semester_view', semester_id)
+    else:
+        return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
+
 @login_required
 def course_censor(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
