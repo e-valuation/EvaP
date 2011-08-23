@@ -145,7 +145,7 @@ ul.messages {
 ul.messages li {
 	list-style: none;
 	margin-left: 1em;
-	color: #007a9e;}
+	color: #dd6108;}
 
 ul.messages li:before {
 	content: '\25AA';
