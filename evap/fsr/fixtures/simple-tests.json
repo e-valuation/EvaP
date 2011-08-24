@@ -1,0 +1,816 @@
+[
+  {
+    "pk":1,
+    "model":"sites.site",
+    "fields":{
+      "domain":"example.com",
+      "name":"example.com"
+    }
+  },
+  {
+    "pk":1,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-16 13:29:01",
+      "app_name":"evaluation",
+      "migration":"0001_initial"
+    }
+  },
+  {
+    "pk":2,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-16 13:29:02",
+      "app_name":"evaluation",
+      "migration":"0002_auto__add_field_course_vote_start_date__add_field_course_vote_end_date"
+    }
+  },
+  {
+    "pk":3,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-16 13:29:05",
+      "app_name":"evaluation",
+      "migration":"0003_auto__del_field_questiongroup_name__add_field_questiongroup_name_de__a"
+    }
+  },
+  {
+    "pk":4,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-16 13:29:05",
+      "app_name":"evaluation",
+      "migration":"0004_auto"
+    }
+  },
+  {
+    "pk":5,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-16 13:29:06",
+      "app_name":"evaluation",
+      "migration":"0005_auto__add_field_question__order"
+    }
+  },
+  {
+    "pk":6,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-17 15:59:15",
+      "app_name":"evaluation",
+      "migration":"0006_auto"
+    }
+  },
+  {
+    "pk":7,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-17 15:59:15",
+      "app_name":"evaluation",
+      "migration":"0007_auto__add_field_questionnaire_lecturer"
+    }
+  },
+  {
+    "pk":8,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-19 12:22:23",
+      "app_name":"evaluation",
+      "migration":"0008_auto__add_unique_questiongroup_name_en__add_unique_questiongroup_name_"
+    }
+  },
+  {
+    "pk":9,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-19 15:04:55",
+      "app_name":"evaluation",
+      "migration":"0009_auto__del_questionnaire__del_field_textanswer_questionnaire__add_field"
+    }
+  },
+  {
+    "pk":10,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-20 14:34:49",
+      "app_name":"evaluation",
+      "migration":"0010_auto__del_field_textanswer_answer__add_field_textanswer_censored_answe"
+    }
+  },
+  {
+    "pk":11,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-22 10:04:08",
+      "app_name":"evaluation",
+      "migration":"0010_auto"
+    }
+  },
+  {
+    "pk":12,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-22 10:04:51",
+      "app_name":"evaluation",
+      "migration":"0011_merge"
+    }
+  },
+  {
+    "pk":13,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-22 10:09:05",
+      "app_name":"evaluation",
+      "migration":"0012_auto__add_field_semester_visible__add_field_semester_created_at"
+    }
+  },
+  {
+    "pk":14,
+    "model":"south.migrationhistory",
+    "fields":{
+      "applied":"2011-08-22 11:58:09",
+      "app_name":"evaluation",
+      "migration":"0013_auto__del_field_course_publish_date__add_field_course_visible"
+    }
+  },
+  {
+    "pk":1,
+    "model":"evaluation.semester",
+    "fields":{
+      "created_at":"2010-08-22",
+      "visible":true,
+      "name_de":"Semester 1",
+      "name_en":"Semester 1 (english)"
+    }
+  },
+  {
+    "pk":2,
+    "model":"evaluation.semester",
+    "fields":{
+      "created_at":"2011-08-22",
+      "visible":false,
+      "name_de":"Semester 2",
+      "name_en":"Semester 2 (english)"
+    }
+  },
+  {
+    "pk":3,
+    "model":"evaluation.questiongroup",
+    "fields":{
+      "name_de":"Seminar",
+      "name_en":"Seminar"
+    }
+  },
+  {
+    "pk":2,
+    "model":"evaluation.questiongroup",
+    "fields":{
+      "name_de":"Vorlesung",
+      "name_en":"Lecture"
+    }
+  },
+  {
+    "pk":10,
+    "model":"evaluation.course",
+    "fields":{
+      "primary_lecturers":[
+        16
+      ],
+      "kind":"Seminar",
+      "secondary_lecturer_questions":[
+
+      ],
+      "primary_lecturer_questions":[
+
+      ],
+      "voters":[
+
+      ],
+      "general_questions":[
+        2
+      ],
+      "name_de":"Dependable Systems",
+      "visible":true,
+      "semester":1,
+      "participants":[
+        3,
+        4
+      ],
+      "vote_end_date":"2010-08-30",
+      "name_en":"Dependable Systems",
+      "secondary_lecturers":[
+
+      ],
+      "vote_start_date":"2010-08-18"
+    }
+  },
+  {
+    "pk":16,
+    "model":"evaluation.course",
+    "fields":{
+      "primary_lecturers":[
+        21
+      ],
+      "kind":"Seminar",
+      "secondary_lecturer_questions":[
+
+      ],
+      "primary_lecturer_questions":[
+
+      ],
+      "voters":[
+
+      ],
+      "general_questions":[
+        2
+      ],
+      "name_de":"Einf\u00fchrung in die Programmiertechnik II",
+      "visible":true,
+      "semester":1,
+      "participants":[
+
+      ],
+      "vote_end_date":"2010-08-30",
+      "name_en":"Programming Concepts II",
+      "secondary_lecturers":[
+
+      ],
+      "vote_start_date":"2010-08-18"
+    }
+  },
+  {
+    "pk":5,
+    "model":"evaluation.question",
+    "fields":{
+      "text_en":"Q1 (en)",
+      "kind":"G",
+      "_order":0,
+      "text_de":"Q1",
+      "question_group":2
+    }
+  },
+  {
+    "pk":8,
+    "model":"evaluation.question",
+    "fields":{
+      "text_en":"Q1",
+      "kind":"G",
+      "_order":0,
+      "text_de":"Q1",
+      "question_group":3
+    }
+  },
+  {
+    "pk":6,
+    "model":"evaluation.question",
+    "fields":{
+      "text_en":"Q2 (en)",
+      "kind":"G",
+      "_order":1,
+      "text_de":"Q2",
+      "question_group":2
+    }
+  },
+  {
+    "pk":9,
+    "model":"evaluation.question",
+    "fields":{
+      "text_en":"Comments",
+      "kind":"T",
+      "_order":1,
+      "text_de":"Kommentare",
+      "question_group":3
+    }
+  },
+  {
+    "pk":7,
+    "model":"evaluation.question",
+    "fields":{
+      "text_en":"Comments",
+      "kind":"T",
+      "_order":2,
+      "text_de":"Kommentare",
+      "question_group":2
+    }
+  },
+  {
+    "pk":22,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_logentry",
+      "name":"Can add log entry",
+      "content_type":8
+    }
+  },
+  {
+    "pk":23,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_logentry",
+      "name":"Can change log entry",
+      "content_type":8
+    }
+  },
+  {
+    "pk":24,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_logentry",
+      "name":"Can delete log entry",
+      "content_type":8
+    }
+  },
+  {
+    "pk":4,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_group",
+      "name":"Can add group",
+      "content_type":2
+    }
+  },
+  {
+    "pk":5,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_group",
+      "name":"Can change group",
+      "content_type":2
+    }
+  },
+  {
+    "pk":6,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_group",
+      "name":"Can delete group",
+      "content_type":2
+    }
+  },
+  {
+    "pk":10,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_message",
+      "name":"Can add message",
+      "content_type":4
+    }
+  },
+  {
+    "pk":11,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_message",
+      "name":"Can change message",
+      "content_type":4
+    }
+  },
+  {
+    "pk":12,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_message",
+      "name":"Can delete message",
+      "content_type":4
+    }
+  },
+  {
+    "pk":1,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_permission",
+      "name":"Can add permission",
+      "content_type":1
+    }
+  },
+  {
+    "pk":2,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_permission",
+      "name":"Can change permission",
+      "content_type":1
+    }
+  },
+  {
+    "pk":3,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_permission",
+      "name":"Can delete permission",
+      "content_type":1
+    }
+  },
+  {
+    "pk":7,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_user",
+      "name":"Can add user",
+      "content_type":3
+    }
+  },
+  {
+    "pk":8,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_user",
+      "name":"Can change user",
+      "content_type":3
+    }
+  },
+  {
+    "pk":9,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_user",
+      "name":"Can delete user",
+      "content_type":3
+    }
+  },
+  {
+    "pk":13,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_contenttype",
+      "name":"Can add content type",
+      "content_type":5
+    }
+  },
+  {
+    "pk":14,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_contenttype",
+      "name":"Can change content type",
+      "content_type":5
+    }
+  },
+  {
+    "pk":15,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_contenttype",
+      "name":"Can delete content type",
+      "content_type":5
+    }
+  },
+  {
+    "pk":31,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_course",
+      "name":"Can add course",
+      "content_type":11
+    }
+  },
+  {
+    "pk":32,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_course",
+      "name":"Can change course",
+      "content_type":11
+    }
+  },
+  {
+    "pk":33,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_course",
+      "name":"Can delete course",
+      "content_type":11
+    }
+  },
+  {
+    "pk":43,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_gradeanswer",
+      "name":"Can add answer",
+      "content_type":15
+    }
+  },
+  {
+    "pk":44,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_gradeanswer",
+      "name":"Can change answer",
+      "content_type":15
+    }
+  },
+  {
+    "pk":45,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_gradeanswer",
+      "name":"Can delete answer",
+      "content_type":15
+    }
+  },
+  {
+    "pk":37,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_question",
+      "name":"Can add question",
+      "content_type":13
+    }
+  },
+  {
+    "pk":38,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_question",
+      "name":"Can change question",
+      "content_type":13
+    }
+  },
+  {
+    "pk":39,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_question",
+      "name":"Can delete question",
+      "content_type":13
+    }
+  },
+  {
+    "pk":34,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_questiongroup",
+      "name":"Can add question group",
+      "content_type":12
+    }
+  },
+  {
+    "pk":35,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_questiongroup",
+      "name":"Can change question group",
+      "content_type":12
+    }
+  },
+  {
+    "pk":36,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_questiongroup",
+      "name":"Can delete question group",
+      "content_type":12
+    }
+  },
+  {
+    "pk":40,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_questionnaire",
+      "name":"Can add questionnaire",
+      "content_type":14
+    }
+  },
+  {
+    "pk":41,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_questionnaire",
+      "name":"Can change questionnaire",
+      "content_type":14
+    }
+  },
+  {
+    "pk":42,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_questionnaire",
+      "name":"Can delete questionnaire",
+      "content_type":14
+    }
+  },
+  {
+    "pk":28,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_semester",
+      "name":"Can add semester",
+      "content_type":10
+    }
+  },
+  {
+    "pk":29,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_semester",
+      "name":"Can change semester",
+      "content_type":10
+    }
+  },
+  {
+    "pk":30,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_semester",
+      "name":"Can delete semester",
+      "content_type":10
+    }
+  },
+  {
+    "pk":46,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_textanswer",
+      "name":"Can add answer",
+      "content_type":16
+    }
+  },
+  {
+    "pk":47,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_textanswer",
+      "name":"Can change answer",
+      "content_type":16
+    }
+  },
+  {
+    "pk":48,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_textanswer",
+      "name":"Can delete answer",
+      "content_type":16
+    }
+  },
+  {
+    "pk":16,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_session",
+      "name":"Can add session",
+      "content_type":6
+    }
+  },
+  {
+    "pk":17,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_session",
+      "name":"Can change session",
+      "content_type":6
+    }
+  },
+  {
+    "pk":18,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_session",
+      "name":"Can delete session",
+      "content_type":6
+    }
+  },
+  {
+    "pk":19,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_site",
+      "name":"Can add site",
+      "content_type":7
+    }
+  },
+  {
+    "pk":20,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_site",
+      "name":"Can change site",
+      "content_type":7
+    }
+  },
+  {
+    "pk":21,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_site",
+      "name":"Can delete site",
+      "content_type":7
+    }
+  },
+  {
+    "pk":25,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"add_migrationhistory",
+      "name":"Can add migration history",
+      "content_type":9
+    }
+  },
+  {
+    "pk":26,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"change_migrationhistory",
+      "name":"Can change migration history",
+      "content_type":9
+    }
+  },
+  {
+    "pk":27,
+    "model":"auth.permission",
+    "fields":{
+      "codename":"delete_migrationhistory",
+      "name":"Can delete migration history",
+      "content_type":9
+    }
+  },
+  {
+    "pk":3,
+    "model":"auth.user",
+    "fields":{
+      "username":"Michael.Gruenewald",
+      "first_name":"Gr\u00fcnewald",
+      "last_name":"Michael",
+      "is_active":true,
+      "is_superuser":false,
+      "is_staff":false,
+      "last_login":"2011-08-17 15:13:30",
+      "groups":[
+
+      ],
+      "user_permissions":[
+
+      ],
+      "password":"",
+      "email":"",
+      "date_joined":"2011-08-17 15:13:30"
+    }
+  },
+  {
+    "pk":4,
+    "model":"auth.user",
+    "fields":{
+      "username":"StefanC.Richter",
+      "first_name":"Richter",
+      "last_name":"Stefan",
+      "is_active":true,
+      "is_superuser":false,
+      "is_staff":false,
+      "last_login":"2011-08-18 14:14:10",
+      "groups":[
+
+      ],
+      "user_permissions":[
+
+      ],
+      "password":"",
+      "email":"",
+      "date_joined":"2011-08-17 15:13:31"
+    }
+  },
+  {
+    "pk":16,
+    "model":"auth.user",
+    "fields":{
+      "username":"Mustermann",
+      "first_name":"Dr.",
+      "last_name":"Mustermann",
+      "is_active":true,
+      "is_superuser":false,
+      "is_staff":false,
+      "last_login":"2011-08-18 11:33:27",
+      "groups":[
+
+      ],
+      "user_permissions":[
+
+      ],
+      "password":"",
+      "email":"",
+      "date_joined":"2011-08-18 11:33:27"
+    }
+  },
+  {
+    "pk":21,
+    "model":"auth.user",
+    "fields":{
+      "username":"Jon.Doe",
+      "first_name":"Dr.",
+      "last_name":"Doe",
+      "is_active":true,
+      "is_superuser":false,
+      "is_staff":false,
+      "last_login":"2011-08-18 11:33:27",
+      "groups":[
+
+      ],
+      "user_permissions":[
+
+      ],
+      "password":"",
+      "email":"",
+      "date_joined":"2011-08-18 11:33:27"
+    }
+  }
+]
