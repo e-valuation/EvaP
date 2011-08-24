@@ -19,6 +19,12 @@ class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         exclude = ("voters", "semester")
+    
+    def __init__(self, *args, **kwargs):
+        super(CourseForm, self).__init__(*args, **kwargs)
+        self.fields['general_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
+        self.fields['primary_lecturer_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
+        self.fields['secondary_lecturer_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
 
 class QuestionGroupForm(forms.ModelForm):
     class Meta:
@@ -90,8 +96,8 @@ class QuestionGroupsAssignForm(forms.Form):
         
         # course kinds
         for kind in semester.course_set.values_list('kind', flat=True).order_by().distinct():
-            self.fields[kind] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.all())
+            self.fields[kind] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
         
         # extra kinds
         for extra in extras:
-            self.fields[extra] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.all())
+            self.fields[extra] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))

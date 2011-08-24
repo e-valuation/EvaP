@@ -170,7 +170,7 @@ def course_censor(request, semester_id, course_id):
     
 @login_required
 def questiongroup_index(request):
-    questiongroups = QuestionGroup.objects.all()
+    questiongroups = QuestionGroup.objects.order_by('-obsolete')
     return render_to_response("fsr_questiongroup_index.html", dict(questiongroups=questiongroups), context_instance=RequestContext(request))
 
 @login_required
@@ -203,6 +203,10 @@ def questiongroup_edit(request, questiongroup_id):
     
     form = QuestionGroupForm(request.POST or None, instance=questiongroup)
     formset = QuestionFormset(request.POST or None, instance=questiongroup)
+    
+    if questiongroup.obsolete:
+        messages.add_message(request, messages.INFO, _("Obsolete question groups cannot be edited."))
+        return redirect('fsr.views.questiongroup_index')
     
     if form.is_valid() and formset.is_valid():
         form.save()

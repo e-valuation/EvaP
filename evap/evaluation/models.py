@@ -42,6 +42,8 @@ class QuestionGroup(models.Model):
     
     description = Translate
     
+    obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
+    
     def used_in_course_kinds(self):
         return {
             "general": self.general_courses.values_list('kind', flat=True).order_by().distinct(),

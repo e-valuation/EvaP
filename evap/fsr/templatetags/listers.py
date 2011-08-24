@@ -10,5 +10,5 @@ def show_semesters():
 
 @register.inclusion_tag('fsr_questiongroup_menu.html')
 def show_questiongroups():
-    questiongroups = QuestionGroup.objects.all()
+    questiongroups = QuestionGroup.objects.filter(obsolete=False)
     return {'questiongroups': questiongroups}

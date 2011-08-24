@@ -16,6 +16,7 @@
                 <th>{% trans "Name" %}</th>
                 <th>{% trans "# of Q." %}</th>
                 <th>{% trans "Usages" %}</th>
+                <th>{% trans "Obsolete" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
             
@@ -34,8 +35,11 @@
                             {{ kind }}({% trans "Secondary Lecturer" %})&nbsp;
                         {% endfor %}
                     </td>
+                    <td>{{ questiongroup.obsolete|yesno }}</td>
                     <td>
-                        <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
+                        {% if not questiongroup.obsolete %}
+                            <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
+                        {% endif %}
                         <a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_copy questiongroup.id %}">{% trans "Copy" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete" %}</a>
