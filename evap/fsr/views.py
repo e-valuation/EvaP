@@ -58,7 +58,7 @@ def semester_delete(request, semester_id):
 @login_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    publishFS = modelformset_factory(Course, fields=('visible', ), can_order=False, can_delete=False, extra=0)
+    publishFS = modelformset_factory(Course, formset=PublishCourseFormSet, fields=('visible', ), can_order=False, can_delete=False, extra=0)
     formset = publishFS(request.POST or None, queryset=semester.course_set.filter(visible=False))
     
     if formset.is_valid():

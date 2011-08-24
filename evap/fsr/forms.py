@@ -1,5 +1,5 @@
 from django import forms
-from django.forms.models import BaseInlineFormSet
+from django.forms.models import BaseInlineFormSet, BaseModelFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from evaluation.models import *
@@ -125,3 +125,15 @@ class QuestionGroupsAssignForm(forms.Form):
         # extra kinds
         for extra in extras:
             self.fields[extra] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+
+class PublishCourseFormSet(BaseModelFormSet):
+    class PseudoQuerySet(list):
+        db = None
+    
+    def get_queryset(self):
+        if not hasattr(self, '_queryset'):
+            self._queryset = PublishCourseFormSet.PseudoQuerySet()
+            self._queryset.extend([e for e in self.queryset.all() if e.fully_checked()])
+            self._queryset.db = self.queryset.db
+        return self._queryset
+        
