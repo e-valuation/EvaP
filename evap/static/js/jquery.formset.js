@@ -38,8 +38,16 @@
             insertDeleteLink = function(row) {
                 if (row.is('TR')) {
                     // If the forms are laid out in table rows, insert
-                    // the remove button into the last table cell:
-                    row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                    // the remove button in the cell with the delete box
+                    var del = row.find('input[id $= "-DELETE"]');
+                    if (del.length) {
+                        del.before('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                    } else {
+                        // if this fails, use the last cell
+                        row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                    }
+                    
+                    
                 } else if (row.is('UL') || row.is('OL')) {
                     // If they're laid out as an ordered/unordered list,
                     // insert an <li> after the last list item:
