@@ -27,10 +27,6 @@
                         <a href="{% url fsr.views.course_delete semester.id, course.id %}">{% trans "Delete" %}</a>&nbsp;
                         {% if not course.fully_checked %}
                             <a href="{% url fsr.views.course_censor semester.id, course.id %}">{% trans "Censor" %}</a>
-                        {% else %}
-                            {% if not course.visible %}
-                                <a href="{% url fsr.views.course_publish semester.id, course.id %}">{% trans "Publish" %}</a>
-                            {% endif %}
                         {% endif %}
                 </tr>
             {% endfor %}

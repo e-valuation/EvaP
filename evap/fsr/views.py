@@ -56,6 +56,20 @@ def semester_delete(request, semester_id):
         return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
 
 @login_required
+def semester_publish(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    publishFS = modelformset_factory(Course, fields=('visible', ), can_order=False, can_delete=False, extra=0)
+    formset = publishFS(request.POST or None, queryset=semester.course_set.filter(visible=False))
+    
+    if formset.is_valid():
+        count = len(formset.save())
+        
+        messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % count)
+        return redirect('fsr.views.semester_view', semester.id)
+    else:
+        return render_to_response("fsr_semester_publish.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
+
+@login_required
 def semester_import(request, semester_id):   
     semester = get_object_or_404(Semester, id=semester_id)
     form = ImportForm(request.POST or None, request.FILES or None)
@@ -153,17 +167,6 @@ def course_censor(request, semester_id, course_id):
         if request.method == "POST":
             print formset.errors
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
-
-@login_required
-def course_publish(request, semester_id, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    
-    # publish
-    course.visible = True;
-    course.save()
-    
-    messages.add_message(request, messages.INFO, _("Successfully published course."))
-    return redirect('fsr.views.semester_view', semester_id)
     
 @login_required
 def questiongroup_index(request):

@@ -1,0 +1,25 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            
+            <ul>
+            {% for form in formset %}
+                <li>
+                {% for field in form %}
+                    {{ field }}
+                {% endfor %}
+                {{ form.instance }}
+                </li>
+            {% endfor %}
+            </ul>
+            <input type="submit" value="{% trans "Publish courses" %}"/>
+        </form>
+    </p>
+{% endblock %}

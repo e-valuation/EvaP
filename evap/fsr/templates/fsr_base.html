@@ -49,6 +49,7 @@
                 <li><a href="{% url fsr.views.semester_edit semester.id %}">{% trans "Edit this semester" %}</a></li>
                 <li><a href="{% url fsr.views.semester_delete semester.id %}">{% trans "Delete this semester" %}</a></li>
                 <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import courses" %}</a></li>
+                <li><a href="{% url fsr.views.semester_publish semester.id %}">{% trans "Publish courses" %}</a></li>
                 <li><a href="{% url fsr.views.semester_assign_questiongroups semester.id %}">{% trans "Assign question groups" %}</a></li>
             {% endif %}
         {% endblock %}
