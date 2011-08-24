@@ -42,6 +42,13 @@ class QuestionGroup(models.Model):
     
     description = Translate
     
+    def used_in_course_kinds(self):
+        return {
+            "general": self.general_courses.values_list('kind', flat=True).order_by().distinct(),
+            "primary_lecturer": self.primary_courses.values_list('kind', flat=True).order_by().distinct(),
+            "secondary_lecturer": self.secondary_courses.values_list('kind', flat=True).order_by().distinct(),
+        }
+    
     class Meta:
         ordering = ('name_de',)
         verbose_name = _(u"question group")

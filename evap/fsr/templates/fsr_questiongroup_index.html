@@ -14,7 +14,8 @@
         <table>
             <tr>
                 <th>{% trans "Name" %}</th>
-                <th>{% trans "# of Questions" %}</th>
+                <th>{% trans "# of Q." %}</th>
+                <th>{% trans "Usages" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
             
@@ -22,6 +23,17 @@
                 <tr>
                     <td>{{ questiongroup.name }}</td>
                     <td>{{ questiongroup.question_set.all|length }}</td>
+                    <td>
+                        {% for kind in questiongroup.used_in_course_kinds.general %}
+                            {{ kind }}({% trans "General" %})&nbsp;
+                        {% endfor %}
+                        {% for kind in questiongroup.used_in_course_kinds.primary_lecturer %}
+                            {{ kind }}({% trans "Primary Lecturer" %})&nbsp;
+                        {% endfor %}
+                        {% for kind in questiongroup.used_in_course_kinds.secondary_lecturer %}
+                            {{ kind }}({% trans "Secondary Lecturer" %})&nbsp;
+                        {% endfor %}
+                    </td>
                     <td>
                         <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
                         <a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "Preview" %}</a>&nbsp;
