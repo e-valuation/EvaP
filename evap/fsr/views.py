@@ -46,6 +46,16 @@ def semester_edit(request, semester_id):
         return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @login_required
+def semester_delete(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    
+    if request.method == 'POST':
+        semester.delete()
+        return redirect('fsr.views.semester_index')
+    else:
+        return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
+
+@login_required
 def semester_import(request, semester_id):   
     semester = get_object_or_404(Semester, id=semester_id)
     form = ImportForm(request.POST or None, request.FILES or None)
