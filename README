@@ -17,7 +17,14 @@ EvaP is a standard Django project, divided up into several applications:
 - *evaluation* contains all the data models relevant for the evaluation, but 
   no views. 
 - *fsr* provides views for the student representatives
+- *results* provides views to show results and produce exports
 - *student* provides views relevant for students (voting etc.)
+
+Data Model and Migration
+------------------------
+
+The `evaluation` app is controlled by South -- a framework for Django that 
+allows a continuous change in the data models without losing data.
 
 Dependencies
 ------------

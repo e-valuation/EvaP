@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evaluation.models import Semester, Course, Question, QuestionGroup
 from fsr.forms import *
-from fsr.importers import import_excel_file
+from fsr.importers import ExcelImporter
 
 @login_required
 def semester_index(request):
@@ -57,7 +57,7 @@ def semester_import(request, semester_id):
         vote_end_date = form.cleaned_data['vote_end_date']
         
         # parse table
-        import_excel_file(request, excel_file, semester, vote_start_date, vote_end_date)
+        ExcelImporter.process(request, excel_file, semester, vote_start_date, vote_end_date)
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))

@@ -8,19 +8,23 @@
     {{ block.super }}
     
     <p>
-    {% if courses %}
+    {% if current_courses %}
         {% trans "You can vote on the following courses:" %}
-        {% regroup courses by semester as semesters %}
-        {% for semester in semesters %}
-            <h3>{{ semester.grouper.name }}</h3>
-            <ul>
-            {% for course in courses %}
-                <li><a href="{% url student.views.vote course.id %}">{{ course.name }}</a></li>
-            {% endfor %}
-            </ul>
+        <ul>
+        {% for course in current_courses %}
+            <li><a href="{% url student.views.vote course.id %}">{{ course.name }}</a></li>
         {% endfor %}
+        </ul>
     {% else %}
         {% trans "You cannot vote on any courses right now." %}
+    {% endif %}
+    {% if future_courses %}
+        {% trans "You will be able to vote on the following courses soon:" %}
+        <ul>
+            {% for course in future_courses %}
+                <li>{{ course.name }} ({% trans "starting" %} {{ course.vote_start_date|date:"DATE_FORMAT" }})</li>
+            {% endfor %}
+        </ul>
     {% endif %}
     </p>
 {% endblock %}
