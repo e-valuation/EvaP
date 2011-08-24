@@ -25,6 +25,7 @@
             <fieldset>
                 {{ formset.management_form }}
                 <label>{% trans "Questions" %}:</label>
+                {{ formset.non_form_errors }}
                 <table id="question_table">
                     <tr>
                         {% for field in formset.form %}
@@ -34,9 +35,13 @@
                     </tr>
                     <tbody>
                         {% for form_element in formset %}
+                            {% if form_element.non_field_errors %}
+                                <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
+                            {% endif %}
+                            
                             <tr>
                             {% for field in form_element %}
-                                <td>{{ field }}</td>
+                                <td>{{field.errors}} {{ field }}</td>
                             {% endfor %}
                             </tr>
                         {% endfor %}

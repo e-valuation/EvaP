@@ -179,7 +179,7 @@ def questiongroup_view(request, questiongroup_id):
 @login_required
 def questiongroup_create(request):
     questiongroup = QuestionGroup()
-    QuestionFormset = inlineformset_factory(QuestionGroup, Question, form=QuestionForm, extra=1, exclude=('question_group'))
+    QuestionFormset = inlineformset_factory(QuestionGroup, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('question_group'))
 
     form = QuestionGroupForm(request.POST or None, instance=questiongroup)
     formset = QuestionFormset(request.POST or None, instance=questiongroup)
@@ -196,7 +196,7 @@ def questiongroup_create(request):
 @login_required
 def questiongroup_edit(request, questiongroup_id):
     questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
-    QuestionFormset = inlineformset_factory(QuestionGroup, Question, form=QuestionForm, extra=1, exclude=('question_group'))
+    QuestionFormset = inlineformset_factory(QuestionGroup, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('question_group'))
     
     form = QuestionGroupForm(request.POST or None, instance=questiongroup)
     formset = QuestionFormset(request.POST or None, instance=questiongroup)

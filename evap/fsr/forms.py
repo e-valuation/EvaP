@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from evaluation.models import *
@@ -27,6 +28,25 @@ class CensorTextAnswerForm(forms.ModelForm):
     class Meta:
         model = TextAnswer
         exclude = ("question", "course", "lecturer")
+
+class QuestionFormSet(BaseInlineFormSet):
+    def is_valid(self):
+        return super(QuestionFormSet, self).is_valid() and not any([bool(e) for e in self.errors])  
+    
+    def clean(self):          
+        # get forms that actually have valid data
+        count = 0
+        for form in self.forms:
+            try:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    count += 1
+            except AttributeError:
+                # annoyingly, if a subform is invalid Django explicity raises
+                # an AttributeError for cleaned_data
+                pass
+        
+        if count < 1:
+            raise forms.ValidationError(_(u'You must have at least one of these.'))
 
 class QuestionForm(forms.ModelForm):
     class Meta:
