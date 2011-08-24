@@ -159,9 +159,26 @@ def course_censor(request, semester_id, course_id):
     formset = censorFS(request.POST or None, queryset=course.textanswer_set)
     
     if formset.is_valid():
-        formset.save()
+        count = 0
+        for form in formset:
+            if form.cleaned_data['action'] == 1:
+                # approved
+                pass
+            elif form.cleaned_data['action'] == 2:
+                # censored
+                form.instance.censored_answer = form.cleaned_data['censored_answer']
+            elif form.cleaned_data['action'] == 3:
+                # hide
+                form.instance.hidden = True
+            else:
+                # needs further review
+                continue
+            
+            form.instance.checked = True
+            form.instance.save()
+            count = count + 1
         
-        messages.add_message(request, messages.INFO, _("Successfully censored course answers."))
+        messages.add_message(request, messages.INFO, _("Successfully censored %d course answers.") % count)
         return redirect('fsr.views.semester_view', semester_id)
     else:
         if request.method == "POST":

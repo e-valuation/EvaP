@@ -30,10 +30,34 @@ class QuestionGroupForm(forms.ModelForm):
     class Meta:
         model = QuestionGroup
         
+ACTION_CHOICES = (
+    (u"1", _(u"Approved")),
+    (u"2", _(u"Censored")),
+    (u"3", _(u"Hide")),
+    (u"4", _(u"Needs further review")),
+)
+
 class CensorTextAnswerForm(forms.ModelForm):
     class Meta:
         model = TextAnswer
-        exclude = ("question", "course", "lecturer")
+        fields = ('censored_answer',)
+    
+    def __init__(self, *args, **kwargs):
+        super(CensorTextAnswerForm, self).__init__(*args, **kwargs)
+        self.fields['action'] = forms.TypedChoiceField(widget=forms.RadioSelect(), choices=ACTION_CHOICES, coerce=int)
+    
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        action = cleaned_data.get("action")
+        censored_answer = cleaned_data.get("censored_answer")
+        
+        print action == 2
+        print bool(censored_answer)
+        
+        if action == 2 and not censored_answer:
+            raise forms.ValidationError(_(u'Censored answer missing.'))
+        
+        return cleaned_data
 
 class QuestionFormSet(BaseInlineFormSet):
     def is_valid(self):

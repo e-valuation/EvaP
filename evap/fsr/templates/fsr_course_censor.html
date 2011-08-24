@@ -7,10 +7,10 @@
 
     <script>
         function checkAll() {
-            $(".multiselect-form INPUT[type='checkbox']").each(function() {
-                if(this['id'].substr(-7) == "checked") {
+            $('.multiselect-form INPUT[id $= "-action_0"]').each(function() {
+                //if(this['id'].substr(-7) == "checked") {
                     this['checked'] = true;
-                }
+                //}
             });
         }
     </script>
@@ -24,16 +24,23 @@
             {{ formset.management_form }}
             <table id="question_table">
                 <tr>
-                    {% for field in formset.form %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
+                    <th>{% trans "Original Answer" %}</th>
+                    <th>{% trans "Censored Answer" %}</th>
+                    </th>
                 </tr>
                 <tbody>
-                    {% for form_element in formset %}
+                    {% for form in formset %}
+						{% for hidden in form.hidden_fields %}
+							{{ hidden }}
+						{% endfor %}
+						
+						{% if form.non_field_errors %}
+							<tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
+                        {% endif %}
                         <tr>
-                        {% for field in form_element %}
-                            <td>{{ field }}</td>
-                        {% endfor %}
+							<td>{{ form.instance.original_answer }}</td>
+                            <td>{{ form.censored_answer.errors }} {{ form.censored_answer }}</td>
+							<td>{{ form.action }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
