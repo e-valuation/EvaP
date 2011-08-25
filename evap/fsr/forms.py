@@ -18,10 +18,10 @@ class SemesterForm(forms.ModelForm):
 class CourseForm(forms.ModelForm):
     class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
         def label_from_instance(self, obj):
-            if obj.get_profile():
+            try:
                 return obj.get_profile().full_name
-            else:
-                return obj.username
+            except UserProfile.DoesNotExist:
+                return obj.get_full_name() or obj.username
     
     participants = UserModelMultipleChoiceField(queryset=User.objects.all())
     primary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())

@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from student.tools import make_form_identifier
+from evaluation.models import UserProfile
 from evaluation.tools import questiongroups_and_lecturers
 
 GRADE_CHOICES = (
@@ -86,9 +87,12 @@ class QuestionsForm(forms.Form):
 
     def caption(self):
         if self.lecturer:
-            return u"%s: %s" % (
-                self.lecturer.get_profile().full_name if self.lecturer.get_profile() else self.lecturer.username,
-                self.question_group.name
-            )
+            try:
+                full_name = self.lecturer.get_profile().full_name
+            except UserProfile.DoesNotExist:
+                full_name = self.lecturer.get_full_name() or self.lecturer.username
+            
+            return u"%s: %s" % (full_name, self.question_group.name)
+            
         else:
             return self.question_group.name
