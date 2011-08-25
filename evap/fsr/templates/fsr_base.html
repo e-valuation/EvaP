@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load showfrom %}
 {% load static %}
-{% load listers %}
+
+{% block title %}{% trans "Student Representatives" %} - {{ block.super }}{% endblock %}
 
 {% block subtitle %}{% trans "Student Representatives" %}{% endblock %}
 
@@ -29,10 +31,10 @@
 {% block menu %}
     {{ block.super }}
     <p><a href="{% url fsr.views.questiongroup_index %}">{% trans "Question Groups" %}</a></p>
-    {% show_questiongroups %}
+    {% show_from 'fsr.tools.all_questiongroups' "fsr_questiongroup_menu.html" %}
     
     <p><a href="{% url fsr.views.semester_index %}">{% trans "Semesters" %}</a></p>
-    {% show_semesters %}
+    {% show_from 'fsr.tools.all_semesters' "fsr_semester_menu.html" %}
     
     <p><a href="{% url fsr.views.user_index %}">{% trans "Users" %}</a></p>
 {% endblock %}
