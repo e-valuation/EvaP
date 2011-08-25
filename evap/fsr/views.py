@@ -260,4 +260,46 @@ def questiongroup_delete(request, questiongroup_id):
         return redirect('fsr.views.questiongroup_index')
     else:
         return render_to_response("fsr_questiongroup_delete.html", dict(questiongroup=questiongroup), context_instance=RequestContext(request))
+
+@login_required
+def user_index(request):
+    users = User.objects.order_by("last_name")
+    return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
+
+@login_required
+def user_create(request):
+    profile = UserProfile(user=User())
+    form = UserForm(request.POST or None, instance=profile)
+    
+    if form.is_valid():
+        #profile.user.save()
+        form.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully created user."))
+        return redirect('fsr.views.user_index')
+    else:
+        return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
+
+@login_required
+def user_edit(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    form = UserForm(request.POST or None, request.FILES or None, instance=user.get_profile())
+    
+    if form.is_valid():
+        form.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully updated user."))
+        return redirect('fsr.views.user_index')
+    else:
+        return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
+
+@login_required
+def user_delete(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        user.delete()
+        return redirect('fsr.views.user_index')
+    else:
+        return render_to_response("fsr_user_delete.html", dict(user=user), context_instance=RequestContext(request))
     
