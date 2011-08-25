@@ -22,4 +22,9 @@ urlpatterns = patterns('fsr.views',
     url(r"^questiongroup/(\d+)/edit$", 'questiongroup_edit'),
     url(r"^questiongroup/(\d+)/copy$", 'questiongroup_copy'),
     url(r"^questiongroup/(\d+)/delete$", 'questiongroup_delete'),
+    
+    url(r"^user$", 'user_index'),
+    url(r"^user/create$", 'user_create'),
+    url(r"^user/(\d+)/edit$", 'user_edit'),
+    url(r"^user/(\d+)/delete$", 'user_delete'),
 )

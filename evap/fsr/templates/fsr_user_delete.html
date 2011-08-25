@@ -1,0 +1,15 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            <p>{% trans "Do you really want to delete this user?" %}</p>
+            <input type="submit" value="{% trans "Yes" %}"/>
+            <a href="{% url fsr.views.user_index %}">{% trans "No" %}</a>
+        </form>
+    </p>
+{% endblock %}
