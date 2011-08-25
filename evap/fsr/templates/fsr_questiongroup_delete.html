@@ -7,7 +7,7 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <p>{% trans "Do you really want to delete this question group?" %}</p>
+            <p>{% blocktrans with name=questiongroup.name %}Do you really want to delete the question group <em>{{ name }}</em>?{% endblocktrans %}</p>
             <input type="submit" value="{% trans "Yes" %}"/>
             <a href="{% url fsr.views.questiongroup_view questiongroup.id %}">{% trans "No" %}</a>
         </form>

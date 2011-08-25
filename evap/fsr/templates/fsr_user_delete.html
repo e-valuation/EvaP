@@ -7,7 +7,7 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <p>{% trans "Do you really want to delete this user?" %}</p>
+            <p>{% blocktrans with name=user.username %}Do you really want to delete the user <em>{{ name }}</em>?{% endblocktrans %}</p>
             <input type="submit" value="{% trans "Yes" %}"/>
             <a href="{% url fsr.views.user_index %}">{% trans "No" %}</a>
         </form>
