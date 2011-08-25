@@ -72,7 +72,7 @@ class ExcelImporter(object):
                     lecturer.get_profile().title = lecturer_profile_data.title
                     lecturer.get_profile().save()
                     
-                    course, course_is_new = Course.objects.get_or_create(semester=semester, name_de=course_data.name_de, defaults=course_data._asdict())
+                    course, course_is_new = Course.objects.get_or_create(semester=semester, name_de=course_data.name_de, defaults=dict(course_data._asdict().items() + [('vote_start_date', vote_start_date), ('vote_end_date',vote_end_date)]))
                     
                     # connect database objects
                     course.participants.add(student)
