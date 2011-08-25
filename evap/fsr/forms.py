@@ -36,6 +36,7 @@ class CourseForm(forms.ModelForm):
         self.fields['general_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
         self.fields['primary_lecturer_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
         self.fields['secondary_lecturer_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
+        self.fields['secondary_lecturers'].required = False
 
 class QuestionGroupForm(forms.ModelForm):
     class Meta:
