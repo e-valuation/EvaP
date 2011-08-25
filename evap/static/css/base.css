@@ -247,7 +247,7 @@ table.results-detail td.results-question-grade {
 	width: 80%;}
 
 table.results-detail td.results-question-text {
-	width: 30%;}
+	width: 20%;}
 
 table.results-detail td.results-average {
 	width: 10%;
@@ -294,7 +294,7 @@ table.results-detail td.results-distribution > div div.results-distribution-5 {
 	background: #f4a3a3;}
 
 table.results-detail td.results-text {
-	width: 30%;}
+	width: 80%;}
 
 table.results-detail td.results-text div {
 	margin: 0;
