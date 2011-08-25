@@ -5,13 +5,28 @@
     
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
-    {% for group, lecturer, questions in results %}
-        <h4>{% if lecturer %}{{ lecturer }}: {% endif %}{{ group }}</h4>
-        <table>
-        {% for question, average in questions %}
-            <tr>
-                <td>{{ question.text }}</td>
-                <td>{{ average|floatformat:1 }}</td>
+    {% for group, lecturer, results in sections %}
+        <h4 class="results-section">{% if lecturer %}{{ lecturer.get_profile.full_name }}: {% endif %}{{ group }}</h4>
+        <table class="results-detail">
+        {% for result in results %}
+            <tr class="{% cycle "odd" "even" %}">
+                {% ifequal result.question.kind "G" %}
+                <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
+                <td class="results-average">{{ result.average|floatformat:1 }}</td>
+                <td class="results-distribution">
+                    <div>
+                    {% for answer, count in result.distribution.items %}<div style="width: {{ count }}%;" class="results-distribution-{{ answer }}" title="{{answer}}: {{count}}%">&nbsp;</div>{% endfor %}
+                    </div>
+                </td>
+                {% endifequal %}
+                {% ifequal result.question.kind "T" %}
+                <td class="results-question-text">{{ result.question.text }}</td>
+                <td class="results-text" colspan="3">
+                    {% for text in result.texts %}
+                        <div>{{ text|linebreaks }}</div>
+                    {% endfor %}
+                </td>
+                {% endifequal %}
             </tr>
         {% endfor %}
         </table>

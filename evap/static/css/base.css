@@ -232,3 +232,81 @@ form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li+li {
 form.vote tr.vote-row textarea {
 	width: 98%;}
 
+h4.results-section {
+	border-bottom: 1px solid #7fbcce;
+	padding: 3px 0;}
+
+table.results-detail {
+	width: 100%;}
+
+table.results-detail td {
+	padding: 2px 0;
+	vertical-align: top;}
+
+table.results-detail td.results-question-grade {
+	width: 80%;}
+
+table.results-detail td.results-question-text {
+	width: 30%;}
+
+table.results-detail td.results-average {
+	width: 10%;
+	text-align: center;}
+
+table.results-detail td.results-distribution {
+	text-align: right;
+	width: 10%;}
+
+table.results-detail td.results-distribution > div {
+	display: inline-block;
+	white-space: nowrap;
+	width: 100%;
+	height: 2ex;}
+
+table.results-detail td.results-distribution > div div:first-child {
+	border-left: 1px solid #aeb3b4;}
+
+table.results-detail td.results-distribution > div div:last-child {
+	border-right: 1px solid #aeb3b4;}
+
+table.results-detail td.results-distribution > div div {
+	border-top: 1px solid #aeb3b4;
+	border-bottom: 1px solid #aeb3b4;
+	display: inline-block;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;}
+
+table.results-detail td.results-distribution > div div.results-distribution-1 {
+	background: #b3f4a3;}
+
+table.results-detail td.results-distribution > div div.results-distribution-2 {
+	background: #d8f4a3;}
+
+table.results-detail td.results-distribution > div div.results-distribution-3 {
+	background: #f4eca3;}
+
+table.results-detail td.results-distribution > div div.results-distribution-4 {
+	background: #f4c7a3;}
+
+table.results-detail td.results-distribution > div div.results-distribution-5 {
+	background: #f4a3a3;}
+
+table.results-detail td.results-text {
+	width: 30%;}
+
+table.results-detail td.results-text div {
+	margin: 0;
+	padding: 1ex 0;
+	border-bottom: 1px solid #cce4ec;}
+
+table.results-detail td.results-text div:first-child {
+	padding-top: 0;}
+
+table.results-detail td.results-text div:last-child {
+	border-bottom: none;}
+
+table.results-detail td.results-text div p {
+	text-align: justify;}
+

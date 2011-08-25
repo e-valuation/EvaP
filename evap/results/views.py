@@ -29,12 +29,12 @@ def course_detail(request, id):
         Course.objects.filter(visible=True),
         id=id)
     
-    results = calculate_results(course)
+    sections = calculate_results(course)
     
     return render_to_response(
         "results_course_detail.html",
         dict(
             course=course,
-            results=results
+            sections=sections
         ),
         context_instance=RequestContext(request))

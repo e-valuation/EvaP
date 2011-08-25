@@ -271,3 +271,88 @@ form.vote {
         }
     }
 }
+
+h4.results-section {
+    border-bottom: 1px solid $hpiBlue50;
+    padding: 3px 0;
+}
+
+table.results-detail {
+    width: 100%;
+    
+    td {
+        padding: 2px 0;
+        vertical-align: top;
+    }
+    
+    td.results-question-grade {
+        width: 80%;
+    }
+    
+    td.results-question-text {
+        width: 30%;
+    }
+    
+    td.results-average {
+        width: 10%;
+        text-align: center;
+    }
+    
+    td.results-distribution {
+        text-align: right;
+        width: 10%;
+        
+        &>div {
+            display: inline-block;
+            white-space: nowrap;
+            width: 100%;
+            height: 2ex;
+            
+            div:first-child {
+                border-left: 1px solid $hpiGray50;
+            }
+            div:last-child {
+                border-right: 1px solid $hpiGray50;
+            }
+            
+            div {
+                border-top: 1px solid $hpiGray50;
+                border-bottom: 1px solid $hpiGray50;
+                display: inline-block;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                
+                
+                &.results-distribution-1 { background: $vote1; }
+                &.results-distribution-2 { background: $vote2; }
+                &.results-distribution-3 { background: $vote3; }
+                &.results-distribution-4 { background: $vote4; }
+                &.results-distribution-5 { background: $vote5; }
+            }
+        }
+    }
+    
+    td.results-text {
+        width: 30%;
+        
+        div {
+            margin: 0;
+            padding: 1ex 0;
+            border-bottom: 1px solid $hpiBlue20;
+            
+            &:first-child {
+                padding-top: 0;
+            }
+            
+            &:last-child {
+                border-bottom: none;
+            }
+            
+            p {
+                text-align: justify;
+            }
+        }
+    }
+}
