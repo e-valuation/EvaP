@@ -16,6 +16,17 @@ class SemesterForm(forms.ModelForm):
         model = Semester
 
 class CourseForm(forms.ModelForm):
+    class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+        def label_from_instance(self, obj):
+            if obj.get_profile():
+                return obj.get_profile().full_name
+            else:
+                return obj.username
+    
+    participants = UserModelMultipleChoiceField(queryset=User.objects.all())
+    primary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
+    secondary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
+    
     class Meta:
         model = Course
         exclude = ("voters", "semester")

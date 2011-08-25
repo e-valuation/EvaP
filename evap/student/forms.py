@@ -86,9 +86,8 @@ class QuestionsForm(forms.Form):
 
     def caption(self):
         if self.lecturer:
-            # FIXME needs better lecturer label
             return u"%s: %s" % (
-                self.lecturer.username,
+                self.lecturer.get_profile().full_name if self.lecturer.get_profile() else self.lecturer.username,
                 self.question_group.name
             )
         else:
