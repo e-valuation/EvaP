@@ -9,7 +9,10 @@ from evaluation.models import Course, Semester
 import collections
 import xlrd
 
+import traceback
+
 UserData = collections.namedtuple('UserData', ('username', 'first_name', 'last_name'))
+UserProfileData = collections.namedtuple('UserProfileData', ('title',))
 CourseData = collections.namedtuple('CourseData', ('name_de', 'name_en', 'kind'))
 
 class ExcelImporter(object):
@@ -30,10 +33,14 @@ class ExcelImporter(object):
                     data = sheet.row_values(row)
                     # assign data to data objects
                     student_data = UserData(username=data[3], first_name=data[2], last_name=data[1])
-                    lecturer_data = UserData(username=data[9], first_name=data[7], last_name=data[8])
+                    
+                    lecturer_data = UserData(username=data[9], first_name="", last_name=data[8])
+                    lecturer_profile_data = UserProfileData(title=data[7])
+                    
                     course_data = CourseData(name_de=data[5], name_en=data[6], kind=data[4])
+                    
                     # store data objects together with the data source location for problem tracking
-                    self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
+                    self.associations[(sheet.name, row)] = (student_data, lecturer_data, lecturer_profile_data, course_data)
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
             except:
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
@@ -56,15 +63,16 @@ class ExcelImporter(object):
             course_count = 0
             student_count = 0
             lecturer_count = 0
-            for (sheet, row), (student_data, lecturer_data, course_data) in self.associations.items():
+            for (sheet, row), (student_data, lecturer_data, lecturer_profile_data, course_data) in self.associations.items():
                 try:
                     # create or retrieve database objects
-                    student, student_is_new = User.objects.get_or_create(username=student_data.username,
-                                                                         defaults=student_data._asdict())
-                    lecturer, lecturer_is_new = User.objects.get_or_create(username=lecturer_data.username,
-                                                                           defaults=lecturer_data._asdict())
-                    course, course_is_new = Course.objects.get_or_create(semester=semester, name_de=course_data.name_de,
-                                                                         defaults=course_data._asdict())
+                    student, student_is_new = User.objects.get_or_create(username=student_data.username, defaults=student_data._asdict())
+                    
+                    lecturer, lecturer_is_new = User.objects.get_or_create(username=lecturer_data.username, defaults=lecturer_data._asdict())
+                    lecturer.get_profile().title = lecturer_profile_data.title
+                    lecturer.get_profile().save()
+                    
+                    course, course_is_new = Course.objects.get_or_create(semester=semester, name_de=course_data.name_de, defaults=course_data._asdict())
                     
                     # connect database objects
                     course.participants.add(student)
@@ -95,3 +103,4 @@ class ExcelImporter(object):
             importer.save_to_db(semester, vote_start_date, vote_end_date)
         except Exception, e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
+            traceback.print_exc()
