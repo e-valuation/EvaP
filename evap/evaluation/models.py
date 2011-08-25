@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
@@ -210,3 +211,36 @@ class TextAnswer(Answer):
         self.censored_answer = None
     
     answer = property(_answer_get, _answer_set)
+
+
+class UserProfile(models.Model):
+    # This field is required.
+    user = models.OneToOneField(User)
+    
+    # extending first_name and last_name from the user
+    title = models.CharField(verbose_name=_(u"Title"), max_length=30, blank=True, null=True)
+    
+    # picture of the user
+    picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
+    
+    # proxies of the user, which can also manage their courses
+    proxies = models.ManyToManyField(User, related_name="proxied_users")
+    
+    class Meta:
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
+    
+    @property
+    def full_name(self):
+        if self.title:
+            return "%s %s" % (self.title, self.user.last_name)
+        if self.user.first_name:
+            return "%s %s" % (self.user.first_name, self.user.last_name)
+        else:
+            return self.user.username
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+post_save.connect(create_user_profile, sender=User)
