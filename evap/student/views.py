@@ -58,19 +58,20 @@ def vote(request, course_id):
                                                       lecturer)
                     value = form.cleaned_data.get(identifier)
                     # store the answer if one was given
-                    if value:
-                        answer_args = dict(
-                            course=course,
-                            question=question,
-                            lecturer=lecturer,
-                        )
-                        if question.is_grade_question():
-                            answer = GradeAnswer(answer=value, **answer_args)
-                        elif question.is_text_question():
-                            answer = TextAnswer(answer=value[0],
-                                                publication_desired=value[1],
-                                                **answer_args)
+                    answer_args = dict(
+                        course=course,
+                        question=question,
+                        lecturer=lecturer,
+                    )
+                    if question.is_grade_question() and value:
+                        answer = GradeAnswer(answer=value, **answer_args)
                         answer.save()
+                    elif question.is_text_question() and value and value[0]:
+                        answer = TextAnswer(answer=value[0],
+                                            publication_desired=value[1],
+                                            **answer_args)
+                        answer.save()
+            
             # remember that the user voted already
             course.voters.add(request.user)
         
