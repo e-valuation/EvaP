@@ -9,25 +9,44 @@ from datetime import datetime
 from evaluation.models import Course, Semester
 from evaluation.tools import calculate_results
 
+from django.utils.functional import memoize
+
 @login_required
 def index(request):
     objects = []
-    for semester in Semester.objects.filter(visible=True).order_by('-created_at'):
-        objects.append({
-            'semester': semester,
-            'courses': semester.course_set.filter(visible=True)
-        })
+    semesters = Semester.objects.filter(visible=True).order_by('-created_at')
+    
+    latest_semester = semesters[0]
+    latest_semester_courses = latest_semester.course_set.filter(visible=True)
+    
+    older_semesters = semesters[1:]
     
     return render_to_response(
         "results_index.html",
-        dict(objects=objects),
+        dict(
+            latest_semester=latest_semester,
+            latest_semester_courses=latest_semester_courses,
+            older_semesters=older_semesters
+        ),
         context_instance=RequestContext(request))
 
 @login_required
-def course_detail(request, id):
-    course = get_object_or_404(
-        Course.objects.filter(visible=True),
-        id=id)
+def semester_detail(request, semester_id):
+    semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
+    courses = semester.course_set.filter(visible=True)
+    
+    return render_to_response(
+        "results_semester_detail.html",
+        dict(
+            semester=semester,
+            courses=courses
+        ),
+        context_instance=RequestContext(request))
+
+@login_required
+def course_detail(request, semester_id, course_id):
+    semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
+    course = get_object_or_404(semester.course_set.filter(visible=True), id=course_id)
     
     sections = calculate_results(course)
     
@@ -38,3 +57,4 @@ def course_detail(request, id):
             sections=sections
         ),
         context_instance=RequestContext(request))
+
