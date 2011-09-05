@@ -16,10 +16,14 @@ def index(request):
     objects = []
     semesters = Semester.objects.filter(visible=True).order_by('-created_at')
     
-    latest_semester = semesters[0]
-    latest_semester_courses = latest_semester.course_set.filter(visible=True)
-    
-    older_semesters = semesters[1:]
+    if len(semesters) > 0:
+        latest_semester = semesters[0]
+        latest_semester_courses = latest_semester.course_set.filter(visible=True)    
+        older_semesters = semesters[1:]
+    else:
+        latest_semester = None
+        latest_semester_courses = []
+        older_semesters = None
     
     return render_to_response(
         "results_index.html",
