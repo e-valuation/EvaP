@@ -7,7 +7,7 @@
     
     <script type="text/javascript">
         $(function() {
-            $('#question_table tbody tr').formset();
+            $('#question_table tbody tr').formset({prefix: 'question_set'});
         })
     </script>
 {% endblock %}
