@@ -14,6 +14,7 @@
         <table>
             <tr>
                 <th>{% trans "Name" %}</th>
+                <th>{% trans "Description" %}</th>
                 <th>{% trans "# of Q." %}</th>
                 <th>{% trans "Usages" %}</th>
                 <th>{% trans "Obsolete" %}</th>
@@ -23,6 +24,7 @@
             {% for questiongroup in questiongroups %}
                 <tr>
                     <td>{{ questiongroup.name }}</td>
+                    <td>{{ questiongroup.description }}</td>
                     <td>{{ questiongroup.question_set.all|length }}</td>
                     <td>
                         {% for kind in questiongroup.used_in_course_kinds.general %}

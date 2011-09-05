@@ -27,9 +27,9 @@ class CourseForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['general_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
-        self.fields['primary_lecturer_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
-        self.fields['secondary_lecturer_questions'].queryset = QuestionGroup.objects.filter(obsolete=False)
+        self.fields['general_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+        self.fields['primary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+        self.fields['secondary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
         self.fields['secondary_lecturers'].required = False
 
 class QuestionGroupForm(forms.ModelForm):
@@ -126,11 +126,11 @@ class QuestionGroupsAssignForm(forms.Form):
         
         # course kinds
         for kind in semester.course_set.values_list('kind', flat=True).order_by().distinct():
-            self.fields[kind] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
         
         # extra kinds
         for extra in extras:
-            self.fields[extra] = forms.ModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
 
 class PublishCourseFormSet(BaseModelFormSet):
     class PseudoQuerySet(list):
