@@ -8,7 +8,13 @@
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
     {% for group, lecturer, results in sections %}
-        <h4 class="results-section">{% if lecturer %}{{ lecturer.get_profile.full_name }}: {% endif %}{{ group }}</h4>
+        <h4 class="results-section">
+            {% if lecturer %}
+                <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
+                {{ lecturer.get_profile.full_name }}:
+            {% endif %}
+            {{ group }}
+        </h4>
         <table class="results-detail">
         {% for result in results %}
             <tr class="{% cycle "odd" "even" %}">

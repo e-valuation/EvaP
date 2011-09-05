@@ -96,3 +96,7 @@ class QuestionsForm(forms.Form):
             
         else:
             return self.question_group.name
+    
+    def image(self):
+        return self.lecturer.get_profile().picture if self.lecturer else None
+        
