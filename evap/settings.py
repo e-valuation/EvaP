@@ -125,8 +125,8 @@ MIDDLEWARE_CLASSES = (
 AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.RemoteUserBackend',
-    'django.contrib.auth.backends.ModelBackend'
+    'evaluation.auth.CaseInsensitiveRemoteUserBackend',
+    'evaluation.auth.CaseInsensitiveModelBackend',
 )
 
 ROOT_URLCONF = 'evap.urls'
