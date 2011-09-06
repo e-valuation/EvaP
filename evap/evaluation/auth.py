@@ -1,6 +1,10 @@
+from functools import wraps
+
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
 from django.contrib.auth.models import User
+from django.utils.decorators import available_attrs
  
 class CaseInsensitiveModelBackend(ModelBackend):
     """
@@ -53,34 +57,50 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
                 pass
         return user
 
+def user_passes_test_without_redirect(test_func):
+    """
+    Decorator for views that checks that the user passes the given test.
+    The test should be a callable that takes the user object and returns
+    True if the user passes.
+    """
+    
+    def decorator(view_func):
+        @wraps(view_func, assigned=available_attrs(view_func))
+        def _wrapped_view(request, *args, **kwargs):
+            if test_func(request.user):
+                return view_func(request, *args, **kwargs)
+            raise PermissionDenied
+        return _wrapped_view
+    return decorator
+
+def login_required(func):
+    """
+    Decorator for views that checks that the user is logged in
+    """
+    def check_user(user):
+        return user.is_authenticated()
+    return user_passes_test_without_redirect(check_user)(func)
+
 def fsr_required(func):
     """
-    Decorator for views that checks that the user is logged in, redirecting
-    to the log-in page if necessary.
+    Decorator for views that checks that the user is logged in and member
+    of the student representatives
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
         return user.get_profile().fsr
-    
-    dec = user_passes_test(check_user)
-    if func:
-        return dec(func)
-    return dec
+    return user_passes_test_without_redirect(check_user)(func)
 
 def lecturer_required(func):
     """
-    Decorator for views that checks that the user is logged in, redirecting
-    to the log-in page if necessary.
+    Decorator for views that checks that the user is logged in and lectures
+    a course in the latest semester
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
         return user.get_profile().lectures_courses()
-    
-    dec = user_passes_test(check_user)
-    if func:
-        return dec(func)
-    return dec
+    return user_passes_test_without_redirect(check_user)(func)

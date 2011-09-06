@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
@@ -7,6 +6,7 @@ from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
+from evaluation.auth import login_required
 from evaluation.models import Course, GradeAnswer, TextAnswer
 from evaluation.tools import questiongroups_and_lecturers
 from student.forms import QuestionsForm

@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -6,6 +5,7 @@ from django.utils.translation import ugettext as _
 
 from datetime import datetime
 
+from evaluation.auth import login_required
 from evaluation.models import Course, Semester
 from evaluation.tools import calculate_results
 
