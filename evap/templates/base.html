@@ -29,10 +29,19 @@
             <div id="main-sidebar-wrapper">
                 <p>{% trans "Modules" %}</p>
                 <ul>
-                    <li><a href="{% url student.views.index %}">{% trans "Evaluate Courses" %}</a></li>
-                    <li><a href="{% url fsr_root %}">{% trans "Student Representatives" %}</a></li>
+                    {% if user.get_profile.has_courses %}
+                        <li><a href="{% url student.views.index %}">{% trans "Evaluate Courses" %}</a></li>
+                    {% endif %}
+                    
+                    {% if user.get_profile.fsr %}
+                        <li><a href="{% url fsr_root %}">{% trans "Student Representatives" %}</a></li>
+                    {% endif %}
+                    
                     <li><a href="{% url results.views.index %}">{% trans "Results" %}</a></li>
-                    <li><a href="{% url lecturer.views.index %}">{% trans "Your EvaP" %}</a></li>
+                    
+                    {% if user.get_profile.lectures_courses %}
+                        <li><a href="{% url lecturer.views.index %}">{% trans "Your EvaP" %}</a></li>
+                    {% endif %}
                 </ul>
                 {% block menu %}{% endblock %}                
             </div>

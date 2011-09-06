@@ -1,26 +1,26 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
+from evaluation.auth import fsr_required
 from evaluation.models import Semester, Course, Question, QuestionGroup
 from fsr.forms import *
 from fsr.importers import ExcelImporter
 
-@login_required
+@fsr_required
 def semester_index(request):
     semesters = Semester.objects.all()
     return render_to_response("fsr_semester_index.html", dict(semesters=semesters), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     return render_to_response("fsr_semester_view.html", dict(semester=semester), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_create(request):
     form = SemesterForm(request.POST or None)
     
@@ -32,7 +32,7 @@ def semester_create(request):
     else:
         return render_to_response("fsr_semester_form.html", dict(form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     form = SemesterForm(request.POST or None, instance = semester)
@@ -45,7 +45,7 @@ def semester_edit(request, semester_id):
     else:
         return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_delete(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     
@@ -55,7 +55,7 @@ def semester_delete(request, semester_id):
     else:
         return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     publishFS = modelformset_factory(Course, formset=PublishCourseFormSet, fields=('visible', ), can_order=False, can_delete=False, extra=0)
@@ -69,7 +69,7 @@ def semester_publish(request, semester_id):
     else:
         return render_to_response("fsr_semester_publish.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_import(request, semester_id):   
     semester = get_object_or_404(Semester, id=semester_id)
     form = ImportForm(request.POST or None, request.FILES or None)
@@ -86,7 +86,7 @@ def semester_import(request, semester_id):
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def semester_assign_questiongroups(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     form = QuestionGroupsAssignForm(request.POST or None, semester=semester, extras=('primary_lecturers', 'secondary_lecturers'))
@@ -112,7 +112,7 @@ def semester_assign_questiongroups(request, semester_id):
     else:
         return render_to_response("fsr_semester_assign_questiongroups.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     form = CourseForm(request.POST or None, initial={'semester':semester})
@@ -125,7 +125,7 @@ def course_create(request, semester_id):
     else:
         return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
@@ -139,7 +139,7 @@ def course_edit(request, semester_id, course_id):
     else:
         return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def course_delete(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
@@ -150,7 +150,7 @@ def course_delete(request, semester_id, course_id):
     else:
         return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def course_censor(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
@@ -185,18 +185,18 @@ def course_censor(request, semester_id, course_id):
             print formset.errors
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
     
-@login_required
+@fsr_required
 def questiongroup_index(request):
     questiongroups = QuestionGroup.objects.order_by('-obsolete')
     return render_to_response("fsr_questiongroup_index.html", dict(questiongroups=questiongroups), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def questiongroup_view(request, questiongroup_id):
     questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
     form = QuestionGroupPreviewForm(None, questiongroup=questiongroup)
     return render_to_response("fsr_questiongroup_view.html", dict(form=form, questiongroup=questiongroup), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def questiongroup_create(request):
     questiongroup = QuestionGroup()
     QuestionFormset = inlineformset_factory(QuestionGroup, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('question_group'))
@@ -213,7 +213,7 @@ def questiongroup_create(request):
     else:
         return render_to_response("fsr_questiongroup_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def questiongroup_edit(request, questiongroup_id):
     questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
     QuestionFormset = inlineformset_factory(QuestionGroup, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('question_group'))
@@ -234,7 +234,7 @@ def questiongroup_edit(request, questiongroup_id):
     else:
         return render_to_response("fsr_questiongroup_form.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def questiongroup_copy(request, questiongroup_id):
     questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
     form = QuestionGroupForm(request.POST or None)
@@ -251,7 +251,7 @@ def questiongroup_copy(request, questiongroup_id):
     else:
         return render_to_response("fsr_questiongroup_copy.html", dict(questiongroup=questiongroup, form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def questiongroup_delete(request, questiongroup_id):
     questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
     
@@ -261,12 +261,12 @@ def questiongroup_delete(request, questiongroup_id):
     else:
         return render_to_response("fsr_questiongroup_delete.html", dict(questiongroup=questiongroup), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def user_index(request):
     users = User.objects.order_by("last_name")
     return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def user_create(request):
     profile = UserProfile(user=User())
     form = UserForm(request.POST or None, instance=profile)
@@ -280,7 +280,7 @@ def user_create(request):
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def user_edit(request, user_id):
     user = get_object_or_404(User, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user.get_profile())
@@ -293,7 +293,7 @@ def user_edit(request, user_id):
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
 
-@login_required
+@fsr_required
 def user_delete(request, user_id):
     user = get_object_or_404(User, id=user_id)
     

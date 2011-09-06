@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 # see evaluation.meta for the use of Translate in this file
@@ -241,6 +242,9 @@ class UserProfile(models.Model):
     # proxies of the user, which can also manage their courses
     proxies = models.ManyToManyField(User, related_name="proxied_users")
     
+    # true if the user is member of the student representatives
+    fsr = models.BooleanField(verbose_name=_(u"Student representative"), default=False)
+    
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
@@ -253,6 +257,14 @@ class UserProfile(models.Model):
             return "%s %s" % (self.user.first_name, self.user.last_name)
         else:
             return self.user.username
+    
+    def has_courses(self):
+        latest_semester = get_object_or_404(Semester)
+        return latest_semester.course_set.filter(participants__pk=self.user.id)
+    
+    def lectures_courses(self):
+        latest_semester = get_object_or_404(Semester)
+        return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id)
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

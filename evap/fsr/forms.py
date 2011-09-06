@@ -154,7 +154,7 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         exclude = ('user',)
-        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies']
+        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'fsr', 'proxies']
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
