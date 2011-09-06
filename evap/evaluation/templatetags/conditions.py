@@ -6,14 +6,14 @@ from django.utils.importlib import import_module
 register = Library()
 
 class IfLecturerNode(Node):
-    def __init__(self, nodelist, course_val):
+    def __init__(self, nodelist, course_or_semester_val):
         self.nodelist = nodelist
-        self.course_val = course_val
+        self.course_or_semester_val = course_or_semester_val
     
     def render(self, context):
         current_user = context['user']
-        course = self.course_val.resolve(context, True)
-        if course.is_user_lecturer(current_user):
+        course_or_semester = self.course_or_semester_val.resolve(context, True)
+        if course_or_semester.is_user_lecturer(current_user):
             return self.nodelist.render(context)
         else:
             return ''
