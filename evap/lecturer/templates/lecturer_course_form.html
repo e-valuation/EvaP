@@ -1,0 +1,28 @@
+{% extends "lecturer_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block header %}
+    {{ block.super }}
+    
+    <script>
+	$(function() {
+            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            $( ".multiselect-form select" ).multiselect();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        <form method="POST" class="multiselect-form">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <input type="submit" value="{% trans "Save course" %}"/>
+        </form>
+    </p>
+{% endblock %}

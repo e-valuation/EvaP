@@ -1,0 +1,28 @@
+{% extends "lecturer_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    {% if courses %}
+        <table>
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Participants" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </tr>
+            
+            {% for course in courses %}
+                <tr>
+                    <td>{{ course.name }}</td>
+                    <td>{{ course.participants.all|length }}</td>
+                    <td>
+                        <a href="{% url lecturer.views.course_edit course.id %}">{% trans "Edit" %}</a>&nbsp;
+					</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>{% trans "There are no courses for you this semester yet." %}</p>
+    {% endif %}
+{% endblock %}

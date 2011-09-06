@@ -151,6 +151,7 @@ INSTALLED_APPS = (
     'fsr',
     'results',
     'student',
+    'lecturer',
 )
 
 # A sample logging configuration. The only tangible logging

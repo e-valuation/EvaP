@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r"^fsr/", include('fsr.urls')),
     url(r"^results/", include('results.urls')),
     url(r"^student/", include('student.urls')),
+    url(r"^lecturer/", include('lecturer.urls')),
     
     
     url(r"^i18n/", include('django.conf.urls.i18n')),
