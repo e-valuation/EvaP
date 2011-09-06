@@ -115,6 +115,21 @@ class Course(models.Model):
             return None
         return (float(self.voters.count()) / self.participants.count()) * 100.0
     
+    def is_user_lecturer(self, user):
+        for lecturer in self.primary_lecturers.all():
+            if user == lecturer:
+                return True
+            if lecturer.get_profile().proxies.filter(pk=user.id).exists():
+                return True
+        
+        for lecturer in self.secondary_lecturers.all():
+            if user == lecturer:
+                return True
+            if lecturer.get_profile().proxies.filter(pk=user.id).exists():
+                return True
+        
+        return False
+    
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""

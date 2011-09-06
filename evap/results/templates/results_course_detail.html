@@ -1,5 +1,7 @@
 {% extends "results_base.html" %}
 
+{% load proxies %}
+
 {% block title %}{{ course.name }} - {{ block.super }}{% endblock %}
 
 {% block content %}
@@ -28,14 +30,14 @@
                 </td>
                 {% endifequal %}
                 {% ifequal result.question.kind "T" %}
-                {% if lecturer == user %}
+                {% if_lecturer course %}
                 <td class="results-question-text">{{ result.question.text }}</td>
                 <td class="results-text" colspan="3">
                     {% for text in result.texts %}
                         <div>{{ text|linebreaks }}</div>
                     {% endfor %}
                 </td>
-                {% endif %}
+                {% endif_lecturer %}
                 {% endifequal %}
             </tr>
         {% endfor %}
