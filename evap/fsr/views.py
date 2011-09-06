@@ -303,3 +303,20 @@ def user_delete(request, user_id):
     else:
         return render_to_response("fsr_user_delete.html", dict(user=user), context_instance=RequestContext(request))
     
+@fsr_required
+def user_key_new(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile = user.get_profile()
+    profile.generate_logon_key()
+    profile.save()
+    
+    return redirect('fsr.views.user_index')
+    
+@fsr_required
+def user_key_remove(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile = user.get_profile()
+    profile.logon_key = None
+    profile.save()
+    
+    return redirect('fsr.views.user_index')

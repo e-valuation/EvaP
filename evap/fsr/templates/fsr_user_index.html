@@ -15,6 +15,7 @@
             <th>{% trans "Name" %}</th>
             <th>{% trans "E-mail" %}</th>
             <th>{% trans "Student Representative" %}</th>
+            <th>{% trans "Logon Key" %}</th>
             <th>{% trans "Actions" %}</th>
         </tr>
             
@@ -25,8 +26,11 @@
                 <td>{{ user.get_profile.full_name }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.get_profile.fsr|yesno }}</td>
+                <td>{{ user.get_profile.logon_key|default:"" }}</td>
                 <td>
                     <a href="{% url fsr.views.user_edit user.id %}">{% trans "Edit" %}</a>&nbsp;
+                    <a href="{% url fsr.views.user_key_new user.id %}">{% trans "Regenerate key" %}</a>&nbsp;
+                    <a href="{% url fsr.views.user_key_remove user.id %}">{% trans "Remove key" %}</a>&nbsp;
                     <a href="{% url fsr.views.user_delete user.id %}">{% trans "Delete" %}</a>&nbsp;
             </tr>
         {% endfor %}

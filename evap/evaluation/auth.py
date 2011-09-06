@@ -1,11 +1,53 @@
 from functools import wraps
 
 from django.core.exceptions import PermissionDenied
+from django.contrib import auth
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
 from django.contrib.auth.models import User
 from django.utils.decorators import available_attrs
- 
+
+from evaluation.models import UserProfile
+
+class RequestAuthMiddleware(object):
+    """
+    Middleware for utilizing request-based authentication.
+
+    If request.user is not authenticated, then this middleware attempts to
+    authenticate a user with the ``userkey`` URL variable.
+    If authentication is successful, the user is automatically logged in to
+    persist the user in the session.
+    """
+    
+    field_name = "userkey"
+
+    def process_request(self, request):
+        # AuthenticationMiddleware is required so that request.user exists.
+        if not hasattr(request, 'user'):
+            raise ImproperlyConfigured(
+                "The Django remote user auth middleware requires the"
+                " authentication middleware to be installed.  Edit your"
+                " MIDDLEWARE_CLASSES setting to insert"
+                " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
+                " before the RequestAuthMiddleware class.")
+        
+        try:
+            key = request.GET[self.field_name]
+        except KeyError:
+            # If specified variable doesn't exist then return (leaving
+            # request.user set to AnonymousUser by the
+            # AuthenticationMiddleware).
+            return
+
+        # We are seeing this user for the first time in this session, attempt
+        # to authenticate the user.
+        user = auth.authenticate(key=key)
+        if user:
+            # User is valid.  Set request.user and persist user in the session
+            # by logging the user in.
+            request.user = user
+            auth.login(request, user)
+
 class CaseInsensitiveModelBackend(ModelBackend):
     """
     By default ModelBackend does case _sensitive_ username authentication, which isn't what is
@@ -20,7 +62,6 @@ class CaseInsensitiveModelBackend(ModelBackend):
                 return None
         except User.DoesNotExist:
             return None
-
 
 class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
     """
@@ -55,6 +96,28 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
                 user = User.objects.get(username__iexact=username)
             except User.DoesNotExist:
                 pass
+        return user
+
+class RequestAuthUserBackend(ModelBackend):
+    """
+    The RequestAuthBackend works together with the RequestAuthMiddleware to
+    allow authentication of users via URL parameters, i.e. supplied in an
+    email.
+    
+    It looks for the appropriate key in the logon_key field of the UserProfile.
+    """
+    def authenticate(self, key):
+        if not key:
+            return
+        
+        user = None
+        
+        try:
+            profile = UserProfile.objects.get(logon_key=key)
+            user = profile.user
+        except UserProfile.DoesNotExist:
+            pass
+        
         return user
 
 def user_passes_test_without_redirect(test_func):
