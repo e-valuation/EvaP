@@ -112,13 +112,6 @@ class Course(models.Model):
         """Returns whether the user is allowed to vote on this course."""
         return user in self.participants.all() and user not in self.voters.all()
         
-    def voted_percentage(self):
-        """Return the percentage of participants who voted on this course.
-        Returns None if there is no participant."""
-        if not self.participants.exists():
-            return None
-        return (float(self.voters.count()) / self.participants.count()) * 100.0
-    
     def is_user_lecturer(self, user):
         for lecturer in self.primary_lecturers.all():
             if user == lecturer:

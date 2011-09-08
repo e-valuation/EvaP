@@ -1,32 +1,39 @@
 {% extends "fsr_base.html" %}
 
 {% load i18n %}
+{% load static %}
+{% load morefilters %}
 
 {% block content %}
     {{ block.super }}
-    {% if semester.course_set.exists %}
-        <table>
+    {% if courses %}
+        <table class="full-width">
             <tr>
+                <th>&nbsp;</th>
                 <th>{% trans "Name" %}</th>
-                <th>{% trans "Participants" %}</th>
-                <th>{% trans "Voted (abs.)" %}</th>
-                <th>{% trans "Voted (%)" %}</th>
-                <th>{% trans "Published" %}</th>
+                <th colspan="2">{% trans "Votes" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
             
-            {% for course in semester.course_set.all %}
-                <tr>
-                    <td>{{ course.name }}</td>
-                    <td>{{ course.participants.all|length }}</td>
-                    <td>{{ course.voters.all|length }}</td>
-                    <td>{{ course.voted_percentage|floatformat:1|default:"-" }}</td>
-                    <td>{{ course.visible|yesno }}</td>
+            {% for course in courses %}
+                <tr class="{% cycle "odd" "even" %}">
                     <td>
-                        <a href="{% url fsr.views.course_edit semester.id, course.id %}">{% trans "Edit" %}</a>&nbsp;
-                        <a href="{% url fsr.views.course_delete semester.id, course.id %}">{% trans "Delete" %}</a>&nbsp;
+                        {% if not course.visible %}
+                            <img src="{% get_static_prefix %}images/silk/lock.png" title="{% trans "Course is not visible." %}">
+                        {% endif %}
+                    </td>
+                    <td class="expand">{{ course.name }}</td>
+                    {% if course.num_participants %}
+                        <td class="dontbreak right">{{ course.num_voters }} / {{ course.num_participants }}</td>
+                        <td class="dontbreak">({{ course.num_voters|percentage:course.num_participants }})</td>
+                    {% else %}
+                        <td class="center" colspan="2">&mdash;</td>
+                    {% endif %}
+                    <td class="dontbreak">
+                        <a href="{% url fsr.views.course_edit semester.id, course.id %}" title="{% trans "Edit" %}"><img src="{% get_static_prefix %}images/silk/application_edit.png"></a>&nbsp;
+                        <a href="{% url fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/application_delete.png"></a>&nbsp;
                         {% if not course.fully_checked %}
-                            <a href="{% url fsr.views.course_censor semester.id, course.id %}">{% trans "Censor" %}</a>
+                            <a href="{% url fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/application_lightning.png"></a>
                         {% endif %}
                     </td>
                 </tr>
