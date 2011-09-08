@@ -20,6 +20,8 @@ $hpiBlue70:     #4ca2bb;
 $hpiBlue50:     #7fbcce;
 $hpiBlue20:     #cce4ec;
 
+$hpiGray20L:    $hpiGray20 * 1.05;
+
 // Vote color definitions
 $vote1: hsl(0.300, 80%, 80%);
 $vote2: hsl(0.225, 80%, 80%);
@@ -144,31 +146,65 @@ body {
             padding: 2px 5px 2px 2px;
         }
     }
+    
+    table {
+        border-spacing: 0;
+        td, th {
+            padding: 2px;
+        }
+        
+        &.full-width {
+            width: 100%;
+        }
+        
+        tr.even {
+            background: $hpiGray20L;
+        }
+        
+        td {
+            &.expand { width: 100%; }
+            &.dontbreak { white-space:nowrap; }
+            &.center { text-align: center; }
+            &.right { text-align: right; }
+        }
+        
+        img {
+            vertical-align: middle;
+        }
+    }
 }
 
 #main-sidebar {
     float: left;
     width: 150px;
     
-    background: $hpiGray20 * 1.05;
+    background: $hpiGray20L;
+    
+    @include link-colors(black, $hpiGray70);
     
     #main-sidebar-wrapper {
         padding: 5px;
     }
     
+    div.menu-title {
+        font-variant:small-caps;
+        margin: 3px 0;
+        text-align: center;
+    }
+    
     ul {
         padding-left: 0;
-        margin-bottom: 1em;
         li {
             @include enhanced-bullets;
         }
     }
     
     hr {
-        background: $hpiGray100;
-        color: $hpiGray100;
+        background: white;
+        color: white;
         border: 0;
-        height: 1px;
+        height: 2px;
+        width: 100%;
     }
 }
                       

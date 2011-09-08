@@ -98,17 +98,57 @@ body a:active,  body a:hover {
 	margin: 0;
 	padding: 2px 5px 2px 2px;}
 
+#main-content table {
+	border-spacing: 0;}
+
+#main-content table td, #main-content table th {
+	padding: 2px;}
+
+#main-content table.full-width {
+	width: 100%;}
+
+#main-content table tr.even {
+	background: #eaecec;}
+
+#main-content table td.expand {
+	width: 100%;}
+
+#main-content table td.dontbreak {
+	white-space: nowrap;}
+
+#main-content table td.center {
+	text-align: center;}
+
+#main-content table td.right {
+	text-align: right;}
+
+#main-content table img {
+	vertical-align: middle;}
+
 #main-sidebar {
 	float: left;
 	width: 150px;
 	background: #eaecec;}
 
+#main-sidebar a {
+	text-decoration: none;}
+
+#main-sidebar a,  #main-sidebar a:focus,  #main-sidebar a:link,  #main-sidebar a:visited {
+	color: #000;}
+
+#main-sidebar a:active,  #main-sidebar a:hover {
+	color: #8e9496;}
+
 #main-sidebar #main-sidebar-wrapper {
 	padding: 5px;}
 
+#main-sidebar div.menu-title {
+	font-variant: small-caps;
+	margin: 3px 0;
+	text-align: center;}
+
 #main-sidebar ul {
-	padding-left: 0;
-	margin-bottom: 1em;}
+	padding-left: 0;}
 
 #main-sidebar ul li {
 	list-style: none;
@@ -125,10 +165,11 @@ body a:active,  body a:hover {
 	color: #5e676a;}
 
 #main-sidebar hr {
-	background: #5e676a;
-	color: #5e676a;
+	background: #fff;
+	color: #fff;
 	border: 0;
-	height: 1px;}
+	height: 2px;
+	width: 100%;}
 
 #footer {
 	width: 940px;
@@ -310,8 +351,7 @@ table.results-detail td.results-text div:last-child {
 table.results-detail td.results-text div p {
 	text-align: justify;}
 
-/* multiselect styles */
 .multiselect-form select {
-    width: 460px;
-    height: 200px;
-}
+	width: 460px;
+	height: 200px;}
+
