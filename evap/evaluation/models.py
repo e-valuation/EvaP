@@ -243,7 +243,7 @@ class UserProfile(models.Model):
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
     
     # proxies of the user, which can also manage their courses
-    proxies = models.ManyToManyField(User, related_name="proxied_users")
+    proxies = models.ManyToManyField(User, related_name="proxied_users", blank=True)
     
     # true if the user is member of the student representatives
     fsr = models.BooleanField(verbose_name=_(u"Student representative"), default=False)
@@ -257,20 +257,23 @@ class UserProfile(models.Model):
     
     @property
     def full_name(self):
-        if self.title:
-            return "%s %s" % (self.title, self.user.last_name)
-        if self.user.first_name:
-            return "%s %s" % (self.user.first_name, self.user.last_name)
+        if self.user.last_name:
+            name = self.user.last_name
+            if self.user.first_name:
+                name = self.user.first_name + " " + name
+            if self.title:
+                name = self.title + " " + name
+            return name
         else:
             return self.user.username
     
     def has_courses(self):
         latest_semester = get_object_or_404(Semester)
-        return latest_semester.course_set.filter(participants__pk=self.user.id)
+        return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
     def lectures_courses(self):
         latest_semester = get_object_or_404(Semester)
-        return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id)
+        return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id).exists()
     
     def generate_logon_key(self):
         done = False
