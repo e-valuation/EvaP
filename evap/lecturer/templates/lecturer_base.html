@@ -21,8 +21,9 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/ui.multiselect.js"></script>
 {% endblock %}
 
-{% block menu %}
-    {{ block.super }}
-    <p><a href="{% url lecturer.views.profile_edit %}">{% trans "Your Profile" %}</a></p>
-    <p><a href="{% url lecturer.views.course_index %}">{% trans "Your Courses" %}</a></p>
+{% block menu-lecturer %}
+    <ul>
+        <li><a href="{% url lecturer.views.profile_edit %}">{% trans "Your Profile" %}</a></li>
+        <li><a href="{% url lecturer.views.course_index %}">{% trans "Your Courses" %}</a></li>
+    </ul>
 {% endblock %}
