@@ -25,15 +25,18 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/jquery.formset.js"></script>
 {% endblock %}
 
-{% block menu %}
-    {{ block.super }}
-    <p><a href="{% url fsr.views.questiongroup_index %}">{% trans "Question Groups" %}</a></p>
-    {% show_from 'fsr.tools.all_questiongroups' "fsr_questiongroup_menu.html" %}
-    
-    <p><a href="{% url fsr.views.semester_index %}">{% trans "Semesters" %}</a></p>
+{% block menu-fsr %}
+    <ul>
+    <li><a href="{% url fsr.views.semester_index %}">{% trans "Semesters" %}</a>
     {% show_from 'fsr.tools.all_semesters' "fsr_semester_menu.html" %}
+    </li>
     
-    <p><a href="{% url fsr.views.user_index %}">{% trans "Users" %}</a></p>
+    <li><a href="{% url fsr.views.questiongroup_index %}">{% trans "Question Groups" %}</a>
+    {% show_from 'fsr.tools.all_questiongroups' "fsr_questiongroup_menu.html" %}
+    </li>
+    
+    <li><a href="{% url fsr.views.user_index %}">{% trans "Users" %}</a></li>
+    </ul>
 {% endblock %}
 
 {% block content %}

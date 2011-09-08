@@ -27,23 +27,29 @@
     <div id="page-wrap">
         <div id="main-sidebar">
             <div id="main-sidebar-wrapper">
-                <p>{% trans "Modules" %}</p>
                 <ul>
-                    {% if user.get_profile.has_courses %}
-                        <li><a href="{% url student.views.index %}">{% trans "Evaluate Courses" %}</a></li>
-                    {% endif %}
-                    
-                    {% if user.get_profile.fsr %}
-                        <li><a href="{% url fsr_root %}">{% trans "Student Representatives" %}</a></li>
-                    {% endif %}
-                    
-                    <li><a href="{% url results.views.index %}">{% trans "Results" %}</a></li>
-                    
-                    {% if user.get_profile.lectures_courses %}
-                        <li><a href="{% url lecturer.views.index %}">{% trans "Your EvaP" %}</a></li>
-                    {% endif %}
+                {% if user.get_profile.has_courses %}
+                    <li class="menu-title"><a href="{% url student.views.index %}">{% trans "Evaluation" %}</a>
+                    {% block menu-student %}{% endblock %}
+                    </li>
+                {% endif %}
+                
+                {% if user.get_profile.fsr %}
+                    <li class="menu-title"><a href="{% url fsr_root %}">{% trans "FSR" %}</a>
+                    {% block menu-fsr %}{% endblock %}
+                    </li>
+                {% endif %}
+                
+                {% if user.get_profile.lectures_courses %}
+                    <li class="menu-title"><a href="{% url lecturer.views.index %}">{% trans "Your EvaP" %}</a>
+                    {% block menu-lecturer %}{% endblock %}
+                    </li>
+                {% endif %}
+                
+                <li class="menu-title"><a href="{% url results.views.index %}">{% trans "Results" %}</a>
+                {% block menu-results %}{% endblock %}
+                </li>
                 </ul>
-                {% block menu %}{% endblock %}                
             </div>
         </div>
         <div id="main-content">

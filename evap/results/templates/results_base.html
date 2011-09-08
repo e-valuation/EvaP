@@ -7,7 +7,6 @@
 
 {% block subtitle %}{% trans "Results" %}{% endblock %}
 
-{% block menu %}
-    {{ block.super}}
+{% block menu-results %}
     {% show_from 'results.tools.all_semesters' "results_semester_menu.html" %}
 {% endblock %}
