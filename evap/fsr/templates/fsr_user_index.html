@@ -1,6 +1,7 @@
 {% extends "fsr_base.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% block actions %}
     {{ block.super }}
@@ -8,30 +9,37 @@
 {% endblock actions %}
 {% block content %}
     {{ block.super }}
-    <table>
-        <tr>
-            <th><!-- Photo --></th>
-            <th>{% trans "Username" %}</th>
-            <th>{% trans "Name" %}</th>
-            <th>{% trans "E-mail" %}</th>
-            <th>{% trans "Student Representative" %}</th>
-            <th>{% trans "Logon Key" %}</th>
-            <th>{% trans "Actions" %}</th>
-        </tr>
-            
+    <table class="full-width">
         {% for user in users %}
-            <tr>
-                <td><img src="{{ MEDIA_URL }}{{ user.get_profile.picture }}" height="100px" /></td>
-                <td>{{ user.username}}</td>
-                <td>{{ user.get_profile.full_name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.get_profile.fsr|yesno }}</td>
-                <td>{{ user.get_profile.logon_key|default:"" }}</td>
+            <tr class="largerow {% cycle "odd" "even" %}">
                 <td>
+                    {% if user.get_profile.fsr %}
+                        <img src="{% get_static_prefix %}images/silk/user_orange.png" title="{% trans "Student Representative" %}">
+                    {% endif %}
+                    {% if user.get_profile.lectures_courses %}
+                        <img src="{% get_static_prefix %}images/silk/user_suit.png" title="{% trans "Lecturer" %}">
+                    {% endif %}
+                </td><td>
+                    {% if user.get_profile.logon_key %}
+                        <img src="{% get_static_prefix %}images/silk/world.png" title="{% trans "External Login Key Assigned" %}">
+                    {% endif %}
+                </td><td>
+                    {% if not user.email %}
+                        <img src="{% get_static_prefix %}images/silk/email_error.png" title="{% trans "E-Mail address missing!" %}">
+                    {% endif %}
+                </td>
+                <td class="expand"><span title="{{ user.username }}">{{ user.get_profile.full_name }}</span></td>
+                <td class="dontbreak">
                     <a href="{% url fsr.views.user_edit user.id %}">{% trans "Edit" %}</a>&nbsp;
-                    <a href="{% url fsr.views.user_key_new user.id %}">{% trans "Regenerate key" %}</a>&nbsp;
-                    <a href="{% url fsr.views.user_key_remove user.id %}">{% trans "Remove key" %}</a>&nbsp;
+                </td><td class="dontbreak">
+                    {% if user.get_profile.logon_key %}
+                        <a href="{% url fsr.views.user_key_remove user.id %}">{% trans "Remove key" %}</a>&nbsp;
+                    {% else %}
+                        <a href="{% url fsr.views.user_key_new user.id %}">{% trans "Generate key" %}</a>&nbsp;
+                    {% endif %}
+                </td><td class="dontbreak">
                     <a href="{% url fsr.views.user_delete user.id %}">{% trans "Delete" %}</a>&nbsp;
+                </td>
             </tr>
         {% endfor %}
     </table>
