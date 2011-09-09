@@ -30,6 +30,13 @@ class Semester(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    @staticmethod
+    def get_latest_or_none():
+        try:
+            return Semester.objects.all()[0]
+        except IndexError:
+            return None
 
 
 class QuestionGroup(models.Model):
@@ -261,12 +268,18 @@ class UserProfile(models.Model):
             return self.user.username
     
     def has_courses(self):
-        latest_semester = get_object_or_404(Semester)
-        return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
+        latest_semester = Semester.get_latest_or_none()
+        if latest_semester == None:
+            return False
+        else:
+            return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
     def lectures_courses(self):
-        latest_semester = get_object_or_404(Semester)
-        return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id).exists()
+        latest_semester = Semester.get_latest_or_none()
+        if latest_semester == None:
+            return False
+        else:
+            return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id).exists()
     
     def generate_logon_key(self):
         done = False
