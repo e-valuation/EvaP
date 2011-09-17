@@ -86,6 +86,7 @@ body a:active,  body a:hover {
 
 #main-content ul#actions {
 	display: block;
+	font: 9pt Tahoma;
 	margin: 0;
 	padding: 0;
 	padding-bottom: 5px;
@@ -128,6 +129,7 @@ body a:active,  body a:hover {
 #main-sidebar {
 	float: left;
 	width: 150px;
+	font: 9pt Tahoma;
 	background: #eaecec;}
 
 #main-sidebar a {

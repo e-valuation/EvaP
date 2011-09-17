@@ -134,6 +134,7 @@ body {
     
     ul#actions {
         display: block;
+        font: 9pt Tahoma;
         margin: 0;
         padding: 0;
         padding-bottom: 5px;
@@ -178,6 +179,7 @@ body {
     float: left;
     width: 150px;
     
+    font: 9pt Tahoma;
     background: $hpiGray20L;
     
     @include link-colors(black, $hpiGray70);
