@@ -56,7 +56,7 @@
             {% if semester %}
                 <li><a href="{% url fsr.views.semester_edit semester.id %}">{% trans "Edit semester" %}</a></li>
                 <li><a href="{% url fsr.views.semester_delete semester.id %}">{% trans "Delete semester" %}</a></li>
-                <li><a href="{% url fsr.views.course_create semester.id %}">{% trans "Create new course" %}</a></li>
+                <li><a href="{% url fsr.views.course_create semester.id %}">{% trans "Create course" %}</a></li>
                 <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import courses" %}</a></li>
                 <li><a href="{% url fsr.views.semester_assign_questionnaires semester.id %}">{% trans "Assign questionnaires" %}</a></li>
                 <li><a href="{% url fsr.views.semester_publish semester.id %}">{% trans "Publish courses" %}</a></li>
