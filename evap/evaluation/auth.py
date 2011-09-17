@@ -32,10 +32,10 @@ class RequestAuthMiddleware(object):
                 " before the RequestAuthMiddleware class.")
         
         try:
-            key = request.GET[self.field_name]
-        except KeyError:
-            # If specified variable doesn't exist then return (leaving
-            # request.user set to AnonymousUser by the
+            key = int(request.GET[self.field_name])
+        except (KeyError, ValueError):
+            # If specified variable doesn't exist or does not convert to an int
+            # then return (leaving request.user set to AnonymousUser by the
             # AuthenticationMiddleware).
             return
 
