@@ -27,9 +27,9 @@ class CourseForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['general_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
-        self.fields['primary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
-        self.fields['secondary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+        self.fields['general_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+        self.fields['primary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+        self.fields['secondary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
         self.fields['secondary_lecturers'].required = False
         
         self.fields['vote_start_date'].localize = True
@@ -38,9 +38,9 @@ class CourseForm(forms.ModelForm):
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
 
-class QuestionGroupForm(forms.ModelForm):
+class QuestionnaireForm(forms.ModelForm):
     class Meta:
-        model = QuestionGroup
+        model = Questionnaire
         
 ACTION_CHOICES = (
     (u"1", _(u"Approved")),
@@ -99,18 +99,18 @@ class QuestionForm(forms.ModelForm):
         self.fields['text_de'].widget=forms.TextInput()
         self.fields['text_en'].widget=forms.TextInput()
 
-class QuestionGroupPreviewForm(forms.Form):
+class QuestionnairePreviewForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass an iterable
     of questionnaires as `questionnaires` argument to the initializer.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
-        questiongroup = kwargs.pop('questiongroup')
-        super(QuestionGroupPreviewForm, self).__init__(*args, **kwargs)
+        questionnaire = kwargs.pop('questionnaire')
+        super(QuestionnairePreviewForm, self).__init__(*args, **kwargs)
         
-        # iterate over all questions in the questiongroup
-        for question in questiongroup.question_set.all():
+        # iterate over all questions in the questionnaire
+        for question in questionnaire.question_set.all():
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
             
@@ -123,20 +123,20 @@ class QuestionGroupPreviewForm(forms.Form):
             # questionnaire and the question
             self.fields['question_%d' % (question.id)] = field
 
-class QuestionGroupsAssignForm(forms.Form):
+class QuestionnairesAssignForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
         extras = kwargs.pop('extras', ())
-        super(QuestionGroupsAssignForm, self).__init__(*args, **kwargs)
+        super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
         
         # course kinds
         for kind in semester.course_set.values_list('kind', flat=True).order_by().distinct():
-            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
         
         # extra kinds
         for extra in extras:
-            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
+            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
 
 class PublishCourseFormSet(BaseModelFormSet):
     class PseudoQuerySet(list):

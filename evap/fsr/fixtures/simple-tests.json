@@ -29,7 +29,7 @@
   },
   {
     "pk":3,
-    "model":"evaluation.questiongroup",
+    "model":"evaluation.questionnaire",
     "fields":{
       "name_de":"Seminar",
       "name_en":"Seminar"
@@ -37,7 +37,7 @@
   },
   {
     "pk":2,
-    "model":"evaluation.questiongroup",
+    "model":"evaluation.questionnaire",
     "fields":{
       "name_de":"Vorlesung",
       "name_en":"Lecture"
@@ -120,7 +120,7 @@
       "kind":"G",
       "_order":0,
       "text_de":"Q1",
-      "question_group":2
+      "questionnaire":2
     }
   },
   {
@@ -131,7 +131,7 @@
       "kind":"G",
       "_order":0,
       "text_de":"Q1",
-      "question_group":3
+      "questionnaire":3
     }
   },
   {
@@ -142,7 +142,7 @@
       "kind":"G",
       "_order":1,
       "text_de":"Q2",
-      "question_group":2
+      "questionnaire":2
     }
   },
   {
@@ -153,7 +153,7 @@
       "kind":"T",
       "_order":1,
       "text_de":"Kommentare",
-      "question_group":3
+      "questionnaire":3
     }
   },
   {
@@ -164,7 +164,7 @@
       "kind":"T",
       "_order":2,
       "text_de":"Kommentare",
-      "question_group":2
+      "questionnaire":2
     }
   },
   {
@@ -414,8 +414,8 @@
     "pk":34,
     "model":"auth.permission",
     "fields":{
-      "codename":"add_questiongroup",
-      "name":"Can add question group",
+      "codename":"add_questionnaire",
+      "name":"Can add questionnaire",
       "content_type":12
     }
   },
@@ -423,8 +423,8 @@
     "pk":35,
     "model":"auth.permission",
     "fields":{
-      "codename":"change_questiongroup",
-      "name":"Can change question group",
+      "codename":"change_questionnaire",
+      "name":"Can change questionnaire",
       "content_type":12
     }
   },
@@ -432,8 +432,8 @@
     "pk":36,
     "model":"auth.permission",
     "fields":{
-      "codename":"delete_questiongroup",
-      "name":"Can delete question group",
+      "codename":"delete_questionnaire",
+      "name":"Can delete questionnaire",
       "content_type":12
     }
   },

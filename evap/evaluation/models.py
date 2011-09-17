@@ -41,7 +41,7 @@ class Semester(models.Model):
             return None
 
 
-class QuestionGroup(models.Model):
+class Questionnaire(models.Model):
     """A named collection of questions."""
     
     __metaclass__ = LocalizeModelBase
@@ -60,8 +60,8 @@ class QuestionGroup(models.Model):
     
     class Meta:
         ordering = ('name_de',)
-        verbose_name = _(u"question group")
-        verbose_name_plural = _(u"question groups")
+        verbose_name = _(u"questionnaire")
+        verbose_name_plural = _(u"questionnaires")
     
     def __unicode__(self):
         return self.name
@@ -100,10 +100,10 @@ class Course(models.Model):
     primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"), blank=True, related_name='primary_courses')
     secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"), blank=True, related_name='secondary_courses')
     
-    # different kinds of question_groups
-    general_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("course question groups"), related_name="general_courses")
-    primary_lecturer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("primary lecturer question groups"), related_name="primary_courses")
-    secondary_lecturer_questions = models.ManyToManyField(QuestionGroup, blank=True, verbose_name=_("secondary lecturer question groups"), related_name="secondary_courses")
+    # different kinds of questionnaires
+    general_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("course questionnaires"), related_name="general_courses")
+    primary_lecturer_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("primary lecturer questionnaires"), related_name="primary_courses")
+    secondary_lecturer_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("secondary lecturer questionnaires"), related_name="secondary_courses")
     
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
@@ -128,7 +128,7 @@ class Course(models.Model):
         """Shortcut for finding out whether all text answers to this course have been checked"""
         return not self.textanswer_set.filter(checked=False).exists()
     
-    def has_enough_questiongroups(self):
+    def has_enough_questionnaires(self):
         return self.general_questions.exists() \
             and (not self.primary_lecturers.exists() or self.primary_lecturer_questions.exists()) \
             and (not self.secondary_lecturers.exists() or self.secondary_lecturer_questions.exists())
@@ -164,7 +164,7 @@ class Question(models.Model):
         (u"G", _(u"Grade Question"))
     )
     
-    question_group = models.ForeignKey(QuestionGroup)
+    questionnaire = models.ForeignKey(Questionnaire)
     text_de = models.TextField(verbose_name=_(u"question text (german)"))
     text_en = models.TextField(verbose_name=_(u"question text (english)"))
     kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
@@ -173,7 +173,7 @@ class Question(models.Model):
     text = Translate
     
     class Meta:
-        order_with_respect_to = 'question_group'
+        order_with_respect_to = 'questionnaire'
         verbose_name = _(u"question")
         verbose_name_plural = _(u"questions")
     

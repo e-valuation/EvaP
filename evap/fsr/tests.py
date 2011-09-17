@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from evaluation.models import Semester, QuestionGroup
+from evaluation.models import Semester, Questionnaire
 
 class SimpleViewTestsTest(TestCase):
     fixtures = ['simple-tests']
@@ -22,12 +22,12 @@ class SimpleViewTestsTest(TestCase):
         self.client.get('/fsr/semester/%d/course/%d/censor' % (semester.id, course.id))
         self.client.get('/fsr/semester/%d/course/%d/publish'% (semester.id, course.id))
     
-    def test_questiongroup_views(self):
-        questiongroup = QuestionGroup.objects.all()[0]
+    def test_questionnaire_views(self):
+        questionnaire = Questionnaire.objects.all()[0]
         
-        self.client.get('/fsr/questiongroup')
-        self.client.get('/fsr/questiongroup/create')
-        self.client.get('/fsr/questiongroup/%d' % questiongroup.id)
-        self.client.get('/fsr/questiongroup/%d/edit' % questiongroup.id)
-        self.client.get('/fsr/questiongroup/%d/copy' % questiongroup.id)
-        self.client.get('/fsr/questiongroup/%d/delete' % questiongroup.id)
+        self.client.get('/fsr/questionnaire')
+        self.client.get('/fsr/questionnaire/create')
+        self.client.get('/fsr/questionnaire/%d' % questionnaire.id)
+        self.client.get('/fsr/questionnaire/%d/edit' % questionnaire.id)
+        self.client.get('/fsr/questionnaire/%d/copy' % questionnaire.id)
+        self.client.get('/fsr/questionnaire/%d/delete' % questionnaire.id)

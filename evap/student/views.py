@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evaluation.auth import login_required
 from evaluation.models import Course, GradeAnswer, TextAnswer
-from evaluation.tools import questiongroups_and_lecturers
+from evaluation.tools import questionnaires_and_lecturers
 from student.forms import QuestionsForm
 from student.tools import make_form_identifier
 
@@ -24,10 +24,10 @@ def index(request):
         )
     current_courses = [course for course
                        in users_courses.filter(vote_start_date__lte=datetime.now())
-                       if course.has_enough_questiongroups()]
+                       if course.has_enough_questionnaires()]
     future_courses = [course for course
                        in users_courses.exclude(vote_start_date__lte=datetime.now())
-                       if course.has_enough_questiongroups()]
+                       if course.has_enough_questionnaires()]
     
     return render_to_response(
         "student_index.html",
@@ -45,19 +45,19 @@ def vote(request, course_id):
     
     # build forms
     forms = SortedDict()
-    for question_group, lecturer in questiongroups_and_lecturers(course):
+    for questionnaire, lecturer in questionnaires_and_lecturers(course):
         form = QuestionsForm(request.POST or None,
-                             question_group=question_group,
+                             questionnaire=questionnaire,
                              lecturer=lecturer)
-        forms[(question_group, lecturer)] = form
+        forms[(questionnaire, lecturer)] = form
     
     if all(form.is_valid() for form in forms.values()):
         # begin vote operation
         with transaction.commit_on_success():
             for k, form in forms.items():
-                question_group, lecturer = k
-                for question in question_group.question_set.all():
-                    identifier = make_form_identifier(question_group,
+                questionnaire, lecturer = k
+                for question in questionnaire.question_set.all():
+                    identifier = make_form_identifier(questionnaire,
                                                       question,
                                                       lecturer)
                     value = form.cleaned_data.get(identifier)

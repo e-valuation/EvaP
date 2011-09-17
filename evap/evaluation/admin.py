@@ -16,8 +16,8 @@ class QuestionInline(admin.TabularInline):
     extra = 3
 
 
-class QuestionGroupAdmin(admin.ModelAdmin):
-    model = QuestionGroup
+class QuestionnaireAdmin(admin.ModelAdmin):
+    model = Questionnaire
     inlines = [QuestionInline]
     list_filter = ('obsolete',)
 
@@ -31,7 +31,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 admin.site.register(Semester)
 admin.site.register(Course, CourseAdmin)
 
-admin.site.register(QuestionGroup, QuestionGroupAdmin)
+admin.site.register(Questionnaire, QuestionnaireAdmin)
 
 admin.site.register(UserProfile, UserProfileAdmin)
 

@@ -6,7 +6,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evaluation.auth import fsr_required
-from evaluation.models import Semester, Course, Question, QuestionGroup
+from evaluation.models import Semester, Course, Question, Questionnaire
 from fsr.forms import *
 from fsr.importers import ExcelImporter
 
@@ -103,9 +103,9 @@ def semester_import(request, semester_id):
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @fsr_required
-def semester_assign_questiongroups(request, semester_id):
+def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = QuestionGroupsAssignForm(request.POST or None, semester=semester, extras=('primary_lecturers', 'secondary_lecturers'))
+    form = QuestionnairesAssignForm(request.POST or None, semester=semester, extras=('primary_lecturers', 'secondary_lecturers'))
     
     if form.is_valid():
         for course in semester.course_set.all():
@@ -123,10 +123,10 @@ def semester_assign_questiongroups(request, semester_id):
             
             course.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully assigned question groups."))
+        messages.add_message(request, messages.INFO, _("Successfully assigned questionnaires."))
         return redirect('fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_assign_questiongroups.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 @fsr_required
 def course_create(request, semester_id):
@@ -202,80 +202,80 @@ def course_censor(request, semester_id, course_id):
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
     
 @fsr_required
-def questiongroup_index(request):
-    questiongroups = QuestionGroup.objects.order_by('obsolete')
-    return render_to_response("fsr_questiongroup_index.html", dict(questiongroups=questiongroups), context_instance=RequestContext(request))
+def questionnaire_index(request):
+    questionnaires = Questionnaire.objects.order_by('obsolete')
+    return render_to_response("fsr_questionnaire_index.html", dict(questionnaires=questionnaires), context_instance=RequestContext(request))
 
 @fsr_required
-def questiongroup_view(request, questiongroup_id):
-    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
-    form = QuestionGroupPreviewForm(None, questiongroup=questiongroup)
-    return render_to_response("fsr_questiongroup_view.html", dict(form=form, questiongroup=questiongroup), context_instance=RequestContext(request))
+def questionnaire_view(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    form = QuestionnairePreviewForm(None, questionnaire=questionnaire)
+    return render_to_response("fsr_questionnaire_view.html", dict(form=form, questionnaire=questionnaire), context_instance=RequestContext(request))
 
 @fsr_required
-def questiongroup_create(request):
-    questiongroup = QuestionGroup()
-    QuestionFormset = inlineformset_factory(QuestionGroup, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('question_group'))
+def questionnaire_create(request):
+    questionnaire = Questionnaire()
+    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
 
-    form = QuestionGroupForm(request.POST or None, instance=questiongroup)
-    formset = QuestionFormset(request.POST or None, instance=questiongroup)
+    form = QuestionnaireForm(request.POST or None, instance=questionnaire)
+    formset = QuestionFormset(request.POST or None, instance=questionnaire)
     
     if form.is_valid() and formset.is_valid():
         q = form.save()
         formset.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully created question group."))
-        return redirect('fsr.views.questiongroup_index')
+        messages.add_message(request, messages.INFO, _("Successfully created questionnaire."))
+        return redirect('fsr.views.questionnaire_index')
     else:
-        return render_to_response("fsr_questiongroup_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
 @fsr_required
-def questiongroup_edit(request, questiongroup_id):
-    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
-    QuestionFormset = inlineformset_factory(QuestionGroup, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('question_group'))
+def questionnaire_edit(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
     
-    form = QuestionGroupForm(request.POST or None, instance=questiongroup)
-    formset = QuestionFormset(request.POST or None, instance=questiongroup)
+    form = QuestionnaireForm(request.POST or None, instance=questionnaire)
+    formset = QuestionFormset(request.POST or None, instance=questionnaire)
     
-    if questiongroup.obsolete:
-        messages.add_message(request, messages.INFO, _("Obsolete question groups cannot be edited."))
-        return redirect('fsr.views.questiongroup_index')
+    if questionnaire.obsolete:
+        messages.add_message(request, messages.INFO, _("Obsolete questionnaires cannot be edited."))
+        return redirect('fsr.views.questionnaire_index')
     
     if form.is_valid() and formset.is_valid():
         form.save()
         formset.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully updated question group."))
-        return redirect('fsr.views.questiongroup_index')
+        messages.add_message(request, messages.INFO, _("Successfully updated questionnaire."))
+        return redirect('fsr.views.questionnaire_index')
     else:
-        return render_to_response("fsr_questiongroup_form.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_questionnaire_form.html", dict(questionnaire=questionnaire, form=form, formset=formset), context_instance=RequestContext(request))
 
 @fsr_required
-def questiongroup_copy(request, questiongroup_id):
-    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
-    form = QuestionGroupForm(request.POST or None)
+def questionnaire_copy(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    form = QuestionnaireForm(request.POST or None)
     
     if form.is_valid():
         qg = form.save()
-        for question in questiongroup.question_set.all():
+        for question in questionnaire.question_set.all():
             question.pk = None
-            question.question_group = qg
+            question.questionnaire = qg
             question.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully copied question group."))
-        return redirect('fsr.views.questiongroup_view', qg.id)
+        messages.add_message(request, messages.INFO, _("Successfully copied questionnaire."))
+        return redirect('fsr.views.questionnaire_view', qg.id)
     else:
-        return render_to_response("fsr_questiongroup_copy.html", dict(questiongroup=questiongroup, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_questionnaire_copy.html", dict(questionnaire=questionnaire, form=form), context_instance=RequestContext(request))
 
 @fsr_required
-def questiongroup_delete(request, questiongroup_id):
-    questiongroup = get_object_or_404(QuestionGroup, id=questiongroup_id)
+def questionnaire_delete(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     
     if request.method == 'POST':
-        questiongroup.delete()
-        return redirect('fsr.views.questiongroup_index')
+        questionnaire.delete()
+        return redirect('fsr.views.questionnaire_index')
     else:
-        return render_to_response("fsr_questiongroup_delete.html", dict(questiongroup=questiongroup), context_instance=RequestContext(request))
+        return render_to_response("fsr_questionnaire_delete.html", dict(questionnaire=questionnaire), context_instance=RequestContext(request))
 
 @fsr_required
 def user_index(request):

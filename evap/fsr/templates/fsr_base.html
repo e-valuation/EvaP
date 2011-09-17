@@ -31,8 +31,8 @@
     {% show_from 'fsr.tools.all_semesters' "fsr_semester_menu.html" %}
     </li>
     
-    <li><a href="{% url fsr.views.questiongroup_index %}">{% trans "Question Groups" %}</a>
-    {% show_from 'fsr.tools.all_questiongroups' "fsr_questiongroup_menu.html" %}
+    <li><a href="{% url fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a>
+    {% show_from 'fsr.tools.all_questionnaires' "fsr_questionnaire_menu.html" %}
     </li>
     
     <li><a href="{% url fsr.views.user_index %}">{% trans "Users" %}</a>
@@ -47,10 +47,10 @@
 {% block content %}
     <ul id="actions">
         {% block actions %}
-            {% if questiongroup %}
-                <li><a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit question group" %}</a></li>
-                <li><a href="{% url fsr.views.questiongroup_copy questiongroup.id %}">{% trans "Copy question group" %}</a></li>
-                <li><a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete question group" %}</a></li>
+            {% if questionnaire %}
+                <li><a href="{% url fsr.views.questionnaire_edit questionnaire.id %}">{% trans "Edit questionnaire" %}</a></li>
+                <li><a href="{% url fsr.views.questionnaire_copy questionnaire.id %}">{% trans "Copy questionnaire" %}</a></li>
+                <li><a href="{% url fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete questionnaire" %}</a></li>
             {% endif %}
             
             {% if semester %}
@@ -58,7 +58,7 @@
                 <li><a href="{% url fsr.views.semester_delete semester.id %}">{% trans "Delete semester" %}</a></li>
                 <li><a href="{% url fsr.views.course_create semester.id %}">{% trans "Create new course" %}</a></li>
                 <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import courses" %}</a></li>
-                <li><a href="{% url fsr.views.semester_assign_questiongroups semester.id %}">{% trans "Assign question groups" %}</a></li>
+                <li><a href="{% url fsr.views.semester_assign_questionnaires semester.id %}">{% trans "Assign questionnaires" %}</a></li>
                 <li><a href="{% url fsr.views.semester_publish semester.id %}">{% trans "Publish courses" %}</a></li>
             {% endif %}
         {% endblock %}

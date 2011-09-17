@@ -23,8 +23,8 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if not course.has_enough_questiongroups %}
-                            <img src="{% get_static_prefix %}images/silk/exclamation.png" title="{% trans "Not enough question groups assigned." %}">
+                        {% if not course.has_enough_questionnaires %}
+                            <img src="{% get_static_prefix %}images/silk/exclamation.png" title="{% trans "Not enough questionnaires assigned." %}">
                         {% endif %}
                     </td>
                     <td class="expand">{{ course.name }}</td>

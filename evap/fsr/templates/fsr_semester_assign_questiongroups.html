@@ -17,11 +17,11 @@
 {% block content %}
     {{ block.super }}
     <p>
-        {% trans "Select the question groups to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
+        {% trans "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
             <table>{{ form.as_table }}</table>
-            <input type="submit" value="{% trans "Assign question groups" %}"/>
+            <input type="submit" value="{% trans "Assign questionnaires" %}"/>
         </form>
     </p>
 {% endblock %}

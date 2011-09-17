@@ -10,9 +10,9 @@ TextResult = namedtuple('TextResult', ('question', 'texts'))
 def calculate_results(course):
     sections = []
     
-    for question_group, lecturer in questiongroups_and_lecturers(course):
+    for questionnaire, lecturer in questionnaires_and_lecturers(course):
         results = []
-        for question in question_group.question_set.all():
+        for question in questionnaire.question_set.all():
             if question.is_grade_question():
                 answers = GradeAnswer.objects.filter(
                     course=course,
@@ -46,19 +46,19 @@ def calculate_results(course):
                 ))
                 
         if results:
-            sections.append((question_group, lecturer, results))
+            sections.append((questionnaire, lecturer, results))
     
     return sections
 
-def questiongroups_and_lecturers(course):
-    """Yields tuples of (question_group, lecturer) for the given course. The
-    lecturer is None for general question groups."""
+def questionnaires_and_lecturers(course):
+    """Yields tuples of (questionnaire, lecturer) for the given course. The
+    lecturer is None for general questionnaires."""
     
-    for question_group in course.general_questions.all():
-        yield (question_group, None)
+    for questionnaire in course.general_questions.all():
+        yield (questionnaire, None)
     for lecturer in course.primary_lecturers.all():
-        for question_group in course.primary_lecturer_questions.all():
-            yield (question_group, lecturer)
+        for questionnaire in course.primary_lecturer_questions.all():
+            yield (questionnaire, lecturer)
     for lecturer in course.secondary_lecturers.all():
-        for question_group in course.secondary_lecturer_questions.all():
-            yield (question_group, lecturer)
+        for questionnaire in course.secondary_lecturer_questions.all():
+            yield (questionnaire, lecturer)

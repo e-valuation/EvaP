@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from student.tools import make_form_identifier
 from evaluation.models import UserProfile
-from evaluation.tools import questiongroups_and_lecturers
+from evaluation.tools import questionnaires_and_lecturers
 
 GRADE_CHOICES = (
     (u"1", u"1"),
@@ -57,17 +57,17 @@ class TextAnswerField(forms.MultiValueField):
 
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
-    `question_group` and `lecturer` to the constructor.
+    `questionnaire` and `lecturer` to the constructor.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
-        self.question_group = kwargs.pop('question_group')
+        self.questionnaire = kwargs.pop('questionnaire')
         self.lecturer = kwargs.pop('lecturer')
         
         super(QuestionsForm, self).__init__(*args, **kwargs)
         
-        for question in self.question_group.question_set.all():
+        for question in self.questionnaire.question_set.all():
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
             
@@ -80,7 +80,7 @@ class QuestionsForm(forms.Form):
                                                coerce=coerce_grade,
                                                **field_args)
             
-            identifier = make_form_identifier(self.question_group,
+            identifier = make_form_identifier(self.questionnaire,
                                               question,
                                               self.lecturer)
             self.fields[identifier] = field
@@ -92,10 +92,10 @@ class QuestionsForm(forms.Form):
             except UserProfile.DoesNotExist:
                 full_name = self.lecturer.get_full_name() or self.lecturer.username
             
-            return u"%s: %s" % (full_name, self.question_group.name)
+            return u"%s: %s" % (full_name, self.questionnaire.name)
             
         else:
-            return self.question_group.name
+            return self.questionnaire.name
     
     def image(self):
         return self.lecturer.get_profile().picture if self.lecturer else None
