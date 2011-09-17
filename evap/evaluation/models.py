@@ -3,12 +3,14 @@ import sys
 
 from django.db import models
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 # see evaluation.meta for the use of Translate in this file
 from evaluation.meta import LocalizeModelBase, Translate
+
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
@@ -31,10 +33,10 @@ class Semester(models.Model):
     def __unicode__(self):
         return self.name
     
-    @staticmethod
-    def get_latest_or_none():
+    @classmethod
+    def get_latest_or_none(cls):
         try:
-            return Semester.objects.all()[0]
+            return cls.objects.all()[0]
         except IndexError:
             return None
 
@@ -56,13 +58,6 @@ class QuestionGroup(models.Model):
     
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
-    def used_in_course_kinds(self):
-        return {
-            "general": self.general_courses.values_list('kind', flat=True).order_by().distinct(),
-            "primary_lecturer": self.primary_courses.values_list('kind', flat=True).order_by().distinct(),
-            "secondary_lecturer": self.secondary_courses.values_list('kind', flat=True).order_by().distinct(),
-        }
-    
     class Meta:
         ordering = ('name_de',)
         verbose_name = _(u"question group")
@@ -70,6 +65,13 @@ class QuestionGroup(models.Model):
     
     def __unicode__(self):
         return self.name
+
+    def used_in_course_kinds(self):
+        return {
+            "general": self.general_courses.values_list('kind', flat=True).order_by().distinct(),
+            "primary_lecturer": self.primary_courses.values_list('kind', flat=True).order_by().distinct(),
+            "secondary_lecturer": self.secondary_courses.values_list('kind', flat=True).order_by().distinct(),
+        }
 
 
 class Course(models.Model):
@@ -115,10 +117,17 @@ class Course(models.Model):
         verbose_name = _(u"course")
         verbose_name_plural = _(u"courses")
     
+    def __unicode__(self):
+        return self.name
+
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return user in self.participants.all() and user not in self.voters.all()
         
+    def fully_checked(self):
+        """Shortcut for finding out whether all text answers to this course have been checked"""
+        return not self.textanswer_set.filter(checked=False).exists()
+    
     def is_user_lecturer(self, user):
         for lecturer in self.primary_lecturers.all():
             if user == lecturer:
@@ -138,13 +147,6 @@ class Course(models.Model):
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(course=self)
-    
-    def fully_checked(self):
-        """Shortcut for finding out whether all textanswers to this course have been checked"""
-        return not self.textanswer_set.filter(checked=False).exists()
-    
-    def __unicode__(self):
-        return self.name
 
 
 class Question(models.Model):
@@ -178,11 +180,11 @@ class Question(models.Model):
         else:
             raise Exception("Unknown answer kind: %r" % self.kind)
     
-    def is_text_question(self):
-        return self.answer_class() == TextAnswer
-    
     def is_grade_question(self):
         return self.answer_class() == GradeAnswer
+    
+    def is_text_question(self):
+        return self.answer_class() == TextAnswer
 
 
 class Answer(models.Model):
@@ -201,6 +203,9 @@ class Answer(models.Model):
 
 
 class GradeAnswer(Answer):
+    """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
+    being *strongly disagree*."""
+    
     answer = models.IntegerField(verbose_name = _(u"answer"))
     
     class Meta:
@@ -209,6 +214,9 @@ class GradeAnswer(Answer):
 
 
 class TextAnswer(Answer):
+    """A free-form text answer to a question (usually a comment about a course
+    or a lecturer)."""
+    
     censored_answer = models.TextField(verbose_name = _(u"censored answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name = _(u"original answer"), blank=True)
     
@@ -233,7 +241,6 @@ class TextAnswer(Answer):
 
 
 class UserProfile(models.Model):
-    # This field is required.
     user = models.OneToOneField(User)
     
     # extending first_name and last_name from the user
@@ -269,14 +276,14 @@ class UserProfile(models.Model):
     
     def has_courses(self):
         latest_semester = Semester.get_latest_or_none()
-        if latest_semester == None:
+        if latest_semester is None:
             return False
         else:
             return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
     def lectures_courses(self):
         latest_semester = Semester.get_latest_or_none()
-        if latest_semester == None:
+        if latest_semester is None:
             return False
         else:
             return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id).exists()
@@ -290,9 +297,10 @@ class UserProfile(models.Model):
                 # key not yet used
                 self.logon_key = key
                 done = True
-
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-post_save.connect(create_user_profile, sender=User)
+    
+    @staticmethod
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        """Creates a UserProfile object whenever a User is created."""
+        if created:
+            UserProfile.objects.create(user=instance)
