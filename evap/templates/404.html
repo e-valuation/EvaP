@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+    404 - {{ block.super }}
+{% endblock %}
+
+{% block subtitle %}
+    404
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <strong>{% trans "The page you're looking for seems to be missing." %}</strong>
+{% endblock %}
