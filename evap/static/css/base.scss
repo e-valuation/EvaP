@@ -393,6 +393,10 @@ table.results-detail {
     }
 }
 
+tr.obsolete {
+    opacity: 0.5;
+}
+
 /* multiselect styles */
 .multiselect-form select {
     width: 460px;

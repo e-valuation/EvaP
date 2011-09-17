@@ -11,33 +11,38 @@
     {{ block.super }}
     <p>
     {% if questiongroups %}
-        <table>
+        <table class="full-width">
             <tr>
                 <th>{% trans "Name" %}</th>
-                <th>{% trans "Description" %}</th>
-                <th>{% trans "# of Q." %}</th>
                 <th>{% trans "Usages" %}</th>
-                <th>{% trans "Obsolete" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
             
             {% for questiongroup in questiongroups %}
-                <tr>
+                <tr class="{% if questiongroup.obsolete %}obsolete {% endif %}">
                     <td>{{ questiongroup.name }}</td>
-                    <td>{{ questiongroup.description }}</td>
-                    <td>{{ questiongroup.question_set.all|length }}</td>
                     <td>
-                        {% for kind in questiongroup.used_in_course_kinds.general %}
-                            {{ kind }}({% trans "General" %})&nbsp;
-                        {% endfor %}
-                        {% for kind in questiongroup.used_in_course_kinds.primary_lecturer %}
-                            {{ kind }}({% trans "Primary Lecturer" %})&nbsp;
-                        {% endfor %}
-                        {% for kind in questiongroup.used_in_course_kinds.secondary_lecturer %}
-                            {{ kind }}({% trans "Secondary Lecturer" %})&nbsp;
-                        {% endfor %}
+                        {% blocktrans count questiongroup.question_set.all.count as count %}
+                        {{ count }} question{% plural %}
+                        {{ count }} questions{% endblocktrans %},
+                        {% trans "used for " %}
+                        {% with kinds=questiongroup.used_in_course_kinds %}
+                            {% if kinds.general %}
+                                {% trans "General" %}
+                                ({% for kind in kinds.general %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            
+                            {% if kinds.primary_lecturer %}
+                                {% trans "Primary Lecturer" %}
+                                ({% for kind in kinds.primary_lecturer %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            
+                            {% if kinds.secondary_lecturer %}
+                                {% trans "Seconday Lecturer" %}
+                                ({% for kind in kinds.secondary_lecturer %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                        {% endwith %}
                     </td>
-                    <td>{{ questiongroup.obsolete|yesno }}</td>
                     <td>
                         {% if not questiongroup.obsolete %}
                             <a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{% trans "Edit" %}</a>&nbsp;
@@ -47,6 +52,11 @@
                         <a href="{% url fsr.views.questiongroup_delete questiongroup.id %}">{% trans "Delete" %}</a>
                     </td>
                 </tr>
+                <!--
+                <tr>
+                    <td colspan="4">{{ questiongroup.description|default:"&nbsp;" }}</td>
+                </tr>
+                -->
             {% endfor %}
         </table>
     {% else %}

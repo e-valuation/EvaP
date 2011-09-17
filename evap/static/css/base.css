@@ -351,6 +351,9 @@ table.results-detail td.results-text div:last-child {
 table.results-detail td.results-text div p {
 	text-align: justify;}
 
+tr.obsolete {
+	opacity: .5;}
+
 .multiselect-form select {
 	width: 460px;
 	height: 200px;}
