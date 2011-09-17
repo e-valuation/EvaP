@@ -22,8 +22,12 @@ def index(request):
         ).exclude(
             voters=request.user
         )
-    current_courses = users_courses.filter(vote_start_date__lte=datetime.now())
-    future_courses = users_courses.exclude(vote_start_date__lte=datetime.now())
+    current_courses = [course for course
+                       in users_courses.filter(vote_start_date__lte=datetime.now())
+                       if course.has_enough_questiongroups()]
+    future_courses = [course for course
+                       in users_courses.exclude(vote_start_date__lte=datetime.now())
+                       if course.has_enough_questiongroups()]
     
     return render_to_response(
         "student_index.html",

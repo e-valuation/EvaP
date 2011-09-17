@@ -128,6 +128,11 @@ class Course(models.Model):
         """Shortcut for finding out whether all text answers to this course have been checked"""
         return not self.textanswer_set.filter(checked=False).exists()
     
+    def has_enough_questiongroups(self):
+        return self.general_questions.exists() \
+            and (not self.primary_lecturers.exists() or self.primary_lecturer_questions.exists()) \
+            and (not self.secondary_lecturers.exists() or self.secondary_lecturer_questions.exists())
+    
     def is_user_lecturer(self, user):
         for lecturer in self.primary_lecturers.all():
             if user == lecturer:
