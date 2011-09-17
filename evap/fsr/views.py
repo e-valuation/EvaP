@@ -197,8 +197,6 @@ def course_censor(request, semester_id, course_id):
         messages.add_message(request, messages.INFO, _("Successfully censored %d course answers.") % count)
         return redirect('fsr.views.semester_view', semester_id)
     else:
-        if request.method == "POST":
-            print formset.errors
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
     
 @fsr_required

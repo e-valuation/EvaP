@@ -6,6 +6,7 @@ from evaluation.models import *
 from student.forms import GRADE_CHOICES, coerce_grade
 from fsr.fields import *
 
+
 class ImportForm(forms.Form):
     vote_start_date = forms.DateField(label = _(u"first date to vote"))
     vote_end_date = forms.DateField(label = _(u"last date to vote"))
@@ -25,6 +26,7 @@ class ImportForm(forms.Form):
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
+
 
 class CourseForm(forms.ModelForm):
     participants = UserModelMultipleChoiceField(queryset=User.objects.all())
@@ -48,38 +50,38 @@ class CourseForm(forms.ModelForm):
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
 
+
 class QuestionnaireForm(forms.ModelForm):
     class Meta:
         model = Questionnaire
-        
-ACTION_CHOICES = (
-    (u"1", _(u"Approved")),
-    (u"2", _(u"Censored")),
-    (u"3", _(u"Hide")),
-    (u"4", _(u"Needs further review")),
-)
+
 
 class CensorTextAnswerForm(forms.ModelForm):
+    ACTION_CHOICES = (
+        (u"1", _(u"Approved")),
+        (u"2", _(u"Censored")),
+        (u"3", _(u"Hide")),
+        (u"4", _(u"Needs further review")),
+    )
+
     class Meta:
         model = TextAnswer
         fields = ('censored_answer',)
     
     def __init__(self, *args, **kwargs):
         super(CensorTextAnswerForm, self).__init__(*args, **kwargs)
-        self.fields['action'] = forms.TypedChoiceField(widget=forms.RadioSelect(), choices=ACTION_CHOICES, coerce=int)
+        self.fields['action'] = forms.TypedChoiceField(widget=forms.RadioSelect(), choices=self.ACTION_CHOICES, coerce=int)
     
     def clean(self):
         cleaned_data = self.cleaned_data
         action = cleaned_data.get("action")
         censored_answer = cleaned_data.get("censored_answer")
         
-        print action == 2
-        print bool(censored_answer)
-        
         if action == 2 and not censored_answer:
             raise forms.ValidationError(_(u'Censored answer missing.'))
         
         return cleaned_data
+
 
 class QuestionFormSet(BaseInlineFormSet):
     def is_valid(self):
@@ -100,6 +102,7 @@ class QuestionFormSet(BaseInlineFormSet):
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
@@ -108,6 +111,7 @@ class QuestionForm(forms.ModelForm):
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['text_de'].widget=forms.TextInput()
         self.fields['text_en'].widget=forms.TextInput()
+
 
 class QuestionnairePreviewForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass an iterable
@@ -133,8 +137,8 @@ class QuestionnairePreviewForm(forms.Form):
             # questionnaire and the question
             self.fields['question_%d' % (question.id)] = field
 
+
 class QuestionnairesAssignForm(forms.Form):
-    
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
         extras = kwargs.pop('extras', ())
@@ -148,6 +152,7 @@ class QuestionnairesAssignForm(forms.Form):
         for extra in extras:
             self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
 
+
 class PublishCourseFormSet(BaseModelFormSet):
     class PseudoQuerySet(list):
         db = None
@@ -158,6 +163,7 @@ class PublishCourseFormSet(BaseModelFormSet):
             self._queryset.extend([e for e in self.queryset.all() if e.fully_checked()])
             self._queryset.db = self.queryset.db
         return self._queryset
+
     
 class UserForm(forms.ModelForm):
     username = forms.CharField()
