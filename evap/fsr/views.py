@@ -203,7 +203,7 @@ def course_censor(request, semester_id, course_id):
     
 @fsr_required
 def questiongroup_index(request):
-    questiongroups = QuestionGroup.objects.order_by('-obsolete')
+    questiongroups = QuestionGroup.objects.order_by('obsolete')
     return render_to_response("fsr_questiongroup_index.html", dict(questiongroups=questiongroups), context_instance=RequestContext(request))
 
 @fsr_required
@@ -225,7 +225,7 @@ def questiongroup_create(request):
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created question group."))
-        return redirect('fsr.views.questiongroup_view', q.id)
+        return redirect('fsr.views.questiongroup_index')
     else:
         return render_to_response("fsr_questiongroup_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
@@ -246,7 +246,7 @@ def questiongroup_edit(request, questiongroup_id):
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated question group."))
-        return redirect('fsr.views.questiongroup_view', questiongroup_id)
+        return redirect('fsr.views.questiongroup_index')
     else:
         return render_to_response("fsr_questiongroup_form.html", dict(questiongroup=questiongroup, form=form, formset=formset), context_instance=RequestContext(request))
 

@@ -2,7 +2,7 @@
 
 <ul>
 {% for questiongroup in questiongroups %}
-    <li><a href="{% url fsr.views.questiongroup_view questiongroup.id%}">{{ questiongroup.name }}</a></li>
+    <li><a href="{% url fsr.views.questiongroup_edit questiongroup.id %}">{{ questiongroup.name }}</a></li>
 {% endfor %}
     <li><a href="{% url fsr.views.questiongroup_create %}">{% trans "New..." %}</a></li>
 </ul>
