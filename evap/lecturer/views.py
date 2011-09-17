@@ -32,7 +32,7 @@ def course_index(request):
     user = request.user
     
     semester = Semester.get_latest_or_none()
-	courses = semester.course_set.filter(primary_lecturers__pk=user.id) if semester else None
+    courses = semester.course_set.filter(primary_lecturers__pk=user.id) if semester else None
     return render_to_response("lecturer_course_index.html", dict(courses=courses), context_instance=RequestContext(request))
 
 @lecturer_required
