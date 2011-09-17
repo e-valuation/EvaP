@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r"^student/", include('student.urls')),
     url(r"^lecturer/", include('lecturer.urls')),
     
+    url(r"^logout$", 'django.contrib.auth.views.logout', {'next_page': "/"}),
     
     url(r"^i18n/", include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),

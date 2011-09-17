@@ -68,7 +68,7 @@
     
     <div id="footer">
         {% trans "EvaP evaluation platform" %}
-        &middot;
+        &nbsp;&middot;
         <form action="/i18n/setlang/" method="POST" class="textform">
             {% csrf_token %}
             <input type="hidden" name="language" value="de"/>
@@ -80,9 +80,11 @@
             <input type="hidden" name="language" value="en"/>
             <input type="submit" value="English">
         </form>
-        &middot;
+        &middot;&nbsp;
         {% if request.user.is_active %}
-            {% trans "Logged in as "%}{{ request.user.get_profile.full_name }}
+            {% trans "Logged in as" %} {{ request.user.get_profile.full_name }}
+            &nbsp;&middot;&nbsp;
+            <a href="{% url django.contrib.auth.views.logout %}">Abmelden</a>
         {% endif %}
     </div>
 </body>
