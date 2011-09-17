@@ -280,6 +280,13 @@ def questiongroup_delete(request, questiongroup_id):
 @fsr_required
 def user_index(request):
     users = User.objects.order_by("last_name", "first_name")
+    
+    filter = request.GET.get('filter')
+    if filter == "fsr":
+        users = users.filter(userprofile__fsr = True)
+    elif filter == "lecturers":
+        users = [user for user in users if user.get_profile().lectures_courses()]
+    
     return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 
 @fsr_required

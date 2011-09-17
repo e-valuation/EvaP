@@ -35,7 +35,12 @@
     {% show_from 'fsr.tools.all_questiongroups' "fsr_questiongroup_menu.html" %}
     </li>
     
-    <li><a href="{% url fsr.views.user_index %}">{% trans "Users" %}</a></li>
+    <li><a href="{% url fsr.views.user_index %}">{% trans "Users" %}</a>
+        <ul>
+            <li><a href="{% url fsr.views.user_index %}?filter=fsr">{% trans "FSR Members" %}</a></li>
+            <li><a href="{% url fsr.views.user_index %}?filter=lecturers">{% trans "Lecturers" %}</a></li>
+        </ul>
+    </li>
     </ul>
 {% endblock %}
 
