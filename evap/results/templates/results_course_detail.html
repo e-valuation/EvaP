@@ -19,7 +19,7 @@
         </h4>
         <table class="results-detail">
         {% for result in results %}
-            <tr class="{% cycle "odd" "even" %}">
+            <tr>
                 {% ifequal result.question.kind "G" %}
                 <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
                 <td class="results-average">{{ result.average|floatformat:1 }}</td>
