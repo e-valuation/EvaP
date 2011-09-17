@@ -31,6 +31,12 @@ class CourseForm(forms.ModelForm):
         self.fields['primary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
         self.fields['secondary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=QuestionGroup.objects.filter(obsolete=False))
         self.fields['secondary_lecturers'].required = False
+        
+        self.fields['vote_start_date'].localize = True
+        self.fields['vote_start_date'].widget = forms.DateInput()
+        
+        self.fields['vote_end_date'].localize = True
+        self.fields['vote_end_date'].widget = forms.DateInput()
 
 class QuestionGroupForm(forms.ModelForm):
     class Meta:
