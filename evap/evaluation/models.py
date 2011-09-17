@@ -148,6 +148,14 @@ class Course(models.Model):
         
         return False
     
+    def warnings(self):
+        result = []
+        if not self.primary_lecturers.exists():
+            result.append(_(u"No primary lecturer assigned."))
+        if not self.has_enough_questionnaires():
+            result.append(_(u"Not enough questionnaires assigned."))
+        return result
+    
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""

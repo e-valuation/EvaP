@@ -23,9 +23,11 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if not course.has_enough_questionnaires %}
-                            <img src="{% get_static_prefix %}images/silk/exclamation.png" title="{% trans "Not enough questionnaires assigned." %}">
-                        {% endif %}
+                        {% with course.warnings as warnings %}
+                            {% if warnings %}
+                                <img src="{% get_static_prefix %}images/silk/exclamation.png" title="{{ warnings|join:" " }}">
+                            {% endif %}
+                        {% endwith %}
                     </td>
                     <td class="expand">{{ course.name }}</td>
                     {% if course.num_participants %}
