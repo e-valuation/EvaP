@@ -12,6 +12,16 @@ class ImportForm(forms.Form):
     
     excel_file = forms.FileField(label = _(u"excel file"))
     
+    def __init__(self, *args, **kwargs):
+        super(ImportForm, self).__init__(*args, **kwargs)
+        
+        self.fields['vote_start_date'].localize = True
+        self.fields['vote_start_date'].widget = forms.DateInput()
+        
+        self.fields['vote_end_date'].localize = True
+        self.fields['vote_end_date'].widget = forms.DateInput()
+
+
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
