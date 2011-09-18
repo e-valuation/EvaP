@@ -8,18 +8,26 @@ GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distri
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
 def calculate_results(course):
+    """Calculates the result data for a single course. Returns a list of
+    3-tuples. Each of those tuples contains the questionnaire, the lecturer
+    (or None), and a list of single result elements. The result elements are
+    either `GradeResult` or `TextResult` instances."""
     sections = []
     
     for questionnaire, lecturer in questionnaires_and_lecturers(course):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_grade_question():
+                # gather all answers as a simple list
                 answers = GradeAnswer.objects.filter(
                     course=course,
                     lecturer=lecturer,
                     question=question
                     ).values_list('answer', flat=True)
+                # only add to the results if answers exist at all
+                # XXX: what if only a few answers exist? (anonymity)
                 if answers:
+                    # calculate relative distribution of answers
                     distribution = SortedDict()
                     for i in range(1, 6):
                         distribution[i] = 0
@@ -35,6 +43,7 @@ def calculate_results(course):
                         distribution=distribution
                     ))
             elif question.is_text_question():
+                # save all text answers for this question
                 answers = TextAnswer.objects.filter(
                     course=course,
                     lecturer=lecturer,
@@ -44,11 +53,13 @@ def calculate_results(course):
                     question=question,
                     texts=[answer.answer for answer in answers]
                 ))
-                
+        
+        # only add to results if answers exist
         if results:
             sections.append((questionnaire, lecturer, results))
     
     return sections
+
 
 def questionnaires_and_lecturers(course):
     """Yields tuples of (questionnaire, lecturer) for the given course. The
