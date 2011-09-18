@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_webtest import WebTest
 
@@ -43,11 +44,11 @@ class UsecaseTests(WebTest):
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
     
     def test_import(self):
-        # login first
-        index = self.app.get("/", user="fsr.user")
+        p = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new semester
-        p = self.app.get("/fsr/semester/create")
+        p = p.click("[Ss]emesters")
+        p = p.click("[Nn]ew [Ss]emester")
         semester_form = p.forms[0]
         semester_form['name_de'] = "Testsemester"
         semester_form['name_en'] = "test semester"
@@ -57,8 +58,9 @@ class UsecaseTests(WebTest):
         semester = Semester.objects.get(name_de="Testsemester",
                                         name_en="test semester")
         
-        assert semester.course_set.count() == 0
+        self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
         
+        # import excel file
         p = p.click("[Ii]mport")
         upload_form = p.forms[0]
         upload_form['vote_start_date'] = "02/29/2000"
@@ -66,6 +68,5 @@ class UsecaseTests(WebTest):
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
         p = upload_form.submit().follow()
         
-        assert semester.course_set.count() == 23
-        assert User.objects.count() == 25
-    
+        self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
+        self.assertEqual(User.objects.count(), 25, "Wrong number of users after Excel import.")
