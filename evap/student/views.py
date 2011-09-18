@@ -16,12 +16,14 @@ from datetime import datetime
 
 @login_required
 def index(request):
+    # retrieve all courses, which the user can evaluate now or later
     users_courses = Course.objects.filter(
             vote_end_date__gte=datetime.now(),
             participants=request.user
         ).exclude(
             voters=request.user
         )
+    # split up into current and future courses
     current_courses = [course for course
                        in users_courses.filter(vote_start_date__lte=datetime.now())
                        if course.has_enough_questionnaires()]
