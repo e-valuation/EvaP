@@ -5,16 +5,16 @@ from django.forms.models import ModelChoiceIterator
 from django.utils.html import escape, conditional_escape
 from django.utils.encoding import force_unicode
 
+
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        if obj.get_profile():
-            return obj.get_profile().full_name
-        else:
-            return obj.username
+        return obj.get_profile().full_name
+
 
 class ToolTipModelChoiceIterator(ModelChoiceIterator):
     def choice(self, obj):
         return (self.field.prepare_value(obj), self.field.label_from_instance(obj), self.field.title_from_instance(obj))
+
 
 class ToolTipSelectMultiple(forms.SelectMultiple):
     def render_option(self, selected_choices, option_value, option_label, option_title):
@@ -32,6 +32,7 @@ class ToolTipSelectMultiple(forms.SelectMultiple):
             output.append(self.render_option(selected_choices, option_value, option_label, option_title))
         return u'\n'.join(output)
 
+
 class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = ToolTipSelectMultiple
     
@@ -43,5 +44,3 @@ class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):
             return self._choices
         return ToolTipModelChoiceIterator(self)    
     choices = property(_get_choices, forms.ChoiceField._set_choices)
-
-

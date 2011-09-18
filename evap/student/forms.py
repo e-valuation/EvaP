@@ -5,6 +5,7 @@ from student.tools import make_form_identifier
 from evaluation.models import UserProfile
 from evaluation.tools import questionnaires_and_lecturers
 
+
 GRADE_CHOICES = (
     (u"1", u"1"),
     (u"2", u"2"),
@@ -13,6 +14,7 @@ GRADE_CHOICES = (
     (u"5", u"5"),
     (u"X", _(u"no answer"))
 )
+
 
 def coerce_grade(s):
     """Converts a grade string (first element of each GRADE_CHOICES pair) into
@@ -99,4 +101,3 @@ class QuestionsForm(forms.Form):
     
     def image(self):
         return self.lecturer.get_profile().picture if self.lecturer else None
-        

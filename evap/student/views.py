@@ -1,6 +1,6 @@
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
@@ -41,7 +41,7 @@ def vote(request, course_id):
     # retrieve course and make sure that the user is allowed to vote
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
-        return HttpResponseForbidden()
+        raise PermissionDenied
     
     # build forms
     forms = SortedDict()

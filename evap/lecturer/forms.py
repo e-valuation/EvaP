@@ -4,16 +4,14 @@ from django.utils.translation import ugettext_lazy as _
 from evaluation.models import *
 from fsr.fields import *
 
+
 class CourseForm(forms.ModelForm):
     primary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
     secondary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
     
     class Meta:
         model = Course
-        exclude = ("voters", "semester", 'participants',
-                   "visible", "vote_start_date", "vote_end_date", 
-                   'general_questions', 'primary_lecturer_questions', 'secondary_lecturer_questions'
-                   )
+        fields = ('name_de', 'name_en', 'kind', 'primary_lecturers', 'secondary_lecturers')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
@@ -29,14 +27,13 @@ class UserForm(forms.ModelForm):
     
     class Meta:
         model = UserProfile
-        exclude = ('user',)
-        fields = ['title', 'first_name', 'last_name', 'email', 'picture', 'proxies']
+        fields = ('title', 'first_name', 'last_name', 'email', 'picture', 'proxies')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         
         # fix generated form
-        self.fields['proxies'].required=False
+        self.fields['proxies'].required = False
         
         # load user fields
         self.fields['first_name'].initial = self.instance.user.first_name
@@ -45,9 +42,9 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
-        self.instance.user.first_name   = self.cleaned_data.get('first_name')
-        self.instance.user.last_name    = self.cleaned_data.get('last_name')
-        self.instance.user.email        = self.cleaned_data.get('email')
+        self.instance.user.first_name = self.cleaned_data.get('first_name')
+        self.instance.user.last_name = self.cleaned_data.get('last_name')
+        self.instance.user.email = self.cleaned_data.get('email')
         self.instance.user.save()
         self.instance = self.instance.user.get_profile()
         

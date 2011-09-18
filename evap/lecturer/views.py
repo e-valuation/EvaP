@@ -1,17 +1,17 @@
 from django.contrib import messages
-from django.db import transaction
-from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evaluation.auth import lecturer_required
 from lecturer.forms import *
 
+
 @lecturer_required
 def index(request):
     return render_to_response("lecturer_index.html", dict(), context_instance=RequestContext(request))
+
 
 @lecturer_required
 def profile_edit(request):
@@ -35,6 +35,7 @@ def course_index(request):
     courses = semester.course_set.filter(primary_lecturers__pk=user.id) if semester else None
     return render_to_response("lecturer_course_index.html", dict(courses=courses), context_instance=RequestContext(request))
 
+
 @lecturer_required
 def course_edit(request, course_id):
     user = request.user
@@ -42,9 +43,9 @@ def course_edit(request, course_id):
     
     # check rights
     if not course.primary_lecturers.filter(pk=user.id).exists():
-        return HttpResponseForbidden()
+        raise PermissionDenied
         
-    form = CourseForm(request.POST or None, instance = course)
+    form = CourseForm(request.POST or None, instance=course)
     
     if form.is_valid():
         form.save()

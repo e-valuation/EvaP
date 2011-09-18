@@ -1,24 +1,19 @@
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-
-from datetime import datetime
 
 from evaluation.auth import login_required
 from evaluation.models import Course, Semester
 from evaluation.tools import calculate_results
 
-from django.utils.functional import memoize
 
 @login_required
 def index(request):
-    objects = []
     semesters = Semester.objects.filter(visible=True).order_by('-created_at')
     
     if len(semesters) > 0:
         latest_semester = semesters[0]
-        latest_semester_courses = latest_semester.course_set.filter(visible=True)    
+        latest_semester_courses = latest_semester.course_set.filter(visible=True)
         older_semesters = semesters[1:]
     else:
         latest_semester = None
@@ -34,6 +29,7 @@ def index(request):
         ),
         context_instance=RequestContext(request))
 
+
 @login_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
@@ -46,6 +42,7 @@ def semester_detail(request, semester_id):
             courses=courses
         ),
         context_instance=RequestContext(request))
+
 
 @login_required
 def course_detail(request, semester_id, course_id):
@@ -61,4 +58,3 @@ def course_detail(request, semester_id, course_id):
             sections=sections
         ),
         context_instance=RequestContext(request))
-
