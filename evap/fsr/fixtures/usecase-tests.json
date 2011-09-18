@@ -1,0 +1,22 @@
+[
+    {
+        "pk":1,
+        "model":"auth.user",
+        "fields":{
+            "username":"fsr.user",
+            "first_name":"Fsr",
+            "last_name":"User",
+            "is_active":true,
+            "is_superuser":false,
+            "is_staff":false
+        }
+    },
+    {
+        "pk":1,
+        "model":"evaluation.userprofile",
+        "fields":{
+            "fsr":1,
+            "user":1
+        }
+    }
+]
