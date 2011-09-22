@@ -49,7 +49,9 @@
                         {% endif %}
                         <a href="{% url fsr.views.questionnaire_view questionnaire.id %}">{% trans "Preview" %}</a>&nbsp;
                         <a href="{% url fsr.views.questionnaire_copy questionnaire.id %}">{% trans "Copy" %}</a>&nbsp;
-                        <a href="{% url fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete" %}</a>
+                        {% if questionnaire.can_be_deleted %}
+                            <a href="{% url fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete" %}</a>
+                        {% endif %}
                     </td>
                 </tr>
                 <!--

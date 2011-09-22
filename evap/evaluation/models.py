@@ -33,6 +33,13 @@ class Semester(models.Model):
     def __unicode__(self):
         return self.name
     
+    @property
+    def can_be_deleted(self):
+        for course in self.course_set.all():
+            if not course.can_be_deleted:
+                return False
+        return True
+    
     @classmethod
     def get_latest_or_none(cls):
         try:
@@ -72,6 +79,10 @@ class Questionnaire(models.Model):
             "primary_lecturer": self.primary_courses.values_list('kind', flat=True).order_by().distinct(),
             "secondary_lecturer": self.secondary_courses.values_list('kind', flat=True).order_by().distinct(),
         }
+    
+    @property
+    def can_be_deleted(self):
+        return not (self.general_courses.exists() or self.primary_courses.exists() or self.secondary_courses.exists())
 
 
 class Course(models.Model):
@@ -160,6 +171,15 @@ class Course(models.Model):
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(course=self)
+    
+    @property
+    def gradeanswer_set(self):
+        """Pseudo relationship to all grade answers for this course"""
+        return GradeAnswer.objects.filter(course=self)
+    
+    @property
+    def can_be_deleted(self):
+        return not (self.textanswer_set.exists() or self.gradeanswer_set.exists())
 
 
 class Question(models.Model):

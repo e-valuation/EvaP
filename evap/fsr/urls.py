@@ -28,5 +28,4 @@ urlpatterns = patterns('fsr.views',
     url(r"^user/(\d+)/edit$", 'user_edit'),
     url(r"^user/(\d+)/new_key$", 'user_key_new'),
     url(r"^user/(\d+)/del_key$", 'user_key_remove'),
-    url(r"^user/(\d+)/delete$", 'user_delete'),
 )

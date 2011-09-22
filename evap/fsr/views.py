@@ -69,12 +69,16 @@ def semester_edit(request, semester_id):
 @fsr_required
 def semester_delete(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    
-    if request.method == 'POST':
-        semester.delete()
-        return redirect('fsr.views.semester_index')
+
+    if semester.can_be_deleted:    
+        if request.method == 'POST':
+            semester.delete()
+            return redirect('fsr.views.semester_index')
+        else:
+            return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
     else:
-        return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
+        messages.add_message(request, messages.ERROR, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
+        return redirect('fsr.views.semester_index')
 
 
 @fsr_required
@@ -171,11 +175,16 @@ def course_delete(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
-    if request.method == 'POST':
-        course.delete()
-        return redirect('fsr.views.semester_view', semester_id)
+    if course.can_be_deleted:    
+        if request.method == 'POST':
+            course.delete()
+            return redirect('fsr.views.semester_view', semester_id)
+        else:
+            return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
     else:
-        return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
+        messages.add_message(request, messages.ERROR, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
+        return redirect('fsr.views.semester_view', semester_id)
+
 
 
 @fsr_required
@@ -287,11 +296,15 @@ def questionnaire_copy(request, questionnaire_id):
 def questionnaire_delete(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     
-    if request.method == 'POST':
-        questionnaire.delete()
-        return redirect('fsr.views.questionnaire_index')
+    if questionnaire.can_be_deleted:
+        if request.method == 'POST':
+            questionnaire.delete()
+            return redirect('fsr.views.questionnaire_index')
+        else:
+            return render_to_response("fsr_questionnaire_delete.html", dict(questionnaire=questionnaire), context_instance=RequestContext(request))
     else:
-        return render_to_response("fsr_questionnaire_delete.html", dict(questionnaire=questionnaire), context_instance=RequestContext(request))
+        messages.add_message(request, messages.ERROR, _("The questionnaire '%s' cannot be deleted, because it is still in use.") % questionnaire.name)
+        return redirect('fsr.views.questionnaire_index')
 
 
 @fsr_required
@@ -334,17 +347,6 @@ def user_edit(request, user_id):
         return redirect('fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
-
-
-@fsr_required
-def user_delete(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    
-    if request.method == 'POST':
-        user.delete()
-        return redirect('fsr.views.user_index')
-    else:
-        return render_to_response("fsr_user_delete.html", dict(user=user), context_instance=RequestContext(request))
 
     
 @fsr_required

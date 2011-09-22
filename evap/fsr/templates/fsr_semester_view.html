@@ -38,7 +38,9 @@
                     {% endif %}
                     <td class="dontbreak">
                         <a href="{% url fsr.views.course_edit semester.id, course.id %}" title="{% trans "Edit" %}"><img src="{% get_static_prefix %}images/silk/application_edit.png"></a>&nbsp;
-                        <a href="{% url fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/application_delete.png"></a>&nbsp;
+                        {% if course.can_be_deleted %}
+                            <a href="{% url fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/application_delete.png"></a>&nbsp;
+                        {% endif %}
                         {% if not course.fully_checked %}
                             <a href="{% url fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/application_lightning.png"></a>
                         {% endif %}

@@ -37,8 +37,6 @@
                     {% else %}
                         <a href="{% url fsr.views.user_key_new user.id %}">{% trans "Generate key" %}</a>&nbsp;
                     {% endif %}
-                </td><td class="dontbreak">
-                    <a href="{% url fsr.views.user_delete user.id %}">{% trans "Delete" %}</a>&nbsp;
                 </td>
             </tr>
         {% endfor %}
