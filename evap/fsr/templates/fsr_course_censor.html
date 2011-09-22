@@ -7,11 +7,11 @@
 
     <script>
         function checkAll() {
-            $('.multiselect-form INPUT[id $= "-action_0"]').each(function() {
-                //if(this['id'].substr(-7) == "checked") {
-                    this['checked'] = true;
-                //}
-            });
+			$('.multiselect-form tbody:last tr').each(function() {
+				if(typeof $("input:checked", this).val() == 'undefined') {
+					$('input[id $= "-action_0"]', this).attr("checked","checked");
+				}
+			})
         }
     </script>
 {% endblock %}
