@@ -250,6 +250,8 @@ class TextAnswer(Answer):
     """A free-form text answer to a question (usually a comment about a course
     or a lecturer)."""
     
+    elements_per_page = 2
+    
     censored_answer = models.TextField(verbose_name = _(u"censored answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name = _(u"original answer"), blank=True)
     

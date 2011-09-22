@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.cache import cache
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
@@ -193,7 +194,19 @@ def course_censor(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
     censorFS = modelformset_factory(TextAnswer, form=CensorTextAnswerForm, can_order=False, can_delete=False, extra=0)
     
-    formset = censorFS(request.POST or None, queryset=course.textanswer_set)
+    # get offset for current course
+    key_name = "course_%d_offset" % course.id
+    offset = cache.get(key_name) or 0
+    
+    # compute querysets
+    base_queryset = course.textanswer_set.filter(checked=False)
+    form_queryset = base_queryset.order_by('id')[offset:offset + TextAnswer.elements_per_page]
+    
+    # store offset for next page view
+    cache.set(key_name, (offset + TextAnswer.elements_per_page) % base_queryset.count())
+    
+    # create formset from sliced queryset
+    formset = censorFS(request.POST or None, queryset=form_queryset)
     
     if formset.is_valid():
         count = 0
