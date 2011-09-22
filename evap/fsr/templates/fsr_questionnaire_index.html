@@ -27,19 +27,23 @@
                         {{ count }} questions{% endblocktrans %},
                         {% trans "used for " %}
                         {% with kinds=questionnaire.used_in_course_kinds %}
-                            {% if kinds.general %}
-                                {% trans "General" %}
-                                ({% for kind in kinds.general %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
-                            {% endif %}
-                            
-                            {% if kinds.primary_lecturer %}
-                                {% trans "Primary Lecturer" %}
-                                ({% for kind in kinds.primary_lecturer %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
-                            {% endif %}
-                            
-                            {% if kinds.secondary_lecturer %}
-                                {% trans "Seconday Lecturer" %}
-                                ({% for kind in kinds.secondary_lecturer %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% if kinds.general or kinds.primary_lecturer or kinds.secondary_lecturer %}
+                                {% if kinds.general %}
+                                    {% trans "General" %}
+                                    ({% for kind in kinds.general %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                                {% endif %}
+                                
+                                {% if kinds.primary_lecturer %}
+                                    {% trans "Primary Lecturer" %}
+                                    ({% for kind in kinds.primary_lecturer %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                                {% endif %}
+                                
+                                {% if kinds.secondary_lecturer %}
+                                    {% trans "Seconday Lecturer" %}
+                                    ({% for kind in kinds.secondary_lecturer %}{{kind}}{% if not forloop.last %}, {% endif %}{% endfor %})
+                                {% endif %}
+                            {% else %}
+                                {% trans "nothing" %}
                             {% endif %}
                         {% endwith %}
                     </td>
