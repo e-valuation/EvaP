@@ -309,10 +309,10 @@ def questionnaire_copy(request, questionnaire_id):
     form = QuestionnaireForm(request.POST or None)
     
     if form.is_valid():
-        questionnaire = form.save()
+        new_questionnaire = form.save()
         for question in questionnaire.question_set.all():
             question.pk = None
-            question.questionnaire = questionnaire
+            question.questionnaire = new_questionnaire
             question.save()
         
         messages.add_message(request, messages.INFO, _("Successfully copied questionnaire."))
