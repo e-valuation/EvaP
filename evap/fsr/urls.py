@@ -15,6 +15,7 @@ urlpatterns = patterns('fsr.views',
     url(r"^semester/(\d+)/course/(\d+)/edit$", 'course_edit'),
     url(r"^semester/(\d+)/course/(\d+)/delete$", 'course_delete'),
     url(r"^semester/(\d+)/course/(\d+)/censor$", 'course_censor'),
+    url(r"^semester/(\d+)/course/(\d+)/email$", 'course_email'),
     
     url(r"^questionnaire$", 'questionnaire_index'),
     url(r"^questionnaire/create$", 'questionnaire_create'),

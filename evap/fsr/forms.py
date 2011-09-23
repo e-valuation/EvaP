@@ -1,4 +1,6 @@
 from django import forms
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.forms.models import BaseInlineFormSet, BaseModelFormSet
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,6 +51,55 @@ class CourseForm(forms.ModelForm):
         
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
+
+
+class CourseEmailForm(forms.Form):
+    sendToParticipants = forms.BooleanField(label = _("Send to participants?"), required=False, initial=True)
+    sendToPrimaryLecturers = forms.BooleanField(label = _("Send to primary lecturers?"), required=False)
+    sendToSecondaryLecturers = forms.BooleanField(label = _("Send to secondary lecturers?"), required=False)
+    subject = forms.CharField(label = _("Subject"))
+    body = forms.CharField(widget=forms.Textarea(), label = _("Body"))
+    
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop('instance')
+        super(CourseEmailForm, self).__init__(*args, **kwargs)
+    
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        
+        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToPrimaryLecturers') or cleaned_data.get('sendToSecondaryLecturers')):
+            raise forms.ValidationError(_(u"No recipient selected. Choose at least participants or lecturers."))
+        
+        return cleaned_data
+
+    # returns whether all recepients have an email address    
+    def all_recepients_reachable(self):
+        return self.missing_email_addresses() == 0
+    
+    # returns the number of recepients without an email address
+    def missing_email_addresses(self):
+        return len([email for email in self.receipient_list if email == ""])
+    
+    @property
+    def receipient_list(self):
+        # cache result
+        if hasattr(self, '_rcpts'):
+            return self._rcpts
+        
+        self._rcpts = []
+        for group, manager in {'sendToParticipants': self.instance.participants, 'sendToPrimaryLecturers': self.instance.primary_lecturers, 'sendToSecondaryLecturers': self.instance.secondary_lecturers}.iteritems():
+            if self.cleaned_data.get(group):
+                self._rcpts.extend([user.email for user in manager.all()])
+        
+        return self._rcpts
+    
+    def send(self):
+        mail = EmailMessage(subject = self.cleaned_data.get('subject'),
+                            body = self.cleaned_data.get('body'),
+                            to = [email for email in self.receipient_list if email != ""],
+                            bcc = [a[1] for a in settings.MANAGERS],
+                            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.send(False)
 
 
 class QuestionnaireForm(forms.ModelForm):

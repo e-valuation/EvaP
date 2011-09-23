@@ -233,6 +233,22 @@ def course_censor(request, semester_id, course_id):
     else:
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
 
+@fsr_required
+def course_email(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    form = CourseEmailForm(request.POST or None, instance=course)
+    
+    if form.is_valid():
+        form.send()
+        
+        if form.all_recepients_reachable():
+            messages.add_message(request, messages.INFO, _("Successfully sent email to all participants of '%s'.") % course.name)
+        else:
+            messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants of '%s', but %d could not be reached as they do not have an email address.") % (course.name, form.missing_email_addresses()))
+        return redirect('fsr.views.semester_view', semester_id)
+    else:
+        return render_to_response("fsr_course_email.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
     
 @fsr_required
 def questionnaire_index(request):
