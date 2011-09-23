@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_webtest import WebTest
+import webtest
 
 from django.contrib.auth.models import User
 from evaluation.models import Semester, Questionnaire
@@ -60,6 +61,9 @@ class UsecaseTests(WebTest):
         
         self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
         
+        # safe original user count
+        original_user_count = User.objects.all().count()
+        
         # import excel file
         p = p.click("[Ii]mport")
         upload_form = p.forms[0]
@@ -69,4 +73,85 @@ class UsecaseTests(WebTest):
         p = upload_form.submit().follow()
         
         self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
-        self.assertEqual(User.objects.count(), 25, "Wrong number of users after Excel import.")
+        self.assertEqual(User.objects.count(), original_user_count + 24, "Wrong number of users after Excel import.")
+
+    def test_logon_key(self):
+        with self.assertRaises(webtest.app.AppError):
+            self.app.get(reverse("student.views.index"))
+        
+        url_with_key = reverse("student.views.index") + "?userkey=12345"
+        self.app.get(url_with_key)
+    
+    
+    def test_create_questionnaire(self):
+        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        
+        # create a new questionnaire
+        p = p.click("[Qq]uestionnaires")
+        p = p.click("[Nn]ew [Qq]uestionnaire")
+        questionnaire_form = p.forms[0]
+        questionnaire_form['name_de'] = "Test Fragebogen"
+        questionnaire_form['name_en'] = "test questionnaire"
+        questionnaire_form['question_set-0-text_de'] = "Frage 1"
+        questionnaire_form['question_set-0-text_en'] = "Question 1"
+        questionnaire_form['question_set-0-kind'] = "T"
+        p = questionnaire_form.submit().follow()
+        
+        # retrieve new questionnaire
+        q = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
+        self.assertEqual(q.question_set.count(), 1, "New questionnaire is empty.")
+        
+    def test_create_empty_questionnaire(self):
+        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        
+        # create a new questionnaire
+        p = p.click("[Qq]uestionnaires")
+        p = p.click("[Nn]ew [Qq]uestionnaire")
+        questionnaire_form = p.forms[0]
+        questionnaire_form['name_de'] = "Test Fragebogen"
+        questionnaire_form['name_en'] = "test questionnaire"
+        p = questionnaire_form.submit()
+        
+        assert "You must have at least one of these" in p
+        
+        # retrieve new questionnaire
+        with self.assertRaises(Questionnaire.DoesNotExist):
+            Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
+        
+        
+    def test_copy_questionnaire(self):
+        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        
+        # create a new questionnaire
+        p = p.click("[Qq]uestionnaires")
+        p = p.click("Copy")
+        questionnaire_form = p.forms[0]
+        questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
+        questionnaire_form['name_en'] = "test questionnaire (copied)"
+        p = questionnaire_form.submit().follow()
+        
+        # retrieve new questionnaire
+        q = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
+        self.assertEqual(q.question_set.count(), 2, "New questionnaire is empty.")
+    
+    
+    def test_assign_questionnaires(self):
+        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        
+        # assign questionnaire to courses
+        p = p.click("[Ss]emester 1 \(en\)", index=0)
+        p = p.click("Assign questionnaires")
+        assign_form = p.forms[0]
+        assign_form['Seminar'] = [1]
+        assign_form['Vorlesung'] = [1]
+        assign_form['primary_lecturers'] = [1]
+        p = assign_form.submit().follow()
+        
+        # get semester and check
+        semester = Semester.objects.get(pk=1)
+        questionnaire = Questionnaire.objects.get(pk=1)
+        for course in semester.course_set.all():
+            self.assertEqual(course.general_questions.count(), 1)
+            self.assertEqual(course.general_questions.get(), questionnaire)
+            self.assertEqual(course.primary_lecturer_questions.count(), 1)
+            self.assertEqual(course.primary_lecturer_questions.get(), questionnaire)
