@@ -2,7 +2,7 @@ from django.db.models import Avg
 from django.utils.datastructures import SortedDict
 from evaluation.models import GradeAnswer, TextAnswer
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 
 GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
