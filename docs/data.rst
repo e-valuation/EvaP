@@ -10,5 +10,4 @@ Data Migration
 --------------
 
 The `evaluation` app is controlled by South -- a framework for Django that 
-allows a continuous change in the data models without losing data.
-
+allows continuous changes in the data models without losing data.
