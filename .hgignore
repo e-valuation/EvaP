@@ -14,3 +14,5 @@ syntax: re
 ^evap/staticfiles$
 ^evap/media$
 ^evap/database.sqlite3$
+
+^docs/_build
