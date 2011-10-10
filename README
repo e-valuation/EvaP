@@ -9,38 +9,8 @@ What is EvaP?
 EvaP (a successor to the infamous EvaJ) is a course evaluation system used 
 internally at Hasso Plattner Institute.
 
-Source Structure
-----------------
-
-EvaP is a standard Django project, divided up into several applications:
-
-- *evaluation* contains all the data models relevant for the evaluation, but 
-  no views. It also contains some generic code used by other applications.
-- *fsr* provides views for the student representatives
-- *lecturer* provides views for lecturers
-- *results* provides views to show results and produce exports
-- *student* provides views relevant for students (voting etc.)
-
-Data Model and Migration
-------------------------
-
-The `evaluation` app is controlled by South -- a framework for Django that 
-allows a continuous change in the data models without losing data.
-
-Dependencies
-------------
-
-EvaP is written in Python using the Django framework. It has the following 
-dependencies:
-
-- Python 2.6
-- Django 1.3
-- South 0.7.3
-- PIL 1.1.7
-- xlrd 0.7.1
-
-- django-webtest 1.4.2
-- WebTest 1.3, WebOb 1.1.1
+For more documentation, look into the *docs* subdirectory or the generated 
+documentation.
 
 Contributors
 ------------
