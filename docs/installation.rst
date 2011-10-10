@@ -1,0 +1,17 @@
+Installation
+============
+
+Dependencies
+------------
+
+EvaP is written in Python using the Django framework. It has the following 
+dependencies:
+
+- Python 2.6
+- Django 1.3
+- South 0.7.3
+- PIL 1.1.7
+- xlrd 0.7.1
+
+- django-webtest 1.4.2
+- WebTest 1.3, WebOb 1.1.1
