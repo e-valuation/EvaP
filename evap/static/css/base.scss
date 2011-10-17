@@ -323,6 +323,15 @@ table.results-detail {
         vertical-align: top;
     }
     
+    td.results-subtitle {
+        font-size: 115%;
+    }
+    
+    td.results-subtitle-grade {
+        font-size: 115%;
+        text-align: center;
+    }
+    
     td.results-question-grade {
         width: 80%;
     }

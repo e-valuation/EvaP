@@ -9,15 +9,21 @@
     
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
-    {% for group, lecturer, results in sections %}
-        <h4 class="results-section">
+    <table class="results-detail">
+    {% for group, lecturer, results, grade in sections %}
+        <tr>
+            <td class="results-subtitle" colspan="2">
             {% if lecturer %}
                 <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
                 {{ lecturer.get_profile.full_name }}:
             {% endif %}
             {{ group }}
-        </h4>
-        <table class="results-detail">
+            </td>
+            <td class="results-subtitle-grade" colspan="2">
+                {% if grade %}{{ grade|floatformat:1 }}{% endif %}
+            </td>
+        </tr>
+        
         {% for result in results %}
             <tr>
                 {% ifequal result.question.kind "G" %}
@@ -41,6 +47,6 @@
                 {% endifequal %}
             </tr>
         {% endfor %}
-        </table>
-    {% endfor %}   
+    {% endfor %}
+    </table>
 {% endblock %}

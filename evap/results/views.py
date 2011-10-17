@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 from evaluation.auth import login_required
 from evaluation.models import Course, Semester
-from evaluation.tools import calculate_results
+from evaluation.tools import calculate_results, calculate_average_grade
 
 
 @login_required
@@ -33,7 +33,10 @@ def index(request):
 @login_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
-    courses = semester.course_set.filter(visible=True)
+    courses = list(semester.course_set.filter(visible=True))
+    for course in courses:
+        # annotate course objects with grade
+        course.grade = calculate_average_grade(course)
     
     return render_to_response(
         "results_semester_detail.html",

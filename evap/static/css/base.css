@@ -286,6 +286,13 @@ table.results-detail td {
 	padding: 2px 0;
 	vertical-align: top;}
 
+table.results-detail td.results-subtitle {
+	font-size: 115%;}
+
+table.results-detail td.results-subtitle-grade {
+	font-size: 115%;
+	text-align: center;}
+
 table.results-detail td.results-question-grade {
 	width: 80%;}
 

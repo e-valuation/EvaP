@@ -13,6 +13,7 @@
     {% for course in courses %}
         <tr>
             <td><a href="{% url results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
+            <td>{{ course.grade|floatformat:1 }}</td>
         </tr>
     {% endfor %}
     </table>

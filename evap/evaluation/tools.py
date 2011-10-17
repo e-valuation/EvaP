@@ -4,18 +4,30 @@ from evaluation.models import GradeAnswer, TextAnswer
 
 from collections import namedtuple
 
+
+# see calculate_results
 GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
+
+def avg(iterable):
+    """Simple arithmetic average function. Returns `None` if the length of
+    `iterable` is 0."""
+    if len(iterable) == 0:
+        return None
+    return float(sum(iterable)) / len(iterable)
+
+
 def calculate_results(course):
     """Calculates the result data for a single course. Returns a list of
-    3-tuples. Each of those tuples contains the questionnaire, the lecturer
-    (or None), and a list of single result elements. The result elements are
-    either `GradeResult` or `TextResult` instances."""
+    4-tuples. Each of those tuples contains the questionnaire, the lecturer
+    (or None), a list of single result elements and the average grade for that
+    section (or None). The result elements are either `GradeResult` or
+    `TextResult` instances."""
     sections = []
     
     for questionnaire, lecturer in questionnaires_and_lecturers(course):
-        results = []
+        results = [] # holds the single result elements
         for question in questionnaire.question_set.all():
             if question.is_grade_question():
                 # gather all answers as a simple list
@@ -38,7 +50,7 @@ def calculate_results(course):
                     
                     results.append(GradeResult(
                         question=question,
-                        average=float(sum(answers)/len(answers)),
+                        average=avg(answers),
                         count=len(answers),
                         distribution=distribution
                     ))
@@ -53,12 +65,33 @@ def calculate_results(course):
                     question=question,
                     texts=[answer.answer for answer in answers]
                 ))
+        if not results:
+            continue
         
-        # only add to results if answers exist
-        if results:
-            sections.append((questionnaire, lecturer, results))
+        # compute average, will return None if not GradeResults exist in this section
+        average = avg([result.average for result in results if isinstance(result, GradeResult)])
+        sections.append((questionnaire, lecturer, results, average))
     
     return sections
+
+
+def calculate_average_grade(course):
+    """Determines the final grade for a course."""
+    generic_grades = []
+    personal_grades = []
+    
+    for questionnaire, lecturer, results, average in calculate_results(course):
+        if average:
+            (personal_grades if lecturer else generic_grades).append(average)
+    
+    # determine final grade by building the equally-weighted average of the
+    # generic and person-specific grades
+    if not generic_grades:
+        return None
+    elif not personal_grades:
+        return avg(generic_grades)
+    else:
+        return (avg(generic_grades) + avg(personal_grades)) / 2
 
 
 def questionnaires_and_lecturers(course):
