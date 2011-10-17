@@ -4,7 +4,6 @@ from evaluation.models import GradeAnswer, TextAnswer
 
 from collections import namedtuple
 
-
 # see calculate_results
 GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
@@ -36,6 +35,7 @@ def calculate_results(course):
                     lecturer=lecturer,
                     question=question
                     ).values_list('answer', flat=True)
+                
                 # only add to the results if answers exist at all
                 # XXX: what if only a few answers exist? (anonymity)
                 if answers:
@@ -68,9 +68,10 @@ def calculate_results(course):
         if not results:
             continue
         
-        # compute average, will return None if not GradeResults exist in this section
-        average = avg([result.average for result in results if isinstance(result, GradeResult)])
-        sections.append((questionnaire, lecturer, results, average))
+        # compute average grade for this section, will return None if no
+        # GradeResults exist in this section
+        average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
+        sections.append((questionnaire, lecturer, results, average_grade))
     
     return sections
 
@@ -84,13 +85,15 @@ def calculate_average_grade(course):
         if average:
             (personal_grades if lecturer else generic_grades).append(average)
     
-    # determine final grade by building the equally-weighted average of the
-    # generic and person-specific grades
     if not generic_grades:
+        # not final grade without any generic grade
         return None
     elif not personal_grades:
+        # determine final grade by using the average of the generic grades
         return avg(generic_grades)
     else:
+        # determine final grade by building the equally-weighted average of the
+        # generic and person-specific averages
         return (avg(generic_grades) + avg(personal_grades)) / 2
 
 

@@ -34,8 +34,11 @@ def index(request):
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
     courses = list(semester.course_set.filter(visible=True))
+    
+    # annotate each course object with its grade
     for course in courses:
-        # annotate course objects with grade
+        # first, make sure that there is no preexisting grade attribute
+        assert not hasattr(course, 'grade')
         course.grade = calculate_average_grade(course)
     
     return render_to_response(
