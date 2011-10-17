@@ -74,7 +74,16 @@ class UsecaseTests(WebTest):
         
         self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
         self.assertEqual(User.objects.count(), original_user_count + 24, "Wrong number of users after Excel import.")
-
+        
+        check_student = User.objects.get(username="Diam.Synephebos")
+        self.assertEqual(check_student.first_name, "Diam")
+        self.assertEqual(check_student.email, "Diam.Synephebos@student.hpi.uni-potsdam.de")
+        
+        check_lecturer = User.objects.get(username="Sanctus.Aliquyam")
+        self.assertEqual(check_lecturer.first_name, "Sanctus")
+        self.assertEqual(check_lecturer.last_name, "Aliquyam")
+        self.assertEqual(check_lecturer.email, "567@web.de")
+        
     def test_logon_key(self):
         with self.assertRaises(webtest.app.AppError):
             self.app.get(reverse("student.views.index"))

@@ -12,16 +12,18 @@ import xlrd
 class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
     
-    def __init__(self, username=None, first_name=None, last_name=None, title=None):
+    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
         self.title = title
+        self.email = email
     
     def store_in_database(self):
         user = User(username=self.username,
                     first_name=self.first_name,
-                    last_name=self.last_name)
+                    last_name=self.last_name,
+                    email=self.email)
         user.save()
         profile = user.get_profile()
         profile.title = self.title
@@ -65,9 +67,9 @@ class ExcelImporter(object):
                 for row in range(1, sheet.nrows):
                     data = sheet.row_values(row)
                     # assign data to data objects
-                    student_data = UserData(username=data[3], first_name=data[2], last_name=data[1])
-                    lecturer_data = UserData(username=data[9], first_name="", last_name=data[8], title=data[7])
-                    course_data = CourseData(name_de=data[5], name_en=data[6], kind=data[4])
+                    student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
+                    lecturer_data = UserData(username=data[10], first_name="", last_name=data[9], title=data[8], email=data[11])
+                    course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5])
                     
                     # store data objects together with the data source location for problem tracking
                     self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
@@ -88,6 +90,8 @@ class ExcelImporter(object):
                 first, sep, last = lecturer_data.username.partition(".")
                 if sep == ".":
                     lecturer_data.first_name = first
+            if student_data.email == None or student_data.email == "":
+                student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
     
     def save_to_db(self, semester, vote_start_date, vote_end_date):
         """Stores the read and validated data in the database. Errors might still
