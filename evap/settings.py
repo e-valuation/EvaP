@@ -31,6 +31,11 @@ CACHES = {
     }
 }
 
+# config for feedback links
+FEEDBACK_EMAIL = "webmaster@localhost"
+TRACKER_URL = "https://bitbucket.org/michaelgruenewald/evap/issues"
+
+# config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
 REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
 if DEBUG:

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load morefilters %}
 
 <!DOCTYPE html>
 <html>
@@ -67,7 +68,9 @@
     </div>
     
     <div id="footer">
-        {% trans "EvaP evaluation platform" %}
+        <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
+        &nbsp;&middot;
+        <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
         &nbsp;&middot;
         <form action="/i18n/setlang/" method="POST" class="textform">
             {% csrf_token %}
