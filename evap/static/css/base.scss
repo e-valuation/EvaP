@@ -23,11 +23,11 @@ $hpiBlue20:     #cce4ec;
 $hpiGray20L:    $hpiGray20 * 1.05;
 
 // Vote color definitions
-$vote1: hsl(0.300, 80%, 80%);
-$vote2: hsl(0.225, 80%, 80%);
-$vote3: hsl(0.150, 80%, 80%);
-$vote4: hsl(0.075, 80%, 80%);
-$vote5: hsl(0.000, 80%, 80%);
+$vote1: hsl(0.300, 80%, 70%);
+$vote2: hsl(0.225, 80%, 70%);
+$vote3: hsl(0.150, 80%, 70%);
+$vote4: hsl(0.075, 80%, 70%);
+$vote5: hsl(0.000, 80%, 70%);
 
 @mixin link-colors($normal, $active) {
     // a mixin set sets all link colors

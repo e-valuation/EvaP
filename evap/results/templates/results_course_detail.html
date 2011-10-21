@@ -12,14 +12,14 @@
     <table class="results-detail">
     {% for group, lecturer, results, grade in sections %}
         <tr>
-            <td class="results-subtitle" colspan="2">
+            <td class="results-subtitle" colspan="3">
             {% if lecturer %}
                 <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
                 {{ lecturer.get_profile.full_name }}:
             {% endif %}
             {{ group }}
             </td>
-            <td class="results-subtitle-grade" colspan="2">
+            <td class="results-subtitle-grade">
                 {% if grade %}{{ grade|floatformat:1 }}{% endif %}
             </td>
         </tr>
@@ -28,12 +28,12 @@
             <tr>
                 {% ifequal result.question.kind "G" %}
                 <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
-                <td class="results-average">{{ result.average|floatformat:1 }}</td>
                 <td class="results-distribution">
                     <div>
                     {% for answer, count in result.distribution.items %}<div style="width: {{ count }}%;" class="results-distribution-{{ answer }}" title="{{answer}}: {{count}}%">&nbsp;</div>{% endfor %}
                     </div>
                 </td>
+                <td class="results-average">{{ result.average|floatformat:1 }}</td>
                 {% endifequal %}
                 {% ifequal result.question.kind "T" %}
                 {% if_lecturer course %}
