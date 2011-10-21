@@ -92,6 +92,7 @@ class Command(BaseCommand):
                         question = Question.objects.create(
                             questionnaire=questionnaire,
                             text_de=question_template.find("text_ge").text,
+                            text_en=question_template.find("text_ge").text,
                             kind=self.question_template_type_map[question_template.find("type").text])
                         
                         self.qt_cache[question_template.find("id").text] = question
