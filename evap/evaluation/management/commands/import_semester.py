@@ -78,8 +78,8 @@ class Command(BaseCommand):
             # topic_template --> Questionnaire
             for topic_template in self.tree.findall("/topic_template[questionnaire_template_id='{0:s}']".format(evaluation_id)):
                 questionnaire = Questionnaire.objects.create(
-                    name_de="{0:s} ({1:s})".format(topic_template.find("name_ge").text, evaluation.find("semester").text),
-                    name_en="{0:s} ({1:s})".format(topic_template.find("name_ge").text, evaluation.find("semester").text))
+                    name_de=u"{0:s} ({1:s})".format(topic_template.find("name_ge").text, evaluation.find("semester").text),
+                    name_en=u"{0:s} ({1:s})".format(topic_template.find("name_ge").text, evaluation.find("semester").text))
                 
                 self.tt_cache[topic_template.find("id").text] = questionnaire
                 
