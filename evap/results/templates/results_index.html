@@ -5,22 +5,11 @@
 {% block content %}
     {{ block.super }}
     
-    {% if latest_semester %}
-        <h3>{{ latest_semester.name }}</h3>
-        <p>
-            {% for course in latest_semester_courses %}
-                <span><a href="{% url results.views.course_detail latest_semester.id course.id %}">{{ course }}</a></span>
-            {% endfor %}
-        </p>
-        <p><a href="{% url results.views.semester_detail latest_semester.id %}">{% trans "More details..." %}</a></p>
-    {% endif %}
+    <h3>{% trans "Semesters" %}</h3>
     
-    {% if older_semesters %}
-        <h3>{% trans "Older Semesters" %}</h3>
-        <ul>
-            {% for semester in older_semesters %}
-                <li><a href="{% url results.views.semester_detail semester.id %}"></a></li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <ul>
+        {% for semester in semesters %}
+            <li><a href="{% url results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
+        {% endfor %}
+    </ul>
 {% endblock %}

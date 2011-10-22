@@ -11,22 +11,9 @@ from evaluation.tools import calculate_results, calculate_average_grade
 def index(request):
     semesters = Semester.objects.filter(visible=True).order_by('-created_at')
     
-    if len(semesters) > 0:
-        latest_semester = semesters[0]
-        latest_semester_courses = latest_semester.course_set.filter(visible=True)
-        older_semesters = semesters[1:]
-    else:
-        latest_semester = None
-        latest_semester_courses = []
-        older_semesters = None
-    
     return render_to_response(
         "results_index.html",
-        dict(
-            latest_semester=latest_semester,
-            latest_semester_courses=latest_semester_courses,
-            older_semesters=older_semesters
-        ),
+        dict(semesters=semesters),
         context_instance=RequestContext(request))
 
 

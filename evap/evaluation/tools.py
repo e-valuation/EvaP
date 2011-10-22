@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db.models import Avg
 from django.utils.datastructures import SortedDict
 from evaluation.models import GradeAnswer, TextAnswer
@@ -23,6 +24,13 @@ def calculate_results(course):
     (or None), a list of single result elements and the average grade for that
     section (or None). The result elements are either `GradeResult` or
     `TextResult` instances."""
+    
+    # return cached results if available
+    cache_key = 'evap.fsr.results.views.calculate_results-%d' % course.id
+    prior_results = cache.get(cache_key)
+    if prior_results:
+        return prior_results
+    
     sections = []
     
     for questionnaire, lecturer in questionnaires_and_lecturers(course):
@@ -61,10 +69,12 @@ def calculate_results(course):
                     lecturer=lecturer,
                     question=question
                     )
-                results.append(TextResult(
-                    question=question,
-                    texts=[answer.answer for answer in answers]
-                ))
+                if answers:
+                    results.append(TextResult(
+                        question=question,
+                        texts=[answer.answer for answer in answers]
+                    ))
+        
         if not results:
             continue
         
@@ -72,6 +82,9 @@ def calculate_results(course):
         # GradeResults exist in this section
         average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
         sections.append((questionnaire, lecturer, results, average_grade))
+    
+    # store into cache
+    cache.set(cache_key, sections, 500)
     
     return sections
 
