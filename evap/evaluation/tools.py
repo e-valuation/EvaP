@@ -31,13 +31,15 @@ def calculate_results(course):
     if prior_results:
         return prior_results
     
+    # there will be one section per relevant questionnaire--lecturer pair
     sections = []
     
     for questionnaire, lecturer in questionnaires_and_lecturers(course):
-        results = [] # holds the single result elements
+        # will contain one object per question
+        results = []
         for question in questionnaire.question_set.all():
             if question.is_grade_question():
-                # gather all answers as a simple list
+                # gather all numeric answers as a simple list
                 answers = GradeAnswer.objects.filter(
                     course=course,
                     lecturer=lecturer,
@@ -47,44 +49,53 @@ def calculate_results(course):
                 # only add to the results if answers exist at all
                 # XXX: what if only a few answers exist? (anonymity)
                 if answers:
-                    # calculate relative distribution of answers
+                    # calculate relative distribution (histogram) of answers:
+                    # set up a sorted dictionary with a count of zero for each grade
                     distribution = SortedDict()
                     for i in range(1, 6):
                         distribution[i] = 0
+                    # count the answers
                     for answer in answers:
                         distribution[answer] += 1
+                    # divide by the number of answers to get relative 0..1 values
                     for k in distribution:
                         distribution[k] = int(float(distribution[k]) / len(answers) * 100)
                     
+                    # produce the result element
                     results.append(GradeResult(
                         question=question,
                         average=avg(answers),
                         count=len(answers),
                         distribution=distribution
                     ))
+            
             elif question.is_text_question():
-                # save all text answers for this question
+                # gather text answers for this question
                 answers = TextAnswer.objects.filter(
                     course=course,
                     lecturer=lecturer,
                     question=question
                     )
+                # only add to the results if answers exist at all
                 if answers:
                     results.append(TextResult(
                         question=question,
                         texts=[answer.answer for answer in answers]
                     ))
         
+        # skip section if there were no questions with results
         if not results:
             continue
         
-        # compute average grade for this section, will return None if no
-        # GradeResults exist in this section
+        # compute average grade for this section, will return None if
+        # no GradeResults exist in this section
         average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
         sections.append((questionnaire, lecturer, results, average_grade))
     
-    # store into cache
-    cache.set(cache_key, sections, 500)
+    # store results into cache
+    # XXX: What would be a good timeout here? Once public, data is not going to
+    #      change anyway.
+    cache.set(cache_key, sections, 24*60*60)
     
     return sections
 
