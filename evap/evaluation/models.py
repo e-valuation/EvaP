@@ -63,6 +63,11 @@ class Questionnaire(models.Model):
     
     description = Translate
     
+    teaser_de = models.TextField(verbose_name=_(u"teaser (german)"), blank=True, null=True)
+    teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
+    
+    teaser = Translate
+    
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
@@ -98,6 +103,9 @@ class Course(models.Model):
     
     # type of course: lecture, seminar, project
     kind = models.CharField(max_length=100, verbose_name=_(u"type"))
+    
+    # bachelor, master, d-school course
+    study = models.CharField(max_length=100, verbose_name=_(u"study"))
     
     # show in results app
     visible = models.BooleanField(verbose_name=_(u"visible"), default=False)
