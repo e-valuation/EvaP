@@ -85,16 +85,19 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    publish_formset = modelformset_factory(Course, formset=PublishCourseFormSet, fields=('visible',), can_order=False, can_delete=False, extra=0)
+    publish_formset = inlineformset_factory(Semester, Course, formset=PublishCourseFormSet, fields=('visible',), can_order=False, can_delete=False, extra=0)
+    
+    form = PublishCourseForm(request.POST or None)
     formset = publish_formset(request.POST or None, queryset=semester.course_set.filter(visible=False))
     
-    if formset.is_valid():
-        count = len(formset.save())
+    if form.is_valid() and formset.is_valid():
+        published_courses = formset.save()
+        form.send(published_courses)
         
-        messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % count)
+        messages.add_message(request, messages.INFO, _("Successfully published %d courses, but could not informed %d lecturers about it.") % (len(published_courses), form.missing_email_addresses(published_courses)))
         return redirect('fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_publish.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_publish.html", dict(semester=semester, form=form, formset=formset), context_instance=RequestContext(request))
 
 
 @fsr_required

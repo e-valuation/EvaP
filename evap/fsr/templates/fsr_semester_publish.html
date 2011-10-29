@@ -9,6 +9,8 @@
             {% csrf_token %}
             {{ formset.management_form }}
             
+            <fieldset>
+                <label>Courses</label>
             <ul>
             {% for form in formset %}
                 <li>
@@ -19,6 +21,11 @@
                 </li>
             {% endfor %}
             </ul>
+            </fieldset>
+            <fieldset>
+                <label>Lecturer eMail</label>
+                {{ form.as_p }}
+            </fieldset>
             <input type="submit" value="{% trans "Publish courses" %}"/>
         </form>
     </p>
