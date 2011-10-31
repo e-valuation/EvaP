@@ -20,7 +20,7 @@ def index(request):
 @login_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
-    courses = list(semester.course_set.filter(visible=True))
+    courses = list(semester.course_set.filter(state="published"))
     
     # annotate each course object with its grade
     for course in courses:
@@ -40,7 +40,7 @@ def semester_detail(request, semester_id):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
-    course = get_object_or_404(semester.course_set.filter(visible=True), id=course_id)
+    course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
     
     sections = calculate_results(course)
     

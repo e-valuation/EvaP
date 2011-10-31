@@ -11,6 +11,7 @@
             <tr>
                 <th colspan="2">&nbsp;</th>
                 <th>{% trans "Name" %}</th>
+                <th>{% trans "State" %}</th>
                 <th colspan="2">{% trans "Votes" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
@@ -30,6 +31,7 @@
                         {% endwith %}
                     </td>
                     <td class="expand">{{ course.name }}</td>
+                    <td>{{ course.state }}</td>
                     {% if course.num_participants %}
                         <td class="dontbreak right">{{ course.num_voters }} / {{ course.num_participants }}</td>
                         <td class="dontbreak">({{ course.num_voters|percentage:course.num_participants }})</td>
@@ -37,13 +39,19 @@
                         <td class="center" colspan="2">&mdash;</td>
                     {% endif %}
                     <td class="dontbreak">
-                        <a href="{% url fsr.views.course_edit semester.id, course.id %}" title="{% trans "Edit" %}"><img src="{% get_static_prefix %}images/silk/application_edit.png"></a>&nbsp;
+                        {% if course.can_fsr_edit %}
+                            <a href="{% url fsr.views.course_edit semester.id, course.id %}" title="{% trans "Edit" %}"><img src="{% get_static_prefix %}images/silk/application_edit.png"></a>&nbsp;
+                        {% endif %}
+                        
                         <a href="{% url fsr.views.course_email semester.id, course.id %}" title="{% trans "Email" %}"><img src="{% get_static_prefix %}images/silk/email_edit.png"></a>&nbsp;
-                        {% if course.can_be_deleted %}
+                        {% if course.can_fsr_delete %}
                             <a href="{% url fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/application_delete.png"></a>&nbsp;
                         {% endif %}
-                        {% if not course.fully_checked %}
+                        {% if course.can_fsr_review %}
                             <a href="{% url fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/application_lightning.png"></a>
+                        {% endif %}
+                        {% if course.state == "new" %}
+                            <a href="{% url fsr.views.course_lecturer_ready semester.id, course.id %}" title="{% trans "Enable for Lecturer Review"%}">Lecturer Review</a>
                         {% endif %}
                     </td>
                 </tr>

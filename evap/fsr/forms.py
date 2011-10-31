@@ -204,59 +204,21 @@ class QuestionnairesAssignForm(forms.Form):
             self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
 
 
-class PublishCourseForm(forms.Form):
-    sendToPrimaryLecturers = forms.BooleanField(label = _("Send to primary lecturers?"), required=False)
-    sendToSecondaryLecturers = forms.BooleanField(label = _("Send to secondary lecturers?"), required=False)
-    subject = forms.CharField(label = _("Subject"))
-    body = forms.CharField(widget=forms.Textarea(), label = _("Body"))
+class SelectCourseForm(forms.Form):
+    def __init__(self, queryset, *args, **kwargs):
+        super(SelectCourseForm, self).__init__(*args, **kwargs)
+        self.queryset = queryset
+        self.selected_courses = []
+        
+        for course in self.queryset:
+            self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
     
-    # returns whether all recepients have an email address    
-    def all_recepients_reachable(self, changed_courses):
-        return self.missing_email_addresses(changed_courses) == 0
-    
-    # returns the number of recepients without an email address
-    def missing_email_addresses(self, changed_courses):
-        return len([user for user in self.receipient_list(changed_courses) if user.email == ""])
-    
-    def receipient_list(self, courses):
-        for course in courses:
-            for user in self.receipient_list_for_course(course):
-                yield user
-    
-    def receipient_list_for_course(self, course):
-        for group, manager_name in {'sendToParticipants': 'participants', 'sendToPrimaryLecturers': 'primary_lecturers', 'sendToSecondaryLecturers': 'secondary_lecturers'}.iteritems():
-            if self.cleaned_data.get(group):
-                for user in getattr(course, manager_name).all():
-                    yield user
-    
-    def template_dict(self, course, user):
-        return {'course_en': course.name_en,
-                'course_de': course.name_de,
-                'first_name': user.first_name,
-                'last_name': user.last_name}
-    
-    def send(self, changed_courses):
-        for course in changed_courses:
-            for user in [user for user in self.receipient_list_for_course(course) if user.email != ""]:
-                mail = EmailMessage(subject = self.cleaned_data.get('subject').format(**(self.template_dict(course, user))),
-                            body = self.cleaned_data.get('body').format(**(self.template_dict(course, user))),
-                            to = [user.email],
-                            bcc = [a[1] for a in settings.MANAGERS],
-                            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-                mail.send(True)
-    
-
-
-class PublishCourseFormSet(BaseModelFormSet):
-    class PseudoQuerySet(list):
-        db = None
-    
-    def get_queryset(self):
-        if not hasattr(self, '_queryset'):
-            self._queryset = PublishCourseFormSet.PseudoQuerySet()
-            self._queryset.extend([e for e in self.queryset.all() if e.fully_checked()])
-            self._queryset.db = self.queryset.db
-        return self._queryset
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        for id, selected in cleaned_data.iteritems():
+            if selected:
+                self.selected_courses.append(Course.objects.get(pk=id))
+        return cleaned_data
 
     
 class UserForm(forms.ModelForm):

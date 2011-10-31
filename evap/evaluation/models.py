@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
+from django_fsm.db.fields import FSMField, transition
+
 # see evaluation.meta for the use of Translate in this file
 from evaluation.meta import LocalizeModelBase, Translate
 
@@ -94,11 +96,13 @@ class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
     
     __metaclass__ = LocalizeModelBase
+    
+    state = FSMField(default='new', protected=True)
 
     semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
+    
     name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
-    
     name = Translate
     
     # type of course: lecture, seminar, project
@@ -107,15 +111,13 @@ class Course(models.Model):
     # bachelor, master, d-school course
     study = models.CharField(max_length=100, verbose_name=_(u"study"))
     
-    # show in results app
-    visible = models.BooleanField(verbose_name=_(u"visible"), default=False)
-    
     # students that are allowed to vote
     participants = models.ManyToManyField(User, verbose_name=_(u"participants"), blank=True)
     
     # students that already voted
     voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True, related_name='+')
     
+    # two kinds of lecturers, e.g. professor and TAs
     primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"), blank=True, related_name='primary_courses')
     secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"), blank=True, related_name='secondary_courses')
     
@@ -124,6 +126,7 @@ class Course(models.Model):
     primary_lecturer_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("primary lecturer questionnaires"), related_name="primary_courses")
     secondary_lecturer_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("secondary lecturer questionnaires"), related_name="secondary_courses")
     
+    # when the evaluation takes place
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
@@ -138,11 +141,55 @@ class Course(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    @transition(source='new', target='pendingLecturerApproval')
+    def ready_for_lecturer(self):
+        pass
+    
+    @transition(source='pendingLecturerApproval', target='pendingFsrApproval')
+    def lecturer_approve(self):
+        pass
+    
+    @transition(source=['new', 'pendingLecturerApproval', 'pendingFsrApproval'], target='approved')
+    def fsr_approve(self):
+        pass
+    
+    @transition(source='approved', target='inEvaluation')
+    def evaluation_begin(self):
+        pass
+    
+    @transition(source='inEvaluation', target='pendingForReview')
+    def evaluation_end(self):
+        pass
+    
+    @transition(source='pendingForReview', target='pendingPublishing')
+    def review_finished(self):
+        pass
+    
+    @transition(source='pendingPublishing', target='published')
+    def publish(self):
+        pass
+    
+    @transition(source='published', target='pendingPublishing')
+    def revoke(self):
+        pass
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return user in self.participants.all() and user not in self.voters.all()
-        
+    
+    def can_fsr_edit(self):
+        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval', 'approved', 'inEvaluation']
+    
+    def can_fsr_delete(self):
+        return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
+    
+    def can_fsr_review(self):
+        return not self.fully_checked() and self.state in ['inEvaluation', 'pendingForReview']
+    
+    def can_fsr_approve(self):
+        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval']
+    
     def fully_checked(self):
         """Shortcut for finding out whether all text answers to this course have been checked"""
         return not self.textanswer_set.filter(checked=False).exists()
@@ -184,10 +231,6 @@ class Course(models.Model):
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(course=self)
-    
-    @property
-    def can_be_deleted(self):
-        return not (self.textanswer_set.exists() or self.gradeanswer_set.exists())
 
 
 class Question(models.Model):

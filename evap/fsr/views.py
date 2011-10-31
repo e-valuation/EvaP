@@ -87,19 +87,17 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    publish_formset = inlineformset_factory(Semester, Course, formset=PublishCourseFormSet, fields=('visible',), can_order=False, can_delete=False, extra=0)
+    form = SelectCourseForm(semester.course_set.filter(state="pendingPublishing").all(), request.POST or None)
     
-    form = PublishCourseForm(request.POST or None)
-    formset = publish_formset(request.POST or None, queryset=semester.course_set.filter(visible=False))
-    
-    if form.is_valid() and formset.is_valid():
-        published_courses = formset.save()
-        form.send(published_courses)
+    if form.is_valid():
+        for course in form.selected_courses:
+            course.publish()
+            course.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully published %d courses, but could not informed %d lecturers about it.") % (len(published_courses), form.missing_email_addresses(published_courses)))
+        messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(form.selected_courses)))
         return redirect('fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_publish.html", dict(semester=semester, form=form, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_publish.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -145,6 +143,21 @@ def semester_assign_questionnaires(request, semester_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+
+@fsr_required
+def semester_approve(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'pendingLecturerApproval', 'pendingFsrApproval']).all(), request.POST or None)
+    
+    if form.is_valid():
+        for course in form.selected_courses:
+            course.fsr_approve()
+            course.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (len(form.selected_courses)))
+        return redirect('fsr.views.semester_view', semester.id)
+    else:
+        return render_to_response("fsr_semester_approve.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -192,8 +205,13 @@ def course_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    form = CourseForm(request.POST or None, instance=course)
     
+    # check course state
+    if not course.can_fsr_edit():
+        messages.add_message(request, messages.ERROR, _("Editting not possible in current state."))
+        return redirect('fsr.views.semester_view', semester_id)
+    
+    form = CourseForm(request.POST or None, instance=course)    
     if form.is_valid():
         form.save()
         
@@ -208,22 +226,28 @@ def course_delete(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
-    if course.can_be_deleted:    
-        if request.method == 'POST':
-            course.delete()
-            return redirect('fsr.views.semester_view', semester_id)
-        else:
-            return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
-    else:
+    # check course state
+    if not course.can_fsr_delete():
         messages.add_message(request, messages.ERROR, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
         return redirect('fsr.views.semester_view', semester_id)
-
+    
+    if request.method == 'POST':
+        course.delete()
+        return redirect('fsr.views.semester_view', semester_id)
+    else:
+        return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
 
 
 @fsr_required
 def course_censor(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    
+    # check course state
+    if not course.can_fsr_review():
+        messages.add_message(request, messages.ERROR, _("Reviewing not possible in current state."))
+        return redirect('fsr.views.semester_view', semester_id)
+    
     censorFS = modelformset_factory(TextAnswer, form=CensorTextAnswerForm, can_order=False, can_delete=False, extra=0)
     
     # get offset for current course
@@ -265,6 +289,7 @@ def course_censor(request, semester_id, course_id):
     else:
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
 
+
 @fsr_required
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -281,7 +306,22 @@ def course_email(request, semester_id, course_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+
+
+@fsr_required
+def course_lecturer_ready(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
     
+    try:
+        course.ready_for_lecturer()
+        course.save()
+    except:
+        pass
+    
+    return redirect('fsr.views.semester_view', semester_id)
+
+
 @fsr_required
 def questionnaire_index(request):
     questionnaires = Questionnaire.objects.order_by('obsolete')
