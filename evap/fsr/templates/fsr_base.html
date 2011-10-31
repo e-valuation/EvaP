@@ -64,6 +64,7 @@
                 <li><a href="{% url fsr.views.semester_import semester.id %}">{% trans "Import courses" %}</a></li>
                 <li><a href="{% url fsr.views.semester_assign_questionnaires semester.id %}">{% trans "Assign questionnaires" %}</a></li>
                 <li><a href="{% url fsr.views.semester_publish semester.id %}">{% trans "Publish courses" %}</a></li>
+                <li><a href="{% url fsr.views.semester_lottery semester.id %}">{% trans "Lottery" %}</a></li>
             {% endif %}
         {% endblock %}
     </ul>

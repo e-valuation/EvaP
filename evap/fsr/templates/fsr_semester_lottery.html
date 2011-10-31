@@ -1,0 +1,35 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    {% if not form.is_valid %}
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <input type="submit" value="{% trans "Perform Lottery" %}"/>
+        </form>
+    </p>
+    {% else %}
+    <p>
+        {% trans "The lottery was performed and the winners are:" %}
+        <ul>
+            {% for user in winners %}
+                <li>
+                    {{ user.get_profile.full_name }}
+                    {% if user.email %}
+                        (<a href="mailto:{{ user.email }}">{{ user.email }}</a>)
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>None</li>
+            {% endfor %}
+        </ul>
+        {{ eligible|length }} {% trans "users were eligibile for the lottery." %}
+    </p>
+    {% endif %}
+{% endblock %}

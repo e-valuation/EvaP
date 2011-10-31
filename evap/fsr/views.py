@@ -11,6 +11,8 @@ from evaluation.models import Semester, Course, Question, Questionnaire
 from fsr.forms import *
 from fsr.importers import ExcelImporter
 
+import random
+
 
 @fsr_required
 def semester_index(request):
@@ -140,6 +142,33 @@ def semester_assign_questionnaires(request, semester_id):
         return redirect('fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+
+
+@fsr_required
+def semester_lottery(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    
+    form = LotteryForm(request.POST or None)
+    
+    if form.is_valid():
+        eligible = []
+        
+        # find all users who have voted on all of their courses
+        for user in User.objects.all():
+            courses = user.course_set.filter(semester=semester)
+            if not courses.exists():
+                # user was not enrolled in any course in this semester
+                continue
+            if not courses.exclude(voters=user).exists():
+                eligible.append(user)
+        
+        winners = random.sample(eligible,
+                                min([form.cleaned_data['number_of_winners'], len(eligible)]))
+    else:
+        eligible = None
+        winners = None
+    
+    return render_to_response("fsr_semester_lottery.html", dict(semester=semester, form=form, eligible=eligible, winners=winners), context_instance=RequestContext(request))
 
 
 @fsr_required

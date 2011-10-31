@@ -251,3 +251,7 @@ class UserForm(forms.ModelForm):
         self.instance = self.instance.user.get_profile()
         
         super(UserForm, self).save(*args, **kw)
+
+
+class LotteryForm(forms.Form):
+    number_of_winners = forms.IntegerField(label=_(u"Number of Winners"), initial=3)
