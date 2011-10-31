@@ -86,7 +86,8 @@ class Command(BaseCommand):
                 # question_template --> Question
                 for question_template in sorted(self.tree.findall("/question_template[topic_template_id='{0:s}']".format(topic_template.find('id').text)), key=lambda qt: int(qt.find("idx").text)):
                     if question_template.find("type").text == "21":
-                        questionnaire.description_de = question_template.find("text_ge").text
+                        questionnaire.teaser_de = question_template.find("text_ge").text
+                        questionnaire.teaser_en = question_template.find("text_ge").text
                         questionnaire.save()
                     else:
                         question = Question.objects.create(
@@ -106,7 +107,8 @@ class Command(BaseCommand):
                     vote_start_date=xml_course.find("survey_start_date").text[:10],
                     vote_end_date=xml_course.find("survey_end_date").text[:10],
                     visible=True,
-                    kind=",".join(self.get_lecture_types(xml_course)))
+                    kind=",".join(self.get_lecture_types(xml_course)),
+                    study= "Master" if int(xml_course.find("target_audience_id").text) == 1 else "Bachelor")
                 
                 course.participants = self.get_participants(xml_course)
                 course.voters = self.get_voters(xml_course)

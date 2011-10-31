@@ -34,10 +34,11 @@ class UserData(object):
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
     
-    def __init__(self, name_de=None, name_en=None, kind=None):
+    def __init__(self, name_de=None, name_en=None, kind=None, study=None):
         self.name_de = name_de
         self.name_en = name_en
         self.kind = kind
+        self.study = study
     
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
@@ -45,7 +46,8 @@ class CourseData(object):
                         kind=self.kind,
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
-                        semester=semester)
+                        semester=semester,
+                        study_en=self.study[:-7])
         course.save()
         return course
 
@@ -69,7 +71,7 @@ class ExcelImporter(object):
                     # assign data to data objects
                     student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
                     lecturer_data = UserData(username=data[10], first_name="", last_name=data[9], title=data[8], email=data[11])
-                    course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5])
+                    course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], study=data[0])
                     
                     # store data objects together with the data source location for problem tracking
                     self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
