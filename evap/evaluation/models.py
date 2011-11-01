@@ -13,6 +13,7 @@ from django_fsm.db.fields import FSMField, transition
 # see evaluation.meta for the use of Translate in this file
 from evaluation.meta import LocalizeModelBase, Translate
 
+from evap.fsr.models import EmailTemplate
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
@@ -142,9 +143,29 @@ class Course(models.Model):
     def __unicode__(self):
         return self.name
     
+    def is_fully_checked(self):
+        """Shortcut for finding out whether all text answers to this course have been checked"""
+        return not self.textanswer_set.filter(checked=False).exists()
+    
+    def can_user_vote(self, user):
+        """Returns whether the user is allowed to vote on this course."""
+        return user in self.participants.all() and user not in self.voters.all()
+    
+    def can_fsr_edit(self):
+        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval', 'approved', 'inEvaluation']
+    
+    def can_fsr_delete(self):
+        return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
+    
+    def can_fsr_review(self):
+        return not self.is_fully_checked() and self.state in ['inEvaluation', 'pendingForReview']
+    
+    def can_fsr_approve(self):
+        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval']
+    
     @transition(source='new', target='pendingLecturerApproval')
     def ready_for_lecturer(self):
-        pass
+        EmailTemplate.get_review_template().send(self)
     
     @transition(source='pendingLecturerApproval', target='pendingFsrApproval')
     def lecturer_approve(self):
@@ -162,7 +183,7 @@ class Course(models.Model):
     def evaluation_end(self):
         pass
     
-    @transition(source='pendingForReview', target='pendingPublishing')
+    @transition(source='pendingForReview', target='pendingPublishing', conditions=[is_fully_checked])
     def review_finished(self):
         pass
     
@@ -173,26 +194,6 @@ class Course(models.Model):
     @transition(source='published', target='pendingPublishing')
     def revoke(self):
         pass
-
-    def can_user_vote(self, user):
-        """Returns whether the user is allowed to vote on this course."""
-        return user in self.participants.all() and user not in self.voters.all()
-    
-    def can_fsr_edit(self):
-        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval', 'approved', 'inEvaluation']
-    
-    def can_fsr_delete(self):
-        return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
-    
-    def can_fsr_review(self):
-        return not self.fully_checked() and self.state in ['inEvaluation', 'pendingForReview']
-    
-    def can_fsr_approve(self):
-        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval']
-    
-    def fully_checked(self):
-        """Shortcut for finding out whether all text answers to this course have been checked"""
-        return not self.textanswer_set.filter(checked=False).exists()
     
     def has_enough_questionnaires(self):
         return self.general_questions.exists() \
