@@ -260,3 +260,8 @@ class UserForm(forms.ModelForm):
 
 class LotteryForm(forms.Form):
     number_of_winners = forms.IntegerField(label=_(u"Number of Winners"), initial=3)
+
+class EmailTemplateForm(forms.ModelForm):    
+    class Meta:
+        model = EmailTemplate
+        exclude = ("name", )

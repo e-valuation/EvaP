@@ -10,6 +10,7 @@ from evaluation.auth import fsr_required
 from evaluation.models import Semester, Course, Question, Questionnaire
 from fsr.forms import *
 from fsr.importers import ExcelImporter
+from fsr.models import EmailTemplate
 
 import random
 
@@ -94,6 +95,7 @@ def semester_publish(request, semester_id):
             course.publish()
             course.save()
         
+        EmailTemplate.get_publish_template().send(form.selected_courses)
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(form.selected_courses)))
         return redirect('fsr.views.semester_view', semester.id)
     else:
@@ -284,6 +286,12 @@ def course_censor(request, semester_id, course_id):
             form.instance.save()
             count = count + 1
         
+        try:
+            course.review_finished()
+            course.save()
+        except:
+            pass
+        
         messages.add_message(request, messages.INFO, _("Successfully censored %d course answers.") % count)
         return redirect('fsr.views.semester_view', semester_id)
     else:
@@ -468,3 +476,22 @@ def user_key_remove(request, user_id):
     profile.save()
     
     return redirect('fsr.views.user_index')
+
+@fsr_required
+def template_index(request):
+    templates = EmailTemplate.objects.all()    
+    return render_to_response("fsr_template_index.html", dict(templates=templates), context_instance=RequestContext(request))
+
+@fsr_required
+def template_edit(request, template_id):
+    template = get_object_or_404(EmailTemplate, id=template_id)
+    form = EmailTemplateForm(request.POST or None, request.FILES or None, instance=template)
+    
+    if form.is_valid():
+        form.save()
+        
+        messages.add_message(request, messages.INFO, _("Successfully updated template."))
+        return redirect('fsr.views.template_index')
+    else:
+        return render_to_response("fsr_template_form.html", dict(form=form), context_instance=RequestContext(request))
+
