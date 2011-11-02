@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.db.models import Avg
 from django.utils.datastructures import SortedDict
-from evaluation.models import GradeAnswer, TextAnswer
+from evap.evaluation.models import GradeAnswer, TextAnswer
 
 from collections import namedtuple
 

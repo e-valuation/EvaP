@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
 
-urlpatterns = patterns('fsr.views',
+urlpatterns = patterns('evap.fsr.views',
     url(r"^$", 'semester_index', name="fsr_root"),
     
     url(r"^semester$", 'semester_index'),

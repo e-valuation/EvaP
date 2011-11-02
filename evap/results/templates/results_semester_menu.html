@@ -2,6 +2,6 @@
 
 <ul>
 {% for semester in semesters %}
-    <li><a href="{% url results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
+    <li><a href="{% url evap.results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
 {% endfor %}
 </ul>

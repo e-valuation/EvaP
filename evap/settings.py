@@ -166,11 +166,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'south',
-    'evaluation',
-    'fsr',
-    'results',
-    'student',
-    'lecturer',
+    'evap.evaluation',
+    'evap.fsr',
+    'evap.results',
+    'evap.student',
+    'evap.lecturer',
 )
 
 # A sample logging configuration. The only tangible logging

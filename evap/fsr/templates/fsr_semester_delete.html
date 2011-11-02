@@ -9,7 +9,7 @@
             {% csrf_token %}
             <p>{% blocktrans with name=semester.name %}Do you really want to delete the semester <em>{{ name }}</em>?{% endblocktrans %}</p>
             <input type="submit" value="{% trans "Yes" %}"/>
-            <a href="{% url fsr.views.semester_view semester.id %}">{% trans "No" %}</a>
+            <a href="{% url evap.fsr.views.semester_view semester.id %}">{% trans "No" %}</a>
         </form>
     </p>
 {% endblock %}
