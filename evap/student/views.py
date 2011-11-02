@@ -6,11 +6,11 @@ from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
-from evaluation.auth import login_required
-from evaluation.models import Course, GradeAnswer, TextAnswer
-from evaluation.tools import questionnaires_and_lecturers
-from student.forms import QuestionsForm
-from student.tools import make_form_identifier
+from evap.evaluation.auth import login_required
+from evap.evaluation.models import Course, GradeAnswer, TextAnswer
+from evap.evaluation.tools import questionnaires_and_lecturers
+from evap.student.forms import QuestionsForm
+from evap.student.tools import make_form_identifier
 
 from datetime import datetime
 

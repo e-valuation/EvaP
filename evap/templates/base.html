@@ -30,7 +30,7 @@
             <div id="main-sidebar-wrapper">
                 <ul>
                 {% if user.get_profile.has_courses %}
-                    <li class="menu-title"><a href="{% url student.views.index %}">{% trans "Evaluation" %}</a>
+                    <li class="menu-title"><a href="{% url evap.student.views.index %}">{% trans "Evaluation" %}</a>
                     {% block menu-student %}{% endblock %}
                     </li>
                 {% endif %}
@@ -42,12 +42,12 @@
                 {% endif %}
                 
                 {% if user.get_profile.lectures_courses %}
-                    <li class="menu-title"><a href="{% url lecturer.views.index %}">{% trans "Your EvaP" %}</a>
+                    <li class="menu-title"><a href="{% url evap.lecturer.views.index %}">{% trans "Your EvaP" %}</a>
                     {% block menu-lecturer %}{% endblock %}
                     </li>
                 {% endif %}
                 
-                <li class="menu-title"><a href="{% url results.views.index %}">{% trans "Results" %}</a>
+                <li class="menu-title"><a href="{% url evap.results.views.index %}">{% trans "Results" %}</a>
                 {% block menu-results %}{% endblock %}
                 </li>
                 </ul>

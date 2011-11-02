@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
-from evaluation.models import Course, Semester
+from evap.evaluation.models import Course, Semester
 
 import xlrd
 

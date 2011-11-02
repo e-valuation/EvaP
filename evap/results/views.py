@@ -2,9 +2,9 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evaluation.auth import login_required
-from evaluation.models import Course, Semester
-from evaluation.tools import calculate_results, calculate_average_grade
+from evap.evaluation.auth import login_required
+from evap.evaluation.models import Course, Semester
+from evap.evaluation.tools import calculate_results, calculate_average_grade
 
 
 @login_required

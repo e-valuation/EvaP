@@ -7,7 +7,7 @@ from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
 from django.contrib.auth.models import User
 from django.utils.decorators import available_attrs
 
-from evaluation.models import UserProfile
+from evap.evaluation.models import UserProfile
 
 class RequestAuthMiddleware(object):
     """

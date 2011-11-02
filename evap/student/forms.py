@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from student.tools import make_form_identifier
-from evaluation.models import UserProfile
-from evaluation.tools import questionnaires_and_lecturers
+from evap.student.tools import make_form_identifier
+from evap.evaluation.models import UserProfile
+from evap.evaluation.tools import questionnaires_and_lecturers
 
 
 GRADE_CHOICES = (

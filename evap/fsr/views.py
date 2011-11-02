@@ -6,11 +6,11 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evaluation.auth import fsr_required
-from evaluation.models import Semester, Course, Question, Questionnaire
-from fsr.forms import *
-from fsr.importers import ExcelImporter
-from fsr.models import EmailTemplate
+from evap.evaluation.auth import fsr_required
+from evap.evaluation.models import Semester, Course, Question, Questionnaire
+from evap.fsr.forms import *
+from evap.fsr.importers import ExcelImporter
+from evap.fsr.models import EmailTemplate
 
 import random
 

@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_fsm.db.fields import FSMField, transition
 
 # see evaluation.meta for the use of Translate in this file
-from evaluation.meta import LocalizeModelBase, Translate
+from evap.evaluation.meta import LocalizeModelBase, Translate
 
 from evap.fsr.models import EmailTemplate
 

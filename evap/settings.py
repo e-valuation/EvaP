@@ -136,16 +136,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
-    'evaluation.auth.RequestAuthMiddleware',
+    'evap.evaluation.auth.RequestAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware'
 )
 
 AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
 
 AUTHENTICATION_BACKENDS = (
-    'evaluation.auth.RequestAuthUserBackend',
-    'evaluation.auth.CaseInsensitiveRemoteUserBackend',
-    'evaluation.auth.CaseInsensitiveModelBackend',
+    'evap.evaluation.auth.RequestAuthUserBackend',
+    'evap.evaluation.auth.CaseInsensitiveRemoteUserBackend',
+    'evap.evaluation.auth.CaseInsensitiveModelBackend',
 )
 
 ROOT_URLCONF = 'evap.urls'

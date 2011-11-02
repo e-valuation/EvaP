@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evaluation.auth import lecturer_required
-from lecturer.forms import *
+from evap.evaluation.auth import lecturer_required
+from evap.lecturer.forms import *
 
 
 @lecturer_required

@@ -4,7 +4,7 @@ from django_webtest import WebTest
 import webtest
 
 from django.contrib.auth.models import User
-from evaluation.models import Semester, Questionnaire
+from evap.evaluation.models import Semester, Questionnaire
 
 import os.path
 

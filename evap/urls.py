@@ -7,12 +7,12 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r"^$", 'views.index'),
+    url(r"^$", 'evap.views.index'),
     
-    url(r"^fsr/", include('fsr.urls')),
-    url(r"^results/", include('results.urls')),
-    url(r"^student/", include('student.urls')),
-    url(r"^lecturer/", include('lecturer.urls')),
+    url(r"^fsr/", include('evap.fsr.urls')),
+    url(r"^results/", include('evap.results.urls')),
+    url(r"^student/", include('evap.student.urls')),
+    url(r"^lecturer/", include('evap.lecturer.urls')),
     
     url(r"^logout$", 'django.contrib.auth.views.logout', {'next_page': "/"}),
     

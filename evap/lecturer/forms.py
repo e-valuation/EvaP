@@ -1,8 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from evaluation.models import *
-from fsr.fields import *
+from evap.evaluation.models import *
+from evap.fsr.fields import *
 
 
 class CourseForm(forms.ModelForm):

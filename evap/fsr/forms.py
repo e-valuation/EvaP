@@ -4,9 +4,9 @@ from django.core.mail import EmailMessage
 from django.forms.models import BaseInlineFormSet, BaseModelFormSet
 from django.utils.translation import ugettext_lazy as _
 
-from evaluation.models import *
-from student.forms import GRADE_CHOICES, coerce_grade
-from fsr.fields import *
+from evap.evaluation.models import *
+from evap.student.forms import GRADE_CHOICES, coerce_grade
+from evap.fsr.fields import *
 
 
 class ImportForm(forms.Form):

@@ -1,4 +1,4 @@
-from evaluation.models import Semester, Questionnaire
+from evap.evaluation.models import Semester, Questionnaire
 
 def all_semesters():
     semesters = Semester.objects.all()
