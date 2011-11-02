@@ -1,4 +1,4 @@
 from django.shortcuts import redirect
 
 def index(request):
-    return redirect('student.views.index')
+    return redirect('evap.student.views.index')

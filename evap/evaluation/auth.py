@@ -88,7 +88,7 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
         # instead we use get_or_create when creating unknown users since it has
         # built-in safeguards for multiple threads.
         if self.create_unknown_user:
-            user, created = User.objects.get_or_create(username__iexact=username)
+            user, created = User.objects.get_or_create(username__iexact=username, defaults={'username':username})
             if created:
                 user = self.configure_user(user)
         else:
@@ -97,6 +97,9 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
             except User.DoesNotExist:
                 pass
         return user
+    
+    def clean_username(self, username):
+        return username.partition("@")[0]
 
 class RequestAuthUserBackend(ModelBackend):
     """
