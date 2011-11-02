@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r"^student/", include('evap.student.urls')),
     url(r"^lecturer/", include('evap.lecturer.urls')),
     
+    url(r"^login$", 'django.views.generic.simple.redirect_to', {'url': "/"}),
     url(r"^logout$", 'django.contrib.auth.views.logout', {'next_page': "/"}),
     
     url(r"^i18n/", include('django.conf.urls.i18n')),

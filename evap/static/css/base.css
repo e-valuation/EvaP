@@ -359,6 +359,12 @@ h4.results-section {
 	font-style: italic;
 	margin: 0 78px 0 0;}
 
+#main-content div.loginbox {
+	border: 1px solid #007a9e;
+	margin: 20px auto;
+	padding: 10px;
+	width: 62%;}
+
 tr.obsolete {
 	opacity: .5;}
 

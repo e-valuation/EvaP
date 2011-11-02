@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}{% trans "Start" %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {% if request.user.is_active %}
+        <p>
+            {% blocktrans with name=request.user.get_profile.full_name %}
+            You are currently logged in as {{ name }}.
+            {% endblocktrans %}
+            <a href="{% url django.contrib.auth.views.logout %}">{% trans "Logout" %}</a>
+        </p>
+    {% else %}
+        {% blocktrans %}
+        <p>Welcome to the evaluation platform!</p>
+        
+        <p>You are currently not logged in. If you are an internal student or 
+        lecturer, please log in using your known credentials.</p>
+        
+        <p>If you are an external student or lecturer you can use your external
+        login key to gain access to the system. If you do not have an external
+        login key or lost it, you can create a new one below.</p>
+        {% endblocktrans %}
+        
+        <div class="loginbox">
+            <h3>{% trans "Internal Users" %}</h3>
+            <a href="/login">{% trans "Click here to log in using your credentials." %}</a>
+        </div>
+        
+        <div class="loginbox">
+            <h3>{% trans "Guest Users" %}</h3>
+            <p>
+                {% blocktrans %}
+                Please enter your login key below. Be aware that login keys are
+                automatically invalidated after three months.
+                {% endblocktrans %}
+            </p>
+            <form action="/" method="GET">
+                <label for="userkey">Login Key: </label>
+                <input name="userkey">
+                <input type="submit" value="{% trans "Login" %}">
+            </form>
+            <br/>
+            <h4>{% trans "Generate a new login key" %}</h4>
+            <p>
+                {% blocktrans %}
+                If you do not have a login key or lost your previous login key, 
+                you can create a new one here. Please enter your email address 
+                below. A new key will be sent to this address. Please make sure 
+                that you use the same email address that you used when you
+                enrolled. Otherwise the system cannot associate your address
+                with a user account.
+                {% endblocktrans %}
+            </p>
+            FIXME key generation form here
+        </div>
+    {% endif %}
+{% endblock %}

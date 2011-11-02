@@ -402,6 +402,13 @@ h4.results-section {
             }
         }
     }
+    
+    div.loginbox {
+        border: 1px solid $hpiBlue100;
+        margin: 20px auto;
+        padding: 10px;
+        width: 62%;
+    }
 }
 
 tr.obsolete {

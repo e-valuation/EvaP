@@ -376,14 +376,12 @@ class UserProfile(models.Model):
             return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id).exists()
     
     def generate_logon_key(self):
-        done = False
-        
-        while not done:
+        while True:
             key = random.randrange(0, sys.maxint)
             if not UserProfile.objects.filter(logon_key=key).exists():
                 # key not yet used
                 self.logon_key = key
-                done = True
+                break
     
     @staticmethod
     @receiver(post_save, sender=User)
