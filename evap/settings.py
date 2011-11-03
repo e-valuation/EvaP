@@ -185,6 +185,10 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler'
         }
     },
     'loggers': {
@@ -193,6 +197,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'evap.evaluation.management.commands.import_semester': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
+        }
     }
 }
 
