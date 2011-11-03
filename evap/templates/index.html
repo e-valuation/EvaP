@@ -38,9 +38,11 @@
                 automatically invalidated after three months.
                 {% endblocktrans %}
             </p>
-            <form action="/" method="GET">
-                <label for="userkey">Login Key: </label>
-                <input name="userkey">
+            <form action="{% url evap.evaluation.views.index %}" method="GET">
+                <p>
+                    <label for="userkey">{% trans "login key" %}: </label>
+                    <input name="userkey">
+                </p>
                 <input type="submit" value="{% trans "Login" %}">
             </form>
             <br/>
@@ -55,7 +57,11 @@
                 with a user account.
                 {% endblocktrans %}
             </p>
-            FIXME key generation form here
+            <form action="{% url evap.evaluation.views.index %}" method="POST">
+                {% csrf_token %}
+                {{ new_key_form.as_p }}
+                <input type="submit" value="{% trans "Generate Key" %}">
+            </form>
         </div>
     {% endif %}
 {% endblock %}

@@ -1,11 +1,12 @@
 from functools import wraps
 
 from django.core.exceptions import PermissionDenied
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
 from django.contrib.auth.models import User
 from django.utils.decorators import available_attrs
+from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import UserProfile
 
@@ -47,6 +48,8 @@ class RequestAuthMiddleware(object):
             # by logging the user in.
             request.user = user
             auth.login(request, user)
+        else:
+            messages.warning(request, _(u"Invalid login key."))
 
 class CaseInsensitiveModelBackend(ModelBackend):
     """

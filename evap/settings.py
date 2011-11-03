@@ -136,8 +136,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'evap.evaluation.auth.RequestAuthMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware'
 )
 
 AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
