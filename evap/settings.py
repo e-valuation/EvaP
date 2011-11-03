@@ -187,7 +187,7 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler'
         }
     },
@@ -199,7 +199,7 @@ LOGGING = {
         },
         'evap.evaluation.management.commands.import_semester': {
             'handlers': ['console'],
-            'level': 'DEBUG'
+            'level': 'INFO'
         }
     }
 }

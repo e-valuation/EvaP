@@ -51,7 +51,9 @@ class Command(BaseCommand):
     
     def get_one(self, *args, **kwargs):
         elements = self.get(*args, **kwargs)
-        if len(elements) != 1:
+        if len(elements) == 0:
+            raise ValueError("No element.")
+        elif len(elements) != 1:
             raise ValueError("More than one element.")
         return elements[0]
     
@@ -122,19 +124,22 @@ class Command(BaseCommand):
         with transaction.commit_on_success():
             # evaluation --> Semester
             evaluation = self.get_one('evaluation', id=semester_id)
-            semester = Semester.objects.create(name_de=evaluation.semester, visible=True)
+            semester = Semester.objects.create(name_de=unicode(evaluation.semester),
+                                               name_en=unicode(evaluation.semester),
+                                               visible=True)
             
             # topic_template --> Questionnaire
             for topic_template in self.get('topic_template', questionnaire_template_id=str(evaluation.id)):
                 questionnaire = Questionnaire.objects.create(
                     name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, evaluation.semester),
-                    name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, evaluation.semester))
+                    name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, evaluation.semester),
+                    obsolete=True)
                 
                 self.tt_cache[int(topic_template.id)] = questionnaire
                 
                 # question_template --> Question
                 for question_template in sorted(self.get('question_template', topic_template_id=topic_template.id), key=lambda qt: int(qt.idx)):
-                    if question_template.type == "21":
+                    if str(question_template.type) == "21":
                         questionnaire.teaser_de = unicode(question_template.text_ge)
                         questionnaire.teaser_en = unicode(question_template.text_ge)
                         questionnaire.save()
