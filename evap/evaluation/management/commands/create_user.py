@@ -51,26 +51,11 @@ class Command(BaseCommand):
             # Get an email
             email = read_value('E-mail address: ', is_valid_email)
             
-            # Get a password
-            password = None
-            while 1:
-                if not password:
-                    password = getpass.getpass()
-                    password2 = getpass.getpass('Password (again): ')
-                    if password != password2:
-                        sys.stderr.write("Error: Your passwords didn't match.\n")
-                        password = None
-                        continue
-                    if password.strip() == '':
-                        sys.stderr.write("Error: Blank passwords aren't allowed.\n")
-                        password = None
-                        continue
-                    break
             # get fsr flag
             is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
             # create user
-            u = User.objects.create(username=username, email=email, password=password)
+            u = User.objects.create(username=username, email=email)
             up = u.get_profile()
             up.fsr = is_fsr
             up.save()
