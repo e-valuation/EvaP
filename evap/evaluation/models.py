@@ -134,8 +134,8 @@ class Course(models.Model):
     class Meta:
         ordering = ('semester', 'name_de')
         unique_together = (
-            ('semester', 'name_de'),
-            ('semester', 'name_en'),
+            ('semester', 'study', 'name_de'),
+            ('semester', 'study', 'name_en'),
         )
         verbose_name = _(u"course")
         verbose_name_plural = _(u"courses")
