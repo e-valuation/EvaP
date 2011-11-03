@@ -43,3 +43,21 @@ Preparation
 
 Run ``manage.py collectstatic`` to collect all files that the front-end 
 webserver should serve.
+
+Apache 2 Configuration
+-----------
+::
+        WSGIScriptAlias / /opt/evap/handler.wsgi
+        <Location /login>
+                AuthName "HPI Domain Login"
+                AuthType Kerberos
+                KrbAuthRealms HPI.UNI-POTSDAM.DE
+                KrbMethodNegotiate On
+                KrbMethodK5Passwd On
+                KrbVerifyKDC off
+
+                Require valid-user
+        </Location>
+
+	Alias /static /opt/evap/evap/staticfiles
+	Alias /media /opt/evap/evap/upload
