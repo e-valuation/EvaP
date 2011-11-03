@@ -459,28 +459,10 @@ def user_edit(request, user_id):
 
     
 @fsr_required
-def user_key_new(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    profile = user.get_profile()
-    profile.generate_logon_key()
-    profile.save()
-    
-    return redirect('evap.fsr.views.user_index')
-
-    
-@fsr_required
-def user_key_remove(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    profile = user.get_profile()
-    profile.logon_key = None
-    profile.save()
-    
-    return redirect('evap.fsr.views.user_index')
-
-@fsr_required
 def template_index(request):
     templates = EmailTemplate.objects.all()    
     return render_to_response("fsr_template_index.html", dict(templates=templates), context_instance=RequestContext(request))
+
 
 @fsr_required
 def template_edit(request, template_id):

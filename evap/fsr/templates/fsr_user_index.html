@@ -32,12 +32,6 @@
                 <td class="expand"><span title="{{ user.username }}">{{ user.get_profile.full_name }}</span></td>
                 <td class="dontbreak">
                     <a href="{% url evap.fsr.views.user_edit user.id %}">{% trans "Edit" %}</a>&nbsp;
-                </td><td class="dontbreak">
-                    {% if user.get_profile.logon_key %}
-                        <a href="{% url evap.fsr.views.user_key_remove user.id %}">{% trans "Remove key" %}</a>&nbsp;
-                    {% else %}
-                        <a href="{% url evap.fsr.views.user_key_new user.id %}">{% trans "Generate key" %}</a>&nbsp;
-                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
