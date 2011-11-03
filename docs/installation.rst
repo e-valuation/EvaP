@@ -4,22 +4,20 @@ Installation
 Dependencies
 ------------
 
-EvaP is written in Python using the Django framework. It has the following 
-dependencies:
+EvaP is written in Python using the Django framework and you need at least
+Python 2.6 to run it. Apart from Python and Django there are some other
+dependencies that are listed in the file ``requirements.txt``. The file is 
+in a format that pip can use to automatically install all the requirements.
 
-- Python 2.6
-- Django 1.3
-- South 0.7.3
-- PIL 1.1.7
-- xlrd 0.7.1
+Filesystem Structure
+--------------------
 
-You also need the following packages if you want to run the test suite:
-
-- django-webtest 1.4.2
-- WebTest 1.3, WebOb 1.1.1
-
-There is a file ``requirements.txt`` which lists a files in a format that pip 
-can use to automatically install all the requirements.
+We recommend that you install the application into the directory ``/opt/evap``
+according to the filesystem hierarchy standard. Clone the repository or copy the
+files into that directory. The installation should be correct if the settings
+file has the path ``/opt/evap/evap/settings.py``. Make sure that all files and
+directories are readable by the Apache web server. Additionally please make sure
+that the directory ``/opt/evap/evap/upload`` is writable by the web server.
 
 Settings
 --------
@@ -38,15 +36,27 @@ following settings:
 - Modify the ``LOGGING`` configuration so that it suits your needs.
 - Finally, set ``DEBUG`` to ``False``.
 
-Preparation
------------
+File Refresh
+------------
 
-Run ``manage.py collectstatic`` to collect all files that the front-end 
-webserver should serve.
+You have to run some additional commands during the installation and whenever
+you upgrade the software. Perform these steps in the ``/opt/evap/evap``
+directory after you have upgraded the files:
+
+- ``python manage.py migrate`` to perform any potential database updates.
+- ``python manage.py collectstatic`` to collect all files that the front-end
+  webserver should serve.
+- ``python manage.py compilemessages`` to update the binary translation catalog.
+
+Finally, restart the Apache web server.
 
 Apache 2 Configuration
------------
+----------------------
+
+We recommend the following Apache configuration:
+
 ::
+
         WSGIScriptAlias / /opt/evap/handler.wsgi
         <Location /login>
                 AuthName "HPI Domain Login"
@@ -59,5 +69,5 @@ Apache 2 Configuration
                 Require valid-user
         </Location>
 
-	Alias /static /opt/evap/evap/staticfiles
-	Alias /media /opt/evap/evap/upload
+        Alias /static /opt/evap/evap/staticfiles
+        Alias /media /opt/evap/evap/upload
