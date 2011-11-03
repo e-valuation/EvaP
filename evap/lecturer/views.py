@@ -22,7 +22,7 @@ def profile_edit(request):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated your profile."))
-        return redirect('lecturer.views.index')
+        return redirect('evap.lecturer.views.index')
     else:
         return render_to_response("lecturer_profile.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -51,6 +51,6 @@ def course_edit(request, course_id):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated course."))
-        return redirect('lecturer.views.course_index')
+        return redirect('evap.lecturer.views.course_index')
     else:
         return render_to_response("lecturer_course_form.html", dict(form=form), context_instance=RequestContext(request))

@@ -51,7 +51,7 @@ def semester_create(request):
         s = form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created semester."))
-        return redirect('fsr.views.semester_view', s.id)
+        return redirect('evap.fsr.views.semester_view', s.id)
     else:
         return render_to_response("fsr_semester_form.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -65,7 +65,7 @@ def semester_edit(request, semester_id):
         s = form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated semester."))
-        return redirect('fsr.views.semester_view', s.id)
+        return redirect('evap.fsr.views.semester_view', s.id)
     else:
         return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -77,12 +77,12 @@ def semester_delete(request, semester_id):
     if semester.can_be_deleted:    
         if request.method == 'POST':
             semester.delete()
-            return redirect('fsr.views.semester_index')
+            return redirect('evap.fsr.views.semester_index')
         else:
             return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
     else:
         messages.add_message(request, messages.ERROR, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
-        return redirect('fsr.views.semester_index')
+        return redirect('evap.fsr.views.semester_index')
 
 
 @fsr_required
@@ -97,7 +97,7 @@ def semester_publish(request, semester_id):
         
         EmailTemplate.get_publish_template().send(form.selected_courses)
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(form.selected_courses)))
-        return redirect('fsr.views.semester_view', semester.id)
+        return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_publish.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -115,7 +115,7 @@ def semester_import(request, semester_id):
         
         # parse table
         ExcelImporter.process(request, excel_file, semester, vote_start_date, vote_end_date)
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -142,7 +142,7 @@ def semester_assign_questionnaires(request, semester_id):
             course.save()
         
         messages.add_message(request, messages.INFO, _("Successfully assigned questionnaires."))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -157,7 +157,7 @@ def semester_approve(request, semester_id):
             course.save()
         
         messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (len(form.selected_courses)))
-        return redirect('fsr.views.semester_view', semester.id)
+        return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_approve.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -198,7 +198,7 @@ def course_create(request, semester_id):
         form.save()
 
         messages.add_message(request, messages.INFO, _("Successfully created course."))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -211,14 +211,14 @@ def course_edit(request, semester_id, course_id):
     # check course state
     if not course.can_fsr_edit():
         messages.add_message(request, messages.ERROR, _("Editting not possible in current state."))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     
     form = CourseForm(request.POST or None, instance=course)    
     if form.is_valid():
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated course."))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -231,11 +231,11 @@ def course_delete(request, semester_id, course_id):
     # check course state
     if not course.can_fsr_delete():
         messages.add_message(request, messages.ERROR, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     
     if request.method == 'POST':
         course.delete()
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
 
@@ -248,7 +248,7 @@ def course_censor(request, semester_id, course_id):
     # check course state
     if not course.can_fsr_review():
         messages.add_message(request, messages.ERROR, _("Reviewing not possible in current state."))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     
     censorFS = modelformset_factory(TextAnswer, form=CensorTextAnswerForm, can_order=False, can_delete=False, extra=0)
     
@@ -293,7 +293,7 @@ def course_censor(request, semester_id, course_id):
             pass
         
         messages.add_message(request, messages.INFO, _("Successfully censored %d course answers.") % count)
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
 
@@ -311,7 +311,7 @@ def course_email(request, semester_id, course_id):
             messages.add_message(request, messages.INFO, _("Successfully sent email to all participants of '%s'.") % course.name)
         else:
             messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants of '%s', but %d could not be reached as they do not have an email address.") % (course.name, form.missing_email_addresses()))
-        return redirect('fsr.views.semester_view', semester_id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -327,7 +327,7 @@ def course_lecturer_ready(request, semester_id, course_id):
     except:
         pass
     
-    return redirect('fsr.views.semester_view', semester_id)
+    return redirect('evap.fsr.views.semester_view', semester_id)
 
 
 @fsr_required
@@ -356,7 +356,7 @@ def questionnaire_create(request):
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created questionnaire."))
-        return redirect('fsr.views.questionnaire_index')
+        return redirect('evap.fsr.views.questionnaire_index')
     else:
         return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
@@ -371,14 +371,14 @@ def questionnaire_edit(request, questionnaire_id):
     
     if questionnaire.obsolete:
         messages.add_message(request, messages.INFO, _("Obsolete questionnaires cannot be edited."))
-        return redirect('fsr.views.questionnaire_index')
+        return redirect('evap.fsr.views.questionnaire_index')
     
     if form.is_valid() and formset.is_valid():
         form.save()
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated questionnaire."))
-        return redirect('fsr.views.questionnaire_index')
+        return redirect('evap.fsr.views.questionnaire_index')
     else:
         return render_to_response("fsr_questionnaire_form.html", dict(questionnaire=questionnaire, form=form, formset=formset), context_instance=RequestContext(request))
 
@@ -396,7 +396,7 @@ def questionnaire_copy(request, questionnaire_id):
             question.save()
         
         messages.add_message(request, messages.INFO, _("Successfully copied questionnaire."))
-        return redirect('fsr.views.questionnaire_view', questionnaire.id)
+        return redirect('evap.fsr.views.questionnaire_view', questionnaire.id)
     else:
         return render_to_response("fsr_questionnaire_copy.html", dict(questionnaire=questionnaire, form=form), context_instance=RequestContext(request))
 
@@ -408,12 +408,12 @@ def questionnaire_delete(request, questionnaire_id):
     if questionnaire.can_be_deleted:
         if request.method == 'POST':
             questionnaire.delete()
-            return redirect('fsr.views.questionnaire_index')
+            return redirect('evap.fsr.views.questionnaire_index')
         else:
             return render_to_response("fsr_questionnaire_delete.html", dict(questionnaire=questionnaire), context_instance=RequestContext(request))
     else:
         messages.add_message(request, messages.ERROR, _("The questionnaire '%s' cannot be deleted, because it is still in use.") % questionnaire.name)
-        return redirect('fsr.views.questionnaire_index')
+        return redirect('evap.fsr.views.questionnaire_index')
 
 
 @fsr_required
@@ -439,7 +439,7 @@ def user_create(request):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created user."))
-        return redirect('fsr.views.user_index')
+        return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -453,7 +453,7 @@ def user_edit(request, user_id):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated user."))
-        return redirect('fsr.views.user_index')
+        return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -465,7 +465,7 @@ def user_key_new(request, user_id):
     profile.generate_logon_key()
     profile.save()
     
-    return redirect('fsr.views.user_index')
+    return redirect('evap.fsr.views.user_index')
 
     
 @fsr_required
@@ -475,7 +475,7 @@ def user_key_remove(request, user_id):
     profile.logon_key = None
     profile.save()
     
-    return redirect('fsr.views.user_index')
+    return redirect('evap.fsr.views.user_index')
 
 @fsr_required
 def template_index(request):
@@ -491,7 +491,7 @@ def template_edit(request, template_id):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated template."))
-        return redirect('fsr.views.template_index')
+        return redirect('evap.fsr.views.template_index')
     else:
         return render_to_response("fsr_template_form.html", dict(form=form), context_instance=RequestContext(request))
 

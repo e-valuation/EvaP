@@ -82,7 +82,7 @@ def vote(request, course_id):
             course.voters.add(request.user)
         
         messages.add_message(request, messages.INFO, _("Your vote was recorded."))
-        return redirect('student.views.index')
+        return redirect('evap.student.views.index')
     else:
         return render_to_response(
             "student_vote.html",
