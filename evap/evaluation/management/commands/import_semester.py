@@ -2,8 +2,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from evap.evaluation.models import *
 
-from collections import defaultdict
-
 from lxml import etree
 from lxml import objectify
 
@@ -15,7 +13,7 @@ def nint(v):
     return int(v) if v is not None else None
 
 class Command(BaseCommand):
-    args = '<path to XML file> <semester id>'
+    args = '<path to XML file> <semester id|all>'
     help = 'Imports the given semester from the XML file'
     
     question_template_type_map = {"22":"G", "23":"T"}
@@ -99,19 +97,31 @@ class Command(BaseCommand):
         self.tt_cache = dict()
         self.staff_cache = dict()
         
+        if len(args) != 2:
+            raise Exception("Invalid arguments.")
+        
+        self.read_xml(args[0])
+        if args[1] == "all":
+            for evaluation in self.get('evaluation'):
+                self.process_semester(str(evaluation.id))
+        else:
+            self.process_semester(args[1])
+    
+    def read_xml(self, filename):
         logger.info("Parsing XML file...")
-        tree = objectify.parse(args[0])
+        tree = objectify.parse(filename)
         logger.info("Indexing objects...")
         for element in tree.getroot().iterchildren():
             index_description = self.index_structure.get(element.tag, None)
             if index_description:
                 for specifiers in index_description:
                     self.store(element, *specifiers)
-        
-        logger.info("Creating database objects...")
+    
+    def process_semester(self, semester_id):
+        logger.info(u"Processing semester %s..." % semester_id)
         with transaction.commit_on_success():
             # evaluation --> Semester
-            evaluation = self.get_one('evaluation', id=args[1])
+            evaluation = self.get_one('evaluation', id=semester_id)
             semester = Semester.objects.create(name_de=evaluation.semester, visible=True)
             
             # topic_template --> Questionnaire
