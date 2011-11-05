@@ -29,7 +29,7 @@ class Semester(models.Model):
     created_at = models.DateField(verbose_name=_(u"created at"), auto_now_add=True)
     
     class Meta:
-        ordering = ('created_at', 'name_de')
+        ordering = ('-created_at', 'name_de')
         verbose_name = _(u"semester")
         verbose_name_plural = _(u"semesters")
     
