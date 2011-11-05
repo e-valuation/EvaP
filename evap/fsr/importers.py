@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -147,3 +148,6 @@ class ExcelImporter(object):
             importer.save_to_db(semester, vote_start_date, vote_end_date)
         except Exception, e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
+            if settings.DEBUG:
+                # re-raise error for further introspection if in debug mode
+                raise
