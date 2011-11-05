@@ -10,15 +10,23 @@
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
     <table class="results-detail">
-    {% for group, lecturer, results, grade in sections %}
+    {% for questionnaire, lecturer, results, grade in sections %}
         <tr>
             <td class="results-subtitle" colspan="4">
             {% if lecturer %}
                 {{ lecturer.get_profile.full_name }}:
             {% endif %}
-            {{ group }}
+            {{ questionnaire.name }}
             </td>
         </tr>
+        
+        {% if questionnaire.teaser %}
+        <tr>
+            <td class="results-teaser" colspan="4">
+            {{ questionnaire.teaser }}
+            </td>
+        </tr>
+        {% endif %}
         
         {% for result in results %}
             <tr>
