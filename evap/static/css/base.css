@@ -323,7 +323,8 @@ h4.results-section {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	overflow: hidden;}
+	overflow: hidden;
+	cursor: default;}
 
 #main-content table.results-detail td.results-distribution > div div.results-distribution-1 {
 	background: #8def75;}

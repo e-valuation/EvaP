@@ -367,7 +367,7 @@ h4.results-section {
                     margin: 0;
                     padding: 0;
                     overflow: hidden;
-                    
+                    cursor: default;
                     
                     &.results-distribution-1 { background: $vote1; }
                     &.results-distribution-2 { background: $vote2; }
