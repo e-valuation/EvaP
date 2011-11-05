@@ -48,7 +48,7 @@ class CourseData(object):
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
                         semester=semester,
-                        study_en=self.study[:-7])
+                        study=self.study)
         course.save()
         return course
 
@@ -72,7 +72,7 @@ class ExcelImporter(object):
                     # assign data to data objects
                     student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
                     lecturer_data = UserData(username=data[10], first_name="", last_name=data[9], title=data[8], email=data[11])
-                    course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], study=data[0])
+                    course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], study=data[0][:-7])
                     
                     # store data objects together with the data source location for problem tracking
                     self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
