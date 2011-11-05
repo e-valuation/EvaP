@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from evap.evaluation.models import *
 
+from datetime import datetime
 from lxml import etree
 from lxml import objectify
 
@@ -11,6 +12,11 @@ logger = logging.getLogger(__name__)
 def nint(v):
     """Nullable int"""
     return int(v) if v is not None else None
+
+
+def parse_date(s):
+    return datetime.strptime(s, "%Y-%m-%d %H:%M:%S").date()
+
 
 class Command(BaseCommand):
     args = '<path to XML file> <semester id|all>'
@@ -91,12 +97,12 @@ class Command(BaseCommand):
                                            course_category_id=ccm.course_category_id,
                                            questionnaire_template_id=evaluation_id,
                                            per_person=per_person):
-                yield self.tt_cache[int(topic_template.id)]
+                yield self.questionnaire_cache[int(topic_template.id)]
     
     def handle(self, *args, **options):
         self.elements = dict()
-        self.qt_cache = dict()
-        self.tt_cache = dict()
+        self.questionnaire_cache = dict()
+        self.question_cache = dict()
         self.staff_cache = dict()
         
         if len(args) != 2:
@@ -120,41 +126,51 @@ class Command(BaseCommand):
                     self.store(element, *specifiers)
     
     def process_semester(self, semester_id):
-        logger.info(u"Processing semester %s..." % semester_id)
         with transaction.commit_on_success():
             # evaluation --> Semester
             evaluation = self.get_one('evaluation', id=semester_id)
+            logger.info(u"Processing semester '%s'..." % evaluation.semester)
             semester = Semester.objects.create(name_de=unicode(evaluation.semester),
                                                name_en=unicode(evaluation.semester),
                                                visible=True)
+            # hack: use default start date to get the ordering right
+            semester.created_at = parse_date(str(evaluation.default_start_date))
+            semester.save()
             
             # topic_template --> Questionnaire
             for topic_template in self.get('topic_template', questionnaire_template_id=str(evaluation.id)):
-                questionnaire = Questionnaire.objects.create(
-                    name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
-                    name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
-                    description=u"Imported from EvaJ, Semester %s" % evaluation.semester,
-                    obsolete=True)
-                
-                self.tt_cache[int(topic_template.id)] = questionnaire
-                
-                # question_template --> Question
-                for question_template in sorted(self.get('question_template', topic_template_id=topic_template.id), key=lambda qt: int(qt.idx)):
-                    if str(question_template.type) == "21":
-                        questionnaire.teaser_de = unicode(question_template.text_ge)
-                        questionnaire.teaser_en = unicode(question_template.text_ge)
-                        questionnaire.save()
-                    else:
-                        question = Question.objects.create(
-                            questionnaire=questionnaire,
-                            text_de=unicode(question_template.text_ge),
-                            text_en=unicode(question_template.text_ge),
-                            kind=self.question_template_type_map[str(question_template.type)])
-                        
-                        self.qt_cache[int(question_template.id)] = question
+                try:
+                    questionnaire = Questionnaire.objects.create(
+                        # hack: make names unique by adding the original IDs
+                        name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
+                        name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
+                        description=u"Imported from EvaJ, Semester %s" % evaluation.semester,
+                        obsolete=True)
+                    
+                    self.questionnaire_cache[int(topic_template.id)] = questionnaire
+                    
+                    # question_template --> Question
+                    for question_template in sorted(self.get('question_template', topic_template_id=topic_template.id), key=lambda qt: int(qt.idx)):
+                        if str(question_template.type) == "21":
+                            questionnaire.teaser_de = unicode(question_template.text_ge)
+                            questionnaire.teaser_en = unicode(question_template.text_ge)
+                            questionnaire.save()
+                        else:
+                            question = Question.objects.create(
+                                questionnaire=questionnaire,
+                                text_de=unicode(question_template.text_ge),
+                                text_en=unicode(question_template.text_ge),
+                                kind=self.question_template_type_map[str(question_template.type)])
+                            self.question_cache[int(question_template.id)] = question
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    logger.exception(u"An exception occurred while trying to import questionnaire '%s'!", topic_template.name_ge)
             
+            courses = self.get('course', evaluation_id=evaluation.id)
+            course_count = 0
             # course --> Course
-            for xml_course in self.get('course', evaluation_id=evaluation.id):
+            for xml_course in courses:
                 logger.debug(u"Creating course %s", unicode(xml_course.name))
                 try:
                     with transaction.commit_on_success():
@@ -162,8 +178,8 @@ class Command(BaseCommand):
                             semester=semester,
                             name_de=unicode(xml_course.name),
                             name_en=unicode(xml_course.name),
-                            vote_start_date=str(xml_course.survey_start_date)[:10],
-                            vote_end_date=str(xml_course.survey_start_date)[:10],
+                            vote_start_date=parse_date(str(xml_course.survey_start_date)),
+                            vote_end_date=parse_date(str(xml_course.survey_start_date)),
                             kind=u",".join(self.get_lecture_types(xml_course)),
                             study=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
                             state='published')
@@ -182,7 +198,7 @@ class Command(BaseCommand):
                                 lecturer = self.staff_cache[staff_id] if staff_id is not None else None
                                 
                                 status = str(answer.revised_status)
-                                question = self.qt_cache[int(answer.question_template_id)]
+                                question = self.question_cache[int(answer.question_template_id)]
                                 
                                 if status == "61":
                                     GradeAnswer.objects.create(
@@ -221,7 +237,11 @@ class Command(BaseCommand):
                                             checked=True,
                                             **additional_fields
                                         )
+                    
+                    course_count += 1
+                except KeyboardInterrupt:
+                    raise
                 except:
-                    logger.critical(u"Course %s could not be imported!", xml_course.name)
+                    logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
         
-        logger.info("Done.")
+        logger.info("Done, %d of %d courses imported.", course_count, len(courses))
