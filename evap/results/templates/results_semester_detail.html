@@ -18,8 +18,11 @@
         </tr>
         {% for course in study.list %}
             <tr>
-                <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
-                <td>{{ course.grade|floatformat:1 }}</td>
+                {% if course.grade %}
+                {% comment %}Only courses with grades are displayed{% endcomment %}
+                    <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
+                    <td>{{ course.grade|floatformat:1 }}</td>
+                {% endif %}
             </tr>
         {% endfor %}
     {% endfor %}
