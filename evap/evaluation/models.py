@@ -132,7 +132,7 @@ class Course(models.Model):
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
     class Meta:
-        ordering = ('semester', 'name_de')
+        ordering = ('semester', 'study', 'name_de')
         unique_together = (
             ('semester', 'study', 'name_de'),
             ('semester', 'study', 'name_en'),

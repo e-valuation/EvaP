@@ -2,19 +2,26 @@
 
 {% load i18n %}
 
-{% block content %}
+{{% block content %}
     {{ block.super }}
-    
     <h3>
         {{ semester.name }}
     </h3>
     
+    {% regroup courses by study as studies %}
     <table>
-    {% for course in courses %}
+    {% for study in studies %}
         <tr>
-            <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
-            <td>{{ course.grade|floatformat:1 }}</td>
+            <td colspan="2">
+                <h4>{{ study.grouper }}</h4>
+            </td>
         </tr>
+        {% for course in study.list %}
+            <tr>
+                <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
+                <td>{{ course.grade|floatformat:1 }}</td>
+            </tr>
+        {% endfor %}
     {% endfor %}
     </table>
 {% endblock %}
