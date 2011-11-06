@@ -1,15 +1,18 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
 
-from evap.evaluation.auth import login_required
+from evap.evaluation.auth import login_required, fsr_required
 from evap.evaluation.models import Course, Semester
 from evap.evaluation.tools import calculate_results, calculate_average_grade
 
+from evap.results.exporters import ExcelExporter
 
 @login_required
 def index(request):
-    semesters = Semester.objects.filter(visible=True).order_by('-created_at')
+    semesters = Semester.objects.all().filter(visible=True)
     
     return render_to_response(
         "results_index.html",
@@ -25,7 +28,6 @@ def semester_detail(request, semester_id):
     # annotate each course object with its grade
     for course in courses:
         # first, make sure that there is no preexisting grade attribute
-        assert not hasattr(course, 'grade')
         course.grade = calculate_average_grade(course)
     
     return render_to_response(
@@ -35,6 +37,21 @@ def semester_detail(request, semester_id):
             courses=courses
         ),
         context_instance=RequestContext(request))
+
+
+@fsr_required
+def semester_export(request, semester_id):
+    semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
+    
+    filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
+    
+    response = HttpResponse(mimetype="application/vnd.ms-excel")
+    response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+    
+    exporter = ExcelExporter(semester)
+    exporter.export(response)
+    
+    return response
 
 
 @login_required
