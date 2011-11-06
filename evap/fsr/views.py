@@ -15,6 +15,18 @@ from evap.fsr.models import EmailTemplate
 import random
 
 
+STATE_COLOR_MAPPING = {
+    'new': "blue",
+    'pendingLecturerApproval': "pink",
+    'pendingFsrApproval': "purple",
+    'approved': "red",
+    'inEvaluation': "orange",
+    'pendingForReview': "yellow",
+    'pendingPublishing': "green",
+    'published': "black",
+}
+
+
 @fsr_required
 def semester_index(request):
     semesters = Semester.objects.all()
@@ -39,6 +51,10 @@ def semester_view(request, semester_id):
                           "WHERE evaluation_course_voters.course_id = evaluation_course.id"
         }
     )
+    
+    # annotate course with color for state
+    for course in courses:
+        course.state_color = STATE_COLOR_MAPPING[course.state]
     
     return render_to_response("fsr_semester_view.html", dict(semester=semester, courses=courses), context_instance=RequestContext(request))
 
