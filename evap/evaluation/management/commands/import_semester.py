@@ -71,20 +71,20 @@ class Command(BaseCommand):
         for enrollment in self.get('enrollment', course_id=course.id):
             # student --> User
             student = self.get_one('student', id=enrollment.student_id)
-            user, created = User.objects.get_or_create(username=unicode(student.loginName))
+            user, created = User.objects.get_or_create(username=unicode(student.loginName)[:30])
             yield user
     
     def get_voters(self, course):
         for enrollment in self.get('enrollment', course_id=course.id, voted="1"):
             student = self.get_one('student', id=enrollment.student_id)
-            yield User.objects.get(username=unicode(student.loginName))
+            yield User.objects.get(username=unicode(student.loginName)[:30])
     
     def get_lecturers(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for ccm_to_staff in self.get('ccm_to_staff', ccm_id=ccm.id):
                 # staff --> User
                 staff = self.get_one('staff', id=ccm_to_staff.staff_id)
-                user, created = User.objects.get_or_create(username=unicode(staff.loginName))
+                user, created = User.objects.get_or_create(username=unicode(staff.loginName)[:30])
                 
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
