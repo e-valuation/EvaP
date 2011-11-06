@@ -383,21 +383,18 @@ h4.results-section {
             
             div {
                 margin: 0;
-                padding: 1ex 0;
-                border-bottom: 1px solid $hpiBlue20;
+                padding: 0.5ex 0ex 0.5ex 1ex;
                 
                 &:first-child {
                     padding-top: 0;
                 }
                 
-                &:last-child {
-                    border-bottom: none;
-                }
-                
                 p {
-                    text-align: justify;
+                    background: $hpiYellow20;
                     font-style: italic;
                     margin: 0 78px 0 0;
+                    padding: 1ex;
+                    text-align: justify;
                 }
             }
         }

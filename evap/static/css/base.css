@@ -346,19 +346,17 @@ h4.results-section {
 
 #main-content table.results-detail td.results-text div {
 	margin: 0;
-	padding: 1ex 0;
-	border-bottom: 1px solid #cce4ec;}
+	padding: .5ex 0 .5ex 1ex;}
 
 #main-content table.results-detail td.results-text div:first-child {
 	padding-top: 0;}
 
-#main-content table.results-detail td.results-text div:last-child {
-	border-bottom: none;}
-
 #main-content table.results-detail td.results-text div p {
-	text-align: justify;
+	background: #feeecc;
 	font-style: italic;
-	margin: 0 78px 0 0;}
+	margin: 0 78px 0 0;
+	padding: 1ex;
+	text-align: justify;}
 
 #main-content div.loginbox {
 	border: 1px solid #007a9e;
