@@ -321,11 +321,8 @@ def course_lecturer_ready(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
-    try:
-        course.ready_for_lecturer()
-        course.save()
-    except:
-        pass
+    course.ready_for_lecturer()
+    course.save()
     
     return redirect('evap.fsr.views.semester_view', semester_id)
 
