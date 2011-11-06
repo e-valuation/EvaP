@@ -7,8 +7,9 @@ class CourseAdmin(admin.ModelAdmin):
     model = Course
     list_display = ('__unicode__', 'semester', 'kind')
     list_filter = ('semester',)
+    readonly_fields = ('state',)
     if not settings.DEBUG:
-        readonly_fields = ('voters',)
+        readonly_fields += ('voters',)
 
 
 class QuestionInline(admin.TabularInline):
