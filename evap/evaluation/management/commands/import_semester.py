@@ -101,8 +101,6 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         self.elements = dict()
-        self.questionnaire_cache = dict()
-        self.question_cache = dict()
         self.staff_cache = dict()
         
         if len(args) != 2:
@@ -126,20 +124,23 @@ class Command(BaseCommand):
                     self.store(element, *specifiers)
     
     def process_semester(self, semester_id):
-        with transaction.commit_on_success():
-            # evaluation --> Semester
-            evaluation = self.get_one('evaluation', id=semester_id)
-            logger.info(u"Processing semester '%s'..." % evaluation.semester)
-            semester = Semester.objects.create(name_de=unicode(evaluation.semester),
-                                               name_en=unicode(evaluation.semester),
-                                               visible=True)
-            # hack: use default start date to get the ordering right
-            semester.created_at = parse_date(str(evaluation.default_start_date))
-            semester.save()
-            
-            # topic_template --> Questionnaire
-            for topic_template in self.get('topic_template', questionnaire_template_id=str(evaluation.id)):
-                try:
+        self.questionnaire_cache = dict()
+        self.question_cache = dict()
+        
+        # evaluation --> Semester
+        evaluation = self.get_one('evaluation', id=semester_id)
+        logger.info(u"Processing semester '%s'..." % evaluation.semester)
+        semester = Semester.objects.create(name_de=unicode(evaluation.semester),
+                                           name_en=unicode(evaluation.semester),
+                                           visible=True)
+        # hack: use default start date to get the ordering right
+        semester.created_at = parse_date(str(evaluation.default_start_date))
+        semester.save()
+        
+        # topic_template --> Questionnaire
+        for topic_template in self.get('topic_template', questionnaire_template_id=str(evaluation.id)):
+            try:
+                with transaction.commit_on_success():
                     questionnaire = Questionnaire.objects.create(
                         # hack: make names unique by adding the original IDs
                         name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
@@ -162,86 +163,87 @@ class Command(BaseCommand):
                                 text_en=unicode(question_template.text_ge),
                                 kind=self.question_template_type_map[str(question_template.type)])
                             self.question_cache[int(question_template.id)] = question
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    logger.exception(u"An exception occurred while trying to import questionnaire '%s'!", topic_template.name_ge)
-            
-            courses = self.get('course', evaluation_id=evaluation.id)
-            course_count = 0
-            # course --> Course
-            for xml_course in courses:
-                logger.debug(u"Creating course %s", unicode(xml_course.name))
-                try:
-                    with transaction.commit_on_success():
-                        course = Course.objects.create(
-                            semester=semester,
-                            name_de=unicode(xml_course.name),
-                            name_en=unicode(xml_course.name),
-                            vote_start_date=parse_date(str(xml_course.survey_start_date)),
-                            vote_end_date=parse_date(str(xml_course.survey_start_date)),
-                            kind=u",".join(self.get_lecture_types(xml_course)),
-                            study=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
-                            state='published')
-                        
-                        course.participants = self.get_participants(xml_course)
-                        course.voters = self.get_voters(xml_course)
-                        course.primary_lecturers = self.get_lecturers(xml_course)
-                        course.general_questions = self.get_questionnaires(xml_course, evaluation.id)
-                        course.primary_lecturer_questions = self.get_questionnaires(xml_course, evaluation.id, "1")
-                        course.save()
-                        
-                        # answer --> GradeAnswer/TextAnswer
-                        for assessment in self.get('assessment', course_id=xml_course.id):
-                            for answer in self.get('answer', assessment_id=assessment.id):
-                                staff_id = nint(getattr(answer, 'staff_id', None))
-                                lecturer = self.staff_cache[staff_id] if staff_id is not None else None
+            except KeyboardInterrupt:
+                raise
+            except:
+                logger.exception(u"An exception occurred while trying to import questionnaire '%s'!", topic_template.name_ge)
+        
+        courses = self.get('course', evaluation_id=evaluation.id)
+        course_count = 0
+        # course --> Course
+        for xml_course in courses:
+            logger.debug(u"Creating course %s", unicode(xml_course.name))
+            logger.debug(u"id=%d evaluation=%d", xml_course.id, xml_course.evaluation_id)
+            try:
+                with transaction.commit_on_success():
+                    course = Course.objects.create(
+                        semester=semester,
+                        name_de=unicode(xml_course.name),
+                        name_en=unicode(xml_course.name),
+                        vote_start_date=parse_date(str(xml_course.survey_start_date)),
+                        vote_end_date=parse_date(str(xml_course.survey_start_date)),
+                        kind=u",".join(self.get_lecture_types(xml_course)),
+                        study=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
+                        state='published')
+                    
+                    course.participants = self.get_participants(xml_course)
+                    course.voters = self.get_voters(xml_course)
+                    course.primary_lecturers = self.get_lecturers(xml_course)
+                    course.general_questions = self.get_questionnaires(xml_course, evaluation.id)
+                    course.primary_lecturer_questions = self.get_questionnaires(xml_course, evaluation.id, "1")
+                    course.save()
+                    
+                    # answer --> GradeAnswer/TextAnswer
+                    for assessment in self.get('assessment', course_id=xml_course.id):
+                        for answer in self.get('answer', assessment_id=assessment.id):
+                            staff_id = nint(getattr(answer, 'staff_id', None))
+                            lecturer = self.staff_cache[staff_id] if staff_id is not None else None
+                            
+                            status = str(answer.revised_status)
+                            question = self.question_cache[int(answer.question_template_id)]
+                            
+                            if status == "61":
+                                GradeAnswer.objects.create(
+                                    question=question,
+                                    course=course,
+                                    lecturer=lecturer,
+                                    answer=int(answer.response)
+                                )
+                            else:
+                                comment = getattr(answer, 'comment', None)
+                                if comment is not None:
+                                    comment = unicode(comment).strip()
                                 
-                                status = str(answer.revised_status)
-                                question = self.question_cache[int(answer.question_template_id)]
-                                
-                                if status == "61":
-                                    GradeAnswer.objects.create(
+                                if comment:
+                                    if status == "62":
+                                        additional_fields = dict(
+                                            hidden=False
+                                        )
+                                    elif status == "63":
+                                        additional_fields = dict(
+                                            censored_answer=unicode(answer.revised_comment),
+                                            hidden=False
+                                        )
+                                    elif status == "64":
+                                        additional_fields = dict(
+                                            hidden=True
+                                        )
+                                    else:
+                                        raise Exception("Invalid XML-file")
+                                    
+                                    TextAnswer.objects.create(
                                         question=question,
                                         course=course,
                                         lecturer=lecturer,
-                                        answer=int(answer.response)
+                                        original_answer=comment,
+                                        checked=True,
+                                        **additional_fields
                                     )
-                                else:
-                                    comment = getattr(answer, 'comment', None)
-                                    if comment is not None:
-                                        comment = unicode(comment).strip()
-                                    
-                                    if comment:
-                                        if status == "62":
-                                            additional_fields = dict(
-                                                hidden=False
-                                            )
-                                        elif status == "63":
-                                            additional_fields = dict(
-                                                censored_answer=unicode(answer.revised_comment),
-                                                hidden=False
-                                            )
-                                        elif status == "64":
-                                            additional_fields = dict(
-                                                hidden=True
-                                            )
-                                        else:
-                                            raise Exception("Invalid XML-file")
-                                        
-                                        TextAnswer.objects.create(
-                                            question=question,
-                                            course=course,
-                                            lecturer=lecturer,
-                                            original_answer=comment,
-                                            checked=True,
-                                            **additional_fields
-                                        )
-                    
-                    course_count += 1
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
+                
+                course_count += 1
+            except KeyboardInterrupt:
+                raise
+            except:
+                logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
         
         logger.info("Done, %d of %d courses imported.", course_count, len(courses))
