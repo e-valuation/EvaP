@@ -184,7 +184,7 @@ class Command(BaseCommand):
                         vote_end_date=parse_date(str(xml_course.survey_start_date)),
                         kind=u",".join(self.get_lecture_types(xml_course)),
                         study=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
-                        state='published')
+                        state='pendingPublishing')
                     
                     course.participants = self.get_participants(xml_course)
                     course.voters = self.get_voters(xml_course)
@@ -192,6 +192,11 @@ class Command(BaseCommand):
                     course.general_questions = self.get_questionnaires(xml_course, evaluation.id)
                     course.primary_lecturer_questions = self.get_questionnaires(xml_course, evaluation.id, "1")
                     course.save()
+                    
+                    # publish if possible
+                    if course.can_be_published():
+                        course.publish()
+                        course.save()
                     
                     # answer --> GradeAnswer/TextAnswer
                     for assessment in self.get('assessment', course_id=xml_course.id):
