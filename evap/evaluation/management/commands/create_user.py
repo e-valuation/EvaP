@@ -55,10 +55,7 @@ class Command(BaseCommand):
             is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
             # create user
-            u = User.objects.create(username=username, email=email)
-            up = u.get_profile()
-            up.fsr = is_fsr
-            up.save()
+            u = User.objects.create(username=username, email=email, is_staff=is_fsr)
             
         except KeyboardInterrupt:
             sys.stderr.write("\nOperation cancelled.\n")

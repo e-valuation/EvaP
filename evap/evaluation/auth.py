@@ -159,7 +159,7 @@ def fsr_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return user.get_profile().fsr
+        return user.is_staff
     return user_passes_test_without_redirect(check_user)(func)
 
 def lecturer_required(func):

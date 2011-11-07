@@ -435,7 +435,7 @@ def user_index(request):
     
     filter = request.GET.get('filter')
     if filter == "fsr":
-        users = users.filter(userprofile__fsr=True)
+        users = users.filter(is_staff=True)
     elif filter == "lecturers":
         users = [user for user in users if user.get_profile().lectures_courses()]
     

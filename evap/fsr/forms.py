@@ -226,13 +226,13 @@ class UserForm(forms.ModelForm):
     first_name = forms.CharField()
     last_name = forms.CharField()
     email = forms.CharField(required=False)
-    
+    fsr = forms.BooleanField(required=False, label=_("FSR Member"))
     proxies = UserModelMultipleChoiceField(queryset=User.objects.all())
     
     class Meta:
         model = UserProfile
         exclude = ('user',)
-        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'fsr', 'proxies']
+        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies']
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -245,6 +245,7 @@ class UserForm(forms.ModelForm):
         self.fields['first_name'].initial = self.instance.user.first_name
         self.fields['last_name'].initial = self.instance.user.last_name
         self.fields['email'].initial = self.instance.user.email
+        self.fields['fsr'].initial = self.instance.user.is_staff
 
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
@@ -252,6 +253,7 @@ class UserForm(forms.ModelForm):
         self.instance.user.first_name   = self.cleaned_data.get('first_name')
         self.instance.user.last_name    = self.cleaned_data.get('last_name')
         self.instance.user.email        = self.cleaned_data.get('email')
+        self.instance.user.is_staff     = self.cleaned_data.get('fsr')
         self.instance.user.save()
         self.instance = self.instance.user.get_profile()
         

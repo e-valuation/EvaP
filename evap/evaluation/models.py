@@ -343,9 +343,6 @@ class UserProfile(models.Model):
     # proxies of the user, which can also manage their courses
     proxies = models.ManyToManyField(User, related_name="proxied_users", blank=True)
     
-    # true if the user is member of the student representatives
-    fsr = models.BooleanField(verbose_name=_(u"Student representative"), default=False)
-    
     # key for url based logon of this user
     logon_key = models.IntegerField(blank=True, null=True)
     
