@@ -14,7 +14,11 @@ def index(request):
         if new_key_form.is_valid():
             try:
                 user = User.objects.get(email__iexact=new_key_form.cleaned_data['email'])
-                # FIXME generate new key here
+                profile = user.get_profile()
+                profile.generate_logon_key()
+                profile.save()
+                # FIXME send e-mail with `profile.logon_key`
+                
             except User.DoesNotExist:
                 messages.warning(request, _(u"No user with this e-mail address was found."))
     
