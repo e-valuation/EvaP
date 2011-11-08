@@ -14,7 +14,7 @@
         {% for user in users %}
             <tr class="largerow {% cycle "odd" "even" %}">
                 <td>
-                    {% if user.get_profile.fsr %}
+                    {% if user.is_staff %}
                         <img src="{% get_static_prefix %}images/silk/user_orange.png" title="{% trans "Student Representative" %}">
                     {% endif %}
                     {% if user.get_profile.lectures_courses %}
