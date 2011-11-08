@@ -19,8 +19,8 @@ def parse_date(s):
 
 
 class Command(BaseCommand):
-    args = '<path to XML file> <semester id|all>'
-    help = 'Imports the given semester from the XML file'
+    args = "<path to XML file> [evaluation_id ...]"
+    help = "Imports one or all semesters from an EvaJ XML dump."
     
     question_template_type_map = {"22":"G", "23":"T"}
     
@@ -103,15 +103,17 @@ class Command(BaseCommand):
         self.elements = dict()
         self.staff_cache = dict()
         
-        if len(args) != 2:
-            raise Exception("Invalid arguments.")
+        if len(args) < 1:
+            raise CommandError("Not enough arguments given.")
         
         self.read_xml(args[0])
-        if args[1] == "all":
-            for evaluation in self.get('evaluation'):
-                self.process_semester(str(evaluation.id))
-        else:
-            self.process_semester(args[1])
+        
+        if len(args) < 2:
+            ids = [str(evaluation.id) for evaluation in self.get('evaluation')]
+            raise CommandError("No evaluation IDs given. Valid IDs are: %s" % ", ".join(ids))
+        
+        for arg in args[1:]:
+            self.process_semester(arg)
     
     def read_xml(self, filename):
         logger.info("Parsing XML file...")
