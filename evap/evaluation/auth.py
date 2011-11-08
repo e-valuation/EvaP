@@ -1,5 +1,3 @@
-from functools import wraps
-
 from django.core.exceptions import PermissionDenied
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import user_passes_test
@@ -9,6 +7,9 @@ from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import UserProfile
+
+from datetime import date
+from functools import wraps
 
 class RequestAuthMiddleware(object):
     """
@@ -114,17 +115,16 @@ class RequestAuthUserBackend(ModelBackend):
     """
     def authenticate(self, key):
         if not key:
-            return
-        
-        user = None
+            return None
         
         try:
-            profile = UserProfile.objects.get(logon_key=key)
-            user = profile.user
+            profile = UserProfile.objects.get(logon_key=key,
+                                              logon_key_valid_until__gte=date.today())
+            return profile.user
         except UserProfile.DoesNotExist:
             pass
         
-        return user
+        return None
 
 def user_passes_test_without_redirect(test_func):
     """

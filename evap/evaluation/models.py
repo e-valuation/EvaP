@@ -1,9 +1,7 @@
-import random
-import sys
-
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -14,6 +12,10 @@ from django_fsm.db.fields import FSMField, transition
 from evap.evaluation.meta import LocalizeModelBase, Translate
 
 from evap.fsr.models import EmailTemplate
+
+import datetime
+import random
+import sys
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
@@ -338,17 +340,21 @@ class UserProfile(models.Model):
     title = models.CharField(verbose_name=_(u"Title"), max_length=30, blank=True, null=True)
     
     # picture of the user
-    picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
+    picture = models.ImageField(verbose_name = _(u"Picture"), upload_to="pictures", blank=True, null=True)
     
     # proxies of the user, which can also manage their courses
-    proxies = models.ManyToManyField(User, related_name="proxied_users", blank=True)
+    proxies = models.ManyToManyField(User, verbose_name = _(u"Proxies"), related_name="proxied_users", blank=True)
     
     # key for url based logon of this user
-    logon_key = models.IntegerField(blank=True, null=True)
+    logon_key = models.IntegerField(verbose_name = _(u"Logon Key"), blank=True, null=True)
+    logon_key_valid_until = models.DateField(verbose_name = _(u"Login Key Validity"), null=True)
     
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+    
+    def __unicode__(self):
+        return unicode(self.user)
     
     @property
     def full_name(self):
@@ -383,6 +389,8 @@ class UserProfile(models.Model):
                 # key not yet used
                 self.logon_key = key
                 break
+        
+        self.logon_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
     
     @staticmethod
     @receiver(post_save, sender=User)
