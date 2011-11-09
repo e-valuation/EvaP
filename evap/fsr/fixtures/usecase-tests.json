@@ -12,13 +12,6 @@
         }
     },
     {
-        "pk":1,
-        "model":"evaluation.userprofile",
-        "fields":{
-            "user":1
-        }
-    },
-        {
         "pk":2,
         "model":"auth.user",
         "fields":{
@@ -28,14 +21,6 @@
             "is_active":true,
             "is_superuser":false,
             "is_staff":false
-        }
-    },
-    {
-        "pk":2,
-        "model":"evaluation.userprofile",
-        "fields":{
-            "user":2,
-            "logon_key":12345
         }
     },
     {
@@ -55,7 +40,7 @@
             "name_de":"Course 1",
             "name_en":"Course 1 (en)",
             "kind":"Seminar",
-            "visible":true,
+            "state":"published",
             
             "participants":[ 2 ],
             "primary_lecturers":[ 1 ],
@@ -78,7 +63,7 @@
             "name_de":"Course 2",
             "name_en":"Course 2 (en)",
             "kind":"Vorlesung",
-            "visible":true,
+            "state":"published",
             
             "participants":[ 2 ],
             "primary_lecturers":[ 1 ],

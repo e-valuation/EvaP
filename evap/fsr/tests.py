@@ -12,7 +12,7 @@ class SimpleViewTestsTest(TestCase):
     fixtures = ['simple-tests']
     
     def test_semester_views(self):
-        semester = Semester.objects.all()[0]
+        semester = Semester.objects.get(pk=1)
         course = semester.course_set.all()[0]
         
         self.client.get('/fsr/')
@@ -86,9 +86,14 @@ class UsecaseTests(WebTest):
         
     def test_logon_key(self):
         with self.assertRaises(webtest.app.AppError):
-            self.app.get(reverse("student.views.index"))
+            self.app.get(reverse("evap.results.views.index"))
         
-        url_with_key = reverse("student.views.index") + "?userkey=12345"
+        user = User.objects.all()[0]
+        userprofile = user.get_profile()
+        userprofile.generate_logon_key()
+        userprofile.save()
+        
+        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.logon_key
         self.app.get(url_with_key)
     
     

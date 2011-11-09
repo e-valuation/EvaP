@@ -64,7 +64,7 @@
         2
       ],
       "name_de":"Dependable Systems",
-      "visible":true,
+      "state":"published",
       "semester":1,
       "participants":[
         3,
@@ -99,7 +99,7 @@
         2
       ],
       "name_de":"Einf\u00fchrung in die Programmiertechnik II",
-      "visible":true,
+      "state":"published",
       "semester":1,
       "participants":[
 
