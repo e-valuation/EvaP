@@ -217,7 +217,7 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
-    """"""
+    """A lecturer who is assigned to a course and his questionnaires."""
     
     course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='assignments')
     lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
