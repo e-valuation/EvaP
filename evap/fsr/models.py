@@ -5,8 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import Questionnaire
-
 class EmailTemplate(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     
