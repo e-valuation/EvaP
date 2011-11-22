@@ -120,15 +120,6 @@ class Course(models.Model):
     # students that already voted
     voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True, related_name='+')
     
-    # two kinds of lecturers, e.g. professor and TAs
-    primary_lecturers = models.ManyToManyField(User, verbose_name=_(u"primary lecturers"), blank=True, related_name='primary_courses')
-    secondary_lecturers = models.ManyToManyField(User, verbose_name=_(u"secondary lecturers"), blank=True, related_name='secondary_courses')
-    
-    # different kinds of questionnaires
-    general_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("course questionnaires"), related_name="general_courses")
-    primary_lecturer_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("primary lecturer questionnaires"), related_name="primary_courses")
-    secondary_lecturer_questions = models.ManyToManyField(Questionnaire, blank=True, verbose_name=_("secondary lecturer questionnaires"), related_name="secondary_courses")
-    
     # when the evaluation takes place
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
@@ -240,6 +231,15 @@ class Course(models.Model):
         return GradeAnswer.objects.filter(course=self)
 
 
+class Assignment(models.Model):
+    """"""
+    
+    course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='assignments')
+    lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
+    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
+                                            blank=True, related_name="assigned_to")
+
+
 class Question(models.Model):
     """A question including a type."""
     
@@ -284,8 +284,9 @@ class Answer(models.Model):
     `TextAnswer`."""
     
     question = models.ForeignKey(Question)
-    course = models.ForeignKey(Course, related_name="+")
-    lecturer = models.ForeignKey(User, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
+    assignment = models.ForeignKey(Assignment)
+    #course = models.ForeignKey(Course, related_name="+")
+    #lecturer = models.ForeignKey(User, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
     
     class Meta:
         abstract = True
