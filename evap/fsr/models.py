@@ -5,22 +5,21 @@ from django.shortcuts import get_object_or_404
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 
+from evap.evaluation.models import Questionnaire
+
 class EmailTemplate(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     
     use = models.BooleanField(verbose_name=_("Use this template"), default=True)
-    
-    send_to_primary_lecturer   = models.BooleanField(verbose_name=_(u"Send to primary lecturer"), default=False)
-    send_to_secondary_lecturer = models.BooleanField(verbose_name=_(u"Send to secondary lecturer"), default=False)
     
     subject = models.CharField(max_length=100, verbose_name=_(u"Subject"))
     body = models.TextField(verbose_name=_("Body"))
     
     @classmethod
     def create_initial_instances(cls):
-        cls(pk=0, send_to_primary_lecturer=True, name="Template for lecturer review", subject="[EvaP] New Course ready for approval", body="").save()
+        cls(pk=0, name="Template for lecturer review", subject="[EvaP] New Course ready for approval", body="").save()
         cls(pk=1, name="Template for student reminder", subject="[EvaP] Only 2 weeks left to evaluate", body="").save()
-        cls(pk=2, send_to_primary_lecturer=True, send_to_secondary_lecturer=True, name="Template for publishing", subject="[EvaP] A course has been published", body="").save()
+        cls(pk=2, name="Template for publishing", subject="[EvaP] A course has been published", body="").save()
     
     @classmethod
     def get_review_template(cls):
@@ -47,21 +46,25 @@ class EmailTemplate(models.Model):
             for user in self.receipient_list_for_course(course):
                 yield user
     
-    def receipient_list_for_course(self, course):
-        for manager_name, used in {'primary_lecturers': self.send_to_primary_lecturer, 'secondary_lecturers': self.send_to_secondary_lecturer}.iteritems():
-            if used:
-                for user in getattr(course, manager_name).all():
-                    yield user
+    def receipient_list_for_course(self, course, send_to_lecturers, send_to_participants):
+        if send_to_participants:
+            for user in course.participants.all():
+                yield user
+        
+        if send_to_lecturers:
+            for assignment in course.assignments.exclude(lecturer=None):
+                if assignment.lecturer.get_profile().is_lecturer:
+                    yield assignment.lecturer
     
     def render_string(self, text, dictionary):
         t = Template(text)
         return t.render(Context(dictionary))
     
-    def send(self, courses):
+    def send(self, courses, send_to_lecturers, send_to_participants):
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
-            for user in [user for user in self.receipient_list_for_course(course) if user.email != ""]:
+            for user in [user for user in self.receipient_list_for_course(course, send_to_lecturers, send_to_participants) if user.email != ""]:
                 if user in user_course_map:
                     user_course_map[user].append(course)
                 else:

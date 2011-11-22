@@ -82,13 +82,6 @@ class Questionnaire(models.Model):
     
     def __unicode__(self):
         return self.name
-
-    def used_in_course_kinds(self):
-        return {
-            "general": self.general_courses.values_list('kind', flat=True).order_by().distinct(),
-            "primary_lecturer": self.primary_courses.values_list('kind', flat=True).order_by().distinct(),
-            "secondary_lecturer": self.secondary_courses.values_list('kind', flat=True).order_by().distinct(),
-        }
     
     @property
     def can_be_deleted(self):
@@ -191,26 +184,18 @@ class Course(models.Model):
     @transition(source='published', target='pendingPublishing')
     def revoke(self):
         pass
+
+    def general_assignment(self):
+        try:
+            return self.assignments.get(lecturer=None)
+        except Assignment.DoesNotExist:
+            return None
     
     def has_enough_questionnaires(self):
-        return self.general_questions.exists() \
-            and (not self.primary_lecturers.exists() or self.primary_lecturer_questions.exists()) \
-            and (not self.secondary_lecturers.exists() or self.secondary_lecturer_questions.exists())
+        return all(assignment.questionaires.exists() for assignment in self.assignments.all()) and self.general_assignment()
     
     def is_user_lecturer(self, user):
-        for lecturer in self.primary_lecturers.all():
-            if user == lecturer:
-                return True
-            if lecturer.get_profile().proxies.filter(pk=user.id).exists():
-                return True
-        
-        for lecturer in self.secondary_lecturers.all():
-            if user == lecturer:
-                return True
-            if lecturer.get_profile().proxies.filter(pk=user.id).exists():
-                return True
-        
-        return False
+        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=lecturer.get_profile().proxies).exists()
     
     def warnings(self):
         result = []
@@ -239,6 +224,10 @@ class Assignment(models.Model):
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
 
+    class Meta:
+        unique_together = (
+            ('course', 'lecturer'),
+        )
 
 class Question(models.Model):
     """A question including a type."""
@@ -285,8 +274,6 @@ class Answer(models.Model):
     
     question = models.ForeignKey(Question)
     assignment = models.ForeignKey(Assignment)
-    #course = models.ForeignKey(Course, related_name="+")
-    #lecturer = models.ForeignKey(User, related_name="+", blank=True, null=True, on_delete=models.SET_NULL)
     
     class Meta:
         abstract = True
@@ -346,6 +333,9 @@ class UserProfile(models.Model):
     # proxies of the user, which can also manage their courses
     proxies = models.ManyToManyField(User, verbose_name = _(u"Proxies"), related_name="proxied_users", blank=True)
     
+    # is the user possibly a lecturer
+    is_lecturer = models.BooleanField(verbose_name = _(u"Is lecturer"))    
+    
     # key for url based logon of this user
     logon_key = models.IntegerField(verbose_name = _(u"Logon Key"), blank=True, null=True)
     logon_key_valid_until = models.DateField(verbose_name = _(u"Login Key Validity"), null=True)
@@ -381,7 +371,7 @@ class UserProfile(models.Model):
         if latest_semester is None:
             return False
         else:
-            return latest_semester.course_set.filter(primary_lecturers__pk=self.user.id).exists()
+            return any(course.is_user_lecturer(self.user) for course in latest_semester.course_set.all())
     
     def generate_logon_key(self):
         while True:
