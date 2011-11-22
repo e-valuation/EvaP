@@ -58,16 +58,13 @@ def vote(request, course_id):
                 for question in questionnaire.question_set.all():
                     identifier = make_form_identifier(assignment, questionnaire, question)
                     value = form.cleaned_data.get(identifier)
+                    
                     # store the answer if one was given
-                    answer_args = dict(assignment=assignment, question=question)
-                    if question.is_grade_question() and value:
-                        answer = GradeAnswer(answer=value, **answer_args)
-                        answer.save()
-                    elif question.is_text_question() and value and value[0]:
-                        answer = TextAnswer(answer=value[0],
-                                            publication_desired=value[1],
-                                            **answer_args)
-                        answer.save()
+                    if value:
+                        question.answer_class.objects.create(
+                            assignment=assignment,
+                            question=question,
+                            answer=value)
             
             # remember that the user voted already
             course.voters.add(request.user)
