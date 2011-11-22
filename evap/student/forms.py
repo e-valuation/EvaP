@@ -3,7 +3,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from evap.student.tools import make_form_identifier
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tools import questionnaires_and_lecturers
 
 
 GRADE_CHOICES = (
@@ -59,13 +58,13 @@ class TextAnswerField(forms.MultiValueField):
 
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
-    `questionnaire` and `lecturer` to the constructor.
+    `assignment` and `questionnaire` to the constructor.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
+        self.assignment = kwargs.pop('assignment')
         self.questionnaire = kwargs.pop('questionnaire')
-        self.lecturer = kwargs.pop('lecturer')
         
         super(QuestionsForm, self).__init__(*args, **kwargs)
         
@@ -82,17 +81,17 @@ class QuestionsForm(forms.Form):
                                                coerce=coerce_grade,
                                                **field_args)
             
-            identifier = make_form_identifier(self.questionnaire,
-                                              question,
-                                              self.lecturer)
+            identifier = make_form_identifier(self.assignment,
+                                              self.questionnaire,
+                                              question)
             self.fields[identifier] = field
 
     def caption(self):
-        if self.lecturer:
+        if self.assignment.lecturer:
             try:
-                full_name = self.lecturer.get_profile().full_name
+                full_name = self.assignment.lecturer.get_profile().full_name
             except UserProfile.DoesNotExist:
-                full_name = self.lecturer.get_full_name() or self.lecturer.username
+                full_name = self.assignment.lecturer.get_full_name() or self.assignment.lecturer.username
             
             return u"%s: %s" % (full_name, self.questionnaire.name)
             
@@ -100,4 +99,4 @@ class QuestionsForm(forms.Form):
             return self.questionnaire.name
     
     def image(self):
-        return self.lecturer.get_profile().picture if self.lecturer else None
+        return self.assignment.lecturer.get_profile().picture if self.assignment.lecturer else None

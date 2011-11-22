@@ -125,11 +125,6 @@ def questionnaires_and_lecturers(course):
     """Yields tuples of (questionnaire, lecturer) for the given course. The
     lecturer is None for general questionnaires."""
     
-    for questionnaire in course.general_questions.all():
-        yield (questionnaire, None)
-    for lecturer in course.primary_lecturers.all():
-        for questionnaire in course.primary_lecturer_questions.all():
-            yield (questionnaire, lecturer)
-    for lecturer in course.secondary_lecturers.all():
-        for questionnaire in course.secondary_lecturer_questions.all():
-            yield (questionnaire, lecturer)
+    for assignment in course.assignments:
+        for questionnaire in assignment.questionnaires:
+            yield (questionnaire, assignment.lecturer)

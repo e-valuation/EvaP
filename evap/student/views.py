@@ -8,7 +8,6 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course, GradeAnswer, TextAnswer
-from evap.evaluation.tools import questionnaires_and_lecturers
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
@@ -47,28 +46,20 @@ def vote(request, course_id):
     
     # build forms
     forms = SortedDict()
-    for questionnaire, lecturer in questionnaires_and_lecturers(course):
-        form = QuestionsForm(request.POST or None,
-                             questionnaire=questionnaire,
-                             lecturer=lecturer)
-        forms[(questionnaire, lecturer)] = form
+    for assignment in course.assignments:
+        for questionnaire in assignment.questionnaires:
+            form = QuestionsForm(request.POST or None, assignment=assignment)
+            forms[assignment, questionnaire] = form
     
     if all(form.is_valid() for form in forms.values()):
         # begin vote operation
         with transaction.commit_on_success():
-            for k, form in forms.items():
-                questionnaire, lecturer = k
+            for (assignment, questionnaire), form in forms.items():
                 for question in questionnaire.question_set.all():
-                    identifier = make_form_identifier(questionnaire,
-                                                      question,
-                                                      lecturer)
+                    identifier = make_form_identifier(assignment, questionnaire, question)
                     value = form.cleaned_data.get(identifier)
                     # store the answer if one was given
-                    answer_args = dict(
-                        course=course,
-                        question=question,
-                        lecturer=lecturer,
-                    )
+                    answer_args = dict(assignment=assignment, question=question)
                     if question.is_grade_question() and value:
                         answer = GradeAnswer(answer=value, **answer_args)
                         answer.save()
