@@ -139,8 +139,7 @@ class Command(BaseCommand):
         evaluation = self.get_one('evaluation', id=semester_id)
         logger.info(u"Processing semester '%s'..." % evaluation.semester)
         semester = Semester.objects.create(name_de=unicode(evaluation.semester),
-                                           name_en=unicode(evaluation.semester),
-                                           visible=True)
+                                           name_en=unicode(evaluation.semester))
         # hack: use default start date to get the ordering right
         semester.created_at = parse_date(str(evaluation.default_start_date))
         semester.save()

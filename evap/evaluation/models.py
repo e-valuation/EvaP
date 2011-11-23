@@ -27,7 +27,6 @@ class Semester(models.Model):
     
     name = Translate
     
-    visible = models.BooleanField(verbose_name=_(u"visible"), default=False)
     created_at = models.DateField(verbose_name=_(u"created at"), auto_now_add=True)
     
     class Meta:

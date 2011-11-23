@@ -12,7 +12,7 @@ from evap.results.exporters import ExcelExporter
 
 @login_required
 def index(request):
-    semesters = Semester.objects.all().filter(visible=True)
+    semesters = Semester.objects.all()
     
     return render_to_response(
         "results_index.html",
@@ -22,7 +22,7 @@ def index(request):
 
 @login_required
 def semester_detail(request, semester_id):
-    semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
+    semester = get_object_or_404(Semester, id=semester_id)
     courses = list(semester.course_set.filter(state="published"))
     
     # annotate each course object with its grade
@@ -41,7 +41,7 @@ def semester_detail(request, semester_id):
 
 @fsr_required
 def semester_export(request, semester_id):
-    semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
+    semester = get_object_or_404(Semester, id=semester_id)
     
     filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
     
@@ -56,7 +56,7 @@ def semester_export(request, semester_id):
 
 @login_required
 def course_detail(request, semester_id, course_id):
-    semester = get_object_or_404(Semester.objects.filter(visible=True), id=semester_id)
+    semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
     
     sections = calculate_results(course)
