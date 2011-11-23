@@ -28,7 +28,6 @@
         "model":"evaluation.semester",
         "fields":{
             "created_at":"2010-08-22",
-            "visible":true,
             "name_de":"Semester 1",
             "name_en":"Semester 1 (en)"
         }
