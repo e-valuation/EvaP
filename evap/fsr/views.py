@@ -208,35 +208,44 @@ def semester_lottery(request, semester_id):
 @fsr_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = CourseForm(request.POST or None, initial={'semester': semester})
+    course = Course(semester=semester)
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=AtLeastOneFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
-    if form.is_valid():
+    form = CourseForm(request.POST or None, instance=course)
+    formset = AssignmentFormset(request.POST or None, instance=course)
+    
+    if form.is_valid() and formset.is_valid():
         form.save()
+        formset.save()
 
         messages.add_message(request, messages.INFO, _("Successfully created course."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form, formset=formset), context_instance=RequestContext(request))
 
 
 @fsr_required
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=AtLeastOneFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
     # check course state
     if not course.can_fsr_edit():
         messages.add_message(request, messages.ERROR, _("Editting not possible in current state."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     
-    form = CourseForm(request.POST or None, instance=course)    
-    if form.is_valid():
+    form = CourseForm(request.POST or None, instance=course)
+    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(lecturer=None))
+
+    if form.is_valid() and formset.is_valid():
         form.save()
+        formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated course."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form, formset=formset), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -359,7 +368,7 @@ def questionnaire_view(request, questionnaire_id):
 @fsr_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = QuestionFormset(request.POST or None, instance=questionnaire)
@@ -377,7 +386,7 @@ def questionnaire_create(request):
 @fsr_required
 def questionnaire_edit(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=QuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
     
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = QuestionFormset(request.POST or None, instance=questionnaire)

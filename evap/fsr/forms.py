@@ -31,26 +31,34 @@ class SemesterForm(forms.ModelForm):
 
 
 class CourseForm(forms.ModelForm):
-    participants = UserModelMultipleChoiceField(queryset=User.objects.all())
-    primary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
-    secondary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
+    general_questions = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
     
     class Meta:
         model = Course
-        exclude = ("voters", "semester")
+        exclude = ("voters", "semester", "state")
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['general_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
-        self.fields['primary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
-        self.fields['secondary_lecturer_questions'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
-        self.fields['secondary_lecturers'].required = False
+        self.fields['participants'] = UserModelMultipleChoiceField(queryset=User.objects.all())
+        
+        if self.instance.general_assignment:
+            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
         
         self.fields['vote_start_date'].localize = True
         self.fields['vote_start_date'].widget = forms.DateInput()
         
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
+        
+    
+    def save(self, *args, **kw):
+        super(CourseForm, self).save(*args, **kw)
+        self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.save()
+
+class AssignmentForm(forms.ModelForm):
+    class Meta:
+        model = Assignment
 
 
 class CourseEmailForm(forms.Form):
@@ -134,9 +142,9 @@ class CensorTextAnswerForm(forms.ModelForm):
         return cleaned_data
 
 
-class QuestionFormSet(BaseInlineFormSet):
+class AtLeastOneFormSet(BaseInlineFormSet):
     def is_valid(self):
-        return super(QuestionFormSet, self).is_valid() and not any([bool(e) for e in self.errors])  
+        return super(AtLeastOneFormSet, self).is_valid() and not any([bool(e) for e in self.errors])  
     
     def clean(self):          
         # get forms that actually have valid data

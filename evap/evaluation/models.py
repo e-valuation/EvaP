@@ -129,6 +129,13 @@ class Course(models.Model):
     def __unicode__(self):
         return self.name
     
+    def save(self, *args, **kw):
+        super(Course, self).save(*args, **kw)
+        
+        # make sure there is a general assignment
+        if not self.general_assignment:
+            self.assignments.create(lecturer=None)
+    
     def is_fully_checked(self):
         """Shortcut for finding out whether all text answers to this course have been checked"""
         return not self.textanswer_set.filter(checked=False).exists()
@@ -185,6 +192,7 @@ class Course(models.Model):
     def revoke(self):
         pass
 
+    @property
     def general_assignment(self):
         try:
             return self.assignments.get(lecturer=None)
@@ -192,15 +200,15 @@ class Course(models.Model):
             return None
     
     def has_enough_questionnaires(self):
-        return all(assignment.questionaires.exists() for assignment in self.assignments.all()) and self.general_assignment()
+        return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment()
     
     def is_user_lecturer(self, user):
-        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=lecturer.get_profile().proxies).exists()
+        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=user.get_profile().proxies).exists()
     
     def warnings(self):
         result = []
-        if not self.primary_lecturers.exists():
-            result.append(_(u"No primary lecturer assigned."))
+        if not self.assignments.exists():
+            result.append(_(u"No lecturers assigned."))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned."))
         return result
@@ -208,12 +216,12 @@ class Course(models.Model):
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(course=self)
+        return TextAnswer.objects.filter(assignment=self.assignments)
     
     @property
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswer.objects.filter(course=self)
+        return GradeAnswer.objects.filter(assignment=self.assignments)
 
 
 class Assignment(models.Model):

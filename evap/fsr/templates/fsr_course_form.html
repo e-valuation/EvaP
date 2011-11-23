@@ -26,8 +26,10 @@
 		buttonImageOnly: true
             });
             
-            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-            $( ".multiselect-form select" ).multiselect();
+            //$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            //$( ".multiselect-form select" ).multiselect();
+	    
+	    $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
         });
     </script>
 {% endblock %}
@@ -37,9 +39,38 @@
     <p>
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-            <table>
-                {{ form.as_table }}
-            </table>
+	    <fieldset>
+                <label>{% trans "General Options" %}:</label>
+                <table>{{ form.as_table }}</table>
+            </fieldset>
+	    
+	    <fieldset>
+                {{ formset.management_form }}
+                <label>{% trans "Lecturers" %}:</label>
+                {{ formset.non_form_errors }}
+                <table id="assignment_table">
+                    <tr>
+                        {% for field in formset.form %}
+                            <th>{{ field.label }}</th>
+                        {% endfor %}
+                        <th></th>
+                        <th>{% trans "Delete?" %}</th>
+                    </tr>
+                    <tbody>
+                        {% for form_element in formset %}
+                            {% if form_element.non_field_errors %}
+                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                            {% endif %}
+                            
+                            <tr>
+                            {% for field in form_element %}
+                                <td>{{field.errors}} {{ field }}</td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </fieldset>
             <input type="submit" value="{% trans "Save course" %}"/>
         </form>
     </p>
