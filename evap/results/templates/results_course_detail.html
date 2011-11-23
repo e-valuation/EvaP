@@ -1,6 +1,7 @@
 {% extends "results_base.html" %}
 
 {% load conditions %}
+{% load i18n %}
 
 {% block title %}{{ course.name }} - {{ block.super }}{% endblock %}
 
@@ -33,11 +34,19 @@
                 {% ifequal result.question.kind "G" %}
                 <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
                 <td class="results-distribution">
+                    {% if result.show %}
                     <div>
-                    {% for answer, count in result.distribution.items %}<div style="width: {{ count }}%;" class="results-distribution-{{ answer }}" title="{{answer}}: {{count}}%">&nbsp;</div>{% endfor %}
+                    {% for answer, rel in result.distribution.items %}<div style="width: {{ rel }}%;" class="results-distribution-{{ answer }}" title="{{answer}}: {{rel}}%">&nbsp;</div>{% endfor %}
                     </div>
+                    {% endif %}
                 </td>
-                <td class="results-average">{{ result.average|floatformat:1 }}</td>
+                <td class="results-average">
+                    {% if result.show %}
+                        {{ result.average|floatformat:1 }}
+                    {% else %}
+                        <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
+                    {% endif %}
+                </td>
                 {% endifequal %}
                 {% ifequal result.question.kind "T" %}
                 {% if_lecturer course %}
