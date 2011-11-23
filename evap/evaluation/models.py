@@ -85,7 +85,7 @@ class Questionnaire(models.Model):
     
     @property
     def can_be_deleted(self):
-        return not (self.general_courses.exists() or self.primary_courses.exists() or self.secondary_courses.exists())
+        return not self.assigned_to.exists()
 
 
 class Course(models.Model):
