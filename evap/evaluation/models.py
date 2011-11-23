@@ -196,13 +196,13 @@ class Course(models.Model):
             return None
     
     def has_enough_questionnaires(self):
-        return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment()
+        return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
     def is_user_lecturer(self, user):
         if not user.get_profile().is_lecturer:
             return False
         
-        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=user.get_profile().proxies).exists()
+        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=user.get_profile().proxies.all()).exists()
     
     def warnings(self):
         result = []
