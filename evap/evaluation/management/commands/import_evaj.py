@@ -198,7 +198,7 @@ class Command(BaseCommand):
                     course.save()
                     
                     # general quesitonnaires
-                    Assignment.objects.create(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
+                    Assignment.objects.get(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
                     
                     questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
                     # lecturer questionnaires
