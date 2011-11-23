@@ -13,12 +13,13 @@ import xlrd
 class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
     
-    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
+    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None, is_lecturer=False):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
         self.title = title
         self.email = email
+        self.is_lecturer = is_lecturer
     
     def store_in_database(self):
         user = User(username=self.username,
@@ -28,6 +29,7 @@ class UserData(object):
         user.save()
         profile = user.get_profile()
         profile.title = self.title
+        profile.is_lecturer = self.is_lecturer
         profile.save()
         return user
 
@@ -71,7 +73,7 @@ class ExcelImporter(object):
                     data = sheet.row_values(row)
                     # assign data to data objects
                     student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
-                    lecturer_data = UserData(username=data[10], first_name="", last_name=data[9], title=data[8], email=data[11])
+                    lecturer_data = UserData(username=data[10], first_name="", last_name=data[9], title=data[8], email=data[11], is_lecturer=True)
                     course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], study=data[0][:-7])
                     
                     # store data objects together with the data source location for problem tracking
@@ -124,11 +126,11 @@ class ExcelImporter(object):
                         course = Course.objects.get(semester=semester, name_de=course_data.name_de)
                     except Course.DoesNotExist:
                         course = course_data.store_in_database(vote_start_date, vote_end_date, semester)
+                        course.assignments.create(lecturer=lecturer, course=course)
                         course_count += 1
                     
                     # connect database objects
                     course.participants.add(student)
-                    course.primary_lecturers.add(lecturer)
                     
                 except Exception, e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. " \

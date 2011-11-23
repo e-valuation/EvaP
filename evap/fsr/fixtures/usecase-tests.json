@@ -43,14 +43,8 @@
             "state":"published",
             
             "participants":[ 2 ],
-            "primary_lecturers":[ 1 ],
-            "secondary_lecturers":[ ],
             "voters":[ ],
-            
-            "general_questions":[ ],
-            "primary_lecturer_questions":[ ],
-            "secondary_lecturer_questions":[ ],
-            
+                        
             "semester":1,
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30"
@@ -66,13 +60,7 @@
             "state":"published",
             
             "participants":[ 2 ],
-            "primary_lecturers":[ 1 ],
-            "secondary_lecturers":[ ],
             "voters":[ ],
-            
-            "general_questions":[ ],
-            "primary_lecturer_questions":[ ],
-            "secondary_lecturer_questions":[ ],
             
             "semester":1,
             "vote_start_date":"2010-08-18",
@@ -107,6 +95,38 @@
             "kind":"T",
             "_order":0,
             "questionnaire":1
+        }
+    },
+    {
+	"pk": 1,
+	"model": "evaluation.assignment",
+	"fields":{
+            "course": 1,
+	    "lecturer": 1
+	}
+    },
+    {
+	"pk": 2,
+	"model": "evaluation.assignment",
+	"fields":{
+            "course": 1,
+	    "lecturer": null
+	}
+    },
+    {
+	"pk": 3,
+	"model": "evaluation.assignment",
+	"fields":{
+            "course": 2,
+	    "lecturer": 1
+	}
+    },
+    {
+        "pk": 4,
+        "model": "evaluation.assignment",
+        "fields":{
+            "course": 2,
+            "lecturer": null
         }
     }
 ]

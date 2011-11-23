@@ -8,37 +8,6 @@ from evap.evaluation.models import Semester, Questionnaire
 
 import os.path
 
-class SimpleViewTestsTest(TestCase):
-    fixtures = ['simple-tests']
-    
-    def test_semester_views(self):
-        semester = Semester.objects.get(pk=1)
-        course = semester.course_set.all()[0]
-        
-        self.client.get('/fsr/')
-        self.client.get('/fsr/semester')
-        self.client.get('/fsr/semester/create')
-        self.client.get('/fsr/semester/%d' % semester.id)
-        self.client.get('/fsr/semester/%d/edit' % semester.id)
-        self.client.get('/fsr/semester/%d/import' % semester.id)
-        self.client.get('/fsr/semester/%d/assign' % semester.id)
-        self.client.get('/fsr/semester/%d/course/create' % semester.id)
-        self.client.get('/fsr/semester/%d/course/%d/edit' % (semester.id, course.id))
-        self.client.get('/fsr/semester/%d/course/%d/delete' % (semester.id, course.id))
-        self.client.get('/fsr/semester/%d/course/%d/censor' % (semester.id, course.id))
-        self.client.get('/fsr/semester/%d/course/%d/publish'% (semester.id, course.id))
-    
-    def test_questionnaire_views(self):
-        questionnaire = Questionnaire.objects.all()[0]
-        
-        self.client.get('/fsr/questionnaire')
-        self.client.get('/fsr/questionnaire/create')
-        self.client.get('/fsr/questionnaire/%d' % questionnaire.id)
-        self.client.get('/fsr/questionnaire/%d/edit' % questionnaire.id)
-        self.client.get('/fsr/questionnaire/%d/copy' % questionnaire.id)
-        self.client.get('/fsr/questionnaire/%d/delete' % questionnaire.id)
-
-
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
     
@@ -114,7 +83,8 @@ class UsecaseTests(WebTest):
         # retrieve new questionnaire
         q = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
         self.assertEqual(q.question_set.count(), 1, "New questionnaire is empty.")
-        
+    
+    
     def test_create_empty_questionnaire(self):
         p = self.app.get(reverse("fsr_root"), user="fsr.user")
         
@@ -131,8 +101,8 @@ class UsecaseTests(WebTest):
         # retrieve new questionnaire
         with self.assertRaises(Questionnaire.DoesNotExist):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
-        
-        
+    
+    
     def test_copy_questionnaire(self):
         p = self.app.get(reverse("fsr_root"), user="fsr.user")
         
@@ -158,14 +128,11 @@ class UsecaseTests(WebTest):
         assign_form = p.forms[0]
         assign_form['Seminar'] = [1]
         assign_form['Vorlesung'] = [1]
-        assign_form['primary_lecturers'] = [1]
         p = assign_form.submit().follow()
         
         # get semester and check
         semester = Semester.objects.get(pk=1)
         questionnaire = Questionnaire.objects.get(pk=1)
         for course in semester.course_set.all():
-            self.assertEqual(course.general_questions.count(), 1)
-            self.assertEqual(course.general_questions.get(), questionnaire)
-            self.assertEqual(course.primary_lecturer_questions.count(), 1)
-            self.assertEqual(course.primary_lecturer_questions.get(), questionnaire)
+            self.assertEqual(course.general_assignment.questionnaires.count(), 1)
+            self.assertEqual(course.general_assignment.questionnaires.get(), questionnaire)
