@@ -340,7 +340,7 @@ class UserProfile(models.Model):
     proxies = models.ManyToManyField(User, verbose_name = _(u"Proxies"), related_name="proxied_users", blank=True)
     
     # is the user possibly a lecturer
-    is_lecturer = models.BooleanField(verbose_name = _(u"Is lecturer"))    
+    is_lecturer = models.BooleanField(verbose_name = _(u"Lecturer"))    
     
     # key for url based logon of this user
     logon_key = models.IntegerField(verbose_name = _(u"Logon Key"), blank=True, null=True)

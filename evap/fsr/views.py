@@ -437,7 +437,7 @@ def user_index(request):
     if filter == "fsr":
         users = users.filter(is_staff=True)
     elif filter == "lecturers":
-        users = [user for user in users if user.get_profile().lectures_courses()]
+        users = [user for user in users if user.get_profile().is_lecturer]
     
     return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 
