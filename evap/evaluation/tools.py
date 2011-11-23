@@ -43,8 +43,8 @@ def calculate_results(course, anonymity_filter=True):
             if question.is_grade_question():
                 # gather all numeric answers as a simple list
                 answers = GradeAnswer.objects.filter(
-                    course=course,
-                    lecturer=lecturer,
+                    assignment__course=course,
+                    assignment__lecturer=lecturer,
                     question=question
                     ).values_list('answer', flat=True)
                 
@@ -127,6 +127,6 @@ def questionnaires_and_lecturers(course):
     """Yields tuples of (questionnaire, lecturer) for the given course. The
     lecturer is None for general questionnaires."""
     
-    for assignment in course.assignments:
-        for questionnaire in assignment.questionnaires:
+    for assignment in course.assignments.all():
+        for questionnaire in assignment.questionnaires.all():
             yield (questionnaire, assignment.lecturer)
