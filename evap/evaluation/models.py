@@ -155,7 +155,7 @@ class Course(models.Model):
         return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
     
     def can_fsr_review(self):
-        return not self.is_fully_checked() and self.state in ['inEvaluation', 'pendingForReview']
+        return not(not self.is_fully_checked() and self.state in ['inEvaluation', 'pendingForReview'])
     
     def can_fsr_approve(self):
         return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval']
@@ -206,7 +206,7 @@ class Course(models.Model):
         if not user.get_profile().is_lecturer:
             return False
         
-        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=user.get_profile().proxies).exists()
+        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer__in=user.get_profile().proxies.all()).exists()
     
     def warnings(self):
         result = []
@@ -219,12 +219,12 @@ class Course(models.Model):
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(assignment=self.assignments)
+        return TextAnswer.objects.filter(assignment__in=self.assignments.all())
     
     @property
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswer.objects.filter(assignment=self.assignments)
+        return GradeAnswer.objects.filter(assignment__in=self.assignments.all())
 
 
 class Assignment(models.Model):
