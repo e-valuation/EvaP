@@ -3,8 +3,14 @@ from django.conf import settings
 from django.contrib import admin
 
 
+class AssignmentInline(admin.TabularInline):
+    model = Assignment
+    extra = 3
+
+
 class CourseAdmin(admin.ModelAdmin):
     model = Course
+    inlines = [AssignmentInline]
     list_display = ('__unicode__', 'semester', 'kind')
     list_filter = ('semester',)
     readonly_fields = ('state',)

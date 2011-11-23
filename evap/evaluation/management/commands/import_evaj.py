@@ -79,7 +79,7 @@ class Command(BaseCommand):
             student = self.get_one('student', id=enrollment.student_id)
             yield User.objects.get(username=unicode(student.loginName)[:30])
     
-    def get_lecturers(self, course):
+    def get_lecturers_with_questionnaires(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for ccm_to_staff in self.get('ccm_to_staff', ccm_id=ccm.id):
                 # staff --> User
@@ -89,7 +89,13 @@ class Command(BaseCommand):
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
                 
-                yield user
+                topic_template = self.get_one('topic_template',
+                                              course_category_id=ccm.course_category_id,
+                                              questionnaire_template_id=course.evaluation_id,
+                                              per_person="1")
+                questionnaire = self.questionnaire_cache[int(topic_template.id)]
+                
+                yield user, questionnaire
     
     def get_questionnaires(self, course, evaluation_id, per_person="0"):
         for ccm in self.get('course_category_mapping', course_id=course.id):
@@ -189,16 +195,16 @@ class Command(BaseCommand):
                     
                     course.participants = self.get_participants(xml_course)
                     course.voters = self.get_voters(xml_course)
-                    #course.primary_lecturers = self.get_lecturers(xml_course)
-                    #course.general_questions = self.get_questionnaires(xml_course, evaluation.id)
-                    #course.primary_lecturer_questions = self.get_questionnaires(xml_course, evaluation.id, "1")
                     course.save()
                     
                     # general quesitonnaires
                     Assignment.objects.create(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
+                    
+                    questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
                     # lecturer questionnaires
-                    for lecturer in set(self.get_lecturers(xml_course)):
-                        Assignment.objects.create(course=course, lecturer=lecturer).questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
+                    for lecturer, questionnaire in self.get_lecturers_with_questionnaires(xml_course):
+                        assignment, created = Assignment.objects.get_or_create(course=course, lecturer=lecturer)
+                        assignment.questionnaires.add(questionnaire)
                     
                     # publish if possible
                     if course.can_be_published():
