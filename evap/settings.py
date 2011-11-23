@@ -151,7 +151,7 @@ AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
     'evap.evaluation.auth.CaseInsensitiveRemoteUserBackend',
-#    'evap.evaluation.auth.CaseInsensitiveModelBackend',
+    'evap.evaluation.auth.CaseInsensitiveModelBackend',
 )
 
 ROOT_URLCONF = 'evap.urls'
