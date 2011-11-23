@@ -270,10 +270,10 @@ class Question(models.Model):
             raise Exception("Unknown answer kind: %r" % self.kind)
     
     def is_grade_question(self):
-        return self.answer_class() == GradeAnswer
+        return self.answer_class == GradeAnswer
     
     def is_text_question(self):
-        return self.answer_class() == TextAnswer
+        return self.answer_class == TextAnswer
 
 
 class Answer(models.Model):

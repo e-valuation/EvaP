@@ -203,7 +203,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'evap.evaluation.management.commands.import_semester': {
+        'evap.evaluation.management.commands.import_evaj': {
             'handlers': ['console'],
             'level': 'INFO'
         }
