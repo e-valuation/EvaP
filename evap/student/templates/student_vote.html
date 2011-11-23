@@ -21,6 +21,9 @@
                     <h4>
                     {{ form.caption }}
                     </h4>
+                    {% if form.teaser %}
+                        <p>{{ form.teaser }}</p>
+                    {% endif %}
                     {{ form.non_field_errors }}
                 </th>
             </tr>
