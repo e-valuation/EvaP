@@ -79,8 +79,8 @@ def calculate_results(course):
             elif question.is_text_question():
                 # gather text answers for this question
                 answers = TextAnswer.objects.filter(
-                    course=course,
-                    lecturer=lecturer,
+                    assignment__course=course,
+                    assignment__lecturer=lecturer,
                     question=question
                     )
                 # only add to the results if answers exist at all
