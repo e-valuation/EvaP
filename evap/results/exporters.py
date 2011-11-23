@@ -44,6 +44,10 @@ class ExcelExporter(object):
         fmt_num = xlwt.easyxf(num_format_str="0.0")
         fmt_num.alignment.horz = fmt_num.alignment.HORZ_CENTER
         
+        fmt_num_it = xlwt.easyxf(num_format_str="0.0")
+        fmt_num_it.alignment.horz = fmt_num.alignment.HORZ_CENTER
+        fmt_num_it.font.italic = True
+        
         fmt_vert = xlwt.XFStyle()
         fmt_vert.alignment.orie = fmt_vert.alignment.ORIENTATION_90_CW
         fmt_vert.alignment.rota = 90
@@ -66,14 +70,17 @@ class ExcelExporter(object):
                     qn_results = results.get(questionnaire.id, None)
                     if qn_results:
                         values = []
+                        enough_answers = True
                         for lecturer, data, grade in qn_results:
                             for grade_result in data:
                                 if grade_result.question.id == question.id:
                                     if grade_result.average:
                                         values.append(grade_result.average)
+                                        if not grade_result.show:
+                                            enough_answers = False
                                     break
                         if values:
-                            self.writec(sum(values)/len(values), fmt_num)
+                            self.writec(sum(values)/len(values), fmt_num if enough_answers else fmt_num_it)
                         else:
                             self.writec()
                     else:
