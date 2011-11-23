@@ -104,7 +104,7 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm([course for course in semester.course_set.filter(state="pendingPublishing").all() if course.can_be_published()] , request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state="pendingPublishing").all(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:

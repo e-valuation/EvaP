@@ -140,10 +140,6 @@ class Course(models.Model):
         """Shortcut for finding out whether all text answers to this course have been checked"""
         return not self.textanswer_set.filter(checked=False).exists()
     
-    def can_be_published(self):
-        """Only courses with more than 4 voters can be published."""
-        return (self.voters.count() > 4)
-    
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return user in self.participants.all() and user not in self.voters.all()
@@ -184,7 +180,7 @@ class Course(models.Model):
     def review_finished(self):
         pass
     
-    @transition(source='pendingPublishing', target='published', conditions=[can_be_published])
+    @transition(source='pendingPublishing', target='published')
     def publish(self):
         pass
     
