@@ -67,9 +67,13 @@ class ExcelExporter(object):
                         for lecturer, data, grade in qn_results:
                             for grade_result in data:
                                 if grade_result.question.id == question.id:
-                                    values.append(grade_result.average)
+                                    if grade_result.average:
+                                        values.append(grade_result.average)
                                     break
-                        self.writec(sum(values)/len(values), fmt_num)
+                        if values:
+                            self.writec(sum(values)/len(values), fmt_num)
+                        else:
+                            self.writec()
                     else:
                         self.writec()
         
