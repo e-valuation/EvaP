@@ -79,7 +79,7 @@ class Command(BaseCommand):
             student = self.get_one('student', id=enrollment.student_id)
             yield User.objects.get(username=unicode(student.loginName)[:30])
     
-    def get_lecturers(self, course):
+    def get_lecturers_with_questionnaires(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for ccm_to_staff in self.get('ccm_to_staff', ccm_id=ccm.id):
                 # staff --> User
@@ -89,7 +89,13 @@ class Command(BaseCommand):
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
                 
-                yield user
+                topic_template = self.get_one('topic_template',
+                                              course_category_id=ccm.course_category_id,
+                                              questionnaire_template_id=course.evaluation_id,
+                                              per_person="1")
+                questionnaire = self.questionnaire_cache[int(topic_template.id)]
+                
+                yield user, questionnaire
     
     def get_questionnaires(self, course, evaluation_id, per_person="0"):
         for ccm in self.get('course_category_mapping', course_id=course.id):
@@ -126,8 +132,8 @@ class Command(BaseCommand):
                     self.store(element, *specifiers)
     
     def process_semester(self, semester_id):
-        self.questionnaire_cache = dict()
-        self.question_cache = dict()
+        self.questionnaire_cache = dict() # topic template id -> Questionnaire
+        self.question_cache = dict() # question template id -> Question
         
         # evaluation --> Semester
         evaluation = self.get_one('evaluation', id=semester_id)
@@ -174,8 +180,7 @@ class Command(BaseCommand):
         course_count = 0
         # course --> Course
         for xml_course in courses:
-            logger.debug(u"Creating course %s", unicode(xml_course.name))
-            logger.debug(u"id=%d evaluation=%d", xml_course.id, xml_course.evaluation_id)
+            logger.debug(u"Creating course %s (id=%d evaluation=%d)", unicode(xml_course.name), xml_course.id, xml_course.evaluation_id)
             try:
                 with transaction.commit_on_success():
                     course = Course.objects.create(
@@ -190,10 +195,16 @@ class Command(BaseCommand):
                     
                     course.participants = self.get_participants(xml_course)
                     course.voters = self.get_voters(xml_course)
-                    course.primary_lecturers = self.get_lecturers(xml_course)
-                    course.general_questions = self.get_questionnaires(xml_course, evaluation.id)
-                    course.primary_lecturer_questions = self.get_questionnaires(xml_course, evaluation.id, "1")
                     course.save()
+                    
+                    # general quesitonnaires
+                    Assignment.objects.get(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
+                    
+                    questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
+                    # lecturer questionnaires
+                    for lecturer, questionnaire in self.get_lecturers_with_questionnaires(xml_course):
+                        assignment, created = Assignment.objects.get_or_create(course=course, lecturer=lecturer)
+                        assignment.questionnaires.add(questionnaire)
                     
                     # publish if possible
                     if course.can_be_published():
@@ -205,15 +216,15 @@ class Command(BaseCommand):
                         for answer in self.get('answer', assessment_id=assessment.id):
                             staff_id = nint(getattr(answer, 'staff_id', None))
                             lecturer = self.staff_cache[staff_id] if staff_id is not None else None
+                            assignment = course.assignments.get(lecturer=lecturer)
                             
                             status = str(answer.revised_status)
                             question = self.question_cache[int(answer.question_template_id)]
                             
                             if status == "61":
                                 GradeAnswer.objects.create(
+                                    assignment=assignment,
                                     question=question,
-                                    course=course,
-                                    lecturer=lecturer,
                                     answer=int(answer.response)
                                 )
                             else:
@@ -239,9 +250,8 @@ class Command(BaseCommand):
                                         raise Exception("Invalid XML-file")
                                     
                                     TextAnswer.objects.create(
+                                        assignment=assignment,
                                         question=question,
-                                        course=course,
-                                        lecturer=lecturer,
                                         original_answer=comment,
                                         checked=True,
                                         **additional_fields

@@ -8,7 +8,7 @@ from collections import namedtuple
 
 # see calculate_results
 ResultSection = namedtuple('CourseResult', ('questionnaire', 'lecturer', 'results', 'average'))
-GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution'))
+GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution', 'show'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
 
@@ -20,7 +20,7 @@ def avg(iterable):
     return float(sum(iterable)) / len(iterable)
 
 
-def calculate_results(course, anonymity_filter=True):
+def calculate_results(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     lecturer (or None), a list of single result elements and the average grade
@@ -43,14 +43,15 @@ def calculate_results(course, anonymity_filter=True):
             if question.is_grade_question():
                 # gather all numeric answers as a simple list
                 answers = GradeAnswer.objects.filter(
-                    course=course,
-                    lecturer=lecturer,
+                    assignment__course=course,
+                    assignment__lecturer=lecturer,
                     question=question
                     ).values_list('answer', flat=True)
                 
-                # only add to the results if enough answers exist or anonymity
-                # mode is disabled
-                if len(answers) >= settings.MIN_ANSWERS or not anonymity_filter:
+                # calculate average and distribution
+                if answers:
+                    # average
+                    average = avg(answers)
                     # calculate relative distribution (histogram) of answers:
                     # set up a sorted dictionary with a count of zero for each grade
                     distribution = SortedDict()
@@ -62,14 +63,18 @@ def calculate_results(course, anonymity_filter=True):
                     # divide by the number of answers to get relative 0..1 values
                     for k in distribution:
                         distribution[k] = int(float(distribution[k]) / len(answers) * 100)
-                    
-                    # produce the result element
-                    results.append(GradeResult(
-                        question=question,
-                        average=avg(answers),
-                        count=len(answers),
-                        distribution=distribution
-                    ))
+                else:
+                    average = None
+                    distribution = None
+                
+                # produce the result element
+                results.append(GradeResult(
+                    question=question,
+                    average=avg(answers),
+                    count=len(answers),
+                    distribution=distribution,
+                    show=(len(answers) >= settings.MIN_ANSWERS)
+                ))
             
             elif question.is_text_question():
                 # gather text answers for this question
@@ -91,7 +96,9 @@ def calculate_results(course, anonymity_filter=True):
         
         # compute average grade for this section, will return None if
         # no GradeResults exist in this section
-        average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
+        average_grade = avg([result.average for result
+                                            in results
+                                            if isinstance(result, GradeResult) and result.show])
         sections.append(ResultSection(questionnaire, lecturer, results, average_grade))
     
     # store results into cache
@@ -127,6 +134,6 @@ def questionnaires_and_lecturers(course):
     """Yields tuples of (questionnaire, lecturer) for the given course. The
     lecturer is None for general questionnaires."""
     
-    for assignment in course.assignments:
-        for questionnaire in assignment.questionnaires:
+    for assignment in course.assignments.all():
+        for questionnaire in assignment.questionnaires.all():
             yield (questionnaire, assignment.lecturer)
