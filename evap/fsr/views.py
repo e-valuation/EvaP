@@ -5,6 +5,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_noop
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Semester, Course, Question, Questionnaire
@@ -15,16 +16,16 @@ from evap.fsr.models import EmailTemplate
 import random
 
 
-STATE_COLOR_MAPPING = {
-    'new': "blue",
-    'pendingLecturerApproval': "pink",
-    'pendingFsrApproval': "purple",
-    'approved': "red",
-    'inEvaluation': "orange",
-    'pendingForReview': "yellow",
-    'pendingPublishing': "green",
-    'published': "black",
-}
+STATE_COLOR_MAPPING = [
+    (ugettext_noop('new'), "blue"),
+    (ugettext_noop('pendingLecturerApproval'), "pink"),
+    (ugettext_noop('pendingFsrApproval'), "purple"),
+    (ugettext_noop('approved'), "red"),
+    (ugettext_noop('inEvaluation'), "orange"),
+    (ugettext_noop('pendingForReview'), "yellow"),
+    (ugettext_noop('pendingPublishing'), "green"),
+    (ugettext_noop('published'), "black"),
+]
 
 
 @fsr_required
@@ -54,7 +55,7 @@ def semester_view(request, semester_id):
     
     # annotate course with color for state
     for course in courses:
-        course.state_color = STATE_COLOR_MAPPING[course.state]
+        course.color_list = [color if course.state == state else "white" for state, color in STATE_COLOR_MAPPING]
     
     return render_to_response("fsr_semester_view.html", dict(semester=semester, courses=courses), context_instance=RequestContext(request))
 

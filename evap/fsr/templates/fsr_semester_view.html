@@ -20,7 +20,13 @@
             {% for course in courses %}
                 <tr class="{% cycle "odd" "even" %}">
                     <td>
-                        <img src="{% get_static_prefix %}images/silk/bullet_{{ course.state_color }}.png" alt="{{ course.state }}">
+                        <nobr>
+                        {% spaceless %}
+                        {% for color in course.color_list %}
+                            <img src="{% get_static_prefix %}images/silk/small_bullet_{{ color }}.png" alt="{{ course.state }}">
+                        {% endfor %}
+                        {% endspaceless %}
+                        </nobr>
                     </td>
                     <td>
                         {% with course.warnings as warnings %}
@@ -31,7 +37,7 @@
                     </td>
                     <td class="expand">{{ course.name }}</td>
                     <td>{{ course.study }}</td>
-                    <td>{{ course.state }}</td>
+                    <td>{% trans course.state %}</td>
                     {% if course.num_participants %}
                         <td class="dontbreak right">{{ course.num_voters }} / {{ course.num_participants }}</td>
                         <td class="dontbreak">({{ course.num_voters|percentage:course.num_participants }})</td>
