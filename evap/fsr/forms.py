@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.forms.models import BaseInlineFormSet, BaseModelFormSet
+from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import *
@@ -63,8 +64,7 @@ class AssignmentForm(forms.ModelForm):
 
 class CourseEmailForm(forms.Form):
     sendToParticipants = forms.BooleanField(label = _("Send to participants?"), required=False, initial=True)
-    sendToPrimaryLecturers = forms.BooleanField(label = _("Send to primary lecturers?"), required=False)
-    sendToSecondaryLecturers = forms.BooleanField(label = _("Send to secondary lecturers?"), required=False)
+    sendToLecturers = forms.BooleanField(label = _("Send to lecturers?"), required=False)
     subject = forms.CharField(label = _("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label = _("Body"))
     
@@ -75,7 +75,7 @@ class CourseEmailForm(forms.Form):
     def clean(self):
         cleaned_data = self.cleaned_data
         
-        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToPrimaryLecturers') or cleaned_data.get('sendToSecondaryLecturers')):
+        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToLecturers')):
             raise forms.ValidationError(_(u"No recipient selected. Choose at least participants or lecturers."))
         
         return cleaned_data
@@ -86,7 +86,7 @@ class CourseEmailForm(forms.Form):
     
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len([email for email in self.receipient_list if email == ""])
+        return len([user.email for user in self.receipient_list if user.email == ""])
     
     @property
     def receipient_list(self):
@@ -95,19 +95,32 @@ class CourseEmailForm(forms.Form):
             return self._rcpts
         
         self._rcpts = []
-        for group, manager in {'sendToPrimaryLecturers': self.instance.primary_lecturers, 'sendToSecondaryLecturers': self.instance.secondary_lecturers}.iteritems():
-            if self.cleaned_data.get(group):
-                self._rcpts.extend([user.email for user in manager.all()])
+        if self.cleaned_data.get('sendToParticipants'):
+            self._rcpts.extend(self.instance.participants.all())
+        
+        if self.cleaned_data.get('sendToLecturers'):
+            for assignment in self.instance.assignments.exclude(lecturer=None):
+                if assignment.lecturer.get_profile().is_lecturer:
+                    self._rcpts.append(assignment.lecturer)
         
         return self._rcpts
     
+    def render_string(self, text, dictionary):
+        t = Template(text)
+        return t.render(Context(dictionary))    
+    
     def send(self):
-        mail = EmailMessage(subject = self.cleaned_data.get('subject'),
-                            body = self.cleaned_data.get('body'),
-                            to = [email for email in self.receipient_list if email != ""],
-                            bcc = [a[1] for a in settings.MANAGERS],
-                            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.send(False)
+        for user in self.receipient_list:
+            if user.email == "":
+                continue
+            
+            mail = EmailMessage(
+                subject = self.render_string(self.cleaned_data.get('subject'), {'user': user, 'course': self.instance}),
+                body = self.render_string(self.cleaned_data.get('body'), {'user': user, 'course': self.instance}),
+                to = [user.email],
+                bcc = [a[1] for a in settings.MANAGERS],
+                headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+            mail.send(False)
 
 
 class QuestionnaireForm(forms.ModelForm):
@@ -240,7 +253,7 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         exclude = ('user',)
-        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies']
+        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies', 'is_lecturer']
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)

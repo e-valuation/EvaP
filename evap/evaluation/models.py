@@ -203,6 +203,9 @@ class Course(models.Model):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment()
     
     def is_user_lecturer(self, user):
+        if not user.get_profile().is_lecturer:
+            return False
+        
         return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer=user.get_profile().proxies).exists()
     
     def warnings(self):
@@ -340,7 +343,7 @@ class UserProfile(models.Model):
     proxies = models.ManyToManyField(User, verbose_name = _(u"Proxies"), related_name="proxied_users", blank=True)
     
     # is the user possibly a lecturer
-    is_lecturer = models.BooleanField(verbose_name = _(u"Is lecturer"))    
+    is_lecturer = models.BooleanField(verbose_name = _(u"Lecturer"))    
     
     # key for url based logon of this user
     logon_key = models.IntegerField(verbose_name = _(u"Logon Key"), blank=True, null=True)
@@ -373,6 +376,9 @@ class UserProfile(models.Model):
             return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
     def lectures_courses(self):
+        if not self.is_lecturer:
+            return False
+        
         latest_semester = Semester.get_latest_or_none()
         if latest_semester is None:
             return False

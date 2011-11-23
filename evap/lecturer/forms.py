@@ -5,17 +5,13 @@ from evap.evaluation.models import *
 from evap.fsr.fields import *
 
 
-class CourseForm(forms.ModelForm):
-    primary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
-    secondary_lecturers = UserModelMultipleChoiceField(queryset=User.objects.all())
-    
+class CourseForm(forms.ModelForm):    
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'primary_lecturers', 'secondary_lecturers')
+        fields = ('name_de', 'name_en', 'kind')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['secondary_lecturers'].required = False
 
 
 class UserForm(forms.ModelForm):

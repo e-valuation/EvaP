@@ -17,7 +17,7 @@
                     {% if user.is_staff %}
                         <img src="{% get_static_prefix %}images/silk/user_orange.png" title="{% trans "Student Representative" %}">
                     {% endif %}
-                    {% if user.get_profile.lectures_courses %}
+                    {% if user.get_profile.is_lecturer %}
                         <img src="{% get_static_prefix %}images/silk/user_suit.png" title="{% trans "Lecturer" %}">
                     {% endif %}
                 </td><td>

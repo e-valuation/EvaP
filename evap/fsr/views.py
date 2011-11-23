@@ -139,22 +139,13 @@ def semester_import(request, semester_id):
 @fsr_required
 def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = QuestionnairesAssignForm(request.POST or None, semester=semester, extras=('primary_lecturers', 'secondary_lecturers'))
+    form = QuestionnairesAssignForm(request.POST or None, semester=semester)
     
     if form.is_valid():
         for course in semester.course_set.all():
             # check course itself
             if form.cleaned_data[course.kind]:
-                course.general_questions = form.cleaned_data[course.kind]
-            
-            # check primary lecturer
-            if form.cleaned_data['primary_lecturers']:
-                course.primary_lecturer_questions = form.cleaned_data['primary_lecturers']
-            
-            # check secondary lecturer
-            if form.cleaned_data['secondary_lecturers']:
-                course.secondary_lecturer_questions = form.cleaned_data['secondary_lecturers']
-            
+                course.general_assignment.questionnaires = form.cleaned_data[course.kind]
             course.save()
         
         messages.add_message(request, messages.INFO, _("Successfully assigned questionnaires."))
@@ -446,7 +437,7 @@ def user_index(request):
     if filter == "fsr":
         users = users.filter(is_staff=True)
     elif filter == "lecturers":
-        users = [user for user in users if user.get_profile().lectures_courses()]
+        users = [user for user in users if user.get_profile().is_lecturer]
     
     return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 
