@@ -162,7 +162,7 @@ class Course(models.Model):
     
     @transition(source='new', target='pendingLecturerApproval')
     def ready_for_lecturer(self):
-        EmailTemplate.get_review_template().send([self])
+        EmailTemplate.get_review_template().send([self], True, False)
     
     @transition(source='pendingLecturerApproval', target='pendingFsrApproval')
     def lecturer_approve(self):
