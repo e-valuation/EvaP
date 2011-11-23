@@ -46,10 +46,10 @@ def vote(request, course_id):
     
     # build forms
     forms = SortedDict()
-    for assignment in course.assignments:
-        for questionnaire in assignment.questionnaires:
-            form = QuestionsForm(request.POST or None, assignment=assignment)
-            forms[assignment, questionnaire] = form
+    for assignment in course.assignments.all():
+        for questionnaire in assignment.questionnaires.all():
+            form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+            forms[(assignment, questionnaire)] = form
     
     if all(form.is_valid() for form in forms.values()):
         # begin vote operation
