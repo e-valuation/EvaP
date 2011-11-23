@@ -44,6 +44,9 @@ if DEBUG:
 # key authentication settings
 LOGIN_KEY_VALIDITY = 90 # days
 
+# minimum answer count to ensure anonymity
+MIN_ANSWERS = 5
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.

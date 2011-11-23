@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Avg
 from django.utils.datastructures import SortedDict
@@ -6,6 +7,7 @@ from evap.evaluation.models import GradeAnswer, TextAnswer
 from collections import namedtuple
 
 # see calculate_results
+ResultSection = namedtuple('CourseResult', ('questionnaire', 'lecturer', 'results', 'average'))
 GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
@@ -18,11 +20,11 @@ def avg(iterable):
     return float(sum(iterable)) / len(iterable)
 
 
-def calculate_results(course):
+def calculate_results(course, anonymity_filter=True):
     """Calculates the result data for a single course. Returns a list of
-    4-tuples. Each of those tuples contains the questionnaire, the lecturer
-    (or None), a list of single result elements and the average grade for that
-    section (or None). The result elements are either `GradeResult` or
+    `ResultSection` tuples. Each of those tuples contains the questionnaire, the
+    lecturer (or None), a list of single result elements and the average grade
+    for that section (or None). The result elements are either `GradeResult` or
     `TextResult` instances."""
     
     # return cached results if available
@@ -46,9 +48,9 @@ def calculate_results(course):
                     question=question
                     ).values_list('answer', flat=True)
                 
-                # only add to the results if answers exist at all
-                # XXX: what if only a few answers exist? (anonymity)
-                if answers:
+                # only add to the results if enough answers exist or anonymity
+                # mode is disabled
+                if len(answers) >= settings.MIN_ANSWERS or not anonymity_filter:
                     # calculate relative distribution (histogram) of answers:
                     # set up a sorted dictionary with a count of zero for each grade
                     distribution = SortedDict()
@@ -90,7 +92,7 @@ def calculate_results(course):
         # compute average grade for this section, will return None if
         # no GradeResults exist in this section
         average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
-        sections.append((questionnaire, lecturer, results, average_grade))
+        sections.append(ResultSection(questionnaire, lecturer, results, average_grade))
     
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
