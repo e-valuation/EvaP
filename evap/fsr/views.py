@@ -111,7 +111,7 @@ def semester_publish(request, semester_id):
             course.publish()
             course.save()
         
-        EmailTemplate.get_publish_template().send(form.selected_courses)
+        EmailTemplate.get_publish_template().send(form.selected_courses, True, True)
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(form.selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
