@@ -22,8 +22,8 @@ class Semester(models.Model):
     
     __metaclass__ = LocalizeModelBase
     
-    name_de = models.CharField(max_length=140, unique=True, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=140, unique=True, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
     
     name = Translate
     
