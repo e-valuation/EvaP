@@ -96,8 +96,8 @@ class Course(models.Model):
 
     semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
     
-    name_de = models.CharField(max_length=100, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=100, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=140, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=140, verbose_name=_(u"name (english)"))
     name = Translate
     
     # type of course: lecture, seminar, project
