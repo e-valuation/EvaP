@@ -33,6 +33,22 @@ class UserData(object):
         profile.save()
         return user
 
+    def update(self, user):
+        profile = user.get_profile()
+        
+        if not user.first_name:
+            user.first_name = self.first_name
+        if not user.last_name:
+            user.last_name = self.last_name
+        if not user.email:
+            user.email = self.email
+        if not profile.title:
+            profile.title = self.title
+        if not profile.is_lecturer:
+            profile.is_lecturer = self.is_lecturer
+        
+        user.save()
+        profile.save()
 
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
@@ -112,12 +128,14 @@ class ExcelImporter(object):
                     # create or retrieve database objects
                     try:
                         student = User.objects.get(username=student_data.username)
+                        student_data.update(student)
                     except User.DoesNotExist:
                         student = student_data.store_in_database()
                         student_count += 1
                     
                     try:
                         lecturer = User.objects.get(username=lecturer_data.username)
+                        lecturer_data.update(lecturer)
                     except User.DoesNotExist:
                         lecturer = lecturer_data.store_in_database()
                         lecturer_count += 1

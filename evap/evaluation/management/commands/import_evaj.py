@@ -86,6 +86,25 @@ class Command(BaseCommand):
                 staff = self.get_one('staff', id=ccm_to_staff.staff_id)
                 user, created = User.objects.get_or_create(username=unicode(staff.loginName)[:30])
                 
+                # import name
+                profile = user.get_profile()
+                name_parts = unicode(staff.name).split()
+                if name_parts[0].startswith("Dr"):
+                    user.last_name = " ".join(name_parts[1:])
+                    profile.title = name_parts[0]
+                elif name_parts[0] == "Prof.":
+                    user.last_name = " ".join(name_parts[2:])
+                    profile.title = " ".join(name_parts[:2])
+                elif name_parts[0].startswith("Prof"):
+                    user.last_name = " ".join(name_parts[1:])
+                    profile.title = name_parts[0]
+                elif len(name_parts) == 2:
+                    user.first_name = name_parts[0]
+                    user.last_name = name_parts[1]
+                user.save()
+                profile.save()
+                    
+                
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
                 
@@ -199,8 +218,8 @@ class Command(BaseCommand):
                     # general quesitonnaires
                     Assignment.objects.get(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
                     
-                    questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
                     # lecturer questionnaires
+                    questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
                     for lecturer, questionnaire in self.get_lecturers_with_questionnaires(xml_course):
                         assignment, created = Assignment.objects.get_or_create(course=course, lecturer=lecturer)
                         assignment.questionnaires.add(questionnaire)
