@@ -54,8 +54,14 @@ class Command(BaseCommand):
             # get fsr flag
             is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
+            # get lecturer flag
+            is_lecturer = True if read_value("Is lecturer (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
+            
             # create user
             u = User.objects.create(username=username, email=email, is_staff=is_fsr)
+            p = u.get_profile()
+            p.is_lecturer = is_lecturer
+            p.save()
             
         except KeyboardInterrupt:
             sys.stderr.write("\nOperation cancelled.\n")
