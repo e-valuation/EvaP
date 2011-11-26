@@ -38,9 +38,9 @@ class Semester(models.Model):
         return self.name
     
     @property
-    def can_be_deleted(self):
+    def can_fsr_delete(self):
         for course in self.course_set.all():
-            if not course.can_be_deleted:
+            if not course.can_fsr_delete:
                 return False
         return True
     
@@ -83,7 +83,7 @@ class Questionnaire(models.Model):
         return self.name
     
     @property
-    def can_be_deleted(self):
+    def can_fsr_delete(self):
         return not self.assigned_to.exists()
 
 

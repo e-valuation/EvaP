@@ -53,7 +53,7 @@
                 <li>Questionnaire:</li>
                 <li><a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}">{% trans "Edit" %}</a></li>
                 <li><a href="{% url evap.fsr.views.questionnaire_copy questionnaire.id %}">{% trans "Copy" %}</a></li>
-                {% if questionnaire.can_be_deleted %}
+                {% if questionnaire.can_fsr_delete %}
                     <li><a href="{% url evap.fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete" %}</a></li>
                 {% else %}
                     <li class="disabled">{% trans "Delete" %}</a></li>
@@ -63,7 +63,7 @@
             {% if semester %}
                 <li>{% trans "Semester" %}:</li>
                 <li><a href="{% url evap.fsr.views.semester_edit semester.id %}">{% trans "Edit" %}</a></li>
-                {% if semester.can_be_deleted %}
+                {% if semester.can_fsr_delete %}
                     <li><a href="{% url evap.fsr.views.semester_delete semester.id %}">{% trans "Delete" %}</a></li>
                 {% else %}
                     <li class="disabled">{% trans "Delete" %}</li>

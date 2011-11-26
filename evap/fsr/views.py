@@ -91,7 +91,7 @@ def semester_edit(request, semester_id):
 def semester_delete(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if semester.can_be_deleted:    
+    if semester.can_fsr_delete:    
         if request.method == 'POST':
             semester.delete()
             return redirect('evap.fsr.views.semester_index')
@@ -419,7 +419,7 @@ def questionnaire_copy(request, questionnaire_id):
 def questionnaire_delete(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     
-    if questionnaire.can_be_deleted:
+    if questionnaire.can_fsr_delete:
         if request.method == 'POST':
             questionnaire.delete()
             return redirect('evap.fsr.views.questionnaire_index')

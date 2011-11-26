@@ -36,7 +36,7 @@
                         {% endif %}
                         <a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}">{% trans "Preview" %}</a>&nbsp;
                         <a href="{% url evap.fsr.views.questionnaire_copy questionnaire.id %}">{% trans "Copy" %}</a>&nbsp;
-                        {% if questionnaire.can_be_deleted %}
+                        {% if questionnaire.can_fsr_delete %}
                             <a href="{% url evap.fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete" %}</a>
                         {% endif %}
                     </td>
