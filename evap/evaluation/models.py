@@ -150,7 +150,7 @@ class Course(models.Model):
         return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
     
     def can_fsr_review(self):
-        return not(not self.is_fully_checked() and self.state in ['inEvaluation', 'pendingForReview'])
+        return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'pendingForReview']
     
     def can_fsr_approve(self):
         return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval']
