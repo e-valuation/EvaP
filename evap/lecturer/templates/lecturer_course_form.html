@@ -10,6 +10,8 @@
 	$(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
             $( ".multiselect-form select[multiple='multiple']" ).multiselect();
+			
+			$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
         });
     </script>
 {% endblock %}
@@ -51,7 +53,7 @@
                     </tbody>
                 </table>
             </fieldset>
-            <input type="submit" value="{% trans "Save course" %}"/>
+            <input type="submit" value="{% trans "Approve course" %}"/>
         </form>
     </p>
 {% endblock %}

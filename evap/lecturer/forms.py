@@ -8,11 +8,33 @@ from evap.fsr.fields import *
 class CourseForm(forms.ModelForm):    
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind')
+        fields = ('name_de', 'name_en', 'kind', 'study', 'vote_start_date', 'vote_end_date')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
+        
+        self.fields['kind'].widget.attrs['disabled'] = True
+        self.fields['study'].widget.attrs['disabled'] = True
+        
+        self.fields['vote_start_date'].localize = True
+        self.fields['vote_start_date'].widget = forms.DateInput()
+        self.fields['vote_start_date'].widget.attrs['disabled'] = True
+        
+        self.fields['vote_end_date'].localize = True
+        self.fields['vote_end_date'].widget = forms.DateInput()
+        self.fields['vote_end_date'].widget.attrs['disabled'] = True
+    
+    def clean_kind(self):
+        return self.instance.kind
 
+    def clean_study(self):
+        return self.instance.study
+
+    def clean_vote_start_date(self):
+        return self.instance.vote_start_date
+    
+    def clean_vote_end_date(self):
+        return self.instance.vote_end_date
 
 class UserForm(forms.ModelForm):
     first_name = forms.CharField()
