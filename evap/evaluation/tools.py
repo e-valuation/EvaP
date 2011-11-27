@@ -14,10 +14,11 @@ TextResult = namedtuple('TextResult', ('question', 'texts'))
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
-    `iterable` is 0."""
-    if len(iterable) == 0:
+    `iterable` is 0 or no items except None exist."""
+    items = [item for item in iterable if item is not None]
+    if len(items) == 0:
         return None
-    return float(sum(iterable)) / len(iterable)
+    return float(sum(items)) / len(items)
 
 
 def calculate_results(course):
@@ -98,7 +99,7 @@ def calculate_results(course):
         # no GradeResults exist in this section
         average_grade = avg([result.average for result
                                             in results
-                                            if isinstance(result, GradeResult) and result.show])
+                                            if isinstance(result, GradeResult)])
         sections.append(ResultSection(questionnaire, lecturer, results, average_grade))
     
     # store results into cache
@@ -127,7 +128,7 @@ def calculate_average_grade(course):
     else:
         # determine final grade by building the equally-weighted average of the
         # generic and person-specific averages
-        return (avg(generic_grades) + avg(personal_grades)) / 2
+        return avg((avg(generic_grades), avg(personal_grades)))
 
 
 def questionnaires_and_lecturers(course):

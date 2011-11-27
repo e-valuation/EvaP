@@ -11,7 +11,6 @@ import xlwt
 class ExcelExporter(object):
     def __init__(self, semester):
         self.semester = semester
-        pass
     
     def export(self, response):
         courses_with_results = list()
@@ -56,6 +55,11 @@ class ExcelExporter(object):
         self.writen(None)
         for course, results in courses_with_results:
             self.writec(course.name, fmt_vert)
+        
+        self.writen(_(u"Overall Grade"), fmt_bold)
+        for course, results in courses_with_results:
+            self.writec(calculate_average_grade(course), fmt_num)
+        self.writen(None)
         
         for questionnaire in questionnaires:
             self.writen(questionnaire.name, fmt_bold)
