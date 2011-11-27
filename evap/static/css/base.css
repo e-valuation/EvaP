@@ -370,7 +370,7 @@ h4.results-section {
 tr.obsolete {
 	opacity: .5;}
 
-.multiselect-form select {
+.multiselect-form select[multiple='multiple'] {
 	width: 460px;
 	height: 200px;}
 

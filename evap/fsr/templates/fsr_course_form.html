@@ -8,28 +8,31 @@
     
     <script>
 	$(function() {
-            $( "#id_vote_start_date" ).datepicker({
-                showOn: "button",
-		buttonImage: "{% get_static_prefix %}images/calendar.gif",
-		buttonImageOnly: true
-            });
+        $( "#id_vote_start_date" ).datepicker({
+            showOn: "button",
+			buttonImage: "{% get_static_prefix %}images/calendar.gif",
+			buttonImageOnly: true
+        });
             
-            $( "#id_vote_end_date" ).datepicker({
-                showOn: "button",
-		buttonImage: "{% get_static_prefix %}images/calendar.gif",
-		buttonImageOnly: true
-            });
+        $( "#id_vote_end_date" ).datepicker({
+            showOn: "button",
+			buttonImage: "{% get_static_prefix %}images/calendar.gif",
+			buttonImageOnly: true
+        });
             
-            $( "#id_publish_date" ).datepicker({
-                showOn: "button",
-		buttonImage: "{% get_static_prefix %}images/calendar.gif",
-		buttonImageOnly: true
-            });
+        $( "#id_publish_date" ).datepicker({
+            showOn: "button",
+			buttonImage: "{% get_static_prefix %}images/calendar.gif",
+			buttonImageOnly: true
+        });
             
-            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-            $( ".multiselect-form select[multiple='multiple']" ).multiselect();
+        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+        $( ".multiselect-form select[multiple='multiple']" ).multiselect();
 	    
 	    $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
+		
+		$('#id_study').combobox();
+		$('#id_kind').combobox();
         });
     </script>
 {% endblock %}

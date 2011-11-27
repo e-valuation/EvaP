@@ -51,6 +51,9 @@ class CourseForm(forms.ModelForm):
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
         
+        self.fields['kind'].widget = forms.Select(choices = [(a,a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
+        self.fields['study'].widget = forms.Select(choices = [(a,a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
+        
     
     def save(self, *args, **kw):
         super(CourseForm, self).save(*args, **kw)
