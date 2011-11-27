@@ -19,7 +19,7 @@
             </tr>
             
             {% for questionnaire in questionnaires %}
-                <tr class="{% if questionnaire.obsolete %}obsolete {% endif %}">
+                <tr class="{% if questionnaire.obsolete %}obsolete {% endif %}{% cycle "odd" "even" %}">
                     <td>{{ questionnaire.name }}</td>
                     <td>
                         {% blocktrans count questionnaire.question_set.all.count as count %}

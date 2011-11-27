@@ -17,7 +17,7 @@
             </td>
         </tr>
         {% for course in study.list %}
-            <tr>
+            <tr class="{% cycle "odd" "even" %}">
                 <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
                 <td>{{ course.grade|floatformat:1 }}</td>
             </tr>
