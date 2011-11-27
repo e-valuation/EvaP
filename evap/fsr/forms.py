@@ -40,7 +40,7 @@ class CourseForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['participants'] = UserModelMultipleChoiceField(queryset=User.objects.all())
+        self.fields['participants'] = UserModelMultipleChoiceField(queryset=User.objects.order_by("last_name", "username"))
         
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
@@ -60,6 +60,11 @@ class CourseForm(forms.ModelForm):
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
+    
+    
+    def __init__(self, *args, **kwargs):
+        super(AssignmentForm, self).__init__(*args, **kwargs)
+        self.fields['lecturer'].queryset = User.objects.order_by("last_name", "username")
 
 
 class CourseEmailForm(forms.Form):
@@ -263,7 +268,7 @@ class UserForm(forms.ModelForm):
     last_name = forms.CharField()
     email = forms.CharField(required=False)
     fsr = forms.BooleanField(required=False, label=_("FSR Member"))
-    proxies = UserModelMultipleChoiceField(queryset=User.objects.all())
+    proxies = UserModelMultipleChoiceField(queryset=User.objects.order_by("last_name", "username"))
     
     class Meta:
         model = UserProfile

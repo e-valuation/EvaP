@@ -19,7 +19,7 @@ class UserForm(forms.ModelForm):
     last_name = forms.CharField()
     email = forms.CharField(required=False)
     
-    proxies = UserModelMultipleChoiceField(queryset=User.objects.all())
+    proxies = UserModelMultipleChoiceField(queryset=User.objects.order_by("last_name", "username"))
     
     class Meta:
         model = UserProfile
