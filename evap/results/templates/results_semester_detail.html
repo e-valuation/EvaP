@@ -7,6 +7,12 @@
     <h3>
         {{ semester.name }}
     </h3>
+
+    {% if request.user.is_staff %}
+    <p>
+        <a href="{% url evap.results.views.semester_export semester.id %}">{% trans "Export semester as Excel table" %}</a>
+    </p>
+    {% endif %}
     
     {% regroup courses by study as studies %}
     <table>
