@@ -174,6 +174,21 @@ class AtLeastOneFormSet(BaseInlineFormSet):
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
+class IdLessQuestionFormSet(AtLeastOneFormSet):
+    class PseudoQuerySet(list):
+        db = None
+    
+    def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None):
+        self.save_as_new = save_as_new
+        self.instance=instance
+        super(BaseInlineFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
+    
+    def get_queryset(self):
+        if not hasattr(self, '_queryset'):
+            self._queryset = IdLessQuestionFormSet.PseudoQuerySet()
+            self._queryset.extend([Question(text_de=e.text_de, text_en=e.text_en, kind=e.kind) for e in self.queryset.all()])
+            self._queryset.db = self.queryset.db
+        return self._queryset
 
 class QuestionForm(forms.ModelForm):
     class Meta:

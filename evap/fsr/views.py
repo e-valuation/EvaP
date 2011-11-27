@@ -366,7 +366,7 @@ def questionnaire_create(request):
     formset = QuestionFormset(request.POST or None, instance=questionnaire)
     
     if form.is_valid() and formset.is_valid():
-        q = form.save()
+        form.save()
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created questionnaire."))
@@ -399,20 +399,29 @@ def questionnaire_edit(request, questionnaire_id):
 
 @fsr_required
 def questionnaire_copy(request, questionnaire_id):
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    form = QuestionnaireForm(request.POST or None)
-    
-    if form.is_valid():
-        new_questionnaire = form.save()
-        for question in questionnaire.question_set.all():
-            question.pk = None
-            question.questionnaire = new_questionnaire
-            question.save()
+    if request.method == "POST":
+        questionnaire = Questionnaire()
+        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
         
-        messages.add_message(request, messages.INFO, _("Successfully copied questionnaire."))
-        return redirect('evap.fsr.views.questionnaire_view', questionnaire.id)
+        form = QuestionnaireForm(request.POST, instance=questionnaire)
+        formset = QuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+            
+            messages.add_message(request, messages.INFO, _("Successfully created questionnaire."))
+            return redirect('evap.fsr.views.questionnaire_index')
+        else:
+            return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
     else:
-        return render_to_response("fsr_questionnaire_copy.html", dict(questionnaire=questionnaire, form=form), context_instance=RequestContext(request))
+        questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+        
+        form = QuestionnaireForm(instance=questionnaire)
+        formset = QuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())
+        
+        return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
 
 
 @fsr_required
