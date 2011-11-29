@@ -84,8 +84,6 @@
                 <li><a href="{% url evap.fsr.views.course_create semester.id %}">{% trans "Create" %}</a></li>
                 <li><a href="{% url evap.fsr.views.semester_import semester.id %}">{% trans "Import" %}</a></li>
                 <li><a href="{% url evap.fsr.views.semester_assign_questionnaires semester.id %}">{% trans "Assign questionnaires" %}</a></li>
-                <li><a href="{% url evap.fsr.views.semester_approve semester.id %}">{% trans "Approve" %}</a></li>
-                <li><a href="{% url evap.fsr.views.semester_publish semester.id %}">{% trans "Publish" %}</a></li>
                 <li>&middot;</li>
                 <li><a href="{% url evap.fsr.views.semester_lottery semester.id %}">{% trans "Lottery" %}</a></li>
             {% endif %}

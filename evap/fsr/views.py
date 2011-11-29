@@ -156,6 +156,7 @@ def semester_assign_questionnaires(request, semester_id):
     else:
         return render_to_response("fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
+
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -170,6 +171,23 @@ def semester_approve(request, semester_id):
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_approve.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+
+
+@fsr_required
+def semester_lecturer_ready(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    form = SelectCourseForm(semester.course_set.filter(state='new').all(), request.POST or None)
+    
+    if form.is_valid():
+        for course in form.selected_courses:
+            course.ready_for_lecturer()
+            course.save()
+        
+        #messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (len(form.selected_courses)))
+        return redirect('evap.fsr.views.semester_view', semester.id)
+    else:
+        return render_to_response("fsr_semester_lecturer_ready.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        
 
 
 @fsr_required

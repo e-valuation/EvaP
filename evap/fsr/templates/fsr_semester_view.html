@@ -8,17 +8,10 @@
     {{ block.super }}
     {% if courses_by_state %}
             {% for state, courses in courses_by_state %}
-                <h3>{% trans state %} ({{ courses|length }})</h3>
+                <h3>{% trans "State" %}: {% trans state %} ({{ courses|length }})</h3>
                 <table class="full-width">
-                    <tr>
-                        <th>&nbsp;</th>
-                        <th>{% trans "Name" %}</th>
-                        <th>{% trans "Study" %}</th>
-                        <th colspan="2">{% trans "Votes" %}</th>
-                        <th>{% trans "Actions" %}</th>
-                    </tr>
                 {% for course in courses %}
-                    <tr class="{% cycle "odd" "even" %}">
+                    <tr class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
                         <td>
                             {% with course.warnings as warnings %}
                                 {% if warnings %}
@@ -26,33 +19,47 @@
                                 {% endif %}
                             {% endwith %}
                         </td>
-                        <td class="expand">{{ course.name }}</td>
-                        <td>{{ course.study }}</td>
-                        {% if course.num_participants %}
-                            <td class="dontbreak right">{{ course.num_voters }} / {{ course.num_participants }}</td>
-                            <td class="dontbreak">({{ course.num_voters|percentage:course.num_participants }})</td>
-                        {% else %}
-                            <td class="center" colspan="2">&mdash;</td>
+                        <td><em>{% ifchanged %}{{ course.study }}{% endifchanged %}</em></td>
+                        <td class="expand">
+                            {% if course.can_fsr_edit %}
+                                <a href="{% url evap.fsr.views.course_edit semester.id, course.id %}">{{ course.name }}</a>
+                            {% else %}
+                                {{ course.name }}
+                            {% endif %}
+                        </td>
+                        {% if state == 'inEvaluation' or state == 'pendingForReview' or state == 'pendingPublishing' or state == 'published' %}
+                            {% if course.num_participants %}
+                                <td class="dontbreak right">{{ course.num_voters }}/{{ course.num_participants }}</td>
+                                <td class="dontbreak">({{ course.num_voters|percentage:course.num_participants }})</td>
+                            {% else %}
+                                <td class="center" colspan="2">&mdash;</td>
+                            {% endif %}
                         {% endif %}
                         <td class="dontbreak">
-                            {% if course.can_fsr_edit %}
-                                <a href="{% url evap.fsr.views.course_edit semester.id, course.id %}" title="{% trans "Edit" %}"><img src="{% get_static_prefix %}images/silk/pencil.png"></a>&nbsp;
-                            {% endif %}
-                            
-                            <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" title="{% trans "Write E-Mail" %}"><img src="{% get_static_prefix %}images/silk/email.png"></a>&nbsp;
+                            <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" title="{% trans "Write E-Mail" %}"><img src="{% get_static_prefix %}images/silk/email.png"> E-Mail</a>&nbsp;
                             {% if course.can_fsr_delete %}
                                 <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/bin.png"></a>&nbsp;
                             {% endif %}
                             {% if course.can_fsr_review %}
                                 <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/eye.png"></a>
                             {% endif %}
-                            {% if course.state == "new" %}
-                                <a href="{% url evap.fsr.views.course_lecturer_ready semester.id, course.id %}" title="{% trans "Enable for Lecturer Review"%}"><img src="{% get_static_prefix %}images/silk/report.png"></a>
-                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
                 </table>
+                
+                <p>
+                {% ifequal state "new" %}
+                    <a class="abutton" href="{% url evap.fsr.views.semester_lecturer_ready semester.id %}">{% trans "Enable Courses for Lecturer Review" %}</a>
+                {% endifequal %}
+                {% if state == 'new' or state == 'pendingLecturerApproval' or state == 'pendingFsrApproval' %}
+                    <a class="abutton" href="{% url evap.fsr.views.semester_approve semester.id %}">{% trans "Approve Courses" %}</a>
+                {% endif %}
+                {% ifequal state "pendingPublishing" %}
+                    <a class="abutton" href="{% url evap.fsr.views.semester_publish semester.id %}">{% trans "Publish Courses" %}</a>
+                {% endifequal %}
+                </p>
+                <p>&nbsp;</p>
             {% endfor %}
     {% else %}
         <p>{% trans "There are no courses for this semester yet." %}</p>

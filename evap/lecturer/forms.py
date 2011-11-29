@@ -36,6 +36,7 @@ class CourseForm(forms.ModelForm):
     def clean_vote_end_date(self):
         return self.instance.vote_end_date
 
+
 class UserForm(forms.ModelForm):
     first_name = forms.CharField()
     last_name = forms.CharField()

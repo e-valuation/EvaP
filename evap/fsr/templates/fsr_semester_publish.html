@@ -8,8 +8,14 @@
         <form method="POST">
             {% csrf_token %}
             {% if form.fields %}
-                <ul>{{ form.as_ul }}</ul>
-                <input type="submit" value="{% trans "Publish courses" %}"/>
+                <p>
+                {% for field in form %}
+                    <div>{{ field }} {{ field.label_tag }}</div>
+                {% endfor %}
+                </p>
+                <p>
+                    <input type="submit" value="{% trans "Publish courses" %}"/>
+                </p>
             {% else %}
                 {% trans "There are no courses ready to publish." %}
             {% endif %}

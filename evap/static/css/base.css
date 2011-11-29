@@ -111,7 +111,7 @@ body a:active,  body a:hover {
 #main-content table.full-width {
 	width: 100%;}
 
-#main-content table tr.even {
+#main-content table tr.odd {
 	background: #eaecec;}
 
 #main-content table td.expand {
@@ -366,6 +366,12 @@ h4.results-section {
 	margin: 20px auto;
 	padding: 10px;
 	width: 62%;}
+
+a.abutton {
+	background: #dfe1e1;
+	border: 1px outset #dfe1e1;
+	display: inline-block;
+	padding: 3px;}
 
 tr.obsolete {
 	opacity: .5;}
