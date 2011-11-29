@@ -30,6 +30,10 @@ class EmailTemplate(models.Model):
     @classmethod
     def get_publish_template(cls):
         return get_object_or_404(cls, pk=2)
+        
+    @classmethod
+    def get_logon_key_template(cls):
+        return get_object_or_404(cls, pk=3)
     
     # yields all users without an email address
     def missed_users(self, courses):
@@ -77,3 +81,15 @@ class EmailTemplate(models.Model):
                 bcc = [a[1] for a in settings.MANAGERS],
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
+    
+    def send(self, user):
+        if not user.email:
+            return
+        
+        mail = EmailMessage(
+            subject = self.render_string(self.subject, {'user': user}),
+            body = self.render_string(self.body, {'user': user}),
+            to = [user.email],
+            bcc = [a[1] for a in settings.MANAGERS],
+            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.send(False)

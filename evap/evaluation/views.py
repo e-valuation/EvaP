@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm
-
+from evap.fsr.models import EmailTemplate
 
 def index(request):
     new_key_form = NewKeyForm(request.POST or None)
@@ -17,7 +17,8 @@ def index(request):
                 profile = user.get_profile()
                 profile.generate_logon_key()
                 profile.save()
-                # FIXME send e-mail with `profile.logon_key`
+                
+                EmailTemplate.get_logon_key_template().send(user)
                 
             except User.DoesNotExist:
                 messages.warning(request, _(u"No user with this e-mail address was found."))
