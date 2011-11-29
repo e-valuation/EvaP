@@ -12,6 +12,7 @@ from evap.evaluation.models import Semester, Course, Question, Questionnaire
 from evap.fsr.forms import *
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
+from evap.student.forms import QuestionsForm
 
 import random
 
@@ -114,7 +115,7 @@ def semester_publish(request, semester_id):
             course.publish()
             course.save()
         
-        EmailTemplate.get_publish_template().send(form.selected_courses, True, True)
+        EmailTemplate.get_publish_template().send_courses(form.selected_courses, True, True)
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(form.selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
@@ -373,8 +374,12 @@ def questionnaire_index(request):
 @fsr_required
 def questionnaire_view(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    form = QuestionnairePreviewForm(None, questionnaire=questionnaire)
-    return render_to_response("fsr_questionnaire_view.html", dict(form=form, questionnaire=questionnaire), context_instance=RequestContext(request))
+    
+    # build forms
+    assignment = Assignment(lecturer=request.user)
+    form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+    
+    return render_to_response("fsr_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire), context_instance=RequestContext(request))
 
 
 @fsr_required

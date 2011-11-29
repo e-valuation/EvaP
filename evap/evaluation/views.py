@@ -18,7 +18,7 @@ def index(request):
                 profile.generate_logon_key()
                 profile.save()
                 
-                EmailTemplate.get_logon_key_template().send(user)
+                EmailTemplate.get_logon_key_template().send_user(user)
                 
             except User.DoesNotExist:
                 messages.warning(request, _(u"No user with this e-mail address was found."))

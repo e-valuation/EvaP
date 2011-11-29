@@ -62,7 +62,7 @@ class EmailTemplate(models.Model):
         t = Template(text)
         return t.render(Context(dictionary))
     
-    def send(self, courses, send_to_lecturers, send_to_participants):
+    def send_courses(self, courses, send_to_lecturers, send_to_participants):
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
@@ -82,7 +82,7 @@ class EmailTemplate(models.Model):
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
     
-    def send(self, user):
+    def send_user(self, user):
         if not user.email:
             return
         

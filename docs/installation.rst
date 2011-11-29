@@ -71,3 +71,20 @@ We recommend the following Apache configuration:
 
         Alias /static /opt/evap/evap/staticfiles
         Alias /media /opt/evap/evap/upload
+
+Cron Configuration
+----------------------
+
+EvaP has components which need to react to timed events.
+This behavior is implemented by running a cronjob, which in turn triggers
+a management command.
+
+For example you could use a /etc/cron.hourly/evap lie
+
+::
+
+    #!/bin/sh
+    
+    pushd  /opt/evap/evap
+    python manage.py run_tasks
+    popd
