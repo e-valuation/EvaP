@@ -208,31 +208,6 @@ class QuestionForm(forms.ModelForm):
         self.fields['text_en'].widget=forms.TextInput()
 
 
-class QuestionnairePreviewForm(forms.Form):
-    """Dynamic form class that adds one field per question. Pass an iterable
-    of questionnaires as `questionnaires` argument to the initializer.
-    
-    See http://jacobian.org/writing/dynamic-form-generation/"""
-    
-    def __init__(self, *args, **kwargs):
-        questionnaire = kwargs.pop('questionnaire')
-        super(QuestionnairePreviewForm, self).__init__(*args, **kwargs)
-        
-        # iterate over all questions in the questionnaire
-        for question in questionnaire.question_set.all():
-            # generic arguments for all kinds of fields
-            field_args = dict(label=question.text)
-            
-            if question.is_text_question():
-                field = forms.CharField(widget=forms.Textarea(), required=False, **field_args)
-            elif question.is_grade_question():
-                field = forms.TypedChoiceField(widget=forms.RadioSelect(), choices=GRADE_CHOICES, coerce=coerce_grade, **field_args)
-            
-            # create a field for the question, using the ids of both the
-            # questionnaire and the question
-            self.fields['question_%d' % (question.id)] = field
-
-
 class QuestionnairesAssignForm(forms.Form):
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
