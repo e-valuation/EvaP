@@ -172,6 +172,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'south',
+    'sentry',
+    'raven.contrib.django',
     'evap.evaluation',
     'evap.fsr',
     'evap.results',
