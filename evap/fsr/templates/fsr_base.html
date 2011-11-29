@@ -6,7 +6,15 @@
 
 {% block title %}{% trans "Student Representatives" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}{% trans "Student Representatives" %}{% endblock %}
+{% block subtitle %}
+    {% trans "Student Representatives" %}
+    {% if questionnaire %}
+        - {% trans "Questionnaire" %} {{ questionnaire.name }}
+    {% endif %}
+    {% if semester %}
+        - {% trans "Semester" %} {{ semester.name }}
+    {% endif %}
+{% endblock %}
 
 {% block header %}
     <!-- jquery ui -->

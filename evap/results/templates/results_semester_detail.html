@@ -2,6 +2,8 @@
 
 {% load i18n %}
 
+{% block subtitle %}{{ block.super }} - {{ semester.name }}{% endblock %}
+
 {{% block content %}
     {{ block.super }}
     <h3>

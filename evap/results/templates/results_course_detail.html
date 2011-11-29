@@ -3,7 +3,7 @@
 {% load conditions %}
 {% load i18n %}
 
-{% block title %}{{ course.name }} - {{ block.super }}{% endblock %}
+{% block subtitle %}{{ block.super }} - {{ course.semester.name }}{% endblock %}
 
 {% block content %}
     {{ block.super }}

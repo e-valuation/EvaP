@@ -3,6 +3,10 @@
 {% load i18n %}
 {% load static %}
 
+{% block subtitle %}
+    {{ block.super }} - {% trans "User" %} {{ user.get_profile.full_name }}
+{% endblock %}
+
 {% block header %}
     {{ block.super }}
     

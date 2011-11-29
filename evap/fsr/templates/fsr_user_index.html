@@ -3,6 +3,11 @@
 {% load i18n %}
 {% load static %}
 
+{% block subtitle %}
+    {{ block.super }} - {% trans "Users" %}
+{% endblock %}
+
+
 {% block actions %}
     {{ block.super }}
     <li><a href="{% url evap.fsr.views.user_create %}">{% trans "Create new user" %}</a></li>

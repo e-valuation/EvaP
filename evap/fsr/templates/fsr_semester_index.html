@@ -2,6 +2,10 @@
 
 {% load i18n %}
 
+{% block subtitle %}
+    {{ block.super }} - {% trans "Semesters" %}
+{% endblock %}
+
 {% block actions %}
     <li><a href="{% url evap.fsr.views.semester_create %}">{% trans "Create new semester" %}</a></li>
     {{ block.super }}
