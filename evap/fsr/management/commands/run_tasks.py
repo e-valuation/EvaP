@@ -34,7 +34,7 @@ class Command(BaseCommand):
             if course.state == "inEvaluation" and course.vote_end_date == check_date:
                 found_courses.append(course)
         
-        EmailTemplate.get_reminder_template().send(found_courses, False, True)
+        EmailTemplate.get_reminder_template().send_courses(found_courses, False, True)
     
     
     def handle(self, *args, **options):
