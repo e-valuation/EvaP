@@ -16,16 +16,16 @@ from evap.fsr.models import EmailTemplate
 import random
 
 
-STATE_COLOR_MAPPING = [
-    (ugettext_noop('new'), "blue"),
-    (ugettext_noop('pendingLecturerApproval'), "pink"),
-    (ugettext_noop('pendingFsrApproval'), "purple"),
-    (ugettext_noop('approved'), "red"),
-    (ugettext_noop('inEvaluation'), "orange"),
-    (ugettext_noop('pendingForReview'), "yellow"),
-    (ugettext_noop('pendingPublishing'), "green"),
-    (ugettext_noop('published'), "black"),
-]
+STATES_ORDERED = (
+    ugettext_noop('new'),
+    ugettext_noop('pendingLecturerApproval'),
+    ugettext_noop('pendingFsrApproval'),
+    ugettext_noop('approved'),
+    ugettext_noop('inEvaluation'),
+    ugettext_noop('pendingForReview'),
+    ugettext_noop('pendingPublishing'),
+    ugettext_noop('published')
+)
 
 
 @fsr_required
@@ -53,11 +53,13 @@ def semester_view(request, semester_id):
         }
     )
     
-    # annotate course with color for state
-    for course in courses:
-        course.color_list = [color if course.state == state else "white" for state, color in STATE_COLOR_MAPPING]
+    courses_by_state = []
+    for state in STATES_ORDERED:
+        this_courses = [course for course in courses if course.state == state]
+        if this_courses:
+            courses_by_state.append((state, this_courses))
     
-    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses=courses), context_instance=RequestContext(request))
+    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state), context_instance=RequestContext(request))
 
 
 @fsr_required
