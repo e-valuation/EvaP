@@ -18,8 +18,10 @@ urlpatterns = patterns('',
     
     url(r"^i18n/", include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),
-    url(r'^sentry/', include('sentry.web.urls')),
 )
+
+if not settings.DEBUG:
+    urlpatterns.append(url(r'^sentry/', include('sentry.web.urls')))
 
 if settings.DEBUG:
     urlpatterns += patterns('',

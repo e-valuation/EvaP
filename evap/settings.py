@@ -172,14 +172,18 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'south',
-    'sentry',
-    'raven.contrib.django',
     'evap.evaluation',
     'evap.fsr',
     'evap.results',
     'evap.student',
     'evap.lecturer',
 )
+if not DEBUG:
+    INSTALLED_APPS += (
+        'sentry',
+        'raven.contrib.django',
+    )
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
