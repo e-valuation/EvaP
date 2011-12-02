@@ -127,7 +127,7 @@ msgstr "Dozent"
 
 #: .\evaluation\models.py:244
 msgid "Text Question"
-msgstr "Textfrage"
+msgstr "Freitextfrage"
 
 #: .\evaluation\models.py:245
 msgid "Grade Question"
@@ -176,7 +176,7 @@ msgstr "Zensierte Antwort"
 
 #: .\evaluation\models.py:309
 msgid "original answer"
-msgstr "Originale Antwort"
+msgstr "Original-Antwort"
 
 #: .\evaluation\models.py:311
 msgid "answer checked"
@@ -245,11 +245,11 @@ msgstr "Fehler: Der Benutzername ist bereits vergeben.\n"
 
 #: .\evaluation\management\commands\create_user.py:28
 msgid "Error: Please answer with yes or no\n"
-msgstr "Fehler: Bitte mit yes oder no antworten\n"
+msgstr "Fehler: Bitte mit JA oder NEIN antworten\n"
 
 #: .\fsr\forms.py:17
-msgid "excel file"
-msgstr "Exceldatei"
+msgid "excel file (*.xls)"
+msgstr "Exceldatei (*.xls)"
 
 #: .\fsr\forms.py:74
 msgid "Send to participants?"
@@ -257,7 +257,7 @@ msgstr "An Teilnehmer versenden?"
 
 #: .\fsr\forms.py:75
 msgid "Send to lecturers?"
-msgstr "An Dozenten versende?"
+msgstr "An Dozenten versenden?"
 
 #: .\fsr\forms.py:76
 #: .\fsr\models.py:13
@@ -271,7 +271,7 @@ msgstr "Text"
 
 #: .\fsr\forms.py:87
 msgid "No recipient selected. Choose at least participants or lecturers."
-msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie min. Dozenten oder Teilnehmer aus."
+msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder Teilnehmer aus."
 
 #: .\fsr\forms.py:141
 msgid "Approved"
@@ -295,7 +295,7 @@ msgstr "Zensierte Antwort fehlt."
 
 #: .\fsr\forms.py:183
 msgid "You must have at least one of these."
-msgstr "Es muss min. 1 geben."
+msgstr "Es muss mindestens eine/n geben."
 
 #: .\fsr\forms.py:273
 msgid "FSR Member"
@@ -318,7 +318,7 @@ msgstr "Blatt '%s' erfolgreich gelesen."
 #: .\fsr\importers.py:102
 #, python-format
 msgid "A problem occured while reading sheet '%s'."
-msgstr "Beim Lesen von Blatt '%s' ist ein Fehler aufgetreten."
+msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 
 #: .\fsr\importers.py:104
 msgid "Successfully read excel file."
@@ -332,12 +332,12 @@ msgstr "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die Ursprung
 #: .\fsr\importers.py:161
 #, python-format
 msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(lecturers)d lecturer(s)."
-msgstr "%(courses)d Kurs(e), %(students)d Student(en) and %(lecturers)d Dozent(en) erfolgreich erstellt."
+msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) erfolgreich erstellt."
 
 #: .\fsr\importers.py:173
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
-msgstr "Import endgültig abgebrochen nach dem Fehler: '%s'"
+msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
 #: .\fsr\models.py:9
 #: .\fsr\templates\fsr_questionnaire_index.html.py:20
@@ -372,7 +372,7 @@ msgstr "In Evaluierung"
 
 #: .\fsr\views.py:25
 msgid "pendingForReview"
-msgstr "Zensieren"
+msgstr "Durchsicht ausstehend"
 
 #: .\fsr\views.py:26
 msgid "pendingPublishing"
@@ -398,7 +398,7 @@ msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung 
 #: .\fsr\views.py:116
 #, python-format
 msgid "Successfully published %d courses."
-msgstr "%d Veranstaltungen erfolgreich veröffentlicht."
+msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
 #: .\fsr\views.py:152
 msgid "Successfully assigned questionnaires."
@@ -415,7 +415,7 @@ msgstr "Veranstaltung erfolgreich erstellt."
 
 #: .\fsr\views.py:227
 msgid "Editting not possible in current state."
-msgstr "Bearbeiten im aktuellen Zustand nicht möglich."
+msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
 #: .\fsr\views.py:237
 #: .\lecturer\views.py:59
@@ -429,7 +429,7 @@ msgstr "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist.
 
 #: .\fsr\views.py:267
 msgid "Reviewing not possible in current state."
-msgstr "Überprüfung im aktuellen Zustand nicht möglich."
+msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
 #: .\fsr\views.py:312
 #, python-format
@@ -439,7 +439,7 @@ msgstr "%d Antworten erfolgreich zensiert."
 #: .\fsr\views.py:328
 #, python-format
 msgid "Successfully sent email to all participants of '%s'."
-msgstr "Erfollgreich E-Mail an all Teilnehmer von '%s' versendet."
+msgstr "Erfollgreich E-Mail an alle Teilnehmer von '%s' versendet."
 
 #: .\fsr\views.py:330
 #, python-format
@@ -575,7 +575,7 @@ msgstr "Verlosung"
 
 #: .\fsr\templates\fsr_course_censor.html.py:27
 msgid "Original Answer"
-msgstr "Originale Antwort"
+msgstr "Original-Antwort"
 
 #: .\fsr\templates\fsr_course_censor.html.py:28
 msgid "Censored Answer"
@@ -628,15 +628,15 @@ msgstr "Veranstaltung speichern"
 
 #: .\fsr\templates\fsr_import.html.py:37
 msgid "Upload semester data from excel file ("
-msgstr "Semester von Excel-Tabelle importieren ("
+msgstr "Semester aus Excel-Tabelle importieren ("
 
 #: .\fsr\templates\fsr_import.html.py:37
 msgid "Sample File"
-msgstr "Beispiel"
+msgstr "Beispieldatei"
 
 #: .\fsr\templates\fsr_import.html.py:37
 msgid "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses."
-msgstr "): Alle in der Datei enthaltenen Studenten, Dozenten und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
+msgstr "): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
 
 #: .\fsr\templates\fsr_questionnaire_delete.html.py:10
 #, python-format
@@ -718,11 +718,11 @@ msgstr "Veranstaltung bestätigen"
 
 #: .\fsr\templates\fsr_semester_approve.html.py:14
 msgid "There are no courses ready to approve."
-msgstr "In diesem Semester sind keine Kurze zu bestätigen."
+msgstr "In diesem Semester sind keine Kurse zu bestätigen."
 
 #: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:20
 msgid "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
-msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie nicht auswählen wird die Vorlesungsart nicht verändert."
+msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
 
 #: .\fsr\templates\fsr_semester_delete.html.py:10
 #, python-format
@@ -747,15 +747,15 @@ msgstr "Es gibt noch keine Semester."
 
 #: .\fsr\templates\fsr_semester_lottery.html.py:14
 msgid "Perform Lottery"
-msgstr "Gewinner ziehen"
+msgstr "Verlosung durchführen"
 
 #: .\fsr\templates\fsr_semester_lottery.html.py:19
 msgid "The lottery was performed and the winners are:"
-msgstr "Die Verlosung wurde durchgeführt und follgenden Studenten haben gewonnen:"
+msgstr "Die Verlosung wurde durchgeführt und folgende Studierende haben gewonnen:"
 
 #: .\fsr\templates\fsr_semester_lottery.html.py:32
-msgid "users were eligibile for the lottery."
-msgstr "Nutzer nahmen an der Verlosung teil."
+msgid "users were eligible for the lottery."
+msgstr "Nutzer konnten nahmen an der Verlosung teil."
 
 #: .\fsr\templates\fsr_semester_publish.html.py:12
 msgid "Publish courses"
@@ -897,7 +897,7 @@ msgstr "Sie können bald die folgenden Veranstaltungen bewerten:"
 
 #: .\student\templates\student_index.html.py:27
 msgid "starting"
-msgstr "beginnged am"
+msgstr "beginnt am"
 
 #: .\student\templates\student_vote.html.py:5
 #: .\student\templates\student_vote.html.py:7
@@ -969,9 +969,9 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"  <p>Willkommen auf der Evaluierungsplatform des HPI!</p>\n"
+"  <p>Willkommen auf der Evaluierungsplattform des HPI!</p>\n"
 "  \n"
-"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie ein HPI Student or Dozent sind, melden Sie sich bitte mit Ihrem HPI-Login an.</p>  <p>Wenn Sie ein externer Student oder Dozent sind, können Sie Ihren Anmeldeschlüssel verwenden um sich anzumelden. Falls Sie keinen besitzen oder Ihren verloren haben, können Sie unten einen neuen erstellen.</p>"
+"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, können Sie unten einen neuen erstellen.</p>"
 
 #: .\templates\index.html.py:37
 msgid "Internal Users"
@@ -993,7 +993,7 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: Anmeldeschlüssel gelten nur 3 Monate."
+"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: Anmeldeschlüssel gelten nur drei Monate."
 
 #: .\templates\index.html.py:51
 msgid "login key"
@@ -1005,7 +1005,7 @@ msgstr "Anmeldung"
 
 #: .\templates\index.html.py:57
 msgid "Generate a new login key"
-msgstr "Schlüssel erzeugen"
+msgstr "Neuen Anmeldeschlüssel erzeugen"
 
 #: .\templates\index.html.py:59
 msgid ""
@@ -1019,7 +1019,7 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"  Wenn Sie keinen Anmeldeschlüssel besitzen oder Ihren bisherigen Schlüssel verloren haben, können Sie hier einen neuen erstellen. Bitte tragen Sie dazu Ihre E-Mail-Adresse in das Formular unten ein.  Ein neuer Schlüssel wird Ihnen darauf via E-Mail zugesendet. Bitte verwenden Sie dazu die E-Mail-Adresse welche sie zur Einschreibung verwendet haben, da das System sonst nicht Ihren Account finden kann.\n"
+"  Wenn Sie keinen Anmeldeschlüssel besitzen oder Ihren bisherigen Schlüssel verloren haben, können Sie hier einen neuen erstellen. Bitte tragen Sie dazu Ihre E-Mail-Adresse in das Formular unten ein. Ein neuer Schlüssel wird Ihnen darauf via E-Mail zugesendet. Bitte verwenden Sie dazu die E-Mail-Adresse welche sie zur Einschreibung verwendet haben.\n"
 "                "
 
 #: .\templates\index.html.py:71
@@ -1087,15 +1087,13 @@ msgstr "Schlüssel erzeugen"
 #~ msgstr "Ältere Semester"
 
 #~ msgid "Publish text even if anonymity cannot be assured."
-#~ msgstr ""
-#~ "Text auch veröffentlichen, wenn die Anonymität nicht garantiert werden "
-#~ "kann."
+#~ msgstr "Text auch veröffentlichen, wenn die Anonymität nicht garantiert werden kann."
 
 #~ msgid ""
 #~ "Error while importing sheet '%(name)s'. All changes undone. The error "
 #~ "message has been: '%(error)s'"
 #~ msgstr ""
-#~ "Fehler beim Importieren von Blatt '%(name)s'. Alle Änderungen rückgängig "
+#~ "Fehler beim Importieren des Blattes '%(name)s'. Alle Änderungen wurden rückgängig "
 #~ "gemacht. Die Fehlermeldung war: '%(error)s'"
 
 #~ msgid "# of Questions"
