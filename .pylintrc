@@ -1,0 +1,8 @@
+[MASTER]
+ignore=.hg,migrations
+
+[MESSAGES CONTROL]
+disable=C0301,C0111
+
+[TYPECHECK]
+generated-members=objects
