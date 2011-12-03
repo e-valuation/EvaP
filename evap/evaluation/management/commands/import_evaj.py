@@ -241,7 +241,11 @@ class Command(BaseCommand):
                             assignment = course.assignments.get(lecturer=lecturer)
                             
                             status = str(answer.revised_status)
-                            question = self.question_cache[int(answer.question_template_id)]
+                            try:
+                                question = self.question_cache[int(answer.question_template_id)]
+                            except KeyError:
+                                logger.warn("No question found for answer %r", answer.id)
+                                continue
                             
                             if status == "61":
                                 GradeAnswer.objects.create(
