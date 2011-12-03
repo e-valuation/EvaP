@@ -7,11 +7,12 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
-from evap.evaluation.models import Course, GradeAnswer, TextAnswer
+from evap.evaluation.models import Course
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
 from datetime import datetime
+
 
 @login_required
 def index(request):

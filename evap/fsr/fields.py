@@ -42,5 +42,5 @@ class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def _get_choices(self):
         if hasattr(self, '_choices'):
             return self._choices
-        return ToolTipModelChoiceIterator(self)    
+        return ToolTipModelChoiceIterator(self)
     choices = property(_get_choices, forms.ChoiceField._set_choices)

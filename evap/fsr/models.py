@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 
+
 class EmailTemplate(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     
@@ -39,7 +40,7 @@ class EmailTemplate(models.Model):
     def missed_users(self, courses):
         return [user for user in self.receipient_list(courses) if user.email == ""]
     
-    # returns whether all recepients have an email address    
+    # returns whether all recepients have an email address
     def all_recepients_reachable(self, courses):
         return len(self.missed_users(courses)) == 0
         
@@ -70,7 +71,7 @@ class EmailTemplate(models.Model):
                 if user in user_course_map:
                     user_course_map[user].append(course)
                 else:
-                    user_course_map[user] = [course,]
+                    user_course_map[user] = [course]
         
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():

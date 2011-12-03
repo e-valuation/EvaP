@@ -1,12 +1,12 @@
-from evap.evaluation.models import Course, Questionnaire, Semester
+from evap.evaluation.models import Questionnaire
 from evap.evaluation.tools import calculate_results, calculate_average_grade
 
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from collections import defaultdict
-
 import xlwt
+
 
 class ExcelExporter(object):
     def __init__(self, semester):
@@ -84,7 +84,7 @@ class ExcelExporter(object):
                                             enough_answers = False
                                     break
                         if values:
-                            self.writec(sum(values)/len(values), fmt_num if enough_answers else fmt_num_it)
+                            self.writec(sum(values) / len(values), fmt_num if enough_answers else fmt_num_it)
                         else:
                             self.writec()
                     else:

@@ -3,7 +3,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from django_fsm.db.fields import FSMField, transition
@@ -16,6 +15,7 @@ from evap.fsr.models import EmailTemplate
 import datetime
 import random
 import sys
+
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
@@ -235,6 +235,7 @@ class Assignment(models.Model):
             ('course', 'lecturer'),
         )
 
+
 class Question(models.Model):
     """A question including a type."""
     
@@ -292,7 +293,7 @@ class GradeAnswer(Answer):
     """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
     being *strongly disagree*."""
     
-    answer = models.IntegerField(verbose_name = _(u"answer"))
+    answer = models.IntegerField(verbose_name=_(u"answer"))
     
     class Meta:
         verbose_name = _(u"grade answer")
@@ -305,11 +306,11 @@ class TextAnswer(Answer):
     
     elements_per_page = 2
     
-    censored_answer = models.TextField(verbose_name = _(u"censored answer"), blank=True, null=True)
-    original_answer = models.TextField(verbose_name = _(u"original answer"), blank=True)
+    censored_answer = models.TextField(verbose_name=_(u"censored answer"), blank=True, null=True)
+    original_answer = models.TextField(verbose_name=_(u"original answer"), blank=True)
     
-    checked = models.BooleanField(verbose_name = _(u"answer checked"))
-    hidden = models.BooleanField(verbose_name = _(u"hide answer"))
+    checked = models.BooleanField(verbose_name=_(u"answer checked"))
+    hidden = models.BooleanField(verbose_name=_(u"hide answer"))
     
     class Meta:
         verbose_name = _(u"text answer")
@@ -332,17 +333,17 @@ class UserProfile(models.Model):
     title = models.CharField(verbose_name=_(u"Title"), max_length=30, blank=True, null=True)
     
     # picture of the user
-    picture = models.ImageField(verbose_name = _(u"Picture"), upload_to="pictures", blank=True, null=True)
+    picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
     
     # proxies of the user, which can also manage their courses
-    proxies = models.ManyToManyField(User, verbose_name = _(u"Proxies"), related_name="proxied_users", blank=True)
+    proxies = models.ManyToManyField(User, verbose_name=_(u"Proxies"), related_name="proxied_users", blank=True)
     
     # is the user possibly a lecturer
-    is_lecturer = models.BooleanField(verbose_name = _(u"Lecturer"))    
+    is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"))
     
     # key for url based logon of this user
-    logon_key = models.IntegerField(verbose_name = _(u"Logon Key"), blank=True, null=True)
-    logon_key_valid_until = models.DateField(verbose_name = _(u"Login Key Validity"), null=True)
+    logon_key = models.IntegerField(verbose_name=_(u"Logon Key"), blank=True, null=True)
+    logon_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
     
     class Meta:
         verbose_name = _('user')
@@ -406,4 +407,4 @@ from django.contrib.auth import models as auth_app
 signals.post_syncdb.disconnect(
     create_superuser,
     sender=auth_app,
-    dispatch_uid = "django.contrib.auth.management.create_superuser")
+    dispatch_uid="django.contrib.auth.management.create_superuser")

@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Course, Semester
+from evap.evaluation.models import Course
 
 import xlrd
 
@@ -49,6 +49,7 @@ class UserData(object):
         
         user.save()
         profile.save()
+
 
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""

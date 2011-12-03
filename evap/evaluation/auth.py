@@ -1,6 +1,5 @@
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import auth, messages
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
 from django.contrib.auth.models import User
 from django.utils.decorators import available_attrs
@@ -10,6 +9,7 @@ from evap.evaluation.models import UserProfile
 
 from datetime import date
 from functools import wraps
+
 
 class RequestAuthMiddleware(object):
     """
@@ -52,6 +52,7 @@ class RequestAuthMiddleware(object):
         else:
             messages.warning(request, _(u"Invalid login key."))
 
+
 class CaseInsensitiveModelBackend(ModelBackend):
     """
     By default ModelBackend does case _sensitive_ username authentication, which isn't what is
@@ -66,6 +67,7 @@ class CaseInsensitiveModelBackend(ModelBackend):
                 return None
         except User.DoesNotExist:
             return None
+
 
 class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
     """
@@ -92,7 +94,7 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
         # instead we use get_or_create when creating unknown users since it has
         # built-in safeguards for multiple threads.
         if self.create_unknown_user:
-            user, created = User.objects.get_or_create(username__iexact=username, defaults={'username':username})
+            user, created = User.objects.get_or_create(username__iexact=username, defaults={'username': username})
             if created:
                 user = self.configure_user(user)
         else:
@@ -104,6 +106,7 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
     
     def clean_username(self, username):
         return username.partition("@")[0]
+
 
 class RequestAuthUserBackend(ModelBackend):
     """
@@ -126,6 +129,7 @@ class RequestAuthUserBackend(ModelBackend):
         
         return None
 
+
 def user_passes_test_without_redirect(test_func):
     """
     Decorator for views that checks that the user passes the given test.
@@ -142,6 +146,7 @@ def user_passes_test_without_redirect(test_func):
         return _wrapped_view
     return decorator
 
+
 def login_required(func):
     """
     Decorator for views that checks that the user is logged in
@@ -149,6 +154,7 @@ def login_required(func):
     def check_user(user):
         return user.is_authenticated()
     return user_passes_test_without_redirect(check_user)(func)
+
 
 def fsr_required(func):
     """
@@ -161,6 +167,7 @@ def fsr_required(func):
             return False
         return user.is_staff
     return user_passes_test_without_redirect(check_user)(func)
+
 
 def lecturer_required(func):
     """

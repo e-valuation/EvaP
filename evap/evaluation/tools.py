@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Avg
 from django.utils.datastructures import SortedDict
 from evap.evaluation.models import GradeAnswer, TextAnswer
 
@@ -71,7 +70,7 @@ def calculate_results(course):
                 # produce the result element
                 results.append(GradeResult(
                     question=question,
-                    average=avg(answers),
+                    average=average,
                     count=len(answers),
                     distribution=distribution,
                     show=(len(answers) >= settings.MIN_ANSWERS)
@@ -105,7 +104,7 @@ def calculate_results(course):
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
     #      change anyway.
-    cache.set(cache_key, sections, 24*60*60)
+    cache.set(cache_key, sections, 24 * 60 * 60)
     
     return sections
 

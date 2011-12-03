@@ -7,6 +7,7 @@ __all__ = ('Translate', 'LocalizeModelBase')
 # a dummy placeholder object
 Translate = object()
 
+
 class LocalizeModelBase(ModelBase):
     """This meta-class provides automatically translated content properties. Set
     a model field to `Translate` and it will automatically return the property

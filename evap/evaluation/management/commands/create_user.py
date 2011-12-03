@@ -1,16 +1,17 @@
-import getpass
 import sys
 
 from django.core import exceptions
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import User
 
+
 def is_valid_email(value):
     if not EMAIL_RE.search(value):
         raise exceptions.ValidationError(_('Enter a valid e-mail address.\n'))
+
 
 def is_valid_username(username):
     if not RE_VALID_USERNAME.match(username):
@@ -23,9 +24,11 @@ def is_valid_username(username):
     else:
         raise exceptions.ValidationError(_("Error: That username is already taken.\n"))
 
+
 def is_valid_bool_answer(answer):
     if answer not in ['Yes', 'yes', 'No', 'no']:
         raise exceptions.ValidationError(_("Error: Please answer with yes or no\n"))
+
 
 def read_value(question, validator_func):
     while True:
@@ -38,10 +41,10 @@ def read_value(question, validator_func):
         else:
             return value
 
+
 class Command(BaseCommand):
     args = ''
     help = 'Creates a user'
-    
     
     def handle(self, *args, **options):
         try:

@@ -1,13 +1,15 @@
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from evap.evaluation.models import *
+from evap.evaluation.models import Assignment, Course, GradeAnswer, Question, \
+                                   Questionnaire, Semester, TextAnswer
 
 from datetime import datetime
-from lxml import etree
 from lxml import objectify
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 def nint(v):
     """Nullable int"""
@@ -26,7 +28,7 @@ class Command(BaseCommand):
     args = "<path to XML file> [evaluation_id ...]"
     help = "Imports one or all semesters from an EvaJ XML dump."
     
-    question_template_type_map = {"22":"G", "23":"T"}
+    question_template_type_map = {"22": "G", "23": "T"}
     
     index_structure = dict(
         answer = [('assessment_id',)],
@@ -44,7 +46,7 @@ class Command(BaseCommand):
         student = [('id',)],
         target_audience = [('id',)],
         topic_template = [('questionnaire_template_id',),
-                          ('course_category_id','per_person','questionnaire_template_id')],
+                          ('course_category_id', 'per_person', 'questionnaire_template_id')],
     )
     
     def store(self, element, *specifiers):
@@ -108,7 +110,6 @@ class Command(BaseCommand):
                 user.save()
                 profile.save()
                     
-                
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
                 try:
@@ -159,8 +160,7 @@ class Command(BaseCommand):
                     self.store(element, *specifiers)
     
     def process_semester(self, semester_id):
-        self.questionnaire_cache = dict() # topic template id -> Questionnaire
-        self.question_cache = dict() # question template id -> Question
+        self.question_cache = dict()  # question template id -> Question
         
         # evaluation --> Semester
         evaluation = self.get_one('evaluation', id=semester_id)
@@ -228,7 +228,6 @@ class Command(BaseCommand):
                     Assignment.objects.get(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
                     
                     # lecturer questionnaires
-                    questionnaires = self.get_questionnaires(xml_course, evaluation.id, "1")
                     for lecturer, questionnaire in self.get_lecturers_with_questionnaires(xml_course):
                         assignment, created = Assignment.objects.get_or_create(course=course, lecturer=lecturer)
                         assignment.questionnaires.add(questionnaire)

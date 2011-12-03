@@ -1,11 +1,11 @@
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
-from evap.evaluation.models import *
-from evap.fsr.fields import *
+from evap.evaluation.models import Course, UserProfile
+from evap.fsr.fields import UserModelMultipleChoiceField
 
 
-class CourseForm(forms.ModelForm):    
+class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'kind', 'study', 'vote_start_date', 'vote_end_date')

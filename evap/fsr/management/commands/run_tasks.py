@@ -1,10 +1,10 @@
 import datetime
 
-from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.core.management.base import BaseCommand
 
-from evap.evaluation.models import *
+from evap.evaluation.models import Course
 from evap.fsr.models import EmailTemplate
+
 
 class Command(BaseCommand):
     args = ''
@@ -25,7 +25,6 @@ class Command(BaseCommand):
             except:
                 pass
     
-    
     def check_reminders(self):
         check_date = datetime.date.today() + datetime.timedelta(days=14)
         found_courses = []
@@ -35,7 +34,6 @@ class Command(BaseCommand):
                 found_courses.append(course)
         
         EmailTemplate.get_reminder_template().send_courses(found_courses, False, True)
-    
     
     def handle(self, *args, **options):
         self.update_courses()

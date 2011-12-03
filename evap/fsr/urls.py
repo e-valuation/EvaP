@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('evap.fsr.views',
     url(r"^$", 'semester_index', name="fsr_root"),
@@ -14,7 +14,7 @@ urlpatterns = patterns('evap.fsr.views',
     url(r"^semester/(\d+)/approve$", 'semester_approve'),
     url(r"^semester/(\d+)/lecturerready$", 'semester_lecturer_ready'),
     url(r"^semester/(\d+)/lottery$", 'semester_lottery'),
-    url(r"^semester/(\d+)/course/create$", 'course_create'),    
+    url(r"^semester/(\d+)/course/create$", 'course_create'),
     url(r"^semester/(\d+)/course/(\d+)/edit$", 'course_edit'),
     url(r"^semester/(\d+)/course/(\d+)/delete$", 'course_delete'),
     url(r"^semester/(\d+)/course/(\d+)/censor$", 'course_censor'),

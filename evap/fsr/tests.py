@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django_webtest import WebTest
 import webtest
 
@@ -7,6 +6,7 @@ from django.contrib.auth.models import User
 from evap.evaluation.models import Semester, Questionnaire
 
 import os.path
+
 
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
@@ -65,7 +65,6 @@ class UsecaseTests(WebTest):
         url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.logon_key
         self.app.get(url_with_key)
     
-    
     def test_create_questionnaire(self):
         p = self.app.get(reverse("fsr_root"), user="fsr.user")
         
@@ -84,7 +83,6 @@ class UsecaseTests(WebTest):
         q = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
         self.assertEqual(q.question_set.count(), 1, "New questionnaire is empty.")
     
-    
     def test_create_empty_questionnaire(self):
         p = self.app.get(reverse("fsr_root"), user="fsr.user")
         
@@ -102,7 +100,6 @@ class UsecaseTests(WebTest):
         with self.assertRaises(Questionnaire.DoesNotExist):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
     
-    
     def test_copy_questionnaire(self):
         p = self.app.get(reverse("fsr_root"), user="fsr.user")
         
@@ -117,7 +114,6 @@ class UsecaseTests(WebTest):
         # retrieve new questionnaire
         q = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
         self.assertEqual(q.question_set.count(), 2, "New questionnaire is empty.")
-    
     
     def test_assign_questionnaires(self):
         p = self.app.get(reverse("fsr_root"), user="fsr.user")

@@ -1,9 +1,7 @@
-from django.template import Library, Node
-from django.template.context import Context
-from django.template.loader import get_template
-from django.utils.importlib import import_module
+from django.template import Library, Node, TemplateSyntaxError
 
 register = Library()
+
 
 class IfLecturerNode(Node):
     def __init__(self, nodelist, course_or_semester_val):
@@ -18,6 +16,7 @@ class IfLecturerNode(Node):
         else:
             return ''
 
+
 @register.tag('if_lecturer')
 def do_if_lecturer(parser, token):
     bits = list(token.split_contents())
@@ -29,4 +28,3 @@ def do_if_lecturer(parser, token):
     
     val1 = parser.compile_filter(bits[1])
     return IfLecturerNode(nodelist, val1)
-

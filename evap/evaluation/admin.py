@@ -1,4 +1,5 @@
-from evap.evaluation.models import *
+from evap.evaluation.models import Assignment, Course, GradeAnswer, Question, \
+                                   Questionnaire, Semester, TextAnswer, UserProfile
 from django.conf import settings
 from django.contrib import admin
 

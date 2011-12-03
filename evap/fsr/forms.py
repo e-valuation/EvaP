@@ -1,20 +1,22 @@
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
-from django.forms.models import BaseInlineFormSet, BaseModelFormSet
+from django.forms.models import BaseInlineFormSet
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import *
-from evap.student.forms import GRADE_CHOICES, coerce_grade
-from evap.fsr.fields import *
+from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
+                                   Semester, TextAnswer, UserProfile
+from evap.fsr.models import EmailTemplate
+from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
 
 
 class ImportForm(forms.Form):
-    vote_start_date = forms.DateField(label = _(u"first date to vote"))
-    vote_end_date = forms.DateField(label = _(u"last date to vote"))
+    vote_start_date = forms.DateField(label=_(u"first date to vote"))
+    vote_end_date = forms.DateField(label=_(u"last date to vote"))
     
-    excel_file = forms.FileField(label = _(u"excel file"))
+    excel_file = forms.FileField(label=_(u"excel file"))
     
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)
@@ -51,19 +53,18 @@ class CourseForm(forms.ModelForm):
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
         
-        self.fields['kind'].widget = forms.Select(choices = [(a,a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
-        self.fields['study'].widget = forms.Select(choices = [(a,a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
-        
+        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
+        self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
     
     def save(self, *args, **kw):
         super(CourseForm, self).save(*args, **kw)
         self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.save()
 
+
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-    
     
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
@@ -71,10 +72,10 @@ class AssignmentForm(forms.ModelForm):
 
 
 class CourseEmailForm(forms.Form):
-    sendToParticipants = forms.BooleanField(label = _("Send to participants?"), required=False, initial=True)
-    sendToLecturers = forms.BooleanField(label = _("Send to lecturers?"), required=False)
-    subject = forms.CharField(label = _("Subject"))
-    body = forms.CharField(widget=forms.Textarea(), label = _("Body"))
+    sendToParticipants = forms.BooleanField(label=_("Send to participants?"), required=False, initial=True)
+    sendToLecturers = forms.BooleanField(label=_("Send to lecturers?"), required=False)
+    subject = forms.CharField(label=_("Subject"))
+    body = forms.CharField(widget=forms.Textarea(), label=_("Body"))
     
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
@@ -88,7 +89,7 @@ class CourseEmailForm(forms.Form):
         
         return cleaned_data
 
-    # returns whether all recepients have an email address    
+    # returns whether all recepients have an email address
     def all_recepients_reachable(self):
         return self.missing_email_addresses() == 0
     
@@ -115,7 +116,7 @@ class CourseEmailForm(forms.Form):
     
     def render_string(self, text, dictionary):
         t = Template(text)
-        return t.render(Context(dictionary))    
+        return t.render(Context(dictionary))
     
     def send(self):
         for user in self.receipient_list:
@@ -123,11 +124,11 @@ class CourseEmailForm(forms.Form):
                 continue
             
             mail = EmailMessage(
-                subject = self.render_string(self.cleaned_data.get('subject'), {'user': user, 'course': self.instance}),
-                body = self.render_string(self.cleaned_data.get('body'), {'user': user, 'course': self.instance}),
-                to = [user.email],
-                bcc = [a[1] for a in settings.MANAGERS],
-                headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+                subject=self.render_string(self.cleaned_data.get('subject'), {'user': user, 'course': self.instance}),
+                body=self.render_string(self.cleaned_data.get('body'), {'user': user, 'course': self.instance}),
+                to=[user.email],
+                bcc=[a[1] for a in settings.MANAGERS],
+                headers={'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
 
 
@@ -165,9 +166,9 @@ class CensorTextAnswerForm(forms.ModelForm):
 
 class AtLeastOneFormSet(BaseInlineFormSet):
     def is_valid(self):
-        return super(AtLeastOneFormSet, self).is_valid() and not any([bool(e) for e in self.errors])  
+        return super(AtLeastOneFormSet, self).is_valid() and not any([bool(e) for e in self.errors])
     
-    def clean(self):          
+    def clean(self):
         # get forms that actually have valid data
         count = 0
         for form in self.forms:
@@ -182,13 +183,14 @@ class AtLeastOneFormSet(BaseInlineFormSet):
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
+
 class IdLessQuestionFormSet(AtLeastOneFormSet):
     class PseudoQuerySet(list):
         db = None
     
     def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None):
         self.save_as_new = save_as_new
-        self.instance=instance
+        self.instance = instance
         super(BaseInlineFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
     
     def get_queryset(self):
@@ -198,14 +200,15 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
             self._queryset.db = self.queryset.db
         return self._queryset
 
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
     
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
-        self.fields['text_de'].widget=forms.TextInput()
-        self.fields['text_en'].widget=forms.TextInput()
+        self.fields['text_de'].widget = forms.TextInput()
+        self.fields['text_en'].widget = forms.TextInput()
 
 
 class QuestionnairesAssignForm(forms.Form):
@@ -257,7 +260,7 @@ class UserForm(forms.ModelForm):
         super(UserForm, self).__init__(*args, **kwargs)
         
         # fix generated form
-        self.fields['proxies'].required=False
+        self.fields['proxies'].required = False
         
         # load user fields
         self.fields['username'].initial = self.instance.user.username
@@ -268,11 +271,11 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
-        self.instance.user.username     = self.cleaned_data.get('username')
-        self.instance.user.first_name   = self.cleaned_data.get('first_name')
-        self.instance.user.last_name    = self.cleaned_data.get('last_name')
-        self.instance.user.email        = self.cleaned_data.get('email')
-        self.instance.user.is_staff     = self.cleaned_data.get('fsr')
+        self.instance.user.username = self.cleaned_data.get('username')
+        self.instance.user.first_name = self.cleaned_data.get('first_name')
+        self.instance.user.last_name = self.cleaned_data.get('last_name')
+        self.instance.user.email = self.cleaned_data.get('email')
+        self.instance.user.is_staff = self.cleaned_data.get('fsr')
         self.instance.user.save()
         self.instance = self.instance.user.get_profile()
         
@@ -282,7 +285,8 @@ class UserForm(forms.ModelForm):
 class LotteryForm(forms.Form):
     number_of_winners = forms.IntegerField(label=_(u"Number of Winners"), initial=3)
 
-class EmailTemplateForm(forms.ModelForm):    
+
+class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
         exclude = ("name", )

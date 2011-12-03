@@ -1,15 +1,18 @@
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_noop
 
 from evap.evaluation.auth import fsr_required
-from evap.evaluation.models import Semester, Course, Question, Questionnaire
-from evap.fsr.forms import *
+from evap.evaluation.models import Assignment, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile
+from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, CensorTextAnswerForm, CourseForm, \
+                           CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
+                           LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
+                           SelectCourseForm, SemesterForm, UserForm
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
 from evap.student.forms import QuestionsForm
@@ -94,7 +97,7 @@ def semester_edit(request, semester_id):
 def semester_delete(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if semester.can_fsr_delete:    
+    if semester.can_fsr_delete:
         if request.method == 'POST':
             semester.delete()
             return redirect('evap.fsr.views.semester_index')
@@ -188,7 +191,6 @@ def semester_lecturer_ready(request, semester_id):
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_lecturer_ready.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
-        
 
 
 @fsr_required
@@ -356,7 +358,7 @@ def course_email(request, semester_id, course_id):
 
 @fsr_required
 def course_lecturer_ready(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+    get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
     course.ready_for_lecturer()
@@ -508,7 +510,7 @@ def user_edit(request, user_id):
     
 @fsr_required
 def template_index(request):
-    templates = EmailTemplate.objects.all()    
+    templates = EmailTemplate.objects.all()
     return render_to_response("fsr_template_index.html", dict(templates=templates), context_instance=RequestContext(request))
 
 
@@ -524,4 +526,3 @@ def template_edit(request, template_id):
         return redirect('evap.fsr.views.template_index')
     else:
         return render_to_response("fsr_template_form.html", dict(form=form), context_instance=RequestContext(request))
-

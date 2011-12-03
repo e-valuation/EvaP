@@ -1,9 +1,9 @@
 from django.template import Library
-from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.importlib import import_module
 
 register = Library()
+
 
 @register.simple_tag(takes_context=True)
 def show_from(context, source, template_name):
