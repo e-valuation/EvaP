@@ -117,10 +117,11 @@ class Command(BaseCommand):
                 yield user, questionnaire
     
     def get_questionnaires(self, course, evaluation_id, per_person="0"):
+        questionnaire_template_id = self.get_one('evaluation', id=evaluation_id).questionnaire_template_id
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for topic_template in self.get('topic_template',
                                            course_category_id=ccm.course_category_id,
-                                           questionnaire_template_id=evaluation_id,
+                                           questionnaire_template_id=questionnaire_template_id,
                                            per_person=per_person):
                 yield self.questionnaire_cache[int(topic_template.id)]
     
@@ -164,7 +165,7 @@ class Command(BaseCommand):
         semester.save()
         
         # topic_template --> Questionnaire
-        for topic_template in self.get('topic_template', questionnaire_template_id=str(evaluation.id)):
+        for topic_template in self.get('topic_template', questionnaire_template_id=evaluation.questionnaire_template_id):
             try:
                 with transaction.commit_on_success():
                     questionnaire = Questionnaire.objects.create(
@@ -196,6 +197,7 @@ class Command(BaseCommand):
         
         courses = self.get('course', evaluation_id=evaluation.id)
         course_count = 0
+        
         # course --> Course
         for xml_course in courses:
             logger.debug(u"Creating course %s (id=%d evaluation=%d)", unicode(xml_course.name), xml_course.id, xml_course.evaluation_id)
@@ -273,7 +275,7 @@ class Command(BaseCommand):
                 course_count += 1
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
         
         logger.info("Done, %d of %d courses imported.", course_count, len(courses))
