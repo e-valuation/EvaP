@@ -18,6 +18,10 @@ def parse_date(s):
     return datetime.strptime(s, "%Y-%m-%d %H:%M:%S").date()
 
 
+class NotOneException(Exception):
+    pass
+
+
 class Command(BaseCommand):
     args = "<path to XML file> [evaluation_id ...]"
     help = "Imports one or all semesters from an EvaJ XML dump."
@@ -58,9 +62,9 @@ class Command(BaseCommand):
     def get_one(self, *args, **kwargs):
         elements = self.get(*args, **kwargs)
         if len(elements) == 0:
-            raise ValueError("No element.")
+            raise NotOneException("No %r element for %r." % (args, kwargs))
         elif len(elements) != 1:
-            raise ValueError("More than one element.")
+            raise NotOneException("More than one %r element for %r." % (args, kwargs))
         return elements[0]
     
     def get_lecture_types(self, course):
@@ -107,14 +111,17 @@ class Command(BaseCommand):
                 
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
-                
-                topic_template = self.get_one('topic_template',
-                                              course_category_id=ccm.course_category_id,
-                                              questionnaire_template_id=course.evaluation_id,
-                                              per_person="1")
-                questionnaire = self.questionnaire_cache[int(topic_template.id)]
-                
-                yield user, questionnaire
+                try:
+                    topic_template = self.get_one('topic_template',
+                                                  course_category_id=ccm.course_category_id,
+                                                  questionnaire_template_id=course.evaluation_id,
+                                                  per_person="1")
+                    
+                    questionnaire = self.questionnaire_cache[int(topic_template.id)]
+                    
+                    yield user, questionnaire
+                except NotOneException:
+                    logger.warn("Skipping questionnaire for lecturer %r in course %r.", user, course.name)
     
     def get_questionnaires(self, course, evaluation_id, per_person="0"):
         questionnaire_template_id = self.get_one('evaluation', id=evaluation_id).questionnaire_template_id
