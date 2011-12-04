@@ -1,0 +1,9 @@
+[run]
+branch = True
+omit = *migrations*
+
+[report]
+omit = */migrations/*
+
+[paths]
+source = evap
