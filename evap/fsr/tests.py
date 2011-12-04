@@ -14,15 +14,15 @@ class UsecaseTests(WebTest):
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
     
     def test_import(self):
-        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new semester
-        p = p.click("[Ss]emesters")
-        p = p.click("[Nn]ew [Ss]emester")
-        semester_form = p.forms[0]
+        page = page.click("[Ss]emesters")
+        page = page.click("[Nn]ew [Ss]emester")
+        semester_form = page.forms[0]
         semester_form['name_de'] = "Testsemester"
         semester_form['name_en'] = "test semester"
-        p = semester_form.submit().follow()
+        page = semester_form.submit().follow()
         
         # retrieve new semester
         semester = Semester.objects.get(name_de="Testsemester",
@@ -34,12 +34,12 @@ class UsecaseTests(WebTest):
         original_user_count = User.objects.all().count()
         
         # import excel file
-        p = p.click("[Ii]mport")
-        upload_form = p.forms[0]
+        page = page.click("[Ii]mport")
+        upload_form = page.forms[0]
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
-        p = upload_form.submit().follow()
+        page = upload_form.submit().follow()
         
         self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
         self.assertEqual(User.objects.count(), original_user_count + 24, "Wrong number of users after Excel import.")
@@ -66,65 +66,65 @@ class UsecaseTests(WebTest):
         self.app.get(url_with_key)
     
     def test_create_questionnaire(self):
-        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new questionnaire
-        p = p.click("[Qq]uestionnaires")
-        p = p.click("[Nn]ew [Qq]uestionnaire")
-        questionnaire_form = p.forms[0]
+        page = page.click("[Qq]uestionnaires")
+        page = page.click("[Nn]ew [Qq]uestionnaire")
+        questionnaire_form = page.forms[0]
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['question_set-0-text_de'] = "Frage 1"
         questionnaire_form['question_set-0-text_en'] = "Question 1"
         questionnaire_form['question_set-0-kind'] = "T"
-        p = questionnaire_form.submit().follow()
+        page = questionnaire_form.submit().follow()
         
         # retrieve new questionnaire
         q = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
         self.assertEqual(q.question_set.count(), 1, "New questionnaire is empty.")
     
     def test_create_empty_questionnaire(self):
-        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new questionnaire
-        p = p.click("[Qq]uestionnaires")
-        p = p.click("[Nn]ew [Qq]uestionnaire")
-        questionnaire_form = p.forms[0]
+        page = page.click("[Qq]uestionnaires")
+        page = page.click("[Nn]ew [Qq]uestionnaire")
+        questionnaire_form = page.forms[0]
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
-        p = questionnaire_form.submit()
+        page = questionnaire_form.submit()
         
-        assert "You must have at least one of these" in p
+        assert "You must have at least one of these" in page
         
         # retrieve new questionnaire
         with self.assertRaises(Questionnaire.DoesNotExist):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
     
     def test_copy_questionnaire(self):
-        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new questionnaire
-        p = p.click("[Qq]uestionnaires")
-        p = p.click("Copy")
-        questionnaire_form = p.forms[0]
+        page = page.click("[Qq]uestionnaires")
+        page = page.click("Copy")
+        questionnaire_form = page.forms[0]
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
         questionnaire_form['name_en'] = "test questionnaire (copied)"
-        p = questionnaire_form.submit().follow()
+        page = questionnaire_form.submit().follow()
         
         # retrieve new questionnaire
-        q = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
-        self.assertEqual(q.question_set.count(), 2, "New questionnaire is empty.")
+        questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
+        self.assertEqual(questionnaire.question_set.count(), 2, "New questionnaire is empty.")
     
     def test_assign_questionnaires(self):
-        p = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # assign questionnaire to courses
-        p = p.click("[Ss]emester 1 \(en\)", index=0)
-        p = p.click("Assign questionnaires")
-        assign_form = p.forms[0]
+        page = page.click("[Ss]emester 1 \(en\)", index=0)
+        page = page.click("Assign questionnaires")
+        assign_form = page.forms[0]
         assign_form['Seminar'] = [1]
         assign_form['Vorlesung'] = [1]
-        p = assign_form.submit().follow()
+        page = assign_form.submit().follow()
         
         # get semester and check
         semester = Semester.objects.get(pk=1)
