@@ -160,6 +160,7 @@ class Command(BaseCommand):
                     self.store(element, *specifiers)
     
     def process_semester(self, semester_id):
+        self.questionnaire_cache = dict() # topic template id -> Questionnaire
         self.question_cache = dict()  # question template id -> Question
         
         # evaluation --> Semester
