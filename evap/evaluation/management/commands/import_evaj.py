@@ -81,7 +81,7 @@ class Command(BaseCommand):
             yield user
     
     def get_voters(self, course):
-        for enrollment in self.get('enrollment', course_id=course.id, voted="1"):
+        for enrollment in self.get('enrollment', course_id=course.id, voted=1):
             student = self.get_one('student', id=enrollment.student_id)
             yield User.objects.get(username=unicode(student.loginName)[:30])
     
@@ -243,7 +243,7 @@ class Command(BaseCommand):
                             status = str(answer.revised_status)
                             try:
                                 question = self.question_cache[int(answer.question_template_id)]
-                            except KeyError:
+                            except (AttributeError, KeyError):
                                 logger.warn("No question found for answer %r", answer.id)
                                 continue
                             
