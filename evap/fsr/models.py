@@ -35,20 +35,7 @@ class EmailTemplate(models.Model):
     @classmethod
     def get_logon_key_template(cls):
         return get_object_or_404(cls, pk=3)
-    
-    # yields all users without an email address
-    def missed_users(self, courses):
-        return [user for user in self.receipient_list(courses) if user.email == ""]
-    
-    # returns whether all recepients have an email address
-    def all_recepients_reachable(self, courses):
-        return len(self.missed_users(courses)) == 0
-        
-    def receipient_list(self, courses):
-        for course in courses:
-            for user in self.receipient_list_for_course(course):
-                yield user
-    
+       
     def receipient_list_for_course(self, course, send_to_lecturers, send_to_participants):
         if send_to_participants:
             for user in course.participants.all():
@@ -60,8 +47,8 @@ class EmailTemplate(models.Model):
                     yield assignment.lecturer
     
     def render_string(self, text, dictionary):
-        t = Template(text)
-        return t.render(Context(dictionary))
+        template = Template(text)
+        return template.render(Context(dictionary))
     
     def send_courses(self, courses, send_to_lecturers, send_to_participants):
         # pivot course-user relationship

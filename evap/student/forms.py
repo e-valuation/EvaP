@@ -15,13 +15,13 @@ GRADE_CHOICES = (
 )
 
 
-def coerce_grade(s):
+def coerce_grade(string_value):
     """Converts a grade string (first element of each GRADE_CHOICES pair) into
     an integer or None."""
     
-    if s == u"X":
+    if string_value == u"X":
         return None
-    return int(s)
+    return int(string_value)
 
 
 class QuestionsForm(forms.Form):

@@ -61,10 +61,10 @@ class Command(BaseCommand):
             is_lecturer = True if read_value("Is lecturer (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
             # create user
-            u = User.objects.create(username=username, email=email, is_staff=is_fsr)
-            p = u.get_profile()
-            p.is_lecturer = is_lecturer
-            p.save()
+            user = User.objects.create(username=username, email=email, is_staff=is_fsr)
+            profile = user.get_profile()
+            profile.is_lecturer = is_lecturer
+            profile.save()
             
         except KeyboardInterrupt:
             sys.stderr.write("\nOperation cancelled.\n")

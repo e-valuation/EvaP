@@ -5,6 +5,7 @@ register = Library()
 
 class IfLecturerNode(Node):
     def __init__(self, nodelist, course_or_semester_val):
+        super(IfLecturerNode, self).__init__()
         self.nodelist = nodelist
         self.course_or_semester_val = course_or_semester_val
     

@@ -26,6 +26,7 @@ def value_from_settings(parser, token):
 
 class ValueFromSettings(template.Node):
     def __init__(self, var):
+        super(ValueFromSettings, self).__init__()
         self.arg = template.Variable(var)
     
     def render(self, context):

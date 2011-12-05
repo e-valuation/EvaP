@@ -99,24 +99,20 @@ class CourseEmailForm(forms.Form):
     
     @property
     def receipient_list(self):
-        # cache result
-        if hasattr(self, '_rcpts'):
-            return self._rcpts
-        
-        self._rcpts = []
+        rcpts = []
         if self.cleaned_data.get('sendToParticipants'):
-            self._rcpts.extend(self.instance.participants.all())
+            rcpts.extend(self.instance.participants.all())
         
         if self.cleaned_data.get('sendToLecturers'):
             for assignment in self.instance.assignments.exclude(lecturer=None):
                 if assignment.lecturer.get_profile().is_lecturer:
-                    self._rcpts.append(assignment.lecturer)
+                    rcpts.append(assignment.lecturer)
         
-        return self._rcpts
+        return rcpts
     
     def render_string(self, text, dictionary):
-        t = Template(text)
-        return t.render(Context(dictionary))
+        template = Template(text)
+        return template.render(Context(dictionary))
     
     def send(self):
         for user in self.receipient_list:
@@ -191,7 +187,7 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
     def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None):
         self.save_as_new = save_as_new
         self.instance = instance
-        super(BaseInlineFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
+        super(IdLessQuestionFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
     
     def get_queryset(self):
         if not hasattr(self, '_queryset'):

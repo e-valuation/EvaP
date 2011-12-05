@@ -80,8 +80,8 @@ class UsecaseTests(WebTest):
         page = questionnaire_form.submit().follow()
         
         # retrieve new questionnaire
-        q = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
-        self.assertEqual(q.question_set.count(), 1, "New questionnaire is empty.")
+        questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
+        self.assertEqual(questionnaire.question_set.count(), 1, "New questionnaire is empty.")
     
     def test_create_empty_questionnaire(self):
         page = self.app.get(reverse("fsr_root"), user="fsr.user")
