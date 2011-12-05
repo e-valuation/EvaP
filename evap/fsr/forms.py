@@ -187,7 +187,7 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
     def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None):
         self.save_as_new = save_as_new
         self.instance = instance
-        super(IdLessQuestionFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
+        super(BaseInlineFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
     
     def get_queryset(self):
         if not hasattr(self, '_queryset'):
