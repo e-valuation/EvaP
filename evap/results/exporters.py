@@ -34,8 +34,8 @@ class ExcelExporter(object):
         
         self.workbook = xlwt.Workbook()
         self.sheet = self.workbook.add_sheet(_(u"Results"))
-        self.row = -1
-        self.col = -1
+        self.row = 0
+        self.col = 0
         
         fmt_bold = xlwt.XFStyle()
         fmt_bold.font.bold = True
@@ -52,13 +52,9 @@ class ExcelExporter(object):
         fmt_vert.alignment.rota = 90
         fmt_vert.alignment.horz = fmt_vert.alignment.HORZ_CENTER
         
-        self.writen(None)
+        self.writec()
         for course, results in courses_with_results:
-            self.writec(course.name, fmt_vert)
-        
-        self.writen(_(u"Overall Grade"), fmt_bold)
-        for course, results in courses_with_results:
-            self.writec(calculate_average_grade(course), fmt_num)
+            self.writec(course.name, fmt_vert, cols=2)
         self.writen(None)
         
         for questionnaire in questionnaires:
@@ -74,21 +70,34 @@ class ExcelExporter(object):
                     qn_results = results.get(questionnaire.id, None)
                     if qn_results:
                         values = []
+                        variances = []
                         enough_answers = True
                         for lecturer, data, grade in qn_results:
                             for grade_result in data:
                                 if grade_result.question.id == question.id:
                                     if grade_result.average:
                                         values.append(grade_result.average)
+                                        variances.append(grade_result.variance)
                                         if not grade_result.show:
                                             enough_answers = False
                                     break
                         if values:
                             self.writec(sum(values) / len(values), fmt_num if enough_answers else fmt_num_it)
+                            self.writec(sum(variances) / len(variances), fmt_num if enough_answers else fmt_num_it)
                         else:
+                            self.writec()
                             self.writec()
                     else:
                         self.writec()
+                        self.writec()
+        
+        self.writen(_(u"Overall Grade"), fmt_bold)
+        for course, results in courses_with_results:
+            self.writec(calculate_average_grade(course), fmt_num, cols=2)
+        
+        self.writen(_(u"Total Answers"), fmt_bold)
+        for course, results in courses_with_results:
+            self.writec(course.voters.count(), cols=2)
         
         self.workbook.save(response)
     
@@ -96,12 +105,18 @@ class ExcelExporter(object):
         """Write the cell at the beginning of the next row."""
         self.col = 0
         self.row += 1
-        self._write(*args, **kwargs)
+        self.writec(*args, **kwargs)
     
     def writec(self, *args, **kwargs):
         """Write the cell in the next column of the current line."""
-        self.col += 1
         self._write(*args, **kwargs)
+        self.col += 1
     
     def _write(self, *args, **kwargs):
-        self.sheet.write(self.row, self.col, *args, **kwargs)
+        rows = kwargs.pop('rows', 1)
+        cols = kwargs.pop('cols', 1)
+        if rows > 1 or cols > 1:
+            self.sheet.write_merge(self.row, self.row+rows-1, self.col, self.col+cols-1, *args, **kwargs)
+            self.col += cols - 1
+        else:
+            self.sheet.write(self.row, self.col, *args, **kwargs)

@@ -6,8 +6,8 @@ from evap.evaluation.models import GradeAnswer, TextAnswer
 from collections import namedtuple
 
 # see calculate_results
-ResultSection = namedtuple('CourseResult', ('questionnaire', 'lecturer', 'results', 'average'))
-GradeResult = namedtuple('GradeResult', ('question', 'average', 'count', 'distribution', 'show'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'lecturer', 'results', 'average'))
+GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'variance', 'distribution', 'show'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
 
@@ -52,6 +52,8 @@ def calculate_results(course):
                 if answers:
                     # average
                     average = avg(answers)
+                    # variance
+                    variance = avg((average - answer) ** 2 for answer in answers)
                     # calculate relative distribution (histogram) of answers:
                     # set up a sorted dictionary with a count of zero for each grade
                     distribution = SortedDict()
@@ -65,13 +67,15 @@ def calculate_results(course):
                         distribution[k] = int(float(distribution[k]) / len(answers) * 100)
                 else:
                     average = None
+                    variance = None
                     distribution = None
                 
                 # produce the result element
                 results.append(GradeResult(
                     question=question,
-                    average=average,
                     count=len(answers),
+                    average=average,
+                    variance=variance,
                     distribution=distribution,
                     show=(len(answers) >= settings.MIN_ANSWERS)
                 ))
