@@ -62,10 +62,14 @@ class EmailTemplate(models.Model):
         
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
+            # if user is lecturer, also send to proxies
+            cc = [p.email for p in user.get_profile().proxies.all() if p.email] if user.get_profile().is_lecturer else []
+            
             mail = EmailMessage(
                 subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
                 body = self.render_string(self.body, {'user': user, 'courses': courses}),
                 to = [user.email],
+                cc = cc,
                 bcc = [a[1] for a in settings.MANAGERS],
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)

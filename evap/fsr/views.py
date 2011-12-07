@@ -348,9 +348,9 @@ def course_email(request, semester_id, course_id):
         form.send()
         
         if form.all_recepients_reachable():
-            messages.add_message(request, messages.INFO, _("Successfully sent email to all participants of '%s'.") % course.name)
+            messages.add_message(request, messages.INFO, _("Successfully sent email to all participants/lecturers of '%s'.") % course.name)
         else:
-            messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants of '%s', but %d could not be reached as they do not have an email address.") % (course.name, form.missing_email_addresses()))
+            messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants/lecturers of '%s', but %d could not be reached as they do not have an email address.") % (course.name, form.missing_email_addresses()))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, form=form), context_instance=RequestContext(request))

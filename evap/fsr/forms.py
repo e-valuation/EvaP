@@ -82,6 +82,7 @@ class CourseEmailForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
+        self.template = EmailTemplate()
         super(CourseEmailForm, self).__init__(*args, **kwargs)
     
     def clean(self):
@@ -98,38 +99,12 @@ class CourseEmailForm(forms.Form):
     
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len([user.email for user in self.receipient_list if user.email == ""])
-    
-    @property
-    def receipient_list(self):
-        rcpts = []
-        if self.cleaned_data.get('sendToParticipants'):
-            rcpts.extend(self.instance.participants.all())
-        
-        if self.cleaned_data.get('sendToLecturers'):
-            for assignment in self.instance.assignments.exclude(lecturer=None):
-                if assignment.lecturer.get_profile().is_lecturer:
-                    rcpts.append(assignment.lecturer)
-        
-        return rcpts
-    
-    def render_string(self, text, dictionary):
-        template = Template(text)
-        return template.render(Context(dictionary))
+        return len(list(self.template.receipient_list_for_course(self.instance, self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants'))))
     
     def send(self):
-        for user in self.receipient_list:
-            if user.email == "":
-                continue
-            
-            mail = EmailMessage(
-                subject=self.render_string(self.cleaned_data.get('subject'), {'user': user, 'course': self.instance}),
-                body=self.render_string(self.cleaned_data.get('body'), {'user': user, 'course': self.instance}),
-                to=[user.email],
-                bcc=[a[1] for a in settings.MANAGERS],
-                headers={'Reply-To': settings.REPLY_TO_EMAIL})
-            mail.send(False)
-
+        self.template.subject = self.cleaned_data.get('subject')
+        self.template.body = self.cleaned_data.get('body')
+        self.template.send_courses([self.instance], self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants'))
 
 class QuestionnaireForm(forms.ModelForm):
     class Meta:
