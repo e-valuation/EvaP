@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from evap.evaluation.models import Assignment, Course, Semester
 from evap.evaluation.auth import lecturer_required
 from evap.lecturer.forms import CourseForm, UserForm
-from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm
+from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
 
 
 @lecturer_required
