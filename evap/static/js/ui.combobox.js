@@ -39,17 +39,24 @@
 							var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( $(this).val() ) + "$", "i" ),
 								valid = false;
 							select.children( "option" ).each(function() {
-								if ( $( this ).text().match( matcher ) ) {
+								if($(this).text().match(matcher)) {
 									this.selected = valid = true;
 									return false;
 								}
 							});
 							if ( !valid ) {
 								// remove invalid value, as it didn't match anything
-								$( this ).val( "" );
-								select.val( "" );
-								input.data( "autocomplete" ).term = "";
-								return false;
+								// $( this ).val( "" );
+								// select.val( "" );
+								// input.data( "autocomplete" ).term = "";
+								// return false;
+								
+								// add new option field and select it
+								select.children("option").each(function() {
+									$(this).removeAttr("selected");
+								});
+								select.append("<option selected=\"selected\" value=" + $(this).val() + ">" + $(this).val() + "</option>");
+								return true;
 							}
 						}
 					}
