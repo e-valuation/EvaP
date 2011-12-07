@@ -12,7 +12,7 @@ from evap.evaluation.models import Assignment, Course, Question, Questionnaire, 
 from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, CensorTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                           SelectCourseForm, SemesterForm, UserForm
+                           SelectCourseForm, SemesterForm, UserForm, LecturerFormSet
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
 from evap.student.forms import QuestionsForm
@@ -224,7 +224,7 @@ def semester_lottery(request, semester_id):
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = Course(semester=semester)
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=AtLeastOneFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
     form = CourseForm(request.POST or None, instance=course)
     formset = AssignmentFormset(request.POST or None, instance=course)
@@ -243,7 +243,7 @@ def course_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=AtLeastOneFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
     # check course state
     if not course.can_fsr_edit():

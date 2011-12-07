@@ -48,7 +48,7 @@ def course_edit(request, course_id):
     if not course.is_user_lecturer(user):
         raise PermissionDenied
         
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=AtLeastOneFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
     form = CourseForm(request.POST or None, instance=course)
     formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(lecturer=None))

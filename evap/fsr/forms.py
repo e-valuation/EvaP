@@ -179,6 +179,23 @@ class AtLeastOneFormSet(BaseInlineFormSet):
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
+class LecturerFormSet(AtLeastOneFormSet):
+    def clean(self):
+        super(LecturerFormSet, self).clean()
+        
+        found_lecturer = []
+        for form in self.forms:
+            try:
+                if form.cleaned_data:
+                    lecturer = form.cleaned_data.get('lecturer')
+                    if lecturer and lecturer in found_lecturer:
+                        raise forms.ValidationError(_(u'Duplicate lecturer found. Each lecturer should only be used once'))
+                    elif lecturer:
+                        found_lecturer.append(lecturer)
+            except AttributeError:
+                # annoyingly, if a subform is invalid Django explicity raises
+                # an AttributeError for cleaned_data
+                pass
 
 class IdLessQuestionFormSet(AtLeastOneFormSet):
     class PseudoQuerySet(list):
