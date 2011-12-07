@@ -49,7 +49,11 @@ def semester_export(request, semester_id):
     response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
     
     exporter = ExcelExporter(semester)
-    exporter.export(response)
+    
+    if 'all' in request.GET:
+        exporter.export(response, True)
+    else:
+        exporter.export(response)
     
     return response
 

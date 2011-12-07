@@ -5,6 +5,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from collections import defaultdict
+import datetime
 import xlwt
 
 
@@ -12,7 +13,7 @@ class ExcelExporter(object):
     def __init__(self, semester):
         self.semester = semester
     
-    def export(self, response):
+    def export(self, response, all=False):
         courses_with_results = list()
         for course in self.semester.course_set.all():
             results = SortedDict()
@@ -40,8 +41,17 @@ class ExcelExporter(object):
         fmt_bold = xlwt.XFStyle()
         fmt_bold.font.bold = True
         
+        avg_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour light_green; alignment: horiz centre', num_format_str="0.0")
+        avg_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre', num_format_str="0.0")
+        avg_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre', num_format_str="0.0")
+        
+        var_style_good = xlwt.easyxf('alignment: horiz centre', num_format_str="0.0")
+        var_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour gray25; alignment: horiz centre', num_format_str="0.0")
+        var_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour gray40; alignment: horiz centre', num_format_str="0.0")
+        
         fmt_num = xlwt.easyxf(num_format_str="0.0")
         fmt_num.alignment.horz = fmt_num.alignment.HORZ_CENTER
+        fmt_num.Pattern = xlwt.Pattern()
         
         fmt_num_it = xlwt.easyxf(num_format_str="0.0")
         fmt_num_it.alignment.horz = fmt_num.alignment.HORZ_CENTER
@@ -52,7 +62,7 @@ class ExcelExporter(object):
         fmt_vert.alignment.rota = 90
         fmt_vert.alignment.horz = fmt_vert.alignment.HORZ_CENTER
         
-        self.writec()
+        self.writec("{0} ({1})".format(self.semester.name, datetime.date.today()))
         for course, results in courses_with_results:
             self.writec(course.name, fmt_vert, cols=2)
         self.writen(None)
@@ -81,9 +91,22 @@ class ExcelExporter(object):
                                         if not grade_result.show:
                                             enough_answers = False
                                     break
-                        if values:
-                            self.writec(sum(values) / len(values), fmt_num if enough_answers else fmt_num_it)
-                            self.writec(sum(variances) / len(variances), fmt_num if enough_answers else fmt_num_it)
+                        if values and (enough_answers or all):
+                            avg = sum(values) / len(values)
+                            if avg < 2:
+                                self.writec(avg, avg_style_good)
+                            elif avg < 3:
+                                self.writec(avg, avg_style_medium)
+                            else:
+                                self.writec(avg, avg_style_bad)
+                            
+                            var = sum(variances) / len(variances)
+                            if var < 0.5:
+                                self.writec(var, var_style_good)
+                            elif var < 1:
+                                self.writec(var, var_style_medium)
+                            else:
+                                self.writec(var, var_style_bad)
                         else:
                             self.writec()
                             self.writec()
@@ -93,7 +116,13 @@ class ExcelExporter(object):
         
         self.writen(_(u"Overall Grade"), fmt_bold)
         for course, results in courses_with_results:
-            self.writec(calculate_average_grade(course), fmt_num, cols=2)
+            avg = calculate_average_grade(course)
+            if avg < 2:
+                self.writec(avg, avg_style_good, cols=2)
+            elif avg < 3:
+                self.writec(avg, avg_style_medium, cols=2)
+            else:
+                self.writec(avg, avg_style_bad, cols=2)
         
         self.writen(_(u"Total Answers"), fmt_bold)
         for course, results in courses_with_results:

@@ -12,7 +12,8 @@
 
     {% if request.user.is_staff %}
     <p>
-        <a href="{% url evap.results.views.semester_export semester.id %}">{% trans "Export semester as Excel table" %}</a>
+        <a href="{% url evap.results.views.semester_export semester.id %}">{% trans "Export semester as Excel table" %}</a>&nbsp;&middot;
+        <a href="{% url evap.results.views.semester_export semester.id %}?all">{% trans "Export semester as Excel table (GF)" %}</a>
     </p>
     {% endif %}
     
