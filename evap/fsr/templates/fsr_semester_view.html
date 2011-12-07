@@ -27,6 +27,7 @@
                                 {{ course.name }}
                             {% endif %}
                         </td>
+                        <td class="dontbreak">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
                         {% if state == 'inEvaluation' or state == 'pendingForReview' or state == 'pendingPublishing' or state == 'published' %}
                             {% if course.num_participants %}
                                 <td class="dontbreak right">{{ course.num_voters }}/{{ course.num_participants }}</td>
