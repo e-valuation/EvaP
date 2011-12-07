@@ -368,6 +368,24 @@ def course_lecturer_ready(request, semester_id, course_id):
 
 
 @fsr_required
+def course_unpublish(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    
+    # check course state
+    if not course.state == "published":
+        messages.add_message(request, messages.ERROR, _("The course '%s' cannot be unpublished, because it is not published.") % course.name)
+        return redirect('evap.fsr.views.semester_view', semester_id)
+    
+    if request.method == 'POST':
+        course.revoke()
+        course.save()
+        return redirect('evap.fsr.views.semester_view', semester_id)
+    else:
+        return render_to_response("fsr_course_unpublish.html", dict(semester=semester), context_instance=RequestContext(request))
+
+
+@fsr_required
 def questionnaire_index(request):
     questionnaires = Questionnaire.objects.order_by('obsolete')
     return render_to_response("fsr_questionnaire_index.html", dict(questionnaires=questionnaires), context_instance=RequestContext(request))

@@ -37,12 +37,15 @@
                             {% endif %}
                         {% endif %}
                         <td class="dontbreak">
-                            <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" title="{% trans "Write E-Mail" %}"><img src="{% get_static_prefix %}images/silk/email.png"> E-Mail</a>&nbsp;
+                            <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" title="{% trans "Write E-Mail" %}"><img src="{% get_static_prefix %}images/silk/email.png"> {% trans "E-Mail" %}</a>&nbsp;
                             {% if course.can_fsr_delete %}
                                 <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/bin.png"></a>&nbsp;
                             {% endif %}
                             {% if course.can_fsr_review %}
-                                <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/eye.png"></a>
+                                <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/eye.png"></a>&nbsp;
+                            {% endif %}
+                            {% if state == 'published' %}
+                                <a href="{% url evap.fsr.views.course_unpublish semester.id, course.id %}" title="{% trans "Unpublish" %}"><img src="{% get_static_prefix %}images/silk/blub.png"> {% trans "Unpublish" %}</a>
                             {% endif %}
                         </td>
                     </tr>
