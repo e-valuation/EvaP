@@ -1,0 +1,15 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        <form method="POST">
+            {% csrf_token %}
+            <p>{% trans "Do you really want to unpublish this course?" %}</p>
+            <input type="submit" value="{% trans "Yes" %}"/>
+            <a href="{% url evap.fsr.views.semester_view semester.id %}">{% trans "No" %}</a>
+        </form>
+    </p>
+{% endblock %}
