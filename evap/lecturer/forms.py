@@ -1,29 +1,36 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import Course, UserProfile
 from evap.fsr.fields import UserModelMultipleChoiceField
 
 
 class CourseForm(forms.ModelForm):
+    kind = forms.CharField(label = _(u"type"))
+    study = forms.CharField(label = _(u"study"))
+    
+    vote_start_date = forms.DateField(label = _(u"first date to vote"))
+    vote_end_date = forms.DateField(label = _(u"last date to vote"))
+    
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'study', 'vote_start_date', 'vote_end_date')
+        fields = ('name_de', 'name_en' )
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
-        self.fields['kind'].widget.attrs['disabled'] = True
-        self.fields['study'].widget.attrs['disabled'] = True
+        for field in ['kind', 'study']:
+            self.fields[field].required = False
+            self.fields[field].widget.attrs['disabled'] = True
+            self.fields[field].initial = getattr(self.instance, field)
         
-        self.fields['vote_start_date'].localize = True
-        self.fields['vote_start_date'].widget = forms.DateInput()
-        self.fields['vote_start_date'].widget.attrs['disabled'] = True
-        
-        self.fields['vote_end_date'].localize = True
-        self.fields['vote_end_date'].widget = forms.DateInput()
-        self.fields['vote_end_date'].widget.attrs['disabled'] = True
-    
+        for field in ['vote_start_date', 'vote_end_date']:
+            self.fields[field].required = False
+            self.fields[field].localize = True
+            self.fields[field].widget.attrs['disabled'] = True
+            self.fields[field].initial = getattr(self.instance, field)
+            
     def clean_kind(self):
         return self.instance.kind
 
