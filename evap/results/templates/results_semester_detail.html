@@ -1,6 +1,7 @@
 {% extends "results_base.html" %}
 
 {% load i18n %}
+{% load morefilters %}
 
 {% block subtitle %}{{ block.super }} - {{ semester.name }}{% endblock %}
 
@@ -29,6 +30,13 @@
             <tr class="{% cycle "odd" "even" %}">
                 <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
                 <td>{{ course.grade|floatformat:1 }}</td>
+                
+                {% if course.participants.count %}
+                    <td class="dontbreak right">{{ course.voters.count }}/{{ course.participants.count }}</td>
+                    <td class="dontbreak">({{ course.voters.count|percentage:course.participants.count }})</td>
+                {% else %}
+                    <td class="center" colspan="2">&mdash;</td>
+                {% endif %}
             </tr>
         {% endfor %}
     {% endfor %}
