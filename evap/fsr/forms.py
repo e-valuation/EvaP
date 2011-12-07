@@ -49,6 +49,9 @@ class CourseForm(forms.ModelForm):
         
         self.fields['vote_start_date'].localize = True
         self.fields['vote_start_date'].widget = forms.DateInput()
+        if self.instance.state == "inEvaluation":
+            self.fields['vote_start_date'].required = False
+            self.fields['vote_start_date'].widget.attrs['disabled'] = True
         
         self.fields['vote_end_date'].localize = True
         self.fields['vote_end_date'].widget = forms.DateInput()
