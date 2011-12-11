@@ -38,37 +38,47 @@ class ExcelExporter(object):
         self.row = 0
         self.col = 0
         
-        fmt_bold = xlwt.XFStyle()
-        fmt_bold.font.bold = True
+        # formatting for average grades
+        avg_style = xlwt.easyxf('alignment: horiz centre; font: bold on; borders: left medium, top medium, bottom medium')
+        avg_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour light_green; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
         
-        avg_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour light_green; alignment: horiz centre', num_format_str="0.0")
-        avg_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre', num_format_str="0.0")
-        avg_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre', num_format_str="0.0")
+        # formatting for variances
+        var_style_good = xlwt.easyxf('alignment: horiz centre; borders: right medium', num_format_str="0.0")
+        var_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour gray25; alignment: horiz centre; borders: right medium', num_format_str="0.0")
+        var_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour gray40; alignment: horiz centre; borders: right medium', num_format_str="0.0")
         
-        var_style_good = xlwt.easyxf('alignment: horiz centre', num_format_str="0.0")
-        var_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour gray25; alignment: horiz centre', num_format_str="0.0")
-        var_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour gray40; alignment: horiz centre', num_format_str="0.0")
+        # formatting for overall grades
+        over_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour light_green; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
         
-        fmt_num = xlwt.easyxf(num_format_str="0.0")
-        fmt_num.alignment.horz = fmt_num.alignment.HORZ_CENTER
-        fmt_num.Pattern = xlwt.Pattern()
+        # formatting for special fields
+        headline_style = xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on', num_format_str="0.0")
+        course_style = xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium')        
+        total_answers_style = xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium')
         
-        fmt_num_it = xlwt.easyxf(num_format_str="0.0")
-        fmt_num_it.alignment.horz = fmt_num.alignment.HORZ_CENTER
-        fmt_num_it.font.italic = True
+        # general formattings
+        bold_style = xlwt.easyxf('font: bold on')
+        border_left_style = xlwt.easyxf('borders: left medium')
+        border_right_style = xlwt.easyxf('borders: right medium')
+        border_top_bottom_right_style = xlwt.easyxf('borders: top medium, bottom medium, right medium')
         
-        fmt_vert = xlwt.XFStyle()
-        fmt_vert.alignment.orie = fmt_vert.alignment.ORIENTATION_90_CW
-        fmt_vert.alignment.rota = 90
-        fmt_vert.alignment.horz = fmt_vert.alignment.HORZ_CENTER
-        
-        self.writec("{0} ({1})".format(self.semester.name, datetime.date.today()))
+        self.writec(_(u"Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), headline_style)
         for course, results in courses_with_results:
-            self.writec(course.name, fmt_vert, cols=2)
-        self.writen(None)
+            self.writec(course.name, course_style, cols=2)
+        
+        self.writen()
+        for course, results in courses_with_results:
+            self.writec("Average", avg_style)
+            self.writec("Variance", border_top_bottom_right_style)
         
         for questionnaire in questionnaires:
-            self.writen(questionnaire.name, fmt_bold)
+            self.writen(questionnaire.name, bold_style)
+            for course, results in courses_with_results:
+                self.writec(None, border_left_style)
+                self.writec(None, border_right_style)
             
             for question_index, question in enumerate(questionnaire.question_set.all()):
                 if question.is_text_question():
@@ -108,25 +118,33 @@ class ExcelExporter(object):
                             else:
                                 self.writec(var, var_style_bad)
                         else:
-                            self.writec()
-                            self.writec()
+                            self.writec(None, border_left_style)
+                            self.writec(None, border_right_style)
                     else:
-                        self.writec()
-                        self.writec()
+                        self.writec(None, border_left_style)
+                        self.writec(None, border_right_style)
+            self.writen(None)
+            for course, results in courses_with_results:
+                    self.writec(None, border_left_style)
+                    self.writec(None, border_right_style)
         
-        self.writen(_(u"Overall Grade"), fmt_bold)
+        self.writen(_(u"Overall Grade"), bold_style)
         for course, results in courses_with_results:
             avg = calculate_average_grade(course)
-            if avg < 2:
-                self.writec(avg, avg_style_good, cols=2)
-            elif avg < 3:
-                self.writec(avg, avg_style_medium, cols=2)
+            if avg:
+                if avg < 2:
+                    self.writec(avg, over_style_good, cols=2)
+                elif avg < 3:
+                    self.writec(avg, over_style_medium, cols=2)
+                else:
+                    self.writec(avg, over_style_bad, cols=2)
             else:
-                self.writec(avg, avg_style_bad, cols=2)
+                self.writec(None, border_left_style)
+                self.writec(None, border_right_style)
         
-        self.writen(_(u"Total Answers"), fmt_bold)
+        self.writen(_(u"Total Answers"), bold_style)
         for course, results in courses_with_results:
-            self.writec(course.voters.count(), cols=2)
+            self.writec(course.voters.count(), total_answers_style, cols=2)
         
         self.workbook.save(response)
     
