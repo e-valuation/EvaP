@@ -35,8 +35,12 @@
                 <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
                 <td class="results-distribution">
                     {% if result.show %}
-                    <div>
-                    {% for answer, rel in result.distribution.items %}<div style="width: {{ rel }}%;" class="results-distribution-{{ answer }}" title="{{answer}}: {{rel}}%">&nbsp;</div>{% endfor %}
+                    <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}">
+                        {% spaceless %}
+                        {% for answer, rel in result.distribution.items %}
+                            <div style="width: {{ rel }}%;" class="results-distribution-{{ answer }}">&nbsp;</div>
+                        {% endfor %}
+                        {% endspaceless %}
                     </div>
                     {% endif %}
                 </td>
