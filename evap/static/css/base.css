@@ -261,19 +261,19 @@ form.vote tr.vote-row div.vote-buttons ul li {
 	text-align: center;}
 
 form.vote tr.vote-row div.vote-buttons ul li:first-child {
-	background: #8def75;}
+	background: #78f159;}
 
 form.vote tr.vote-row div.vote-buttons ul li:first-child+li {
-	background: #c4ef75;}
+	background: #bcf159;}
 
 form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li {
-	background: #efe375;}
+	background: #f1e259;}
 
 form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li {
-	background: #efac75;}
+	background: #f19e59;}
 
 form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li+li {
-	background: #ef7575;}
+	background: #f15959;}
 
 form.vote tr.vote-row textarea {
 	width: 98%;}
@@ -330,19 +330,19 @@ h4.results-section {
 	cursor: default;}
 
 #main-content table.results-detail td.results-distribution > div div.results-distribution-1 {
-	background: #8def75;}
+	background: #78f159;}
 
 #main-content table.results-detail td.results-distribution > div div.results-distribution-2 {
-	background: #c4ef75;}
+	background: #bcf159;}
 
 #main-content table.results-detail td.results-distribution > div div.results-distribution-3 {
-	background: #efe375;}
+	background: #f1e259;}
 
 #main-content table.results-detail td.results-distribution > div div.results-distribution-4 {
-	background: #efac75;}
+	background: #f19e59;}
 
 #main-content table.results-detail td.results-distribution > div div.results-distribution-5 {
-	background: #ef7575;}
+	background: #f15959;}
 
 #main-content table.results-detail td.results-text {
 	width: 80%;}
