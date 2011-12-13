@@ -7,7 +7,7 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <p>{% trans "Do you really want to unpublish this course?" %}</p>
+            <p>{% blocktrans with name=course.name %}Do you really want to unpublish the course <em>{{ name }}</em>?{% endblocktrans %}</p>
             <input type="submit" value="{% trans "Yes" %}"/>
             <a href="{% url evap.fsr.views.semester_view semester.id %}">{% trans "No" %}</a>
         </form>

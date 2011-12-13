@@ -277,7 +277,7 @@ def course_delete(request, semester_id, course_id):
         course.delete()
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_delete.html", dict(semester=semester), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_delete.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -382,7 +382,7 @@ def course_unpublish(request, semester_id, course_id):
         course.save()
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_unpublish.html", dict(semester=semester), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_unpublish.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
 
 
 @fsr_required

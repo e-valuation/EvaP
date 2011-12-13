@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-13 14:47+0100\n"
-"PO-Revision-Date: 2011-12-13 14:49+0100\n"
+"POT-Creation-Date: 2011-12-13 19:39+0100\n"
+"PO-Revision-Date: 2011-12-13 19:41+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -314,7 +314,6 @@ msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
 #: .\fsr\forms.py:170
-#, fuzzy
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
 msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
@@ -536,8 +535,8 @@ msgid "FSR Members"
 msgstr "FSR-Mitglieder"
 
 #: .\fsr\templates\fsr_base.html.py:52
-#: .\fsr\templates\fsr_course_form.html.py:52
-#: .\lecturer\templates\lecturer_course_form.html.py:31
+#: .\fsr\templates\fsr_course_form.html.py:53
+#: .\lecturer\templates\lecturer_course_form.html.py:33
 msgid "Lecturers"
 msgstr "Dozenten"
 
@@ -581,7 +580,7 @@ msgid "Import"
 msgstr "Importieren"
 
 #: .\fsr\templates\fsr_base.html.py:86
-#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:24
+#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:27
 msgid "Assign questionnaires"
 msgstr "Fragebögen zuordnen"
 
@@ -607,8 +606,9 @@ msgid "Check All"
 msgstr "Alle auswählen"
 
 #: .\fsr\templates\fsr_course_delete.html.py:10
-msgid "Do you really want to delete this course?"
-msgstr "Soll diese Veranstaltung wirklich gelöscht werden?"
+#, python-format
+msgid "Do you really want to delete the course <em>%(name)s</em>?"
+msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich gelöscht werden?"
 
 #: .\fsr\templates\fsr_course_delete.html.py:11
 #: .\fsr\templates\fsr_course_unpublish.html.py:11
@@ -628,25 +628,26 @@ msgstr "Nein"
 msgid "Send e-mail"
 msgstr "E-Mail senden"
 
-#: .\fsr\templates\fsr_course_form.html.py:46
+#: .\fsr\templates\fsr_course_form.html.py:48
 #: .\fsr\templates\fsr_questionnaire_form.html.py:21
-#: .\lecturer\templates\lecturer_course_form.html.py:25
+#: .\lecturer\templates\lecturer_course_form.html.py:27
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
-#: .\fsr\templates\fsr_course_form.html.py:60
+#: .\fsr\templates\fsr_course_form.html.py:63
 #: .\fsr\templates\fsr_questionnaire_form.html.py:35
-#: .\lecturer\templates\lecturer_course_form.html.py:39
+#: .\lecturer\templates\lecturer_course_form.html.py:41
 msgid "Delete?"
 msgstr "Löschen?"
 
-#: .\fsr\templates\fsr_course_form.html.py:77
+#: .\fsr\templates\fsr_course_form.html.py:79
 msgid "Save course"
 msgstr "Veranstaltung speichern"
 
 #: .\fsr\templates\fsr_course_unpublish.html.py:10
-msgid "Do you really want to unpublish this course?"
-msgstr "Soll die Veröffentlichung dieses Kurses wirklich zurückgezogen werden?"
+#, python-format
+msgid "Do you really want to unpublish the course <em>%(name)s</em>?"
+msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
 
 #: .\fsr\templates\fsr_import.html.py:37
 msgid "Upload semester data from excel file ("
@@ -743,7 +744,7 @@ msgstr "Veranstaltung bestätigen"
 msgid "There are no courses ready to approve."
 msgstr "In diesem Semester sind keine Kurse zu bestätigen."
 
-#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:20
+#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:23
 msgid "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
 msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
 
@@ -805,17 +806,14 @@ msgid "Unpublish"
 msgstr "Zurückziehen"
 
 #: .\fsr\templates\fsr_semester_view.html.py:57
-#, fuzzy
 msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
 #: .\fsr\templates\fsr_semester_view.html.py:60
-#, fuzzy
 msgid "Approve Courses"
 msgstr "Veranstaltung bestätigen"
 
 #: .\fsr\templates\fsr_semester_view.html.py:63
-#, fuzzy
 msgid "Publish Courses"
 msgstr "Veranstaltungen veröffentlichen"
 
@@ -831,7 +829,7 @@ msgstr "Vorlage speichern"
 msgid "User"
 msgstr "Benutzer"
 
-#: .\fsr\templates\fsr_user_form.html.py:29
+#: .\fsr\templates\fsr_user_form.html.py:32
 msgid "Save user"
 msgstr "Benutzer speichern"
 
@@ -869,7 +867,7 @@ msgstr "Mein Profil"
 msgid "Your Courses"
 msgstr "Meine Veranstaltungen"
 
-#: .\lecturer\templates\lecturer_course_form.html.py:56
+#: .\lecturer\templates\lecturer_course_form.html.py:58
 msgid "Approve course"
 msgstr "Veranstaltung bestätigen"
 
@@ -881,7 +879,7 @@ msgstr "Teilnehmer"
 msgid "There are no courses for you this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\lecturer\templates\lecturer_profile.html.py:25
+#: .\lecturer\templates\lecturer_profile.html.py:28
 msgid "Save your profile"
 msgstr "Profil speichern"
 
@@ -901,11 +899,10 @@ msgid "Overall Grade"
 msgstr "Gesamtnote"
 
 #: .\results\exporters.py:145
-#, fuzzy
 msgid "Total Answers"
 msgstr "Antworten"
 
-#: .\results\templates\results_course_detail.html.py:56
+#: .\results\templates\results_course_detail.html.py:55
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
@@ -1077,6 +1074,13 @@ msgstr ""
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
 
+#~ msgid "Do you really want to delete this course?"
+#~ msgstr "Soll diese Veranstaltung wirklich gelöscht werden?"
+
+#~ msgid "Do you really want to unpublish this course?"
+#~ msgstr ""
+#~ "Soll die Veröffentlichung dieses Kurses wirklich zurückgezogen werden?"
+
 #~ msgid "Approve"
 #~ msgstr "Bestätigen"
 
@@ -1139,9 +1143,6 @@ msgstr "Schlüssel erzeugen"
 
 #~ msgid "Course is not visible."
 #~ msgstr "Veranstaltung ist nicht sichtbar."
-
-#~ msgid "Do you really want to delete the user <em>%(name)s</em>?"
-#~ msgstr "Soll der Benutzer <em>%(name)s</em> wirklich gelöscht werden?"
 
 #~ msgid "Remove key"
 #~ msgstr "Schlüssel entfernen"
