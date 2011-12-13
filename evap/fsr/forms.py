@@ -167,7 +167,7 @@ class LecturerFormSet(AtLeastOneFormSet):
                 if form.cleaned_data:
                     lecturer = form.cleaned_data.get('lecturer')
                     if lecturer and lecturer in found_lecturer:
-                        raise forms.ValidationError(_(u'Duplicate lecturer found. Each lecturer should only be used once'))
+                        raise forms.ValidationError(_(u'Duplicate lecturer found. Each lecturer should only be used once.'))
                     elif lecturer:
                         found_lecturer.append(lecturer)
             except AttributeError:

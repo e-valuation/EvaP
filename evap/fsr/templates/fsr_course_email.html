@@ -6,7 +6,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <form method="POST" class="multiselect-form">
+        <form method="POST">
             {% csrf_token %}
             <table>
                 {{ form.as_table }}
