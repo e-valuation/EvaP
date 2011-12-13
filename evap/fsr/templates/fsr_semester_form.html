@@ -7,7 +7,7 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <table>
+            <table class="stdform">
                 {{ form.as_table }}
             </table>
             <input type="submit" value="{% trans "Save semester" %}"/>

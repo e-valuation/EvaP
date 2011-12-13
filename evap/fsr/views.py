@@ -523,7 +523,7 @@ def user_edit(request, user_id):
         messages.add_message(request, messages.INFO, _("Successfully updated user."))
         return redirect('evap.fsr.views.user_index')
     else:
-        return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_user_form.html", dict(form=form, object=user), context_instance=RequestContext(request))
 
     
 @fsr_required

@@ -369,6 +369,20 @@ form.vote tr.vote-row textarea {
 	padding: 10px;
 	width: 62%;}
 
+#main-content form table.stdform {
+	width: 100%;}
+
+#main-content form table.stdform th {
+	text-align: left;
+	white-space: nowrap;
+	width: 1%;}
+
+#main-content form table.stdform td input[type=text] {
+	width: 60%;}
+
+#main-content form table.stdform td select, #main-content form table.stdform td textarea {
+	width: 99%;}
+
 a.abutton {
 	background: #dfe1e1;
 	border: 1px outset #dfe1e1;
@@ -379,6 +393,5 @@ tr.obsolete {
 	opacity: .5;}
 
 .multiselect-form select[multiple='multiple'] {
-	width: 460px;
 	height: 200px;}
 

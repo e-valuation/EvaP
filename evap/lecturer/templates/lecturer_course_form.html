@@ -7,11 +7,13 @@
     {{ block.super }}
     
     <script>
-	$(function() {
+        $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-            $( ".multiselect-form select[multiple='multiple']" ).multiselect();
-			
-			$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
+            $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+		$(e).width($(e).width());
+		$(e).multiselect();
+            });
+            $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
         });
     </script>
 {% endblock %}
@@ -21,12 +23,12 @@
     <p>
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-	    <fieldset>
+            <fieldset>
                 <label>{% trans "General Options" %}:</label>
                 <table>{{ form.as_table }}</table>
             </fieldset>
-	    
-	    <fieldset>
+            
+            <fieldset>
                 {{ formset.management_form }}
                 <label>{% trans "Lecturers" %}:</label>
                 {{ formset.non_form_errors }}

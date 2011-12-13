@@ -27,12 +27,15 @@
         });
             
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-        $( ".multiselect-form select[multiple='multiple']" ).multiselect();
+	$(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+	    $(e).width($(e).width());
+	    $(e).multiselect();
+	});
 	    
-	    $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
-		
-		$('#id_study').combobox();
-		$('#id_kind').combobox();
+	$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
+	
+	$('#id_study').combobox();
+	$('#id_kind').combobox();
         });
     </script>
 {% endblock %}
@@ -42,38 +45,37 @@
     <p>
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-	    <fieldset>
-                <label>{% trans "General Options" %}:</label>
-                <table>{{ form.as_table }}</table>
-            </fieldset>
+	    <h4>{% trans "General Options" %}</h4>
+	    <table class="stdform">
+		{{ form.as_table }}
+	    </table>
 	    
-	    <fieldset>
-                {{ formset.management_form }}
-                <label>{% trans "Lecturers" %}:</label>
-                {{ formset.non_form_errors }}
-                <table id="assignment_table">
-                    <tr>
-                        {% for field in formset.form %}
-                            <th>{{ field.label }}</th>
-                        {% endfor %}
-                        <th></th>
-                        <th>{% trans "Delete?" %}</th>
-                    </tr>
-                    <tbody>
-                        {% for form_element in formset %}
-                            {% if form_element.non_field_errors %}
-                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                            {% endif %}
-                            
-                            <tr>
-                            {% for field in form_element %}
-                                <td>{{field.errors}} {{ field }}</td>
-                            {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </fieldset>
+	    <h4>{% trans "Lecturers" %}</h4>
+	    {{ formset.management_form }}
+	    
+	    {{ formset.non_form_errors }}
+	    
+	    <table id="assignment_table">
+		<tr>
+		    {% for field in formset.form %}
+			<th>{{ field.label }}</th>
+		    {% endfor %}
+		    <th>{% trans "Delete?" %}</th>
+		</tr>
+		<tbody>
+		    {% for form_element in formset %}
+			{% if form_element.non_field_errors %}
+			    <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+			{% endif %}
+			
+			<tr>
+			{% for field in form_element %}
+			    <td>{{field.errors}} {{ field }}</td>
+			{% endfor %}
+			</tr>
+		    {% endfor %}
+		</tbody>
+	    </table>
             <input type="submit" value="{% trans "Save course" %}"/>
         </form>
     </p>

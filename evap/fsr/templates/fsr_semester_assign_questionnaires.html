@@ -9,7 +9,10 @@
     <script>
 	$(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-            $( ".multiselect-form select" ).multiselect();
+            $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+		$(e).width($(e).width());
+		$(e).multiselect();
+            });
         });
     </script>
 {% endblock %}
@@ -20,7 +23,7 @@
         {% trans "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-            <table>{{ form.as_table }}</table>
+            <table class="stdform">{{ form.as_table }}</table>
             <input type="submit" value="{% trans "Assign questionnaires" %}"/>
         </form>
     </p>
