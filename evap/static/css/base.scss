@@ -332,11 +332,6 @@ form.vote {
     }
 }
 
-h4.results-section {
-    border-bottom: 1px solid $hpiBlue50;
-    padding: 3px 0;
-}
-
 #main-content {
     table.results-detail {
         width: 100%;
@@ -346,9 +341,16 @@ h4.results-section {
             vertical-align: top;
         }
         
-        td.results-subtitle {
+        td.results-title {
+            color: $hpiBlue70;
+            font-size: 120%;
             padding: 20px 0 5px 0;
+        }
+        
+        td.results-subtitle {
+            color: $hpiBlue100;
             font-size: 115%;
+            padding: 10px 0 5px 0;
         }
         
         td.results-question-grade {

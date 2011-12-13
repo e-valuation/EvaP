@@ -8,61 +8,67 @@
 {% block content %}
     {{ block.super }}
     
+    {% regroup sections by questionnaire as sections_grouped %}
+    
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
     <table class="results-detail">
-    {% for questionnaire, lecturer, results, grade in sections %}
+    {% for group in sections_grouped %}
         <tr>
-            <td class="results-subtitle" colspan="4">
+            <td class="results-title" colspan="4">{{ group.grouper.name }}</td>
+        </tr>
+        {% for questionnaire, lecturer, results, grade in group.list %}
             {% if lecturer %}
-                {{ lecturer.get_profile.full_name }}:
-            {% endif %}
-            {{ questionnaire.name }}
-            </td>
-        </tr>
-        
-        {% if questionnaire.teaser %}
-        <tr>
-            <td class="results-teaser" colspan="4">
-            {{ questionnaire.teaser }}
-            </td>
-        </tr>
-        {% endif %}
-        
-        {% for result in results %}
             <tr>
-                {% ifequal result.question.kind "G" %}
-                <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
-                <td class="results-distribution">
-                    {% if result.show %}
-                    <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}">
-                        {% spaceless %}
-                        {% for answer, rel in result.distribution.items %}
-                            <div style="width: {{ rel }}%;" class="results-distribution-{{ answer }}">&nbsp;</div>
-                        {% endfor %}
-                        {% endspaceless %}
-                    </div>
-                    {% endif %}
+                <td class="results-subtitle" colspan="4">
+                {{ lecturer.get_profile.full_name }}
                 </td>
-                <td class="results-average">
-                    {% if result.show %}
-                        {{ result.average|floatformat:1 }}
-                    {% else %}
-                        <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
-                    {% endif %}
-                </td>
-                {% endifequal %}
-                {% ifequal result.question.kind "T" %}
-                {% if_lecturer course %}
-                <td class="results-question-text">{{ result.question.text }}</td>
-                <td class="results-text" colspan="3">
-                    {% for text in result.texts %}
-                        <div>{{ text|linebreaks }}</div>
-                    {% endfor %}
-                </td>
-                {% endif_lecturer %}
-                {% endifequal %}
             </tr>
+            {% endif %}
+            
+            {% if questionnaire.teaser %}
+            <tr>
+                <td class="results-teaser" colspan="4">
+                {{ questionnaire.teaser }}
+                </td>
+            </tr>
+            {% endif %}
+            
+            {% for result in results %}
+                <tr>
+                    {% ifequal result.question.kind "G" %}
+                    <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
+                    <td class="results-distribution">
+                        {% if result.show %}
+                        <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}">
+                            {% spaceless %}
+                            {% for answer, rel in result.distribution.items %}
+                                <div style="width: {{ rel }}%;" class="results-distribution-{{ answer }}">&nbsp;</div>
+                            {% endfor %}
+                            {% endspaceless %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="results-average">
+                        {% if result.show %}
+                            {{ result.average|floatformat:1 }}
+                        {% else %}
+                            <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
+                        {% endif %}
+                    </td>
+                    {% endifequal %}
+                    {% ifequal result.question.kind "T" %}
+                    {% if_lecturer course %}
+                    <td class="results-question-text">{{ result.question.text }}</td>
+                    <td class="results-text" colspan="3">
+                        {% for text in result.texts %}
+                            <div>{{ text|linebreaks }}</div>
+                        {% endfor %}
+                    </td>
+                    {% endif_lecturer %}
+                    {% endifequal %}
+                </tr>
+            {% endfor %}
         {% endfor %}
     {% endfor %}
     </table>

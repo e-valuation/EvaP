@@ -278,10 +278,6 @@ form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li+li {
 form.vote tr.vote-row textarea {
 	width: 98%;}
 
-h4.results-section {
-	border-bottom: 1px solid #7fbcce;
-	padding: 3px 0;}
-
 #main-content table.results-detail {
 	width: 100%;}
 
@@ -289,9 +285,15 @@ h4.results-section {
 	padding: 1px 0;
 	vertical-align: top;}
 
+#main-content table.results-detail td.results-title {
+	color: #4ca2bb;
+	font-size: 120%;
+	padding: 20px 0 5px 0;}
+
 #main-content table.results-detail td.results-subtitle {
-	padding: 20px 0 5px 0;
-	font-size: 115%;}
+	color: #007a9e;
+	font-size: 115%;
+	padding: 10px 0 5px 0;}
 
 #main-content table.results-detail td.results-question-grade {
 	width: 80%;}
