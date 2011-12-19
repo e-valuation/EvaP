@@ -15,6 +15,7 @@ from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, CensorTextAnswerFo
                            SelectCourseForm, SemesterForm, UserForm, LecturerFormSet
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
+from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
 import random
@@ -494,7 +495,7 @@ def user_index(request):
     elif filter == "lecturers":
         users = [user for user in users if user.get_profile().is_lecturer]
     
-    return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
+    return render_to_response("fsr_user_index.html", dict(users=users, filter=filter), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -507,7 +508,11 @@ def user_create(request):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully created user."))
-        return redirect('evap.fsr.views.user_index')
+        
+        if "filter" in request.GET:
+            return custom_redirect('evap.fsr.views.user_index', filter=request.GET['filter'])
+        else:
+            return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -521,7 +526,11 @@ def user_edit(request, user_id):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated user."))
-        return redirect('evap.fsr.views.user_index')
+        
+        if "filter" in request.GET:
+            return custom_redirect('evap.fsr.views.user_index', filter=request.GET['filter'])
+        else:
+            return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form, object=user), context_instance=RequestContext(request))
 

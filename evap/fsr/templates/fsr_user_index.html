@@ -10,7 +10,7 @@
 
 {% block actions %}
     {{ block.super }}
-    <li><a href="{% url evap.fsr.views.user_create %}">{% trans "Create new user" %}</a></li>
+    <li><a href="{% url evap.fsr.views.user_create %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}">{% trans "Create new user" %}</a></li>
 {% endblock actions %}
 
 {% block content %}
@@ -36,7 +36,7 @@
                 </td>
                 <td class="expand"><span title="{{ user.username }}">{{ user.get_profile.full_name }}</span></td>
                 <td class="dontbreak">
-                    <a href="{% url evap.fsr.views.user_edit user.id %}">{% trans "Edit" %}</a>&nbsp;
+                    <a href="{% url evap.fsr.views.user_edit user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}">{% trans "Edit" %}</a>&nbsp;
                 </td>
             </tr>
         {% endfor %}
