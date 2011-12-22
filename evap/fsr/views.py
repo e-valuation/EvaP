@@ -487,7 +487,7 @@ def questionnaire_delete(request, questionnaire_id):
 
 @fsr_required
 def user_index(request):
-    users = User.objects.order_by("last_name", "first_name")
+    users = User.objects.order_by("username")
     
     filter = request.GET.get('filter')
     if filter == "fsr":
