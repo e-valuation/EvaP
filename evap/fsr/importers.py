@@ -131,14 +131,14 @@ class ExcelImporter(object):
                 try:
                     # create or retrieve database objects
                     try:
-                        student = User.objects.get(username=student_data.username)
+                        student = User.objects.get(username__iexact=student_data.username)
                         student_data.update(student)
                     except User.DoesNotExist:
                         student = student_data.store_in_database()
                         student_count += 1
                     
                     try:
-                        lecturer = User.objects.get(username=lecturer_data.username)
+                        lecturer = User.objects.get(username__iexact=lecturer_data.username)
                         lecturer_data.update(lecturer)
                     except User.DoesNotExist:
                         lecturer = lecturer_data.store_in_database()

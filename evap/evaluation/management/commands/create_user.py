@@ -18,7 +18,7 @@ def is_valid_username(username):
         raise exceptions.ValidationError(_("Error: That username is invalid. Use only letters, digits and underscores.\n"))
     
     try:
-        User.objects.get(username=username)
+        User.objects.get(username__iexact=username)
     except User.DoesNotExist:
         pass
     else:
