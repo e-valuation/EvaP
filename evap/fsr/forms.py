@@ -71,7 +71,7 @@ class AssignmentForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
-        self.fields['lecturer'].queryset = User.objects.order_by("last_name", "username")
+        self.fields['lecturer'].queryset = User.objects.order_by("username")
 
 
 class CourseEmailForm(forms.Form):
@@ -240,7 +240,7 @@ class UserForm(forms.ModelForm):
     last_name = forms.CharField()
     email = forms.CharField(required=False)
     fsr = forms.BooleanField(required=False, label=_("FSR Member"))
-    proxies = UserModelMultipleChoiceField(queryset=User.objects.order_by("last_name", "username"))
+    proxies = UserModelMultipleChoiceField(queryset=User.objects.order_by("username"))
     
     class Meta:
         model = UserProfile
