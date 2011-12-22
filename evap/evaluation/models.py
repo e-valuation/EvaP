@@ -201,7 +201,7 @@ class Course(models.Model):
         if not user.get_profile().is_lecturer:
             return False
         
-        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer__in=user.get_profile().proxied_users.all()).exists()
+        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer__in=user.proxied_users.all()).exists()
     
     def warnings(self):
         result = []
