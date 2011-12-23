@@ -9,7 +9,13 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.min.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
     <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-alerts.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-dropdown.js"></script>
+    <script>
+        $(function(){
+            $(".alert-message").append("<a class='close' href='#'>&#xd7;</a>").alert();
+        });
+    </script>
     {% block header %}{% endblock %}
 </head>
 <body style="padding-top: 55px;">
@@ -24,16 +30,18 @@
                 </ul>
             </div>
         </div>
+        {% if messages %}
+        <div class="row">
+            <div class="span16">
+                {% for message in messages %}
+                <div class="alert-message{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
         <div class="row">
             <div class="span16">
                 {% block content %}
-                {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
                 {% endblock %}
             </div>
         </div>
