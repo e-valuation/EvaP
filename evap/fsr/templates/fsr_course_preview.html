@@ -1,0 +1,41 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        <form method="POST" class="vote">
+        {% csrf_token %}
+        <table>
+        {% for form in forms %}
+            <tr class="vote-group">
+                <th colspan="2">
+                    {% if form.image %}
+                        <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
+                    {% endif %}
+                    <h4>
+                    {{ form.caption }}
+                    </h4>
+                    {% if form.teaser %}
+                        <p>{{ form.teaser }}</p>
+                    {% endif %}
+                    {{ form.non_field_errors }}
+                </th>
+            </tr>
+            {% for field in form %}
+            <tr class="vote-row">
+                <th>
+                    {{ field.label_tag }}
+                </th>
+                <td>
+                    {{ field.errors }}
+                    <div class="vote-buttons">{{ field }}</div>
+                </td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        </table>
+        </form>
+    </p>
+{% endblock %}

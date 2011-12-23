@@ -3,13 +3,14 @@ from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
+from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Assignment, Course, Semester
 from evap.evaluation.auth import lecturer_required
 from evap.lecturer.forms import CourseForm, UserForm
 from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
-
+from evap.student.forms import QuestionsForm
 
 @lecturer_required
 def index(request):
@@ -61,3 +62,16 @@ def course_edit(request, course_id):
         return redirect('evap.lecturer.views.course_index')
     else:
         return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+
+
+@lecturer_required
+def course_preview(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    # build forms
+    forms = SortedDict()
+    for assignment in course.assignments.all():
+        for questionnaire in assignment.questionnaires.all():
+            form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+            forms[(assignment, questionnaire)] = form
+    return render_to_response("lecturer_course_preview.html", dict(forms=forms.values(), course=course), context_instance=RequestContext(request))

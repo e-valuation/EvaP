@@ -18,6 +18,7 @@
                     <td>{{ course.participants.all|length }}</td>
                     <td>
                         <a href="{% url evap.lecturer.views.course_edit course.id %}">{% trans "Edit" %}</a>&nbsp;
+						<a href="{% url evap.lecturer.views.course_preview course.id %}">{% trans "Preview" %}</a>&nbsp;
 					</td>
                 </tr>
             {% endfor %}

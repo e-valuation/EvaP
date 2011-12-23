@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
+from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_noop
 
@@ -384,6 +385,20 @@ def course_unpublish(request, semester_id, course_id):
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_unpublish.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
+
+
+@fsr_required
+def course_preview(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+
+    # build forms
+    forms = SortedDict()
+    for assignment in course.assignments.all():
+        for questionnaire in assignment.questionnaires.all():
+            form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+            forms[(assignment, questionnaire)] = form
+    return render_to_response("fsr_course_preview.html", dict(forms=forms.values(), course=course, semester=semester), context_instance=RequestContext(request))
 
 
 @fsr_required

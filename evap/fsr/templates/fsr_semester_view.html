@@ -38,6 +38,7 @@
                         {% endif %}
                         <td class="dontbreak">
                             <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" title="{% trans "Write E-Mail" %}"><img src="{% get_static_prefix %}images/silk/email.png"> {% trans "E-Mail" %}</a>&nbsp;
+                            <a href="{% url evap.fsr.views.course_preview semester.id, course.id %}" title="{% trans "Preview" %}"><img src="{% get_static_prefix %}images/silk/image.png"> {% trans "Preview" %}</a>&nbsp;
                             {% if course.can_fsr_delete %}
                                 <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/bin.png"></a>&nbsp;
                             {% endif %}
