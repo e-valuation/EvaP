@@ -3,7 +3,7 @@ from django.conf.urls.defaults import patterns, url
 urlpatterns = patterns('evap.fsr.views',
     url(r"^$", 'index', name="fsr_root"),
     
-    url(r"^semester$", 'semester_index'),
+    url(r"^semester/$", 'semester_index'),
     url(r"^semester/create$", 'semester_create'),
     url(r"^semester/(\d+)$", 'semester_view'),
     url(r"^semester/(\d+)/edit$", 'semester_edit'),
@@ -24,18 +24,18 @@ urlpatterns = patterns('evap.fsr.views',
     url(r"^semester/(\d+)/course/(\d+)/unpublish$", 'course_unpublish'),
     url(r"^semester/(\d+)/course/(\d+)/preview$", 'course_preview'),
     
-    url(r"^questionnaire$", 'questionnaire_index'),
+    url(r"^questionnaire/$", 'questionnaire_index'),
     url(r"^questionnaire/create$", 'questionnaire_create'),
     url(r"^questionnaire/(\d+)$", 'questionnaire_view'),
     url(r"^questionnaire/(\d+)/edit$", 'questionnaire_edit'),
     url(r"^questionnaire/(\d+)/copy$", 'questionnaire_copy'),
     url(r"^questionnaire/(\d+)/delete$", 'questionnaire_delete'),
     
-    url(r"^user$", 'user_index'),
+    url(r"^user/$", 'user_index'),
     url(r"^user/create$", 'user_create'),
     url(r"^user/(\d+)/edit$", 'user_edit'),
     url(r"^user/(\d+)/delete$", 'user_delete'),
     
-    url(r"^template$", 'template_index'),
+    url(r"^template/$", 'template_index'),
     url(r"^template/(\d+)$", 'template_edit'),
 )
