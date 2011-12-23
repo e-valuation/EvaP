@@ -55,7 +55,7 @@
                             <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" class="btn small">{% trans "E-Mail" %}</a>
                             <a href="{% url evap.fsr.views.course_preview semester.id, course.id %}" class="btn small">{% trans "Preview" %}</a>
                             {% if course.can_fsr_delete %}
-                                <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" class="btn small">{% trans "Delete" %}</a>
+                                <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" class="btn small danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if course.can_fsr_review %}
                                 <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" class="btn small">{% trans "Censor" %}</a>

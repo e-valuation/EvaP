@@ -25,7 +25,7 @@
                     <td class="span1">{{ course.grade|floatformat:1 }}</td>
                     {% if course.participants.count %}
                     <td class="span2">
-                        <div style="background: #ADE6FE; display: inline-block; width: 70%;">
+                        <div style="background: #c4e1ff; display: inline-block; width: 70%;">
                             <div style="display: inline-block; width: {% widthratio course.voters.count course.participants.count 100 %}%; background: #0069D6; color:white;"><span style="font-size: 80%;">&nbsp;{{ course.voters.count }}</span></div>
                         </div>
                         <span style="font-size: 80%;">{{ course.participants.count }}</span>
