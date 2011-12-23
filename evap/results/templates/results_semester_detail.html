@@ -3,6 +3,11 @@
 {% load i18n %}
 {% load morefilters %}
 
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url evap.results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
+{% endblock %}
+
 {{% block content %}
     {{ block.super }}
     
