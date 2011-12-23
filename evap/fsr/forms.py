@@ -69,7 +69,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
 
 
-class AssignmentForm(forms.ModelForm):
+class AssignmentForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Assignment
     
@@ -78,7 +78,7 @@ class AssignmentForm(forms.ModelForm):
         self.fields['lecturer'].queryset = User.objects.order_by("username")
 
 
-class CourseEmailForm(forms.Form):
+class CourseEmailForm(forms.Form, BootstrapMixin):
     sendToParticipants = forms.BooleanField(label=_("Send to participants?"), required=False, initial=True)
     sendToLecturers = forms.BooleanField(label=_("Send to lecturers?"), required=False)
     subject = forms.CharField(label=_("Subject"))
@@ -110,7 +110,7 @@ class CourseEmailForm(forms.Form):
         self.template.body = self.cleaned_data.get('body')
         self.template.send_courses([self.instance], self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants'))
 
-class QuestionnaireForm(forms.ModelForm):
+class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Questionnaire
 
@@ -255,7 +255,7 @@ class QuestionnairesAssignForm(forms.Form):
                     del self.cleaned_data[name]
 
 
-class SelectCourseForm(forms.Form):
+class SelectCourseForm(forms.Form, BootstrapMixin):
     def __init__(self, queryset, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
         self.queryset = queryset

@@ -8,14 +8,24 @@
         <form method="POST">
             {% csrf_token %}
             {% if form.fields %}
-                <p>
-                {% for field in form %}
-                    <div>{{ field }} {{ field.label_tag }}</div>
-                {% endfor %}
-                </p>
-                <p>
-                    <input type="submit" value="{% trans "Approve courses" %}"/>
-                </p>
+                <div class="clearfix">
+                    <label>{% trans "Courses" %}</label>
+                    <div class="input">
+                        <ul class="inputs-list">
+                            {% for field in form %}
+                                <li>
+                                    <label>
+                                        {{ field }}
+                                        <span>{{ field.label }}</span>
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="actions">
+                    <input type="submit" value="{% trans "Show courses to lecturer" %}" class="btn primary"/>
+                </div>
             {% else %}
                 {% trans "There are no courses ready to approve." %}
             {% endif %}

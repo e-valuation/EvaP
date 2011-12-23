@@ -197,7 +197,6 @@ def semester_lecturer_ready(request, semester_id):
             course.ready_for_lecturer()
             course.save()
         
-        #messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (len(form.selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_lecturer_ready.html", dict(semester=semester, form=form), context_instance=RequestContext(request))

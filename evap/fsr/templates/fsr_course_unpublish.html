@@ -8,10 +8,8 @@
         <form method="POST" style="display: inline;">
             {% csrf_token %}
             <p>{% blocktrans with name=course.name %}Do you really want to unpublish the course <em>{{ name }}</em>?{% endblocktrans %}</p>
-            <input type="submit" value="{% trans "Yes" %}"/>
-        </form>
-        <form method="GET" action="{% url evap.fsr.views.semester_view semester.id %}" style="display: inline;">
-            <input type="submit" value="{% trans "No" %}"/>
+            <input type="submit" value="{% trans "Yes" %}" class="btn primary"/>
+            <a href="{% url evap.fsr.views.semester_view semester.id %}" class="btn">{% trans "No" %}</a>
         </form>
     </p>
 {% endblock %}

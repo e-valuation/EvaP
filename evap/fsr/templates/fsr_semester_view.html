@@ -71,13 +71,13 @@
                 
                 <p>
                 {% ifequal state "new" %}
-                    <a class="abutton" href="{% url evap.fsr.views.semester_lecturer_ready semester.id %}">{% trans "Enable Courses for Lecturer Review" %}</a>
+                    <a class="btn" href="{% url evap.fsr.views.semester_lecturer_ready semester.id %}">{% trans "Enable Courses for Lecturer Review" %}</a>
                 {% endifequal %}
                 {% if state == 'new' or state == 'pendingLecturerApproval' or state == 'pendingFsrApproval' %}
-                    <a class="abutton" href="{% url evap.fsr.views.semester_approve semester.id %}">{% trans "Approve Courses" %}</a>
+                    <a class="btn" href="{% url evap.fsr.views.semester_approve semester.id %}">{% trans "Approve Courses" %}</a>
                 {% endif %}
                 {% ifequal state "pendingPublishing" %}
-                    <a class="abutton" href="{% url evap.fsr.views.semester_publish semester.id %}">{% trans "Publish Courses" %}</a>
+                    <a class="btn" href="{% url evap.fsr.views.semester_publish semester.id %}">{% trans "Publish Courses" %}</a>
                 {% endifequal %}
                 </p>
                 <p>&nbsp;</p>
