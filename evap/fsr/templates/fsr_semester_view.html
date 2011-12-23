@@ -1,4 +1,4 @@
-{% extends "fsr_base.html" %}
+{% extends "fsr_semester_base.html" %}
 
 {% load i18n %}
 {% load static %}
@@ -6,28 +6,43 @@
 
 {% block content %}
     {{ block.super }}
+    
+    <p>
+        <a href="{% url evap.fsr.views.semester_edit semester.id %}" class="btn small">{% trans "Edit Semester" %}</a>
+        {% if semester.can_fsr_delete %}
+            <a href="{% url evap.fsr.views.semester_delete semester.id %}" class="btn small danger">{% trans "Delete Semester" %}</a>
+        {% else %}
+            <a href="#" class="btn small danger disabled">{% trans "Delete Semester" %}</a>
+        {% endif %}
+        &nbsp;
+        <a href="{% url evap.fsr.views.course_create semester.id %}" class="btn small">{% trans "Create Course..." %}</a>
+        <a href="{% url evap.fsr.views.semester_import semester.id %}" class="btn small">{% trans "Import Courses" %}</a>
+        <a href="{% url evap.fsr.views.semester_assign_questionnaires semester.id %}" class="btn small">{% trans "Assign Questionnaires" %}</a>
+        &nbsp;
+        <a href="{% url evap.fsr.views.semester_lottery semester.id %}" class="btn small">{% trans "Lottery" %}</a>
+    </p>
+    
     {% if courses_by_state %}
             {% for state, courses in courses_by_state %}
                 <h3>{% trans "State" %}: {% trans state %} ({{ courses|length }})</h3>
-                <table class="full-width">
+                <table class="zebra-striped vertically-aligned">
+                <tbody>
                 {% for course in courses %}
-                    <tr class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
-                        <td>
-                            {% with course.warnings as warnings %}
-                                {% if warnings %}
-                                    <img src="{% get_static_prefix %}images/silk/exclamation.png" title="{{ warnings|join:" " }}">
-                                {% endif %}
-                            {% endwith %}
-                        </td>
-                        <td><em>{% ifchanged %}{{ course.study }}{% endifchanged %}</em></td>
-                        <td class="expand">
+                    <tr>
+                        <!--<td><em>{% ifchanged %}{{ course.study }}{% endifchanged %}</em></td>-->
+                        <td class="maximize">
+                            <div>
                             {% if course.can_fsr_edit %}
                                 <a href="{% url evap.fsr.views.course_edit semester.id, course.id %}">{{ course.name }}</a>
                             {% else %}
                                 {{ course.name }}
                             {% endif %}
+                            </div>
+                            {% for warning in course.warnings %}
+                                <span class="label warning">{{ warning }}</span>
+                            {% endfor %}
                         </td>
-                        <td class="dontbreak">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
+                        <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
                         {% if state == 'inEvaluation' or state == 'pendingForReview' or state == 'pendingPublishing' or state == 'published' %}
                             {% if course.num_participants %}
                                 <td class="dontbreak right">{{ course.num_voters }}/{{ course.num_participants }}</td>
@@ -36,21 +51,22 @@
                                 <td class="center" colspan="2">&mdash;</td>
                             {% endif %}
                         {% endif %}
-                        <td class="dontbreak">
-                            <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" title="{% trans "Write E-Mail" %}"><img src="{% get_static_prefix %}images/silk/email.png"> {% trans "E-Mail" %}</a>&nbsp;
-                            <a href="{% url evap.fsr.views.course_preview semester.id, course.id %}" title="{% trans "Preview" %}"><img src="{% get_static_prefix %}images/silk/image.png"> {% trans "Preview" %}</a>&nbsp;
+                        <td class="minimize">
+                            <a href="{% url evap.fsr.views.course_email semester.id, course.id %}" class="btn small">{% trans "E-Mail" %}</a>
+                            <a href="{% url evap.fsr.views.course_preview semester.id, course.id %}" class="btn small">{% trans "Preview" %}</a>
                             {% if course.can_fsr_delete %}
-                                <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" title="{% trans "Delete" %}"><img src="{% get_static_prefix %}images/silk/bin.png"></a>&nbsp;
+                                <a href="{% url evap.fsr.views.course_delete semester.id, course.id %}" class="btn small">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if course.can_fsr_review %}
-                                <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" title="{% trans "Censor" %}"><img src="{% get_static_prefix %}images/silk/eye.png"></a>&nbsp;
+                                <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" class="btn small">{% trans "Censor" %}</a>
                             {% endif %}
                             {% if state == 'published' %}
-                                <a href="{% url evap.fsr.views.course_unpublish semester.id, course.id %}" title="{% trans "Unpublish" %}"><img src="{% get_static_prefix %}images/silk/delete.png"> {% trans "Unpublish" %}</a>
+                                <a href="{% url evap.fsr.views.course_unpublish semester.id, course.id %}" title="{% trans "Unpublish" %}" class="btn small">{% trans "Unpublish" %}</a>
                             {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
+                </tbody>
                 </table>
                 
                 <p>

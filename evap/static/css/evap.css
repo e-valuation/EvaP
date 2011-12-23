@@ -1,0 +1,23 @@
+td.maximize, th.maximize {
+    width: 100%;
+}
+td.minimize, th.minimize {
+    width: 0%;
+    white-space: nowrap;
+}
+
+td.right, th.right {
+    text-align: right;
+}
+td.center, th.center {
+    text-align: center;
+}
+table.vertically-aligned * td {
+    vertical-align: middle;
+}
+
+.vote-bg-1 { background: #78f159; }
+.vote-bg-2 { background: #bcf159; }
+.vote-bg-3 { background: #f1e259; }
+.vote-bg-4 { background: #f19e59; }
+.vote-bg-5 { background: #f15959; }

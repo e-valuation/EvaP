@@ -5,7 +5,10 @@
 
 {% block title %}{% trans "Results" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}{% trans "Results" %}{% endblock %}
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url evap.results.views.index %}">{% trans "Results" %}</a></li>
+{% endblock %}
 
 {% block menu-results %}
     {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}

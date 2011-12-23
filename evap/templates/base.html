@@ -6,93 +6,51 @@
 <html>
 <head>
     <title>{% block title %}EvaP{% endblock %}</title>
-    <link href="{% get_static_prefix %}css/base.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-dropdown.js"></script>
     {% block header %}{% endblock %}
 </head>
-<body>
-    <div id="header">
-        <div id="header_left">
-            <h1>
-                <a href="/">
-                    {% trans "Evaluation Platform" %}
-                </a>
-            </h1>
-            <h2 class="subtitle">
-                {% block subtitle %}&nbsp;{% endblock %}
-            </h2>
-        </div>
-        <div id="header_right">
-            <img src="{% get_static_prefix %}images/logo.png" id="header_logo">
-        </div>
-    </div>
-    <div id="page-wrap">
-        <div id="main-sidebar">
-            <div id="main-sidebar-wrapper">
-                {% block sidebar %}
-                <ul>
-                {% if user.get_profile.has_courses %}
-                    <li class="menu-title"><a href="{% url evap.student.views.index %}">{% trans "Evaluation" %}</a>
-                    {% block menu-student %}{% endblock %}
-                    </li>
-                {% endif %}
-                
-                {% if user.is_staff %}
-                    <li class="menu-title"><a href="{% url fsr_root %}">{% trans "FSR" %}</a>
-                    {% block menu-fsr %}{% endblock %}
-                    </li>
-                {% endif %}
-                
-                {% if user.get_profile.lectures_courses %}
-                    <li class="menu-title"><a href="{% url evap.lecturer.views.index %}">{% trans "Your EvaP" %}</a>
-                    {% block menu-lecturer %}{% endblock %}
-                    </li>
-                {% endif %}
-                
-                <li class="menu-title"><a href="{% url evap.results.views.index %}">{% trans "Results" %}</a>
-                {% block menu-results %}{% endblock %}
-                </li>
+<body style="padding-top: 55px;">
+    
+    {% include "topbar.html "%}
+    
+    <div class="container">
+        <div class="row">
+            <div class="span16">
+                <ul class="breadcrumb">
+                    {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
                 </ul>
-                {% endblock sidebar %}
             </div>
         </div>
-        <div id="main-content">
-            {% block content %}
-            {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endblock %}
+        <div class="row">
+            <div class="span16">
+                {% block content %}
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endblock %}
+            </div>
         </div>
-        <br clear="both">
-    </div>
-    
-    <div id="footer">
-        <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
-        &nbsp;&middot;
-        <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
-        &nbsp;&middot;
-        <form action="/i18n/setlang/" method="POST" class="textform">
-            {% csrf_token %}
-            <input type="hidden" name="language" value="de"/>
-            <input type="submit" value="Deutsch">
-        </form>
-        &middot;
-        <form action="/i18n/setlang/" method="POST" class="textform">
-            {% csrf_token %}
-            <input type="hidden" name="language" value="en"/>
-            <input type="submit" value="English">
-        </form>
-        &middot;&nbsp;
-        {% if request.user.is_active %}
-            {% trans "Logged in as" %} {{ request.user.get_profile.full_name }}
-            &nbsp;&middot;&nbsp;
-            <a href="{% url django.contrib.auth.views.logout %}">Abmelden</a>
-        {% else %}
-            {% trans "Not logged in" %}
-        {% endif %}
+        {% block rawcontent %}{% endblock %}
+        <footer>
+            <p>
+                <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
+                &nbsp;&middot;&nbsp;
+                <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
+                &nbsp;&middot;&nbsp;
+                {% if request.user.is_active %}
+                    {% trans "Logged in as" %} {{ request.user.get_profile.full_name }}
+                {% else %}
+                    {% trans "Not logged in" %}
+                {% endif %}
+            </p>
+        </footer>
     </div>
 </body>
 </html>

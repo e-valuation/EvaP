@@ -9,13 +9,14 @@ from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
+from evap.evaluation.forms import BootstrapMixin
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile
 from evap.fsr.models import EmailTemplate
 from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
 
 
-class ImportForm(forms.Form):
+class ImportForm(forms.Form, BootstrapMixin):
     vote_start_date = forms.DateField(label=_(u"first date to vote"))
     vote_end_date = forms.DateField(label=_(u"last date to vote"))
     
@@ -31,12 +32,12 @@ class ImportForm(forms.Form):
         self.fields['vote_end_date'].widget = forms.DateInput()
 
 
-class SemesterForm(forms.ModelForm):
+class SemesterForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Semester
 
 
-class CourseForm(forms.ModelForm):
+class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
     
     class Meta:
@@ -271,7 +272,7 @@ class SelectCourseForm(forms.Form):
         return cleaned_data
 
     
-class UserForm(forms.ModelForm):
+class UserForm(forms.ModelForm, BootstrapMixin):
     username = forms.CharField()
     first_name = forms.CharField()
     last_name = forms.CharField()
@@ -310,7 +311,7 @@ class UserForm(forms.ModelForm):
         super(UserForm, self).save(*args, **kw)
 
 
-class LotteryForm(forms.Form):
+class LotteryForm(forms.Form, BootstrapMixin):
     number_of_winners = forms.IntegerField(label=_(u"Number of Winners"), initial=3)
 
 

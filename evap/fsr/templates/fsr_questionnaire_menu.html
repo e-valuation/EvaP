@@ -4,5 +4,4 @@
 {% for questionnaire in questionnaires %}
     <li><a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}">{{ questionnaire.name }}</a></li>
 {% endfor %}
-    <li><a href="{% url evap.fsr.views.questionnaire_create %}">{% trans "New..." %}</a></li>
 </ul>

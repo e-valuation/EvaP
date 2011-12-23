@@ -1,18 +1,12 @@
-{% extends "fsr_base.html" %}
+{% extends "fsr_semester_base.html" %}
 
 {% load i18n %}
 
-{% block subtitle %}
-    {{ block.super }} - {% trans "Semesters" %}
-{% endblock %}
-
-{% block actions %}
-    <li><a href="{% url evap.fsr.views.semester_create %}">{% trans "Create new semester" %}</a></li>
-    {{ block.super }}
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
+    <p>
+        <a href="{% url evap.fsr.views.semester_create %}" class="btn small">{% trans "Create new semester" %}</a>
+    </p>
     <p>
     {% if semesters %}
         {% trans "Select a semester: " %}

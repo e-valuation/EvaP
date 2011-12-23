@@ -212,9 +212,9 @@ class Course(models.Model):
     def warnings(self):
         result = []
         if not self.assignments.exists():
-            result.append(_(u"No lecturers assigned."))
+            result.append(_(u"No lecturers assigned"))
         if not self.has_enough_questionnaires():
-            result.append(_(u"Not enough questionnaires assigned."))
+            result.append(_(u"Not enough questionnaires assigned"))
         return result
     
     @property

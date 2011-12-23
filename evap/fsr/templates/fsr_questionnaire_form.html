@@ -6,12 +6,6 @@
 {% block header %}
     {{ block.super }}
     
-    <script type="text/javascript">
-        $(function() {
-            $('#question_table tbody tr').formset({prefix: 'question_set'});
-        })
-    </script>
-    
     <!-- prevent from accendential closing -->
 	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

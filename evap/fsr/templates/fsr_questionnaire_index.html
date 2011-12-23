@@ -1,31 +1,27 @@
-{% extends "fsr_base.html" %}
+{% extends "fsr_questionnaire_base.html" %}
 
 {% load i18n %}
-
-{% block subtitle %}
-    {{ block.super }} - {% trans "Questionnaires" %}
-{% endblock %}
-
-{% block actions %}
-    <li><a href="{% url evap.fsr.views.questionnaire_create %}">{% trans "Create new questionnaire" %}</a></li>
-    {{ block.super }}
-{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <p>
+        <a href="{% url evap.fsr.views.questionnaire_create %}" class="btn small">{% trans "Create new questionnaire" %}</a>
+    </p>
+    <p>
     {% if questionnaires %}
-        <table class="full-width">
-            <tr>
-                <th>{% trans "Name" %}</th>
-                <th>{% trans "Usages" %}</th>
-                <th>{% trans "Actions" %}</th>
-            </tr>
-            
+        <table class="zebra-striped condensed-table">
+            <thead>
+                <tr>
+                    <th>{% trans "Questionnaire" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
             {% for questionnaire in questionnaires %}
-                <tr class="{% if questionnaire.obsolete %}obsolete {% endif %}{% cycle "odd" "even" %}">
-                    <td>{{ questionnaire.name }}</td>
+                <tr>
                     <td>
+                        <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">obsolete</span>{% endif %}
+                        <br>
                         {% blocktrans count questionnaire.question_set.all.count as count %}
                         {{ count }} question{% plural %}
                         {{ count }} questions{% endblocktrans %},
@@ -34,23 +30,23 @@
                         {{ count }} course{% plural %}
                         {{ count }} courses{% endblocktrans %}
                     </td>
-                    <td>
+                    <td class="right">
                         {% if not questionnaire.obsolete %}
-                            <a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}">{% trans "Edit" %}</a>&nbsp;
+                            <a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}" class="btn small primary">{% trans "Edit" %}</a>
+                        {% else %}
+                            <a href="#" class="btn small primary disabled">{% trans "Edit" %}</a>
                         {% endif %}
-                        <a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}">{% trans "Preview" %}</a>&nbsp;
-                        <a href="{% url evap.fsr.views.questionnaire_copy questionnaire.id %}">{% trans "Copy" %}</a>&nbsp;
+                        <a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}" class="btn small">{% trans "Preview" %}</a>
+                        <a href="{% url evap.fsr.views.questionnaire_copy questionnaire.id %}" class="btn small">{% trans "Copy" %}</a>
                         {% if questionnaire.can_fsr_delete %}
-                            <a href="{% url evap.fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete" %}</a>
+                            <a href="{% url evap.fsr.views.questionnaire_delete questionnaire.id %}" class="btn small danger">{% trans "Delete" %}</a>
+                        {% else %}
+                            <a href="#" class="btn small danger disabled">{% trans "Delete" %}</a>
                         {% endif %}
                     </td>
                 </tr>
-                <!--
-                <tr>
-                    <td colspan="4">{{ questionnaire.description|default:"&nbsp;" }}</td>
-                </tr>
-                -->
             {% endfor %}
+            </tbody>
         </table>
     {% else %}
         {% trans "There are no questionnaires yet." %}

@@ -3,52 +3,47 @@
 {% load conditions %}
 {% load i18n %}
 
-{% block subtitle %}{{ block.super }} - {{ course.semester.name }}{% endblock %}
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url evap.results.views.semester_detail course.semester.id %}">{{ course.semester.name }}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url evap.results.views.course_detail course.semester.id course.id %}">{{ course.name }}</a></li>
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
-    
     {% regroup sections by questionnaire as sections_grouped %}
     
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
-    <table class="results-detail">
     {% for group in sections_grouped %}
-        <tr>
-            <td class="results-title" colspan="4">{{ group.grouper.name }}</td>
-        </tr>
+        <h4>{{ group.grouper.name }}</h4>
         {% if group.grouper.teaser %}
-        <tr>
-            <td class="results-teaser" colspan="4">
-            {{ group.grouper.teaser }}
-            </td>
-        </tr>
+            <p>{{ group.grouper.teaser }}</td>
         {% endif %}
+        
         {% for questionnaire, lecturer, results, grade in group.list %}
             {% if lecturer %}
-            <tr>
-                <td class="results-subtitle" colspan="4">
-                {{ lecturer.get_profile.full_name }}
-                </td>
-            </tr>
+                <h5>{{ lecturer.get_profile.full_name }}</h5>
             {% endif %}
             
+            <table class="zebra-striped">
+                <tbody>
             {% for result in results %}
                 <tr>
                     {% ifequal result.question.kind "G" %}
-                    <td class="results-question-grade" colspan="2">{{ result.question.text }}</td>
-                    <td class="results-distribution">
+                    <td class="span13" colspan="2">{{ result.question.text }}</td>
+                    <td class="span2">
                         {% if result.show %}
-                        <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}">
+                        <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}" >
                             {% spaceless %}
                             {% for answer, rel in result.distribution.items %}
-                                <div style="width: {{ rel }}%;" class="results-distribution-{{ answer }}">&nbsp;</div>
+                                <div style="display: inline-block; width: {{ rel }}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
                             {% endfor %}
                             {% endspaceless %}
                         </div>
                         {% endif %}
                     </td>
-                    <td class="results-average">
+                    <td class="span1">
                         {% if result.show %}
                             {{ result.average|floatformat:1 }}
                         {% else %}
@@ -61,6 +56,7 @@
                     <td class="results-question-text">{{ result.question.text }}</td>
                     <td class="results-text" colspan="3">
                         {% for text in result.texts %}
+                            FIXME
                             <div>{{ text|linebreaks }}</div>
                         {% endfor %}
                     </td>
@@ -68,6 +64,8 @@
                     {% endifequal %}
                 </tr>
             {% endfor %}
+                </tbody>
+            </table>
         {% endfor %}
     {% endfor %}
     </table>

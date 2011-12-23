@@ -3,58 +3,20 @@
 {% load i18n %}
 {% load static %}
 
-{% block header %}
-    {{ block.super }}
-    
-    <script>
-	$(function() {
-        $( "#id_vote_start_date" ).datepicker({
-            showOn: "button",
-			buttonImage: "{% get_static_prefix %}images/calendar.gif",
-			buttonImageOnly: true
-        });
-            
-        $( "#id_vote_end_date" ).datepicker({
-            showOn: "button",
-			buttonImage: "{% get_static_prefix %}images/calendar.gif",
-			buttonImageOnly: true
-        });
-            
-        $( "#id_publish_date" ).datepicker({
-            showOn: "button",
-			buttonImage: "{% get_static_prefix %}images/calendar.gif",
-			buttonImageOnly: true
-        });
-            
-        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-	$(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-	    $(e).width($(e).width());
-	    $(e).multiselect();
-	});
-	    
-	$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
-	
-	$('#id_study').combobox();
-	$('#id_kind').combobox();
-        });
-    </script>
-	
-	<!-- prevent from accendential closing -->
-	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
     <p>
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-	    <h4>{% trans "General Options" %}</h4>
-	    <table class="stdform">
-		{{ form.as_table }}
-	    </table>
+	    <fieldset>
+		<legend>{% trans "General Options" %}</legend>
+		{{ form.as_div }}
+	    </fieldset>
 	    
-	    <h4>{% trans "Lecturers" %}</h4>
-	    {{ formset.management_form }}
+	    <fieldset>
+		<legend>{% trans "Lecturers" %}</legend>
+		{{ formset.management_form }}
+	    </fieldset>
 	    
 	    {{ formset.non_form_errors }}
 	    
@@ -63,6 +25,7 @@
 		    {% for field in formset.form %}
 			<th>{{ field.label }}</th>
 		    {% endfor %}
+		    <th></th>
 		    <th>{% trans "Delete?" %}</th>
 		</tr>
 		<tbody>
@@ -72,14 +35,13 @@
 			{% endif %}
 			
 			<tr>
-			{% for field in form_element %}
-			    <td>{{field.errors}} {{ field }}</td>
-			{% endfor %}
+			    <tr><td>{{ form_element.lecturer }} {% trans "Delete?" %}{{ form_element.DELETE }}</td></tr>
+			    <tr><td>{{ form_element.questionnaires }}</td></tr>
 			</tr>
 		    {% endfor %}
 		</tbody>
 	    </table>
-            <input type="submit" value="{% trans "Save course" %}" onclick="submitFormOkay = true;"/>
+            <input type="submit" value="{% trans "Save course" %}"/>
         </form>
     </p>
 {% endblock %}

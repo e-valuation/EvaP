@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('evap.fsr.views',
-    url(r"^$", 'semester_index', name="fsr_root"),
+    url(r"^$", 'index', name="fsr_root"),
     
     url(r"^semester$", 'semester_index'),
     url(r"^semester/create$", 'semester_create'),

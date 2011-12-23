@@ -35,6 +35,13 @@ STATES_ORDERED = (
 
 
 @fsr_required
+def index(request):
+    semesters = Semester.objects.all()
+    questionnaires = Questionnaire.objects.filter(obsolete=False)
+    return render_to_response("fsr_index.html", dict(semesters=semesters, questionnaires=questionnaires), context_instance=RequestContext(request))
+
+
+@fsr_required
 def semester_index(request):
     semesters = Semester.objects.all()
     return render_to_response("fsr_semester_index.html", dict(semesters=semesters), context_instance=RequestContext(request))

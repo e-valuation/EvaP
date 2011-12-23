@@ -1,0 +1,11 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a></li>
+    {% if semester %}
+        <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.semester_view semester.id %}">{{ semester.name }}</a></li>
+    {% endif %}
+{% endblock %}

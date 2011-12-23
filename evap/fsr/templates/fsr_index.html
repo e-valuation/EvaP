@@ -1,0 +1,44 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+
+{% block rawcontent%}
+    <div class="row">
+        <div class="span-one-third">
+            <h3>{% trans "Semesters" %}</h3>
+            <p>
+            {% if semesters %}
+                <ul>
+                {% for semester in semesters %}
+                    <li><a href="{% url evap.fsr.views.semester_view semester.id %}">{{ semester.name }}</a></li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                {% trans "There are no semesters yet." %}
+            {% endif %}
+            </p>
+            <p>
+                <a href="{% url evap.fsr.views.semester_create %}" class="btn small">{% trans "Create new semester" %}</a>
+            </p>
+        </div>
+        <div class="span-one-third">
+            <h3>{% trans "Questionnaires" %}</h3>
+            <p>
+            {% if questionnaires %}
+                <ul>
+                {% for questionnaire in questionnaires %}
+                    <li><a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}">{{ questionnaire.name }}</a></li>
+                {% endfor %}
+                </ul>
+            {% else %}
+            {% endif %}
+            </p>
+            <p>
+                <a href="{% url evap.fsr.views.questionnaire_create %}" class="btn small">{% trans "Create new questionnaire" %}</a>
+            </p>
+        </div>
+        <div class="span-one-third">
+            <h3>{% trans "Users" %}</h3>
+        </div>
+    </div>
+{% endblock %}

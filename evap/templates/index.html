@@ -2,7 +2,10 @@
 
 {% load i18n %}
 
-{% block subtitle %}{% trans "Start" %}{% endblock %}
+{% block subtitle %}
+    {{ block.super }}
+    {% comment %} Don't need another entry here {% endcomment %}
+{% endblock %}
 
 {% block sidebar %}
     {% comment %} hide the menu if the user is not logged in {% endcomment %}
@@ -32,13 +35,12 @@
         login key or lost it, you can create a new one below.</p>
         {% endblocktrans %}
         
-        <div class="loginbox">
-            <h3>{% trans "Internal Users" %}</h3>
-            <a href="/login">{% trans "Click here to log in using your credentials." %}</a>
+        <h2>{% trans "Internal Users" %}</h2>
+        <div class="well">
+            <a class="btn success" href="/login">{% trans "Click here to log in using your credentials." %}</a>
         </div>
-        
-        <div class="loginbox">
-            <h3>{% trans "Guest Users" %}</h3>
+        <h2>{% trans "Guest Users" %}</h2>
+        <div class="well">
             <p>
                 {% blocktrans %}
                 Please enter your login key below. Be aware that login keys are
@@ -46,13 +48,20 @@
                 {% endblocktrans %}
             </p>
             <form action="{% url evap.evaluation.views.index %}" method="GET">
-                <p>
-                    <label for="userkey">{% trans "login key" %}: </label>
-                    <input name="userkey">
-                </p>
-                <input type="submit" value="{% trans "Login" %}">
-            </form>
-            <br/>
+                <fieldset>
+                    <div class="clearfix">
+                        <label for="userkey">{% trans "login key" %}</label>
+                        <div class="input">
+                            <input name="userkey">
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <input class="btn success" type="submit" value="{% trans "Login" %}">
+                    </div>
+                </fieldset>
+            </form> 
+        </div>
+        <div class="well">
             <h4>{% trans "Generate a new login key" %}</h4>
             <p>
                 {% blocktrans %}
@@ -65,9 +74,25 @@
                 {% endblocktrans %}
             </p>
             <form action="{% url evap.evaluation.views.index %}" method="POST">
+                <fieldset>
                 {% csrf_token %}
-                {{ new_key_form.as_p }}
-                <input type="submit" value="{% trans "Generate Key" %}">
+                {% for field in new_key_form %}
+                    <div class="clearfix">
+                        {{ field.label_tag }}
+                        <div class="input">
+                            {{ field }}
+                            <span class="help-inline">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="actions">
+                    <input class="btn primary" type="submit" value="{% trans "Generate Key" %}">
+                </div>
+                </fieldset>
             </form>
         </div>
     {% endif %}

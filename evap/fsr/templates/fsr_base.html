@@ -7,87 +7,26 @@
 {% block title %}{% trans "Student Representatives" %} - {{ block.super }}{% endblock %}
 
 {% block subtitle %}
-    {% trans "Student Representatives" %}
-    {% if questionnaire %}
-        - {% trans "Questionnaire" %} {{ questionnaire.name }}
-    {% endif %}
-    {% if semester %}
-        - {% trans "Semester" %} {{ semester.name }}
-    {% endif %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url fsr_root %}">{% trans "Student Representatives" %}</a></li>
 {% endblock %}
 
 {% block header %}
     <!-- jquery ui -->
-    <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/jquery-ui-1.6.2-ui-lightness.css" />
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker-{{ LANGUAGE_CODE }}.js"></script>
+    <!--<link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/jquery-ui-1.6.2-ui-lightness.css" />-->
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>-->
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.min.js"></script>-->
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker-{{ LANGUAGE_CODE }}.js"></script>-->
     
     <!-- multi-select plugin -->
-    <link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/ui.multiselect.css" />
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/localisation/jquery.localisation-min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/scrollTo/jquery.scrollTo-min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/ui.multiselect.js"></script>
+    <!--<link type="text/css" rel="stylesheet" href="{% get_static_prefix %}css/ui.multiselect.css" />-->
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/plugins/localisation/jquery.localisation-min.js"></script>-->
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/plugins/scrollTo/jquery.scrollTo-min.js"></script>-->
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/ui.multiselect.js"></script>-->
     
     <!-- formset plugin -->
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery.formset.js"></script>
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/jquery.formset.js"></script>-->
     
     <!-- combobox plugin -->
-    <script type="text/javascript" src="{% get_static_prefix %}js/ui.combobox.js"></script>
-{% endblock %}
-
-{% block menu-fsr %}
-    <ul>
-    <li><a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a>
-    {% show_from 'evap.fsr.tools.all_semesters' "fsr_semester_menu.html" %}
-    </li>
-    
-    <li><a href="{% url evap.fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a>
-    {% show_from 'evap.fsr.tools.all_questionnaires' "fsr_questionnaire_menu.html" %}
-    </li>
-    
-    <li><a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a>
-        <ul>
-            <li><a href="{% url evap.fsr.views.user_index %}?filter=fsr">{% trans "FSR Members" %}</a></li>
-            <li><a href="{% url evap.fsr.views.user_index %}?filter=lecturers">{% trans "Lecturers" %}</a></li>
-        </ul>
-    </li>
-    
-    <li><a href="{% url evap.fsr.views.template_index %}">{% trans "Email Templates" %}</a>
-    </ul>
-{% endblock %}
-
-{% block content %}
-    <ul id="actions">
-        {% block actions %}
-            {% if questionnaire %}
-                <li>Questionnaire:</li>
-                <li><a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}">{% trans "Edit" %}</a></li>
-                <li><a href="{% url evap.fsr.views.questionnaire_copy questionnaire.id %}">{% trans "Copy" %}</a></li>
-                {% if questionnaire.can_fsr_delete %}
-                    <li><a href="{% url evap.fsr.views.questionnaire_delete questionnaire.id %}">{% trans "Delete" %}</a></li>
-                {% else %}
-                    <li class="disabled">{% trans "Delete" %}</a></li>
-                {% endif %}
-            {% endif %}
-            
-            {% if semester %}
-                <li>{% trans "Semester" %}:</li>
-                <li><a href="{% url evap.fsr.views.semester_edit semester.id %}">{% trans "Edit" %}</a></li>
-                {% if semester.can_fsr_delete %}
-                    <li><a href="{% url evap.fsr.views.semester_delete semester.id %}">{% trans "Delete" %}</a></li>
-                {% else %}
-                    <li class="disabled">{% trans "Delete" %}</li>
-                {% endif %}
-                <li>&middot;</li>
-                <li>{% trans "Courses" %}:</li>
-                <li><a href="{% url evap.fsr.views.course_create semester.id %}">{% trans "Create" %}</a></li>
-                <li><a href="{% url evap.fsr.views.semester_import semester.id %}">{% trans "Import" %}</a></li>
-                <li><a href="{% url evap.fsr.views.semester_assign_questionnaires semester.id %}">{% trans "Assign questionnaires" %}</a></li>
-                <li>&middot;</li>
-                <li><a href="{% url evap.fsr.views.semester_lottery semester.id %}">{% trans "Lottery" %}</a></li>
-            {% endif %}
-        {% endblock %}
-    </ul>
-    {{ block.super }}
+    <!--<script type="text/javascript" src="{% get_static_prefix %}js/ui.combobox.js"></script>-->
 {% endblock %}

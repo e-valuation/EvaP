@@ -3,44 +3,16 @@
 {% load i18n %}
 {% load static %}
 
-{% block header %}
-    {{ block.super }}
-    
-    <script>
-    $(function() {
-            $.datepicker.setDefaults($.datepicker.regional["{{ LANGUAGE_CODE }}"]);
-            
-            $( "#id_vote_start_date" ).datepicker({
-                showOn: "button",
-                buttonImage: "{% get_static_prefix %}images/calendar.gif",
-                buttonImageOnly: true
-            });
-            
-            $( "#id_vote_end_date" ).datepicker({
-                showOn: "button",
-                buttonImage: "{% get_static_prefix %}images/calendar.gif",
-                buttonImageOnly: true
-            });
-            
-            $( "#id_publish_date" ).datepicker({
-                showOn: "button",
-                buttonImage: "{% get_static_prefix %}images/calendar.gif",
-                buttonImageOnly: true
-            });
-        });
-    </script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
     <p>
         {% trans "Upload semester data from excel file (" %}<a href="{% get_static_prefix %}sample.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses." %}
         <form enctype="multipart/form-data" method="POST">
-        {% csrf_token %}
-            <table>
-                {{ form.as_table }}
-            </table>
-            <input type="submit" value="Import"/>
+	    {% csrf_token %}
+	    {{ form.as_div }}
+	    <div class="actions">
+		<input type="submit" value="Import" class="btn primary"/>
+	    </div>
         </form>
     </p>
 {% endblock %}

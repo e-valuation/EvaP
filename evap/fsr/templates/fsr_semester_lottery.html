@@ -1,4 +1,4 @@
-{% extends "fsr_base.html" %}
+{% extends "fsr_semester_base.html" %}
 
 {% load i18n %}
 
@@ -8,10 +8,10 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <table>
-                {{ form.as_table }}
-            </table>
-            <input type="submit" value="{% trans "Perform Lottery" %}"/>
+            {{ form.as_div }}
+            <div class="actions">
+                <input type="submit" value="{% trans "Perform Lottery" %}" class="btn default primary"/>
+            </div>
         </form>
     </p>
     {% else %}

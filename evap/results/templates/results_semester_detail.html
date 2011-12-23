@@ -3,42 +3,48 @@
 {% load i18n %}
 {% load morefilters %}
 
-{% block subtitle %}{{ block.super }} - {{ semester.name }}{% endblock %}
-
 {{% block content %}
     {{ block.super }}
-    <h3>
-        {{ semester.name }}
-    </h3>
+    
+    {% regroup courses by study as studies %}
+    
+    {% for study in studies %}
+        <h3>{{ study.grouper }}</h3>
+        <table class="zebra-striped">
+            <thead>
+                <tr>
+                    <th>{% trans "Course" %}</th>
+                    <th>{% trans "Grade" %}</th>
+                    <th>{% trans "Voters" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for course in study.list %}
+                <tr>
+                    <td class="span13"><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
+                    <td class="span1">{{ course.grade|floatformat:1 }}</td>
+                    {% if course.participants.count %}
+                    <td class="span2">
+                        <div style="background: #ADE6FE; display: inline-block; width: 70%;">
+                            <div style="display: inline-block; width: {% widthratio course.voters.count course.participants.count 100 %}%; background: #0069D6; color:white;"><span style="font-size: 80%;">&nbsp;{{ course.voters.count }}</span></div>
+                        </div>
+                        <span style="font-size: 80%;">{{ course.participants.count }}</span>
+                    </td>
+                    {% else %}
+                    <td class="span2">
+                        &mdash;
+                    </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
 
     {% if request.user.is_staff %}
     <p>
-        <a href="{% url evap.results.views.semester_export semester.id %}">{% trans "Export semester as Excel table" %}</a>&nbsp;&middot;
-        <a href="{% url evap.results.views.semester_export semester.id %}?all">{% trans "Export semester as Excel table (GF)" %}</a>
+        <a href="{% url evap.results.views.semester_export semester.id %}" class="btn small">{% trans "Export semester as Excel table" %}</a>
+        <a href="{% url evap.results.views.semester_export semester.id %}?all" class="btn small">{% trans "Export semester as Excel table (GF)" %}</a>
     </p>
     {% endif %}
-    
-    {% regroup courses by study as studies %}
-    <table>
-    {% for study in studies %}
-        <tr>
-            <td colspan="2">
-                <h4>{{ study.grouper }}</h4>
-            </td>
-        </tr>
-        {% for course in study.list %}
-            <tr class="{% cycle "odd" "even" %}">
-                <td><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
-                <td>{{ course.grade|floatformat:1 }}</td>
-                
-                {% if course.participants.count %}
-                    <td class="dontbreak right">{{ course.voters.count }}/{{ course.participants.count }}</td>
-                    <td class="dontbreak">({{ course.voters.count|percentage:course.participants.count }})</td>
-                {% else %}
-                    <td class="center" colspan="2">&mdash;</td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-    {% endfor %}
-    </table>
 {% endblock %}

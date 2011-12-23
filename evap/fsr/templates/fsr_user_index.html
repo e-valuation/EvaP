@@ -4,44 +4,51 @@
 {% load static %}
 
 {% block subtitle %}
-    {{ block.super }} - {% trans "Users" %}
-{% endblock %}
-
-
-{% block actions %}
     {{ block.super }}
-    <li><a href="{% url evap.fsr.views.user_create %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}">{% trans "Create new user" %}</a></li>
-{% endblock actions %}
+    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <table class="full-width">
+    <ul class="tabs">
+        <li class="{% if not filter %}active{% endif %}"><a href="?">{% trans "All" %}</a></li>
+        <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
+        <li class="{% if filter == 'lecturers' %}active{% endif %}"><a href="?filter=lecturers">{% trans "Lecturers" %}</a></li>
+        <div class="pull-right">
+            <a href="{% url evap.fsr.views.user_create %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small success">{% trans "Create new user" %}</a>
+        </div>
+    </ul>
+    
+    <table class="zebra-striped vertically-aligned">
+        <thead>
+            <tr>
+                <th>{% trans "User" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
         {% for user in users %}
-            <tr class="largerow {% cycle "odd" "even" %}">
-                <td>
+            <tr>
+                <td class="maximize">
+                    <div title="{{ user.username }}">{{ user.get_profile.full_name }}</div>
                     {% if user.is_staff %}
-                        <img src="{% get_static_prefix %}images/silk/user_orange.png" title="{% trans "Student Representative" %}">
+                        <span class="label notice">{% trans "Student Representative" %}</span>
                     {% endif %}
                     {% if user.get_profile.is_lecturer %}
-                        <img src="{% get_static_prefix %}images/silk/user_suit.png" title="{% trans "Lecturer" %}">
+                        <span class="label notice">{% trans "Lecturer" %}</span>
                     {% endif %}
-                </td><td>
                     {% if user.get_profile.logon_key %}
-                        <img src="{% get_static_prefix %}images/silk/world.png" title="{% trans "External Login Key Assigned" %}">
+                        <span class="label notice">{% trans "Logon Key" %}</span>
                     {% endif %}
-                </td><td>
                     {% if not user.email %}
-                        <img src="{% get_static_prefix %}images/silk/email_error.png" title="{% trans "E-Mail address missing!" %}">
+                        <span class="label important">{% trans "E-Mail address missing!" %}</span>
                     {% endif %}
                 </td>
-                <td class="expand"><span title="{{ user.username }}">{{ user.get_profile.full_name }}</span></td>
-                <td class="dontbreak">
-                    <a href="{% url evap.fsr.views.user_edit user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}">{% trans "Edit" %}</a>&nbsp;
-                    {% if user.get_profile.can_fsr_delete %}
-                        <a href="{% url evap.fsr.views.user_delete user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}">{% trans "Delete" %}</a>&nbsp;
-                    {% endif %}
+                <td class="minimize">
+                    <a href="{% url evap.fsr.views.user_edit user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small">{% trans "Edit" %}</a>
                 </td>
             </tr>
         {% endfor %}
+        </tbody>
     </table>
 {% endblock %}
