@@ -30,9 +30,9 @@
                 <tbody>
             {% for result in results %}
                 <tr>
-                    {% ifequal result.question.kind "G" %}
-                    <td class="span13" colspan="2">{{ result.question.text }}</td>
-                    <td class="span2">
+                {% ifequal result.question.kind "G" %}
+                    <td colspan="2">{{ result.question.text }}</td>
+                    <td>
                         {% if result.show %}
                         <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}" >
                             {% spaceless %}
@@ -43,28 +43,38 @@
                         </div>
                         {% endif %}
                     </td>
-                    <td class="span1">
+                    <td>
                         {% if result.show %}
                             {{ result.average|floatformat:1 }}
                         {% else %}
                             <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
                         {% endif %}
                     </td>
-                    {% endifequal %}
-                    {% ifequal result.question.kind "T" %}
+                {% endifequal %}
+                {% ifequal result.question.kind "T" %}
                     {% if_lecturer course %}
-                    <td class="results-question-text">{{ result.question.text }}</td>
-                    <td class="results-text" colspan="3">
+                    <td>{{ result.question.text }}</td>
+                    <td colspan="3">
+                        <ul>
                         {% for text in result.texts %}
-                            FIXME
-                            <div>{{ text|linebreaks }}</div>
+                            <li>{{ text|linebreaks }}</li>
                         {% endfor %}
+                        </ul>
                     </td>
                     {% endif_lecturer %}
-                    {% endifequal %}
+                {% endifequal %}
                 </tr>
             {% endfor %}
                 </tbody>
+                <tfoot>
+                    <!-- empty zero-height cells, necessary to make the overlapped colspans work -->
+                    <tr>
+                        <th class="span4" style="padding: 0px;"></th>
+                        <th class="span9" style="padding: 0px;"></th>
+                        <th class="span2" style="padding: 0px;"></th>
+                        <th class="span1" style="padding: 0px;"></th>
+                    </tr>
+                </tfoot>
             </table>
         {% endfor %}
     {% endfor %}
