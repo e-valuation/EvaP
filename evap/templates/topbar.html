@@ -14,8 +14,9 @@
                 
                 {% if user.is_staff %}
                 <li class="dropdown">
-                    <a class="dropdown-toggle" href="{% url fsr_root %}">{% trans "Student Representatives" %}</a>
+                    <a class="dropdown-toggle" href="{% url evap.fsr.views.index %}">{% trans "Student Representatives" %}</a>
                     <ul class="dropdown-menu">
+                        <li><a href="{% url evap.fsr.views.index %}">{% trans "Overview" %}</a></li>
                         <li><a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a>
                         {% show_from 'evap.fsr.tools.all_semesters' "fsr_semester_menu.html" %}
                         </li>

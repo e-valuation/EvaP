@@ -5,14 +5,18 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <a href="{% url evap.fsr.views.semester_create %}" class="btn small">{% trans "Create new semester" %}</a>
+        <a href="{% url evap.fsr.views.semester_create %}" class="btn">{% trans "Create new semester" %}</a>
     </p>
     <p>
     {% if semesters %}
         {% trans "Select a semester: " %}
         <ul>
         {% for semester in semesters %}
-            <li><a href="{% url evap.fsr.views.semester_view semester.id %}">{{ semester.name }}</a></li>
+            <li>
+                <a href="{% url evap.fsr.views.semester_view semester.id %}">
+                    {{ semester.name }}
+                </a>
+            </li>
         {% endfor %}
         </ul>
     {% else %}
