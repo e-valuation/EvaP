@@ -1,9 +1,20 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.datastructures import SortedDict
+from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import GradeAnswer, TextAnswer
 
+
 from collections import namedtuple
+
+GRADE_NAMES = {
+    1: _(u"Strongly agree"),
+    2: _(u"Agree"),
+    3: _(u"Neither agree nor disagree"),
+    4: _(u"Disagree"),
+    5: _(u"Strongly disagree"),
+}
+
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'lecturer', 'results', 'average'))

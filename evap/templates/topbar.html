@@ -8,6 +8,7 @@
         <div class="container">
             <a class="brand" href="/">{% trans "Evaluation Platform" %}</a>
             <ul class="nav">
+                {% if user.is_active %}
                 {% if user.get_profile.has_courses %}
                     <li><a href="{% url evap.student.views.index %}">{% trans "Evaluation" %}</a></li>
                 {% endif %}
@@ -36,7 +37,6 @@
                 </li>
                 {% endif %}
                 
-                {% if user.is_active %}
                 <li class="dropdown">
                     <a class="dropdown-toggle" href="{% url evap.results.views.index %}">{% trans "Results" %}</a>
                     <ul class="dropdown-menu">
@@ -65,9 +65,3 @@
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-    $(function() {
-        $('#topbar').dropdown();
-    });
-</script>

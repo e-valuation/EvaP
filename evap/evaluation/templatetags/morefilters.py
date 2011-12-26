@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template import Library
+from evap.evaluation.tools import GRADE_NAMES
 
 register = Library()
 
@@ -12,6 +13,11 @@ def percentage(fraction, population):
         return "%.0f%%" % ((float(fraction) / float(population)) * 100)
     except ValueError:
         return ''
+
+
+@register.filter(name='gradename')
+def gradename(grade):
+    return GRADE_NAMES.get(grade, "")
 
 
 @register.tag

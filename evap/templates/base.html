@@ -5,23 +5,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    {% block header %}
     <title>{% block title %}EvaP{% endblock %}</title>
     <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.min.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.7.1.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-alerts.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-dropdown.js"></script>
-    <script>
-        $(function(){
-            $(".alert-message").append("<a class='close' href='#'>&#xd7;</a>").alert();
-        });
-    </script>
-    {% block header %}{% endblock %}
+    {% endblock %}
 </head>
 <body>
-    
     {% include "topbar.html "%}
-    
     <div class="container">
         <div class="row">
             <div class="span16">
@@ -60,5 +51,18 @@
             </p>
         </footer>
     </div>
+    {% block scripts %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-alerts.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-dropdown.js"></script>
+    <script>
+        $(function(){
+            // add a close button to each message and make it work
+            $(".alert-message").append("<a class='close' href='#'>&#xd7;</a>").alert();
+            // activate topbar
+            $('#topbar').dropdown();
+        });
+    </script>
+    {% endblock %}
 </body>
 </html>

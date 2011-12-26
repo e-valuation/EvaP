@@ -1,7 +1,9 @@
 {% extends "results_base.html" %}
 
 {% load conditions %}
+{% load morefilters %}
 {% load i18n %}
+{% load static %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -34,7 +36,9 @@
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
                         {% if result.show %}
-                        <div title="{% for answer, rel in result.distribution.items %}{{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}" >
+                        <div class="distribution-bar"
+                            title="{% for answer, rel in result.distribution.items %}{{answer|gradename}}: {{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
+                            data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|gradename}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel}}%</div></div>{% endfor %}</div>">
                             {% spaceless %}
                             {% for answer, rel in result.distribution.items %}
                                 <div style="display: inline-block; width: {{ rel }}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
@@ -79,4 +83,16 @@
         {% endfor %}
     {% endfor %}
     </table>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
+    <script>
+        $('.distribution-bar').twipsy({
+            html: true,
+            placement: 'left',
+            title: 'data-twipsy'
+        });
+    </script>
 {% endblock %}
