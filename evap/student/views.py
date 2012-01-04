@@ -63,6 +63,9 @@ def vote(request, course_id):
                     identifier = make_form_identifier(assignment, questionnaire, question)
                     value = form.cleaned_data.get(identifier)
                     
+                    if type(value) in [str, unicode]:
+                        value = value.strip()
+                    
                     # store the answer if one was given
                     if value:
                         question.answer_class.objects.create(
