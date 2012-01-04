@@ -7,7 +7,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
-from evap.evaluation.models import Course
+from evap.evaluation.models import Course, Semester
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
@@ -18,6 +18,7 @@ from datetime import datetime
 def index(request):
     # retrieve all courses, which the user can evaluate now or later
     users_courses = Course.objects.filter(
+            semester=Semester.get_latest_or_none(),
             state="inEvaluation",
             vote_end_date__gte=datetime.now(),
             participants=request.user
@@ -35,7 +36,8 @@ def index(request):
     return render_to_response(
         "student_index.html",
         dict(current_courses=current_courses,
-             future_courses=future_courses),
+             future_courses=future_courses,
+             semester=Semester.get_latest_or_none()),
         context_instance=RequestContext(request))
 
 
