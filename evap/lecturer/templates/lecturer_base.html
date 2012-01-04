@@ -26,7 +26,9 @@
 
 {% block menu-lecturer %}
     <ul>
-        <li><a href="{% url evap.lecturer.views.profile_edit %}">{% trans "Your Profile" %}</a></li>
+	{% if user.get_profile.is_lecturer %}
+	    <li><a href="{% url evap.lecturer.views.profile_edit %}">{% trans "Your Profile" %}</a></li>
+	{% endif %}
         <li><a href="{% url evap.lecturer.views.course_index %}">{% trans "Your Courses" %}</a></li>
     </ul>
 {% endblock %}

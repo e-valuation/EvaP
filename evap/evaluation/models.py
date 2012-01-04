@@ -201,10 +201,12 @@ class Course(models.Model):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
     def is_user_lecturer(self, user):
-        if not user.get_profile().is_lecturer:
-            return False
+        if self.assignments.filter(lecturer=user).exists() and user.get_profile().is_lecturer:
+            return True
+        elif self.assignments.filter(lecturer__in=user.proxied_users.all()).exists():
+            return True
         
-        return self.assignments.filter(lecturer=user).exists() or self.assignments.filter(lecturer__in=user.proxied_users.all()).exists()
+        return False
     
     def warnings(self):
         result = []
@@ -374,10 +376,7 @@ class UserProfile(models.Model):
         else:
             return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
-    def lectures_courses(self):
-        if not self.is_lecturer:
-            return False
-        
+    def lectures_courses(self):        
         latest_semester = Semester.get_latest_or_none()
         if latest_semester is None:
             return False
