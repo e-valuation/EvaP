@@ -141,6 +141,9 @@ class Course(models.Model):
     
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
+        if (not self.state == "inEvaluation") or (self.vote_end_date < datetime.date.today()):
+            return False
+        
         return user in self.participants.all() and user not in self.voters.all()
     
     def can_fsr_edit(self):
