@@ -273,7 +273,8 @@ form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li {
 	background: #f19e59;}
 
 form.vote tr.vote-row div.vote-buttons ul li:first-child+li+li+li+li {
-	background: #f15959;}
+	background: #f15959;
+	margin-right: 15px;}
 
 form.vote tr.vote-row textarea {
 	width: 98%;}
