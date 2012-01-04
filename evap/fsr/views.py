@@ -330,11 +330,9 @@ def course_censor(request, semester_id, course_id):
             form.instance.save()
             count = count + 1
         
-        try:
+        if course.is_fully_checked():
             course.review_finished()
             course.save()
-        except:
-            pass
         
         messages.add_message(request, messages.INFO, _("Successfully censored %d course answers.") % count)
         return redirect('evap.fsr.views.semester_view', semester_id)
