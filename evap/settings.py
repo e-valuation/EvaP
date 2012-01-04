@@ -144,6 +144,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'evap.evaluation.auth.RequestAuthMiddleware',
+    'evap.evaluation.403.Django403Middleware',
 )
 
 AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
