@@ -19,7 +19,7 @@ class Command(BaseCommand):
                 if course.state == "approved" and course.vote_start_date <= today:
                     course.evaluation_begin()
                     course.save()
-                elif course.state == "inEvaluation" and course.vote_end_date <= today:
+                elif course.state == "inEvaluation" and course.vote_end_date < today:
                     course.evaluation_end()
                     course.save()
             except:
