@@ -8,40 +8,66 @@
     <p>
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-	    <fieldset>
-		<legend>{% trans "General Options" %}</legend>
-		{{ form.as_div }}
-	    </fieldset>
-	    
-	    <fieldset>
-		<legend>{% trans "Lecturers" %}</legend>
-		{{ formset.management_form }}
-	    </fieldset>
-	    
-	    {{ formset.non_form_errors }}
-	    
-	    <table id="assignment_table">
-		<tr>
-		    {% for field in formset.form %}
-			<th>{{ field.label }}</th>
-		    {% endfor %}
-		    <th></th>
-		    <th>{% trans "Delete?" %}</th>
-		</tr>
-		<tbody>
-		    {% for form_element in formset %}
-			{% if form_element.non_field_errors %}
-			    <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-			{% endif %}
-			
-			<tr>
-			    <tr><td>{{ form_element.lecturer }} {% trans "Delete?" %}{{ form_element.DELETE }}</td></tr>
-			    <tr><td>{{ form_element.questionnaires }}</td></tr>
-			</tr>
-		    {% endfor %}
-		</tbody>
-	    </table>
+            <fieldset>
+                <legend>{% trans "General Options" %}</legend>
+                {{ form.as_div }}
+            </fieldset>
+            
+            <fieldset>
+                <legend>{% trans "Lecturers" %}</legend>
+                {{ formset.management_form }}
+            </fieldset>
+            
+            {{ formset.non_form_errors }}
+            
+            <table id="assignment_table">
+                <tr>
+                    {% for field in formset.form %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                    <th></th>
+                    <th>{% trans "Delete?" %}</th>
+                </tr>
+                <tbody>
+                    {% for form_element in formset %}
+                        {% if form_element.non_field_errors %}
+                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                        {% endif %}
+                        
+                        <tr>
+                            <tr><td>{{ form_element.lecturer }} {% trans "Delete?" %}{{ form_element.DELETE }}</td></tr>
+                            <tr><td>{{ form_element.questionnaires }}</td></tr>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             <input type="submit" value="{% trans "Save course" %}"/>
         </form>
     </p>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            $("div.input select[multiple='multiple']").each(function(idx, e) {
+                var new_e = $("<ul class='inputs-list check-list'/>");
+                $("option", e).each(function(idx, option) {
+                    var label = $("<label/>");
+                    label.append($("<input type='checkbox'/>").attr({name: $(e).attr('name'), value: $(option).attr('value')}));
+                    label.append($("<span/>").append($(option).text()));
+                    new_e.append($("<li/>").append(label));
+                });
+                
+                $(e).replaceWith(new_e);
+                
+                $("<input/>").change(function(e) {
+                    var search = e.target.value;
+                    $("option", e.target.parentNode).each(function(idx, option){
+                        // show or hide if starts with `search`
+                    });
+                }).insertBefore(new_e);
+            })
+        });
+    </script>
 {% endblock %}
