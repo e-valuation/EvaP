@@ -79,7 +79,7 @@ EvaP has components which need to react to timed events.
 This behavior is implemented by running a cronjob, which in turn triggers
 a management command.
 
-For example you could use a /etc/cron.hourly/evap lie
+For example you could use a /etc/cron.hourly/evap like
 
 ::
 
