@@ -67,6 +67,7 @@ def course_edit(request, course_id):
 
 @lecturer_required
 def course_preview(request, course_id):
+    user = request.user
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
