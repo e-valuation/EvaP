@@ -56,7 +56,8 @@ class ExcelExporter(object):
         
         # formatting for special fields
         headline_style = xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on', num_format_str="0.0")
-        course_style = xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium')        
+        course_style = xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium')
+        course_unfinished_style = xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium; font: italic on')
         total_answers_style = xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium')
         
         # general formattings
@@ -67,7 +68,10 @@ class ExcelExporter(object):
         
         self.writec(_(u"Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), headline_style)
         for course, results in courses_with_results:
-            self.writec(course.name, course_style, cols=2)
+            if course.state == "published":
+                self.writec(course.name, course_style, cols=2)
+            else:
+                self.writec(course.name, course_unfinished_style, cols=2)
         
         self.writen()
         for course, results in courses_with_results:
