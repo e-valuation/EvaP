@@ -8,8 +8,12 @@
     <h3>{% trans "Semesters" %}</h3>
     
     <ul>
-        {% for semester in semesters %}
-            <li><a href="{% url evap.results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
-        {% endfor %}
+        {% if semesters %}
+            {% for semester in semesters %}
+                <li><a href="{% url evap.results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
+            {% endfor %}
+        {% else %}
+            <li>{% trans "No results available yet" %}</li>
+        {% endif %}
     </ul>
 {% endblock %}

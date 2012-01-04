@@ -12,7 +12,7 @@ from evap.results.exporters import ExcelExporter
 
 @login_required
 def index(request):
-    semesters = Semester.objects.all()
+    semesters = Semester.objects.filter(course__state="published")
     
     return render_to_response(
         "results_index.html",
