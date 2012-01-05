@@ -21,6 +21,8 @@ class Command(BaseCommand):
                     course.save()
                 elif course.state == "inEvaluation" and course.vote_end_date < today:
                     course.evaluation_end()
+                    if course.is_fully_checked():
+                        course.review_finished()
                     course.save()
             except:
                 pass

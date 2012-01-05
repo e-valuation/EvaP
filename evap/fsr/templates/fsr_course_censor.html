@@ -19,7 +19,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <form method="POST" class="multiselect-form">
+        <form action="{% url evap.fsr.views.course_censor semester.id, course.id, offset %}" method="POST" class="multiselect-form">
             {% csrf_token %}
             {{ formset.management_form }}
             <table id="question_table">

@@ -285,7 +285,7 @@ def course_delete(request, semester_id, course_id):
 
 
 @fsr_required
-def course_censor(request, semester_id, course_id):
+def course_censor(request, semester_id, course_id, offset=None):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
@@ -330,14 +330,14 @@ def course_censor(request, semester_id, course_id):
             form.instance.save()
             count = count + 1
         
-        if course.is_fully_checked():
+        if course.state=="pendingForReview" and course.is_fully_checked():
             course.review_finished()
             course.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully censored %d course answers.") % count)
+        messages.add_message(request, messages.INFO, _("Successfully censored %d course answers for %s.") % (count, course.name))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_censor.html", dict(semester=semester, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_censor.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))
 
 
 @fsr_required
