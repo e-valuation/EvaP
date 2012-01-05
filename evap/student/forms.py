@@ -60,9 +60,9 @@ class QuestionsForm(forms.Form):
                 full_name = self.assignment.lecturer.get_profile().full_name
             except UserProfile.DoesNotExist:
                 full_name = self.assignment.lecturer.get_full_name() or self.assignment.lecturer.username
-            return u"%s: %s" % (full_name, self.questionnaire.name)
+            return u"%s: %s" % (full_name, self.questionnaire.public_name)
         else:
-            return self.questionnaire.name
+            return self.questionnaire.public_name
     
     def teaser(self):
         return self.questionnaire.teaser

@@ -59,17 +59,18 @@ class Questionnaire(models.Model):
     
     name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
-    
     name = Translate
     
     description_de = models.TextField(verbose_name=_(u"description (german)"), blank=True, null=True)
     description_en = models.TextField(verbose_name=_(u"description (english)"), blank=True, null=True)
-    
     description = Translate
+    
+    public_name_de = models.CharField(max_length=100, verbose_name=_(u"public name (german)"))
+    public_name_en = models.CharField(max_length=100, verbose_name=_(u"public name (english)"))
+    public_name = Translate
     
     teaser_de = models.TextField(verbose_name=_(u"teaser (german)"), blank=True, null=True)
     teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
-    
     teaser = Translate
     
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
