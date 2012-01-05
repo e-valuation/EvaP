@@ -370,6 +370,10 @@ class UserProfile(models.Model):
         else:
             return self.user.username
     
+    @property
+    def can_fsr_delete(self):
+        return not Course.objects.filter(assignments__lecturer=self.user).exists()
+    
     def has_courses(self):
         latest_semester = Semester.get_latest_or_none()
         if latest_semester is None:

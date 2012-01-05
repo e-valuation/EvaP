@@ -549,6 +549,20 @@ def user_edit(request, user_id):
     else:
         return render_to_response("fsr_user_form.html", dict(form=form, object=user), context_instance=RequestContext(request))
 
+
+@fsr_required
+def user_delete(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    
+    if user.get_profile().can_fsr_delete:
+        if request.method == 'POST':
+            user.delete()
+            return redirect('evap.fsr.views.user_index')
+        else:
+            return render_to_response("fsr_user_delete.html", dict(user=user), context_instance=RequestContext(request))
+    else:
+        messages.add_message(request, messages.ERROR, _("The user '%s' cannot be deleted, because he lectures courses.") % user.get_profile().full_name)
+        return redirect('evap.fsr.views.user_index')
     
 @fsr_required
 def template_index(request):
