@@ -313,22 +313,9 @@ def course_censor(request, semester_id, course_id, offset=None):
     if formset.is_valid():
         count = 0
         for form in formset:
-            if form.cleaned_data['action'] == 1:
-                # approved
-                pass
-            elif form.cleaned_data['action'] == 2:
-                # censored
-                form.instance.censored_answer = form.cleaned_data['censored_answer']
-            elif form.cleaned_data['action'] == 3:
-                # hide
-                form.instance.hidden = True
-            else:
-                # needs further review
-                continue
-            
-            form.instance.checked = True
             form.instance.save()
-            count = count + 1
+            if form.checked:
+                count = count + 1
         
         if course.state=="pendingForReview" and course.is_fully_checked():
             course.review_finished()

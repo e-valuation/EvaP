@@ -5,6 +5,7 @@ from django.core.mail import EmailMessage
 from django.forms.models import BaseInlineFormSet
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import normalize_newlines
 
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile
@@ -112,28 +113,38 @@ class QuestionnaireForm(forms.ModelForm):
 
 
 class CensorTextAnswerForm(forms.ModelForm):
-    ACTION_CHOICES = (
-        (u"1", _(u"Approved")),
-        (u"2", _(u"Censored")),
-        (u"3", _(u"Hide")),
-        (u"4", _(u"Needs further review")),
-    )
-
+    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"))
+    needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
+    
     class Meta:
-        model = TextAnswer
-        fields = ('censored_answer',)
+        fields = ('edited_answer', 'needs_further_review')
     
     def __init__(self, *args, **kwargs):
         super(CensorTextAnswerForm, self).__init__(*args, **kwargs)
-        self.fields['action'] = forms.TypedChoiceField(widget=forms.RadioSelect(), choices=self.ACTION_CHOICES, coerce=int)
+        
+        self.fields['edited_answer'].initial = self.instance.answer
     
     def clean(self):
         cleaned_data = self.cleaned_data
-        action = cleaned_data.get("action")
-        censored_answer = cleaned_data.get("censored_answer")
+        edited_answer = cleaned_data.get("edited_answer")
+        needs_further_review = cleaned_data.get("needs_further_review")
         
-        if action == 2 and not censored_answer:
-            raise forms.ValidationError(_(u'Censored answer missing.'))
+        if self.instance.original_answer == normalize_newlines(edited_answer):
+            # simply approved
+            self.instance.checked = True
+        elif not edited_answer.strip():
+            # hidden
+            self.instance.hidden = True
+        else:
+            # censored
+            self.instance.checked = True
+            self.instance.censored_answer = edited_answer
+        
+        if needs_further_review:
+            self.instance.checked = False
+            self.instance.hidden = False
+        else:
+            self.checked = True
         
         return cleaned_data
 

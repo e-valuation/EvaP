@@ -18,16 +18,12 @@
 
 {% block content %}
     {{ block.super }}
+	<h2>{% trans "Censoring course "%}{{ course.name }}</h2>
     <p>
         <form action="{% url evap.fsr.views.course_censor semester.id, course.id, offset %}" method="POST" class="multiselect-form">
             {% csrf_token %}
             {{ formset.management_form }}
             <table id="question_table">
-                <tr>
-                    <th>{% trans "Original Answer" %}</th>
-                    <th>{% trans "Censored Answer" %}</th>
-                    </th>
-                </tr>
                 <tbody>
                     {% for form in formset %}
 						{% for hidden in form.hidden_fields %}
@@ -37,11 +33,12 @@
 						{% if form.non_field_errors %}
 							<tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
                         {% endif %}
-                        <tr>
-							<td>{{ form.instance.original_answer }}</td>
-                            <td>{{ form.censored_answer.errors }} {{ form.censored_answer }}</td>
-							<td>{{ form.action }}</td>
+                        
+						<tr>
+							<td>{{ form.edited_answer }}</td>
+							<td>{{ form.needs_further_review }} {{ form.needs_further_review.label }}</td>
                         </tr>
+						
                     {% endfor %}
                 </tbody>
             </table>
