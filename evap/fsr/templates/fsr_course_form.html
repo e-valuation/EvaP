@@ -38,6 +38,9 @@
 	$('#id_kind').combobox();
         });
     </script>
+	
+	<!-- prevent from accendential closing -->
+	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -76,7 +79,7 @@
 		    {% endfor %}
 		</tbody>
 	    </table>
-            <input type="submit" value="{% trans "Save course" %}"/>
+            <input type="submit" value="{% trans "Save course" %}" onclick="submitFormOkay = true;"/>
         </form>
     </p>
 {% endblock %}

@@ -1,6 +1,7 @@
 {% extends "fsr_base.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% block header %}
     {{ block.super }}
@@ -10,6 +11,9 @@
             $('#question_table tbody tr').formset({prefix: 'question_set'});
         })
     </script>
+    
+    <!-- prevent from accendential closing -->
+	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -49,7 +53,7 @@
                     </tbody>
                 </table>
             </fieldset>
-            <input type="submit" value="{% trans "Save questionnaire" %}"/>
+            <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;"/>
         </form>
     </p>
 {% endblock %}

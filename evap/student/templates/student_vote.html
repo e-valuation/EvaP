@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load static %}
+
+{% block header %}
+    {{ block.super }}
+    
+    <!-- prevent from accendential closing -->
+	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+{% endblock %}
 
 {% block title %}{{ course.name }} - {% trans "Course Evaluation" %} - {{ block.super }}{% endblock %}
 
@@ -40,7 +48,7 @@
             {% endfor %}
         {% endfor %}
         </table>
-        <input type="submit" value="{% trans "vote" %}"/>
+        <input type="submit" value="{% trans "vote" %}" onclick="submitFormOkay = true;"/>
         </form>
     </p>
 {% endblock %}
