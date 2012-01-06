@@ -39,7 +39,7 @@
             "name_de":"Course 1",
             "name_en":"Course 1 (en)",
             "kind":"Seminar",
-            "state":"published",
+            "state":"new",
             
             "participants":[ 2 ],
             "voters":[ ],
@@ -56,7 +56,7 @@
             "name_de":"Course 2",
             "name_en":"Course 2 (en)",
             "kind":"Vorlesung",
-            "state":"published",
+            "state":"new",
             
             "participants":[ 2 ],
             "voters":[ ],

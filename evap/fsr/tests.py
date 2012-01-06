@@ -74,6 +74,8 @@ class UsecaseTests(WebTest):
         questionnaire_form = page.forms[0]
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
+        questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
+        questionnaire_form['public_name_en'] = "Public Test Questionnaire"
         questionnaire_form['question_set-0-text_de'] = "Frage 1"
         questionnaire_form['question_set-0-text_en'] = "Question 1"
         questionnaire_form['question_set-0-kind'] = "T"
@@ -92,6 +94,8 @@ class UsecaseTests(WebTest):
         questionnaire_form = page.forms[0]
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
+        questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
+        questionnaire_form['public_name_en'] = "Public Test Questionnaire"
         page = questionnaire_form.submit()
         
         assert "You must have at least one of these" in page
@@ -109,6 +113,8 @@ class UsecaseTests(WebTest):
         questionnaire_form = page.forms[0]
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
         questionnaire_form['name_en'] = "test questionnaire (copied)"
+        questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen (kopiert)"
+        questionnaire_form['public_name_en'] = "Public Test Questionnaire (copied)"
         page = questionnaire_form.submit().follow()
         
         # retrieve new questionnaire
