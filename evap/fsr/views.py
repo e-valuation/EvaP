@@ -153,8 +153,7 @@ def semester_assign_questionnaires(request, semester_id):
     form = QuestionnairesAssignForm(request.POST or None, semester=semester)
     
     if form.is_valid():
-        for course in semester.course_set.all():
-            # check course itself
+        for course in semester.course_set.filter(state__in=['pendingLecturerApproval', 'pendingFsrApproval', 'new', 'approved']):
             if form.cleaned_data[course.kind]:
                 course.general_assignment.questionnaires = form.cleaned_data[course.kind]
             course.save()

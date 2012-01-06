@@ -1,7 +1,9 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
+from django.forms.fields import Field, FileField
 from django.forms.models import BaseInlineFormSet
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
@@ -220,12 +222,36 @@ class QuestionnairesAssignForm(forms.Form):
         super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
         
         # course kinds
-        for kind in semester.course_set.values_list('kind', flat=True).order_by().distinct():
+        for kind in semester.course_set.filter(state__in=['pendingLecturerApproval', 'pendingFsrApproval', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
         
         # extra kinds
         for extra in extras:
             self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+    
+    def _clean_fields(self):
+        for name, field in self.fields.items():
+            # value_from_datadict() gets the data from the data dictionaries.
+            # Each widget type knows how to retrieve its own data, because some
+            # widgets split data over several HTML fields.
+            value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+            try:
+                if isinstance(field, FileField):
+                    initial = self.initial.get(name, field.initial)
+                    value = field.clean(value, initial)
+                else:
+                    value = field.clean(value)
+                self.cleaned_data[name] = value
+                
+                name2 = u'clean_%s' % name
+                name2 = name2.encode('iso-8859-1')
+                if hasattr(self, name2):
+                    value = getattr(self, 'clean_%s' % name)()
+                    self.cleaned_data[name] = value
+            except ValidationError, e:
+                self._errors[name] = self.error_class(e.messages)
+                if name in self.cleaned_data:
+                    del self.cleaned_data[name]
 
 
 class SelectCourseForm(forms.Form):
