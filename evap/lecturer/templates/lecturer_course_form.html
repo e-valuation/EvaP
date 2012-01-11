@@ -24,13 +24,13 @@
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
             <fieldset>
-                <label>{% trans "General Options" %}:</label>
-                <table>{{ form.as_table }}</table>
+                <legend>{% trans "General Options" %}</legend>
+                {{ form.as_div }}
             </fieldset>
             
             <fieldset>
                 {{ formset.management_form }}
-                <label>{% trans "Lecturers" %}:</label>
+                <legend>{% trans "Lecturers" %}</legend>
                 {{ formset.non_form_errors }}
                 <table id="assignment_table">
                     <tr>
@@ -55,7 +55,9 @@
                     </tbody>
                 </table>
             </fieldset>
-            <input type="submit" value="{% trans "Approve course" %}"/>
+            <div class="actions">
+                <input type="submit" value="{% trans "Approve course" %}" class="btn primary"/>
+            </div>
         </form>
     </p>
 {% endblock %}

@@ -6,23 +6,26 @@
     {{ block.super }}
     <h3>{% trans "Own Courses" %}</h3>
     {% if own_courses %}
-        <table>
+        <table class="zebra-striped vertically-aligned">
+	    <thead>
             <tr>
                 <th>{% trans "Name" %}</th>
                 <th>{% trans "Participants" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
-            
+	    </thead>
+            <tbody>
             {% for course in own_courses %}
                 <tr>
-                    <td>{{ course.name }}</td>
-                    <td>{{ course.participants.all|length }}</td>
-                    <td>
-                        <a href="{% url evap.lecturer.views.course_edit course.id %}">{% trans "Edit" %}</a>&nbsp;
-						<a href="{% url evap.lecturer.views.course_preview course.id %}">{% trans "Preview" %}</a>&nbsp;
-					</td>
+                    <td class="maximize">{{ course.name }}</td>
+                    <td class="minimize">{{ course.participants.all|length }}</td>
+                    <td class="minimize">
+                        <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
+			<a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
+		    </td>
                 </tr>
             {% endfor %}
+	    </tbody>
         </table>
     {% else %}
         <p>{% trans "There are no courses for you this semester yet." %}</p>
@@ -30,13 +33,15 @@
     <br/>
     <h3>{% trans "Courses for which you are a proxy" %}</h3>
     {% if proxied_courses %}
-        <table>
+        <table class="zebra-striped vertically-aligned">
+	    <thead>
             <tr>
                 <th>{% trans "Name" %}</th>
                 <th>{% trans "Participants" %}</th>
                 <th>{% trans "Actions" %}</th>
             </tr>
-            
+	    </thead>
+	    <tbody>
             {% for course in proxied_courses %}
                 <tr>
                     <td>{{ course.name }}</td>
@@ -47,6 +52,7 @@
 					</td>
                 </tr>
             {% endfor %}
+	    </tbody>
         </table>
     {% else %}
         <p>{% trans "There are no courses for you this semester yet." %}</p>

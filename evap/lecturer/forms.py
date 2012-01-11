@@ -3,10 +3,11 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.forms import BootstrapMixin
 from evap.fsr.fields import UserModelMultipleChoiceField
 
 
-class CourseForm(forms.ModelForm):
+class CourseForm(forms.ModelForm, BootstrapMixin):
     kind = forms.CharField(label = _(u"type"))
     study = forms.CharField(label = _(u"study"))
     
@@ -44,7 +45,7 @@ class CourseForm(forms.ModelForm):
         return self.instance.vote_end_date
 
 
-class UserForm(forms.ModelForm):
+class UserForm(forms.ModelForm, BootstrapMixin):
     first_name = forms.CharField()
     last_name = forms.CharField()
     email = forms.CharField(required=False)

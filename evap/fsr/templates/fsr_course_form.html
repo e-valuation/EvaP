@@ -23,9 +23,8 @@
             <table id="assignment_table">
                 <tr>
                     {% for field in formset.form %}
-                        <th>{{ field.label }}</th>
+                        <th>{{ field.label }}x</th>
                     {% endfor %}
-                    <th></th>
                     <th>{% trans "Delete?" %}</th>
                 </tr>
                 <tbody>
@@ -33,15 +32,21 @@
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
-                        
                         <tr>
-                            <tr><td>{{ form_element.lecturer }} {% trans "Delete?" %}{{ form_element.DELETE }}</td></tr>
+                            <tr><td>
+                                {{ form_element.id }}
+                                {{ form_element.lecturer }} {% trans "Delete?" %}
+                                {{ form_element.DELETE }}
+                            </td></tr>
                             <tr><td>{{ form_element.questionnaires }}</td></tr>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <input type="submit" value="{% trans "Save course" %}"/>
+            
+            <div class="actions">
+                <input type="submit" value="{% trans "Save course" %}" class="btn primary"/>
+            </div>
         </form>
     </p>
 {% endblock %}
@@ -61,12 +66,12 @@
                 
                 $(e).replaceWith(new_e);
                 
-                $("<input/>").change(function(e) {
-                    var search = e.target.value;
-                    $("option", e.target.parentNode).each(function(idx, option){
-                        // show or hide if starts with `search`
-                    });
-                }).insertBefore(new_e);
+                //$("<input/>").change(function(e) {
+                //    var search = e.target.value;
+                //    $("option", e.target.parentNode).each(function(idx, option){
+                //        // show or hide if starts with `search`
+                //    });
+                //}).insertBefore(new_e);
             })
         });
     </script>
