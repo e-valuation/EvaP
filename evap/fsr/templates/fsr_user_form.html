@@ -11,6 +11,20 @@
     {% endif %}
 {% endblock %}
 
+{% block scripts %}
+	{{ block.super }}
+    
+	<script>
+		$(document).ready(function() {
+			$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+			$("select[multiple='multiple']").each(function(i,e) {
+				//$(e).width($(e).width());
+				$(e).multiselect();
+			});
+		});
+	</script>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     <p>

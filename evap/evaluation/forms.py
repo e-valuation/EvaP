@@ -114,12 +114,16 @@ class BootstrapMixin(object):
             else:
                 help_text = u''
             
+            attrs = {'class':'span6'}
+            if isinstance(field_instance, forms.fields.DateField):
+                attrs['data-datepicker'] = "datepicker"
+            
             field_hash = {
                 'class' : mark_safe(css_class),
                 'label' : mark_safe(bf.label and bf.label_tag(bf.label) or ''),
                 'help_text' :mark_safe(help_text),
                 'field' : field_instance,
-                'bf' : mark_safe(unicode(bf)),
+                'bf' : mark_safe(unicode(bf.as_widget(attrs=attrs))),
                 'bf_raw' : bf,
                 'errors' : mark_safe(bf_errors),
                 'field_type' : mark_safe(field.__class__.__name__),

@@ -53,26 +53,23 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript">
-        $(function() {
-            $("div.input select[multiple='multiple']").each(function(idx, e) {
-                var new_e = $("<ul class='inputs-list check-list'/>");
-                $("option", e).each(function(idx, option) {
-                    var label = $("<label/>");
-                    label.append($("<input type='checkbox'/>").attr({name: $(e).attr('name'), value: $(option).attr('value')}));
-                    label.append($("<span/>").append($(option).text()));
-                    new_e.append($("<li/>").append(label));
-                });
-                
-                $(e).replaceWith(new_e);
-                
-                //$("<input/>").change(function(e) {
-                //    var search = e.target.value;
-                //    $("option", e.target.parentNode).each(function(idx, option){
-                //        // show or hide if starts with `search`
-                //    });
-                //}).insertBefore(new_e);
-            })
-        });
+	
+	<script>
+		$(document).ready(function() {
+			$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+			$(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+				$(e).width($(e).width());
+				$(e).multiselect();
+			});
+			
+			//TODO: re-add
+			//$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
+			
+			$('#id_study').combobox();
+			$('#id_kind').combobox();
+		});
     </script>
+	
+	<!-- prevent from accendential closing -->
+	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}
