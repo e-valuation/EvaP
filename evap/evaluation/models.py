@@ -50,6 +50,10 @@ class Semester(models.Model):
             return cls.objects.all()[0]
         except IndexError:
             return None
+    
+    @classmethod
+    def get_all_with_published_courses(cls):
+        return cls.objects.filter(course__state="published").distinct()
 
 
 class Questionnaire(models.Model):
