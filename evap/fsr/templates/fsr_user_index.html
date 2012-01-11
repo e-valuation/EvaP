@@ -46,6 +46,11 @@
                 </td>
                 <td class="minimize">
                     <a href="{% url evap.fsr.views.user_edit user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small">{% trans "Edit" %}</a>
+                    {% if user.get_profile.can_fsr_delete %}
+                        <a href="{% url evap.fsr.views.user_delete user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small danger">{% trans "Delete" %}</a>
+                    {% else %}
+                        <a class="btn small danger disabled">{% trans "Delete" %}</a>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
