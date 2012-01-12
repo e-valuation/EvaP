@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load static %}
 {% load morefilters %}
+{% load showfrom %}
 
 <!DOCTYPE html>
 <html>
@@ -15,7 +16,72 @@
     {% endblock %}
 </head>
 <body>
-    {% include "topbar.html "%}
+    <div class="topbar" id="topbar">
+        <div class="fill">
+            <div class="container">
+                <a class="brand" href="/">{% trans "Evaluation Platform" %}</a>
+                <ul class="nav">
+                    {% if user.is_active %}
+                    {% if user.get_profile.has_courses %}
+                        <li><a href="{% url evap.student.views.index %}">{% trans "Evaluation" %}</a></li>
+                    {% endif %}
+                    
+                    {% if user.is_staff %}
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="{% url evap.fsr.views.index %}">{% trans "Student Representatives" %}</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url evap.fsr.views.index %}">{% trans "Overview" %}</a></li>
+                            <li><a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a>
+                            {% show_from 'evap.fsr.tools.all_semesters' "fsr_semester_menu.html" %}
+                            </li>
+                            <li><a href="{% url evap.fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a>
+                            {% show_from 'evap.fsr.tools.all_questionnaires' "fsr_questionnaire_menu.html" %}
+                            </li>
+                            <li><a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    
+                    {% if user.get_profile.lectures_courses %}
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="{% url evap.lecturer.views.index %}">{% trans "Your EvaP" %}</a>
+                        <ul class="dropdown-menu">
+                            {% if user.get_profile.is_lecturer %}
+                                <li><a href="{% url evap.lecturer.views.profile_edit %}">{% trans "Your Profile" %}</a></li>
+                            {% endif %}
+                            <li><a href="{% url evap.lecturer.views.course_index %}">{% trans "Your Courses" %}</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="{% url evap.results.views.index %}">{% trans "Results" %}</a>
+                        <ul class="dropdown-menu">
+                            {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="pull-right">
+                    <form action="/i18n/setlang/" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" value="de"/>
+                        <button type="submit" class="btn small">Deutsch</button>
+                        &nbsp;
+                    </form>
+                    <form action="/i18n/setlang/" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" value="en"/>
+                        <button type="submit" class="btn small">English</button>
+                        &nbsp;
+                    </form>
+                    <form action="{% url django.contrib.auth.views.logout %}" method="GET">
+                        <button type="submit" class="btn small">{% trans "Logout" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="row">
             <div class="span16">
@@ -33,13 +99,14 @@
             </div>
         </div>
         {% endif %}
+        {% block rawcontent %}
         <div class="row">
             <div class="span16">
                 {% block content %}
                 {% endblock %}
             </div>
         </div>
-        {% block rawcontent %}{% endblock %}
+        {% endblock %}
         <footer>
             <p>
                 <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
