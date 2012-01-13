@@ -315,7 +315,7 @@ class LotteryForm(forms.Form, BootstrapMixin):
     number_of_winners = forms.IntegerField(label=_(u"Number of Winners"), initial=3)
 
 
-class EmailTemplateForm(forms.ModelForm):
+class EmailTemplateForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = EmailTemplate
         exclude = ("name", )

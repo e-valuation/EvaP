@@ -576,4 +576,4 @@ def template_edit(request, template_id):
         messages.add_message(request, messages.INFO, _("Successfully updated template."))
         return redirect('evap.fsr.views.template_index')
     else:
-        return render_to_response("fsr_template_form.html", dict(form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_template_form.html", dict(form=form, template=template), context_instance=RequestContext(request))
