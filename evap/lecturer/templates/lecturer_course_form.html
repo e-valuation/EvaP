@@ -3,19 +3,9 @@
 {% load i18n %}
 {% load static %}
 
-{% block header %}
+{% block subtitle %}
     {{ block.super }}
-    
-    <script>
-        $(function() {
-            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-            $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-		$(e).width($(e).width());
-		$(e).multiselect();
-            });
-            $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
-        });
-    </script>
+    <li> <span class="divider">/</span> <a href="{% url evap.lecturer.views.index %}">{% trans "Courses" %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -60,4 +50,18 @@
             </div>
         </form>
     </p>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script>
+        $(function() {
+            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+		$(e).width($(e).width());
+		$(e).multiselect();
+            });
+            $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
+        });
+    </script>
 {% endblock %}

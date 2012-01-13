@@ -2,6 +2,11 @@
 
 {% load i18n %}
 
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url evap.lecturer.views.index %}">{% trans "Courses" %}</a></li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     <h3>{% trans "Own Courses" %}</h3>
