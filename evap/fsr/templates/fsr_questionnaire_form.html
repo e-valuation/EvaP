@@ -5,17 +5,16 @@
 
 {% block scripts %}
     {{ block.super }}
-    
     <script>
-		$(document).ready(function() {
-			$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-			$(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-				$(e).width($(e).width());
-				$(e).multiselect();
-			});
-			
-			$('#question_table tbody tr').formset({prefix: 'assignment_set'});			
-		});
+    $(document).ready(function() {
+        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+        $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+            $(e).width($(e).width());
+            $(e).multiselect();
+        });
+        
+        $('#question_table tbody tr').formset({prefix: 'assignment_set'});			
+    });
     </script>
     
     <!-- prevent from accendential closing -->
@@ -28,13 +27,13 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset>
-                <label>{% trans "General Options" %}:</label>
-                <table class="stdform">{{ form.as_table }}</table>
+                <legend>{% trans "General Options" %}</legend>
+                {{ form.as_div }}
             </fieldset>
             
             <fieldset>
+                <legend>{% trans "Questions" %}</legend>
                 {{ formset.management_form }}
-                <label>{% trans "Questions" %}:</label>
                 {{ formset.non_form_errors }}
                 <table id="question_table">
                     <tr>
@@ -59,7 +58,9 @@
                     </tbody>
                 </table>
             </fieldset>
-            <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;"/>
+            <div class="actions">
+                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;" class="btn primary"/>
+            </div>
         </form>
     </p>
 {% endblock %}
