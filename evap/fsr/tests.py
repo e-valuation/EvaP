@@ -8,6 +8,10 @@ from evap.evaluation.models import Semester, Questionnaire
 import os.path
 
 
+def lastform(page):
+    return page.forms[max(page.forms.keys())]
+
+
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
     
@@ -19,7 +23,7 @@ class UsecaseTests(WebTest):
         # create a new semester
         page = page.click("[Ss]emesters")
         page = page.click("[Nn]ew [Ss]emester")
-        semester_form = page.forms[0]
+        semester_form = lastform(page)
         semester_form['name_de'] = "Testsemester"
         semester_form['name_en'] = "test semester"
         page = semester_form.submit().follow()
@@ -35,7 +39,7 @@ class UsecaseTests(WebTest):
         
         # import excel file
         page = page.click("[Ii]mport")
-        upload_form = page.forms[0]
+        upload_form = lastform(page)
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
@@ -71,7 +75,7 @@ class UsecaseTests(WebTest):
         # create a new questionnaire
         page = page.click("[Qq]uestionnaires")
         page = page.click("[Nn]ew [Qq]uestionnaire")
-        questionnaire_form = page.forms[0]
+        questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
@@ -91,7 +95,7 @@ class UsecaseTests(WebTest):
         # create a new questionnaire
         page = page.click("[Qq]uestionnaires")
         page = page.click("[Nn]ew [Qq]uestionnaire")
-        questionnaire_form = page.forms[0]
+        questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
@@ -110,7 +114,7 @@ class UsecaseTests(WebTest):
         # create a new questionnaire
         page = page.click("[Qq]uestionnaires")
         page = page.click("Copy")
-        questionnaire_form = page.forms[0]
+        questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
         questionnaire_form['name_en'] = "test questionnaire (copied)"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen (kopiert)"
@@ -125,9 +129,9 @@ class UsecaseTests(WebTest):
         page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # assign questionnaire to courses
-        page = page.click("[Ss]emester 1 \(en\)", index=0)
-        page = page.click("Assign questionnaires")
-        assign_form = page.forms[0]
+        page = page.click("Semester 1 \(en\)", index=0)
+        page = page.click("Assign Questionnaires")
+        assign_form = lastform(page)
         assign_form['Seminar'] = [1]
         assign_form['Vorlesung'] = [1]
         page = assign_form.submit().follow()
