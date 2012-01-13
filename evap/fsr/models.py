@@ -9,8 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 class EmailTemplate(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     
-    use = models.BooleanField(verbose_name=_("Use this template"), default=True)
-    
     subject = models.CharField(max_length=100, verbose_name=_(u"Subject"))
     body = models.TextField(verbose_name=_("Body"))
     
