@@ -76,9 +76,11 @@
                         <button type="submit" class="btn small">English</button>
                         &nbsp;
                     </form>
+                    {% if user.is_active %}
                     <form action="{% url django.contrib.auth.views.logout %}" method="GET">
                         <button type="submit" class="btn small">{% trans "Logout" %}</button>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
