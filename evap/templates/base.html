@@ -114,6 +114,8 @@
                 &nbsp;&middot;&nbsp;
                 <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
                 &nbsp;&middot;&nbsp;
+                <a href="{% url evap.evaluation.views.faq %}">{% trans "F&Q"%}</a>
+                &nbsp;&middot;&nbsp;
                 {% if request.user.is_active %}
                     {% trans "Logged in as" %} {{ request.user.get_profile.full_name }}
                 {% else %}

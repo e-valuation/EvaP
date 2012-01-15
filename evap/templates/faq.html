@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "FAQ" %} - {{ block.super }}{% endblock %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url evap.evaluation.views.faq %}">{% trans "FAQ" %}</a></li>
+{% endblock %}
+
+{% block content %}
+	{% blocktrans %}
+		<h2>This is the F&Q</h2>
+		
+		<h3>First Question</h3>
+		<p>First Answer</p>
+	{% endblocktrans %}
+{% endblock %}

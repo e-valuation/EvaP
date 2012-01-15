@@ -7,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r"^$", 'evap.evaluation.views.index'),
+    url(r"^faq$", 'evap.evaluation.views.faq'),
     url(r"^login$", 'django.views.generic.simple.redirect_to', {'url': "/"}),
     url(r"^logout$", 'django.contrib.auth.views.logout', {'next_page': "/"}),
     
