@@ -23,7 +23,7 @@
             {% for course in own_courses %}
                 <tr>
                     <td class="maximize">{{ course.name }}</td>
-                    <td class="minimize">{{ course.participants.all|length }}</td>
+                    <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
                         <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
 			<a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
@@ -50,7 +50,7 @@
             {% for course in proxied_courses %}
                 <tr>
                     <td>{{ course.name }}</td>
-                    <td>{{ course.participants.all|length }}</td>
+                    <td>{{ course.num_participants }}</td>
                     <td>
                         <a href="{% url evap.lecturer.views.course_edit course.id %}">{% trans "Edit" %}</a>&nbsp;
 						<a href="{% url evap.lecturer.views.course_preview course.id %}">{% trans "Preview" %}</a>&nbsp;

@@ -28,16 +28,16 @@
                 <tr>
                     <td class="span13"><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
                     <td class="span1">{{ course.grade|floatformat:1 }}</td>
-                    {% if course.participants.count %}
+                    {% if course.num_participants %}
                     <td class="span2">
                         {% spaceless %}
                         <div style="background: #c9e1fa; display: inline-block; width: 70%;">
-                            <div style="display: inline-block; width: {% widthratio course.voters.count course.participants.count 100 %}%; background: #126bc5; color:white;">
-                                <div style="font-size: 80%; width: 100%; max-width: 100%; overflow: hidden; display: inline-block; vertical-align: middle;">&nbsp;{{ course.voters.count }}</div>
+                            <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
+                                <div style="font-size: 80%; width: 100%; max-width: 100%; overflow: hidden; display: inline-block; vertical-align: middle;">&nbsp;{{ course.num_voters }}</div>
                             </div>
                         </div>
                         {% endspaceless %}
-                        <span style="font-size: 80%;">{{ course.participants.count }}</span>
+                        <span style="font-size: 80%;">{{ course.num_participants }}</span>
                     </td>
                     {% else %}
                     <td class="span2">
