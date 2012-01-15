@@ -239,6 +239,7 @@ class Assignment(models.Model):
     lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
+    read_only = models.BooleanField(verbose_name=_("read-only"))
 
     class Meta:
         unique_together = (

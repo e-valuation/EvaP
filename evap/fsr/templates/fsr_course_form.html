@@ -33,10 +33,11 @@
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
                         <tr>
-                            <tr><td>
-                                {{ form_element.id }}
-                                {{ form_element.lecturer }} {% trans "Delete?" %}
-                                {{ form_element.DELETE }}
+                            <tr>
+                                <td>{{ form_element.id }}{{ form_element.lecturer }}</td>
+								<td>{% trans "Read-Only?" %}{{ form_element.read_only }}</td>
+								<td/>
+                                <td>{% trans "Delete?" %}{{ form_element.DELETE }}</td>
                             </td></tr>
                             <tr><td>{{ form_element.questionnaires }}</td></tr>
                         </tr>

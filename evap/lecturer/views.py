@@ -50,10 +50,10 @@ def course_edit(request, course_id):
     if not (course.is_user_lecturer(user) and course.state=="pendingLecturerApproval"):
         raise PermissionDenied
         
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
     
     form = CourseForm(request.POST or None, instance=course)
-    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(lecturer=None))
+    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(read_only=True).exclude(lecturer=None))
     
     if form.is_valid() and formset.is_valid():
         form.save()
@@ -62,7 +62,8 @@ def course_edit(request, course_id):
         messages.add_message(request, messages.INFO, _("Successfully updated course."))
         return redirect('evap.lecturer.views.course_index')
     else:
-        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+        read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
+        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments), context_instance=RequestContext(request))
 
 
 @lecturer_required

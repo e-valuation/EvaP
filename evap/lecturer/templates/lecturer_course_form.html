@@ -31,6 +31,14 @@
                         <th>{% trans "Delete?" %}</th>
                     </tr>
                     <tbody>
+						{% for assignment in read_only_assignments %}
+							<tr>
+								<td>{{ assignment.lecturer }}</td>
+								<td>{{ assignment.questionnaires.all|join:", " }}</td>
+								<td/>
+							</tr>
+						{% endfor %}
+						
                         {% for form_element in formset %}
                             {% if form_element.non_field_errors %}
                                 <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
