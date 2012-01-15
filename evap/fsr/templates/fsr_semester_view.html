@@ -60,6 +60,9 @@
                             {% if course.can_fsr_review %}
                                 <a href="{% url evap.fsr.views.course_censor semester.id, course.id %}" class="btn small">{% trans "Censor" %}</a>
                             {% endif %}
+                            {% if state == 'inEvaluation' or state == 'pendingForReview' or state == 'pendingPublishing' or state == 'published' %}
+                                <a href="{% url evap.fsr.views.course_comments semester.id, course.id %}" class="btn small">{% trans "Comments" %}</a>
+                            {% endif %}
                             {% if state == 'published' %}
                                 <a href="{% url evap.fsr.views.course_unpublish semester.id, course.id %}" title="{% trans "Unpublish" %}" class="btn small">{% trans "Unpublish" %}</a>
                             {% endif %}

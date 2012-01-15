@@ -369,6 +369,19 @@ def course_unpublish(request, semester_id, course_id):
 
 
 @fsr_required
+def course_comments(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    
+    textanswers = course.textanswer_set.filter(checked=True)
+    
+    textanswers_by_question = []
+    for question_id in textanswers.values_list("question", flat=True).distinct():
+        textanswers_by_question.append((get_object_or_404(Question, id=question_id), textanswers.filter(question=question_id)))
+    
+    return render_to_response("fsr_course_comments.html", dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question), context_instance=RequestContext(request))
+
+@fsr_required
 def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)

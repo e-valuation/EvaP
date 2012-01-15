@@ -23,6 +23,7 @@ urlpatterns = patterns('evap.fsr.views',
     url(r"^semester/(\d+)/course/(\d+)/email$", 'course_email'),
     url(r"^semester/(\d+)/course/(\d+)/unpublish$", 'course_unpublish'),
     url(r"^semester/(\d+)/course/(\d+)/preview$", 'course_preview'),
+    url(r"^semester/(\d+)/course/(\d+)/comments$", 'course_comments'),
     
     url(r"^questionnaire/$", 'questionnaire_index'),
     url(r"^questionnaire/create$", 'questionnaire_create'),
