@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-16 17:27+0100\n"
-"PO-Revision-Date: 2012-01-16 17:36+0100\n"
+"PO-Revision-Date: 2012-01-16 22:27+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -412,35 +412,35 @@ msgstr "Name"
 
 #: .\fsr\views.py:26
 msgid "new"
-msgstr "Neu"
+msgstr "neu"
 
 #: .\fsr\views.py:27
 msgid "prepared"
-msgstr "Dozent unbestätigt"
+msgstr "vorbereitet"
 
 #: .\fsr\views.py:28
 msgid "lecturerApproved"
-msgstr "FSR unbestätigt"
+msgstr "von Dozent bestätigt"
 
 #: .\fsr\views.py:29
 msgid "approved"
-msgstr "Bestätigt"
+msgstr "bestätigt"
 
 #: .\fsr\views.py:30
 msgid "inEvaluation"
-msgstr "In Evaluierung"
+msgstr "in Evaluierung"
 
 #: .\fsr\views.py:31
 msgid "evaluated"
-msgstr "Durchsicht ausstehend"
+msgstr "evaluiert"
 
 #: .\fsr\views.py:32
 msgid "reviewed"
-msgstr "Veröffentlichung ausstehend"
+msgstr "überprüft"
 
 #: .\fsr\views.py:33
 msgid "published"
-msgstr "Veröffentlichen"
+msgstr "veröffentlicht"
 
 #: .\fsr\views.py:73
 msgid "Successfully created semester."
