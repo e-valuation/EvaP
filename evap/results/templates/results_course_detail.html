@@ -35,8 +35,11 @@
                 {% ifequal result.question.kind "G" %}
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
+                        <span class="twipsify" data-twipsy="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
+                    </td>
+                    <td>
                         {% if result.show %}
-                        <div class="distribution-bar"
+                        <div class="distribution-bar twipsify"
                             title="{% for answer, rel in result.distribution.items %}{{answer|gradename}}: {{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
                             data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|gradename}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel}}%</div></div>{% endfor %}</div>">
                             {% spaceless %}
@@ -74,7 +77,8 @@
                     <!-- empty zero-height cells, necessary to make the overlapped colspans work -->
                     <tr>
                         <th class="span4" style="padding: 0px;"></th>
-                        <th class="span9" style="padding: 0px;"></th>
+                        <th class="span8" style="padding: 0px;"></th>
+                        <th class="span1" style="padding: 0px;"></th>
                         <th class="span2" style="padding: 0px;"></th>
                         <th class="span1" style="padding: 0px;"></th>
                     </tr>
@@ -89,7 +93,7 @@
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
-        $('.distribution-bar').twipsy({
+        $('.twipsify').twipsy({
             html: true,
             placement: 'left',
             title: 'data-twipsy'
