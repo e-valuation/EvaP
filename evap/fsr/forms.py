@@ -235,7 +235,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
         
         # course kinds
-        for kind in semester.course_set.filter(state__in=['pendingLecturerApproval', 'pendingFsrApproval', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
+        for kind in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
         
         # extra kinds

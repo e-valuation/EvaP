@@ -154,26 +154,26 @@ class Course(models.Model):
         return user in self.participants.all() and user not in self.voters.all()
     
     def can_fsr_edit(self):
-        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval', 'approved', 'inEvaluation']
+        return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
     
     def can_fsr_delete(self):
         return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
     
     def can_fsr_review(self):
-        return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'pendingForReview']
+        return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
     
     def can_fsr_approve(self):
-        return self.state in ['new', 'pendingLecturerApproval', 'pendingFsrApproval']
+        return self.state in ['new', 'prepared', 'lecturerApproved']
     
-    @transition(source='new', target='pendingLecturerApproval')
+    @transition(source='new', target='prepared')
     def ready_for_lecturer(self):
         EmailTemplate.get_review_template().send_courses([self], True, False)
     
-    @transition(source='pendingLecturerApproval', target='pendingFsrApproval')
+    @transition(source='prepared', target='lecturerApproved')
     def lecturer_approve(self):
         pass
     
-    @transition(source=['new', 'pendingLecturerApproval', 'pendingFsrApproval'], target='approved')
+    @transition(source=['new', 'prepared', 'lecturerApproved'], target='approved')
     def fsr_approve(self):
         pass
     
@@ -181,19 +181,19 @@ class Course(models.Model):
     def evaluation_begin(self):
         pass
     
-    @transition(source='inEvaluation', target='pendingForReview')
+    @transition(source='inEvaluation', target='evaluated')
     def evaluation_end(self):
         pass
     
-    @transition(source='pendingForReview', target='pendingPublishing', conditions=[is_fully_checked])
+    @transition(source='evaluated', target='reviewed', conditions=[is_fully_checked])
     def review_finished(self):
         pass
     
-    @transition(source='pendingPublishing', target='published')
+    @transition(source='reviewed', target='published')
     def publish(self):
         pass
     
-    @transition(source='published', target='pendingPublishing')
+    @transition(source='published', target='reviewed')
     def revoke(self):
         pass
 

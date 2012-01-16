@@ -24,12 +24,12 @@ import random
 
 STATES_ORDERED = (
     ugettext_noop('new'),
-    ugettext_noop('pendingLecturerApproval'),
-    ugettext_noop('pendingFsrApproval'),
+    ugettext_noop('prepared'),
+    ugettext_noop('lecturerApproved'),
     ugettext_noop('approved'),
     ugettext_noop('inEvaluation'),
-    ugettext_noop('pendingForReview'),
-    ugettext_noop('pendingPublishing'),
+    ugettext_noop('evaluated'),
+    ugettext_noop('reviewed'),
     ugettext_noop('published')
 )
 
@@ -108,7 +108,7 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state="pendingPublishing").all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state="reviewed").all(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
@@ -149,7 +149,7 @@ def semester_assign_questionnaires(request, semester_id):
     form = QuestionnairesAssignForm(request.POST or None, semester=semester)
     
     if form.is_valid():
-        for course in semester.course_set.filter(state__in=['pendingLecturerApproval', 'pendingFsrApproval', 'new', 'approved']):
+        for course in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']):
             if form.cleaned_data[course.kind]:
                 course.general_assignment.questionnaires = form.cleaned_data[course.kind]
             course.save()
@@ -163,7 +163,7 @@ def semester_assign_questionnaires(request, semester_id):
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'pendingLecturerApproval', 'pendingFsrApproval']).all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
@@ -311,7 +311,7 @@ def course_censor(request, semester_id, course_id, offset=None):
             if form.checked:
                 count = count + 1
         
-        if course.state=="pendingForReview" and course.is_fully_checked():
+        if course.state=="evaluated" and course.is_fully_checked():
             course.review_finished()
             course.save()
         

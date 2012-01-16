@@ -415,11 +415,11 @@ msgid "new"
 msgstr "Neu"
 
 #: .\fsr\views.py:27
-msgid "pendingLecturerApproval"
+msgid "prepared"
 msgstr "Dozent unbestätigt"
 
 #: .\fsr\views.py:28
-msgid "pendingFsrApproval"
+msgid "lecturerApproved"
 msgstr "FSR unbestätigt"
 
 #: .\fsr\views.py:29
@@ -431,11 +431,11 @@ msgid "inEvaluation"
 msgstr "In Evaluierung"
 
 #: .\fsr\views.py:31
-msgid "pendingForReview"
+msgid "evaluated"
 msgstr "Durchsicht ausstehend"
 
 #: .\fsr\views.py:32
-msgid "pendingPublishing"
+msgid "reviewed"
 msgstr "Veröffentlichung ausstehend"
 
 #: .\fsr\views.py:33

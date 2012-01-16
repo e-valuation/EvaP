@@ -36,8 +36,8 @@ def course_index(request):
     user = request.user
     
     semester = Semester.get_latest_or_none()
-    own_courses = semester.course_set.filter(assignments__lecturer=user, state="pendingLecturerApproval") if semester else None
-    proxied_courses = semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state="pendingLecturerApproval") if semester else None
+    own_courses = semester.course_set.filter(assignments__lecturer=user, state="prepared") if semester else None
+    proxied_courses = semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state="prepared") if semester else None
     return render_to_response("lecturer_course_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
 
 
@@ -47,7 +47,7 @@ def course_edit(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
     # check rights
-    if not (course.is_user_lecturer(user) and course.state=="pendingLecturerApproval"):
+    if not (course.is_user_lecturer(user) and course.state=="prepared"):
         raise PermissionDenied
         
     AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
@@ -72,7 +72,7 @@ def course_preview(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_lecturer(user) and course.state=="pendingLecturerApproval"):
+    if not (course.is_user_lecturer(user) and course.state=="prepared"):
         raise PermissionDenied
 
     # build forms
