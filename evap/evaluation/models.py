@@ -113,11 +113,11 @@ class Course(models.Model):
     
     # students that are allowed to vote
     participants = models.ManyToManyField(User, verbose_name=_(u"participants"), blank=True)
-    participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
+    participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
     
     # students that already voted
     voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True, related_name='+')
-    voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
+    voter_count = models.IntegerField(verbose_name=_(u"voter count"), blank=True, null=True, default=None)
     
     # when the evaluation takes place
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))

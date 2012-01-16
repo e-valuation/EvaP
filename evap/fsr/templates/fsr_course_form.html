@@ -21,32 +21,32 @@
             {{ formset.non_form_errors }}
             
             <table id="assignment_table">
+                <thead>
                 <tr>
                     {% for field in formset.form %}
-                        <th>{{ field.label }}x</th>
+                        <th>{{ field.label }}</th>
                     {% endfor %}
                     <th>{% trans "Delete?" %}</th>
                 </tr>
+                </thead>
                 <tbody>
                     {% for form_element in formset %}
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
                         <tr>
-                            <tr>
-                                <td>{{ form_element.id }}{{ form_element.lecturer }}</td>
-								<td>{% trans "Read-Only?" %}{{ form_element.read_only }}</td>
-								<td/>
-                                <td>{% trans "Delete?" %}{{ form_element.DELETE }}</td>
-                            </td></tr>
-                            <tr><td>{{ form_element.questionnaires }}</td></tr>
+                            {% for field in form_element.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
+                        {% for field in form_element.visible_fields %}
+                            <td>{{field.errors}} {{ field }}</td>
+                        {% endfor %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            
             <div class="actions">
-                <input type="submit" value="{% trans "Save course" %}" class="btn primary"/>
+                <input type="submit" value="{% trans "Save course" %}" class="btn primary" onclick="submitFormOkay = true;"/>
             </div>
         </form>
     </p>
@@ -54,23 +54,22 @@
 
 {% block scripts %}
     {{ block.super }}
-	
-	<script>
-		$(document).ready(function() {
-			$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-			$(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-				$(e).width($(e).width());
-				$(e).multiselect();
-			});
-			
-			//TODO: re-add
-			//$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
-			
-			$('#id_study').combobox();
-			$('#id_kind').combobox();
-		});
+    <script>
+    $(function() {
+        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+        $(".multiselect-form select[multiple='multiple']").each(function(i, e) {
+            $(e).width($(e).width());
+            $(e).multiselect();
+        });
+
+        //TODO: re-add
+        //$('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
+
+        $('#id_study').combobox();
+        $('#id_kind').combobox();
+    });
     </script>
-	
-	<!-- prevent from accendential closing -->
-	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+    
+    <!-- prevent from accendential closing -->
+    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

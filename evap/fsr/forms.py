@@ -42,7 +42,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = Course
-        exclude = ("voters", "semester", "state")
+        fields = ('name_de', 'name_en', 'kind', 'study',
+                  'vote_start_date', 'vote_end_date', 'participants',
+                  'general_questions')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
@@ -226,7 +228,7 @@ class QuestionForm(forms.ModelForm):
         self.fields['text_en'].widget = forms.TextInput()
 
 
-class QuestionnairesAssignForm(forms.Form):
+class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
         extras = kwargs.pop('extras', ())
