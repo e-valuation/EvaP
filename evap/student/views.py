@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course, Semester
+from evap.evaluation.tools import questionnaires_and_assignments
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
@@ -16,20 +17,15 @@ from datetime import datetime
 
 @login_required
 def index(request):
-    # retrieve all courses, which the user can evaluate now or later
+    # retrieve all courses, which the user can evaluate at some point
     users_courses = Course.objects.filter(
-            state="inEvaluation",
             participants=request.user
         ).exclude(
             voters=request.user
         )
     # split up into current and future courses
-    current_courses = [course for course
-                       in users_courses.filter(vote_start_date__lte=datetime.now())
-                       if course.has_enough_questionnaires()]
-    future_courses = [course for course
-                       in users_courses.exclude(vote_start_date__lte=datetime.now())
-                       if course.has_enough_questionnaires()]
+    current_courses = users_courses.filter(state='inEvaluation')
+    future_courses = users_courses.filter(state='approved')
     
     return render_to_response(
         "student_index.html",
@@ -48,10 +44,9 @@ def vote(request, course_id):
     
     # build forms
     forms = SortedDict()
-    for assignment in course.assignments.all():
-        for questionnaire in assignment.questionnaires.all():
-            form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
-            forms[(assignment, questionnaire)] = form
+    for questionnaire, assignment in questionnaires_and_assignments(course):
+        form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+        forms[(assignment, questionnaire)] = form
     
     if all(form.is_valid() for form in forms.values()):
         # begin vote operation

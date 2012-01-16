@@ -2,9 +2,12 @@
 
 {% load i18n %}
 
-{% block title %}{% trans "My Courses" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}{% trans "My Courses" %}{% endblock %}
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url student.views.index %}">{% trans "Evaluation" %}</a></li>
+{% endblock %}
 
 {% block content %}
     {{ block.super }}

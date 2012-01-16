@@ -3,9 +3,13 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{{ course.name }} - {% trans "Course Evaluation" %} - {{ block.super }}{% endblock %}
+{% block title %}{{ course.name }} - {% trans "Evaluation" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}{% trans "Course Evaluation" %}: {{ course.name }}{% endblock %}
+{% block subtitle %}
+    {{ block.super }}
+    <li> <span class="divider">/</span> <a href="{% url student.views.index %}">{% trans "Evaluation" %}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url student.views.vote course.id %}">{{ course.name }}</a></li>
+{% endblock %}
 
 {% block content %}
     {{ block.super }}

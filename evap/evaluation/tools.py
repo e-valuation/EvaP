@@ -47,7 +47,7 @@ def calculate_results(course):
     # there will be one section per relevant questionnaire--lecturer pair
     sections = []
     
-    for questionnaire, lecturer in questionnaires_and_lecturers(course):
+    for questionnaire, assignment in questionnaires_and_assignments(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
@@ -55,7 +55,7 @@ def calculate_results(course):
                 # gather all numeric answers as a simple list
                 answers = GradeAnswer.objects.filter(
                     assignment__course=course,
-                    assignment__lecturer=lecturer,
+                    assignment__lecturer=assignment.lecturer,
                     question=question
                     ).values_list('answer', flat=True)
                 
@@ -95,7 +95,7 @@ def calculate_results(course):
                 # gather text answers for this question
                 answers = TextAnswer.objects.filter(
                     assignment__course=course,
-                    assignment__lecturer=lecturer,
+                    assignment__lecturer=assignment.lecturer,
                     question=question
                     )
                 # only add to the results if answers exist at all
@@ -114,7 +114,7 @@ def calculate_results(course):
         average_grade = avg([result.average for result
                                             in results
                                             if isinstance(result, GradeResult)])
-        sections.append(ResultSection(questionnaire, lecturer, results, average_grade))
+        sections.append(ResultSection(questionnaire, assignment.lecturer, results, average_grade))
     
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
@@ -145,10 +145,12 @@ def calculate_average_grade(course):
         return avg((avg(generic_grades), avg(personal_grades)))
 
 
-def questionnaires_and_lecturers(course):
-    """Yields tuples of (questionnaire, lecturer) for the given course. The
-    lecturer is None for general questionnaires."""
+def questionnaires_and_assignments(course):
+    """Yields tuples of (questionnaire, assignment) for the given course."""
     
+    result = []
     for assignment in course.assignments.all():
         for questionnaire in assignment.questionnaires.all():
-            yield (questionnaire, assignment.lecturer)
+            result.append((questionnaire, assignment))
+    result.sort(key=lambda t: t[1].lecturer is not None)
+    return result
