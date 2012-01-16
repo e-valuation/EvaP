@@ -113,9 +113,11 @@ class Course(models.Model):
     
     # students that are allowed to vote
     participants = models.ManyToManyField(User, verbose_name=_(u"participants"), blank=True)
+    participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
     
     # students that already voted
     voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True, related_name='+')
+    voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
     
     # when the evaluation takes place
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
@@ -202,6 +204,21 @@ class Course(models.Model):
         except Assignment.DoesNotExist:
             return None
     
+    @property
+    def num_participants(self):
+        if self.participants.exists():
+            return self.participants.count()
+        else:
+            return self.participant_count
+    
+    @property
+    def num_voters(self):
+        if self.voters.exists():
+            return self.voters.count()
+        else:
+            return self.voter_count
+
+    
     def has_enough_questionnaires(self):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
@@ -239,6 +256,7 @@ class Assignment(models.Model):
     lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
+    read_only = models.BooleanField(verbose_name=_("read-only"))
 
     class Meta:
         unique_together = (

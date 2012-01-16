@@ -148,7 +148,7 @@ class ExcelExporter(object):
         
         self.writen(_(u"Total Answers"), bold_style)
         for course, results in courses_with_results:
-            self.writec(course.voters.count(), total_answers_style, cols=2)
+            self.writec(course.num_voters, total_answers_style, cols=2)
         
         self.workbook.save(response)
     

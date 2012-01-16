@@ -26,19 +26,19 @@
         {% blocktrans %}
         <p>Welcome to the evaluation platform!</p>
         
-        <p>You are currently not logged in. If you are an internal student or 
-        lecturer, please log in using your known credentials.</p>
+        <p>You are currently not logged in. If you are a HPI student or lecturer,
+		please log in using your usual HPI credentials.</p>
         
-        <p>If you are an external student or lecturer you can use your external
+        <p>If you are an external student or lecturer, you can use your external
         login key to gain access to the system. If you do not have an external
-        login key or lost it, you can create a new one below.</p>
+		login key or if you have lost yours, you can create a new one below.</p>
         {% endblocktrans %}
         
-        <h2>{% trans "Internal Users" %}</h2>
+        <h2>{% trans "HPI student or lecturer" %}</h2>
         <div class="well">
             <a class="btn success" href="/login">{% trans "Click here to log in using your credentials." %}</a>
         </div>
-        <h2>{% trans "Guest Users" %}</h2>
+        <h2>{% trans "External student or lecturer" %}</h2>
         <div class="well">
             <p>
                 {% blocktrans %}
@@ -61,7 +61,7 @@
             </form> 
         </div>
         <div class="well">
-            <h4>{% trans "Generate a new login key" %}</h4>
+            <h4>{% trans "Generate a new external login key" %}</h4>
             <p>
                 {% blocktrans %}
                 If you do not have a login key or lost your previous login key, 
@@ -69,7 +69,7 @@
                 below. A new key will be sent to this address. Please make sure 
                 that you use the same e-mail address that you used when you
                 enrolled. Otherwise the system cannot associate your address
-                with a user account.
+                with an user account.
                 {% endblocktrans %}
             </p>
             <form action="{% url evap.evaluation.views.index %}" method="POST">

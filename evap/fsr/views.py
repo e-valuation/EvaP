@@ -54,21 +54,7 @@ def semester_index(request):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     
-    # XXX: The Django 1.3 ORM has a bug in its aggregation part. The correct to be used here would be:
-    #   courses = semester.course_set.annotate(num_participants=Count('participants'), num_voters=Count('voters'))
-    # But code returns wrong values (due to the fact that both `participants` and `voters` point to the
-    # same table, I guess. To work around that, we use hard-coded subselects here:
-    courses = semester.course_set.extra(
-        select={
-            'num_participants': "SELECT COUNT(*) "
-                                "FROM evaluation_course_participants "
-                                "WHERE evaluation_course_participants.course_id = evaluation_course.id",
-            'num_voters': "SELECT COUNT(*) "
-                          "FROM evaluation_course_voters "
-                          "WHERE evaluation_course_voters.course_id = evaluation_course.id"
-        }
-    )
-    
+    courses = semester.course_set.all()    
     courses_by_state = []
     for state in STATES_ORDERED:
         this_courses = [course for course in courses if course.state == state]
@@ -329,7 +315,8 @@ def course_censor(request, semester_id, course_id, offset=None):
             course.review_finished()
             course.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully censored %d course answers for %s.") % (count, course.name))
+        messages.add_message(request, messages.INFO, _("Successfully censored %(number)d course answers for %(name)s.") % {'number': count, 'name': course.name} )
+
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_censor.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))
@@ -381,6 +368,19 @@ def course_unpublish(request, semester_id, course_id):
     else:
         return render_to_response("fsr_course_unpublish.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
 
+
+@fsr_required
+def course_comments(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    
+    textanswers = course.textanswer_set.filter(checked=True)
+    
+    textanswers_by_question = []
+    for question_id in textanswers.values_list("question", flat=True).distinct():
+        textanswers_by_question.append((get_object_or_404(Question, id=question_id), textanswers.filter(question=question_id)))
+    
+    return render_to_response("fsr_course_comments.html", dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question), context_instance=RequestContext(request))
 
 @fsr_required
 def course_preview(request, semester_id, course_id):

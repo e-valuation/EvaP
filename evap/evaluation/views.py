@@ -30,3 +30,6 @@ def index(request):
              new_key_form=new_key_form
         ),
         context_instance=RequestContext(request))
+    
+def faq(request):
+    return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
