@@ -4,6 +4,8 @@ import django.http
 import django.template
 import django.template.loader
 
+from django.utils.translation import ugettext as _
+
 def fallback_403(request):
   """
 Fallback 403 handler which prints out a hard-coded string patterned
@@ -13,14 +15,14 @@ Templates: None
 Context: None
 """
   return django.http.HttpResponseForbidden(
-      _("""<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+      """<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
-<title>403 Forbidden</title>
+<title>403 %(title)s</title>
 </head><body>
-<h1>Forbidden</h1>
-<p>You don't have permission to access %(path)s on this server.</p>
+<h1>%(title)s</h1>
+<p>%(text)s</p>
 <hr>
-</body></html>""") % {'path': request.path})
+</body></html>""" % {'title': _(u"Forbidden"), 'text': _(u"You don't have permission to access %s on this server.") % request.path})
 
 def access_denied(request, template_name='403.html'):
   """
