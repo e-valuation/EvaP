@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-16 10:53+0100\n"
+"POT-Creation-Date: 2012-01-16 11:20+0100\n"
 "PO-Revision-Date: 2011-12-13 19:41+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
@@ -1207,19 +1207,18 @@ msgstr ""
 "            "
 
 #: .\templates\index.html.py:28
+#, fuzzy
 msgid ""
 "\n"
 "        <p>Welcome to the evaluation platform!</p>\n"
 "        \n"
-"        <p>You are currently not logged in. If you are an internal student "
-"or \n"
-"        lecturer, please log in using your known credentials.</p>\n"
+"        <p>You are currently not logged in. If you are a HPI student or lecturer,\n"
+"\t\tplease log in using your usual HPI credentials.</p>\n"
 "        \n"
-"        <p>If you are an external student or lecturer you can use your "
-"external\n"
-"        login key to gain access to the system. If you do not have an "
-"external\n"
-"        login key or lost it, you can create a new one below.</p>\n"
+"        <p>If you are an external student or lecturer, you can use your external\n"
+"\t\tlogin key to gain access to the system. If you do not have an external\n"
+"\t\tlogin key or if you have lost yours, you can create a new one below.</"
+"p>\n"
 "        "
 msgstr ""
 "\n"
@@ -1232,16 +1231,18 @@ msgstr ""
 "können Sie unten einen neuen erstellen.</p>"
 
 #: .\templates\index.html.py:39
-msgid "Internal Users"
-msgstr "Interne Nutzer"
+#, fuzzy
+msgid "HPI student or lecturer"
+msgstr "An Dozenten versenden?"
 
 #: .\templates\index.html.py:41
 msgid "Click here to log in using your credentials."
-msgstr "Hier klicken um sich mit HPI-Login anzumelden."
+msgstr "Hier klicken, um sich mit Ihrem HPI-Login anzumelden."
 
 #: .\templates\index.html.py:43
-msgid "Guest Users"
-msgstr "Externe Benutzer"
+#, fuzzy
+msgid "External student or lecturer"
+msgstr "An Dozenten versenden?"
 
 #: .\templates\index.html.py:46
 msgid ""
@@ -1264,10 +1265,12 @@ msgid "Login"
 msgstr "Anmeldung"
 
 #: .\templates\index.html.py:66
-msgid "Generate a new login key"
+#, fuzzy
+msgid "Generate a new external login key"
 msgstr "Neuen Anmeldeschlüssel erzeugen"
 
 #: .\templates\index.html.py:68
+#, fuzzy
 msgid ""
 "\n"
 "                If you do not have a login key or lost your previous login "
@@ -1279,23 +1282,25 @@ msgid ""
 "                that you use the same e-mail address that you used when you\n"
 "                enrolled. Otherwise the system cannot associate your "
 "address\n"
-"                with a user account.\n"
+"                with an user account.\n"
 "                "
 msgstr ""
 "\n"
-"  Wenn Sie keinen Anmeldeschlüssel besitzen oder Ihren bisherigen Schlüssel "
-"verloren haben, können Sie hier einen neuen erstellen. Bitte tragen Sie dazu "
-"Ihre E-Mail-Adresse in das Formular unten ein. Ein neuer Schlüssel wird "
-"Ihnen darauf via E-Mail zugesendet. Bitte verwenden Sie dazu die E-Mail-"
-"Adresse welche sie zur Einschreibung verwendet haben.\n"
-"                "
+"  Falls Sie keinen Anmeldeschlüssel besitzen oder Ihren Schlüssel verloren "
+"haben, können Sie unten einen neuen erstellen. Bitte tragen Sie dazu Ihre "
+"E-Mail-Adresse in das Feld unten ein. Ein neuer Schlüssel wird "
+"Ihnen daraufhin per E-Mail zugesandt. Bitte verwenden Sie dazu die E-Mail-"
+"Adresse, welche Sie zur Einschreibung verwendet haben.\n"
 
 #: .\templates\index.html.py:94
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
 
-#~ msgid "F&Q"
-#~ msgstr "Fragen & Antworten"
+#~ msgid "Internal Users"
+#~ msgstr "Interne Nutzer"
+
+#~ msgid "Guest Users"
+#~ msgstr "Externe Benutzer"
 
 #~ msgid "Approved"
 #~ msgstr "Freigeben"
