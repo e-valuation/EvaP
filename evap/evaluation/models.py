@@ -165,35 +165,35 @@ class Course(models.Model):
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
     
-    @transition(source='new', target='prepared')
+    @transition(field=state, source='new', target='prepared')
     def ready_for_lecturer(self):
         EmailTemplate.get_review_template().send_courses([self], True, False)
     
-    @transition(source='prepared', target='lecturerApproved')
+    @transition(field=state, source='prepared', target='lecturerApproved')
     def lecturer_approve(self):
         pass
     
-    @transition(source=['new', 'prepared', 'lecturerApproved'], target='approved')
+    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved')
     def fsr_approve(self):
         pass
     
-    @transition(source='approved', target='inEvaluation')
+    @transition(field=state, source='approved', target='inEvaluation')
     def evaluation_begin(self):
         pass
     
-    @transition(source='inEvaluation', target='evaluated')
+    @transition(field=state, source='inEvaluation', target='evaluated')
     def evaluation_end(self):
         pass
     
-    @transition(source='evaluated', target='reviewed', conditions=[is_fully_checked])
+    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_checked])
     def review_finished(self):
         pass
     
-    @transition(source='reviewed', target='published')
+    @transition(field=state, source='reviewed', target='published')
     def publish(self):
         pass
     
-    @transition(source='published', target='reviewed')
+    @transition(field=state, source='published', target='reviewed')
     def revoke(self):
         pass
 
