@@ -23,8 +23,10 @@
     </p>
     
     {% if courses_by_state %}
+            <div id="tab-content">
             {% for state, courses in courses_by_state %}
-                <h3>{% trans "State" %}: {% trans state %} ({{ courses|length }})</h3>
+                <div id="tab{{ forloop.counter }}">
+                <h3>{% trans "State" %}: <span>{% trans state %}</span> ({{ courses|length }})</h3>
                 <table class="zebra-striped vertically-aligned">
                 <tbody>
                 {% for course in courses %}
@@ -38,6 +40,7 @@
                                 {{ course.name }}
                             {% endif %}
                             </div>
+                            <span class="label">{{ course.study }}</span>
                             {% for warning in course.warnings %}
                                 <span class="label warning">{{ warning }}</span>
                             {% endfor %}
@@ -84,8 +87,26 @@
                 {% endifequal %}
                 </p>
                 <p>&nbsp;</p>
+                </div>
             {% endfor %}
+            </div>
     {% else %}
         <p>{% trans "There are no courses for this semester yet." %}</p>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-tabs.js"></script>
+    <script>
+        $(function () {
+            var tabs = $("<ul class='tabs'/>")
+            $('#tab-content > div').each(function(i,e) {
+                tabs.append($("<li/>").append($("<a/>", {href: "#" + e.id}).text($('h3 span', e).text())));
+            });
+            $(tabs).insertBefore($('#tab-content')).tabs();
+            $('#tab-content').addClass('tab-content');
+            $('#tab-content h3').remove();
+        });
+    </script>
 {% endblock %}
