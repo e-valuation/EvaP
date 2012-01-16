@@ -209,14 +209,14 @@ class Course(models.Model):
         if self.participants.exists():
             return self.participants.count()
         else:
-            return self.participant_count
+            return self.participant_count or 0
     
     @property
     def num_voters(self):
         if self.voters.exists():
             return self.voters.count()
         else:
-            return self.voter_count
+            return self.voter_count or 0
 
     
     def has_enough_questionnaires(self):
