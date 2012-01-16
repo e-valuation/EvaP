@@ -8,10 +8,12 @@
     <p>
         <form method="POST">
             {% csrf_token %}
-            <table class="stdform">
-                {{ form.as_table }}
-            </table>
-            <input type="submit" value="{% trans "Send e-mail" %}"/>
+            <fieldset>
+            {{ form.as_div }}
+            </fieldset>
+            <div class="actions">
+                <input type="submit" value="{% trans "Send e-mail" %}" class="btn primary"/>
+            </div>
         </form>
     </p>
 {% endblock %}
