@@ -26,7 +26,7 @@
             <div id="tab-content">
             {% for state, courses in courses_by_state %}
                 <div id="tab{{ forloop.counter }}">
-                <h3>{% trans "State" %}: <span>{% trans state %}</span> ({{ courses|length }})</h3>
+                <h3>{% trans "State" %}: <span>{% trans state %} ({{ courses|length }})</span></h3>
                 <table class="zebra-striped vertically-aligned">
                 <tbody>
                 {% for course in courses %}
@@ -104,9 +104,12 @@
             $('#tab-content > div').each(function(i,e) {
                 tabs.append($("<li/>").append($("<a/>", {href: "#" + e.id}).text($('h3 span', e).text())));
             });
-            $(tabs).insertBefore($('#tab-content')).tabs();
             $('#tab-content').addClass('tab-content');
+            $(tabs).insertBefore($('#tab-content')).tabs();
             $('#tab-content h3').remove();
+            // select first tab
+            $('#tab-content > div:first-child').addClass('active');
+            $('ul.tabs > li:first-child').addClass('active');
         });
     </script>
 {% endblock %}
