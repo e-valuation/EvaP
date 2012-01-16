@@ -315,7 +315,8 @@ def course_censor(request, semester_id, course_id, offset=None):
             course.review_finished()
             course.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully censored %d course answers for %s.") % (count, course.name))
+        messages.add_message(request, messages.INFO, _("Successfully censored %(number)d course answers for %(name)s.") % {'number': count, 'name': course.name} )
+
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_censor.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))

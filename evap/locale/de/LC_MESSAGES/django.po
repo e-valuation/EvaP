@@ -7,32 +7,44 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-13 19:39+0100\n"
+"POT-Creation-Date: 2012-01-16 10:53+0100\n"
 "PO-Revision-Date: 2011-12-13 19:41+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
+#: .\evaluation\403.py:16
+#, python-format
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+"<html><head>\n"
+"<title>403 Forbidden</title>\n"
+"</head><body>\n"
+"<h1>Forbidden</h1>\n"
+"<p>You don't have permission to access %(path)s on this server.</p>\n"
+"<hr>\n"
+"</body></html>"
+msgstr ""
+
 #: .\evaluation\auth.py:53
 msgid "Invalid login key."
 msgstr "Ungültiger Anmeldeschlüssel"
 
-#: .\evaluation\forms.py:6
+#: .\evaluation\forms.py:9
 msgid "e-mail address"
 msgstr "E-Mail-Adresse"
 
-#: .\evaluation\models.py:25
-#: .\evaluation\models.py:60
-#: .\evaluation\models.py:99
+#: .\evaluation\models.py:25 .\evaluation\models.py:64
+#: .\evaluation\models.py:104
 msgid "name (german)"
 msgstr "Name (deutsch)"
 
-#: .\evaluation\models.py:26
-#: .\evaluation\models.py:61
-#: .\evaluation\models.py:100
+#: .\evaluation\models.py:26 .\evaluation\models.py:65
+#: .\evaluation\models.py:105
 msgid "name (english)"
 msgstr "Name (englisch)"
 
@@ -40,8 +52,7 @@ msgstr "Name (englisch)"
 msgid "created at"
 msgstr "erstellt am"
 
-#: .\evaluation\models.py:34
-#: .\evaluation\models.py:97
+#: .\evaluation\models.py:34 .\evaluation\models.py:102
 msgid "semester"
 msgstr "Semester"
 
@@ -49,187 +60,223 @@ msgstr "Semester"
 msgid "semesters"
 msgstr "Semester"
 
-#: .\evaluation\models.py:65
+#: .\evaluation\models.py:68
 msgid "description (german)"
 msgstr "Beschreibung (deutsch)"
 
-#: .\evaluation\models.py:66
+#: .\evaluation\models.py:69
 msgid "description (english)"
 msgstr "Beschreibung (englisch)"
 
-#: .\evaluation\models.py:70
+#: .\evaluation\models.py:72
+#, fuzzy
+msgid "public name (german)"
+msgstr "Name (deutsch)"
+
+#: .\evaluation\models.py:73
+#, fuzzy
+msgid "public name (english)"
+msgstr "Name (englisch)"
+
+#: .\evaluation\models.py:76
 msgid "teaser (german)"
 msgstr "Einleitung (deutsch)"
 
-#: .\evaluation\models.py:71
+#: .\evaluation\models.py:77
 msgid "teaser (english)"
 msgstr "Einleitung (englisch)"
 
-#: .\evaluation\models.py:75
+#: .\evaluation\models.py:80
 msgid "obsolete"
 msgstr "obsolet"
 
-#: .\evaluation\models.py:79
+#: .\evaluation\models.py:84
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: .\evaluation\models.py:80
-#: .\evaluation\models.py:230
+#: .\evaluation\models.py:85 .\evaluation\models.py:257
 msgid "questionnaires"
 msgstr "Fragebögen"
 
-#: .\evaluation\models.py:104
-#: .\lecturer\forms.py:10
+#: .\evaluation\models.py:109 .\lecturer\forms.py:11
 msgid "type"
 msgstr "Typ"
 
-#: .\evaluation\models.py:107
-#: .\lecturer\forms.py:11
+#: .\evaluation\models.py:112 .\lecturer\forms.py:12
 msgid "study"
 msgstr "Studiengang"
 
-#: .\evaluation\models.py:110
+#: .\evaluation\models.py:115
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: .\evaluation\models.py:113
+#: .\evaluation\models.py:116
+#, fuzzy
+msgid "participant count"
+msgstr "Teilnehmer"
+
+#: .\evaluation\models.py:119
 msgid "voters"
 msgstr "Wähler"
 
-#: .\evaluation\models.py:116
-#: .\fsr\forms.py:16
-#: .\lecturer\forms.py:13
+#: .\evaluation\models.py:120
+msgid "voter count"
+msgstr "Anzahl Wähler"
+
+#: .\evaluation\models.py:123 .\fsr\forms.py:20 .\lecturer\forms.py:14
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: .\evaluation\models.py:117
-#: .\fsr\forms.py:17
-#: .\lecturer\forms.py:14
+#: .\evaluation\models.py:124 .\fsr\forms.py:21 .\lecturer\forms.py:15
 msgid "last date to vote"
 msgstr "Letzter Abstimmungstag"
 
-#: .\evaluation\models.py:125
-#: .\evaluation\models.py:228
+#: .\evaluation\models.py:132 .\evaluation\models.py:255
 msgid "course"
 msgstr "Veranstaltung"
 
-#: .\evaluation\models.py:126
+#: .\evaluation\models.py:133
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: .\evaluation\models.py:209
-msgid "No lecturers assigned."
+#: .\evaluation\models.py:236
+#, fuzzy
+msgid "No lecturers assigned"
 msgstr "Kein Dozent zugeordnet."
 
-#: .\evaluation\models.py:211
-msgid "Not enough questionnaires assigned."
+#: .\evaluation\models.py:238
+#, fuzzy
+msgid "Not enough questionnaires assigned"
 msgstr "Fragebögen nicht ausreichend zugeordnet."
 
-#: .\evaluation\models.py:229
+#: .\evaluation\models.py:256
 msgid "lecturer"
 msgstr "Dozent"
 
-#: .\evaluation\models.py:245
+#: .\evaluation\models.py:259
+msgid "read-only"
+msgstr "nur lesbar"
+
+#: .\evaluation\models.py:273
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: .\evaluation\models.py:246
+#: .\evaluation\models.py:274
 msgid "Grade Question"
 msgstr "Auswahlfrage"
 
-#: .\evaluation\models.py:250
+#: .\evaluation\models.py:278
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: .\evaluation\models.py:251
+#: .\evaluation\models.py:279
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: .\evaluation\models.py:253
+#: .\evaluation\models.py:281
 msgid "kind of question"
 msgstr "Frageart"
 
-#: .\evaluation\models.py:259
+#: .\evaluation\models.py:287
 msgid "question"
 msgstr "Frage"
 
-#: .\evaluation\models.py:260
+#: .\evaluation\models.py:288
 msgid "questions"
 msgstr "Fragen"
 
-#: .\evaluation\models.py:288
-#: .\evaluation\models.py:296
+#: .\evaluation\models.py:316 .\evaluation\models.py:324
 msgid "answer"
 msgstr "Antwort"
 
-#: .\evaluation\models.py:289
+#: .\evaluation\models.py:317
 msgid "answers"
 msgstr "Antworten"
 
-#: .\evaluation\models.py:299
+#: .\evaluation\models.py:327
 msgid "grade answer"
 msgstr "Auswahlantwort"
 
-#: .\evaluation\models.py:300
+#: .\evaluation\models.py:328
 msgid "grade answers"
 msgstr "Auswahlantworten"
 
-#: .\evaluation\models.py:309
+#: .\evaluation\models.py:337
 msgid "censored answer"
 msgstr "Zensierte Antwort"
 
-#: .\evaluation\models.py:310
+#: .\evaluation\models.py:338
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: .\evaluation\models.py:312
+#: .\evaluation\models.py:340
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: .\evaluation\models.py:313
+#: .\evaluation\models.py:341
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: .\evaluation\models.py:316
+#: .\evaluation\models.py:344
 msgid "text answer"
 msgstr "Textantwort"
 
-#: .\evaluation\models.py:317
+#: .\evaluation\models.py:345
 msgid "text answers"
 msgstr "Textantworten"
 
-#: .\evaluation\models.py:333
+#: .\evaluation\models.py:361
 msgid "Title"
 msgstr "Titel"
 
-#: .\evaluation\models.py:336
+#: .\evaluation\models.py:364
 msgid "Picture"
 msgstr "Foto"
 
-#: .\evaluation\models.py:339
+#: .\evaluation\models.py:367
 msgid "Proxies"
 msgstr "Stellvertreter"
 
-#: .\evaluation\models.py:342
-#: .\fsr\templates\fsr_user_index.html.py:26
+#: .\evaluation\models.py:370 .\fsr\templates\fsr_user_index.html.py:45
+#: .\lecturer\templates\lecturer_base.html.py:10 .\templates\base.html.py:48
 msgid "Lecturer"
 msgstr "Dozent"
 
-#: .\evaluation\models.py:345
+#: .\evaluation\models.py:373 .\fsr\templates\fsr_user_index.html.py:48
 msgid "Logon Key"
 msgstr "Anmeldeschlüssel"
 
-#: .\evaluation\models.py:346
+#: .\evaluation\models.py:374
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: .\evaluation\models.py:349
+#: .\evaluation\models.py:377
 msgid "user"
 msgstr "Benutzer"
 
-#: .\evaluation\models.py:350
+#: .\evaluation\models.py:378
 msgid "users"
 msgstr "Benutzer"
+
+#: .\evaluation\tools.py:11
+msgid "Strongly agree"
+msgstr "Stimme vollkommen zu"
+
+#: .\evaluation\tools.py:12
+msgid "Agree"
+msgstr "Stimme teilweise zu"
+
+#: .\evaluation\tools.py:13
+msgid "Neither agree nor disagree"
+msgstr "teils teils"
+
+#: .\evaluation\tools.py:14
+msgid "Disagree"
+msgstr "Stimme teilweise nicht zu"
+
+#: .\evaluation\tools.py:15
+msgid "Strongly disagree"
+msgstr "Stimme nicht zu"
 
 #: .\evaluation\views.py:25
 msgid "No user with this e-mail address was found."
@@ -240,8 +287,11 @@ msgid "Enter a valid e-mail address.\n"
 msgstr "Eine gültige E-Mail-Adresse eingeben.\n"
 
 #: .\evaluation\management\commands\create_user.py:18
-msgid "Error: That username is invalid. Use only letters, digits and underscores.\n"
-msgstr "Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und Unterstriche verwenden.\n"
+msgid ""
+"Error: That username is invalid. Use only letters, digits and underscores.\n"
+msgstr ""
+"Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und "
+"Unterstriche verwenden.\n"
 
 #: .\evaluation\management\commands\create_user.py:25
 msgid "Error: That username is already taken.\n"
@@ -251,10 +301,12 @@ msgstr "Fehler: Der Benutzername ist bereits vergeben.\n"
 msgid "Error: Please answer with yes or no\n"
 msgstr "Fehler: Bitte mit JA oder NEIN antworten\n"
 
+#: .\evaluation\management\commands\remove_participant_information.py:13
 #: .\evaluation\management\commands\statistics.py:29
 msgid "Wrong arguments given."
 msgstr "Falsche Argumente übergeben."
 
+#: .\evaluation\management\commands\remove_participant_information.py:21
 #: .\evaluation\management\commands\statistics.py:38
 msgid "Supplied semester does not exist."
 msgstr "Angegebenes Semester existiert nicht."
@@ -263,72 +315,63 @@ msgstr "Angegebenes Semester existiert nicht."
 msgid "Supplied statistic does not exist."
 msgstr "Angegebene Statistik existiert nicht."
 
-#: .\fsr\forms.py:19
+#: .\fsr\forms.py:23
 msgid "excel file"
 msgstr "Exceldatei"
 
-#: .\fsr\forms.py:78
+#: .\fsr\forms.py:92
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: .\fsr\forms.py:79
+#: .\fsr\forms.py:93
 msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
-#: .\fsr\forms.py:80
-#: .\fsr\models.py:14
+#: .\fsr\forms.py:94 .\fsr\models.py:12
 msgid "Subject"
 msgstr "Betreff"
 
-#: .\fsr\forms.py:81
-#: .\fsr\models.py:15
+#: .\fsr\forms.py:95 .\fsr\models.py:13
 msgid "Body"
 msgstr "Text"
 
-#: .\fsr\forms.py:92
+#: .\fsr\forms.py:106
 msgid "No recipient selected. Choose at least participants or lecturers."
-msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder Teilnehmer aus."
+msgstr ""
+"Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder "
+"Teilnehmer aus."
 
-#: .\fsr\forms.py:116
-msgid "Approved"
-msgstr "Freigeben"
+#: .\fsr\forms.py:129
+#, fuzzy
+msgid "Answer"
+msgstr "Antwort"
 
-#: .\fsr\forms.py:117
-msgid "Censored"
-msgstr "Zensiert"
-
-#: .\fsr\forms.py:118
-msgid "Hide"
-msgstr "Ausblenden"
-
-#: .\fsr\forms.py:119
+#: .\fsr\forms.py:130
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: .\fsr\forms.py:136
-msgid "Censored answer missing."
-msgstr "Zensierte Antwort fehlt."
-
-#: .\fsr\forms.py:158
+#: .\fsr\forms.py:182
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: .\fsr\forms.py:170
+#: .\fsr\forms.py:194
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
-msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
+msgstr ""
+"Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: .\fsr\forms.py:242
+#: .\fsr\forms.py:290
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: .\fsr\forms.py:277
+#: .\fsr\forms.py:325
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
 #: .\fsr\importers.py:100
 #, python-format
 msgid "Invalid line in sheet '%(sheet)s', beginning with '%(beginning)s'"
-msgstr "Ungültige Zeile in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s'"
+msgstr ""
+"Ungültige Zeile in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s'"
 
 #: .\fsr\importers.py:101
 #, python-format
@@ -346,264 +389,224 @@ msgstr "Exceldatei erfolgreich gelesen."
 
 #: .\fsr\importers.py:158
 #, python-format
-msgid "A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'"
-msgstr "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung lautete: '%(error)s'"
+msgid ""
+"A problem occured while writing the entries to the database. The original "
+"data location was row %(row)d of sheet '%(sheet)s'. The error message has "
+"been: '%(error)s'"
+msgstr ""
+"Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die "
+"Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung "
+"lautete: '%(error)s'"
 
 #: .\fsr\importers.py:162
 #, python-format
-msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(lecturers)d lecturer(s)."
-msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) erfolgreich erstellt."
+msgid ""
+"Successfully created %(courses)d course(s), %(students)d student(s) and "
+"%(lecturers)d lecturer(s)."
+msgstr ""
+"%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) "
+"erfolgreich erstellt."
 
 #: .\fsr\importers.py:174
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: .\fsr\models.py:10
-#: .\fsr\templates\fsr_questionnaire_index.html.py:20
-#: .\lecturer\templates\lecturer_course_index.html.py:10
+#: .\fsr\models.py:10 .\fsr\templates\fsr_template_index.html.py:15
+#: .\fsr\templates\fsr_user_index.html.py:25
+#: .\lecturer\templates\lecturer_course_index.html.py:17
+#: .\lecturer\templates\lecturer_course_index.html.py:44
 msgid "Name"
 msgstr "Name"
 
-#: .\fsr\models.py:12
-msgid "Use this template"
-msgstr "Diese Vorlage verwenden"
-
-#: .\fsr\views.py:24
+#: .\fsr\views.py:26
 msgid "new"
 msgstr "Neu"
 
-#: .\fsr\views.py:25
+#: .\fsr\views.py:27
 msgid "pendingLecturerApproval"
 msgstr "Dozent unbestätigt"
 
-#: .\fsr\views.py:26
+#: .\fsr\views.py:28
 msgid "pendingFsrApproval"
 msgstr "FSR unbestätigt"
 
-#: .\fsr\views.py:27
+#: .\fsr\views.py:29
 msgid "approved"
 msgstr "Bestätigt"
 
-#: .\fsr\views.py:28
+#: .\fsr\views.py:30
 msgid "inEvaluation"
 msgstr "In Evaluierung"
 
-#: .\fsr\views.py:29
+#: .\fsr\views.py:31
 msgid "pendingForReview"
 msgstr "Durchsicht ausstehend"
 
-#: .\fsr\views.py:30
+#: .\fsr\views.py:32
 msgid "pendingPublishing"
 msgstr "Veröffentlichung ausstehend"
 
-#: .\fsr\views.py:31
+#: .\fsr\views.py:33
 msgid "published"
 msgstr "Veröffentlichen"
 
-#: .\fsr\views.py:76
+#: .\fsr\views.py:73
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: .\fsr\views.py:90
+#: .\fsr\views.py:87
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: .\fsr\views.py:107
+#: .\fsr\views.py:104
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
-msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
+msgstr ""
+"Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
+
+#: .\fsr\views.py:121
+#, fuzzy
+msgid "Could not send emails to participants and lecturers"
+msgstr ""
+"Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder "
+"Teilnehmer aus."
 
 #: .\fsr\views.py:122
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: .\fsr\views.py:158
+#: .\fsr\views.py:157
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: .\fsr\views.py:174
+#: .\fsr\views.py:173
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: .\fsr\views.py:236
+#: .\fsr\views.py:234
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: .\fsr\views.py:250
+#: .\fsr\views.py:248
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:260
-#: .\lecturer\views.py:60
+#: .\fsr\views.py:258 .\lecturer\views.py:62
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: .\fsr\views.py:273
+#: .\fsr\views.py:271
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
-msgstr "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
+msgstr ""
+"Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:290
+#: .\fsr\views.py:288
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:335
-#, python-format
-msgid "Successfully censored %d course answers."
+#: .\fsr\views.py:318
+#, fuzzy, python-format
+msgid "Successfully censored %(number)d course answers for %(name)s."
 msgstr "%d Antworten erfolgreich zensiert."
 
-#: .\fsr\views.py:351
+#: .\fsr\views.py:335
 #, python-format
 msgid "Successfully sent email to all participants/lecturers of '%s'."
 msgstr "Erfollgreich E-Mail an alle Teilnehmer/Dozenten von '%s' versendet."
 
-#: .\fsr\views.py:353
+#: .\fsr\views.py:337
 #, python-format
-msgid "Successfully sent email to many participants/lecturers of '%(course)s', but %(count)d could not be reached as they do not have an email address."
-msgstr "E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E-Mail-Adresse haben."
+msgid ""
+"Successfully sent email to many participants/lecturers of '%(course)s', but "
+"%(count)d could not be reached as they do not have an email address."
+msgstr ""
+"E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' "
+"versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da "
+"sie keine E-Mail-Adresse haben."
 
-#: .\fsr\views.py:377
+#: .\fsr\views.py:361
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
-msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
+msgstr ""
+"Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
+"Kurs noch nicht veröffentlicht wurde."
 
-#: .\fsr\views.py:417
-#: .\fsr\views.py:458
+#: .\fsr\views.py:428 .\fsr\views.py:469
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: .\fsr\views.py:432
+#: .\fsr\views.py:443
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: .\fsr\views.py:439
+#: .\fsr\views.py:450
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: .\fsr\views.py:483
+#: .\fsr\views.py:494
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
-msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
+msgstr ""
+"Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:509
+#: .\fsr\views.py:520
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: .\fsr\views.py:523
+#: .\fsr\views.py:538
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: .\fsr\views.py:543
+#: .\fsr\views.py:559
+#, fuzzy, python-format
+msgid "The user '%s' cannot be deleted, because he lectures courses."
+msgstr ""
+"Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
+
+#: .\fsr\views.py:576
 msgid "Successfully updated template."
 msgstr "Semester erfolgreich geändert."
 
-#: .\fsr\templates\fsr_base.html.py:7
-#: .\fsr\templates\fsr_base.html.py:10
+#: .\fsr\templates\fsr_base.html.py:7 .\fsr\templates\fsr_base.html.py:11
+#: .\fsr\templates\fsr_index.html.py:44
+#: .\fsr\templates\fsr_user_index.html.py:15 .\templates\base.html.py:31
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
-#: .\fsr\templates\fsr_base.html.py:12
-msgid "Questionnaire"
-msgstr "Fragebogen"
+#: .\fsr\templates\fsr_course_censor.html.py:21
+msgid "Censoring course "
+msgstr "Zensur der Veranstaltung "
 
-#: .\fsr\templates\fsr_base.html.py:15
-#: .\fsr\templates\fsr_base.html.py:75
-msgid "Semester"
-msgstr "Semester"
-
-#: .\fsr\templates\fsr_base.html.py:41
-#: .\fsr\templates\fsr_semester_index.html.py:6
-#: .\results\templates\results_index.html.py:8
-msgid "Semesters"
-msgstr "Semester"
-
-#: .\fsr\templates\fsr_base.html.py:45
-#: .\fsr\templates\fsr_questionnaire_index.html.py:6
-msgid "Questionnaires"
-msgstr "Fragebögen"
-
-#: .\fsr\templates\fsr_base.html.py:49
-#: .\fsr\templates\fsr_user_index.html.py:7
-msgid "Users"
-msgstr "Benutzer"
-
-#: .\fsr\templates\fsr_base.html.py:51
-msgid "FSR Members"
-msgstr "FSR-Mitglieder"
-
-#: .\fsr\templates\fsr_base.html.py:52
-#: .\fsr\templates\fsr_course_form.html.py:53
-#: .\lecturer\templates\lecturer_course_form.html.py:33
-msgid "Lecturers"
-msgstr "Dozenten"
-
-#: .\fsr\templates\fsr_base.html.py:56
-msgid "Email Templates"
-msgstr "E-Mail-Vorlagen"
-
-#: .\fsr\templates\fsr_base.html.py:65
-#: .\fsr\templates\fsr_base.html.py:76
-#: .\fsr\templates\fsr_questionnaire_index.html.py:39
-#: .\fsr\templates\fsr_template_index.html.py:13
-#: .\fsr\templates\fsr_user_index.html.py:39
-#: .\lecturer\templates\lecturer_course_index.html.py:20
-msgid "Edit"
-msgstr "Bearbeiten"
-
-#: .\fsr\templates\fsr_base.html.py:66
-#: .\fsr\templates\fsr_questionnaire_index.html.py:42
-msgid "Copy"
-msgstr "Kopieren"
-
-#: .\fsr\templates\fsr_base.html.py:68
-#: .\fsr\templates\fsr_base.html.py:70
-#: .\fsr\templates\fsr_base.html.py:78
-#: .\fsr\templates\fsr_base.html.py:80
-#: .\fsr\templates\fsr_questionnaire_index.html.py:44
-#: .\fsr\templates\fsr_semester_view.html.py:42
-msgid "Delete"
-msgstr "Löschen"
-
-#: .\fsr\templates\fsr_base.html.py:83
-msgid "Courses"
-msgstr "Veranstaltungen"
-
-#: .\fsr\templates\fsr_base.html.py:84
-msgid "Create"
-msgstr "Erstellen"
-
-#: .\fsr\templates\fsr_base.html.py:85
-msgid "Import"
-msgstr "Importieren"
-
-#: .\fsr\templates\fsr_base.html.py:86
-#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:27
-msgid "Assign questionnaires"
-msgstr "Fragebögen zuordnen"
-
-#: .\fsr\templates\fsr_base.html.py:88
-msgid "Lottery"
-msgstr "Verlosung"
-
-#: .\fsr\templates\fsr_course_censor.html.py:27
-msgid "Original Answer"
-msgstr "Original-Antwort"
-
-#: .\fsr\templates\fsr_course_censor.html.py:28
-msgid "Censored Answer"
-msgstr "Zensierte Antwort"
-
-#: .\fsr\templates\fsr_course_censor.html.py:48
-#: .\fsr\templates\fsr_semester_view.html.py:45
+#: .\fsr\templates\fsr_course_censor.html.py:45
+#: .\fsr\templates\fsr_semester_view.html.py:61
 msgid "Censor"
 msgstr "Zensieren"
 
-#: .\fsr\templates\fsr_course_censor.html.py:49
+#: .\fsr\templates\fsr_course_censor.html.py:46
 msgid "Check All"
 msgstr "Alle auswählen"
+
+#: .\fsr\templates\fsr_course_comments.html.py:7
+msgid "Comments for Course "
+msgstr "Kommentare für Veranstaltung "
+
+#: .\fsr\templates\fsr_course_comments.html.py:14
+#, fuzzy
+msgid "Original Text"
+msgstr "Original-Antwort"
+
+#: .\fsr\templates\fsr_course_comments.html.py:15
+#, fuzzy
+msgid "Censored Text"
+msgstr "Zensiert"
+
+#: .\fsr\templates\fsr_course_comments.html.py:16
+msgid "Hidden?"
+msgstr "Versteckt?"
 
 #: .\fsr\templates\fsr_course_delete.html.py:10
 #, python-format
@@ -614,6 +617,7 @@ msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich gelöscht werden?"
 #: .\fsr\templates\fsr_course_unpublish.html.py:11
 #: .\fsr\templates\fsr_questionnaire_delete.html.py:11
 #: .\fsr\templates\fsr_semester_delete.html.py:11
+#: .\fsr\templates\fsr_user_delete.html.py:11
 msgid "Yes"
 msgstr "Ja"
 
@@ -621,6 +625,7 @@ msgstr "Ja"
 #: .\fsr\templates\fsr_course_unpublish.html.py:12
 #: .\fsr\templates\fsr_questionnaire_delete.html.py:12
 #: .\fsr\templates\fsr_semester_delete.html.py:12
+#: .\fsr\templates\fsr_user_delete.html.py:14
 msgid "No"
 msgstr "Nein"
 
@@ -628,66 +633,153 @@ msgstr "Nein"
 msgid "Send e-mail"
 msgstr "E-Mail senden"
 
-#: .\fsr\templates\fsr_course_form.html.py:48
-#: .\fsr\templates\fsr_questionnaire_form.html.py:21
-#: .\lecturer\templates\lecturer_course_form.html.py:27
+#: .\fsr\templates\fsr_course_form.html.py:12
+#: .\fsr\templates\fsr_questionnaire_form.html.py:30
+#: .\lecturer\templates\lecturer_course_form.html.py:17
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
-#: .\fsr\templates\fsr_course_form.html.py:63
-#: .\fsr\templates\fsr_questionnaire_form.html.py:35
-#: .\lecturer\templates\lecturer_course_form.html.py:41
+#: .\fsr\templates\fsr_course_form.html.py:17
+#: .\fsr\templates\fsr_index.html.py:45
+#: .\fsr\templates\fsr_user_index.html.py:16
+#: .\lecturer\templates\lecturer_course_form.html.py:23
+msgid "Lecturers"
+msgstr "Dozenten"
+
+#: .\fsr\templates\fsr_course_form.html.py:28
+#: .\fsr\templates\fsr_course_form.html.py:40
+#: .\fsr\templates\fsr_questionnaire_form.html.py:44
+#: .\lecturer\templates\lecturer_course_form.html.py:31
 msgid "Delete?"
 msgstr "Löschen?"
 
-#: .\fsr\templates\fsr_course_form.html.py:79
+#: .\fsr\templates\fsr_course_form.html.py:38
+msgid "Read-Only?"
+msgstr "nur lesbar?"
+
+#: .\fsr\templates\fsr_course_form.html.py:49
 msgid "Save course"
 msgstr "Veranstaltung speichern"
 
 #: .\fsr\templates\fsr_course_unpublish.html.py:10
 #, python-format
 msgid "Do you really want to unpublish the course <em>%(name)s</em>?"
-msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
+msgstr ""
+"Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
 
-#: .\fsr\templates\fsr_import.html.py:37
+#: .\fsr\templates\fsr_import.html.py:9
 msgid "Upload semester data from excel file ("
 msgstr "Semester aus Excel-Tabelle importieren ("
 
-#: .\fsr\templates\fsr_import.html.py:37
+#: .\fsr\templates\fsr_import.html.py:9
 msgid "Sample File"
 msgstr "Beispieldatei"
 
-#: .\fsr\templates\fsr_import.html.py:37
-msgid "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses."
-msgstr "): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
+#: .\fsr\templates\fsr_import.html.py:9
+msgid ""
+"). This will create all containing students, teachers and courses and "
+"connect them. It will also set the entered values as default for all courses."
+msgstr ""
+"): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden "
+"erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für "
+"alle Kurse eingetragen."
+
+#: .\fsr\templates\fsr_index.html.py:8
+#: .\fsr\templates\fsr_semester_base.html.py:7
+#: .\results\templates\results_index.html.py:8 .\templates\base.html.py:34
+msgid "Semesters"
+msgstr "Semester"
+
+#: .\fsr\templates\fsr_index.html.py:17
+#: .\fsr\templates\fsr_semester_index.html.py:23
+msgid "There are no semesters yet."
+msgstr "Es gibt noch keine Semester."
+
+#: .\fsr\templates\fsr_index.html.py:21
+#: .\fsr\templates\fsr_semester_index.html.py:8
+msgid "Create new semester"
+msgstr "Neues Semester anlegen"
+
+#: .\fsr\templates\fsr_index.html.py:25
+#: .\fsr\templates\fsr_questionnaire_base.html.py:7
+#: .\templates\base.html.py:37
+msgid "Questionnaires"
+msgstr "Fragebögen"
+
+#: .\fsr\templates\fsr_index.html.py:37
+#: .\fsr\templates\fsr_questionnaire_index.html.py:8
+msgid "Create new questionnaire"
+msgstr "Neuen Fragebogen anlegen"
+
+#: .\fsr\templates\fsr_index.html.py:41
+#: .\fsr\templates\fsr_user_form.html.py:8
+#: .\fsr\templates\fsr_user_index.html.py:8 .\templates\base.html.py:40
+msgid "Users"
+msgstr "Benutzer"
+
+#: .\fsr\templates\fsr_index.html.py:43
+#, fuzzy
+msgid "All users"
+msgstr "Benutzer"
+
+#: .\fsr\templates\fsr_index.html.py:47
+#: .\fsr\templates\fsr_template_form.html.py:8
+#: .\fsr\templates\fsr_template_index.html.py:8 .\templates\base.html.py:41
+#, fuzzy
+msgid "Templates"
+msgstr "E-Mail-Vorlagen"
+
+#: .\fsr\templates\fsr_questionnaire_base.html.py:17
+#: .\fsr\templates\fsr_questionnaire_index.html.py:35
+#: .\fsr\templates\fsr_questionnaire_index.html.py:37
+#: .\fsr\templates\fsr_template_index.html.py:23
+#: .\fsr\templates\fsr_user_index.html.py:55
+#: .\lecturer\templates\lecturer_course_index.html.py:28
+#: .\lecturer\templates\lecturer_course_index.html.py:55
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: .\fsr\templates\fsr_questionnaire_base.html.py:18
+#: .\fsr\templates\fsr_questionnaire_index.html.py:40
+msgid "Copy"
+msgstr "Kopieren"
+
+#: .\fsr\templates\fsr_questionnaire_base.html.py:20
+#: .\fsr\templates\fsr_questionnaire_base.html.py:22
+#: .\fsr\templates\fsr_questionnaire_index.html.py:42
+#: .\fsr\templates\fsr_questionnaire_index.html.py:44
+#: .\fsr\templates\fsr_semester_view.html.py:58
+#: .\fsr\templates\fsr_user_index.html.py:57
+#: .\fsr\templates\fsr_user_index.html.py:59
+msgid "Delete"
+msgstr "Löschen"
 
 #: .\fsr\templates\fsr_questionnaire_delete.html.py:10
 #, python-format
 msgid "Do you really want to delete the questionnaire <em>%(name)s</em>?"
 msgstr "Soll der Fragebogen <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_questionnaire_form.html.py:27
+#: .\fsr\templates\fsr_questionnaire_form.html.py:35
 msgid "Questions"
 msgstr "Fragen"
 
-#: .\fsr\templates\fsr_questionnaire_form.html.py:52
+#: .\fsr\templates\fsr_questionnaire_form.html.py:62
 msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:10
-msgid "Create new questionnaire"
-msgstr "Neuen Fragebogen anlegen"
+#: .\fsr\templates\fsr_questionnaire_index.html.py:15
+msgid "Questionnaire"
+msgstr "Fragebogen"
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:21
-msgid "Usages"
-msgstr "Nutzung"
-
-#: .\fsr\templates\fsr_questionnaire_index.html.py:22
-#: .\lecturer\templates\lecturer_course_index.html.py:12
+#: .\fsr\templates\fsr_questionnaire_index.html.py:16
+#: .\fsr\templates\fsr_template_index.html.py:16
+#: .\fsr\templates\fsr_user_index.html.py:28
+#: .\lecturer\templates\lecturer_course_index.html.py:19
+#: .\lecturer\templates\lecturer_course_index.html.py:46
 msgid "Actions"
 msgstr "Aktionen"
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:29
+#: .\fsr\templates\fsr_questionnaire_index.html.py:25
 #, python-format
 msgid ""
 "\n"
@@ -702,11 +794,11 @@ msgstr[1] ""
 "\n"
 "                        %(count)s Fragen"
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:32
+#: .\fsr\templates\fsr_questionnaire_index.html.py:28
 msgid "used in "
-msgstr "verwendet in"
+msgstr "verwendet in "
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:33
+#: .\fsr\templates\fsr_questionnaire_index.html.py:29
 #, python-format
 msgid ""
 "\n"
@@ -721,196 +813,274 @@ msgstr[1] ""
 "\n"
 "                        %(count)s Kurse"
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:41
+#: .\fsr\templates\fsr_questionnaire_index.html.py:39
+#: .\fsr\templates\fsr_semester_view.html.py:56
+#: .\lecturer\templates\lecturer_course_index.html.py:29
+#: .\lecturer\templates\lecturer_course_index.html.py:56
 msgid "Preview"
 msgstr "Vorschau"
 
-#: .\fsr\templates\fsr_questionnaire_index.html.py:56
+#: .\fsr\templates\fsr_questionnaire_index.html.py:52
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
-#: .\fsr\templates\fsr_questionnaire_menu.html.py:7
-#: .\fsr\templates\fsr_semester_menu.html.py:7
-msgid "New..."
-msgstr "Neu..."
+#: .\fsr\templates\fsr_semester_approve.html.py:12
+#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:12
+#: .\fsr\templates\fsr_semester_publish.html.py:12
+#: .\lecturer\templates\lecturer_course_form.html.py:8
+#: .\lecturer\templates\lecturer_course_index.html.py:7
+#: .\lecturer\templates\lecturer_course_preview.html.py:7
+#: .\templates\base.html.py:53
+msgid "Courses"
+msgstr "Veranstaltungen"
 
-#: .\fsr\templates\fsr_semester_approve.html.py:17
-#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:17
+#: .\fsr\templates\fsr_semester_approve.html.py:27
 msgid "Approve courses"
 msgstr "Veranstaltung bestätigen"
 
-#: .\fsr\templates\fsr_semester_approve.html.py:20
-#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:20
+#: .\fsr\templates\fsr_semester_approve.html.py:30
+#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:30
 msgid "There are no courses ready to approve."
 msgstr "In diesem Semester sind keine Kurse zu bestätigen."
 
 #: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:23
-msgid "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
-msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
+msgid ""
+"Select the questionnaires to assign each of these course and lecturer types. "
+"If you do select nothing, this kind will not be changed."
+msgstr ""
+"Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. "
+"Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
+
+#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:27
+msgid "Assign questionnaires"
+msgstr "Fragebögen zuordnen"
 
 #: .\fsr\templates\fsr_semester_delete.html.py:10
 #, python-format
 msgid "Do you really want to delete the semester <em>%(name)s</em>?"
 msgstr "Soll das Semester <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_semester_form.html.py:13
+#: .\fsr\templates\fsr_semester_form.html.py:12
 msgid "Save semester"
 msgstr "Semester speichern"
 
-#: .\fsr\templates\fsr_semester_index.html.py:10
-msgid "Create new semester"
-msgstr "Neues Semester anlegen"
-
-#: .\fsr\templates\fsr_semester_index.html.py:18
+#: .\fsr\templates\fsr_semester_index.html.py:12
 msgid "Select a semester: "
 msgstr "Semester auswählen:"
 
-#: .\fsr\templates\fsr_semester_index.html.py:25
-msgid "There are no semesters yet."
-msgstr "Es gibt noch keine Semester."
+#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:27
+#, fuzzy
+msgid "Show courses to lecturer"
+msgstr "An Dozenten versenden?"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:14
+#: .\fsr\templates\fsr_semester_lottery.html.py:12
+#: .\fsr\templates\fsr_semester_view.html.py:22
+msgid "Lottery"
+msgstr "Verlosung"
+
+#: .\fsr\templates\fsr_semester_lottery.html.py:16
 msgid "Perform Lottery"
 msgstr "Verlosung durchführen"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:19
+#: .\fsr\templates\fsr_semester_lottery.html.py:22
 msgid "The lottery was performed and the winners are:"
-msgstr "Die Verlosung wurde durchgeführt und folgende Studierende haben gewonnen:"
+msgstr ""
+"Die Verlosung wurde durchgeführt und folgende Studierende haben gewonnen:"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:32
+#: .\fsr\templates\fsr_semester_lottery.html.py:35
 msgid "users were eligible for the lottery."
 msgstr "Nutzer konnten nahmen an der Verlosung teil."
 
-#: .\fsr\templates\fsr_semester_publish.html.py:17
+#: .\fsr\templates\fsr_semester_publish.html.py:27
 msgid "Publish courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: .\fsr\templates\fsr_semester_publish.html.py:20
+#: .\fsr\templates\fsr_semester_publish.html.py:30
 msgid "There are no courses ready to publish."
 msgstr "In diesem Semester sind keine Kurse zu veröffentlichen."
 
 #: .\fsr\templates\fsr_semester_view.html.py:11
+#, fuzzy
+msgid "Edit Semester"
+msgstr "Semester bearbeiten"
+
+#: .\fsr\templates\fsr_semester_view.html.py:13
+#: .\fsr\templates\fsr_semester_view.html.py:15
+#, fuzzy
+msgid "Delete Semester"
+msgstr "Semester löschen"
+
+#: .\fsr\templates\fsr_semester_view.html.py:18
+#, fuzzy
+msgid "Create Course..."
+msgstr "Neuen Benutzer erstellen"
+
+#: .\fsr\templates\fsr_semester_view.html.py:19
+#, fuzzy
+msgid "Import Courses"
+msgstr "Meine Veranstaltungen"
+
+#: .\fsr\templates\fsr_semester_view.html.py:20
+#, fuzzy
+msgid "Assign Questionnaires"
+msgstr "Fragebögen zuordnen"
+
+#: .\fsr\templates\fsr_semester_view.html.py:27
 msgid "State"
 msgstr "Zustand"
 
-#: .\fsr\templates\fsr_semester_view.html.py:40
-msgid "Write E-Mail"
-msgstr "E-Mail schreiben"
-
-#: .\fsr\templates\fsr_semester_view.html.py:40
+#: .\fsr\templates\fsr_semester_view.html.py:55
 msgid "E-Mail"
 msgstr "E-Mail"
 
-#: .\fsr\templates\fsr_semester_view.html.py:48
+#: .\fsr\templates\fsr_semester_view.html.py:64
+msgid "Comments"
+msgstr "Kommentare"
+
+#: .\fsr\templates\fsr_semester_view.html.py:67
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:57
+#: .\fsr\templates\fsr_semester_view.html.py:77
 msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
-#: .\fsr\templates\fsr_semester_view.html.py:60
+#: .\fsr\templates\fsr_semester_view.html.py:80
 msgid "Approve Courses"
 msgstr "Veranstaltung bestätigen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:63
+#: .\fsr\templates\fsr_semester_view.html.py:83
 msgid "Publish Courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:69
+#: .\fsr\templates\fsr_semester_view.html.py:89
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\fsr\templates\fsr_template_form.html.py:14
+#: .\fsr\templates\fsr_template_form.html.py:19
 msgid "Save template"
 msgstr "Vorlage speichern"
 
-#: .\fsr\templates\fsr_user_form.html.py:7
-msgid "User"
-msgstr "Benutzer"
+#: .\fsr\templates\fsr_user_delete.html.py:10
+#, fuzzy, python-format
+msgid "Do you really want to delete the user <em>%(name)s</em>?"
+msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_user_form.html.py:32
+#: .\fsr\templates\fsr_user_form.html.py:35
 msgid "Save user"
 msgstr "Benutzer speichern"
 
-#: .\fsr\templates\fsr_user_index.html.py:13
+#: .\fsr\templates\fsr_user_index.html.py:14
+msgid "All"
+msgstr "Alle"
+
+#: .\fsr\templates\fsr_user_index.html.py:18
 msgid "Create new user"
 msgstr "Neuen Benutzer erstellen"
 
-#: .\fsr\templates\fsr_user_index.html.py:23
+#: .\fsr\templates\fsr_user_index.html.py:26
+#, fuzzy
+msgid "Username"
+msgstr "Benutzer"
+
+#: .\fsr\templates\fsr_user_index.html.py:27
+msgid "Information"
+msgstr "Information"
+
+#: .\fsr\templates\fsr_user_index.html.py:42
 msgid "Student Representative"
 msgstr "FSR-Mitglied"
 
-#: .\fsr\templates\fsr_user_index.html.py:30
-msgid "External Login Key Assigned"
-msgstr "externer Loginschlüssel vergeben"
-
-#: .\fsr\templates\fsr_user_index.html.py:34
+#: .\fsr\templates\fsr_user_index.html.py:51
 msgid "E-Mail address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
-#: .\lecturer\views.py:27
+#: .\lecturer\views.py:28
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
 #: .\lecturer\templates\lecturer_base.html.py:6
-#: .\lecturer\templates\lecturer_base.html.py:8
-#: .\templates\base.html.py:46
 msgid "Your EvaP"
 msgstr "Mein EvaP"
 
-#: .\lecturer\templates\lecturer_base.html.py:29
-msgid "Your Profile"
-msgstr "Mein Profil"
-
-#: .\lecturer\templates\lecturer_base.html.py:30
-msgid "Your Courses"
-msgstr "Meine Veranstaltungen"
-
-#: .\lecturer\templates\lecturer_course_form.html.py:58
+#: .\lecturer\templates\lecturer_course_form.html.py:57
 msgid "Approve course"
 msgstr "Veranstaltung bestätigen"
 
-#: .\lecturer\templates\lecturer_course_index.html.py:11
+#: .\lecturer\templates\lecturer_course_index.html.py:12
+#, fuzzy
+msgid "Own Courses"
+msgstr "Veranstaltungen"
+
+#: .\lecturer\templates\lecturer_course_index.html.py:18
+#: .\lecturer\templates\lecturer_course_index.html.py:45
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: .\lecturer\templates\lecturer_course_index.html.py:26
+#: .\lecturer\templates\lecturer_course_index.html.py:36
+#: .\lecturer\templates\lecturer_course_index.html.py:63
 msgid "There are no courses for you this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\lecturer\templates\lecturer_profile.html.py:28
+#: .\lecturer\templates\lecturer_course_index.html.py:39
+msgid "Courses for which you are a proxy"
+msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
+
+#: .\lecturer\templates\lecturer_profile.html.py:8
+#: .\lecturer\templates\lecturer_profile.html.py:31
+#: .\templates\base.html.py:51
+#, fuzzy
+msgid "Profile"
+msgstr "Profil"
+
+#: .\lecturer\templates\lecturer_profile.html.py:35
 msgid "Save your profile"
 msgstr "Profil speichern"
 
-#: .\results\exporters.py:37
-#: .\results\templates\results_base.html.py:6
-#: .\results\templates\results_base.html.py:8
-#: .\templates\base.html.py:51
+#: .\results\exporters.py:37 .\results\templates\results_base.html.py:6
+#: .\results\templates\results_base.html.py:10 .\templates\base.html.py:59
 msgid "Results"
 msgstr "Ergebnisse"
 
-#: .\results\exporters.py:68
+#: .\results\exporters.py:69
 msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
 
-#: .\results\exporters.py:131
+#: .\results\exporters.py:135
 msgid "Overall Grade"
 msgstr "Gesamtnote"
 
-#: .\results\exporters.py:145
+#: .\results\exporters.py:149
 msgid "Total Answers"
 msgstr "Antworten"
 
-#: .\results\templates\results_course_detail.html.py:55
+#: .\results\templates\results_course_detail.html.py:54
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
-#: .\results\templates\results_semester_detail.html.py:16
+#: .\results\templates\results_index.html.py:16
+msgid "No results available yet"
+msgstr "Es sind sind noch keine Ergebnisse verfügbar."
+
+#: .\results\templates\results_semester_detail.html.py:21
+#, fuzzy
+msgid "Course"
+msgstr "Veranstaltungen"
+
+#: .\results\templates\results_semester_detail.html.py:22
+msgid "Grade"
+msgstr "Note"
+
+#: .\results\templates\results_semester_detail.html.py:23
+#, fuzzy
+msgid "Voters"
+msgstr "Stimmen"
+
+#: .\results\templates\results_semester_detail.html.py:55
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: .\results\templates\results_semester_detail.html.py:17
+#: .\results\templates\results_semester_detail.html.py:56
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
@@ -918,7 +1088,7 @@ msgstr "Semester als Excel-Tabelle exportieren (GF)"
 msgid "no answer"
 msgstr "Keine Angabe"
 
-#: .\student\views.py:73
+#: .\student\views.py:79
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -927,68 +1097,105 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 msgid "My Courses"
 msgstr "Meine Veranstaltungen"
 
-#: .\student\templates\student_index.html.py:14
+#: .\student\templates\student_index.html.py:16
 msgid "You can vote on the following courses:"
 msgstr "Sie können die folgenden Veranstaltungen bewerten:"
 
-#: .\student\templates\student_index.html.py:21
+#: .\student\templates\student_index.html.py:23
 msgid "You cannot vote on any courses right now."
 msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
 
-#: .\student\templates\student_index.html.py:24
+#: .\student\templates\student_index.html.py:26
 msgid "You will be able to vote on the following courses soon:"
 msgstr "Sie können bald die folgenden Veranstaltungen bewerten:"
 
-#: .\student\templates\student_index.html.py:27
+#: .\student\templates\student_index.html.py:29
 msgid "starting"
 msgstr "beginnt am"
 
-#: .\student\templates\student_vote.html.py:5
-#: .\student\templates\student_vote.html.py:7
+#: .\student\templates\student_vote.html.py:13
+#: .\student\templates\student_vote.html.py:15
 msgid "Course Evaluation"
 msgstr "Veranstaltungsbewertung"
 
-#: .\student\templates\student_vote.html.py:43
+#: .\student\templates\student_vote.html.py:51
 msgid "vote"
 msgstr "Abstimmen"
+
+#: .\templates\403.html.py:15
+msgid "You seem to not be allowed to view this page."
+msgstr "Sie haben nicht die Berechtigungen diese Seite aufzurufen."
 
 #: .\templates\404.html.py:15
 msgid "The page you're looking for seems to be missing."
 msgstr "Die Seite wurde leider nicht gefunden."
 
 #: .\templates\500.html.py:15
-msgid "Something seems to be broken here. The admins have been notified and will follow up with you."
-msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und werden ggf. nachfragen."
+msgid ""
+"Something seems to be broken here. The admins have been notified and will "
+"follow up with you."
+msgstr ""
+"Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und "
+"werden ggf. nachfragen."
 
-#: .\templates\base.html.py:17
+#: .\templates\base.html.py:22
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: .\templates\base.html.py:34
+#: .\templates\base.html.py:26
 msgid "Evaluation"
 msgstr "Bewertung"
 
-#: .\templates\base.html.py:40
-msgid "FSR"
-msgstr "FSR"
+#: .\templates\base.html.py:33
+#, fuzzy
+msgid "Overview"
+msgstr "Vorschau"
 
-#: .\templates\base.html.py:73
+#: .\templates\base.html.py:80
+msgid "Logout"
+msgstr "Abmelden"
+
+#: .\templates\base.html.py:90
+#, fuzzy
+msgid "EvaP"
+msgstr "EvaP"
+
+#: .\templates\base.html.py:113
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: .\templates\base.html.py:90
+#: .\templates\base.html.py:117 .\templates\faq.html.py:5
+#: .\templates\faq.html.py:9
+msgid "FAQ"
+msgstr "FAQ"
+
+#: .\templates\base.html.py:120
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: .\templates\base.html.py:94
+#: .\templates\base.html.py:122
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
-#: .\templates\index.html.py:5
-msgid "Start"
-msgstr "Start"
+#: .\templates\faq.html.py:13
+#, fuzzy
+msgid ""
+"\n"
+"\t\t<h2>These are the Frequently Asked Questions (FAQs)</h2>\n"
+"\t\t\n"
+"\t\t<h3>First Question</h3>\n"
+"\t\t<p>First Answer</p>\n"
+"\t"
+msgstr ""
+"\n"
+"\t\t<h2>Dies sind die \"Frequently Asked Questions\" (FAQs) also häufig "
+"gestellte Fragen und ihre Antworten.</h2>\n"
+"\t\t\n"
+"\t\t<h3>Erste Frage</h3>\n"
+"\t\t<p>Erste Antwort</p>\n"
+"\t"
 
-#: .\templates\index.html.py:19
+#: .\templates\index.html.py:23
 #, python-format
 msgid ""
 "\n"
@@ -999,80 +1206,141 @@ msgstr ""
 "  Sie sind zur Zeit als %(name)s angemeldet.\n"
 "            "
 
-#: .\templates\index.html.py:22
-msgid "Logout"
-msgstr "Abmelden"
-
-#: .\templates\index.html.py:25
+#: .\templates\index.html.py:28
 msgid ""
 "\n"
 "        <p>Welcome to the evaluation platform!</p>\n"
 "        \n"
-"        <p>You are currently not logged in. If you are an internal student or \n"
+"        <p>You are currently not logged in. If you are an internal student "
+"or \n"
 "        lecturer, please log in using your known credentials.</p>\n"
 "        \n"
-"        <p>If you are an external student or lecturer you can use your external\n"
-"        login key to gain access to the system. If you do not have an external\n"
+"        <p>If you are an external student or lecturer you can use your "
+"external\n"
+"        login key to gain access to the system. If you do not have an "
+"external\n"
 "        login key or lost it, you can create a new one below.</p>\n"
 "        "
 msgstr ""
 "\n"
 "  <p>Willkommen auf der Evaluierungsplattform des HPI!</p>\n"
 "  \n"
-"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, können Sie unten einen neuen erstellen.</p>"
+"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, "
+"melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren "
+"Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich "
+"anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, "
+"können Sie unten einen neuen erstellen.</p>"
 
-#: .\templates\index.html.py:37
+#: .\templates\index.html.py:39
 msgid "Internal Users"
 msgstr "Interne Nutzer"
 
-#: .\templates\index.html.py:38
+#: .\templates\index.html.py:41
 msgid "Click here to log in using your credentials."
 msgstr "Hier klicken um sich mit HPI-Login anzumelden."
 
-#: .\templates\index.html.py:42
+#: .\templates\index.html.py:43
 msgid "Guest Users"
 msgstr "Externe Benutzer"
 
-#: .\templates\index.html.py:44
+#: .\templates\index.html.py:46
 msgid ""
 "\n"
-"                Please enter your login key below. Be aware that login keys are\n"
+"                Please enter your login key below. Be aware that login keys "
+"are\n"
 "                automatically invalidated after three months.\n"
 "                "
 msgstr ""
 "\n"
-"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: Anmeldeschlüssel gelten nur drei Monate."
+"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: "
+"Anmeldeschlüssel gelten nur drei Monate."
 
-#: .\templates\index.html.py:51
+#: .\templates\index.html.py:54
 msgid "login key"
 msgstr "Anmeldeschlüssel"
 
-#: .\templates\index.html.py:54
+#: .\templates\index.html.py:60
 msgid "Login"
 msgstr "Anmeldung"
 
-#: .\templates\index.html.py:57
+#: .\templates\index.html.py:66
 msgid "Generate a new login key"
 msgstr "Neuen Anmeldeschlüssel erzeugen"
 
-#: .\templates\index.html.py:59
+#: .\templates\index.html.py:68
 msgid ""
 "\n"
-"                If you do not have a login key or lost your previous login key, \n"
-"                you can create a new one here. Please enter your e-mail address \n"
-"                below. A new key will be sent to this address. Please make sure \n"
+"                If you do not have a login key or lost your previous login "
+"key, \n"
+"                you can create a new one here. Please enter your e-mail "
+"address \n"
+"                below. A new key will be sent to this address. Please make "
+"sure \n"
 "                that you use the same e-mail address that you used when you\n"
-"                enrolled. Otherwise the system cannot associate your address\n"
+"                enrolled. Otherwise the system cannot associate your "
+"address\n"
 "                with a user account.\n"
 "                "
 msgstr ""
 "\n"
-"  Wenn Sie keinen Anmeldeschlüssel besitzen oder Ihren bisherigen Schlüssel verloren haben, können Sie hier einen neuen erstellen. Bitte tragen Sie dazu Ihre E-Mail-Adresse in das Formular unten ein. Ein neuer Schlüssel wird Ihnen darauf via E-Mail zugesendet. Bitte verwenden Sie dazu die E-Mail-Adresse welche sie zur Einschreibung verwendet haben.\n"
+"  Wenn Sie keinen Anmeldeschlüssel besitzen oder Ihren bisherigen Schlüssel "
+"verloren haben, können Sie hier einen neuen erstellen. Bitte tragen Sie dazu "
+"Ihre E-Mail-Adresse in das Formular unten ein. Ein neuer Schlüssel wird "
+"Ihnen darauf via E-Mail zugesendet. Bitte verwenden Sie dazu die E-Mail-"
+"Adresse welche sie zur Einschreibung verwendet haben.\n"
 "                "
 
-#: .\templates\index.html.py:71
+#: .\templates\index.html.py:94
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
+
+#~ msgid "F&Q"
+#~ msgstr "Fragen & Antworten"
+
+#~ msgid "Approved"
+#~ msgstr "Freigeben"
+
+#~ msgid "Hide"
+#~ msgstr "Ausblenden"
+
+#~ msgid "Censored answer missing."
+#~ msgstr "Zensierte Antwort fehlt."
+
+#~ msgid "Use this template"
+#~ msgstr "Diese Vorlage verwenden"
+
+#~ msgid "Semester"
+#~ msgstr "Semester"
+
+#~ msgid "FSR Members"
+#~ msgstr "FSR-Mitglieder"
+
+#~ msgid "Create"
+#~ msgstr "Erstellen"
+
+#~ msgid "Import"
+#~ msgstr "Importieren"
+
+#~ msgid "Censored Answer"
+#~ msgstr "Zensierte Antwort"
+
+#~ msgid "Usages"
+#~ msgstr "Nutzung"
+
+#~ msgid "New..."
+#~ msgstr "Neu..."
+
+#~ msgid "Write E-Mail"
+#~ msgstr "E-Mail schreiben"
+
+#~ msgid "External Login Key Assigned"
+#~ msgstr "externer Loginschlüssel vergeben"
+
+#~ msgid "FSR"
+#~ msgstr "FSR"
+
+#~ msgid "Start"
+#~ msgstr "Start"
 
 #~ msgid "Do you really want to delete this course?"
 #~ msgstr "Soll diese Veranstaltung wirklich gelöscht werden?"
@@ -1089,9 +1357,6 @@ msgstr "Schlüssel erzeugen"
 
 #~ msgid "Study"
 #~ msgstr "Studiengang"
-
-#~ msgid "Votes"
-#~ msgstr "Stimmen"
 
 #~ msgid "visible"
 #~ msgstr "sichtbar"
@@ -1122,12 +1387,6 @@ msgstr "Schlüssel erzeugen"
 
 #~ msgid "Delete questionnaire"
 #~ msgstr "Fragebogen löschen"
-
-#~ msgid "Edit semester"
-#~ msgstr "Semester bearbeiten"
-
-#~ msgid "Delete semester"
-#~ msgstr "Semester löschen"
 
 #~ msgid "Create questionnaire"
 #~ msgstr "Neue Fragegruppe anlegen"
