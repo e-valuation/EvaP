@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-16 17:27+0100\n"
-"PO-Revision-Date: 2012-01-16 22:27+0100\n"
+"POT-Creation-Date: 2012-01-16 22:49+0100\n"
+"PO-Revision-Date: 2012-01-16 22:49+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -322,49 +322,49 @@ msgstr "Angegebene Statistik existiert nicht."
 msgid "excel file"
 msgstr "Exceldatei"
 
-#: .\fsr\forms.py:92
+#: .\fsr\forms.py:94
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: .\fsr\forms.py:93
+#: .\fsr\forms.py:95
 msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
-#: .\fsr\forms.py:94
+#: .\fsr\forms.py:96
 #: .\fsr\models.py:12
 msgid "Subject"
 msgstr "Betreff"
 
-#: .\fsr\forms.py:95
+#: .\fsr\forms.py:97
 #: .\fsr\models.py:13
 msgid "Body"
 msgstr "Text"
 
-#: .\fsr\forms.py:106
+#: .\fsr\forms.py:108
 msgid "No recipient selected. Choose at least participants or lecturers."
 msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder Teilnehmer aus."
 
-#: .\fsr\forms.py:129
+#: .\fsr\forms.py:131
 msgid "Answer"
 msgstr "Antwort"
 
-#: .\fsr\forms.py:130
+#: .\fsr\forms.py:132
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: .\fsr\forms.py:182
+#: .\fsr\forms.py:184
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: .\fsr\forms.py:194
+#: .\fsr\forms.py:196
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
 msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: .\fsr\forms.py:290
+#: .\fsr\forms.py:292
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: .\fsr\forms.py:325
+#: .\fsr\forms.py:327
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -419,7 +419,7 @@ msgid "prepared"
 msgstr "vorbereitet"
 
 #: .\fsr\views.py:28
-msgid "lecturerApproved"
+msgid "lecturer approved"
 msgstr "von Dozent bestätigt"
 
 #: .\fsr\views.py:29
@@ -427,7 +427,7 @@ msgid "approved"
 msgstr "bestätigt"
 
 #: .\fsr\views.py:30
-msgid "inEvaluation"
+msgid "in evaluation"
 msgstr "in Evaluierung"
 
 #: .\fsr\views.py:31
@@ -563,7 +563,7 @@ msgid "Censoring course "
 msgstr "Zensur der Veranstaltung "
 
 #: .\fsr\templates\fsr_course_censor.html.py:45
-#: .\fsr\templates\fsr_semester_view.html.py:61
+#: .\fsr\templates\fsr_semester_view.html.py:64
 msgid "Censor"
 msgstr "Zensieren"
 
@@ -625,16 +625,11 @@ msgstr "Allgemeine Optionen"
 msgid "Lecturers"
 msgstr "Dozenten"
 
-#: .\fsr\templates\fsr_course_form.html.py:28
-#: .\fsr\templates\fsr_course_form.html.py:40
+#: .\fsr\templates\fsr_course_form.html.py:29
 #: .\fsr\templates\fsr_questionnaire_form.html.py:44
 #: .\lecturer\templates\lecturer_course_form.html.py:31
 msgid "Delete?"
 msgstr "Löschen?"
-
-#: .\fsr\templates\fsr_course_form.html.py:38
-msgid "Read-Only?"
-msgstr "nur lesbar?"
 
 #: .\fsr\templates\fsr_course_form.html.py:49
 msgid "Save course"
@@ -722,7 +717,7 @@ msgstr "Kopieren"
 #: .\fsr\templates\fsr_questionnaire_base.html.py:22
 #: .\fsr\templates\fsr_questionnaire_index.html.py:42
 #: .\fsr\templates\fsr_questionnaire_index.html.py:44
-#: .\fsr\templates\fsr_semester_view.html.py:58
+#: .\fsr\templates\fsr_semester_view.html.py:61
 #: .\fsr\templates\fsr_user_index.html.py:57
 #: .\fsr\templates\fsr_user_index.html.py:59
 msgid "Delete"
@@ -788,7 +783,7 @@ msgstr[1] ""
 "                        %(count)s Kurse"
 
 #: .\fsr\templates\fsr_questionnaire_index.html.py:39
-#: .\fsr\templates\fsr_semester_view.html.py:56
+#: .\fsr\templates\fsr_semester_view.html.py:59
 #: .\lecturer\templates\lecturer_course_index.html.py:29
 #: .\lecturer\templates\lecturer_course_index.html.py:56
 msgid "Preview"
@@ -817,11 +812,11 @@ msgstr "Veranstaltung bestätigen"
 msgid "There are no courses ready to approve."
 msgstr "In diesem Semester sind keine Kurse zu bestätigen."
 
-#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:23
+#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:9
 msgid "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
 msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
 
-#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:27
+#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:16
 msgid "Assign questionnaires"
 msgstr "Fragebögen zuordnen"
 
@@ -888,35 +883,35 @@ msgstr "Veranstaltungen importieren"
 msgid "Assign Questionnaires"
 msgstr "Fragebögen zuordnen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:27
+#: .\fsr\templates\fsr_semester_view.html.py:29
 msgid "State"
 msgstr "Zustand"
 
-#: .\fsr\templates\fsr_semester_view.html.py:55
+#: .\fsr\templates\fsr_semester_view.html.py:58
 msgid "E-Mail"
 msgstr "E-Mail"
 
-#: .\fsr\templates\fsr_semester_view.html.py:64
+#: .\fsr\templates\fsr_semester_view.html.py:67
 msgid "Comments"
 msgstr "Kommentare"
 
-#: .\fsr\templates\fsr_semester_view.html.py:67
+#: .\fsr\templates\fsr_semester_view.html.py:70
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:77
+#: .\fsr\templates\fsr_semester_view.html.py:80
 msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
-#: .\fsr\templates\fsr_semester_view.html.py:80
+#: .\fsr\templates\fsr_semester_view.html.py:83
 msgid "Approve Courses"
 msgstr "Veranstaltung bestätigen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:83
+#: .\fsr\templates\fsr_semester_view.html.py:86
 msgid "Publish Courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:89
+#: .\fsr\templates\fsr_semester_view.html.py:94
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
@@ -1052,37 +1047,35 @@ msgstr "Semester als Excel-Tabelle exportieren (GF)"
 msgid "no answer"
 msgstr "Keine Angabe"
 
-#: .\student\views.py:77
+#: .\student\views.py:72
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
 #: .\student\templates\student_index.html.py:5
-#: .\student\templates\student_index.html.py:7
-msgid "My Courses"
-msgstr "Meine Veranstaltungen"
+#: .\student\templates\student_index.html.py:9
+#: .\student\templates\student_vote.html.py:6
+#: .\student\templates\student_vote.html.py:10
+#: .\templates\base.html.py:26
+msgid "Evaluation"
+msgstr "Bewertung"
 
-#: .\student\templates\student_index.html.py:16
+#: .\student\templates\student_index.html.py:19
 msgid "You can vote on the following courses:"
 msgstr "Sie können die folgenden Veranstaltungen bewerten:"
 
-#: .\student\templates\student_index.html.py:23
+#: .\student\templates\student_index.html.py:26
 msgid "You cannot vote on any courses right now."
 msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
 
-#: .\student\templates\student_index.html.py:26
+#: .\student\templates\student_index.html.py:29
 msgid "You will be able to vote on the following courses soon:"
 msgstr "Sie können bald die folgenden Veranstaltungen bewerten:"
 
-#: .\student\templates\student_index.html.py:29
+#: .\student\templates\student_index.html.py:32
 msgid "starting"
 msgstr "beginnt am"
 
-#: .\student\templates\student_vote.html.py:6
-#: .\student\templates\student_vote.html.py:8
-msgid "Course Evaluation"
-msgstr "Veranstaltungsbewertung"
-
-#: .\student\templates\student_vote.html.py:44
+#: .\student\templates\student_vote.html.py:48
 msgid "Vote"
 msgstr "Abstimmen"
 
@@ -1101,10 +1094,6 @@ msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert u
 #: .\templates\base.html.py:22
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
-
-#: .\templates\base.html.py:26
-msgid "Evaluation"
-msgstr "Bewertung"
 
 #: .\templates\base.html.py:33
 msgid "Overview"
@@ -1232,6 +1221,15 @@ msgstr ""
 #: .\templates\index.html.py:94
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
+
+#~ msgid "Read-Only?"
+#~ msgstr "nur lesbar?"
+
+#~ msgid "My Courses"
+#~ msgstr "Meine Veranstaltungen"
+
+#~ msgid "Course Evaluation"
+#~ msgstr "Veranstaltungsbewertung"
 
 #~ msgid "vote"
 #~ msgstr "Abstimmen"

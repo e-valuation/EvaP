@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_noop
+from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile
@@ -22,16 +22,16 @@ from evap.student.forms import QuestionsForm
 import random
 
 
-STATES_ORDERED = (
-    ugettext_noop('new'),
-    ugettext_noop('prepared'),
-    ugettext_noop('lecturerApproved'),
-    ugettext_noop('approved'),
-    ugettext_noop('inEvaluation'),
-    ugettext_noop('evaluated'),
-    ugettext_noop('reviewed'),
-    ugettext_noop('published')
-)
+STATES_ORDERED = SortedDict((
+    ('new', ugettext_lazy('new')),
+    ('prepared', ugettext_lazy('prepared')),
+    ('lecturerApproved', ugettext_lazy('lecturer approved')),
+    ('approved', ugettext_lazy('approved')),
+    ('inEvaluation', ugettext_lazy('in evaluation')),
+    ('evaluated', ugettext_lazy('evaluated')),
+    ('reviewed', ugettext_lazy('reviewed')),
+    ('published', ugettext_lazy('published'))
+))
 
 
 @fsr_required
@@ -56,9 +56,9 @@ def semester_view(request, semester_id):
     
     courses = semester.course_set.all()    
     courses_by_state = []
-    for state in STATES_ORDERED:
+    for state, state_name in STATES_ORDERED.items():
         this_courses = [course for course in courses if course.state == state]
-        courses_by_state.append((state, this_courses))
+        courses_by_state.append((state_name, this_courses))
     
     return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state), context_instance=RequestContext(request))
 
