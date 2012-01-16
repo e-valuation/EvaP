@@ -41,3 +41,24 @@ body {
 select[multiple='multiple'] {
     height: 200px;
 }
+
+td.vote-inputs > div {
+    display: inline-block;
+    width: 15%;
+    padding: 0px 3px;
+    text-align: center;
+}
+
+td.vote-inputs > div > label {
+    float: none;
+}
+
+td.vote-inputs > div:nth-child(1) > label { color: #26920c; }
+td.vote-inputs > div:nth-child(2) > label { color: #64930d; }
+td.vote-inputs > div:nth-child(3) > label { color: #93850d; }
+td.vote-inputs > div:nth-child(4) > label { color: #93490d; }
+td.vote-inputs > div:nth-child(5) > label { color: #9d0d0d; }
+
+td.vote-inputs > textarea {
+    width: 99%;
+}

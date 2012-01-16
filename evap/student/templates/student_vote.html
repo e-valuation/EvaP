@@ -3,13 +3,6 @@
 {% load i18n %}
 {% load static %}
 
-{% block header %}
-    {{ block.super }}
-    
-    <!-- prevent from accendential closing -->
-	<script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
-{% endblock %}
-
 {% block title %}{{ course.name }} - {% trans "Course Evaluation" %} - {{ block.super }}{% endblock %}
 
 {% block subtitle %}{% trans "Course Evaluation" %}: {{ course.name }}{% endblock %}
@@ -17,38 +10,44 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <form method="POST" class="vote">
+        <form method="POST">
         {% csrf_token %}
-        <table>
+        
         {% for form in forms %}
-            <tr class="vote-group">
-                <th colspan="2">
-                    {% if form.image %}
-                        <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
-                    {% endif %}
-                    <h4>
-                    {{ form.caption }}
-                    </h4>
-                    {% if form.teaser %}
-                        <p>{{ form.teaser }}</p>
-                    {% endif %}
-                    {{ form.non_field_errors }}
-                </th>
-            </tr>
+	    {% if form.image %}
+		<img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
+	    {% endif %}
+	    <h4>
+	    {{ form.caption }}
+	    </h4>
+	    {% if form.teaser %}
+		<p>{{ form.teaser }}</p>
+	    {% endif %}
+	    {{ form.non_field_errors }}
+	    <table class="zebra-striped vertically-aligned">
+	    <tbody>
             {% for field in form %}
             <tr class="vote-row">
-                <th>
-                    {{ field.label_tag }}
-                </th>
-                <td>
+                <td class="span2">
+                    {{ field.label }}
+                </td>
+                <td class="span14 vote-inputs">
                     {{ field.errors }}
-                    <div class="vote-buttons">{{ field }}</div>
+                    {{ field }}
                 </td>
             </tr>
-            {% endfor %}
+	    {% endfor %}
+	    </tbody>
+	    </table>
         {% endfor %}
-        </table>
-        <input type="submit" value="{% trans "vote" %}" onclick="submitFormOkay = true;"/>
+	<div class="actions">
+	    <input type="submit" value="{% trans "Vote" %}" class="btn primary" onclick="submitFormOkay = true;"/>
+	</div>
         </form>
     </p>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

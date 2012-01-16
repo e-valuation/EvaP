@@ -18,9 +18,7 @@ from datetime import datetime
 def index(request):
     # retrieve all courses, which the user can evaluate now or later
     users_courses = Course.objects.filter(
-            semester=Semester.get_latest_or_none(),
             state="inEvaluation",
-            vote_end_date__gte=datetime.now(),
             participants=request.user
         ).exclude(
             voters=request.user

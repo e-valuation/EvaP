@@ -1,5 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_unicode
+from django.utils.safestring import mark_safe
+
 
 from evap.student.tools import make_form_identifier
 from evap.evaluation.models import UserProfile
@@ -24,6 +27,13 @@ def coerce_grade(string_value):
     return int(string_value)
 
 
+class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
+    def render(self):
+        """Outputs a <ul> for this set of radio fields."""
+        return mark_safe(u'\n'.join([u'<div>%s</div>'
+                % force_unicode(w) for w in self]))
+
+
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
     `assignment` and `questionnaire` to the constructor.
@@ -44,7 +54,7 @@ class QuestionsForm(forms.Form):
                 field = forms.CharField(required=False, widget=forms.Textarea(),
                                         **field_args)
             elif question.is_grade_question():
-                field = forms.TypedChoiceField(widget=forms.RadioSelect(),
+                field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
                                                choices=GRADE_CHOICES,
                                                coerce=coerce_grade,
                                                **field_args)
