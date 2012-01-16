@@ -62,3 +62,7 @@ td.vote-inputs > div:nth-child(5) > label { color: #9d0d0d; }
 td.vote-inputs > textarea {
     width: 99%;
 }
+
+ul.errorlist li {
+    color: #B94A48;
+}
