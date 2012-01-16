@@ -10,10 +10,6 @@ def all_semesters():
     return {'semesters': semesters}
 
 
-def all_questionnaires():
-    questionnaires = Questionnaire.objects.filter(obsolete=False)
-    return {'questionnaires': questionnaires}
-
 def custom_redirect(url_name, *args, **kwargs):
     url = reverse(url_name, args = args)
     params = urllib.urlencode(kwargs)

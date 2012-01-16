@@ -34,9 +34,7 @@
                             <li><a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a>
                             {% show_from 'evap.fsr.tools.all_semesters' "fsr_semester_menu.html" %}
                             </li>
-                            <li><a href="{% url evap.fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a>
-                            {% show_from 'evap.fsr.tools.all_questionnaires' "fsr_questionnaire_menu.html" %}
-                            </li>
+                            <li><a href="{% url evap.fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a></li>
                             <li><a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>
                             <li><a href="{% url evap.fsr.views.template_index %}">{% trans "Templates" %}</a></li>
                         </ul>
