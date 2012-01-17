@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile
-from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, CensorTextAnswerForm, CourseForm, \
+from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                            SelectCourseForm, SemesterForm, UserForm, LecturerFormSet
@@ -279,7 +279,7 @@ def course_delete(request, semester_id, course_id):
 
 
 @fsr_required
-def course_censor(request, semester_id, course_id, offset=None):
+def course_review(request, semester_id, course_id, offset=None):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
@@ -288,7 +288,7 @@ def course_censor(request, semester_id, course_id, offset=None):
         messages.add_message(request, messages.ERROR, _("Reviewing not possible in current state."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     
-    censorFS = modelformset_factory(TextAnswer, form=CensorTextAnswerForm, can_order=False, can_delete=False, extra=0)
+    reviewFS = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
     
     # get offset for current course
     key_name = "course_%d_offset" % course.id
@@ -302,7 +302,7 @@ def course_censor(request, semester_id, course_id, offset=None):
     cache.set(key_name, (offset + TextAnswer.elements_per_page) % base_queryset.count())
     
     # create formset from sliced queryset
-    formset = censorFS(request.POST or None, queryset=form_queryset)
+    formset = reviewFS(request.POST or None, queryset=form_queryset)
     
     if formset.is_valid():
         count = 0
@@ -315,11 +315,11 @@ def course_censor(request, semester_id, course_id, offset=None):
             course.review_finished()
             course.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully censored %(number)d course answers for %(name)s.") % {'number': count, 'name': course.name} )
+        messages.add_message(request, messages.INFO, _("Successfully reviewed %(number)d course answers for %(name)s.") % {'number': count, 'name': course.name} )
 
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_censor.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))
 
 
 @fsr_required

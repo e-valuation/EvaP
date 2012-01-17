@@ -12,7 +12,7 @@
                 <thead>
                     <tr>
                         <th>{% trans "Original Text" %}</td>
-                        <th>{% trans "Censored Text" %}</td>
+                        <th>{% trans "Reviewed Text" %}</td>
                         <th>{% trans "Hidden?" %}</td>
                     </tr>
                 </thead>
@@ -20,7 +20,7 @@
                     {% for textanswer in answers %}
                         <tr>
                             <td>{{ textanswer.original_answer }}</td>
-                            <td>{{ textanswer.censored_answer|default:"&mdash;" }}</td>
+                            <td>{{ textanswer.reviewed_answer|default:"&mdash;" }}</td>
                             <td>{{ textanswer.hidden|yesno }}</td>
                         </tr>
                     {% endfor %}

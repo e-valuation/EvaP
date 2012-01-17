@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <form action="{% url evap.fsr.views.course_censor semester.id, course.id, offset %}" method="POST" class="multiselect-form">
+        <form action="{% url evap.fsr.views.course_review semester.id, course.id, offset %}" method="POST" class="multiselect-form">
 	    <fieldset>
 		<legend>{% trans "Answer Review" %}</legend>
 		{% csrf_token %}
@@ -23,7 +23,7 @@
 		    {{ form.as_div }}
 		{% endfor %}
 		<div class="actions">
-		    <input type="submit" value="{% trans "Censor" %}" class="btn primary"/>
+		    <input type="submit" value="{% trans "Review" %}" class="btn primary"/>
 		</div>
 	    </fieldset>
         </form>

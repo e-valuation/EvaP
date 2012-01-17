@@ -334,7 +334,7 @@ class TextAnswer(Answer):
     
     elements_per_page = 5
     
-    censored_answer = models.TextField(verbose_name=_(u"censored answer"), blank=True, null=True)
+    reviewed_answer = models.TextField(verbose_name=_(u"reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_(u"original answer"), blank=True)
     
     checked = models.BooleanField(verbose_name=_(u"answer checked"))
@@ -345,11 +345,11 @@ class TextAnswer(Answer):
         verbose_name_plural = _(u"text answers")
     
     def _answer_get(self):
-        return self.censored_answer or self.original_answer
+        return self.reviewed_answer or self.original_answer
     
     def _answer_set(self, value):
         self.original_answer = value
-        self.censored_answer = None
+        self.reviewed_answer = None
     
     answer = property(_answer_get, _answer_set)
 

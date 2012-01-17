@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-16 22:49+0100\n"
-"PO-Revision-Date: 2012-01-16 22:49+0100\n"
+"POT-Creation-Date: 2012-01-17 01:22+0100\n"
+"PO-Revision-Date: 2012-01-17 01:23+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -205,8 +205,8 @@ msgid "grade answers"
 msgstr "Auswahlantworten"
 
 #: .\evaluation\models.py:337
-msgid "censored answer"
-msgstr "Zensierte Antwort"
+msgid "reviewed answer"
+msgstr "Überprüfte Antwort"
 
 #: .\evaluation\models.py:338
 msgid "original answer"
@@ -243,7 +243,7 @@ msgstr "Stellvertreter"
 #: .\evaluation\models.py:370
 #: .\fsr\templates\fsr_user_index.html.py:45
 #: .\lecturer\templates\lecturer_base.html.py:10
-#: .\templates\base.html.py:46
+#: .\templates\base.html.py:47
 msgid "Lecturer"
 msgstr "Dozent"
 
@@ -497,8 +497,8 @@ msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
 #: .\fsr\views.py:318
 #, python-format
-msgid "Successfully censored %(number)d course answers for %(name)s."
-msgstr "%(number)d Antworten für %(name)s erfolgreich zensiert."
+msgid "Successfully reviewed %(number)d course answers for %(name)s."
+msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
 #: .\fsr\views.py:335
 #, python-format
@@ -554,22 +554,9 @@ msgstr "Semester erfolgreich geändert."
 #: .\fsr\templates\fsr_base.html.py:11
 #: .\fsr\templates\fsr_index.html.py:44
 #: .\fsr\templates\fsr_user_index.html.py:15
-#: .\templates\base.html.py:31
+#: .\templates\base.html.py:32
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
-
-#: .\fsr\templates\fsr_course_censor.html.py:21
-msgid "Censoring course "
-msgstr "Zensur der Veranstaltung "
-
-#: .\fsr\templates\fsr_course_censor.html.py:45
-#: .\fsr\templates\fsr_semester_view.html.py:64
-msgid "Censor"
-msgstr "Zensieren"
-
-#: .\fsr\templates\fsr_course_censor.html.py:46
-msgid "Check All"
-msgstr "Alle auswählen"
 
 #: .\fsr\templates\fsr_course_comments.html.py:7
 msgid "Comments for Course "
@@ -580,8 +567,8 @@ msgid "Original Text"
 msgstr "Originaltext"
 
 #: .\fsr\templates\fsr_course_comments.html.py:15
-msgid "Censored Text"
-msgstr "Zensierter Text"
+msgid "Reviewed Text"
+msgstr "Überprüfter Text"
 
 #: .\fsr\templates\fsr_course_comments.html.py:16
 msgid "Hidden?"
@@ -635,6 +622,15 @@ msgstr "Löschen?"
 msgid "Save course"
 msgstr "Veranstaltung speichern"
 
+#: .\fsr\templates\fsr_course_review.html.py:10
+msgid "Answer Review"
+msgstr "Überprüfen der Antworten"
+
+#: .\fsr\templates\fsr_course_review.html.py:26
+#: .\fsr\templates\fsr_semester_view.html.py:63
+msgid "Review"
+msgstr "Überprüfen"
+
 #: .\fsr\templates\fsr_course_unpublish.html.py:10
 #, python-format
 msgid "Do you really want to unpublish the course <em>%(name)s</em>?"
@@ -654,8 +650,9 @@ msgstr "): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden 
 
 #: .\fsr\templates\fsr_index.html.py:8
 #: .\fsr\templates\fsr_semester_base.html.py:7
+#: .\fsr\templates\fsr_semester_base.html.py:17
 #: .\results\templates\results_index.html.py:8
-#: .\templates\base.html.py:34
+#: .\templates\base.html.py:35
 msgid "Semesters"
 msgstr "Semester"
 
@@ -671,7 +668,7 @@ msgstr "Neues Semester anlegen"
 
 #: .\fsr\templates\fsr_index.html.py:25
 #: .\fsr\templates\fsr_questionnaire_base.html.py:7
-#: .\templates\base.html.py:37
+#: .\templates\base.html.py:38
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -683,7 +680,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: .\fsr\templates\fsr_index.html.py:41
 #: .\fsr\templates\fsr_user_form.html.py:8
 #: .\fsr\templates\fsr_user_index.html.py:8
-#: .\templates\base.html.py:38
+#: .\templates\base.html.py:39
 msgid "Users"
 msgstr "Benutzer"
 
@@ -694,7 +691,7 @@ msgstr "Alle Benutzer"
 #: .\fsr\templates\fsr_index.html.py:47
 #: .\fsr\templates\fsr_template_form.html.py:8
 #: .\fsr\templates\fsr_template_index.html.py:8
-#: .\templates\base.html.py:39
+#: .\templates\base.html.py:40
 msgid "Templates"
 msgstr "E-Mail-Vorlagen"
 
@@ -717,7 +714,7 @@ msgstr "Kopieren"
 #: .\fsr\templates\fsr_questionnaire_base.html.py:22
 #: .\fsr\templates\fsr_questionnaire_index.html.py:42
 #: .\fsr\templates\fsr_questionnaire_index.html.py:44
-#: .\fsr\templates\fsr_semester_view.html.py:61
+#: .\fsr\templates\fsr_semester_view.html.py:60
 #: .\fsr\templates\fsr_user_index.html.py:57
 #: .\fsr\templates\fsr_user_index.html.py:59
 msgid "Delete"
@@ -783,7 +780,7 @@ msgstr[1] ""
 "                        %(count)s Kurse"
 
 #: .\fsr\templates\fsr_questionnaire_index.html.py:39
-#: .\fsr\templates\fsr_semester_view.html.py:59
+#: .\fsr\templates\fsr_semester_view.html.py:58
 #: .\lecturer\templates\lecturer_course_index.html.py:29
 #: .\lecturer\templates\lecturer_course_index.html.py:56
 msgid "Preview"
@@ -799,7 +796,7 @@ msgstr "Es gibt noch keine Fragegruppen."
 #: .\lecturer\templates\lecturer_course_form.html.py:8
 #: .\lecturer\templates\lecturer_course_index.html.py:7
 #: .\lecturer\templates\lecturer_course_preview.html.py:7
-#: .\templates\base.html.py:51
+#: .\templates\base.html.py:52
 msgid "Courses"
 msgstr "Veranstaltungen"
 
@@ -887,31 +884,31 @@ msgstr "Fragebögen zuordnen"
 msgid "State"
 msgstr "Zustand"
 
-#: .\fsr\templates\fsr_semester_view.html.py:58
+#: .\fsr\templates\fsr_semester_view.html.py:57
 msgid "E-Mail"
 msgstr "E-Mail"
 
-#: .\fsr\templates\fsr_semester_view.html.py:67
+#: .\fsr\templates\fsr_semester_view.html.py:66
 msgid "Comments"
 msgstr "Kommentare"
 
-#: .\fsr\templates\fsr_semester_view.html.py:70
+#: .\fsr\templates\fsr_semester_view.html.py:69
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:80
+#: .\fsr\templates\fsr_semester_view.html.py:79
 msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
-#: .\fsr\templates\fsr_semester_view.html.py:83
+#: .\fsr\templates\fsr_semester_view.html.py:82
 msgid "Approve Courses"
 msgstr "Veranstaltung bestätigen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:86
+#: .\fsr\templates\fsr_semester_view.html.py:85
 msgid "Publish Courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:94
+#: .\fsr\templates\fsr_semester_view.html.py:93
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
@@ -984,7 +981,7 @@ msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
 
 #: .\lecturer\templates\lecturer_profile.html.py:8
 #: .\lecturer\templates\lecturer_profile.html.py:31
-#: .\templates\base.html.py:49
+#: .\templates\base.html.py:50
 msgid "Profile"
 msgstr "Profil"
 
@@ -995,7 +992,7 @@ msgstr "Profil speichern"
 #: .\results\exporters.py:37
 #: .\results\templates\results_base.html.py:6
 #: .\results\templates\results_base.html.py:10
-#: .\templates\base.html.py:57
+#: .\templates\base.html.py:58
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1055,7 +1052,7 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 #: .\student\templates\student_index.html.py:9
 #: .\student\templates\student_vote.html.py:6
 #: .\student\templates\student_vote.html.py:10
-#: .\templates\base.html.py:26
+#: .\templates\base.html.py:27
 msgid "Evaluation"
 msgstr "Bewertung"
 
@@ -1091,37 +1088,37 @@ msgstr "Die Seite wurde leider nicht gefunden."
 msgid "Something seems to be broken here. The admins have been notified and will follow up with you."
 msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und werden ggf. nachfragen."
 
-#: .\templates\base.html.py:22
+#: .\templates\base.html.py:23
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: .\templates\base.html.py:33
+#: .\templates\base.html.py:34
 msgid "Overview"
 msgstr "Übersicht"
 
-#: .\templates\base.html.py:79
+#: .\templates\base.html.py:80
 msgid "Logout"
 msgstr "Abmelden"
 
-#: .\templates\base.html.py:90
+#: .\templates\base.html.py:91
 msgid "EvaP"
 msgstr "EvaP"
 
-#: .\templates\base.html.py:113
+#: .\templates\base.html.py:114
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: .\templates\base.html.py:117
+#: .\templates\base.html.py:118
 #: .\templates\faq.html.py:5
 #: .\templates\faq.html.py:9
 msgid "FAQ"
 msgstr "FAQ"
 
-#: .\templates\base.html.py:120
+#: .\templates\base.html.py:121
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: .\templates\base.html.py:122
+#: .\templates\base.html.py:123
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
@@ -1222,6 +1219,12 @@ msgstr ""
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
 
+#~ msgid "Reviewing course "
+#~ msgstr "Zensur der Veranstaltung "
+
+#~ msgid "Check All"
+#~ msgstr "Alle auswählen"
+
 #~ msgid "Read-Only?"
 #~ msgstr "nur lesbar?"
 
@@ -1246,7 +1249,7 @@ msgstr "Schlüssel erzeugen"
 #~ msgid "Hide"
 #~ msgstr "Ausblenden"
 
-#~ msgid "Censored answer missing."
+#~ msgid "Reviewed answer missing."
 #~ msgstr "Zensierte Antwort fehlt."
 
 #~ msgid "Use this template"
@@ -1264,7 +1267,7 @@ msgstr "Schlüssel erzeugen"
 #~ msgid "Import"
 #~ msgstr "Importieren"
 
-#~ msgid "Censored Answer"
+#~ msgid "Reviewed Answer"
 #~ msgstr "Zensierte Antwort"
 
 #~ msgid "Usages"

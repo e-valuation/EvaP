@@ -265,7 +265,7 @@ class Command(BaseCommand):
                                         )
                                     elif status == "63":
                                         additional_fields = dict(
-                                            censored_answer=unicode(answer.revised_comment),
+                                            reviewed_answer=unicode(answer.revised_comment),
                                             hidden=False
                                         )
                                     elif status == "64":

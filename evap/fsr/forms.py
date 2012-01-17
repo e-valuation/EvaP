@@ -127,7 +127,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
         model = Questionnaire
 
 
-class CensorTextAnswerForm(forms.ModelForm, BootstrapMixin):
+class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
     edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"))
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
     
@@ -135,7 +135,7 @@ class CensorTextAnswerForm(forms.ModelForm, BootstrapMixin):
         fields = ('edited_answer', 'needs_further_review')
     
     def __init__(self, *args, **kwargs):
-        super(CensorTextAnswerForm, self).__init__(*args, **kwargs)
+        super(ReviewTextAnswerForm, self).__init__(*args, **kwargs)
         
         self.fields['edited_answer'].initial = self.instance.answer
     
@@ -151,9 +151,9 @@ class CensorTextAnswerForm(forms.ModelForm, BootstrapMixin):
             # hidden
             self.instance.hidden = True
         else:
-            # censored
+            # reviewed
             self.instance.checked = True
-            self.instance.censored_answer = edited_answer
+            self.instance.reviewed_answer = edited_answer
         
         if needs_further_review:
             self.instance.checked = False
