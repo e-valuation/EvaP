@@ -1,31 +1,31 @@
-{% extends "fsr_semester_base.html" %}
+{% extends "fsr_course_base.html" %}
 
 {% load i18n %}
 
 {% block content %}
     {{ block.super }}
-	<h2>{% trans "Comments for Course "%}{{ course.name }}</h2>
+    <h2>{% trans "Comments for Course "%}{{ course.name }}</h2>
     <p>
-		{% for question, answers in textanswers_by_question %}
-			<h3>{{ question.text }}</h3>
-			<table id="question_table">
-				<thead>
-					<tr>
-						<th>{% trans "Original Text" %}</td>
-						<th>{% trans "Censored Text" %}</td>
-						<th>{% trans "Hidden?" %}</td>
-					</tr>
-				</thead>
-				<tbody>
-					{% for textanswer in answers %}
-						<tr>
-							<td>{{ textanswer.original_answer }}</td>
-							<td>{{ textanswer.censored_answer|default:"&mdash;" }}</td>
-							<td>{{ textanswer.hidden|yesno }}</td>
-				        </tr>
-				    {% endfor %}
-				</tbody>
-			</table>
-		{% endfor %}
-	</p>
+        {% for question, answers in textanswers_by_question %}
+            <h3>{{ question.text }}</h3>
+            <table class="vertically-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Original Text" %}</td>
+                        <th>{% trans "Censored Text" %}</td>
+                        <th>{% trans "Hidden?" %}</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for textanswer in answers %}
+                        <tr>
+                            <td>{{ textanswer.original_answer }}</td>
+                            <td>{{ textanswer.censored_answer|default:"&mdash;" }}</td>
+                            <td>{{ textanswer.hidden|yesno }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+    </p>
 {% endblock %}

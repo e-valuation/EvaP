@@ -127,7 +127,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
         model = Questionnaire
 
 
-class CensorTextAnswerForm(forms.ModelForm):
+class CensorTextAnswerForm(forms.ModelForm, BootstrapMixin):
     edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"))
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
     

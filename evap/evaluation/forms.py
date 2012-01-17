@@ -114,7 +114,7 @@ class BootstrapMixin(object):
             else:
                 help_text = u''
             
-            attrs = {'class':'span6'}
+            attrs = {'class':'span8'}
             if isinstance(field_instance, forms.fields.DateField):
                 attrs['data-datepicker'] = "datepicker"
             

@@ -1,49 +1,31 @@
-{% extends "fsr_base.html" %}
+{% extends "fsr_course_base.html" %}
 
 {% load i18n %}
 
-{% block header %}
-    {{ block.super }}
-
-    <script>
-        function checkAll() {
-			$('.multiselect-form tbody:last tr').each(function() {
-				if(typeof $("input:checked", this).val() == 'undefined') {
-					$('input[id $= "-action_0"]', this).attr("checked","checked");
-				}
-			})
-        }
-    </script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
-	<h2>{% trans "Censoring course "%}{{ course.name }}</h2>
     <p>
         <form action="{% url evap.fsr.views.course_censor semester.id, course.id, offset %}" method="POST" class="multiselect-form">
-            {% csrf_token %}
-            {{ formset.management_form }}
-            <table id="question_table">
-                <tbody>
-                    {% for form in formset %}
-						{% for hidden in form.hidden_fields %}
-							{{ hidden }}
-						{% endfor %}
-						
-						{% if form.non_field_errors %}
-							<tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
-                        {% endif %}
-                        
-						<tr>
-							<td>{{ form.edited_answer }}</td>
-							<td>{{ form.needs_further_review }} {{ form.needs_further_review.label }}</td>
-                        </tr>
-						
-                    {% endfor %}
-                </tbody>
-            </table>
-            <input type="submit" value="{% trans "Censor" %}"/>
-            <input type="button" value="{% trans "Check All" %}" onClick="checkAll();">
+	    <fieldset>
+		<legend>{% trans "Answer Review" %}</legend>
+		{% csrf_token %}
+		{{ formset.management_form }}
+		{% for form in formset %}
+		    {% for hidden in form.hidden_fields %}
+			{{ hidden }}
+		    {% endfor %}
+		    {% if form.non_field_errors %}
+			<div class="clearfix">
+			    {{ form.non_field_errors }}
+			</div>
+		    {% endif %}
+		    
+		    {{ form.as_div }}
+		{% endfor %}
+		<div class="actions">
+		    <input type="submit" value="{% trans "Censor" %}" class="btn primary"/>
+		</div>
+	    </fieldset>
         </form>
     </p>
 {% endblock %}

@@ -9,3 +9,12 @@
         <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.semester_view semester.id %}">{{ semester.name }}</a></li>
     {% endif %}
 {% endblock %}
+
+{% block title %}
+    {% if semester %}
+        {{ semester.name }} - 
+    {% else %}
+        {% trans "Semesters" %} - 
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

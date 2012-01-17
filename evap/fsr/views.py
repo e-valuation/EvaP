@@ -58,7 +58,7 @@ def semester_view(request, semester_id):
     courses_by_state = []
     for state, state_name in STATES_ORDERED.items():
         this_courses = [course for course in courses if course.state == state]
-        courses_by_state.append((state_name, this_courses))
+        courses_by_state.append((state, state_name, this_courses))
     
     return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state), context_instance=RequestContext(request))
 
@@ -258,7 +258,7 @@ def course_edit(request, semester_id, course_id):
         messages.add_message(request, messages.INFO, _("Successfully updated course."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form, formset=formset), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_form.html", dict(semester=semester, course=course, form=form, formset=formset), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -337,7 +337,7 @@ def course_email(request, semester_id, course_id):
             messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants/lecturers of '%(course)s', but %(count)d could not be reached as they do not have an email address.") % dict(course=course.name, count=form.missing_email_addresses()))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_email.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_email.html", dict(semester=semester, course=course, form=form), context_instance=RequestContext(request))
 
 
 @fsr_required

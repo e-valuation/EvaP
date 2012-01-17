@@ -24,14 +24,13 @@
     
     {% if courses_by_state %}
             <div id="tab-content">
-            {% for state, courses in courses_by_state %}
+            {% for state, statename, courses in courses_by_state %}
                 <div id="tab{{ forloop.counter }}">
-                <h3>{% trans "State" %}: <span>{% trans state %} ({{ courses|length }})</span></h3>
+                <h3>{% trans "State" %}: <span>{% trans statename %} ({{ courses|length }})</span></h3>
                 <table class="zebra-striped vertically-aligned">
                 <tbody>
                 {% for course in courses %}
                     <tr>
-                        <!--<td><em>{% ifchanged %}{{ course.study }}{% endifchanged %}</em></td>-->
                         <td class="maximize">
                             <div>
                             {% if course.can_fsr_edit %}
