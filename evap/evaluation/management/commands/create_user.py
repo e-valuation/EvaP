@@ -61,7 +61,7 @@ class Command(BaseCommand):
             is_lecturer = True if read_value("Is lecturer (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
             # create user
-            user = User.objects.create(username=username, email=email, is_staff=is_fsr)
+            user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
             profile = user.get_profile()
             profile.is_lecturer = is_lecturer
             profile.save()
