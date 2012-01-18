@@ -97,7 +97,7 @@ class ExcelImporter(object):
                         # store data objects together with the data source location for problem tracking
                         self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
                     else:
-                        messages.warning(self.request, _(u"Invalid line in sheet '%(sheet)s', beginning with '%(beginning)s'") % dict(sheet=sheet.name, beginning=data[0] if len(data) > 0 else ''))
+                        messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet.name, row=row, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
             except:
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
