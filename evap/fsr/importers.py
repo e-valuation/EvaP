@@ -88,7 +88,7 @@ class ExcelImporter(object):
             try:
                 for row in range(1, sheet.nrows):
                     data = sheet.row_values(row)
-                    if len(data) == 12:
+                    if len(data) == 13:
                         # assign data to data objects
                         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
                         lecturer_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12], is_lecturer=True)
