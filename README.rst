@@ -1,6 +1,4 @@
-.. -*- restructuredtext -*-
-
-EvaP - Evaluation Platform
+﻿EvaP - Evaluation Platform
 ==========================
 
 What is EvaP?
