@@ -15,6 +15,9 @@ Contributors
 
 - Michael Grünewald
 - Stefan Richter
+- Matthias Jacob
+- Stefanie Reinicke
+- Thomas Schulz
 
 License
 -------
