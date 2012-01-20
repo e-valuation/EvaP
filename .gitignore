@@ -1,0 +1,27 @@
+# editor leftovers
+*~
+*.bak
+*.orig
+*.swp
+TAGS
+.*
+*.kpf
+*.komodoproject
+
+# python files
+*.pyc
+*.pyo
+
+# gettext binaries
+*.mo
+
+# operating system junk
+.DS_Store
+thumbs.db
+
+evap/localsettings.py
+evap/staticfiles
+evap/media
+evap/database.sqlite3
+
+docs/_build

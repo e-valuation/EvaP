@@ -1,7 +1,0 @@
-[patterns]
-.hgeol = native
-.hgignore = native
-**.css = native
-**.html = native
-**.py = native
-**.rst = native
