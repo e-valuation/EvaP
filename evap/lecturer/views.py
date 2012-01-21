@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Assignment, Course, Semester
 from evap.evaluation.auth import lecturer_required
+from evap.evaluation.tools import questionnaires_and_assignments
 from evap.lecturer.forms import CourseForm, UserForm
 from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
 from evap.student.forms import QuestionsForm
@@ -77,8 +78,8 @@ def course_preview(request, course_id):
 
     # build forms
     forms = SortedDict()
-    for assignment in course.assignments.all():
-        for questionnaire in assignment.questionnaires.all():
-            form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
-            forms[(assignment, questionnaire)] = form
+    for questionnaire, assignment in questionnaires_and_assignments(course):
+        form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+        forms[(assignment, questionnaire)] = form
+    
     return render_to_response("lecturer_course_preview.html", dict(forms=forms.values(), course=course), context_instance=RequestContext(request))
