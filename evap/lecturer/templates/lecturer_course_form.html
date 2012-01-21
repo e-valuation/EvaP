@@ -31,14 +31,14 @@
                         <th>{% trans "Delete?" %}</th>
                     </tr>
                     <tbody>
-						{% for assignment in read_only_assignments %}
-							<tr>
-								<td>{{ assignment.lecturer }}</td>
-								<td>{{ assignment.questionnaires.all|join:", " }}</td>
-								<td/>
-							</tr>
-						{% endfor %}
-						
+                        {% for assignment in read_only_assignments %}
+                            <tr>
+                                <td>{{ assignment.lecturer }}</td>
+                                <td>{{ assignment.questionnaires.all|join:", " }}</td>
+                                <td/>
+                            </tr>
+                        {% endfor %}
+                        
                         {% for form_element in formset %}
                             {% if form_element.non_field_errors %}
                                 <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
@@ -66,8 +66,8 @@
         $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
             $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-		$(e).width($(e).width());
-		$(e).multiselect();
+                $(e).width($(e).width());
+                $(e).multiselect();
             });
             $('#assignment_table tbody tr').formset({prefix: 'assignment_set'});
         });

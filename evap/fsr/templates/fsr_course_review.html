@@ -6,26 +6,26 @@
     {{ block.super }}
     <p>
         <form action="{% url evap.fsr.views.course_review semester.id, course.id, offset %}" method="POST" class="multiselect-form">
-	    <fieldset>
-		<legend>{% trans "Answer Review" %}</legend>
-		{% csrf_token %}
-		{{ formset.management_form }}
-		{% for form in formset %}
-		    {% for hidden in form.hidden_fields %}
-			{{ hidden }}
-		    {% endfor %}
-		    {% if form.non_field_errors %}
-			<div class="clearfix">
-			    {{ form.non_field_errors }}
-			</div>
-		    {% endif %}
-		    
-		    {{ form.as_div }}
-		{% endfor %}
-		<div class="actions">
-		    <input type="submit" value="{% trans "Review" %}" class="btn primary"/>
-		</div>
-	    </fieldset>
+            <fieldset>
+                <legend>{% trans "Answer Review" %}</legend>
+                {% csrf_token %}
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    {% if form.non_field_errors %}
+                        <div class="clearfix">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    
+                    {{ form.as_div }}
+                {% endfor %}
+                <div class="actions">
+                    <input type="submit" value="{% trans "Review" %}" class="btn primary"/>
+                </div>
+            </fieldset>
         </form>
     </p>
 {% endblock %}

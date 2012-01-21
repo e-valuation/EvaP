@@ -9,12 +9,12 @@
         {% trans "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
         <form method="POST" class="multiselect-form">
             {% csrf_token %}
-	    <fieldset>
+            <fieldset>
             {{ form.as_div }}
-	    </fieldset>
-	    <div class="actions">
-		<input type="submit" value="{% trans "Assign questionnaires" %}" class="btn primary"/>
-	    </div>
+            </fieldset>
+            <div class="actions">
+                <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn primary"/>
+            </div>
         </form>
     </p>
 {% endblock %}
@@ -23,11 +23,11 @@
     {{ block.super }}
     
     <script>
-	$(function() {
+        $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
             $("select[multiple='multiple']").each(function(i,e) {
-		$(e).width($(e).width());
-		$(e).multiselect();
+                $(e).width($(e).width());
+                $(e).multiselect();
             });
         });
     </script>

@@ -9,17 +9,16 @@
 {% endblock %}
 
 {% block scripts %}
-	{{ block.super }}
-    
-	<script>
-		$(document).ready(function() {
-			$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-			$("select[multiple='multiple']").each(function(i,e) {
-				//$(e).width($(e).width());
-				$(e).multiselect();
-			});
-		});
-	</script>
+    {{ block.super }}    
+    <script>
+        $(document).ready(function() {
+            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            $("select[multiple='multiple']").each(function(i,e) {
+                //$(e).width($(e).width());
+                $(e).multiselect();
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -27,13 +26,13 @@
     <p>
         <form method="POST" class="multiselect-form" enctype="multipart/form-data">
             {% csrf_token %}
-	    <fieldset>
-		<legend>{% trans "Profile" %}</legend>
-		{{ form.as_div }}
-	    </fieldset>
-	    <div class="actions">
-		<input type="submit" value="{% trans "Save your profile" %}" class="btn primary"/>
-	    </div>
+            <fieldset>
+                <legend>{% trans "Profile" %}</legend>
+                {{ form.as_div }}
+            </fieldset>
+            <div class="actions">
+                <input type="submit" value="{% trans "Save your profile" %}" class="btn primary"/>
+            </div>
         </form>
     </p>
     
