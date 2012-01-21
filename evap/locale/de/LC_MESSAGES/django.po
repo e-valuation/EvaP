@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-21 00:54+0100\n"
-"PO-Revision-Date: 2012-01-21 00:57+0100\n"
+"POT-Creation-Date: 2012-01-21 18:01+0100\n"
+"PO-Revision-Date: 2012-01-21 18:02+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -322,6 +322,16 @@ msgstr "Angegebene Statistik existiert nicht."
 msgid "excel file"
 msgstr "Exceldatei"
 
+#: .\fsr\forms.py:41
+msgid "General questions"
+msgstr "Allgemeine Fragen"
+
+#: .\fsr\forms.py:42
+#: .\lecturer\templates\lecturer_course_index.html.py:18
+#: .\lecturer\templates\lecturer_course_index.html.py:45
+msgid "Participants"
+msgstr "Teilnehmer"
+
 #: .\fsr\forms.py:94
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
@@ -331,12 +341,12 @@ msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
 #: .\fsr\forms.py:96
-#: .\fsr\models.py:12
+#: .\fsr\models.py:11
 msgid "Subject"
 msgstr "Betreff"
 
 #: .\fsr\forms.py:97
-#: .\fsr\models.py:13
+#: .\fsr\models.py:12
 msgid "Body"
 msgstr "Text"
 
@@ -360,11 +370,11 @@ msgstr "Es muss mindestens eine/n geben."
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
 msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: .\fsr\forms.py:292
+#: .\fsr\forms.py:301
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: .\fsr\forms.py:327
+#: .\fsr\forms.py:324
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -402,7 +412,7 @@ msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(e
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: .\fsr\models.py:10
+#: .\fsr\models.py:9
 #: .\fsr\templates\fsr_template_index.html.py:15
 #: .\fsr\templates\fsr_user_index.html.py:25
 #: .\lecturer\templates\lecturer_course_index.html.py:17
@@ -410,107 +420,107 @@ msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 msgid "Name"
 msgstr "Name"
 
-#: .\fsr\views.py:26
+#: .\fsr\views.py:27
 msgid "new"
 msgstr "neu"
 
-#: .\fsr\views.py:27
+#: .\fsr\views.py:28
 msgid "prepared"
 msgstr "vorbereitet"
 
-#: .\fsr\views.py:28
+#: .\fsr\views.py:29
 msgid "lecturer approved"
 msgstr "von Dozent bestätigt"
 
-#: .\fsr\views.py:29
+#: .\fsr\views.py:30
 msgid "approved"
 msgstr "bestätigt"
 
-#: .\fsr\views.py:30
+#: .\fsr\views.py:31
 msgid "in evaluation"
 msgstr "in Evaluierung"
 
-#: .\fsr\views.py:31
+#: .\fsr\views.py:32
 msgid "evaluated"
 msgstr "evaluiert"
 
-#: .\fsr\views.py:32
+#: .\fsr\views.py:33
 msgid "reviewed"
 msgstr "überprüft"
 
-#: .\fsr\views.py:33
+#: .\fsr\views.py:34
 msgid "published"
 msgstr "veröffentlicht"
 
-#: .\fsr\views.py:73
+#: .\fsr\views.py:74
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: .\fsr\views.py:87
+#: .\fsr\views.py:88
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: .\fsr\views.py:104
+#: .\fsr\views.py:105
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: .\fsr\views.py:121
+#: .\fsr\views.py:122
 msgid "Could not send emails to participants and lecturers"
 msgstr "Konnte keine E-Mail an Teilnehmer und Dozenten senden"
 
-#: .\fsr\views.py:122
+#: .\fsr\views.py:123
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: .\fsr\views.py:157
+#: .\fsr\views.py:158
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: .\fsr\views.py:173
+#: .\fsr\views.py:174
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: .\fsr\views.py:234
+#: .\fsr\views.py:235
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: .\fsr\views.py:248
+#: .\fsr\views.py:249
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:258
-#: .\lecturer\views.py:62
+#: .\fsr\views.py:259
+#: .\lecturer\views.py:63
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: .\fsr\views.py:271
+#: .\fsr\views.py:272
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:288
+#: .\fsr\views.py:289
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:318
+#: .\fsr\views.py:319
 #, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
-#: .\fsr\views.py:335
+#: .\fsr\views.py:336
 #, python-format
 msgid "Successfully sent email to all participants/lecturers of '%s'."
 msgstr "Erfollgreich E-Mail an alle Teilnehmer/Dozenten von '%s' versendet."
 
-#: .\fsr\views.py:337
+#: .\fsr\views.py:338
 #, python-format
 msgid "Successfully sent email to many participants/lecturers of '%(course)s', but %(count)d could not be reached as they do not have an email address."
 msgstr "E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E-Mail-Adresse haben."
 
-#: .\fsr\views.py:361
+#: .\fsr\views.py:362
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
@@ -949,7 +959,7 @@ msgstr "FSR-Mitglied"
 msgid "E-Mail address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
-#: .\lecturer\views.py:28
+#: .\lecturer\views.py:29
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
@@ -964,11 +974,6 @@ msgstr "Veranstaltung bestätigen"
 #: .\lecturer\templates\lecturer_course_index.html.py:12
 msgid "Own Courses"
 msgstr "Eigene Veranstaltungen"
-
-#: .\lecturer\templates\lecturer_course_index.html.py:18
-#: .\lecturer\templates\lecturer_course_index.html.py:45
-msgid "Participants"
-msgstr "Teilnehmer"
 
 #: .\lecturer\templates\lecturer_course_index.html.py:36
 #: .\lecturer\templates\lecturer_course_index.html.py:63
