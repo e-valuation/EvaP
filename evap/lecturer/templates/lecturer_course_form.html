@@ -5,7 +5,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url evap.lecturer.views.index %}">{% trans "Courses" %}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url evap.lecturer.views.course_index %}">{% trans "Courses" %}</a></li>
 {% endblock %}
 
 {% block content %}
