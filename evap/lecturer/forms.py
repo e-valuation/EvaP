@@ -46,11 +46,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    email = forms.CharField(required=False)
-    
-    proxies = UserModelMultipleChoiceField(queryset=User.objects.order_by("username"))
+    # steal form field definitions for the User model
+    locals().update(forms.fields_for_model(User, fields=('first_name', 'last_name', 'email')))
     
     class Meta:
         model = UserProfile
@@ -61,6 +58,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         
         # fix generated form
         self.fields['proxies'].required = False
+        self.fields['proxies'].queryset = User.objects.order_by("username")
         
         # load user fields
         self.fields['first_name'].initial = self.instance.user.first_name

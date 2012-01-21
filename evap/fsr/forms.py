@@ -285,30 +285,27 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
     
 class UserForm(forms.ModelForm, BootstrapMixin):
-    username = forms.CharField()
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    email = forms.CharField(required=False)
-    fsr = forms.BooleanField(required=False, label=_("FSR Member"))
-    proxies = UserModelMultipleChoiceField(queryset=User.objects.order_by("username"))
+    # steal form field definitions for the User model
+    locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff')))
     
     class Meta:
         model = UserProfile
-        exclude = ('user',)
-        fields = ['username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies', 'is_lecturer']
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies', 'is_staff', 'is_lecturer')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         
         # fix generated form
         self.fields['proxies'].required = False
+        self.fields['proxies'].queryset = User.objects.order_by("username")
+        self.fields['is_staff'].label = label=_(u"FSR Member")
         
         # load user fields
         self.fields['username'].initial = self.instance.user.username
         self.fields['first_name'].initial = self.instance.user.first_name
         self.fields['last_name'].initial = self.instance.user.last_name
         self.fields['email'].initial = self.instance.user.email
-        self.fields['fsr'].initial = self.instance.user.is_staff
+        self.fields['is_staff'].initial = self.instance.user.is_staff
 
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
