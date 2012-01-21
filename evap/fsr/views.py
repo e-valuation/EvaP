@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile
+from evap.evaluation.tools import questionnaires_and_assignments
 from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
@@ -389,10 +390,9 @@ def course_preview(request, semester_id, course_id):
 
     # build forms
     forms = SortedDict()
-    for assignment in course.assignments.all():
-        for questionnaire in assignment.questionnaires.all():
-            form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
-            forms[(assignment, questionnaire)] = form
+    for questionnaire, assignment in questionnaires_and_assignments(course):
+        form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
+        forms[(assignment, questionnaire)] = form
     return render_to_response("fsr_course_preview.html", dict(forms=forms.values(), course=course, semester=semester), context_instance=RequestContext(request))
 
 
