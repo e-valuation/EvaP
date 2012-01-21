@@ -1,38 +1,49 @@
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db import models
-from django.shortcuts import get_object_or_404
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 
 
 class EmailTemplate(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("Name"))
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
     
     subject = models.CharField(max_length=100, verbose_name=_(u"Subject"))
     body = models.TextField(verbose_name=_("Body"))
     
     @classmethod
     def create_initial_instances(cls):
-        cls(pk=0, name="Template for lecturer review", subject="[EvaP] New Course ready for approval", body="").save()
-        cls(pk=1, name="Template for student reminder", subject="[EvaP] Only 2 weeks left to evaluate", body="").save()
-        cls(pk=2, name="Template for publishing", subject="[EvaP] A course has been published", body="").save()
+        initial_templates = (
+            ("Lecturer Review Notice", dict(subject="[EvaP] New Course ready for approval", body="")),
+            ("Student Reminder", dict(subject="[EvaP] Only 2 weeks left to evaluate", body="")),
+            ("Publishing Notice", dict(subject="[EvaP] A course has been published", body="")),
+            ("Logon Key Created", dict(subject="[EvaP] A logon key was created", body="")),
+        )
+        
+        # create new templates if necessary
+        relevant_pks = []
+        for name, defaults in initial_templates:
+            template, created = cls.objects.get_or_create(name=name, defaults=defaults)
+            relevant_pks.append(template.pk)
+        
+        # remove obsolete templates
+        cls.objects.exclude(pk__in=relevant_pks).delete()
     
     @classmethod
     def get_review_template(cls):
-        return get_object_or_404(cls, pk=0)
+        return cls.objects.get(name="Lecturer Review Notice")
     
     @classmethod
     def get_reminder_template(cls):
-        return get_object_or_404(cls, pk=1)
+        return cls.objects.get(name="Student Reminder")
     
     @classmethod
     def get_publish_template(cls):
-        return get_object_or_404(cls, pk=2)
+        return cls.objects.get(name="Publishing Notice")
         
     @classmethod
     def get_logon_key_template(cls):
-        return get_object_or_404(cls, pk=3)
+        return cls.objects.get(name="Logon Key Created")
        
     def receipient_list_for_course(self, course, send_to_lecturers, send_to_participants):
         if send_to_participants:
