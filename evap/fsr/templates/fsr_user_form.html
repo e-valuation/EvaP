@@ -7,22 +7,22 @@
     {{ block.super }}
     <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>
     {% if object.id %}
-	<li> <span class="divider">/</span> <a href="{% url evap.fsr.views.user_edit object.id  %}">{{ object.get_profile.full_name }}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.user_edit object.id  %}">{{ object.get_profile.full_name }}</a></li>
     {% endif %}
 {% endblock %}
 
 {% block scripts %}
-	{{ block.super }}
+    {{ block.super }}
     
-	<script>
-		$(document).ready(function() {
-			$.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-			$("select[multiple='multiple']").each(function(i,e) {
-				//$(e).width($(e).width());
-				$(e).multiselect();
-			});
-		});
-	</script>
+    <script>
+        $(document).ready(function() {
+            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            $("select[multiple='multiple']").each(function(i,e) {
+                //$(e).width($(e).width());
+                $(e).multiselect();
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -30,10 +30,10 @@
     <p>
         <form method="POST" class="multiselect-form" enctype="multipart/form-data">
             {% csrf_token %}
-	    {{ form.as_div }}
-	    <div class="actions">
-		<input type="submit" value="{% trans "Save user" %}" class="btn primary"/>
-	    </div>
+        {{ form.as_div }}
+        <div class="actions">
+        <input type="submit" value="{% trans "Save user" %}" class="btn primary"/>
+        </div>
         </form>
     </p>
     
