@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-17 01:22+0100\n"
-"PO-Revision-Date: 2012-01-17 01:23+0100\n"
+"POT-Creation-Date: 2012-01-21 00:54+0100\n"
+"PO-Revision-Date: 2012-01-21 00:57+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -370,8 +370,8 @@ msgstr "Anzahl der Gewinner"
 
 #: .\fsr\importers.py:100
 #, python-format
-msgid "Invalid line in sheet '%(sheet)s', beginning with '%(beginning)s'"
-msgstr "Ungültige Zeile in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s'"
+msgid "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s"
+msgstr "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s', %(ncols)s Spalten"
 
 #: .\fsr\importers.py:101
 #, python-format
@@ -1219,177 +1219,3 @@ msgstr ""
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
 
-#~ msgid "Reviewing course "
-#~ msgstr "Zensur der Veranstaltung "
-
-#~ msgid "Check All"
-#~ msgstr "Alle auswählen"
-
-#~ msgid "Read-Only?"
-#~ msgstr "nur lesbar?"
-
-#~ msgid "My Courses"
-#~ msgstr "Meine Veranstaltungen"
-
-#~ msgid "Course Evaluation"
-#~ msgstr "Veranstaltungsbewertung"
-
-#~ msgid "vote"
-#~ msgstr "Abstimmen"
-
-#~ msgid "Internal Users"
-#~ msgstr "Interne Nutzer"
-
-#~ msgid "Guest Users"
-#~ msgstr "Externe Benutzer"
-
-#~ msgid "Approved"
-#~ msgstr "Freigeben"
-
-#~ msgid "Hide"
-#~ msgstr "Ausblenden"
-
-#~ msgid "Reviewed answer missing."
-#~ msgstr "Zensierte Antwort fehlt."
-
-#~ msgid "Use this template"
-#~ msgstr "Diese Vorlage verwenden"
-
-#~ msgid "Semester"
-#~ msgstr "Semester"
-
-#~ msgid "FSR Members"
-#~ msgstr "FSR-Mitglieder"
-
-#~ msgid "Create"
-#~ msgstr "Erstellen"
-
-#~ msgid "Import"
-#~ msgstr "Importieren"
-
-#~ msgid "Reviewed Answer"
-#~ msgstr "Zensierte Antwort"
-
-#~ msgid "Usages"
-#~ msgstr "Nutzung"
-
-#~ msgid "New..."
-#~ msgstr "Neu..."
-
-#~ msgid "Write E-Mail"
-#~ msgstr "E-Mail schreiben"
-
-#~ msgid "External Login Key Assigned"
-#~ msgstr "externer Loginschlüssel vergeben"
-
-#~ msgid "FSR"
-#~ msgstr "FSR"
-
-#~ msgid "Start"
-#~ msgstr "Start"
-
-#~ msgid "Do you really want to delete this course?"
-#~ msgstr "Soll diese Veranstaltung wirklich gelöscht werden?"
-
-#~ msgid "Do you really want to unpublish this course?"
-#~ msgstr ""
-#~ "Soll die Veröffentlichung dieses Kurses wirklich zurückgezogen werden?"
-
-#~ msgid "Approve"
-#~ msgstr "Bestätigen"
-
-#~ msgid "Publish"
-#~ msgstr "Veröffentlichen"
-
-#~ msgid "Study"
-#~ msgstr "Studiengang"
-
-#~ msgid "visible"
-#~ msgstr "sichtbar"
-
-#~ msgid "primary lecturers"
-#~ msgstr "Primäre Dozenten"
-
-#~ msgid "course questionnaires"
-#~ msgstr "Fragegruppen zur Veranstaltung"
-
-#~ msgid "primary lecturer questionnaires"
-#~ msgstr "Fragegruppen zu den primären Dozenten"
-
-#~ msgid "secondary lecturer questionnaires"
-#~ msgstr "Fragegruppen zu den sekundären Dozenten"
-
-#~ msgid "Student representative"
-#~ msgstr "FSR-Mitglied"
-
-#~ msgid "Successfully copied questionnaire."
-#~ msgstr "Fragegruppe erfolgreich kopiert."
-
-#~ msgid "Edit questionnaire"
-#~ msgstr "Fragebogen bearbeiten"
-
-#~ msgid "Copy questionnaire"
-#~ msgstr "Fragebogen kopieren"
-
-#~ msgid "Delete questionnaire"
-#~ msgstr "Fragebogen löschen"
-
-#~ msgid "Create questionnaire"
-#~ msgstr "Neue Fragegruppe anlegen"
-
-#~ msgid "General"
-#~ msgstr "Allgemein"
-
-#~ msgid "Primary Lecturer"
-#~ msgstr "Primärer Dozent"
-
-#~ msgid "Seconday Lecturer"
-#~ msgstr "Sekundärer Dozent"
-
-#~ msgid "Course is not visible."
-#~ msgstr "Veranstaltung ist nicht sichtbar."
-
-#~ msgid "Remove key"
-#~ msgstr "Schlüssel entfernen"
-
-#~ msgid "Older Semesters"
-#~ msgstr "Ältere Semester"
-
-#~ msgid "Publish text even if anonymity cannot be assured."
-#~ msgstr ""
-#~ "Text auch veröffentlichen, wenn die Anonymität nicht garantiert werden "
-#~ "kann."
-
-#~ msgid ""
-#~ "Error while importing sheet '%(name)s'. All changes undone. The error "
-#~ "message has been: '%(error)s'"
-#~ msgstr ""
-#~ "Fehler beim Importieren des Blattes '%(name)s'. Alle Änderungen wurden "
-#~ "rückgängig gemacht. Die Fehlermeldung war: '%(error)s'"
-
-#~ msgid "# of Questions"
-#~ msgstr "Frageanzahl"
-
-#~ msgid "Voted (abs.)"
-#~ msgstr "Wähler (abs.)"
-
-#~ msgid "Voted (%)"
-#~ msgstr "Wähler (%)"
-
-#~ msgid "Modules"
-#~ msgstr "Module"
-
-#~ msgid "Evaluate Courses"
-#~ msgstr "Veranstaltungen bewerten"
-
-#~ msgid "Update course"
-#~ msgstr "Veranstaltung bearbeiten"
-
-#~ msgid "Preview this questionnaire"
-#~ msgstr "Vorschau dieser Fragegruppe"
-
-#~ msgid "Update questionnaire"
-#~ msgstr "Fragegruppe bearbeiten"
-
-#~ msgid "Update semester"
-#~ msgstr "Semester bearbeiten"
