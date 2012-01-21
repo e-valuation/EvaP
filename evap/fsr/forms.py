@@ -313,7 +313,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.first_name = self.cleaned_data.get('first_name')
         self.instance.user.last_name = self.cleaned_data.get('last_name')
         self.instance.user.email = self.cleaned_data.get('email')
-        self.instance.user.is_staff = self.cleaned_data.get('fsr')
+        self.instance.user.is_staff = self.cleaned_data.get('is_staff')
         self.instance.user.save()
         self.instance = self.instance.user.get_profile()
         
