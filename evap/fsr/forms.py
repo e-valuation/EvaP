@@ -38,7 +38,8 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+    general_questions = ToolTipModelMultipleChoiceField(label=_(u"General questions"), required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+    participants = UserModelMultipleChoiceField(label=_(u"Participants"), queryset=User.objects.order_by("last_name", "username"))
     
     class Meta:
         model = Course
@@ -48,7 +49,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['participants'] = UserModelMultipleChoiceField(queryset=User.objects.order_by("last_name", "username"))
         
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
