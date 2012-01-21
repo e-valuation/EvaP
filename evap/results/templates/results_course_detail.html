@@ -40,11 +40,11 @@
                     <td>
                         {% if result.show %}
                         <div class="distribution-bar twipsify"
-                            title="{% for answer, rel in result.distribution.items %}{{answer|gradename}}: {{rel}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
-                            data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|gradename}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel}}%</div></div>{% endfor %}</div>">
+                            title="{% for answer, rel in result.distribution.items %}{{answer|gradename}}: {{rel|floatformat}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
+                            data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|gradename}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel|floatformat}}%</div></div>{% endfor %}</div>">
                             {% spaceless %}
                             {% for answer, rel in result.distribution.items %}
-                                <div style="display: inline-block; width: {{ rel }}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
+                                <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
                             {% endfor %}
                             {% endspaceless %}
                         </div>

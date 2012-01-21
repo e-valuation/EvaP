@@ -16,6 +16,12 @@ table.vertically-aligned * td {
     vertical-align: middle;
 }
 
+.distribution-bar {
+    border: 1px solid #DDDDDD;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .vote-bg-1 { background: #78f159; }
 .vote-bg-2 { background: #bcf159; }
 .vote-bg-3 { background: #f1e259; }

@@ -75,7 +75,7 @@ def calculate_results(course):
                         distribution[answer] += 1
                     # divide by the number of answers to get relative 0..1 values
                     for k in distribution:
-                        distribution[k] = int(float(distribution[k]) / len(answers) * 100)
+                        distribution[k] = float(distribution[k]) / len(answers) * 100.0
                 else:
                     average = None
                     variance = None
