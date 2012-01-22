@@ -36,10 +36,12 @@ class BootstrapMixin(object):
         top_errors = []
         output = self.__render_fields(self.__layout, top_errors)
         
+        top_errors.extend(self.non_field_errors())
+        
         if top_errors:
-            errors = error_list(top_errors)
+            errors = u"""<ul class="errorlist"><li>%s</li></ul>""" % u"</li><li>".join(top_errors)
         else:
-            errors = u''
+            errors = u""
         
         return mark_safe(errors + output)
     
