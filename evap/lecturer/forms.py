@@ -11,12 +11,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     kind = forms.CharField(label = _(u"type"))
     study = forms.CharField(label = _(u"study"))
     
-    vote_start_date = forms.DateField(label = _(u"first date to vote"))
-    vote_end_date = forms.DateField(label = _(u"last date to vote"))
-    
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en' )
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
@@ -27,22 +24,13 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self.fields[field].initial = getattr(self.instance, field)
         
         for field in ['vote_start_date', 'vote_end_date']:
-            self.fields[field].required = False
             self.fields[field].localize = True
-            self.fields[field].widget.attrs['disabled'] = True
-            self.fields[field].initial = getattr(self.instance, field)
-            
+    
     def clean_kind(self):
         return self.instance.kind
 
     def clean_study(self):
         return self.instance.study
-
-    def clean_vote_start_date(self):
-        return self.instance.vote_start_date
-    
-    def clean_vote_end_date(self):
-        return self.instance.vote_end_date
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
