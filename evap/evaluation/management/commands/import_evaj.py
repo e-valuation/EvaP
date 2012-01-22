@@ -69,6 +69,11 @@ class Command(BaseCommand):
             raise NotOneException("More than one %r element for %r." % (args, kwargs))
         return elements[0]
     
+    def user_from_db(self, username):
+        u = unicode(username)[:30]
+        user, created = User.objects.get_or_create(username__iexact=u, defaults=dict(username=u))
+        return user
+    
     def get_lecture_types(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             yield unicode(self.get_one('course_category', id=ccm.course_category_id).name_ge)
@@ -77,20 +82,19 @@ class Command(BaseCommand):
         for enrollment in self.get('enrollment', course_id=course.id):
             # student --> User
             student = self.get_one('student', id=enrollment.student_id)
-            user, created = User.objects.get_or_create(username=unicode(student.loginName)[:30])
-            yield user
+            yield self.user_from_db(student.loginName)
     
     def get_voters(self, course):
         for enrollment in self.get('enrollment', course_id=course.id, voted=1):
             student = self.get_one('student', id=enrollment.student_id)
-            yield User.objects.get(username=unicode(student.loginName)[:30])
+            yield self.user_from_db(student.loginName)
     
     def get_lecturers_with_questionnaires(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for ccm_to_staff in self.get('ccm_to_staff', ccm_id=ccm.id):
                 # staff --> User
                 staff = self.get_one('staff', id=ccm_to_staff.staff_id)
-                user, created = User.objects.get_or_create(username=unicode(staff.loginName)[:30])
+                user = self.user_from_db(staff.loginName)
                 
                 # import name
                 profile = user.get_profile()
