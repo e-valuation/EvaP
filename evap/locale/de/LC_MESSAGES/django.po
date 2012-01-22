@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-21 18:01+0100\n"
-"PO-Revision-Date: 2012-01-21 18:02+0100\n"
+"PO-Revision-Date: 2012-01-22 13:18+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -558,7 +558,7 @@ msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt
 
 #: .\fsr\views.py:576
 msgid "Successfully updated template."
-msgstr "Semester erfolgreich geändert."
+msgstr "Vorlage erfolgreich geändert."
 
 #: .\fsr\templates\fsr_base.html.py:7
 #: .\fsr\templates\fsr_base.html.py:11
