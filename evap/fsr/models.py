@@ -1,15 +1,25 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models
-from django.template import Context, Template
+from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django.utils.translation import ugettext_lazy as _
+
+
+def validate_template(value):
+    """Field validator which ensures that the value can be compiled into a
+    Django Template."""
+    try:
+        Template(value)
+    except (TemplateSyntaxError, TemplateEncodingError) as e:
+        raise ValidationError(str(e))
 
 
 class EmailTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
     
-    subject = models.CharField(max_length=100, verbose_name=_(u"Subject"))
-    body = models.TextField(verbose_name=_("Body"))
+    subject = models.CharField(max_length=100, verbose_name=_(u"Subject"), validators=[validate_template])
+    body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
     
     @classmethod
     def create_initial_instances(cls):
@@ -44,8 +54,9 @@ class EmailTemplate(models.Model):
     @classmethod
     def get_logon_key_template(cls):
         return cls.objects.get(name="Logon Key Created")
-       
-    def receipient_list_for_course(self, course, send_to_lecturers, send_to_participants):
+    
+    @classmethod
+    def receipient_list_for_course(cls, course, send_to_lecturers, send_to_participants):
         if send_to_participants:
             for user in course.participants.all():
                 yield user
@@ -55,9 +66,9 @@ class EmailTemplate(models.Model):
                 if assignment.lecturer.get_profile().is_lecturer:
                     yield assignment.lecturer
     
-    def render_string(self, text, dictionary):
-        template = Template(text)
-        return template.render(Context(dictionary))
+    @classmethod
+    def render_string(cls, text, dictionary):
+        return Template(text).render(Context(dictionary))
     
     def send_courses(self, courses, send_to_lecturers, send_to_participants):
         # pivot course-user relationship
