@@ -53,14 +53,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
         
-        self.fields['vote_start_date'].localize = True
-        self.fields['vote_start_date'].widget = forms.DateInput()
         if self.instance.state == "inEvaluation":
-            self.fields['vote_start_date'].required = False
-            self.fields['vote_start_date'].widget.attrs['disabled'] = True
-        
-        self.fields['vote_end_date'].localize = True
-        self.fields['vote_end_date'].widget = forms.DateInput()
+            self.fields['vote_start_date'].widget.attrs['readonly'] = True
+            self.fields['vote_end_date'].widget.attrs['readonly'] = True
         
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
