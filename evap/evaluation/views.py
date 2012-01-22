@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.shortcuts import render_to_response
+from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
@@ -13,6 +13,7 @@ def index(request):
     
     if request.method == 'POST':
         if new_key_form.is_valid():
+            # user wants a new login key
             try:
                 user = User.objects.get(email__iexact=new_key_form.cleaned_data['email'])
                 profile = user.get_profile()
@@ -24,12 +25,21 @@ def index(request):
             except User.DoesNotExist:
                 messages.warning(request, _(u"No user with this e-mail address was found."))
     
-    return render_to_response(
-        "index.html",
-        dict(
-             new_key_form=new_key_form
-        ),
-        context_instance=RequestContext(request))
+    if not request.user.is_active:
+        return render_to_response(
+            "index.html",
+            dict(
+                 new_key_form=new_key_form
+            ),
+            context_instance=RequestContext(request))
+    else:
+        # redirect user to appropriate start page
+        if request.user.is_staff:
+            return redirect('evap.fsr.views.index')
+        elif request.user.get_profile().is_lecturer:
+            return redirect('evap.lecturer.views.index')
+        else:
+            return redirect('evap.student.views.index')
     
 def faq(request):
     return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
