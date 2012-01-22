@@ -15,7 +15,12 @@ from evap.student.forms import QuestionsForm
 
 @lecturer_required
 def index(request):
-    return render_to_response("lecturer_index.html", dict(), context_instance=RequestContext(request))
+    user = request.user
+    
+    semester = Semester.get_latest_or_none()
+    own_courses = semester.course_set.filter(assignments__lecturer=user, state="prepared") if semester else None
+    proxied_courses = semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state="prepared") if semester else None
+    return render_to_response("lecturer_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
 
 
 @lecturer_required
@@ -30,16 +35,6 @@ def profile_edit(request):
         return redirect('evap.lecturer.views.index')
     else:
         return render_to_response("lecturer_profile.html", dict(form=form), context_instance=RequestContext(request))
-
-
-@lecturer_required
-def course_index(request):
-    user = request.user
-    
-    semester = Semester.get_latest_or_none()
-    own_courses = semester.course_set.filter(assignments__lecturer=user, state="prepared") if semester else None
-    proxied_courses = semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state="prepared") if semester else None
-    return render_to_response("lecturer_course_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
 
 
 @lecturer_required
