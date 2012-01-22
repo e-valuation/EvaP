@@ -8,27 +8,19 @@ from evap.fsr.fields import UserModelMultipleChoiceField
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    kind = forms.CharField(label = _(u"type"))
-    study = forms.CharField(label = _(u"study"))
-    
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'study')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
         for field in ['kind', 'study']:
-            self.fields[field].required = False
-            self.fields[field].widget.attrs['disabled'] = True
-            self.fields[field].initial = getattr(self.instance, field)
-        
-        for field in ['vote_start_date', 'vote_end_date']:
-            self.fields[field].localize = True
+            self.fields[field].widget.attrs['readonly'] = True
     
     def clean_kind(self):
         return self.instance.kind
-
+    
     def clean_study(self):
         return self.instance.study
 
