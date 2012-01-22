@@ -42,7 +42,7 @@
                     </li>
                     {% endif %}
                     
-                    {% if user.get_profile.lectures_courses %}
+                    {% if user.get_profile.is_lecturer_or_proxy %}
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="{% url evap.lecturer.views.index %}">{% trans "Lecturer" %}</a>
                         <ul class="dropdown-menu">

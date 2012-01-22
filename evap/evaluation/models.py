@@ -403,12 +403,8 @@ class UserProfile(models.Model):
         else:
             return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
-    def lectures_courses(self):        
-        latest_semester = Semester.get_latest_or_none()
-        if latest_semester is None:
-            return False
-        else:
-            return any(course.is_user_lecturer(self.user) for course in latest_semester.course_set.all())
+    def is_lecturer_or_proxy(self):
+        return self.is_lecturer or UserProfile.objects.filter(proxies=self, is_lecturer=True).exists()
     
     def generate_logon_key(self):
         while True:

@@ -171,12 +171,12 @@ def fsr_required(func):
 
 def lecturer_required(func):
     """
-    Decorator for views that checks that the user is logged in and lectures
-    a course in the latest semester
+    Decorator for views that checks that the user is logged in and marked as
+    lecturer or proxy for a lecturer.
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return user.get_profile().lectures_courses()
+        return user.get_profile().is_lecturer_or_proxy()
     return user_passes_test_without_redirect(check_user)(func)
