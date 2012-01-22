@@ -80,7 +80,7 @@ class Questionnaire(models.Model):
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
-        ordering = ('name_de',)
+        ordering = ('obsolete', 'name_de')
         verbose_name = _(u"questionnaire")
         verbose_name_plural = _(u"questionnaires")
     

@@ -398,7 +398,7 @@ def course_preview(request, semester_id, course_id):
 
 @fsr_required
 def questionnaire_index(request):
-    questionnaires = Questionnaire.objects.order_by('obsolete')
+    questionnaires = Questionnaire.objects.all()
     return render_to_response("fsr_questionnaire_index.html", dict(questionnaires=questionnaires), context_instance=RequestContext(request))
 
 
