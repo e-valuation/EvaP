@@ -78,6 +78,7 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
         self.fields['lecturer'].queryset = User.objects.order_by("username")
+        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(obsolete=False)
     
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
