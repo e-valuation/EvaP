@@ -66,7 +66,7 @@ def course_edit(request, course_id):
             messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
         else:
             messages.add_message(request, messages.INFO, _("Successfully updated course."))
-        return redirect('evap.lecturer.views.course_index')
+        return redirect('evap.lecturer.views.index')
     else:
         read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
         return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments), context_instance=RequestContext(request))
