@@ -54,7 +54,8 @@
                 </table>
             </fieldset>
             <div class="actions">
-                <input type="submit" value="{% trans "Approve course" %}" class="btn primary"/>
+                <button name="operation" value="save" type="submit" class="btn primary">{% trans "Save" %}</button>
+                <button name="operation" value="save_and_approve" type="submit" class="btn success">{% trans "Save and Approve"%}</button>
             </div>
         </form>
     </p>
@@ -70,6 +71,7 @@
                 $(e).multiselect();
             });
             $('#assignment_table tbody tr').formset({prefix: 'assignments'});
+            $('a.add-row').addClass("btn small");
         });
     </script>
 {% endblock %}

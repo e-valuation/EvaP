@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-21 18:01+0100\n"
-"PO-Revision-Date: 2012-01-22 13:18+0100\n"
+"POT-Creation-Date: 2012-01-22 17:07+0100\n"
+"PO-Revision-Date: 2012-01-22 17:08+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -332,49 +332,49 @@ msgstr "Allgemeine Fragen"
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: .\fsr\forms.py:94
+#: .\fsr\forms.py:95
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: .\fsr\forms.py:95
+#: .\fsr\forms.py:96
 msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
-#: .\fsr\forms.py:96
-#: .\fsr\models.py:11
+#: .\fsr\forms.py:97
+#: .\fsr\models.py:21
 msgid "Subject"
 msgstr "Betreff"
 
-#: .\fsr\forms.py:97
-#: .\fsr\models.py:12
+#: .\fsr\forms.py:98
+#: .\fsr\models.py:22
 msgid "Body"
 msgstr "Text"
 
-#: .\fsr\forms.py:108
+#: .\fsr\forms.py:109
 msgid "No recipient selected. Choose at least participants or lecturers."
 msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder Teilnehmer aus."
 
-#: .\fsr\forms.py:131
+#: .\fsr\forms.py:132
 msgid "Answer"
 msgstr "Antwort"
 
-#: .\fsr\forms.py:132
+#: .\fsr\forms.py:133
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: .\fsr\forms.py:184
+#: .\fsr\forms.py:185
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: .\fsr\forms.py:196
+#: .\fsr\forms.py:197
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
 msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: .\fsr\forms.py:301
+#: .\fsr\forms.py:302
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: .\fsr\forms.py:324
+#: .\fsr\forms.py:325
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -412,7 +412,7 @@ msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(e
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: .\fsr\models.py:9
+#: .\fsr\models.py:19
 #: .\fsr\templates\fsr_template_index.html.py:15
 #: .\fsr\templates\fsr_user_index.html.py:25
 #: .\lecturer\templates\lecturer_course_index.html.py:17
@@ -492,7 +492,7 @@ msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
 #: .\fsr\views.py:259
-#: .\lecturer\views.py:63
+#: .\lecturer\views.py:73
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -963,13 +963,21 @@ msgstr "E-Mail-Adresse fehlt!"
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
+#: .\lecturer\views.py:71
+msgid "Successfully updated and approved course."
+msgstr "Veranstaltung erfolgreich geändert and bestätigt."
+
 #: .\lecturer\templates\lecturer_base.html.py:6
 msgid "Your EvaP"
 msgstr "Mein EvaP"
 
 #: .\lecturer\templates\lecturer_course_form.html.py:57
-msgid "Approve course"
-msgstr "Veranstaltung bestätigen"
+msgid "Save"
+msgstr "Speichern"
+
+#: .\lecturer\templates\lecturer_course_form.html.py:58
+msgid "Save and Approve"
+msgstr "Speichern und Bestätigen"
 
 #: .\lecturer\templates\lecturer_course_index.html.py:12
 msgid "Own Courses"
@@ -985,12 +993,12 @@ msgid "Courses for which you are a proxy"
 msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
 
 #: .\lecturer\templates\lecturer_profile.html.py:8
-#: .\lecturer\templates\lecturer_profile.html.py:31
+#: .\lecturer\templates\lecturer_profile.html.py:30
 #: .\templates\base.html.py:50
 msgid "Profile"
 msgstr "Profil"
 
-#: .\lecturer\templates\lecturer_profile.html.py:35
+#: .\lecturer\templates\lecturer_profile.html.py:34
 msgid "Save your profile"
 msgstr "Profil speichern"
 
@@ -1130,11 +1138,11 @@ msgstr "Nicht Angemeldet"
 #: .\templates\faq.html.py:13
 msgid ""
 "\n"
-"\t\t<h2>These are the Frequently Asked Questions (FAQs)</h2>\n"
-"\t\t\n"
-"\t\t<h3>First Question</h3>\n"
-"\t\t<p>First Answer</p>\n"
-"\t"
+"        <h2>These are the Frequently Asked Questions (FAQs)</h2>\n"
+"        \n"
+"        <h3>First Question</h3>\n"
+"        <p>First Answer</p>\n"
+"    "
 msgstr ""
 "\n"
 "\t\t<h2>Dies sind die \"Frequently Asked Questions\" (FAQs) also häufig gestellte Fragen und ihre Antworten.</h2>\n"
@@ -1160,11 +1168,11 @@ msgid ""
 "        <p>Welcome to the evaluation platform!</p>\n"
 "        \n"
 "        <p>You are currently not logged in. If you are a HPI student or lecturer,\n"
-"\t\tplease log in using your usual HPI credentials.</p>\n"
+"                please log in using your usual HPI credentials.</p>\n"
 "        \n"
 "        <p>If you are an external student or lecturer, you can use your external\n"
 "        login key to gain access to the system. If you do not have an external\n"
-"\t\tlogin key or if you have lost yours, you can create a new one below.</p>\n"
+"                login key or if you have lost yours, you can create a new one below.</p>\n"
 "        "
 msgstr ""
 "\n"

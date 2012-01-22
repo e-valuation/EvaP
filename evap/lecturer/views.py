@@ -50,17 +50,27 @@ def course_edit(request, course_id):
     # check rights
     if not (course.is_user_lecturer(user) and course.state=="prepared"):
         raise PermissionDenied
-        
+    
     AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
     
     form = CourseForm(request.POST or None, instance=course)
     formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(read_only=True).exclude(lecturer=None))
     
+    operation = request.POST.get('operation')
+    
     if form.is_valid() and formset.is_valid():
+        if operation not in ('save', 'save_and_approve'):
+            raise PermissionDenied
+        
         form.save()
         formset.save()
         
-        messages.add_message(request, messages.INFO, _("Successfully updated course."))
+        if operation == 'save_and_approve':
+            course.lecturer_approve()
+            course.save()
+            messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
+        else:
+            messages.add_message(request, messages.INFO, _("Successfully updated course."))
         return redirect('evap.lecturer.views.course_index')
     else:
         read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
