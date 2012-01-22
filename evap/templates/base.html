@@ -46,10 +46,10 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="{% url evap.lecturer.views.index %}">{% trans "Lecturer" %}</a>
                         <ul class="dropdown-menu">
+                            <li><a href="{% url evap.lecturer.views.index %}">{% trans "Overview" %}</a></li>
                             {% if user.get_profile.is_lecturer %}
                                 <li><a href="{% url evap.lecturer.views.profile_edit %}">{% trans "Profile" %}</a></li>
                             {% endif %}
-                            <li><a href="{% url evap.lecturer.views.course_index %}">{% trans "Courses" %}</a></li>
                         </ul>
                     </li>
                     {% endif %}

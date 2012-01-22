@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-22 17:07+0100\n"
-"PO-Revision-Date: 2012-01-22 17:08+0100\n"
+"POT-Creation-Date: 2012-01-22 17:40+0100\n"
+"PO-Revision-Date: 2012-01-22 17:41+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -284,7 +284,7 @@ msgstr "Stimme teilweise nicht zu"
 msgid "Strongly disagree"
 msgstr "Stimme nicht zu"
 
-#: .\evaluation\views.py:25
+#: .\evaluation\views.py:26
 msgid "No user with this e-mail address was found."
 msgstr "Kein Benutzer mit dieser E-Mail-Adresse gefunden."
 
@@ -327,8 +327,8 @@ msgid "General questions"
 msgstr "Allgemeine Fragen"
 
 #: .\fsr\forms.py:42
-#: .\lecturer\templates\lecturer_course_index.html.py:18
-#: .\lecturer\templates\lecturer_course_index.html.py:45
+#: .\lecturer\templates\lecturer_index.html.py:14
+#: .\lecturer\templates\lecturer_index.html.py:41
 msgid "Participants"
 msgstr "Teilnehmer"
 
@@ -415,8 +415,8 @@ msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 #: .\fsr\models.py:19
 #: .\fsr\templates\fsr_template_index.html.py:15
 #: .\fsr\templates\fsr_user_index.html.py:25
-#: .\lecturer\templates\lecturer_course_index.html.py:17
-#: .\lecturer\templates\lecturer_course_index.html.py:44
+#: .\lecturer\templates\lecturer_index.html.py:13
+#: .\lecturer\templates\lecturer_index.html.py:40
 msgid "Name"
 msgstr "Name"
 
@@ -492,7 +492,7 @@ msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
 #: .\fsr\views.py:259
-#: .\lecturer\views.py:73
+#: .\lecturer\views.py:68
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -611,20 +611,20 @@ msgstr "E-Mail senden"
 
 #: .\fsr\templates\fsr_course_form.html.py:12
 #: .\fsr\templates\fsr_questionnaire_form.html.py:30
-#: .\lecturer\templates\lecturer_course_form.html.py:17
+#: .\lecturer\templates\lecturer_course_form.html.py:12
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
 #: .\fsr\templates\fsr_course_form.html.py:17
 #: .\fsr\templates\fsr_index.html.py:45
 #: .\fsr\templates\fsr_user_index.html.py:16
-#: .\lecturer\templates\lecturer_course_form.html.py:23
+#: .\lecturer\templates\lecturer_course_form.html.py:18
 msgid "Lecturers"
 msgstr "Dozenten"
 
 #: .\fsr\templates\fsr_course_form.html.py:29
 #: .\fsr\templates\fsr_questionnaire_form.html.py:44
-#: .\lecturer\templates\lecturer_course_form.html.py:31
+#: .\lecturer\templates\lecturer_course_form.html.py:26
 msgid "Delete?"
 msgstr "Löschen?"
 
@@ -710,8 +710,8 @@ msgstr "E-Mail-Vorlagen"
 #: .\fsr\templates\fsr_questionnaire_index.html.py:37
 #: .\fsr\templates\fsr_template_index.html.py:23
 #: .\fsr\templates\fsr_user_index.html.py:55
-#: .\lecturer\templates\lecturer_course_index.html.py:28
-#: .\lecturer\templates\lecturer_course_index.html.py:55
+#: .\lecturer\templates\lecturer_index.html.py:24
+#: .\lecturer\templates\lecturer_index.html.py:51
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -750,8 +750,8 @@ msgstr "Fragebogen"
 #: .\fsr\templates\fsr_questionnaire_index.html.py:16
 #: .\fsr\templates\fsr_template_index.html.py:16
 #: .\fsr\templates\fsr_user_index.html.py:28
-#: .\lecturer\templates\lecturer_course_index.html.py:19
-#: .\lecturer\templates\lecturer_course_index.html.py:46
+#: .\lecturer\templates\lecturer_index.html.py:15
+#: .\lecturer\templates\lecturer_index.html.py:42
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -791,8 +791,8 @@ msgstr[1] ""
 
 #: .\fsr\templates\fsr_questionnaire_index.html.py:39
 #: .\fsr\templates\fsr_semester_view.html.py:58
-#: .\lecturer\templates\lecturer_course_index.html.py:29
-#: .\lecturer\templates\lecturer_course_index.html.py:56
+#: .\lecturer\templates\lecturer_index.html.py:25
+#: .\lecturer\templates\lecturer_index.html.py:52
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -803,10 +803,6 @@ msgstr "Es gibt noch keine Fragegruppen."
 #: .\fsr\templates\fsr_semester_approve.html.py:12
 #: .\fsr\templates\fsr_semester_lecturer_ready.html.py:12
 #: .\fsr\templates\fsr_semester_publish.html.py:12
-#: .\lecturer\templates\lecturer_course_form.html.py:8
-#: .\lecturer\templates\lecturer_course_index.html.py:7
-#: .\lecturer\templates\lecturer_course_preview.html.py:7
-#: .\templates\base.html.py:52
 msgid "Courses"
 msgstr "Veranstaltungen"
 
@@ -959,11 +955,11 @@ msgstr "FSR-Mitglied"
 msgid "E-Mail address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
-#: .\lecturer\views.py:29
+#: .\lecturer\views.py:34
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
-#: .\lecturer\views.py:71
+#: .\lecturer\views.py:66
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
@@ -971,30 +967,42 @@ msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 msgid "Your EvaP"
 msgstr "Mein EvaP"
 
-#: .\lecturer\templates\lecturer_course_form.html.py:57
+#: .\lecturer\templates\lecturer_course_form.html.py:52
 msgid "Save"
 msgstr "Speichern"
 
-#: .\lecturer\templates\lecturer_course_form.html.py:58
+#: .\lecturer\templates\lecturer_course_form.html.py:53
 msgid "Save and Approve"
 msgstr "Speichern und Bestätigen"
 
-#: .\lecturer\templates\lecturer_course_index.html.py:12
+#: .\lecturer\templates\lecturer_index.html.py:8
 msgid "Own Courses"
 msgstr "Eigene Veranstaltungen"
 
-#: .\lecturer\templates\lecturer_course_index.html.py:36
-#: .\lecturer\templates\lecturer_course_index.html.py:63
+#: .\lecturer\templates\lecturer_index.html.py:32
+#: .\lecturer\templates\lecturer_index.html.py:60
 msgid "There are no courses for you this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\lecturer\templates\lecturer_course_index.html.py:39
+#: .\lecturer\templates\lecturer_index.html.py:35
 msgid "Courses for which you are a proxy"
 msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
 
+#: .\lecturer\templates\lecturer_index.html.py:64
+msgid "Own Profile"
+msgstr "Eigenes Profil"
+
+#: .\lecturer\templates\lecturer_index.html.py:65
+msgid "You can edit your own user profile here:"
+msgstr "Sie können Ihr eigenes Profil hier bearbeiten:"
+
+#: .\lecturer\templates\lecturer_index.html.py:65
+msgid "Edit own Profile"
+msgstr "Eigenes Profil bearbeiten"
+
 #: .\lecturer\templates\lecturer_profile.html.py:8
 #: .\lecturer\templates\lecturer_profile.html.py:30
-#: .\templates\base.html.py:50
+#: .\templates\base.html.py:51
 msgid "Profile"
 msgstr "Profil"
 
@@ -1106,6 +1114,7 @@ msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
 #: .\templates\base.html.py:34
+#: .\templates\base.html.py:49
 msgid "Overview"
 msgstr "Übersicht"
 
