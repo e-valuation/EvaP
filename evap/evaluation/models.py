@@ -1,8 +1,9 @@
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.conf import settings
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from django_fsm.db.fields import FSMField, transition
@@ -134,6 +135,10 @@ class Course(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    def clean(self):
+        if not (self.vote_start_date < self.vote_end_date):
+            raise ValidationError(_(u"The vote start date must be before the vote end date."))
     
     def save(self, *args, **kw):
         super(Course, self).save(*args, **kw)
