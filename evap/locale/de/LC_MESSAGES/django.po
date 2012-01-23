@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-22 19:45+0100\n"
-"PO-Revision-Date: 2012-01-22 19:46+0100\n"
+"POT-Creation-Date: 2012-01-23 13:51+0100\n"
+"PO-Revision-Date: 2012-01-23 13:53+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -284,7 +284,7 @@ msgstr "Stimme teilweise nicht zu"
 msgid "Strongly disagree"
 msgstr "Stimme nicht zu"
 
-#: .\evaluation\views.py:26
+#: .\evaluation\views.py:32
 msgid "No user with this e-mail address was found."
 msgstr "Kein Benutzer mit dieser E-Mail-Adresse gefunden."
 
@@ -1160,7 +1160,7 @@ msgstr ""
 "\t\t<p>Erste Antwort</p>\n"
 "\t"
 
-#: .\templates\index.html.py:23
+#: .\templates\index.html.py:9
 #, python-format
 msgid ""
 "\n"
@@ -1171,7 +1171,7 @@ msgstr ""
 "  Sie sind zur Zeit als %(name)s angemeldet.\n"
 "            "
 
-#: .\templates\index.html.py:28
+#: .\templates\index.html.py:14
 msgid ""
 "\n"
 "        <p>Welcome to the evaluation platform!</p>\n"
@@ -1189,19 +1189,19 @@ msgstr ""
 "  \n"
 "  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, können Sie unten einen neuen erstellen.</p>"
 
-#: .\templates\index.html.py:39
+#: .\templates\index.html.py:25
 msgid "HPI student or lecturer"
 msgstr "HPI-Student oder -Dozent"
 
-#: .\templates\index.html.py:41
+#: .\templates\index.html.py:27
 msgid "Click here to log in using your credentials."
 msgstr "Hier klicken, um sich mit Ihrem HPI-Login anzumelden."
 
-#: .\templates\index.html.py:43
+#: .\templates\index.html.py:29
 msgid "External student or lecturer"
 msgstr "Externer Student oder Dozent"
 
-#: .\templates\index.html.py:46
+#: .\templates\index.html.py:32
 msgid ""
 "\n"
 "                Please enter your login key below. Be aware that login keys are\n"
@@ -1211,19 +1211,19 @@ msgstr ""
 "\n"
 "  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: Anmeldeschlüssel gelten nur drei Monate."
 
-#: .\templates\index.html.py:54
+#: .\templates\index.html.py:40
 msgid "login key"
 msgstr "Anmeldeschlüssel"
 
-#: .\templates\index.html.py:60
+#: .\templates\index.html.py:46
 msgid "Login"
 msgstr "Anmeldung"
 
-#: .\templates\index.html.py:66
+#: .\templates\index.html.py:52
 msgid "Generate a new external login key"
 msgstr "Neuen Anmeldeschlüssel erzeugen"
 
-#: .\templates\index.html.py:68
+#: .\templates\index.html.py:54
 msgid ""
 "\n"
 "                If you do not have a login key or lost your previous login key, \n"
@@ -1237,7 +1237,11 @@ msgstr ""
 "\n"
 "  Falls Sie keinen Anmeldeschlüssel besitzen oder Ihren Schlüssel verloren haben, können Sie unten einen neuen erstellen. Bitte tragen Sie dazu Ihre E-Mail-Adresse in das Feld unten ein. Ein neuer Schlüssel wird Ihnen daraufhin per E-Mail zugesandt. Bitte verwenden Sie dazu die E-Mail-Adresse, welche Sie zur Einschreibung verwendet haben."
 
-#: .\templates\index.html.py:94
+#: .\templates\index.html.py:80
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
+
+#: .\templates\logout.html.py:13
+msgid "You logged out successfully."
+msgstr "Sie haben sich erfolgreich abgemeldet."
 

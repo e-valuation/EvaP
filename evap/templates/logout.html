@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block header %}
+    {{ block.super }}
+    <!-- redirect to start page -->
+    <meta http-equiv="refresh" content="0; url=/">
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {% trans "You logged out successfully." %}
+{% endblock %}
