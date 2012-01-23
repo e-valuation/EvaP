@@ -76,7 +76,7 @@
                         &nbsp;
                     </form>
                     {% if user.is_active %}
-                    <form action="{% url django.contrib.auth.views.logout %}" method="GET">
+                    <form action="{% url evap.evaluation.views.logout %}" method="GET">
                         <button type="submit" class="btn small">{% trans "Logout" %}</button>
                     </form>
                     {% endif %}
