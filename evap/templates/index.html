@@ -2,6 +2,18 @@
 
 {% load i18n %}
 
+{% block subtitle %}
+    {{ block.super }}
+    {% comment %} Don't need another entry here {% endcomment %}
+{% endblock %}
+
+{% block sidebar %}
+    {% comment %} hide the menu if the user is not logged in {% endcomment %}
+    {% if request.user.is_active %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     {% if request.user.is_active %}

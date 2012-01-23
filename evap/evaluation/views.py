@@ -1,17 +1,11 @@
 from django.contrib import messages
-from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm
 from evap.fsr.models import EmailTemplate
-
-
-class HttpResponseUnauthorized(HttpResponse):
-    status_code = 401
 
 
 def index(request):
@@ -46,14 +40,6 @@ def index(request):
             return redirect('evap.lecturer.views.index')
         else:
             return redirect('evap.student.views.index')
-
-
-def logout(request):
-    auth_logout(request)
-    response = render_to_response("logout.html", context_instance=RequestContext(request))
-    response.status_code = 401
-    return response
-
-
+    
 def faq(request):
     return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
