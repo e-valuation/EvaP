@@ -1,6 +1,5 @@
-from django.contrib import auth, messages
+from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -41,18 +40,6 @@ def index(request):
             return redirect('evap.lecturer.views.index')
         else:
             return redirect('evap.student.views.index')
-
     
 def faq(request):
     return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
-
-
-def login(request):
-    if request.was_logged_in_before:
-        # user wants to log in, but was logged in before, so he needs to log out first
-        auth.logout(request)
-        response = HttpResponse(status=401)
-        response["WWW-Authenticate"] = 'Basic realm="HPI Domain Login"'
-        return response
-    
-    return redirect('evap.evaluation.views.index')
