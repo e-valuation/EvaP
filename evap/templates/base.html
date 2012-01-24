@@ -15,6 +15,15 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/ui.datepicker.css" />
     <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}
+    {% if debug %}
+    <!-- red topbar in debug mode -->
+    <style>
+        .topbar-inner, .topbar .fill {
+            background-color: #b00;
+            background-image: -moz-linear-gradient(center top , #b00, #a00)
+        }
+    </style>
+    {% endif %}
 </head>
 <body>
     <div class="topbar" id="topbar">
