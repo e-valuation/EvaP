@@ -4,7 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import Course, UserProfile
 from evap.evaluation.forms import BootstrapMixin
-from evap.fsr.fields import UserModelMultipleChoiceField
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
