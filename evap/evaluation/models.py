@@ -78,6 +78,7 @@ class Questionnaire(models.Model):
     teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
     teaser = Translate
     
+    is_for_persons = models.BooleanField(verbose_name=_(u"is for persons"))
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
