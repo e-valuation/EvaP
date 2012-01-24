@@ -22,6 +22,7 @@ class Migration(DataMigration):
                 with_person = q.assigned_to.filter(lecturer=None).count()
                 without_person = q.assigned_to.exclude(lecturer=None).count()
                 q.is_for_persons = with_person > without_person
+            q.save()
     
     def backwards(self, orm):
         "Write your backwards methods here."
@@ -32,6 +33,7 @@ class Migration(DataMigration):
             else:
                 q.name_de = u"[B] " + q.name_de
                 q.name_en = u"[B] " + q.name_en
+            q.save()
 
     models = {
         'auth.group': {
