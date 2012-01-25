@@ -25,10 +25,10 @@ class ImportForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)
         
-        self.fields['vote_start_date'].localize = True
+        self.fields['vote_start_date'].localize = False
         self.fields['vote_start_date'].widget = forms.DateInput()
         
-        self.fields['vote_end_date'].localize = True
+        self.fields['vote_end_date'].localize = False
         self.fields['vote_end_date'].widget = forms.DateInput()
 
 
