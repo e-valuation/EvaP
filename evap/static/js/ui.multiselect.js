@@ -58,12 +58,16 @@ $.widget("ui.multiselect", {
 
 		// set dimensions
 		this.container.width(this.element.width()+1);
+		this.container.height(this.element.height()+1);
 		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation));
 		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation)));
 
 		// fix list height to match <option> depending on their individual header's heights
-		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
-		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
+		this.selectedActions.height(Math.max(this.selectedActions.children().outerHeight(true), 1));
+		this.availableActions.height(Math.max(this.availableActions.children().outerHeight(true), 1));
+		
+		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(), 1));
+		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(), 1));
 		
 		if ( !this.options.animated ) {
 			this.options.show = 'show';
@@ -281,19 +285,19 @@ $.widget("ui.multiselect", {
 		
 		// make draggable
 		if (this.options.sortable) {
-  		elements.each(function() {
-  			$(this).parent().draggable({
-  	      connectToSortable: that.selectedList,
-  				helper: function() {
-  					var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
-  					selectedItem.width($(this).width());
-  					return selectedItem;
-  				},
-  				appendTo: that.container,
-  				containment: that.container,
-  				revert: 'invalid'
-  	    });
-  		});		  
+			elements.each(function() {
+				$(this).parent().draggable({
+					connectToSortable: that.selectedList,
+					helper: function() {
+						var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
+						selectedItem.width($(this).width());
+						return selectedItem;
+					},
+					appendTo: that.container,
+					containment: that.container,
+					revert: 'invalid'
+				});
+			});		  
 		}
 	},
 	_registerRemoveEvents: function(elements) {
