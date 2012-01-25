@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-25 01:07+0100\n"
-"PO-Revision-Date: 2012-01-25 01:08+0100\n"
+"PO-Revision-Date: 2012-01-25 12:11+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -270,11 +270,11 @@ msgstr "Benutzer"
 
 #: .\evaluation\tools.py:11
 msgid "Strongly agree"
-msgstr "Stimme vollkommen zu"
+msgstr "Stimme voll zu"
 
 #: .\evaluation\tools.py:12
 msgid "Agree"
-msgstr "Stimme teilweise zu"
+msgstr "Stimme teils zu"
 
 #: .\evaluation\tools.py:13
 msgid "Neither agree nor disagree"
@@ -282,7 +282,7 @@ msgstr "teils teils"
 
 #: .\evaluation\tools.py:14
 msgid "Disagree"
-msgstr "Stimme teilweise nicht zu"
+msgstr "Stimme teils nicht zu"
 
 #: .\evaluation\tools.py:15
 msgid "Strongly disagree"
