@@ -19,10 +19,9 @@
                 {{ formset.non_form_errors }}
                 <table id="assignment_table">
                     <tr>
-                        {% for field in formset.form %}
+                        {% for field in formset.form.visible_fields %}
                             <th>{{ field.label }}</th>
                         {% endfor %}
-                        <th></th>
                         <th>{% trans "Delete?" %}</th>
                     </tr>
                     <tbody>
@@ -40,7 +39,10 @@
                             {% endif %}
                             
                             <tr>
-                            {% for field in form_element %}
+                            {% for field in form_element.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
+                            {% for field in form_element.visible_fields %}
                                 <td>{{field.errors}} {{ field }}</td>
                             {% endfor %}
                             </tr>
