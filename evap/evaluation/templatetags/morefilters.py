@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template import Library
-from evap.evaluation.tools import GRADE_NAMES
+from evap.evaluation.tools import GRADE_NAMES, STATES_ORDERED
 
 register = Library()
 
@@ -17,7 +17,12 @@ def percentage(fraction, population):
 
 @register.filter(name='gradename')
 def gradename(grade):
-    return GRADE_NAMES.get(grade, "")
+    return GRADE_NAMES.get(grade)
+
+
+@register.filter(name='statename')
+def statename(state):
+    return STATES_ORDERED.get(state)
 
 
 @register.tag
