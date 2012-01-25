@@ -1,19 +1,69 @@
+from itertools import chain
+
 from django import forms
 from django.forms import widgets
+from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
-from django.utils.html import escape
+from django.utils.encoding import force_unicode
+from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 
+class QuestionnaireChoiceIterator(ModelChoiceIterator):
+    def choice(self, obj):
+        return (self.field.prepare_value(obj), self.field.label_from_instance(obj), obj.description)
+
+class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
+    def render(self, name, value, attrs=None, choices=()):
+        if value is None: value = []
+        has_id = attrs and 'id' in attrs
+        final_attrs = self.build_attrs(attrs, name=name)
+        output = [u'<ul class="inputs-list">']
+        
+        # Normalize to strings
+        str_values = set([force_unicode(v) for v in value])
+        for i, (option_value, option_label, option_text) in enumerate(chain(self.choices, choices)):
+            # If an ID attribute was given, add a numeric index as a suffix,
+            # so that the checkboxes don't all have the same ID attribute.
+            if has_id:
+                final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
+                label_for = u' for="%s"' % final_attrs['id']
+            else:
+                label_for = ''
+            
+            cb = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
+            option_value = force_unicode(option_value)
+            rendered_cb = cb.render(name, option_value)
+            option_label = conditional_escape(force_unicode(option_label))
+            output.append(u'<li class="twipsify" title="%s"><label%s>%s %s</label></li>' % (escape(option_text), label_for, rendered_cb, option_label))
+        output.append(u'</ul>')
+        return mark_safe(u'\n'.join(output))    
+
+
+
+class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
+    widget = QuestionnaireSelectMultiple
+    
+    def _get_choices(self):
+        # If self._choices is set, then somebody must have manually set
+        # the property self.choices. In this case, just return self._choices.
+        if hasattr(self, '_choices'):
+            return self._choices
+        
+        # Otherwise, execute the QuerySet in self.queryset to determine the
+        # choices dynamically. Return a fresh ModelChoiceIterator that has not been
+        # consumed. Note that we're instantiating a new ModelChoiceIterator *each*
+        # time _get_choices() is called (and, thus, each time self.choices is
+        # accessed) so that we can ensure the QuerySet has not been consumed. This
+        # construct might look complicated but it allows for lazy evaluation of
+        # the queryset.
+        return QuestionnaireChoiceIterator(self)
+    choices = property(_get_choices, forms.ChoiceField._set_choices)
+
+
 class NewKeyForm(forms.Form):
     email = forms.EmailField(label=_(u"e-mail address"))
-
-
-class CheckboxSelectMultipleBootstrap(widgets.CheckboxSelectMultiple):
-    def render(self, *args, **kwargs):
-        output = super(CheckboxSelectMultipleBootstrap, self).render(*args, **kwargs)
-        return mark_safe(output.replace("<ul>", """<ul class="inputs-list">"""))
 
 
 class BootstrapFieldset(object):

@@ -2,26 +2,36 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import Course, UserProfile
-from evap.evaluation.forms import BootstrapMixin
+from evap.evaluation.models import Course, UserProfile, Questionnaire
+from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
+    
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'study')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'study', 'general_questions')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
         for field in ['kind', 'study']:
             self.fields[field].widget.attrs['readonly'] = True
+        
+        if self.instance.general_assignment:
+            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
     
     def clean_kind(self):
         return self.instance.kind
     
     def clean_study(self):
         return self.instance.study
+
+    def save(self, *args, **kw):
+        super(CourseForm, self).save(*args, **kw)
+        self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.save()
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
