@@ -9,7 +9,7 @@ from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
-from evap.evaluation.forms import BootstrapMixin, CheckboxSelectMultipleBootstrap
+from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile
 from evap.fsr.models import EmailTemplate
@@ -38,8 +38,7 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    # steal form field definitions
-    general_questions = forms.fields_for_model(Assignment, fields=('questionnaires',))['questionnaires']
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
     
     class Meta:
         model = Course
@@ -53,9 +52,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
         self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
-        self.fields['general_questions'].label = _(u"General questions")
-        self.fields['general_questions'].widget = CheckboxSelectMultipleBootstrap()
-        self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_persons=False, obsolete=False)
         
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
@@ -77,9 +73,7 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
         self.fields['lecturer'].queryset = User.objects.order_by("username")
-        
-        self.fields['questionnaires'].widget = CheckboxSelectMultipleBootstrap()
-        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_persons=True, obsolete=False)
+        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=True, obsolete=False))
     
     def validate_unique(self):
         exclude = self._get_validation_exclusions()

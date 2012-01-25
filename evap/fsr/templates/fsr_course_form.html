@@ -53,6 +53,7 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
     $(function() {
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
@@ -65,6 +66,11 @@
 
         $('#id_study').combobox();
         $('#id_kind').combobox();
+        
+        $('.twipsify').twipsy({
+            html: true,
+            placement: 'left'
+        });
     });
     </script>
     
