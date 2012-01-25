@@ -4,37 +4,35 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST">
-        {% csrf_token %}
-        
-        {% for form in forms %}
-            {% if form.image %}
-                <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
-            {% endif %}
-            <h4>
-            {{ form.caption }}
-            </h4>
-            {% if form.teaser %}
-                <p>{{ form.teaser }}</p>
-            {% endif %}
-            {{ form.non_field_errors }}
-            <table class="zebra-striped vertically-aligned">
-            <tbody>
-            {% for field in form %}
-            <tr class="vote-row">
-                <td class="span4">
-                    {{ field.label }}
-                </td>
-                <td class="span12 vote-inputs">
-                    {{ field.errors }}
-                    {{ field }}
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-            </table>
+    <form method="POST">
+    {% csrf_token %}
+    
+    {% for form in forms %}
+        {% if form.image %}
+            <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
+        {% endif %}
+        <h4>
+        {{ form.caption }}
+        </h4>
+        {% if form.teaser %}
+            <p>{{ form.teaser }}</p>
+        {% endif %}
+        {{ form.non_field_errors }}
+        <table class="zebra-striped vertically-aligned">
+        <tbody>
+        {% for field in form %}
+        <tr class="vote-row">
+            <td class="span4">
+                {{ field.label }}
+            </td>
+            <td class="span12 vote-inputs">
+                {{ field.errors }}
+                {{ field }}
+            </td>
+        </tr>
         {% endfor %}
-        </form>
-    </p>
+        </tbody>
+        </table>
+    {% endfor %}
+    </form>
 {% endblock %}

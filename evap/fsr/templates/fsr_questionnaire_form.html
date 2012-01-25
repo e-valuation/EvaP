@@ -23,44 +23,42 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset>
-                <legend>{% trans "General Options" %}</legend>
-                {{ form.as_div }}
-            </fieldset>
-            
-            <fieldset>
-                <legend>{% trans "Questions" %}</legend>
-                {{ formset.management_form }}
-                {{ formset.non_form_errors }}
-                <table id="question_table">
-                    <tr>
-                        {% for field in formset.form %}
-                            <th>{{ field.label }}</th>
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{% trans "General Options" %}</legend>
+            {{ form.as_div }}
+        </fieldset>
+        
+        <fieldset>
+            <legend>{% trans "Questions" %}</legend>
+            {{ formset.management_form }}
+            {{ formset.non_form_errors }}
+            <table id="question_table">
+                <tr>
+                    {% for field in formset.form %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                    <th></th>
+                    <th>{% trans "Delete?" %}</th>
+                </tr>
+                <tbody>
+                    {% for form_element in formset %}
+                        {% if form_element.non_field_errors %}
+                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                        {% endif %}
+                        
+                        <tr>
+                        {% for field in form_element %}
+                            <td>{{field.errors}} {{ field }}</td>
                         {% endfor %}
-                        <th></th>
-                        <th>{% trans "Delete?" %}</th>
-                    </tr>
-                    <tbody>
-                        {% for form_element in formset %}
-                            {% if form_element.non_field_errors %}
-                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                            {% endif %}
-                            
-                            <tr>
-                            {% for field in form_element %}
-                                <td>{{field.errors}} {{ field }}</td>
-                            {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </fieldset>
-            <div class="actions">
-                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;" class="btn primary"/>
-            </div>
-        </form>
-    </p>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </fieldset>
+        <div class="actions">
+            <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;" class="btn primary"/>
+        </div>
+    </form>
 {% endblock %}

@@ -5,57 +5,55 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST" class="multiselect-form">
-            {% csrf_token %}
-            <fieldset>
-                <legend>{% trans "General Options" %}</legend>
-                {{ form.as_div }}
-            </fieldset>
-            
-            <fieldset>
-                {{ formset.management_form }}
-                <legend>{% trans "Lecturers" %}</legend>
-                {{ formset.non_form_errors }}
-                <table id="assignment_table">
-                    <tr>
-                        {% for field in formset.form.visible_fields %}
-                            <th>{{ field.label }}</th>
-                        {% endfor %}
-                        <th>{% trans "Delete?" %}</th>
-                    </tr>
-                    <tbody>
-                        {% for assignment in read_only_assignments %}
-                            <tr>
-                                <td>{{ assignment.lecturer }}</td>
-                                <td>{{ assignment.questionnaires.all|join:", " }}</td>
-                                <td/>
-                            </tr>
-                        {% endfor %}
+    <form method="POST" class="multiselect-form">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{% trans "General Options" %}</legend>
+            {{ form.as_div }}
+        </fieldset>
+        
+        <fieldset>
+            {{ formset.management_form }}
+            <legend>{% trans "Lecturers" %}</legend>
+            {{ formset.non_form_errors }}
+            <table id="assignment_table">
+                <tr>
+                    {% for field in formset.form.visible_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                    <th>{% trans "Delete?" %}</th>
+                </tr>
+                <tbody>
+                    {% for assignment in read_only_assignments %}
+                        <tr>
+                            <td>{{ assignment.lecturer }}</td>
+                            <td>{{ assignment.questionnaires.all|join:", " }}</td>
+                            <td/>
+                        </tr>
+                    {% endfor %}
+                    
+                    {% for form_element in formset %}
+                        {% if form_element.non_field_errors %}
+                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                        {% endif %}
                         
-                        {% for form_element in formset %}
-                            {% if form_element.non_field_errors %}
-                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                            {% endif %}
-                            
-                            <tr>
-                            {% for field in form_element.hidden_fields %}
-                                {{ field }}
-                            {% endfor %}
-                            {% for field in form_element.visible_fields %}
-                                <td>{{field.errors}} {{ field }}</td>
-                            {% endfor %}
-                            </tr>
+                        <tr>
+                        {% for field in form_element.hidden_fields %}
+                            {{ field }}
                         {% endfor %}
-                    </tbody>
-                </table>
-            </fieldset>
-            <div class="actions">
-                <button name="operation" value="save" type="submit" class="btn primary">{% trans "Save" %}</button>
-                <button name="operation" value="save_and_approve" type="submit" class="btn success">{% trans "Save and Approve"%}</button>
-            </div>
-        </form>
-    </p>
+                        {% for field in form_element.visible_fields %}
+                            <td>{{field.errors}} {{ field }}</td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </fieldset>
+        <div class="actions">
+            <button name="operation" value="save" type="submit" class="btn primary">{% trans "Save" %}</button>
+            <button name="operation" value="save_and_approve" type="submit" class="btn success">{% trans "Save and Approve"%}</button>
+        </div>
+    </form>
 {% endblock %}
 
 {% block scripts %}
