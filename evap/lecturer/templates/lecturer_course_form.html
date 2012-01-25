@@ -49,6 +49,16 @@
                 </tbody>
             </table>
         </fieldset>
+        
+        <fieldset>
+            <legend>{% trans "Students" %}</legend>
+            <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
+            <ul>
+                {% for p in course.participants.all %}
+                    <li>{{ p.get_profile.full_name }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
         <div class="actions">
             <button name="operation" value="approve" type="submit" class="btn success">{% trans "Approve"%}</button>
             <a href="{% url evap.lecturer.views.index %}" class="btn">{% trans "Cancel" %}</a>
