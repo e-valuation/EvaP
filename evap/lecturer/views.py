@@ -62,22 +62,18 @@ def course_edit(request, course_id):
     operation = request.POST.get('operation')
     
     if form.is_valid() and formset.is_valid():
-        if operation not in ('save', 'save_and_approve'):
-            raise PermissionDenied
-        
         form.save()
         formset.save()
         
-        if operation == 'save_and_approve':
-            course.lecturer_approve()
-            course.save()
-            messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
-        else:
-            messages.add_message(request, messages.INFO, _("Successfully updated course."))
+        # approve course
+        course.lecturer_approve()
+        course.save()
+        messages.add_message(request, messages.INFO, _("Successfully approved course."))
+
         return redirect('evap.lecturer.views.index')
     else:
         read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
-        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments), context_instance=RequestContext(request))
+        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course), context_instance=RequestContext(request))
 
 
 @lecturer_required
