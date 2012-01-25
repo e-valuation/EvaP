@@ -1,5 +1,5 @@
 from django import forms
-from django.forms.widgets import CheckboxSelectMultiple, DateInput, TextInput
+from django.forms import widgets
 from django.template import Template, Context
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -10,7 +10,7 @@ class NewKeyForm(forms.Form):
     email = forms.EmailField(label=_(u"e-mail address"))
 
 
-class CheckboxSelectMultipleBootstrap(CheckboxSelectMultiple):
+class CheckboxSelectMultipleBootstrap(widgets.CheckboxSelectMultiple):
     def render(self, *args, **kwargs):
         output = super(CheckboxSelectMultipleBootstrap, self).render(*args, **kwargs)
         return mark_safe(output.replace("<ul>", """<ul class="inputs-list">"""))
@@ -124,9 +124,9 @@ class BootstrapMixin(object):
                 help_text = u''
             
             attrs = {}
-            if isinstance(field_instance.widget, (TextInput, DateInput)):
+            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput)):
                 attrs['class'] = 'span8'
-            if isinstance(field_instance.widget, DateInput):
+            if isinstance(field_instance.widget, widgets.DateInput):
                 attrs['data-datepicker'] = "datepicker"
             
             field_hash = {
