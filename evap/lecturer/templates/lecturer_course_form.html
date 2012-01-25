@@ -60,6 +60,7 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
         $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
@@ -69,6 +70,11 @@
             });
             $('#assignment_table tbody tr').formset({prefix: 'assignments'});
             $('a.add-row').addClass("btn small");
+            
+            $('.twipsify').twipsy({
+                html: true,
+                placement: 'left'
+            });
         });
     </script>
 {% endblock %}
