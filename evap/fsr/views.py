@@ -172,8 +172,11 @@ def semester_lecturer_ready(request, semester_id):
     
     if form.is_valid():
         for course in form.selected_courses:
-            course.ready_for_lecturer()
+            course.ready_for_lecturer(False)
             course.save()
+        
+        print form.selected_courses
+        EmailTemplate.get_review_template().send_courses(form.selected_courses, True, False)
         
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
