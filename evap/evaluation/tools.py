@@ -15,6 +15,17 @@ GRADE_NAMES = {
     5: _(u"Strongly disagree"),
 }
 
+STATES_ORDERED = SortedDict((
+    ('new', _('new')),
+    ('prepared', _('prepared')),
+    ('lecturerApproved', _('lecturer approved')),
+    ('approved', _('approved')),
+    ('inEvaluation', _('in evaluation')),
+    ('evaluated', _('evaluated')),
+    ('reviewed', _('reviewed')),
+    ('published', _('published'))
+))
+
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'lecturer', 'results', 'average'))

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-24 19:17+0100\n"
-"PO-Revision-Date: 2012-01-24 19:17+0100\n"
+"POT-Creation-Date: 2012-01-25 01:07+0100\n"
+"PO-Revision-Date: 2012-01-25 01:08+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -288,6 +288,38 @@ msgstr "Stimme teilweise nicht zu"
 msgid "Strongly disagree"
 msgstr "Stimme nicht zu"
 
+#: .\evaluation\tools.py:19
+msgid "new"
+msgstr "neu"
+
+#: .\evaluation\tools.py:20
+msgid "prepared"
+msgstr "vorbereitet"
+
+#: .\evaluation\tools.py:21
+msgid "lecturer approved"
+msgstr "von Dozent bestätigt"
+
+#: .\evaluation\tools.py:22
+msgid "approved"
+msgstr "bestätigt"
+
+#: .\evaluation\tools.py:23
+msgid "in evaluation"
+msgstr "in Evaluierung"
+
+#: .\evaluation\tools.py:24
+msgid "evaluated"
+msgstr "evaluiert"
+
+#: .\evaluation\tools.py:25
+msgid "reviewed"
+msgstr "überprüft"
+
+#: .\evaluation\tools.py:26
+msgid "published"
+msgstr "veröffentlicht"
+
 #: .\evaluation\views.py:26
 msgid "No user with this e-mail address was found."
 msgstr "Kein Benutzer mit dieser E-Mail-Adresse gefunden."
@@ -413,148 +445,116 @@ msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 #: .\fsr\models.py:19
 #: .\fsr\templates\fsr_template_index.html.py:15
 #: .\fsr\templates\fsr_user_index.html.py:25
-#: .\lecturer\templates\lecturer_index.html.py:13
-#: .\lecturer\templates\lecturer_index.html.py:40
+#: .\lecturer\templates\lecturer_index.html.py:14
+#: .\lecturer\templates\lecturer_index.html.py:56
 msgid "Name"
 msgstr "Name"
 
-#: .\fsr\views.py:27
-msgid "new"
-msgstr "neu"
-
-#: .\fsr\views.py:28
-msgid "prepared"
-msgstr "vorbereitet"
-
-#: .\fsr\views.py:29
-msgid "lecturer approved"
-msgstr "von Dozent bestätigt"
-
-#: .\fsr\views.py:30
-msgid "approved"
-msgstr "bestätigt"
-
-#: .\fsr\views.py:31
-msgid "in evaluation"
-msgstr "in Evaluierung"
-
-#: .\fsr\views.py:32
-msgid "evaluated"
-msgstr "evaluiert"
-
-#: .\fsr\views.py:33
-msgid "reviewed"
-msgstr "überprüft"
-
-#: .\fsr\views.py:34
-msgid "published"
-msgstr "veröffentlicht"
-
-#: .\fsr\views.py:74
+#: .\fsr\views.py:62
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: .\fsr\views.py:88
+#: .\fsr\views.py:76
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: .\fsr\views.py:105
+#: .\fsr\views.py:93
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: .\fsr\views.py:122
+#: .\fsr\views.py:110
 msgid "Could not send emails to participants and lecturers"
 msgstr "Konnte keine E-Mail an Teilnehmer und Dozenten senden"
 
-#: .\fsr\views.py:123
+#: .\fsr\views.py:111
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: .\fsr\views.py:158
+#: .\fsr\views.py:146
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: .\fsr\views.py:174
+#: .\fsr\views.py:162
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: .\fsr\views.py:235
+#: .\fsr\views.py:223
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: .\fsr\views.py:249
+#: .\fsr\views.py:237
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:260
-#: .\lecturer\views.py:68
+#: .\fsr\views.py:247
+#: .\lecturer\views.py:76
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: .\fsr\views.py:273
+#: .\fsr\views.py:260
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:290
+#: .\fsr\views.py:277
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:320
+#: .\fsr\views.py:307
 #, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
-#: .\fsr\views.py:337
+#: .\fsr\views.py:324
 #, python-format
 msgid "Successfully sent email to all participants/lecturers of '%s'."
 msgstr "Erfollgreich E-Mail an alle Teilnehmer/Dozenten von '%s' versendet."
 
-#: .\fsr\views.py:339
+#: .\fsr\views.py:326
 #, python-format
 msgid "Successfully sent email to many participants/lecturers of '%(course)s', but %(count)d could not be reached as they do not have an email address."
 msgstr "E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E-Mail-Adresse haben."
 
-#: .\fsr\views.py:363
+#: .\fsr\views.py:350
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
 
-#: .\fsr\views.py:429
-#: .\fsr\views.py:470
+#: .\fsr\views.py:416
+#: .\fsr\views.py:457
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: .\fsr\views.py:444
+#: .\fsr\views.py:431
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: .\fsr\views.py:451
+#: .\fsr\views.py:438
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: .\fsr\views.py:495
+#: .\fsr\views.py:482
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:521
+#: .\fsr\views.py:508
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: .\fsr\views.py:539
+#: .\fsr\views.py:526
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: .\fsr\views.py:560
+#: .\fsr\views.py:547
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: .\fsr\views.py:577
+#: .\fsr\views.py:564
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
@@ -708,8 +708,10 @@ msgstr "E-Mail-Vorlagen"
 #: .\fsr\templates\fsr_questionnaire_index.html.py:37
 #: .\fsr\templates\fsr_template_index.html.py:23
 #: .\fsr\templates\fsr_user_index.html.py:55
-#: .\lecturer\templates\lecturer_index.html.py:24
-#: .\lecturer\templates\lecturer_index.html.py:51
+#: .\lecturer\templates\lecturer_index.html.py:35
+#: .\lecturer\templates\lecturer_index.html.py:38
+#: .\lecturer\templates\lecturer_index.html.py:77
+#: .\lecturer\templates\lecturer_index.html.py:80
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -748,8 +750,8 @@ msgstr "Fragebogen"
 #: .\fsr\templates\fsr_questionnaire_index.html.py:16
 #: .\fsr\templates\fsr_template_index.html.py:16
 #: .\fsr\templates\fsr_user_index.html.py:28
-#: .\lecturer\templates\lecturer_index.html.py:15
-#: .\lecturer\templates\lecturer_index.html.py:42
+#: .\lecturer\templates\lecturer_index.html.py:17
+#: .\lecturer\templates\lecturer_index.html.py:59
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -789,8 +791,10 @@ msgstr[1] ""
 
 #: .\fsr\templates\fsr_questionnaire_index.html.py:39
 #: .\fsr\templates\fsr_semester_view.html.py:58
-#: .\lecturer\templates\lecturer_index.html.py:25
-#: .\lecturer\templates\lecturer_index.html.py:52
+#: .\lecturer\templates\lecturer_index.html.py:36
+#: .\lecturer\templates\lecturer_index.html.py:39
+#: .\lecturer\templates\lecturer_index.html.py:78
+#: .\lecturer\templates\lecturer_index.html.py:81
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -953,11 +957,11 @@ msgstr "FSR-Mitglied"
 msgid "E-Mail address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
-#: .\lecturer\views.py:34
+#: .\lecturer\views.py:42
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
-#: .\lecturer\views.py:66
+#: .\lecturer\views.py:74
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
@@ -973,33 +977,38 @@ msgstr "Speichern"
 msgid "Save and Approve"
 msgstr "Speichern und Bestätigen"
 
-#: .\lecturer\templates\lecturer_index.html.py:8
+#: .\lecturer\templates\lecturer_index.html.py:9
 msgid "Own Courses"
 msgstr "Eigene Veranstaltungen"
 
-#: .\lecturer\templates\lecturer_index.html.py:14
-#: .\lecturer\templates\lecturer_index.html.py:41
+#: .\lecturer\templates\lecturer_index.html.py:15
+#: .\lecturer\templates\lecturer_index.html.py:57
+msgid "Evaluation Period"
+msgstr "Abstimmungszeitraum"
+
+#: .\lecturer\templates\lecturer_index.html.py:16
+#: .\lecturer\templates\lecturer_index.html.py:58
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: .\lecturer\templates\lecturer_index.html.py:32
-#: .\lecturer\templates\lecturer_index.html.py:60
+#: .\lecturer\templates\lecturer_index.html.py:48
+#: .\lecturer\templates\lecturer_index.html.py:91
 msgid "There are no courses for you this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\lecturer\templates\lecturer_index.html.py:35
+#: .\lecturer\templates\lecturer_index.html.py:51
 msgid "Courses for which you are a proxy"
 msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
 
-#: .\lecturer\templates\lecturer_index.html.py:64
+#: .\lecturer\templates\lecturer_index.html.py:95
 msgid "Own Profile"
 msgstr "Eigenes Profil"
 
-#: .\lecturer\templates\lecturer_index.html.py:65
+#: .\lecturer\templates\lecturer_index.html.py:96
 msgid "You can edit your own user profile here:"
 msgstr "Sie können Ihr eigenes Profil hier bearbeiten:"
 
-#: .\lecturer\templates\lecturer_index.html.py:65
+#: .\lecturer\templates\lecturer_index.html.py:96
 msgid "Edit own Profile"
 msgstr "Eigenes Profil bearbeiten"
 

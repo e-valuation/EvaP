@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Assignment, Course, Semester
 from evap.evaluation.auth import lecturer_required
-from evap.evaluation.tools import questionnaires_and_assignments
+from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.lecturer.forms import CourseForm, UserForm
 from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
 from evap.student.forms import QuestionsForm
@@ -18,8 +18,16 @@ def index(request):
     user = request.user
     
     semester = Semester.get_latest_or_none()
-    own_courses = semester.course_set.filter(assignments__lecturer=user, state="prepared") if semester else None
-    proxied_courses = semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state="prepared") if semester else None
+    if semester:
+        sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+        own_courses = list(semester.course_set.filter(assignments__lecturer=user, state__in=('new', 'prepared', 'lecturerApproved')))
+        own_courses.sort(key=sorter)
+        proxied_courses = list(semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=('new', 'prepared', 'lecturerApproved')))
+        proxied_courses.sort(key=sorter)
+    else:
+        own_courses = None
+        proxied_courses = None
+    
     return render_to_response("lecturer_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
 
 
@@ -43,7 +51,7 @@ def course_edit(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
     # check rights
-    if not (course.is_user_lecturer(user) and course.state=="prepared"):
+    if not (course.is_user_lecturer(user) and course.state in ('prepared', 'lecturerApproved')):
         raise PermissionDenied
     
     AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
