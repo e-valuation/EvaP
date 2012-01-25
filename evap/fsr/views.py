@@ -311,7 +311,7 @@ def course_review(request, semester_id, course_id, offset=None):
 
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer), context_instance=RequestContext(request))
 
 
 @fsr_required
