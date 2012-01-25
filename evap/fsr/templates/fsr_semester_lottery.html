@@ -5,18 +5,16 @@
 {% block content %}
     {{ block.super }}
     {% if not form.is_valid %}
-    <p>
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset>
-            <legend>{% trans "Lottery" %}</legend>
-            {{ form.as_div }}
-            </fieldset>
-            <div class="actions">
-                <input type="submit" value="{% trans "Perform Lottery" %}" class="btn default primary"/>
-            </div>
-        </form>
-    </p>
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+        <legend>{% trans "Lottery" %}</legend>
+        {{ form.as_div }}
+        </fieldset>
+        <div class="actions">
+            <input type="submit" value="{% trans "Perform Lottery" %}" class="btn default primary"/>
+        </div>
+    </form>
     {% else %}
     <p>
         {% trans "The lottery was performed and the winners are:" %}

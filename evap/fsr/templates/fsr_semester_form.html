@@ -4,13 +4,11 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_div }}
-            <div class="actions">
-                <input type="submit" value="{% trans "Save semester" %}" class="btn primary"/>
-            </div>
-        </form>
-    </p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <div class="actions">
+            <input type="submit" value="{% trans "Save semester" %}" class="btn primary"/>
+        </div>
+    </form>
 {% endblock %}

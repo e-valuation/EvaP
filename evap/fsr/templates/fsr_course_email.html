@@ -5,15 +5,13 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset>
-            {{ form.as_div }}
-            </fieldset>
-            <div class="actions">
-                <input type="submit" value="{% trans "Send e-mail" %}" class="btn primary"/>
-            </div>
-        </form>
-    </p>
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+        {{ form.as_div }}
+        </fieldset>
+        <div class="actions">
+            <input type="submit" value="{% trans "Send e-mail" %}" class="btn primary"/>
+        </div>
+    </form>
 {% endblock %}
