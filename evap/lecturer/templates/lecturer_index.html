@@ -31,7 +31,7 @@
                     </td>
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
-                        {% if course.state == 'prepared' or course.state == 'lecturerApproved' %}
+                        {% if course.state == 'prepared' %}
                             <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
                             <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
                         {% else %}
@@ -73,7 +73,7 @@
                     </td>
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
-                        {% if course.state == 'prepared' or course.state == 'lecturerApproved' %}
+                        {% if course.state == 'prepared' %}
                             <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
                             <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
                         {% else %}

@@ -51,7 +51,7 @@ def course_edit(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
     # check rights
-    if not (course.is_user_lecturer(user) and course.state in ('prepared', 'lecturerApproved')):
+    if not (course.is_user_lecturer(user) and course.state in ('prepared')):
         raise PermissionDenied
     
     AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
