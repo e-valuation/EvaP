@@ -418,7 +418,7 @@ class UserProfile(models.Model):
             return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
     def is_lecturer_or_proxy(self):
-        return self.is_lecturer or UserProfile.objects.filter(proxies=self, is_lecturer=True).exists()
+        return self.is_lecturer or UserProfile.objects.filter(proxies=self).exists()
     
     def generate_logon_key(self):
         while True:

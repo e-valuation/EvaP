@@ -7,13 +7,13 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Assignment, Course, Semester
-from evap.evaluation.auth import lecturer_required
+from evap.evaluation.auth import lecturer_required, lecturer_or_proxy_required
 from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.lecturer.forms import CourseForm, UserForm
 from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
 from evap.student.forms import QuestionsForm
 
-@lecturer_required
+@lecturer_or_proxy_required
 def index(request):
     user = request.user
     
@@ -45,7 +45,7 @@ def profile_edit(request):
         return render_to_response("lecturer_profile.html", dict(form=form), context_instance=RequestContext(request))
 
 
-@lecturer_required
+@lecturer_or_proxy_required
 def course_edit(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
@@ -76,7 +76,7 @@ def course_edit(request, course_id):
         return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course), context_instance=RequestContext(request))
 
 
-@lecturer_required
+@lecturer_or_proxy_required
 def course_preview(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
