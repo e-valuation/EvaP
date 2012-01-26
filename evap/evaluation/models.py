@@ -78,11 +78,13 @@ class Questionnaire(models.Model):
     teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
     teaser = Translate
     
+    index = models.IntegerField(verbose_name=_(u"odering index"))
+    
     is_for_persons = models.BooleanField(verbose_name=_(u"is for persons"))
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
-        ordering = ('obsolete', 'name_de')
+        ordering = ('obsolete', 'index', 'name_de')
         verbose_name = _(u"questionnaire")
         verbose_name_plural = _(u"questionnaires")
     
