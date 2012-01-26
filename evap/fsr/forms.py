@@ -304,8 +304,13 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_staff'].initial = self.instance.user.is_staff
 
     def clean_username(self):
-        if User.objects.filter(username__iexact=self.cleaned_data.get('username')).exists():
-            raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+        if self.instance.user:
+            return self.instance.user.username
+        else:
+            if User.objects.filter(username__iexact=self.cleaned_data.get('username')).exists():
+                raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+            else:
+                return self.cleaned_data.get('username')
 
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
