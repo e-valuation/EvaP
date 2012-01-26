@@ -16,15 +16,12 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
-        for field in ['kind', 'study']:
-            self.fields[field].widget.attrs['readonly'] = True
+        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])        
+        self.fields['study'].widget.attrs['readonly'] = True
         
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
-    
-    def clean_kind(self):
-        return self.instance.kind
-    
+        
     def clean_study(self):
         return self.instance.study
 
