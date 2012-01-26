@@ -11,6 +11,7 @@
             <table class="vertically-striped">
                 <thead>
                     <tr>
+                        <th>{% trans "ID" %}</th>
                         <th>{% trans "Original Text" %}</td>
                         <th>{% trans "Reviewed Text" %}</td>
                         <th>{% trans "Hidden?" %}</td>
@@ -19,6 +20,7 @@
                 <tbody>
                     {% for textanswer in answers %}
                         <tr>
+                            <td>{{ textanswer.id }}</td>
                             <td>{{ textanswer.original_answer }}</td>
                             <td>{{ textanswer.reviewed_answer|default:"&mdash;" }}</td>
                             <td>{{ textanswer.hidden|yesno }}</td>
