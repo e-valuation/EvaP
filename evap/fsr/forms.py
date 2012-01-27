@@ -264,13 +264,15 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, queryset, *args, **kwargs):
+    def __init__(self, queryset, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
         self.queryset = queryset
         self.selected_courses = []
+        self.filter_func = filter_func or (lambda x: True)
         
         for course in self.queryset:
-            self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
+            if self.filter_func(course):
+                self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
     
     def clean(self):
         cleaned_data = self.cleaned_data
