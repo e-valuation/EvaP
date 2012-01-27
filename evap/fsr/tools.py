@@ -5,8 +5,8 @@ from evap.evaluation.models import Semester, Questionnaire
 
 import urllib
 
-def all_semesters():
-    semesters = Semester.objects.all()
+def menu_semesters():
+    semesters = Semester.objects.all()[:5]
     return {'semesters': semesters}
 
 
