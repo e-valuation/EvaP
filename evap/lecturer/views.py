@@ -20,8 +20,10 @@ def index(request):
     semester = Semester.get_latest_or_none()
     if semester:
         sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+        
         own_courses = list(semester.course_set.filter(assignments__lecturer=user, state__in=('new', 'prepared', 'lecturerApproved')))
         own_courses.sort(key=sorter)
+
         proxied_courses = list(semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=('new', 'prepared', 'lecturerApproved')))
         proxied_courses.sort(key=sorter)
     else:
@@ -62,14 +64,20 @@ def course_edit(request, course_id):
     operation = request.POST.get('operation')
     
     if form.is_valid() and formset.is_valid():
+        if operation not in ('save', 'approve'):
+            raise PermissionDenied
+        
         form.save()
         formset.save()
         
-        # approve course
-        course.lecturer_approve()
-        course.save()
-        messages.add_message(request, messages.INFO, _("Successfully approved course."))
-
+        if operation == 'approve':
+            # approve course
+            course.lecturer_approve()
+            course.save()
+            messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
+        else:
+            messages.add_message(request, messages.INFO, _("Successfully updated course."))
+        
         return redirect('evap.lecturer.views.index')
     else:
         read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
