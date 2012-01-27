@@ -41,7 +41,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="{% url evap.fsr.views.index %}">{% trans "Overview" %}</a></li>
                             <li><a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a>
-                            {% show_from 'evap.fsr.tools.all_semesters' "fsr_semester_menu.html" %}
+                            {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
                             </li>
                             <li><a href="{% url evap.fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a></li>
                             <li><a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>
