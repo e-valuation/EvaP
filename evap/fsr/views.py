@@ -97,7 +97,7 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state="reviewed").all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state="reviewed").all(), None, request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
@@ -152,7 +152,7 @@ def semester_assign_questionnaires(request, semester_id):
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all(), lambda course: not course.warnings(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
@@ -168,7 +168,7 @@ def semester_approve(request, semester_id):
 @fsr_required
 def semester_lecturer_ready(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'lecturerApproved']).all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'lecturerApproved']).all(), lambda course: not course.warnings(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
