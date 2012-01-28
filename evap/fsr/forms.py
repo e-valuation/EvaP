@@ -306,14 +306,17 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_staff'].initial = self.instance.user.is_staff
 
     def clean_username(self):
-        if self.instance.user:
-            return self.instance.user.username
-        else:
-            if User.objects.filter(username__iexact=self.cleaned_data.get('username')).exists():
-                raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
-            else:
+        conflicting_user = User.objects.filter(username__iexact=self.cleaned_data.get('username'))
+        if not conflicting_user.exists():
+            return self.cleaned_data.get('username')
+        
+        if self.instance.user and self.instance.user.pk:
+            if conflicting_user[0] == self.instance.user:
+                # there is a user with this name but that's me
                 return self.cleaned_data.get('username')
-
+        
+        raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+    
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
         self.instance.user.username = self.cleaned_data.get('username')
