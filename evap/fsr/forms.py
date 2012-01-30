@@ -49,6 +49,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
+        self.fields['vote_start_date'].localize = False
+        self.fields['vote_end_date'].localize = False
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
         self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
@@ -264,13 +266,15 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, queryset, *args, **kwargs):
+    def __init__(self, queryset, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
         self.queryset = queryset
         self.selected_courses = []
+        self.filter_func = filter_func or (lambda x: True)
         
         for course in self.queryset:
-            self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
+            if self.filter_func(course):
+                self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
     
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -304,14 +308,17 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_staff'].initial = self.instance.user.is_staff
 
     def clean_username(self):
-        if self.instance.user:
-            return self.instance.user.username
-        else:
-            if User.objects.filter(username__iexact=self.cleaned_data.get('username')).exists():
-                raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
-            else:
+        conflicting_user = User.objects.filter(username__iexact=self.cleaned_data.get('username'))
+        if not conflicting_user.exists():
+            return self.cleaned_data.get('username')
+        
+        if self.instance.user and self.instance.user.pk:
+            if conflicting_user[0] == self.instance.user:
+                # there is a user with this name but that's me
                 return self.cleaned_data.get('username')
-
+        
+        raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+    
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
         self.instance.user.username = self.cleaned_data.get('username')

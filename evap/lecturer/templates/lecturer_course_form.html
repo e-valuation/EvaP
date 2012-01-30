@@ -60,6 +60,7 @@
             </ul>
         </fieldset>
         <div class="actions">
+            <button name="operation" value="save" type="submit" class="btn primary">{% trans "Save"%}</button>
             <button name="operation" value="approve" type="submit" class="btn success">{% trans "Approve"%}</button>
             <a href="{% url evap.lecturer.views.index %}" class="btn">{% trans "Cancel" %}</a>
             <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn">{% trans "Preview" %}</a>

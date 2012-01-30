@@ -45,6 +45,7 @@
     {% endfor %}
     <div class="actions">
 	<input type="submit" value="{% trans "Vote" %}" class="btn primary" onclick="submitFormOkay = true;"/>
+	<a class="btn" onclick="markNoAnswer();">{% trans "Mark others as 'no answer'" %}</a>
     </div>
     </form>
 {% endblock %}
@@ -52,4 +53,15 @@
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+    <script type="text/javascript">
+	function markNoAnswer() {
+	    $("td.vote-inputs").each(function(index) {
+		if($(this).find("input:radio").length == 6) {
+		    if($(this).find("input:radio:checked").length == 0) {
+			$(this).find("input:radio")[5].checked = true;
+		    }
+		}
+	    });
+	}
+    </script>
 {% endblock %}

@@ -172,8 +172,15 @@ class Course(models.Model):
     
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
+        
+    def has_lecturer(self):
+        for assignment in self.assignments.all():
+            if assignment.lecturer:
+                if assignment.lecturer.get_profile().is_lecturer:
+                    return True
+        return False
     
-    @transition(field=state, source='new', target='prepared')
+    @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_lecturer(self, send_mail=True):
         if send_mail:
             EmailTemplate.get_review_template().send_courses([self], True, False)
@@ -245,6 +252,8 @@ class Course(models.Model):
             result.append(_(u"No lecturers assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
+        if not self.has_lecturer():
+            result.append(_(u"Managing lecturer missing"))
         return result
     
     @property
