@@ -49,6 +49,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
+        self.fields['vote_start_date'].localize = False
+        self.fields['vote_end_date'].localize = False
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
         self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
