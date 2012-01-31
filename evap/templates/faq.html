@@ -10,144 +10,233 @@
 {% endblock %}
 
 {% block content %}
-    {% blocktrans %}
-        <h2>These are the Frequently Asked Questions (FAQs)</h2>
-        
-        <h3>General</h3>
-        
-        <a name="what_is_evaluation">
-        <h5>What is evaluation?</h5>
-        </a>
-        <p></p>
-        
-        <a name="what_is_evap">
-        <h5>What is EvaP?</h5>
-        </a>
-        <p></p>
-        
-        <a name="data">
-        <h5>Where are the data coming from?</h5>
-        </a>
-        <p>The different information, imported into the system, are provided by the Studienreferat.
+
+    <h2>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h2>
+    
+    <h3>{% trans "General" %}</h3>
+    
+    <a name="what_is_evaluation" />
+    <h5>{% trans "What is evaluation?" %}</h5>
+    <p>
+        {% blocktrans %}
+        It's the assessment of all the courses at the HPI. It's the goal to improve the teaching quality by giving the lecturers feedback for their courses.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="what_is_evap" />
+    <h5>{% trans "What is EvaP?" %}</h5>
+    <p>
+        {% blocktrans %}
+        It's this new platform - replacing the infamous EvaJ.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="data" /></a>
+    <h5>{% trans "Where are the data coming from?" %}</h5>
+    <p>
+        {% blocktrans %}
+        The different information, imported into the system, are provided by the Studienreferat.
         After that the lectures, their proxies or the student representatives correct any mistakes.
-        If you just found another error please contact the responsible lecturer or the student representatives.</p>
-        
-        <h3>Questionnaires</h3>
-        
-        <a name="questionnaires_construction">
-        <h5>How are questionnaires constructed?</h5>
-        </a>
-        <p></p>
-        
-        <a name="kind_of_questionnaires">
-        <h5>What kind of questionnaires are there?</h5>
-        </a>
-        <p></p>
-        
-        <a name="kind_of_questions">
-        <h5>What kind of questions are there?</h5>
-        </a>
-        <p></p>
-        
-        <a name="kind_of_courses">
-        <h5>What kind of courses are there?</h5>
-        </a>
-        <p></p>
-        
-        <a name="kind_of_lecturer_roles">
-        <h5>What kind of lecturer roles are there?</h5>
-        </a>
-        <p></p>
-        
-        <a name="questionnaires_assignment">
-        <h5>How are questionnaires assigned to courses?</h5>
-        </a>
-        <p></p>
-        
-        <h3>Users</h3>
-        
-        <a name="user_login">
-        <h5>How do I log into the system?</h5>
-        </a>
-        <p></p>
-        
-        <a name="create_user">
-        <h5>How are useres registered? Who is able to create new users?</h5>
-        </a>
-        <p>New users are created by the Student Representatives. Ask them if there is the need for new users.</p>
-        
-        <a name="proxy">
-        <h5>What are proxies?</h5>
-        </a>
-        <p></p>
-        
-        <h3>Puplication of results</h3>
-        
-        <a name="result_puplication">
-        <h5>How are the results publicated?</h5>
-        </a>
-        <p></p>
-        
-        <a name="export">
-        <h5>What information are in the printed export?</h5>
-        </a>
-        <p></p>
-        
-        <a name="overall_grade">
-        <h5>How is the overall grade calculated?</h5>
-        </a>
-        <p></p>
-        
-        <a name="representativeness">
-        <h5>How many answers are necesarry to assure the representativeness?</h5>
-        </a>
-        <p></p>
-        
-        <h3>Details for Lectures</h3>
-        
-        <a name="course_data">
-        <h5>What data are necesarry for a course and why?</h5>
-        </a>
-        <p></p>
-        
-        <a name="evaluation_period">
-        <h5>How should I configure the evaluation period of my course?</h5>
-        </a>
-        <p>There are different criteria for the period:
-            <ul>
-                <li>It should be at least one week long.</li>
-                <li>It should be after the last lecture.</li>
-                <li>It should be before the written exam or the first oral exam.</li>
-            </ul>
-        Of course there are courses for which it is not possible to fulfil all criteria. Please contact the student representatives if you are not sure.
-        </p>
-        
-        <a name="email_notice">
-        <h5>When will I get which Email notice?</h5>
-        </a>
-        <p></p>
-        
-        <a name="results_for_lecturer">
-        <h5>Which results do I see and what do they mean?</h5>
-        </a>
-        <p></p>
-        
-        <h3>Details für Students</h3>
-        
-        <a name="questionnaire_completeness">
-        <h5>How complete do I have to fill in the questionnaires?</h5>
-        </a>
-        <p></p>
-        
-        <a name="comments">
-        <h5>What happens to my comments?</h5>
-        </a>
-        <p></p>
-        
-        <a name="anonymity">
-        <h5>How anonymous is my vote?</h5>
-        </a>
-        <p></p>
-        
+        If you just found another error please contact the responsible lecturer or the student representatives.
+        {% endblocktrans %}
+    </p>
+    
+    
+    <h3>{% trans "Questionnaires" %}</h3>
+	
+	{% blocktrans %}
+    Explaining Questionnaires concept
     {% endblocktrans %}
+    
+    <a name="questionnaires_construction" />
+    <h5>{% trans "How are questionnaires constructed?" %}</h5>
+    <p>
+        {% blocktrans %}
+        One questionnaire consists of different sub-questionnaires, e.g. about the contents or the teaching assistant.
+		Each sub-questionnaire consists of one ore more questions.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="kind_of_questionnaires" />
+    <h5>{% trans "What kinds of questionnaires are there?" %}</h5>
+    <p>
+        {% blocktrans %}
+        There are two kinds of questionnaires: one is about every person involved and one about an course itself.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="kind_of_questions" />
+    <h5>{% trans "What types of questions are there?" %}</h5>
+    <p>
+        {% blocktrans %}
+        There are two general types of questions.
+		The first is called "Likert" and consists of five possible answers - from "strongly agree" to "strongly disagree".
+		Additionally there is the option to give "no answer".<br>
+		With the second type it is possible to leave text comments, if the other questions miss an interesting point.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="kind_of_courses" />
+    <h5>{% trans "What types of courses are there?" %}</h5>
+    <p>
+        {% blocktrans %}
+        There are different types of courses, e.g. lectures, seminars, exercises and some more.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="kind_of_lecturer_roles" />
+    <h5>{% trans "What kind of lecturer roles are there?" %}</h5>
+    <p>
+        {% blocktrans %}
+        Accordingly there are different kinds of lecturers, like lecturers, seminar or excesses supervisors.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="questionnaires_assignment" />
+    <h5>{% trans "How are questionnaires assigned to courses?" %}</h5>
+    <p>
+        {% blocktrans %}
+        The assignment is done by the student representatives. But the lecturers can add additional questionnaires.
+        {% endblocktrans %}
+    </p>
+    
+    <h3>{% trans "Users" %}</h3>
+    
+    <a name="user_login" />
+    <h5>{% trans "How do I log into the system?" %}</h5>
+    <p>
+        {% blocktrans %}
+        If you are an HPI student or lecturer you can just use your usual credentials.
+		If you are an external student or lecturer you can get an access token by Email.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="create_user" />
+    <h5>{% trans "How are users registered? Who is able to create new users?" %}</h5>
+    <p>
+        New users are created by the Student Representatives. Ask them if there is the need for new users.
+    </p>
+    
+    <a name="proxy" />
+    <h5>{% trans "What are proxies?" %}</h5>
+    <p>
+        {% blocktrans %}
+        As professors do not have much time, it is possible for them to elect one or more proxies, e.g. a secretary or an employee of the chair.
+		These people then can edit the courses as the original lecturer could, i.e. add questionnaires and setup the correct assistants and evaluation period.
+        {% endblocktrans %}
+    </p>
+    
+    <h3>{% trans "Publication of results" %}</h3>
+    
+    <a name="result_publication" />
+    <h5>{% trans "How are the results publicised?" %}</h5>
+    <p>
+        {% blocktrans %}
+        The results are viewable in the EvaP system, after the exams for the course are done.
+		Later the student representatives will hang out a hard copy of the results.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="export" />
+    <h5>{% trans "What information are in the printed export?" %}</h5>
+    <p>
+        {% blocktrans %}
+        These prints contain the exact same information as shown in this system.
+		The affected lecturers can also view the comments, which were given to them.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="overall_grade" />
+    <h5>{% trans "How is the overall grade calculated?" %}</h5>
+    <p>
+        {% blocktrans %}
+        The overall grade is the arithmetic average of all sub-grades.
+		All personal questions together are equally weighted to the questions about the course itself.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="representativeness" />
+    <h5>{% trans "How many answers are necessary to assure the representativeness?" %}</h5>
+    <p>
+        {% blocktrans %}
+        Currently at least five (5) answers are necessary (except "no answer") to assure the representativeness.
+		If you do not agree with that write an Email or just come over to start a discussion with the student representatives.
+        {% endblocktrans %}
+    </p>
+    
+    <h3>{% trans "Details for Lectures" %}</h3>
+    
+    <a name="course_data" />
+    <h5>{% trans "What data are necessary for a course and why?" %}</h5>
+    <p>
+        {% blocktrans %}
+        You can define all involved persons and their roles. So it is possible for the students to give specific feedback.
+		Additionally you can adapt the evaluation period if needed.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="evaluation_period" />
+    <h5>{% trans "How should I configure the  of my course?" %}</h5>
+    <p>
+        The evaluation must not influence the assessment of the student. So there are different criteria for the period:
+        <ul>
+			<li>It should end before the written exam or the first oral exam.</li>
+            <li>It should be at least one week long.</li>
+            <li>It should start after one of the last lectures and not right at the beginning.</li>
+        </ul>
+        Of course there are courses for which it is not possible to fulfil all of the criteria. Please contact the student representatives if you are not sure.
+    </p>
+    
+    <a name="email_notice" />
+    <h5>{% trans "When will I get which Email notice?" %}</h5>
+    <p>
+        {% blocktrans %}
+        At some point in the middle of the semester you get an Email with all your courses to edit them if needed.
+		You will also get an Email after the results are available.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="results_for_lecturers" />
+    <h5>{% trans "Which results do I see and what do they mean?" %}</h5>
+    <p>
+        {% blocktrans %}
+        You can see the average grade and standard deviation of all Likert questions.
+		Additionally you can view the comments the students gave to you, the course or the other people involved in the course.
+        {% endblocktrans %}
+    </p>
+    
+    <h3>{% trans "Details for Students" %}</h3>
+    
+    <a name="questionnaire_completeness" />
+    <h5>{% trans "How complete do I have to fill in the questionnaires?" %}</h5>
+    <p>
+        {% blocktrans %}
+        As complete as possible :).
+		The results are only published if the representativeness is guaranteed.
+		All Likert questions need to be answered (at least with "no answer"), but not one text comment question, to submit an questionnaire.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="comments" />
+    <h5>{% trans "What happens to my comments?" %}</h5>
+    <p>
+        {% blocktrans %}
+        As we cannot assure the representativeness or anonymity here all comments are provided to all people involved in the course they were given.
+		But the student representatives reserve the possibility to remove or change insults or other inappropriate texts.
+        {% endblocktrans %}
+    </p>
+    
+    <a name="anonymity" />
+    <h5>{% trans "How anonymous is my vote?" %}</h5>
+    <p>
+        {% blocktrans %}
+        The system guarantees that there is no connection between a vote and a user.
+		It is just stored which user already submitted which questionnaire.
+		Pay attention: We cannot assure anonymity regarding text comment questions as it is possible for
+		the lecturer to guess from the contest or grammar of the text the student writing it.
+		
+		All text answers are given in an arbitrary order - so you should not refer to your own answers (like "see above" or "same as other teaching assistant").
+        {% endblocktrans %}
+    </p>
+        
 {% endblock %}
