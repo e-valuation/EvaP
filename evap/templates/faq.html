@@ -11,9 +11,31 @@
 
 {% block content %}
     {% blocktrans %}
-        <h2>These are the Frequently Asked Questions (FAQs)</h2>
+        <h1>These are the Frequently Asked Questions (FAQs)</h1>
         
-        <h3>First Question</h3>
-        <p>First Answer</p>
+		<a name="data">
+        <h3>Where are the data coming from?</h3>
+		</a>
+        <p>The different information, imported into the system, are provided by the Studienreferat.
+		After that the lectures, their proxies or the student representatives correct any mistakes.
+		If you just found another error please contact the responsible lecturer or the student representatives.</p>
+		
+		<a name="create_user">
+        <h3>Who is able to create new users?</h3>
+		</a>
+        <p>New users are created by the Student Representatives. Ask them if there is the need for new users.</p>
+		
+		<a name="evaluation_period">
+        <h3>How should I configure the evaluation period of my course?</h3>
+		</a>
+        <p>There are different criteria for the period:
+			<ul>
+				<li>It should be at least one week long.</li>
+				<li>It should be after the last lecture.</li>
+				<li>It should be before the written exam or the first oral exam.</li>
+			</ul>
+		Of course there are courses for which it is not possible to fulfil all criteria. Please contact the student representatives if you are not sure.
+		</p>
+		
     {% endblocktrans %}
 {% endblock %}
