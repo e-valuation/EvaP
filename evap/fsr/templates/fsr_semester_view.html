@@ -24,9 +24,9 @@
     
     {% if courses_by_state %}
             <div id="tab-content">
-            {% for state, statename, courses in courses_by_state %}
+            {% for state, courses in courses_by_state %}
                 <div id="tab{{ forloop.counter }}">
-                <h3>{% trans "State" %}: <span>{% trans statename %} ({{ courses|length }})</span></h3>
+                <h3>{% trans "State" %}: <span>{{ state|statename }} ({{ courses|length }})</span></h3>
                 <table class="zebra-striped vertically-aligned">
                 <tbody>
                 {% for course in courses %}
@@ -40,8 +40,9 @@
                             {% endif %}
                             </div>
                             <span class="label">{{ course.study }}</span>
+                            <span class="label">{{ course.kind }}</span>
                             {% for warning in course.warnings %}
-                                <span class="label warning">{{ warning }}</span>
+                                <span class="label important">{{ warning }}</span>
                             {% endfor %}
                         </td>
                         <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
@@ -81,6 +82,11 @@
                 {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
                     <a class="btn" href="{% url evap.fsr.views.semester_approve semester.id %}">{% trans "Approve Courses" %}</a>
                 {% endif %}
+                
+                {% ifequal state "lecturerApproved" %}
+                    <a class="btn" href="{% url evap.fsr.views.semester_lecturer_ready semester.id %}">{% trans "Re-Enable Courses for Lecturer Review" %}</a>
+                {% endifequal %}
+                
                 {% ifequal state "reviewed" %}
                     <a class="btn" href="{% url evap.fsr.views.semester_publish semester.id %}">{% trans "Publish Courses" %}</a>
                 {% endifequal %}

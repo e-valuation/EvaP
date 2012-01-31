@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile
-from evap.evaluation.tools import questionnaires_and_assignments
+from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
@@ -21,18 +21,6 @@ from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
 import random
-
-
-STATES_ORDERED = SortedDict((
-    ('new', ugettext_lazy('new')),
-    ('prepared', ugettext_lazy('prepared')),
-    ('lecturerApproved', ugettext_lazy('lecturer approved')),
-    ('approved', ugettext_lazy('approved')),
-    ('inEvaluation', ugettext_lazy('in evaluation')),
-    ('evaluated', ugettext_lazy('evaluated')),
-    ('reviewed', ugettext_lazy('reviewed')),
-    ('published', ugettext_lazy('published'))
-))
 
 
 @fsr_required
@@ -57,9 +45,9 @@ def semester_view(request, semester_id):
     
     courses = semester.course_set.all()    
     courses_by_state = []
-    for state, state_name in STATES_ORDERED.items():
+    for state in STATES_ORDERED.keys():
         this_courses = [course for course in courses if course.state == state]
-        courses_by_state.append((state, state_name, this_courses))
+        courses_by_state.append((state, this_courses))
     
     return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state), context_instance=RequestContext(request))
 
@@ -109,7 +97,7 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state="reviewed").all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state="reviewed").all(), None, request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
@@ -164,7 +152,7 @@ def semester_assign_questionnaires(request, semester_id):
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all(), lambda course: not course.warnings(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
@@ -180,12 +168,15 @@ def semester_approve(request, semester_id):
 @fsr_required
 def semester_lecturer_ready(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state='new').all(), request.POST or None)
+    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'lecturerApproved']).all(), lambda course: not course.warnings(), request.POST or None)
     
     if form.is_valid():
         for course in form.selected_courses:
-            course.ready_for_lecturer()
+            course.ready_for_lecturer(False)
             course.save()
+        
+        print form.selected_courses
+        EmailTemplate.get_review_template().send_courses(form.selected_courses, True, False)
         
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
@@ -320,7 +311,7 @@ def course_review(request, semester_id, course_id, offset=None):
 
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset), context_instance=RequestContext(request))
+        return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer), context_instance=RequestContext(request))
 
 
 @fsr_required

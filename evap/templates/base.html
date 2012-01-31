@@ -15,6 +15,14 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/ui.datepicker.css" />
     <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}
+    {% if debug %}
+    <!-- red topbar in debug mode -->
+    <style lang="text/css">
+        .topbar-inner, .topbar .fill {
+            background: #900 !important;
+        }
+    </style>
+    {% endif %}
 </head>
 <body>
     <div class="topbar" id="topbar">
@@ -33,7 +41,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="{% url evap.fsr.views.index %}">{% trans "Overview" %}</a></li>
                             <li><a href="{% url evap.fsr.views.semester_index %}">{% trans "Semesters" %}</a>
-                            {% show_from 'evap.fsr.tools.all_semesters' "fsr_semester_menu.html" %}
+                            {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
                             </li>
                             <li><a href="{% url evap.fsr.views.questionnaire_index %}">{% trans "Questionnaires" %}</a></li>
                             <li><a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>

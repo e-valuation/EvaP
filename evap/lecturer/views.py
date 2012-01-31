@@ -7,19 +7,29 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Assignment, Course, Semester
-from evap.evaluation.auth import lecturer_required
-from evap.evaluation.tools import questionnaires_and_assignments
+from evap.evaluation.auth import lecturer_required, lecturer_or_proxy_required
+from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.lecturer.forms import CourseForm, UserForm
 from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
 from evap.student.forms import QuestionsForm
 
-@lecturer_required
+@lecturer_or_proxy_required
 def index(request):
     user = request.user
     
     semester = Semester.get_latest_or_none()
-    own_courses = semester.course_set.filter(assignments__lecturer=user, state="prepared") if semester else None
-    proxied_courses = semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state="prepared") if semester else None
+    if semester:
+        sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+        
+        own_courses = list(semester.course_set.filter(assignments__lecturer=user, state__in=('new', 'prepared', 'lecturerApproved')))
+        own_courses.sort(key=sorter)
+
+        proxied_courses = list(semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=('new', 'prepared', 'lecturerApproved')))
+        proxied_courses.sort(key=sorter)
+    else:
+        own_courses = None
+        proxied_courses = None
+    
     return render_to_response("lecturer_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
 
 
@@ -37,13 +47,13 @@ def profile_edit(request):
         return render_to_response("lecturer_profile.html", dict(form=form), context_instance=RequestContext(request))
 
 
-@lecturer_required
+@lecturer_or_proxy_required
 def course_edit(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
     
     # check rights
-    if not (course.is_user_lecturer(user) and course.state=="prepared"):
+    if not (course.is_user_lecturer(user) and course.state in ('prepared')):
         raise PermissionDenied
     
     AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
@@ -54,25 +64,27 @@ def course_edit(request, course_id):
     operation = request.POST.get('operation')
     
     if form.is_valid() and formset.is_valid():
-        if operation not in ('save', 'save_and_approve'):
+        if operation not in ('save', 'approve'):
             raise PermissionDenied
         
         form.save()
         formset.save()
         
-        if operation == 'save_and_approve':
+        if operation == 'approve':
+            # approve course
             course.lecturer_approve()
             course.save()
             messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
         else:
             messages.add_message(request, messages.INFO, _("Successfully updated course."))
+        
         return redirect('evap.lecturer.views.index')
     else:
         read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
-        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments), context_instance=RequestContext(request))
+        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course), context_instance=RequestContext(request))
 
 
-@lecturer_required
+@lecturer_or_proxy_required
 def course_preview(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
