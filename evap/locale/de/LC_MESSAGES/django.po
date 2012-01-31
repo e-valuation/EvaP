@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-31 12:17+0100\n"
+"POT-Creation-Date: 2012-01-31 13:27+0100\n"
 "PO-Revision-Date: 2012-01-22 19:46+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
@@ -708,7 +708,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: .\fsr\templates\fsr_index.html.py:41
 #: .\fsr\templates\fsr_user_form.html.py:8
 #: .\fsr\templates\fsr_user_index.html.py:8 .\templates\base.html.py:39
-#: .\templates\faq.html.py:103
+#: .\templates\faq.html.py:104
 msgid "Users"
 msgstr "Benutzer"
 
@@ -1188,9 +1188,15 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten. <br>"
-"Die Studenten können vor Beginn der Prüfungen mittels eines Online-Systems anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die Benotung seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen ist. Sie ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) durch das Evaluierungssystem zugänglich."
-""
+"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am "
+"HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten "
+"und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten. "
+"<br>Die Studenten können vor Beginn der Prüfungen mittels eines Online-"
+"Systems anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. "
+"Die Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die "
+"Benotung seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen "
+"ist. Sie ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) "
+"durch das Evaluierungssystem zugänglich."
 
 #: .\templates\faq.html.py:27
 msgid "What is EvaP?"
@@ -1203,9 +1209,15 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten."
-"Die Studenten können vor Beginn der Prüfungen mittels eines Online-Systems anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die Benotung seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen ist. Sie ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) durch das Evaluierungssystem zugänglich."
-""
+"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am "
+"HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten "
+"und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten.Die "
+"Studenten können vor Beginn der Prüfungen mittels eines Online-Systems "
+"anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die "
+"Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die Benotung "
+"seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen ist. Sie "
+"ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) durch das "
+"Evaluierungssystem zugänglich."
 
 #: .\templates\faq.html.py:35
 msgid "Where are the data coming from?"
@@ -1223,43 +1235,57 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Die verschiedenen Informationen, die in das System importiert wurden werden uns vom Studienreferat zu Verfügung gestellt."
-"Danach werden von den Dozenten, deren Stellvertretern oder dem FSR möglich Fehler korrigiert."
-"Falls Sie noch weitere Fehler entdeckt haben kontektieren Sie bitte den zuständigen Dozenten oder den FSR."
+"Die verschiedenen Informationen, die in das System importiert wurden werden "
+"uns vom Studienreferat zu Verfügung gestellt.Danach werden von den Dozenten, "
+"deren Stellvertretern oder dem FSR möglich Fehler korrigiert.Falls Sie noch "
+"weitere Fehler entdeckt haben kontektieren Sie bitte den zuständigen "
+"Dozenten oder den FSR."
 
-#: .\templates\faq.html.py:47
+#: .\templates\faq.html.py:48
 msgid ""
 "\n"
 "    Explaining Questionnaires concept\n"
 "    "
 msgstr ""
 "\n"
-"<a name=\"questionnaire_concept\" />Im alten System wurden die Fragebögen aufgrund der Art der Lehrveranstaltung bestimmt. Es ist schwer möglich, alle denkbaren Lehrveranstaltungstypen aufzulisten, um aufgrund des Typs die Fragebögen zuzuordnen. Nicht alle Fragen für eine Vorlesung passen zu allen Vorlesungen. Manchmal ist eine Veranstaltung zwar offiziell eine Vorlesung, läuft aber eher wie ein Projekt ab. "
-"Deshalb haben wir uns in EvaP für ein Baukastensystem entschieden. Die einzelnen Bausteine einer Lehrveranstaltung entsprechen jeweils einem Fragebogen mit der Kategorie als Namen. Zudem ist dieses System leicht auf neue Veranstaltungsarten erweiterbar und ermöglicht trotzdem eine Vergleichbarkeit der Lehrveranstaltungen. Die semantische Gestaltung der Fragebögen ist dabei völlig offen und nicht auf beispielsweise Vorlesung-, Übungs- und Seminarfragebögen beschränkt."
-""
+"<a name=\"questionnaire_concept\"></a>Im alten System wurden die Fragebögen "
+"aufgrund der Art der Lehrveranstaltung bestimmt. Es ist schwer möglich, alle "
+"denkbaren Lehrveranstaltungstypen aufzulisten, um aufgrund des Typs die "
+"Fragebögen zuzuordnen. Nicht alle Fragen für eine Vorlesung passen zu allen "
+"Vorlesungen. Manchmal ist eine Veranstaltung zwar offiziell eine Vorlesung, "
+"läuft aber eher wie ein Projekt ab. Deshalb haben wir uns in EvaP für ein "
+"Baukastensystem entschieden. Die einzelnen Bausteine einer Lehrveranstaltung "
+"entsprechen jeweils einem Fragebogen mit der Kategorie als Namen. Zudem ist "
+"dieses System leicht auf neue Veranstaltungsarten erweiterbar und ermöglicht "
+"trotzdem eine Vergleichbarkeit der Lehrveranstaltungen. Die semantische "
+"Gestaltung der Fragebögen ist dabei völlig offen und nicht auf "
+"beispielsweise Vorlesung-, Übungs- und Seminarfragebögen beschränkt."
 
-#: .\templates\faq.html.py:52
+#: .\templates\faq.html.py:53
 #, fuzzy
 msgid "How are questionnaires constructed?"
 msgstr "Wie sind Fragebögen aufgebaut? "
 
-#: .\templates\faq.html.py:54
+#: .\templates\faq.html.py:55
+#, fuzzy
 msgid ""
 "\n"
 "        One questionnaire consists of different sub-questionnaires, e.g. "
 "about the contents or the teaching assistant.\n"
-"\t\tEach sub-questionnaire consists of one ore more questions.\n"
+"        Each sub-questionnaire consists of one ore more questions.\n"
 "        "
 msgstr ""
 "\n"
-"Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Teil-Fragebögen, z.B. Fragen zu Lehrmitteln, dem Übungsleiter, dem Inhalt. Jeder Teilfragebogen besteht aus ein oder mehreren Fragen."
+"Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Teil-"
+"Fragebögen, z.B. Fragen zu Lehrmitteln, dem Übungsleiter, dem Inhalt. Jeder "
+"Teilfragebogen besteht aus ein oder mehreren Fragen."
 
-#: .\templates\faq.html.py:61
+#: .\templates\faq.html.py:62
 #, fuzzy
 msgid "What kinds of questionnaires are there?"
 msgstr "Welche Arten von Fragebögen gibt es? "
 
-#: .\templates\faq.html.py:63
+#: .\templates\faq.html.py:64
 msgid ""
 "\n"
 "        There are two kinds of questionnaires: one is about every person "
@@ -1267,36 +1293,42 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Bei Fragebögen unterscheiden wir zwischen Personen- und Sachfragebögen. Sachfragebögen beziehen sich allgemein auf eine Lehrveranstaltung, z.B. auf die Lehrmittel und den Inhalt. Personenfragebögen beziehen sich auf einen Dozenten, z.B. Professor, Übungsleiter, Tutor..."
+"Bei Fragebögen unterscheiden wir zwischen Personen- und Sachfragebögen. "
+"Sachfragebögen beziehen sich allgemein auf eine Lehrveranstaltung, z.B. auf "
+"die Lehrmittel und den Inhalt. Personenfragebögen beziehen sich auf einen "
+"Dozenten, z.B. Professor, Übungsleiter, Tutor..."
 
-#: .\templates\faq.html.py:69
+#: .\templates\faq.html.py:70
 msgid "What types of questions are there?"
 msgstr "Welche Arten von Fragen gibt es? "
 
-#: .\templates\faq.html.py:71
+#: .\templates\faq.html.py:72
+#, fuzzy
 msgid ""
 "\n"
 "        There are two general types of questions.\n"
-"\t\tThe first is called \"Likert\" and consists of five possible answers - "
-"from \"strongly agree\" to \"strongly disagree\".\n"
-"\t\tAdditionally there is the option to give \"no answer\".<br>\n"
-"\t\tWith the second type it is possible to leave text comments, if the other "
-"questions miss an interesting point.\n"
+"        The first is called \"Likert\" and consists of five possible answers "
+"- from \"strongly agree\" to \"strongly disagree\".\n"
+"        Additionally there is the option to give \"no answer\".<br>\n"
+"        With the second type it is possible to leave text comments, if the "
+"other questions miss an interesting point.\n"
 "        "
 msgstr ""
 "\n"
 "Grundsätzlich gibt es außerdem zwei Fragetypen:"
-"	<ul>"
-"		<li>Likert-Fragen, die Zustimmung/Ablehnung auf einer Skala von 1 bis 5 ermitteln. Dabei steht 1 für volle Zustimmung und 5 für volle Ablehnung. Des Weiteren gibt es ein „keine Angabe“-Feld, sodass man sich enthalten kann.</li>"
-"		<li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li>"
-"	</ul>"
-""
+"<ul>"
+"<li>Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer Skala von 1 bis 5 "
+"ermitteln. Dabei steht 1 für volle Zustimmung und 5 für volle Ablehnung. "
+"Des Weiteren gibt es ein <em>keine Angabe</em>-Feld, sodass man sich "
+"enthalten kann.</li>"
+"<li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li>"
+"</ul>"
 
-#: .\templates\faq.html.py:80
+#: .\templates\faq.html.py:81
 msgid "What types of courses are there?"
 msgstr "Welche Arten von Lehrveranstaltungen gibt es?"
 
-#: .\templates\faq.html.py:82
+#: .\templates\faq.html.py:83
 msgid ""
 "\n"
 "        There are different types of courses, e.g. lectures, seminars, "
@@ -1304,24 +1336,25 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Hier der Versuch, einige Arten von Lehrveranstaltungen mit verschiedenem Leistungserfassungsprozess und Ablauf exemplarisch aufzuzählen. Dies soll als Beispiel dienen, warum eine feste Menge von möglichen Fragebögen wie im alten System nicht immer ausreichend ist."
+"Hier der Versuch, einige Arten von Lehrveranstaltungen mit verschiedenem "
+"Leistungserfassungsprozess und Ablauf exemplarisch aufzuzählen. Dies soll "
+"als Beispiel dienen, warum eine feste Menge von möglichen Fragebögen wie im "
+"alten System nicht immer ausreichend ist."
 "<ul>"
-"	<li>Reine Vorlesung mit mündlicher oder schriftlicher Prüfung (z.B. IT-Recht)</li>"
-"	<li>Vorlesung mit Übung (z.B. Datenbanksysteme, Parallele Programmierung, HCI Research)</li>"
-"	<li>Ringvorlesung ohne Prüfung (z.B. Softskillskolloquium, Forschungskolleg?)</li>"
-"	<li>Projektseminar (z.B. HCI-Seminar, Requirements Engineering) mit Betreuung</li>"
-"	<li>“Paper“-Seminar mit kleiner Programmieraufgabe (z.B. Question Answering, Software Design) oder nur Vortrag und Ausarbeitung (z.B. Beauty is our Business)</li>"
-"	<li>Blockseminar (z.B. Überzeugend Präsentieren)</li>"
-"	<li>Bachelorprojekt / Masterprojekt</li>"
-"	<li>Sonstiges (z.B. D-School Basic Track)</li>"
+"<li>Reine Vorlesung mit mündlicher oder schriftlicher Prüfung (z.B. IT-Recht)</li>"
+"<li>Vorlesung mit Übung (z.B. Datenbanksysteme, Parallele Programmierung, HCI Research)</li>"
+"<li>Ringvorlesung ohne Prüfung (z.B. Softskillskolloquium, Forschungskolleg?)</li>"
+"<li>Projektseminar (z.B. HCI-Seminar, Requirements Engineering) mit Betreuung</li>"
+"<li>“Paper“-Seminar mit kleiner Programmieraufgabe (z.B. Question Answering, Software Design) Vortrag und Ausarbeitung (z.B. Beauty is our Business)</li>"
+"<li>Blockseminar (z.B. Überzeugend Präsentieren)</li>"
+"<li>Bachelorprojekt / Masterprojekt</li>\t<li>Sonstiges (z.B. D-School Basic Track)</li>"
 "</ul>"
-""
 
-#: .\templates\faq.html.py:88
+#: .\templates\faq.html.py:89
 msgid "What kind of lecturer roles are there?"
 msgstr "Welche Dozentenrollen gibt es?"
 
-#: .\templates\faq.html.py:90
+#: .\templates\faq.html.py:91
 msgid ""
 "\n"
 "        Accordingly there are different kinds of lecturers, like lecturers, "
@@ -1329,22 +1362,17 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"<ul>"
-"	<li>Dozent (hält viele Vorträge)</li>"
-"	<li>Gastdozent (hält einen Vortrag)</li>"
-"	<li>Übungsleiter</li>"
-"	<li>Projekt-/ Seminar- Betreuer</li>"
-"	<li>Seminarleiter</li>"
-"	<li>Verantwortlicher Professor / Lehrbeauftragter</li>"
-"</ul>"
-""
+"<ul>\t<li>Dozent (hält viele Vorträge)</li>\t<li>Gastdozent (hält einen "
+"Vortrag)</li>\t<li>Übungsleiter</li>\t<li>Projekt-/ Seminar- Betreuer</li>"
+"\t<li>Seminarleiter</li>\t<li>Verantwortlicher Professor / Lehrbeauftragter</"
+"li></ul>"
 
-#: .\templates\faq.html.py:96
+#: .\templates\faq.html.py:97
 #, fuzzy
 msgid "How are questionnaires assigned to courses?"
 msgstr "Wie werden Fragebögen zu einer Lehrveranstaltung hinzugefügt?"
 
-#: .\templates\faq.html.py:98
+#: .\templates\faq.html.py:99
 msgid ""
 "\n"
 "        The assignment is done by the student representatives. But the "
@@ -1352,248 +1380,367 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Die Zuordnung nimmt der Fachschaftsrat vor. Die Dozenten können allerdings weitere Fragebögen hinzufügen."
+"Die Zuordnung nimmt der Fachschaftsrat vor. Die Dozenten können allerdings "
+"weitere Fragebögen hinzufügen."
 
-#: .\templates\faq.html.py:106
+#: .\templates\faq.html.py:107
 msgid "How do I log into the system?"
 msgstr "Wie melde ich mich am System an?"
 
-#: .\templates\faq.html.py:108
+#: .\templates\faq.html.py:109
+#, fuzzy
 msgid ""
 "\n"
 "        If you are an HPI student or lecturer you can just use your usual "
 "credentials.\n"
-"\t\tIf you are an external student or lecturer you can get an access token "
-"by Email.\n"
+"        If you are an external student or lecturer you can get an access "
+"token by Email.\n"
 "        "
 msgstr ""
 "\n"
-"Für die Anmeldung am System gibt es zwei Möglichkeiten:"
-"<ul>"
-"	<li>Anmeldung über Kerberos mit dem HPI-Login</li>"
-"	<li>Für externe Nutzer: Anmeldung über einen Link, der per E-Mail verschickt wurde</li>"
-""
+"Für die Anmeldung am System gibt es zwei Möglichkeiten:<ul>\t<li>Anmeldung "
+"über Kerberos mit dem HPI-Login</li>\t<li>Für externe Nutzer: Anmeldung über "
+"einen Link, der per E-Mail verschickt wurde</li>"
 
-#: .\templates\faq.html.py:115
+#: .\templates\faq.html.py:116
 msgid "How are users registered? Who is able to create new users?"
 msgstr "Wie werden Nutzer registriert? Wer kann neue Benutzer anlegen?"
 
-#: .\templates\faq.html.py:121
+#: .\templates\faq.html.py:118
+#, fuzzy
+msgid ""
+"\n"
+"        New users are created by the Student Representatives. Ask them if "
+"there is the need for new users.\n"
+"        "
+msgstr ""
+"\n"
+"Die Zuordnung nimmt der Fachschaftsrat vor. Die Dozenten können allerdings "
+"weitere Fragebögen hinzufügen."
+
+#: .\templates\faq.html.py:124
 msgid "What are proxies?"
 msgstr "Was sind Stellvertreter?"
 
-#: .\templates\faq.html.py:123
+#: .\templates\faq.html.py:126
+#, fuzzy
 msgid ""
 "\n"
 "        As professors do not have much time, it is possible for them to "
 "elect one or more proxies, e.g. a secretary or an employee of the chair.\n"
-"\t\tThese people then can edit the courses as the original lecturer could, i."
-"e. add questionnaires and setup the correct assistants and evaluation "
-"period.\n"
+"        These people then can edit the courses as the original lecturer "
+"could, i.e. add questionnaires and setup the correct assistants and "
+"evaluation period.\n"
 "        "
 msgstr ""
 "\n"
-"Für die Vorbereitung der Evaluierung werden bestimmte Informationen, wie z.B. die Namen der Übungsleiter benötigt. Diese Informationen können von den Hauptdozenten eingetragen werden. Die Hauptdozenten sind die Lehrpersonen, die im Belegungsimport genannt werden. Da jedoch beispielsweise ein Professor nicht für alle Veranstaltungen jedes Semester diese Informationen eintragen möchte, bietet EvaP die Möglichkeit, einen oder mehrere Stellvertreter zu definieren. Dieser <i>erbt</i> die Rechte des Dozenten."
+"Für die Vorbereitung der Evaluierung werden bestimmte Informationen, wie z."
+"B. die Namen der Übungsleiter benötigt. Diese Informationen können von den "
+"Hauptdozenten eingetragen werden. Die Hauptdozenten sind die Lehrpersonen, "
+"die im Belegungsimport genannt werden. Da jedoch beispielsweise ein "
+"Professor nicht für alle Veranstaltungen jedes Semester diese Informationen "
+"eintragen möchte, bietet EvaP die Möglichkeit, einen oder mehrere "
+"Stellvertreter zu definieren. Dieser <i>erbt</i> die Rechte des Dozenten."
 
-#: .\templates\faq.html.py:129
+#: .\templates\faq.html.py:132
 msgid "Publication of results"
 msgstr "Veröffentlichung der Ergebnisse"
 
-#: .\templates\faq.html.py:132
+#: .\templates\faq.html.py:135
 msgid "How are the results publicised?"
 msgstr "In welcher Form werden die Ergebnisse veröffentlicht?"
 
-#: .\templates\faq.html.py:134
+#: .\templates\faq.html.py:137
+#, fuzzy
 msgid ""
 "\n"
 "        The results are viewable in the EvaP system, after the exams for the "
 "course are done.\n"
-"\t\tLater the student representatives will hang out a hard copy of the "
+"        Later the student representatives will hang out a hard copy of the "
 "results.\n"
 "        "
 msgstr ""
 "\n"
-"Jede Veranstaltung taucht in der Übersichtsliste auf mit dem Titel und einer Gesamtnote. Außerdem gibt es eine Detailansicht."
-"Zusätzlich zur Online-Darstellung gibt es einen Excel-Export, der ausgedruckt wird."
+"Jede Veranstaltung taucht in der Übersichtsliste auf mit dem Titel und einer "
+"Gesamtnote. Außerdem gibt es eine Detailansicht.Zusätzlich zur Online-"
+"Darstellung gibt es einen Excel-Export, der ausgedruckt wird."
 
-#: .\templates\faq.html.py:141
+#: .\templates\faq.html.py:144
 msgid "What information are in the printed export?"
 msgstr "Welche Informationen enthält der Ausdruck?"
 
-#: .\templates\faq.html.py:143
+#: .\templates\faq.html.py:146
+#, fuzzy
 msgid ""
 "\n"
 "        These prints contain the exact same information as shown in this "
 "system.\n"
-"\t\tThe affected lecturers can also view the comments, which were given to "
-"them.\n"
+"        The affected lecturers can also view the comments, which were given "
+"to them.\n"
 "        "
 msgstr ""
 "\n"
-"Für den Aushang bietet EvaP einen Export. Dieser enthält für alle Likert-Fragen die Durchschnittsnoten und die Standardabweichung. Nicht veröffentlicht sind hier die Kommentare. Im Studenten-Export finden sich nur Frageergebnisse mit ausreichender Repräsentativität (d.h. mindestens 5 Stimmen). Im GF-Export sind alle Ergebnisse vorhanden."
-"Die Ergebnisse von Personenfragen werden pro Frage zusammengefasst, d.h. alle Antworten zu Übungsleitern gehen in ein Ergebnis, die Antworten zu Dozenten jeweils ebenso. Siehe auch Abschnitt zu Gesamtnote."
-""
+"Für den Aushang bietet EvaP einen Export. Dieser enthält für alle Likert-"
+"Fragen die Durchschnittsnoten und die Standardabweichung. Nicht "
+"veröffentlicht sind hier die Kommentare. Im Studenten-Export finden sich nur "
+"Frageergebnisse mit ausreichender Repräsentativität (d.h. mindestens 5 "
+"Stimmen). Im GF-Export sind alle Ergebnisse vorhanden.Die Ergebnisse von "
+"Personenfragen werden pro Frage zusammengefasst, d.h. alle Antworten zu "
+"Übungsleitern gehen in ein Ergebnis, die Antworten zu Dozenten jeweils "
+"ebenso. Siehe auch Abschnitt zu Gesamtnote."
 
-#: .\templates\faq.html.py:150
+#: .\templates\faq.html.py:153
 msgid "How is the overall grade calculated?"
 msgstr "Wie wird die Gesamtnote berechnet?"
 
-#: .\templates\faq.html.py:152
+#: .\templates\faq.html.py:155
+#, fuzzy
 msgid ""
 "\n"
 "        The overall grade is the arithmetic average of all sub-grades.\n"
-"\t\tAll personal questions together are equally weighted to the questions "
-"about the course itself.\n"
+"        All personal questions together are equally weighted to the "
+"questions about the course itself.\n"
 "        "
 msgstr ""
 "\n"
-"Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten werden wiederum über den Durchschnitt aller abgegebenen Likert-Fragen berechnet. Alle Personennoten werden zusammen mit 50% gewichtet und die Sachfragen zählen zusammen die restlichen 50%."
+"Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten "
+"werden wiederum über den Durchschnitt aller abgegebenen Likert-Fragen "
+"berechnet. Alle Personennoten werden zusammen mit 50% gewichtet und die "
+"Sachfragen zählen zusammen die restlichen 50%."
 
-#: .\templates\faq.html.py:159
+#: .\templates\faq.html.py:162
 msgid "How many answers are necessary to assure the representativeness?"
-msgstr "Wie viele Antworten müssen pro Frage abgegeben worden sein, damit sie in der Auswertung veröffentlicht werden können und warum?"
+msgstr ""
+"Wie viele Antworten müssen pro Frage abgegeben worden sein, damit sie in der "
+"Auswertung veröffentlicht werden können und warum?"
 
-#: .\templates\faq.html.py:161
+#: .\templates\faq.html.py:164
+#, fuzzy
 msgid ""
 "\n"
 "        Currently at least five (5) answers are necessary (except \"no answer"
 "\") to assure the representativeness.\n"
-"\t\tIf you do not agree with that write an Email or just come over to start "
-"a discussion with the student representatives.\n"
+"        If you do not agree with that write an Email or just come over to "
+"start a discussion with the student representatives.\n"
 "        "
 msgstr ""
 "\n"
-"Im alten System wurden Evaluierungsergebnisse einer Lehrveranstaltung nur dann für die Studenten veröffentlicht, wenn mindestens fünf Fragebögen abgesendet wurden. Ziel war, dass nur aussagekräftige /repräsentative Ergebnisse veröffentlicht werden. Leider ist es häufiger vorgekommen, dass auch unvollständig ausgefüllte Fragebogen abgesendet und gewertet wurden. So wurden beispielsweise bei einem Seminar 6 Fragebögen abgeschickt, aber nur 1 Stimme pro Frage erfasst. Im alten System gab es auch keine Möglichkeit, sich bei einer Frage explizit zu enthalten – sobald das Häkchen irgendwo gesetzt war, konnte man es nicht mehr rausnehmen."
-"In EvaP wird die Repräsentativität nicht mittels der abgesandten Fragebogen für jede Lehrveranstaltung, sondern mittels der Stimmen pro Frage für jede einzelne Frage entschieden. Das heißt, die Auswertung einer Likert-Frage wird dann vom System veröffentlicht, wenn mindestens 5 Stimmen („keine Angabe“-Stimmen zählen nicht) für diese Frage abgegeben wurden. Das kann dazu führen, dass einige Fragen veröffentlicht werden, andere jedoch nicht. Nicht veröffentlichte Fragen erscheinen in der Web-Detailansicht mit dem Fragetext und dem Hinweis, dass das Ergebnis aufgrund der Beteiligung nicht veröffentlicht werden konnte."
-"Zusätzlich wird im Ergebnis angezeigt, wie viele Stimmen insgesamt für eine Frage abgegeben wurden, damit man ein grobes Gefühl für die Repräsentativität des Ergebnisses bekommt und ggf. offline statistische Auswertungen veranlassen kann. Dadurch ergibt sich auch die Anzahl der „Keine-Antwort“- Stimmen, denn für eine Veranstaltung wird angegeben, wie viele Stimmzettel insgesamt abgegeben wurden, sowie wie viele Studenten das Fach belegt haben. Wenn eine Frage von vielen Studenten mit „keine Angabe“ bewertet wurde, könnte das ein Hinweis darauf sein, dass sie zur Lehrveranstaltung nicht gut gepasst hat."
-"Haben insgesamt zu wenig Studenten abgestimmt, werden folglich nur die Fragen, aber ohne Ergebnisse allgemein veröffentlicht."
-""
+"Im alten System wurden Evaluierungsergebnisse einer Lehrveranstaltung nur "
+"dann für die Studenten veröffentlicht, wenn mindestens fünf Fragebögen "
+"abgesendet wurden. Ziel war, dass nur aussagekräftige /repräsentative "
+"Ergebnisse veröffentlicht werden. Leider ist es häufiger vorgekommen, dass "
+"auch unvollständig ausgefüllte Fragebogen abgesendet und gewertet wurden. So "
+"wurden beispielsweise bei einem Seminar 6 Fragebögen abgeschickt, aber nur 1 "
+"Stimme pro Frage erfasst. Im alten System gab es auch keine Möglichkeit, "
+"sich bei einer Frage explizit zu enthalten – sobald das Häkchen irgendwo "
+"gesetzt war, konnte man es nicht mehr rausnehmen.In EvaP wird die "
+"Repräsentativität nicht mittels der abgesandten Fragebogen für jede "
+"Lehrveranstaltung, sondern mittels der Stimmen pro Frage für jede einzelne "
+"Frage entschieden. Das heißt, die Auswertung einer Likert-Frage wird dann "
+"vom System veröffentlicht, wenn mindestens 5 Stimmen (<em>keine Angabe</em>-Stimmen "
+"zählen nicht) für diese Frage abgegeben wurden. Das kann dazu führen, dass "
+"einige Fragen veröffentlicht werden, andere jedoch nicht. Nicht "
+"veröffentlichte Fragen erscheinen in der Web-Detailansicht mit dem Fragetext "
+"und dem Hinweis, dass das Ergebnis aufgrund der Beteiligung nicht "
+"veröffentlicht werden konnte.Zusätzlich wird im Ergebnis angezeigt, wie "
+"viele Stimmen insgesamt für eine Frage abgegeben wurden, damit man ein "
+"grobes Gefühl für die Repräsentativität des Ergebnisses bekommt und ggf. "
+"offline statistische Auswertungen veranlassen kann. Dadurch ergibt sich auch "
+"die Anzahl der „Keine-Antwort“- Stimmen, denn für eine Veranstaltung wird "
+"angegeben, wie viele Stimmzettel insgesamt abgegeben wurden, sowie wie viele "
+"Studenten das Fach belegt haben. Wenn eine Frage von vielen Studenten mit "
+"„keine Angabe“ bewertet wurde, könnte das ein Hinweis darauf sein, dass sie "
+"zur Lehrveranstaltung nicht gut gepasst hat.Haben insgesamt zu wenig "
+"Studenten abgestimmt, werden folglich nur die Fragen, aber ohne Ergebnisse "
+"allgemein veröffentlicht."
 
-#: .\templates\faq.html.py:167
+#: .\templates\faq.html.py:170
 msgid "Details for Lectures"
 msgstr "Details für Dozenten"
 
-#: .\templates\faq.html.py:170
+#: .\templates\faq.html.py:173
 msgid "What data are necessary for a course and why?"
 msgstr "Welche Daten muss ich für eine Lehrveranstaltung angeben und warum?"
 
-#: .\templates\faq.html.py:172
+#: .\templates\faq.html.py:175
+#, fuzzy
 msgid ""
 "\n"
 "        You can define all involved persons and their roles. So it is "
 "possible for the students to give specific feedback.\n"
-"\t\tAdditionally you can adapt the evaluation period if needed.\n"
-""
+"        Additionally you can adapt the evaluation period if needed.\n"
+"        "
 msgstr ""
 "\n"
-"Sie können die involvierten Lehrbeauftragte und ihre Rollen detailliert festlegen, um individuelle Bewertungen zu ermöglichen und den beteiligten Personen zielgerichtet Feedback geben zu können. Es geht aber insbesondere auch, Lehranbietungsberechtigte aus der Evaluation herauszunehmen. Siehe auch: <a href=\"#questionnaire_concept\">Fragebogen-Konzept</a><br>"
-"Sie können überprüfen, ob der gewählte Evaluierungszeitraum korrekt ist. Die Evaluierung soll nicht die Notengebung beeinflussen und umgekehrt. Dies soll dadurch gewährleistet werden, indem die Evaluierung vor der letzten Prüfungsleistung abgeschlossen sein soll und die Ergebnisse der Evaluierung erst nach Bekanntgabe der Noten veröffentlicht werden. Falls der Evaluierungszeitraum korrigiert werden muss, benachrichtigen Sie bitte den Fachschaftsrat per E-Mail. Entsprechende Hinweise-Texte gibt es im Formular."
-"\n"
+"Sie können die involvierten Lehrbeauftragte und ihre Rollen detailliert "
+"festlegen, um individuelle Bewertungen zu ermöglichen und den beteiligten "
+"Personen zielgerichtet Feedback geben zu können. Es geht aber insbesondere "
+"auch, Lehranbietungsberechtigte aus der Evaluation herauszunehmen. Siehe "
+"auch: <a href=\"#questionnaire_concept\">Fragebogen-Konzept</a><br>Sie "
+"können überprüfen, ob der gewählte Evaluierungszeitraum korrekt ist. Die "
+"Evaluierung soll nicht die Notengebung beeinflussen und umgekehrt. Dies soll "
+"dadurch gewährleistet werden, indem die Evaluierung vor der letzten "
+"Prüfungsleistung abgeschlossen sein soll und die Ergebnisse der Evaluierung "
+"erst nach Bekanntgabe der Noten veröffentlicht werden. Falls der "
+"Evaluierungszeitraum korrigiert werden muss, benachrichtigen Sie bitte den "
+"Fachschaftsrat per E-Mail. Entsprechende Hinweise-Texte gibt es im "
+"Formular.\n"
 
-
-#: .\templates\faq.html.py:179
+#: .\templates\faq.html.py:182
 msgid "How should I configure the evaluation period of my course?"
 msgstr "Wie sollte der Evaluierungszeitraum gesetzt werden?"
 
-#: .\templates\faq.html.py:191
+#: .\templates\faq.html.py:184
+msgid ""
+"\n"
+"        The evaluation must not influence the assessment of the student. So "
+"there are different criteria for the period:\n"
+"        <ul>\n"
+"            <li>It should end before the written exam or the first oral exam."
+"</li>\n"
+"            <li>It should be at least one week long.</li>\n"
+"            <li>It should start after one of the last lectures and not right "
+"at the beginning.</li>\n"
+"        </ul>\n"
+"        Of course there are courses for which it is not possible to fulfil "
+"all of the criteria. Please contact the student representatives if you are "
+"not sure.\n"
+"        "
+msgstr ""
+
+#: .\templates\faq.html.py:196
 msgid "When will I get which Email notice?"
 msgstr "Welche E-Mail-Benachrichtigungen erhalte ich wann?"
 
-#: .\templates\faq.html.py:193
+#: .\templates\faq.html.py:198
+#, fuzzy
 msgid ""
 "\n"
 "        At some point in the middle of the semester you get an Email with "
 "all your courses to edit them if needed.\n"
-"\t\tYou will also get an Email after the results are available.\n"
+"        You will also get an Email after the results are available.\n"
 "        "
 msgstr ""
 "\n"
-"Am Anfang des Semesters bekommen Sie (aber nicht Ihre Vertreter)  eine E-Mail, die einen Link zum EvaP System enthält. In dieser E-Mail werden Sie gebeten, die aus den grundlegenden Lehrveranstaltungsdaten importierten Details anzupassen."
-"Nachdem Sie die Noten veröffentlicht haben, werden die Ergebnisse der Evaluierung bekanntgegeben. An alle involvierten Personen versendet der FSR  eine E-Mail, die einen Link zur EvaP Seite enthält und einen Link zur Gesamtübersicht. Sie können sich auf der EvaP Seite zusätzlich alle Kommentare zu Ihren Lehrveranstaltungen anschauen."
-""
+"Am Anfang des Semesters bekommen Sie (aber nicht Ihre Vertreter)  eine E-"
+"Mail, die einen Link zum EvaP System enthält. In dieser E-Mail werden Sie "
+"gebeten, die aus den grundlegenden Lehrveranstaltungsdaten importierten "
+"Details anzupassen.Nachdem Sie die Noten veröffentlicht haben, werden die "
+"Ergebnisse der Evaluierung bekanntgegeben. An alle involvierten Personen "
+"versendet der FSR  eine E-Mail, die einen Link zur EvaP Seite enthält und "
+"einen Link zur Gesamtübersicht. Sie können sich auf der EvaP Seite "
+"zusätzlich alle Kommentare zu Ihren Lehrveranstaltungen anschauen."
 
-#: .\templates\faq.html.py:200
+#: .\templates\faq.html.py:205
 msgid "Which results do I see and what do they mean?"
-msgstr "Welche Informationen sehe ich bei der Auswertung und was bedeuten diese?"
+msgstr ""
+"Welche Informationen sehe ich bei der Auswertung und was bedeuten diese?"
 
-#: .\templates\faq.html.py:202
+#: .\templates\faq.html.py:207
+#, fuzzy
 msgid ""
 "\n"
 "        You can see the average grade and standard deviation of all Likert "
 "questions.\n"
-"\t\tAdditionally you can view the comments the students gave to you, the "
+"        Additionally you can view the comments the students gave to you, the "
 "course or the other people involved in the course.\n"
 "        "
 msgstr ""
 "\n"
-"Sie sehen für alle Likert-Fragen die Durchschnittsnoten und Standardabweichung. Außerdem können Sie alle Antworten auf Kommentarfragen anschauen. Diese wurden ggf. vom FSR bearbeitet oder es wurden einige Kommentare entfernt. "
+"Sie sehen für alle Likert-Fragen die Durchschnittsnoten und "
+"Standardabweichung. Außerdem können Sie alle Antworten auf Kommentarfragen "
+"anschauen. Diese wurden ggf. vom FSR bearbeitet oder es wurden einige "
+"Kommentare entfernt. "
 
-#: .\templates\faq.html.py:208
+#: .\templates\faq.html.py:213
 msgid "Details for Students"
 msgstr "Details für Studierende"
 
-#: .\templates\faq.html.py:211
+#: .\templates\faq.html.py:216
 msgid "How complete do I have to fill in the questionnaires?"
-msgstr "Wie (vollständig) muss ich den Fragebogen ausfüllen, damit er gewertet wird?"
+msgstr ""
+"Wie (vollständig) muss ich den Fragebogen ausfüllen, damit er gewertet wird?"
 
-#: .\templates\faq.html.py:213
+#: .\templates\faq.html.py:218
+#, fuzzy
 msgid ""
 "\n"
 "        As complete as possible :).\n"
-"\t\tThe results are only published if the representativeness is guaranteed.\n"
-"\t\tAll Likert questions need to be answered (at least with \"no answer\"), "
-"but not one text comment question, to submit an questionnaire.\n"
+"        The results are only published if the representativeness is "
+"guaranteed.\n"
+"        All Likert questions need to be answered (at least with \"no answer"
+"\"), but not one text comment question, to submit an questionnaire.\n"
 "        "
 msgstr ""
 "\n"
-"So vollständig wie möglich. Bitte gib eine Stimme für jede Frage ab, die du beurteilen kannst. Nur bei ausreichender Stimmenanzahl werden die Ergebnisse veröffentlicht, sodass auch andere Studenten etwas davon haben."
-"Jede Likert-Frage muss ausgefüllt werden (notfalls mit „keine Angabe“), damit der Fragebogen abgesendet werden kann. Kommentarfragen müssen nicht ausgefüllt werden."
-"Siehe auch: <a href=\"#representativeness\"> unten</a>"
+"So vollständig wie möglich. Bitte gib eine Stimme für jede Frage ab, die du "
+"beurteilen kannst. Nur bei ausreichender Stimmenanzahl werden die Ergebnisse "
+"veröffentlicht, sodass auch andere Studenten etwas davon haben.Jede Likert-"
+"Frage muss ausgefüllt werden (notfalls mit „keine Angabe“), damit der "
+"Fragebogen abgesendet werden kann. Kommentarfragen müssen nicht ausgefüllt "
+"werden. Siehe auch: <a href=\"#representativeness\">unten</a>"
 
-
-#: .\templates\faq.html.py:221
+#: .\templates\faq.html.py:226
 msgid "What happens to my comments?"
 msgstr "Was passiert mit den Kommentaren?"
 
-#: .\templates\faq.html.py:223
+#: .\templates\faq.html.py:228
+#, fuzzy
 msgid ""
 "\n"
 "        As we cannot assure the representativeness or anonymity here all "
 "comments are provided to all people involved in the course they were given.\n"
-"\t\tBut the student representatives reserve the possibility to remove or "
+"        But the student representatives reserve the possibility to remove or "
 "change insults or other inappropriate texts.\n"
 "        "
 msgstr ""
 "\n"
-"Für Kommentarfragen gibt es keine Einschränkung aufgrund der Repräsentativität, da wir die Kommentare nicht inhaltlich entsprechend auswerten können. Alle Kommentare werden für den jeweiligen Dozenten veröffentlicht, egal wie viele Antworten es insgesamt gab."
-"Allerdings werden die Kommentare vor der Veröffentlichung für die Dozenten (für Studenten sind sie grundsätzlich nicht einsehbar) vom Fachschaftsrat „zensiert“ (siehe auch Kapitel Bearbeitung der Kommentare). Kurz gesagt werden unangemessene Beleidigungen und unsachliche Äußerungen entfernt/korrigiert. Wer seine Kritik sachlich und konstruktiv äußert, wird auch nicht zensiert."
-""
+"Für Kommentarfragen gibt es keine Einschränkung aufgrund der "
+"Repräsentativität, da wir die Kommentare nicht inhaltlich entsprechend "
+"auswerten können. Alle Kommentare werden für den jeweiligen Dozenten "
+"veröffentlicht, egal wie viele Antworten es insgesamt gab.Allerdings werden "
+"die Kommentare vor der Veröffentlichung für die Dozenten (für Studenten sind "
+"sie grundsätzlich nicht einsehbar) vom Fachschaftsrat „zensiert“ (siehe auch "
+"Kapitel Bearbeitung der Kommentare). Kurz gesagt werden unangemessene "
+"Beleidigungen und unsachliche Äußerungen entfernt/korrigiert. Wer seine "
+"Kritik sachlich und konstruktiv äußert, wird auch nicht zensiert."
 
-#: .\templates\faq.html.py:230
+#: .\templates\faq.html.py:235
 msgid "How anonymous is my vote?"
 msgstr "Inwiefern ist meine Stimme anonym?"
 
-#: .\templates\faq.html.py:232
+#: .\templates\faq.html.py:237
+#, fuzzy
 msgid ""
 "\n"
 "        The system guarantees that there is no connection between a vote and "
 "a user.\n"
-"\t\tIt is just stored which user already submitted which questionnaire.\n"
-"\t\tPay attention: We cannot assure anonymity regarding text comment "
+"        It is just stored which user already submitted which questionnaire.\n"
+"        Pay attention: We cannot assure anonymity regarding text comment "
 "questions as it is possible for\n"
-"\t\tthe lecturer to guess from the contest or grammar of the text the "
+"        the lecturer to guess from the contest or grammar of the text the "
 "student writing it.\n"
-"\t\t\n"
-"\t\tAll text answers are given in an arbitrary order - so you should not "
+"        \n"
+"        All text answers are given in an arbitrary order - so you should not "
 "refer to your own answers (like \"see above\" or \"same as other teaching "
 "assistant\").\n"
 "        "
 msgstr ""
 "\n"
-"Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast."
-"Aber Achtung: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein."
-"Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
-""
+"Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer "
+"zugeordnet werden kann. Das System speichert, wer eine Stimme für eine "
+"Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie "
+"ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt "
+"hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen "
+"Kommentar abgegeben hast.Aber Achtung: Bei Kommentar-Fragen gibt es nur eine "
+"technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es "
+"dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen "
+"Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. "
+"Beim Formulieren der Kommentare muss dir das bewusst sein.Für die Dozenten "
+"ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die "
+"Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar "
+"schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort "
+"nicht finden."
 
 #: .\templates\index.html.py:9
 #, python-format
