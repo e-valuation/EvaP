@@ -1314,6 +1314,7 @@ msgstr ""
 "	<li>Blockseminar (z.B. Überzeugend Präsentieren)</li>"
 "	<li>Bachelorprojekt / Masterprojekt</li>"
 "	<li>Sonstiges (z.B. D-School Basic Track)</li>"
+"</ul>"
 ""
 
 #: .\templates\faq.html.py:88
@@ -1335,6 +1336,7 @@ msgstr ""
 "	<li>Projekt-/ Seminar- Betreuer</li>"
 "	<li>Seminarleiter</li>"
 "	<li>Verantwortlicher Professor / Lehrbeauftragter</li>"
+"</ul>"
 ""
 
 #: .\templates\faq.html.py:96
