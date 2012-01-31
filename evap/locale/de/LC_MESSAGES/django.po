@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-31 13:43+0100\n"
+"POT-Creation-Date: 2012-01-31 14:09+0100\n"
 "PO-Revision-Date: 2012-01-22 19:46+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
@@ -1170,12 +1170,10 @@ msgid "These are the Frequently Asked Questions (FAQs)"
 msgstr "Die sind die Häufig Gestellten Fragen (FAQs)"
 
 #: .\templates\faq.html.py:16
-#, fuzzy
 msgid "General"
 msgstr "Allgemeines"
 
 #: .\templates\faq.html.py:19
-#, fuzzy
 msgid "What is evaluation?"
 msgstr "Was ist die Evaluierung?"
 
@@ -1209,22 +1207,18 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am "
-"HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten "
-"und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten.Die "
-"Studenten können vor Beginn der Prüfungen mittels eines Online-Systems "
-"anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die "
-"Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die Benotung "
-"seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen ist. Sie "
-"ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) durch das "
-"Evaluierungssystem zugänglich."
+"Von 2005 bis 2011 war dafür EvaJ – eine von HPI Studenten im Rahmen eines "
+"Seminars entwickelte Java-Anwendung im Einsatz. 2011 entschied sich der "
+"Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung "
+"technisch zu aufwändig geworden ist. Das neue System namens EvaP basiert auf "
+"Python und wurde von Michael Grünewald und Stefan Richter in Zusammenarbeit "
+"mit dem Fachschaftsrat entwickelt. Ab WS 2011/12 soll es zum Einsatz kommen."
 
 #: .\templates\faq.html.py:35
 msgid "Where are the data coming from?"
 msgstr "Wo kommen die Daten her?"
 
 #: .\templates\faq.html.py:37
-#, fuzzy
 msgid ""
 "\n"
 "        The different information, imported into the system, are provided by "
@@ -1263,12 +1257,10 @@ msgstr ""
 "beispielsweise Vorlesung-, Übungs- und Seminarfragebögen beschränkt."
 
 #: .\templates\faq.html.py:53
-#, fuzzy
 msgid "How are questionnaires constructed?"
-msgstr "Wie sind Fragebögen aufgebaut? "
+msgstr "Wie sind Fragebögen aufgebaut?"
 
 #: .\templates\faq.html.py:55
-#, fuzzy
 msgid ""
 "\n"
 "        One questionnaire consists of different sub-questionnaires, e.g. "
@@ -1282,9 +1274,8 @@ msgstr ""
 "Teilfragebogen besteht aus ein oder mehreren Fragen."
 
 #: .\templates\faq.html.py:62
-#, fuzzy
 msgid "What kinds of questionnaires are there?"
-msgstr "Welche Arten von Fragebögen gibt es? "
+msgstr "Welche Arten von Fragebögen gibt es?"
 
 #: .\templates\faq.html.py:64
 msgid ""
@@ -1304,7 +1295,6 @@ msgid "What types of questions are there?"
 msgstr "Welche Arten von Fragen gibt es? "
 
 #: .\templates\faq.html.py:72
-#, fuzzy
 msgid ""
 "\n"
 "        There are two general types of questions:<br>\n"
@@ -1367,7 +1357,6 @@ msgstr ""
 "li></ul>"
 
 #: .\templates\faq.html.py:97
-#, fuzzy
 msgid "How are questionnaires assigned to courses?"
 msgstr "Wie werden Fragebögen zu einer Lehrveranstaltung hinzugefügt?"
 
@@ -1387,7 +1376,6 @@ msgid "How do I log into the system?"
 msgstr "Wie melde ich mich am System an?"
 
 #: .\templates\faq.html.py:109
-#, fuzzy
 msgid ""
 "\n"
 "        If you are an HPI student or lecturer you can just use your usual "
@@ -1399,14 +1387,13 @@ msgstr ""
 "\n"
 "Für die Anmeldung am System gibt es zwei Möglichkeiten:<ul>\t<li>Anmeldung "
 "über Kerberos mit dem HPI-Login</li>\t<li>Für externe Nutzer: Anmeldung über "
-"einen Link, der per E-Mail verschickt wurde</li>"
+"einen Link, der per E-Mail verschickt wurde</li></ul>"
 
 #: .\templates\faq.html.py:116
 msgid "How are users registered? Who is able to create new users?"
 msgstr "Wie werden Nutzer registriert? Wer kann neue Benutzer anlegen?"
 
 #: .\templates\faq.html.py:118
-#, fuzzy
 msgid ""
 "\n"
 "        New users are created by the Student Representatives. Ask them if "
@@ -1422,7 +1409,6 @@ msgid "What are proxies?"
 msgstr "Was sind Stellvertreter?"
 
 #: .\templates\faq.html.py:126
-#, fuzzy
 msgid ""
 "\n"
 "        As professors do not have much time, it is possible for them to "
@@ -1450,7 +1436,6 @@ msgid "How are the results publicised?"
 msgstr "In welcher Form werden die Ergebnisse veröffentlicht?"
 
 #: .\templates\faq.html.py:137
-#, fuzzy
 msgid ""
 "\n"
 "        The results are viewable in the EvaP system, after the exams for the "
@@ -1469,7 +1454,6 @@ msgid "What information are in the printed export?"
 msgstr "Welche Informationen enthält der Ausdruck?"
 
 #: .\templates\faq.html.py:146
-#, fuzzy
 msgid ""
 "\n"
 "        These prints contain the exact same information as shown in this "
@@ -1493,7 +1477,6 @@ msgid "How is the overall grade calculated?"
 msgstr "Wie wird die Gesamtnote berechnet?"
 
 #: .\templates\faq.html.py:155
-#, fuzzy
 msgid ""
 "\n"
 "        The overall grade is the arithmetic average of all sub-grades.<br>\n"
@@ -1514,7 +1497,6 @@ msgstr ""
 "Auswertung veröffentlicht werden können und warum?"
 
 #: .\templates\faq.html.py:164
-#, fuzzy
 msgid ""
 "\n"
 "        Currently at least five (5) answers are necessary (except <em>no "
@@ -1562,7 +1544,6 @@ msgid "What data are necessary for a course and why?"
 msgstr "Welche Daten muss ich für eine Lehrveranstaltung angeben und warum?"
 
 #: .\templates\faq.html.py:175
-#, fuzzy
 msgid ""
 "\n"
 "        You can define all involved persons and their roles. So it is "
@@ -1582,8 +1563,7 @@ msgstr ""
 "Prüfungsleistung abgeschlossen sein soll und die Ergebnisse der Evaluierung "
 "erst nach Bekanntgabe der Noten veröffentlicht werden. Falls der "
 "Evaluierungszeitraum korrigiert werden muss, benachrichtigen Sie bitte den "
-"Fachschaftsrat per E-Mail. Entsprechende Hinweise-Texte gibt es im "
-"Formular.\n"
+"Fachschaftsrat per E-Mail. Entsprechende Hinweise-Texte gibt es im Formular."
 
 #: .\templates\faq.html.py:182
 msgid "How should I configure the evaluation period of my course?"
@@ -1606,13 +1586,34 @@ msgid ""
 "not sure.\n"
 "        "
 msgstr ""
+"\n"
+"Der Evaluationszeitraum sollte immer eine Woche sein und wird standardmäßig "
+"auf die letzten Woche Vorlesungszeit gesetzt. Im folgenden werden ein paar "
+"Beispiele erläutert, in den es Sinn machen könnte, die Standardeinstellung "
+"zu verändern.<br><em>Beispiel 1:</em> Vorlesung mit oder ohne "
+"Zwischenklausur: Evaluation sollte vor der Endklausur stattfinden, da zu "
+"diesem Zeitpunkt die Studierenden einen umfassenden Überblick über die "
+"Lehrveranstaltung erhalten haben und der Hauptteil der Prüfungsleistung noch "
+"nicht erbracht ist. In diesem Fall kann also der Standard belassen werden."
+"<br><em>Beispiel 2:</em> Blockseminar mit mehreren Terminen: Die Evaluation "
+"kann direkt vor dem letzten Prüfungsblock abgeschlossen werden. Der "
+"Evaluationzeitraum sollte aber nur bis dahin verschoben werden, falls es im "
+"letzten Block keinen oder nur noch kaum Lehrinhalt gibt. Ansonsten kann die "
+"Evaluation auch nach der Prüfung stattfinden.<br><em>Beispiel 3:</em> "
+"Blockseminar in den Ferien: Hier sollte unbedingt der Evaluationstermin nach "
+"hinten verschoben werden. Gibt es zwischen Lehrinhalt und Prüfung keine "
+"ausreichende Zeit, so sollte die Evaluation nach der Prüfung durchgeführt "
+"werden.<br><em>Beispiel 4:</em> Paper-/Projektseminar: Nach dem letzten "
+"regelmäßigen Treffen oder Vortrag wäre ein geeigneter Termin. Sollten Noten "
+"nicht vor dem Standardevaluationstermin veröffentlicht werden, raten wir "
+"dringend dazu den Standardtermin zu belassen, damit die Studierenden nicht "
+"zu viele verschiedene Evaluationstermine haben.<br>"
 
 #: .\templates\faq.html.py:196
 msgid "When will I get which Email notice?"
 msgstr "Welche E-Mail-Benachrichtigungen erhalte ich wann?"
 
 #: .\templates\faq.html.py:198
-#, fuzzy
 msgid ""
 "\n"
 "        At some point in the middle of the semester you get an Email with "
@@ -1636,7 +1637,6 @@ msgstr ""
 "Welche Informationen sehe ich bei der Auswertung und was bedeuten diese?"
 
 #: .\templates\faq.html.py:207
-#, fuzzy
 msgid ""
 "\n"
 "        You can see the average grade and standard deviation of all Likert "
@@ -1661,7 +1661,6 @@ msgstr ""
 "Wie (vollständig) muss ich den Fragebogen ausfüllen, damit er gewertet wird?"
 
 #: .\templates\faq.html.py:218
-#, fuzzy
 msgid ""
 "\n"
 "        As complete as possible :)<br><br>\n"
@@ -1678,14 +1677,13 @@ msgstr ""
 "veröffentlicht, sodass auch andere Studenten etwas davon haben.Jede Likert-"
 "Frage muss ausgefüllt werden (notfalls mit „keine Angabe“), damit der "
 "Fragebogen abgesendet werden kann. Kommentarfragen müssen nicht ausgefüllt "
-"werden. Siehe auch: <a href=\"#representativeness\">unten</a>"
+"werden. Siehe auch: <a href=\"#representativeness\">hier</a>"
 
 #: .\templates\faq.html.py:226
 msgid "What happens to my comments?"
 msgstr "Was passiert mit den Kommentaren?"
 
 #: .\templates\faq.html.py:228
-#, fuzzy
 msgid ""
 "\n"
 "        As we cannot assure the representativeness or anonymity here all "
@@ -1711,7 +1709,6 @@ msgid "How anonymous is my vote?"
 msgstr "Inwiefern ist meine Stimme anonym?"
 
 #: .\templates\faq.html.py:237
-#, fuzzy
 msgid ""
 "\n"
 "        The system guarantees that there is no connection between a vote and "
