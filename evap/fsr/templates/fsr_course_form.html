@@ -5,67 +5,69 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST" class="multiselect-form">
-            {% csrf_token %}
-            <fieldset>
-                <legend>{% trans "General Options" %}</legend>
-                {{ form.as_div }}
-            </fieldset>
-            
-            <fieldset>
-                <legend>{% trans "Lecturers" %}</legend>
-                {{ formset.management_form }}
-            </fieldset>
-            
-            {{ formset.non_form_errors }}
-            
-            <table id="assignment_table">
-                <thead>
-                <tr>
-                    {% for field in formset.form %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
-                    <th>{% trans "Delete?" %}</th>
-                </tr>
-                </thead>
-                <tbody>
-                    {% for form_element in formset %}
-                        {% if form_element.non_field_errors %}
-                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                        {% endif %}
-                        <tr>
-                            {% for field in form_element.hidden_fields %}
-                                {{ field }}
-                            {% endfor %}
-                        {% for field in form_element.visible_fields %}
-                            <td>{{field.errors}} {{ field }}</td>
+    <form method="POST" class="multiselect-form">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{% trans "General Options" %}</legend>
+            {{ form.as_div }}
+        </fieldset>
+        
+        <fieldset>
+            <legend>{% trans "Lecturers" %}</legend>
+            {{ formset.management_form }}
+        </fieldset>
+        
+        {{ formset.non_form_errors }}
+        
+        <table id="assignment_table">
+            <thead>
+            <tr>
+                {% for field in formset.form %}
+                    <th>{{ field.label }}</th>
+                {% endfor %}
+                <th>{% trans "Delete?" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for form_element in formset %}
+                    {% if form_element.non_field_errors %}
+                        <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                    {% endif %}
+                    <tr>
+                        {% for field in form_element.hidden_fields %}
+                            {{ field }}
                         {% endfor %}
-                        </tr>
+                    {% for field in form_element.visible_fields %}
+                        <td>{{field.errors}} {{ field }}</td>
                     {% endfor %}
-                </tbody>
-            </table>
-            <div class="actions">
-                <input type="submit" value="{% trans "Save course" %}" class="btn primary" onclick="submitFormOkay = true;"/>
-            </div>
-        </form>
-    </p>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="actions">
+            <input type="submit" value="{% trans "Save course" %}" class="btn primary" onclick="submitFormOkay = true;"/>
+        </div>
+    </form>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
     $(function() {
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-        $(".multiselect-form select[multiple='multiple']").each(function(i, e) {
-            $(e).width($(e).width());
-            $(e).multiselect();
-        });
+        $(".multiselect-form select[multiple='multiple']").multiselect();
 
         $('#assignment_table tbody tr').formset({prefix: 'assignments'});
 
         $('#id_study').combobox();
         $('#id_kind').combobox();
+        
+        $('.twipsify').twipsy({
+            html: true,
+            placement: 'left'
+        });
     });
     </script>
     

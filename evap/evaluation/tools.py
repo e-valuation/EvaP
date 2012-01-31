@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Min, Count
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import GradeAnswer, TextAnswer
@@ -14,6 +15,17 @@ GRADE_NAMES = {
     4: _(u"Disagree"),
     5: _(u"Strongly disagree"),
 }
+
+STATES_ORDERED = SortedDict((
+    ('new', _('new')),
+    ('prepared', _('prepared')),
+    ('lecturerApproved', _('lecturer approved')),
+    ('approved', _('approved')),
+    ('inEvaluation', _('in evaluation')),
+    ('evaluated', _('evaluated')),
+    ('reviewed', _('reviewed')),
+    ('published', _('published'))
+))
 
 
 # see calculate_results
@@ -149,7 +161,9 @@ def questionnaires_and_assignments(course):
     """Yields tuples of (questionnaire, assignment) for the given course."""
     
     result = []
-    for assignment in course.assignments.all():
+    
+    
+    for assignment in course.assignments.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_persons", "questionnaires__index__min"):
         for questionnaire in assignment.questionnaires.all():
             result.append((questionnaire, assignment))
     result.sort(key=lambda t: t[1].lecturer is not None)

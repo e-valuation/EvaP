@@ -6,16 +6,11 @@ from django.utils.safestring import mark_safe
 
 from evap.student.tools import make_form_identifier
 from evap.evaluation.models import UserProfile
+from evap.evaluation.tools import GRADE_NAMES
 
 
-GRADE_CHOICES = (
-    (u"1", u"1"),
-    (u"2", u"2"),
-    (u"3", u"3"),
-    (u"4", u"4"),
-    (u"5", u"5"),
-    (u"X", _(u"no answer"))
-)
+GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
+GRADE_CHOICES.append((u"X", _(u"no answer")))
 
 
 def coerce_grade(string_value):

@@ -4,12 +4,10 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST">
-            {% csrf_token %}
-            <p>{% blocktrans with name=questionnaire.name %}Do you really want to delete the questionnaire <em>{{ name }}</em>?{% endblocktrans %}</p>
-            <input type="submit" value="{% trans "Yes" %}" class="btn danger"/>
-            <a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}" class="btn">{% trans "No" %}</a>
-        </form>
-    </p>
+    <form method="POST">
+        {% csrf_token %}
+        <p>{% blocktrans with name=questionnaire.name %}Do you really want to delete the questionnaire <em>{{ name }}</em>?{% endblocktrans %}</p>
+        <input type="submit" value="{% trans "Yes" %}" class="btn danger"/>
+        <a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}" class="btn">{% trans "No" %}</a>
+    </form>
 {% endblock %}

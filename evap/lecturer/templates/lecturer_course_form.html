@@ -5,59 +5,72 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <form method="POST" class="multiselect-form">
-            {% csrf_token %}
-            <fieldset>
-                <legend>{% trans "General Options" %}</legend>
-                {{ form.as_div }}
-            </fieldset>
-            
-            <fieldset>
-                {{ formset.management_form }}
-                <legend>{% trans "Lecturers" %}</legend>
-                {{ formset.non_form_errors }}
-                <table id="assignment_table">
-                    <tr>
-                        {% for field in formset.form %}
-                            <th>{{ field.label }}</th>
-                        {% endfor %}
-                        <th></th>
-                        <th>{% trans "Delete?" %}</th>
-                    </tr>
-                    <tbody>
-                        {% for assignment in read_only_assignments %}
-                            <tr>
-                                <td>{{ assignment.lecturer }}</td>
-                                <td>{{ assignment.questionnaires.all|join:", " }}</td>
-                                <td/>
-                            </tr>
-                        {% endfor %}
+    <form method="POST" class="multiselect-form">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{% trans "General Options" %}</legend>
+            {{ form.as_div }}
+        </fieldset>
+        
+        <fieldset>
+            {{ formset.management_form }}
+            <legend>{% trans "Lecturers" %}</legend>
+            {{ formset.non_form_errors }}
+            <table id="assignment_table">
+                <tr>
+                    {% for field in formset.form.visible_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                    <th>{% trans "Delete?" %}</th>
+                </tr>
+                <tbody>
+                    {% for assignment in read_only_assignments %}
+                        <tr>
+                            <td>{{ assignment.lecturer }}</td>
+                            <td>{{ assignment.questionnaires.all|join:", " }}</td>
+                            <td/>
+                        </tr>
+                    {% endfor %}
+                    
+                    {% for form_element in formset %}
+                        {% if form_element.non_field_errors %}
+                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                        {% endif %}
                         
-                        {% for form_element in formset %}
-                            {% if form_element.non_field_errors %}
-                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                            {% endif %}
-                            
-                            <tr>
-                            {% for field in form_element %}
-                                <td>{{field.errors}} {{ field }}</td>
-                            {% endfor %}
-                            </tr>
+                        <tr>
+                        {% for field in form_element.hidden_fields %}
+                            {{ field }}
                         {% endfor %}
-                    </tbody>
-                </table>
-            </fieldset>
-            <div class="actions">
-                <button name="operation" value="save" type="submit" class="btn primary">{% trans "Save" %}</button>
-                <button name="operation" value="save_and_approve" type="submit" class="btn success">{% trans "Save and Approve"%}</button>
-            </div>
-        </form>
-    </p>
+                        {% for field in form_element.visible_fields %}
+                            <td>{{field.errors}} {{ field }}</td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </fieldset>
+        
+        <fieldset>
+            <legend>{% trans "Students" %}</legend>
+            <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
+            <ul>
+                {% for p in course.participants.all %}
+                    <li>{{ p.get_profile.full_name }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+        <div class="actions">
+            <button name="operation" value="save" type="submit" class="btn primary">{% trans "Save"%}</button>
+            <button name="operation" value="approve" type="submit" class="btn success">{% trans "Approve"%}</button>
+            <a href="{% url evap.lecturer.views.index %}" class="btn">{% trans "Cancel" %}</a>
+            <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn">{% trans "Preview" %}</a>
+        </div>
+    </form>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
         $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
@@ -67,6 +80,13 @@
             });
             $('#assignment_table tbody tr').formset({prefix: 'assignments'});
             $('a.add-row').addClass("btn small");
+            
+            $('#id_kind').combobox();
+            
+            $('.twipsify').twipsy({
+                html: true,
+                placement: 'left'
+            });
         });
     </script>
 {% endblock %}

@@ -78,10 +78,13 @@ class Questionnaire(models.Model):
     teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
     teaser = Translate
     
+    index = models.IntegerField(verbose_name=_(u"ordering index"))
+    
+    is_for_persons = models.BooleanField(verbose_name=_(u"is for persons"))
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
-        ordering = ('obsolete', 'name_de')
+        ordering = ('obsolete', 'index', 'name_de')
         verbose_name = _(u"questionnaire")
         verbose_name_plural = _(u"questionnaires")
     
@@ -169,10 +172,18 @@ class Course(models.Model):
     
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
+        
+    def has_lecturer(self):
+        for assignment in self.assignments.all():
+            if assignment.lecturer:
+                if assignment.lecturer.get_profile().is_lecturer:
+                    return True
+        return False
     
-    @transition(field=state, source='new', target='prepared')
-    def ready_for_lecturer(self):
-        EmailTemplate.get_review_template().send_courses([self], True, False)
+    @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
+    def ready_for_lecturer(self, send_mail=True):
+        if send_mail:
+            EmailTemplate.get_review_template().send_courses([self], True, False)
     
     @transition(field=state, source='prepared', target='lecturerApproved')
     def lecturer_approve(self):
@@ -241,12 +252,19 @@ class Course(models.Model):
             result.append(_(u"No lecturers assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
+        if not self.has_lecturer():
+            result.append(_(u"Managing lecturer missing"))
         return result
     
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(assignment__in=self.assignments.all())
+
+    @property
+    def open_textanswer_set(self):
+        """Pseudo relationship to all text answers for this course"""
+        return TextAnswer.objects.filter(assignment__in=self.assignments.all()).filter(checked=False)
     
     @property
     def gradeanswer_set(self):
@@ -409,7 +427,7 @@ class UserProfile(models.Model):
             return latest_semester.course_set.filter(participants__pk=self.user.id).exists()
     
     def is_lecturer_or_proxy(self):
-        return self.is_lecturer or UserProfile.objects.filter(proxies=self, is_lecturer=True).exists()
+        return self.is_lecturer or UserProfile.objects.filter(proxies=self.user, is_lecturer=True).exists()
     
     def generate_logon_key(self):
         while True:

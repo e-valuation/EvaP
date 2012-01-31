@@ -9,7 +9,7 @@ from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
-from evap.evaluation.forms import BootstrapMixin
+from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile
 from evap.fsr.models import EmailTemplate
@@ -25,10 +25,10 @@ class ImportForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)
         
-        self.fields['vote_start_date'].localize = True
+        self.fields['vote_start_date'].localize = False
         self.fields['vote_start_date'].widget = forms.DateInput()
         
-        self.fields['vote_end_date'].localize = True
+        self.fields['vote_end_date'].localize = False
         self.fields['vote_end_date'].widget = forms.DateInput()
 
 
@@ -38,8 +38,7 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = ToolTipModelMultipleChoiceField(label=_(u"General questions"), required=False, queryset=Questionnaire.objects.filter(obsolete=False))
-    participants = UserModelMultipleChoiceField(label=_(u"Participants"), queryset=User.objects.order_by("last_name", "username"))
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
     
     class Meta:
         model = Course
@@ -50,15 +49,18 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
+        self.fields['vote_start_date'].localize = False
+        self.fields['vote_end_date'].localize = False
+        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
+        self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
+        self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
+        
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
         
         if self.instance.state == "inEvaluation":
             self.fields['vote_start_date'].widget.attrs['readonly'] = True
             self.fields['vote_end_date'].widget.attrs['readonly'] = True
-        
-        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
-        self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
     
     def save(self, *args, **kw):
         super(CourseForm, self).save(*args, **kw)
@@ -73,7 +75,7 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
         self.fields['lecturer'].queryset = User.objects.order_by("username")
-        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(obsolete=False)
+        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=True, obsolete=False))
     
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
@@ -264,13 +266,15 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, queryset, *args, **kwargs):
+    def __init__(self, queryset, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
         self.queryset = queryset
         self.selected_courses = []
+        self.filter_func = filter_func or (lambda x: True)
         
         for course in self.queryset:
-            self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
+            if self.filter_func(course):
+                self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
     
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -303,6 +307,18 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['email'].initial = self.instance.user.email
         self.fields['is_staff'].initial = self.instance.user.is_staff
 
+    def clean_username(self):
+        conflicting_user = User.objects.filter(username__iexact=self.cleaned_data.get('username'))
+        if not conflicting_user.exists():
+            return self.cleaned_data.get('username')
+        
+        if self.instance.user and self.instance.user.pk:
+            if conflicting_user[0] == self.instance.user:
+                # there is a user with this name but that's me
+                return self.cleaned_data.get('username')
+        
+        raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+    
     def save(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
         self.instance.user.username = self.cleaned_data.get('username')

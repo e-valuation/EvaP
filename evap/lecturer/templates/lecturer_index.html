@@ -1,6 +1,7 @@
 {% extends "lecturer_base.html" %}
 
 {% load i18n %}
+{% load morefilters %}
 
 {% block content %}
     {{ block.super }}
@@ -10,19 +11,34 @@
         <table class="zebra-striped vertically-aligned">
             <thead>
             <tr>
-                <th>{% trans "Name" %}</th>
-                <th>{% trans "Participants" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <th class="maximize">{% trans "Name" %}</th>
+                <th class="minimize">{% trans "Evaluation Period" %}</th>
+                <th class="minimize">{% trans "Participants" %}</th>
+                <th class="minimize">{% trans "Actions" %}</th>
             </tr>
             </thead>
             <tbody>
             {% for course in own_courses %}
                 <tr>
-                    <td class="maximize">{{ course.name }}</td>
+                    <td class="maximize">
+                        <div>
+                            {{ course.name }}
+                        </div>
+                        <span class="label notice">{{ course.state|statename }}</span>
+                    </td>
+                    <td class="minimize">
+                        {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
+                    </td>
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
-                        <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
-                        <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        {% if course.state == 'prepared' %}
+                            <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
+                            <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        {% else %}
+                            <a class="btn small disabled">{% trans "Edit" %}</a>
+                            <a class="btn small disabled">{% trans "Preview" %}</a>
+                        {% endif %}
+                        
                     </td>
                 </tr>
             {% endfor %}
@@ -37,19 +53,34 @@
         <table class="zebra-striped vertically-aligned">
             <thead>
             <tr>
-                <th>{% trans "Name" %}</th>
-                <th>{% trans "Participants" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <th class="maximize">{% trans "Name" %}</th>
+                <th class="minimize">{% trans "Evaluation Period" %}</th>
+                <th class="minimize">{% trans "Participants" %}</th>
+                <th class="minimize">{% trans "Actions" %}</th>
             </tr>
             </thead>
             <tbody>
             {% for course in proxied_courses %}
                 <tr>
-                    <td class="maximize">{{ course.name }}</td>
+                    <td class="maximize">
+                        <div>
+                            {{ course.name }}
+                        </div>
+                        <span class="label notice">{{ course.state|statename }}</span>
+                    </td>
+                    <td class="minimize">
+                        {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
+                    </td>
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
-                        <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
-                        <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        {% if course.state == 'prepared' %}
+                            <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
+                            <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        {% else %}
+                            <a class="btn small disabled">{% trans "Edit" %}</a>
+                            <a class="btn small disabled">{% trans "Preview" %}</a>
+                        {% endif %}
+                        
                     </td>
                 </tr>
             {% endfor %}
