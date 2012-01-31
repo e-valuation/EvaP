@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-25 01:07+0100\n"
-"PO-Revision-Date: 2012-01-25 12:11+0100\n"
+"POT-Creation-Date: 2012-01-31 22:55+0100\n"
+"PO-Revision-Date: 2012-01-22 19:46+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: .\evaluation\403.py:25
@@ -24,25 +24,24 @@ msgstr "Nicht erlaubt"
 #: .\evaluation\403.py:25
 #, python-format
 msgid "You don't have permission to access %s on this server."
-msgstr "Sie haben keine Rechte, um auf die Seite %s auf dem Server zuzugreifen."
+msgstr ""
+"Sie haben keine Rechte, um auf die Seite %s auf dem Server zuzugreifen."
 
 #: .\evaluation\auth.py:53
 msgid "Invalid login key."
 msgstr "Ungültiger Anmeldeschlüssel"
 
-#: .\evaluation\forms.py:10
+#: .\evaluation\forms.py:66
 msgid "e-mail address"
 msgstr "E-Mail-Adresse"
 
-#: .\evaluation\models.py:26
-#: .\evaluation\models.py:65
-#: .\evaluation\models.py:106
+#: .\evaluation\models.py:26 .\evaluation\models.py:65
+#: .\evaluation\models.py:108
 msgid "name (german)"
 msgstr "Name (deutsch)"
 
-#: .\evaluation\models.py:27
-#: .\evaluation\models.py:66
-#: .\evaluation\models.py:107
+#: .\evaluation\models.py:27 .\evaluation\models.py:66
+#: .\evaluation\models.py:109
 msgid "name (english)"
 msgstr "Name (englisch)"
 
@@ -50,8 +49,7 @@ msgstr "Name (englisch)"
 msgid "created at"
 msgstr "erstellt am"
 
-#: .\evaluation\models.py:35
-#: .\evaluation\models.py:104
+#: .\evaluation\models.py:35 .\evaluation\models.py:106
 msgid "semester"
 msgstr "Semester"
 
@@ -84,239 +82,240 @@ msgid "teaser (english)"
 msgstr "Einleitung (englisch)"
 
 #: .\evaluation\models.py:81
+msgid "ordering index"
+msgstr ""
+
+#: .\evaluation\models.py:83
 msgid "is for persons"
 msgstr "Personenfragenbogen"
 
-#: .\evaluation\models.py:82
+#: .\evaluation\models.py:84
 msgid "obsolete"
 msgstr "obsolet"
 
-#: .\evaluation\models.py:86
+#: .\evaluation\models.py:88
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: .\evaluation\models.py:87
-#: .\evaluation\models.py:263
+#: .\evaluation\models.py:89 .\evaluation\models.py:280
 msgid "questionnaires"
 msgstr "Fragebögen"
 
-#: .\evaluation\models.py:111
+#: .\evaluation\models.py:113
 msgid "type"
 msgstr "Typ"
 
-#: .\evaluation\models.py:114
+#: .\evaluation\models.py:116
 msgid "study"
 msgstr "Studiengang"
 
-#: .\evaluation\models.py:117
+#: .\evaluation\models.py:119
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: .\evaluation\models.py:118
+#: .\evaluation\models.py:120
 msgid "participant count"
 msgstr "Teilnehmeranzahl"
 
-#: .\evaluation\models.py:121
+#: .\evaluation\models.py:123
 msgid "voters"
 msgstr "Wähler"
 
-#: .\evaluation\models.py:122
+#: .\evaluation\models.py:124
 msgid "voter count"
 msgstr "Anzahl Wähler"
 
-#: .\evaluation\models.py:125
-#: .\fsr\forms.py:20
+#: .\evaluation\models.py:127 .\fsr\forms.py:20
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: .\evaluation\models.py:126
-#: .\fsr\forms.py:21
+#: .\evaluation\models.py:128 .\fsr\forms.py:21
 msgid "last date to vote"
 msgstr "Letzter Abstimmungstag"
 
-#: .\evaluation\models.py:134
-#: .\evaluation\models.py:261
+#: .\evaluation\models.py:136 .\evaluation\models.py:278
 msgid "course"
 msgstr "Veranstaltung"
 
-#: .\evaluation\models.py:135
+#: .\evaluation\models.py:137
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: .\evaluation\models.py:142
+#: .\evaluation\models.py:144
 msgid "The vote start date must be before the vote end date."
 msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
-#: .\evaluation\models.py:242
+#: .\evaluation\models.py:252
 msgid "No lecturers assigned"
 msgstr "Kein Dozent zugeordnet"
 
-#: .\evaluation\models.py:244
+#: .\evaluation\models.py:254
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: .\evaluation\models.py:262
+#: .\evaluation\models.py:256
+#, fuzzy
+msgid "Managing lecturer missing"
+msgstr "Kein Dozent zugeordnet"
+
+#: .\evaluation\models.py:279
 msgid "lecturer"
 msgstr "Dozent"
 
-#: .\evaluation\models.py:265
+#: .\evaluation\models.py:282
 msgid "read-only"
 msgstr "nur lesbar"
 
-#: .\evaluation\models.py:279
+#: .\evaluation\models.py:296
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: .\evaluation\models.py:280
+#: .\evaluation\models.py:297
 msgid "Grade Question"
 msgstr "Auswahlfrage"
 
-#: .\evaluation\models.py:284
+#: .\evaluation\models.py:301
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: .\evaluation\models.py:285
+#: .\evaluation\models.py:302
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: .\evaluation\models.py:287
+#: .\evaluation\models.py:304
 msgid "kind of question"
 msgstr "Frageart"
 
-#: .\evaluation\models.py:293
+#: .\evaluation\models.py:310
 msgid "question"
 msgstr "Frage"
 
-#: .\evaluation\models.py:294
+#: .\evaluation\models.py:311
 msgid "questions"
 msgstr "Fragen"
 
-#: .\evaluation\models.py:322
-#: .\evaluation\models.py:330
+#: .\evaluation\models.py:339 .\evaluation\models.py:347
 msgid "answer"
 msgstr "Antwort"
 
-#: .\evaluation\models.py:323
+#: .\evaluation\models.py:340
 msgid "answers"
 msgstr "Antworten"
 
-#: .\evaluation\models.py:333
+#: .\evaluation\models.py:350
 msgid "grade answer"
 msgstr "Auswahlantwort"
 
-#: .\evaluation\models.py:334
+#: .\evaluation\models.py:351
 msgid "grade answers"
 msgstr "Auswahlantworten"
 
-#: .\evaluation\models.py:343
+#: .\evaluation\models.py:360
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: .\evaluation\models.py:344
+#: .\evaluation\models.py:361
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: .\evaluation\models.py:346
+#: .\evaluation\models.py:363
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: .\evaluation\models.py:347
+#: .\evaluation\models.py:364
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: .\evaluation\models.py:350
+#: .\evaluation\models.py:367
 msgid "text answer"
 msgstr "Textantwort"
 
-#: .\evaluation\models.py:351
+#: .\evaluation\models.py:368
 msgid "text answers"
 msgstr "Textantworten"
 
-#: .\evaluation\models.py:367
+#: .\evaluation\models.py:384
 msgid "Title"
 msgstr "Titel"
 
-#: .\evaluation\models.py:370
+#: .\evaluation\models.py:387
 msgid "Picture"
 msgstr "Foto"
 
-#: .\evaluation\models.py:373
+#: .\evaluation\models.py:390
 msgid "Proxies"
 msgstr "Stellvertreter"
 
-#: .\evaluation\models.py:376
-#: .\fsr\templates\fsr_user_index.html.py:45
-#: .\lecturer\templates\lecturer_base.html.py:10
-#: .\templates\base.html.py:56
+#: .\evaluation\models.py:393 .\fsr\templates\fsr_user_index.html.py:45
+#: .\lecturer\templates\lecturer_base.html.py:10 .\templates\base.html.py:55
 msgid "Lecturer"
 msgstr "Dozent"
 
-#: .\evaluation\models.py:379
-#: .\fsr\templates\fsr_user_index.html.py:48
+#: .\evaluation\models.py:396 .\fsr\templates\fsr_user_index.html.py:48
 msgid "Logon Key"
 msgstr "Anmeldeschlüssel"
 
-#: .\evaluation\models.py:380
+#: .\evaluation\models.py:397
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: .\evaluation\models.py:383
+#: .\evaluation\models.py:400
 msgid "user"
 msgstr "Benutzer"
 
-#: .\evaluation\models.py:384
+#: .\evaluation\models.py:401
 msgid "users"
 msgstr "Benutzer"
 
-#: .\evaluation\tools.py:11
+#: .\evaluation\tools.py:12
 msgid "Strongly agree"
 msgstr "Stimme voll zu"
 
-#: .\evaluation\tools.py:12
+#: .\evaluation\tools.py:13
 msgid "Agree"
 msgstr "Stimme teils zu"
 
-#: .\evaluation\tools.py:13
+#: .\evaluation\tools.py:14
 msgid "Neither agree nor disagree"
 msgstr "teils teils"
 
-#: .\evaluation\tools.py:14
+#: .\evaluation\tools.py:15
 msgid "Disagree"
 msgstr "Stimme teils nicht zu"
 
-#: .\evaluation\tools.py:15
+#: .\evaluation\tools.py:16
 msgid "Strongly disagree"
 msgstr "Stimme nicht zu"
 
-#: .\evaluation\tools.py:19
+#: .\evaluation\tools.py:20
 msgid "new"
 msgstr "neu"
 
-#: .\evaluation\tools.py:20
+#: .\evaluation\tools.py:21
 msgid "prepared"
 msgstr "vorbereitet"
 
-#: .\evaluation\tools.py:21
+#: .\evaluation\tools.py:22
 msgid "lecturer approved"
 msgstr "von Dozent bestätigt"
 
-#: .\evaluation\tools.py:22
+#: .\evaluation\tools.py:23
 msgid "approved"
 msgstr "bestätigt"
 
-#: .\evaluation\tools.py:23
+#: .\evaluation\tools.py:24
 msgid "in evaluation"
 msgstr "in Evaluierung"
 
-#: .\evaluation\tools.py:24
+#: .\evaluation\tools.py:25
 msgid "evaluated"
 msgstr "evaluiert"
 
-#: .\evaluation\tools.py:25
+#: .\evaluation\tools.py:26
 msgid "reviewed"
 msgstr "überprüft"
 
-#: .\evaluation\tools.py:26
+#: .\evaluation\tools.py:27
 msgid "published"
 msgstr "veröffentlicht"
 
@@ -329,8 +328,11 @@ msgid "Enter a valid e-mail address.\n"
 msgstr "Eine gültige E-Mail-Adresse eingeben.\n"
 
 #: .\evaluation\management\commands\create_user.py:18
-msgid "Error: That username is invalid. Use only letters, digits and underscores.\n"
-msgstr "Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und Unterstriche verwenden.\n"
+msgid ""
+"Error: That username is invalid. Use only letters, digits and underscores.\n"
+msgstr ""
+"Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und "
+"Unterstriche verwenden.\n"
 
 #: .\evaluation\management\commands\create_user.py:25
 msgid "Error: That username is already taken.\n"
@@ -358,60 +360,70 @@ msgstr "Angegebene Statistik existiert nicht."
 msgid "excel file"
 msgstr "Exceldatei"
 
-#: .\fsr\forms.py:56
+#: .\fsr\forms.py:41 .\lecturer\forms.py:10
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
-#: .\fsr\forms.py:96
+#: .\fsr\forms.py:92
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: .\fsr\forms.py:97
+#: .\fsr\forms.py:93
 msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
-#: .\fsr\forms.py:98
-#: .\fsr\models.py:21
+#: .\fsr\forms.py:94 .\fsr\models.py:21
 msgid "Subject"
 msgstr "Betreff"
 
-#: .\fsr\forms.py:99
-#: .\fsr\models.py:22
+#: .\fsr\forms.py:95 .\fsr\models.py:22
 msgid "Body"
 msgstr "Text"
 
-#: .\fsr\forms.py:110
+#: .\fsr\forms.py:106
 msgid "No recipient selected. Choose at least participants or lecturers."
-msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder Teilnehmer aus."
+msgstr ""
+"Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder "
+"Teilnehmer aus."
 
-#: .\fsr\forms.py:133
+#: .\fsr\forms.py:129
 msgid "Answer"
 msgstr "Antwort"
 
-#: .\fsr\forms.py:134
+#: .\fsr\forms.py:130
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: .\fsr\forms.py:186
+#: .\fsr\forms.py:182
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: .\fsr\forms.py:198
+#: .\fsr\forms.py:194
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
-msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
+msgstr ""
+"Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: .\fsr\forms.py:303
+#: .\fsr\forms.py:301
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: .\fsr\forms.py:326
+#: .\fsr\forms.py:320
+#, fuzzy, python-format
+msgid "A user with the username '%s' already exists"
+msgstr "Fehler: Der Benutzername ist bereits vergeben.\n"
+
+#: .\fsr\forms.py:336
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
 #: .\fsr\importers.py:100
 #, python-format
-msgid "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s"
-msgstr "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s', %(ncols)s Spalten"
+msgid ""
+"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', "
+"number of columns: %(ncols)s"
+msgstr ""
+"Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
+"'%(beginning)s', %(ncols)s Spalten"
 
 #: .\fsr\importers.py:101
 #, python-format
@@ -429,21 +441,30 @@ msgstr "Exceldatei erfolgreich gelesen."
 
 #: .\fsr\importers.py:158
 #, python-format
-msgid "A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'"
-msgstr "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung lautete: '%(error)s'"
+msgid ""
+"A problem occured while writing the entries to the database. The original "
+"data location was row %(row)d of sheet '%(sheet)s'. The error message has "
+"been: '%(error)s'"
+msgstr ""
+"Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die "
+"Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung "
+"lautete: '%(error)s'"
 
 #: .\fsr\importers.py:162
 #, python-format
-msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(lecturers)d lecturer(s)."
-msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) erfolgreich erstellt."
+msgid ""
+"Successfully created %(courses)d course(s), %(students)d student(s) and "
+"%(lecturers)d lecturer(s)."
+msgstr ""
+"%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) "
+"erfolgreich erstellt."
 
 #: .\fsr\importers.py:174
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: .\fsr\models.py:19
-#: .\fsr\templates\fsr_template_index.html.py:15
+#: .\fsr\models.py:19 .\fsr\templates\fsr_template_index.html.py:15
 #: .\fsr\templates\fsr_user_index.html.py:25
 #: .\lecturer\templates\lecturer_index.html.py:14
 #: .\lecturer\templates\lecturer_index.html.py:56
@@ -461,7 +482,8 @@ msgstr "Semester erfolgreich geändert."
 #: .\fsr\views.py:93
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
-msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
+msgstr ""
+"Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
 #: .\fsr\views.py:110
 msgid "Could not send emails to participants and lecturers"
@@ -481,88 +503,94 @@ msgstr "Erfolgreich Fragebögen zugeordnet."
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: .\fsr\views.py:223
+#: .\fsr\views.py:226
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: .\fsr\views.py:237
+#: .\fsr\views.py:240
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:247
-#: .\lecturer\views.py:76
+#: .\fsr\views.py:250 .\lecturer\views.py:79
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: .\fsr\views.py:260
+#: .\fsr\views.py:263
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
-msgstr "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
+msgstr ""
+"Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:277
+#: .\fsr\views.py:280
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: .\fsr\views.py:307
+#: .\fsr\views.py:310
 #, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
-#: .\fsr\views.py:324
+#: .\fsr\views.py:327
 #, python-format
 msgid "Successfully sent email to all participants/lecturers of '%s'."
 msgstr "Erfollgreich E-Mail an alle Teilnehmer/Dozenten von '%s' versendet."
 
-#: .\fsr\views.py:326
+#: .\fsr\views.py:329
 #, python-format
-msgid "Successfully sent email to many participants/lecturers of '%(course)s', but %(count)d could not be reached as they do not have an email address."
-msgstr "E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E-Mail-Adresse haben."
+msgid ""
+"Successfully sent email to many participants/lecturers of '%(course)s', but "
+"%(count)d could not be reached as they do not have an email address."
+msgstr ""
+"E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' "
+"versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da "
+"sie keine E-Mail-Adresse haben."
 
-#: .\fsr\views.py:350
+#: .\fsr\views.py:353
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
-msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
+msgstr ""
+"Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
+"Kurs noch nicht veröffentlicht wurde."
 
-#: .\fsr\views.py:416
-#: .\fsr\views.py:457
+#: .\fsr\views.py:419 .\fsr\views.py:460
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: .\fsr\views.py:431
+#: .\fsr\views.py:434
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: .\fsr\views.py:438
+#: .\fsr\views.py:441
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: .\fsr\views.py:482
+#: .\fsr\views.py:485
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
-msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
+msgstr ""
+"Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: .\fsr\views.py:508
+#: .\fsr\views.py:511
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: .\fsr\views.py:526
+#: .\fsr\views.py:529
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: .\fsr\views.py:547
+#: .\fsr\views.py:550
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
-msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
+msgstr ""
+"Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: .\fsr\views.py:564
+#: .\fsr\views.py:567
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: .\fsr\templates\fsr_base.html.py:7
-#: .\fsr\templates\fsr_base.html.py:11
+#: .\fsr\templates\fsr_base.html.py:7 .\fsr\templates\fsr_base.html.py:11
 #: .\fsr\templates\fsr_index.html.py:44
-#: .\fsr\templates\fsr_user_index.html.py:15
-#: .\templates\base.html.py:41
+#: .\fsr\templates\fsr_user_index.html.py:15 .\templates\base.html.py:40
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
@@ -571,58 +599,62 @@ msgid "Comments for Course "
 msgstr "Kommentare für Veranstaltung "
 
 #: .\fsr\templates\fsr_course_comments.html.py:14
+msgid "ID"
+msgstr ""
+
+#: .\fsr\templates\fsr_course_comments.html.py:15
 msgid "Original Text"
 msgstr "Originaltext"
 
-#: .\fsr\templates\fsr_course_comments.html.py:15
+#: .\fsr\templates\fsr_course_comments.html.py:16
 msgid "Reviewed Text"
 msgstr "Überprüfter Text"
 
-#: .\fsr\templates\fsr_course_comments.html.py:16
+#: .\fsr\templates\fsr_course_comments.html.py:17
 msgid "Hidden?"
 msgstr "Versteckt?"
 
-#: .\fsr\templates\fsr_course_delete.html.py:10
+#: .\fsr\templates\fsr_course_delete.html.py:9
 #, python-format
 msgid "Do you really want to delete the course <em>%(name)s</em>?"
 msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich gelöscht werden?"
+
+#: .\fsr\templates\fsr_course_delete.html.py:10
+#: .\fsr\templates\fsr_course_unpublish.html.py:10
+#: .\fsr\templates\fsr_questionnaire_delete.html.py:10
+#: .\fsr\templates\fsr_semester_delete.html.py:10
+#: .\fsr\templates\fsr_user_delete.html.py:10
+msgid "Yes"
+msgstr "Ja"
 
 #: .\fsr\templates\fsr_course_delete.html.py:11
 #: .\fsr\templates\fsr_course_unpublish.html.py:11
 #: .\fsr\templates\fsr_questionnaire_delete.html.py:11
 #: .\fsr\templates\fsr_semester_delete.html.py:11
-#: .\fsr\templates\fsr_user_delete.html.py:11
-msgid "Yes"
-msgstr "Ja"
-
-#: .\fsr\templates\fsr_course_delete.html.py:12
-#: .\fsr\templates\fsr_course_unpublish.html.py:12
-#: .\fsr\templates\fsr_questionnaire_delete.html.py:12
-#: .\fsr\templates\fsr_semester_delete.html.py:12
-#: .\fsr\templates\fsr_user_delete.html.py:14
+#: .\fsr\templates\fsr_user_delete.html.py:13
 msgid "No"
 msgstr "Nein"
 
-#: .\fsr\templates\fsr_course_email.html.py:15
+#: .\fsr\templates\fsr_course_email.html.py:14
 msgid "Send e-mail"
 msgstr "E-Mail senden"
 
-#: .\fsr\templates\fsr_course_form.html.py:12
-#: .\fsr\templates\fsr_questionnaire_form.html.py:30
-#: .\lecturer\templates\lecturer_course_form.html.py:12
+#: .\fsr\templates\fsr_course_form.html.py:11
+#: .\fsr\templates\fsr_questionnaire_form.html.py:29
+#: .\lecturer\templates\lecturer_course_form.html.py:11
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
-#: .\fsr\templates\fsr_course_form.html.py:17
+#: .\fsr\templates\fsr_course_form.html.py:16
 #: .\fsr\templates\fsr_index.html.py:45
 #: .\fsr\templates\fsr_user_index.html.py:16
-#: .\lecturer\templates\lecturer_course_form.html.py:18
+#: .\lecturer\templates\lecturer_course_form.html.py:17
 msgid "Lecturers"
 msgstr "Dozenten"
 
-#: .\fsr\templates\fsr_course_form.html.py:29
-#: .\fsr\templates\fsr_questionnaire_form.html.py:44
-#: .\lecturer\templates\lecturer_course_form.html.py:26
+#: .\fsr\templates\fsr_course_form.html.py:28
+#: .\fsr\templates\fsr_questionnaire_form.html.py:43
+#: .\lecturer\templates\lecturer_course_form.html.py:24
 msgid "Delete?"
 msgstr "Löschen?"
 
@@ -630,19 +662,41 @@ msgstr "Löschen?"
 msgid "Save course"
 msgstr "Veranstaltung speichern"
 
-#: .\fsr\templates\fsr_course_review.html.py:10
+#: .\fsr\templates\fsr_course_review.html.py:9
 msgid "Answer Review"
 msgstr "Überprüfen der Antworten"
 
-#: .\fsr\templates\fsr_course_review.html.py:26
-#: .\fsr\templates\fsr_semester_view.html.py:63
+#: .\fsr\templates\fsr_course_review.html.py:10
+#, python-format
+msgid ""
+"\n"
+"\t\tNote: for better usability only %(elements_per_page)s comments are shown "
+"at once. For this course %(open)s out of %(total)s comments have not been "
+"reviewed.\n"
+"\t    "
+msgstr ""
+"\n"
+"\t\tHinweis: Zur besseren Benutzbarkeit werden lediglich "
+"%(elements_per_page)s Kommentare auf einmal dargestellt. For diese "
+"Veranstaltung wurden %(open)s von %(total)s Kommentaren noch nicht "
+"durchgesehen.\n"
+"\t    "
+
+#: .\fsr\templates\fsr_course_review.html.py:17
+#, fuzzy, python-format
+msgid "Answer %(id)s"
+msgstr "Antwort %(id)s"
+
+#: .\fsr\templates\fsr_course_review.html.py:30
+#: .\fsr\templates\fsr_semester_view.html.py:64
 msgid "Review"
 msgstr "Überprüfen"
 
-#: .\fsr\templates\fsr_course_unpublish.html.py:10
+#: .\fsr\templates\fsr_course_unpublish.html.py:9
 #, python-format
 msgid "Do you really want to unpublish the course <em>%(name)s</em>?"
-msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
+msgstr ""
+"Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
 
 #: .\fsr\templates\fsr_import.html.py:9
 msgid "Upload semester data from excel file ("
@@ -653,14 +707,18 @@ msgid "Sample File"
 msgstr "Beispieldatei"
 
 #: .\fsr\templates\fsr_import.html.py:9
-msgid "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses."
-msgstr "): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
+msgid ""
+"). This will create all containing students, teachers and courses and "
+"connect them. It will also set the entered values as default for all courses."
+msgstr ""
+"): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden "
+"erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für "
+"alle Kurse eingetragen."
 
 #: .\fsr\templates\fsr_index.html.py:8
 #: .\fsr\templates\fsr_semester_base.html.py:7
 #: .\fsr\templates\fsr_semester_base.html.py:17
-#: .\results\templates\results_index.html.py:8
-#: .\templates\base.html.py:44
+#: .\results\templates\results_index.html.py:8 .\templates\base.html.py:43
 msgid "Semesters"
 msgstr "Semester"
 
@@ -676,7 +734,7 @@ msgstr "Neues Semester anlegen"
 
 #: .\fsr\templates\fsr_index.html.py:25
 #: .\fsr\templates\fsr_questionnaire_base.html.py:7
-#: .\templates\base.html.py:47
+#: .\templates\base.html.py:46 .\templates\faq.html.py:45
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -687,8 +745,8 @@ msgstr "Neuen Fragebogen anlegen"
 
 #: .\fsr\templates\fsr_index.html.py:41
 #: .\fsr\templates\fsr_user_form.html.py:8
-#: .\fsr\templates\fsr_user_index.html.py:8
-#: .\templates\base.html.py:48
+#: .\fsr\templates\fsr_user_index.html.py:8 .\templates\base.html.py:47
+#: .\templates\faq.html.py:104
 msgid "Users"
 msgstr "Benutzer"
 
@@ -698,8 +756,7 @@ msgstr "Alle Benutzer"
 
 #: .\fsr\templates\fsr_index.html.py:47
 #: .\fsr\templates\fsr_template_form.html.py:8
-#: .\fsr\templates\fsr_template_index.html.py:8
-#: .\templates\base.html.py:49
+#: .\fsr\templates\fsr_template_index.html.py:8 .\templates\base.html.py:48
 msgid "Templates"
 msgstr "E-Mail-Vorlagen"
 
@@ -724,22 +781,22 @@ msgstr "Kopieren"
 #: .\fsr\templates\fsr_questionnaire_base.html.py:22
 #: .\fsr\templates\fsr_questionnaire_index.html.py:42
 #: .\fsr\templates\fsr_questionnaire_index.html.py:44
-#: .\fsr\templates\fsr_semester_view.html.py:60
+#: .\fsr\templates\fsr_semester_view.html.py:61
 #: .\fsr\templates\fsr_user_index.html.py:57
 #: .\fsr\templates\fsr_user_index.html.py:59
 msgid "Delete"
 msgstr "Löschen"
 
-#: .\fsr\templates\fsr_questionnaire_delete.html.py:10
+#: .\fsr\templates\fsr_questionnaire_delete.html.py:9
 #, python-format
 msgid "Do you really want to delete the questionnaire <em>%(name)s</em>?"
 msgstr "Soll der Fragebogen <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_questionnaire_form.html.py:35
+#: .\fsr\templates\fsr_questionnaire_form.html.py:34
 msgid "Questions"
 msgstr "Fragen"
 
-#: .\fsr\templates\fsr_questionnaire_form.html.py:62
+#: .\fsr\templates\fsr_questionnaire_form.html.py:61
 msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
@@ -790,7 +847,8 @@ msgstr[1] ""
 "                        %(count)s Kurse"
 
 #: .\fsr\templates\fsr_questionnaire_index.html.py:39
-#: .\fsr\templates\fsr_semester_view.html.py:58
+#: .\fsr\templates\fsr_semester_view.html.py:59
+#: .\lecturer\templates\lecturer_course_form.html.py:66
 #: .\lecturer\templates\lecturer_index.html.py:36
 #: .\lecturer\templates\lecturer_index.html.py:39
 #: .\lecturer\templates\lecturer_index.html.py:78
@@ -802,35 +860,39 @@ msgstr "Vorschau"
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
-#: .\fsr\templates\fsr_semester_approve.html.py:12
-#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:12
-#: .\fsr\templates\fsr_semester_publish.html.py:12
+#: .\fsr\templates\fsr_semester_approve.html.py:11
+#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:11
+#: .\fsr\templates\fsr_semester_publish.html.py:11
 msgid "Courses"
 msgstr "Veranstaltungen"
 
-#: .\fsr\templates\fsr_semester_approve.html.py:27
+#: .\fsr\templates\fsr_semester_approve.html.py:26
 msgid "Approve courses"
 msgstr "Veranstaltung bestätigen"
 
-#: .\fsr\templates\fsr_semester_approve.html.py:30
-#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:30
+#: .\fsr\templates\fsr_semester_approve.html.py:29
+#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:29
 msgid "There are no courses ready to approve."
 msgstr "In diesem Semester sind keine Kurse zu bestätigen."
 
 #: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:9
-msgid "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
-msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
+msgid ""
+"Select the questionnaires to assign each of these course and lecturer types. "
+"If you do select nothing, this kind will not be changed."
+msgstr ""
+"Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. "
+"Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
 
-#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:16
+#: .\fsr\templates\fsr_semester_assign_questionnaires.html.py:17
 msgid "Assign questionnaires"
 msgstr "Fragebögen zuordnen"
 
-#: .\fsr\templates\fsr_semester_delete.html.py:10
+#: .\fsr\templates\fsr_semester_delete.html.py:9
 #, python-format
 msgid "Do you really want to delete the semester <em>%(name)s</em>?"
 msgstr "Soll das Semester <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_semester_form.html.py:12
+#: .\fsr\templates\fsr_semester_form.html.py:11
 msgid "Save semester"
 msgstr "Semester speichern"
 
@@ -838,32 +900,33 @@ msgstr "Semester speichern"
 msgid "Select a semester: "
 msgstr "Semester auswählen:"
 
-#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:27
+#: .\fsr\templates\fsr_semester_lecturer_ready.html.py:26
 msgid "Show courses to lecturer"
 msgstr "Dozenten Veranstaltungen vorlegen"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:12
+#: .\fsr\templates\fsr_semester_lottery.html.py:11
 #: .\fsr\templates\fsr_semester_view.html.py:22
 msgid "Lottery"
 msgstr "Verlosung"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:16
+#: .\fsr\templates\fsr_semester_lottery.html.py:15
 msgid "Perform Lottery"
 msgstr "Verlosung durchführen"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:22
+#: .\fsr\templates\fsr_semester_lottery.html.py:20
 msgid "The lottery was performed and the winners are:"
-msgstr "Die Verlosung wurde durchgeführt und folgende Studierende haben gewonnen:"
+msgstr ""
+"Die Verlosung wurde durchgeführt und folgende Studierende haben gewonnen:"
 
-#: .\fsr\templates\fsr_semester_lottery.html.py:35
+#: .\fsr\templates\fsr_semester_lottery.html.py:33
 msgid "users were eligible for the lottery."
 msgstr "Nutzer konnten nahmen an der Verlosung teil."
 
-#: .\fsr\templates\fsr_semester_publish.html.py:27
+#: .\fsr\templates\fsr_semester_publish.html.py:26
 msgid "Publish courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: .\fsr\templates\fsr_semester_publish.html.py:30
+#: .\fsr\templates\fsr_semester_publish.html.py:29
 msgid "There are no courses ready to publish."
 msgstr "In diesem Semester sind keine Kurse zu veröffentlichen."
 
@@ -892,44 +955,49 @@ msgstr "Fragebögen zuordnen"
 msgid "State"
 msgstr "Zustand"
 
-#: .\fsr\templates\fsr_semester_view.html.py:57
+#: .\fsr\templates\fsr_semester_view.html.py:58
 msgid "E-Mail"
 msgstr "E-Mail"
 
-#: .\fsr\templates\fsr_semester_view.html.py:66
+#: .\fsr\templates\fsr_semester_view.html.py:67
 msgid "Comments"
 msgstr "Kommentare"
 
-#: .\fsr\templates\fsr_semester_view.html.py:69
+#: .\fsr\templates\fsr_semester_view.html.py:70
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:79
+#: .\fsr\templates\fsr_semester_view.html.py:80
 msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
-#: .\fsr\templates\fsr_semester_view.html.py:82
+#: .\fsr\templates\fsr_semester_view.html.py:83
 msgid "Approve Courses"
 msgstr "Veranstaltung bestätigen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:85
+#: .\fsr\templates\fsr_semester_view.html.py:87
+#, fuzzy
+msgid "Re-Enable Courses for Lecturer Review"
+msgstr "Erneut für Dozenten-Überprüfung freigeben"
+
+#: .\fsr\templates\fsr_semester_view.html.py:91
 msgid "Publish Courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: .\fsr\templates\fsr_semester_view.html.py:93
+#: .\fsr\templates\fsr_semester_view.html.py:99
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: .\fsr\templates\fsr_template_form.html.py:19
+#: .\fsr\templates\fsr_template_form.html.py:18
 msgid "Save template"
 msgstr "Vorlage speichern"
 
-#: .\fsr\templates\fsr_user_delete.html.py:10
+#: .\fsr\templates\fsr_user_delete.html.py:9
 #, python-format
 msgid "Do you really want to delete the user <em>%(name)s</em>?"
 msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: .\fsr\templates\fsr_user_form.html.py:35
+#: .\fsr\templates\fsr_user_form.html.py:34
 msgid "Save user"
 msgstr "Benutzer speichern"
 
@@ -957,11 +1025,11 @@ msgstr "FSR-Mitglied"
 msgid "E-Mail address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
-#: .\lecturer\views.py:42
+#: .\lecturer\views.py:44
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
-#: .\lecturer\views.py:74
+#: .\lecturer\views.py:77
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
@@ -969,13 +1037,32 @@ msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 msgid "Your EvaP"
 msgstr "Mein EvaP"
 
-#: .\lecturer\templates\lecturer_course_form.html.py:52
+#: .\lecturer\templates\lecturer_course_form.html.py:54
+msgid "Students"
+msgstr ""
+
+#: .\lecturer\templates\lecturer_course_form.html.py:55
+msgid ""
+"These students should be participating in your course. If this data is not "
+"correct, e.g. when students are missing from the list, please contact the "
+"FSR."
+msgstr ""
+"Diese Studierenden sollten ihre Veranstaltung besuchen., Bitte "
+"benachrichtigen Sie den FSR, falls diese Daten nicht korrekt sind - bspw. "
+"Studierende fehlen."
+
+#: .\lecturer\templates\lecturer_course_form.html.py:63
 msgid "Save"
 msgstr "Speichern"
 
-#: .\lecturer\templates\lecturer_course_form.html.py:53
-msgid "Save and Approve"
-msgstr "Speichern und Bestätigen"
+#: .\lecturer\templates\lecturer_course_form.html.py:64
+#, fuzzy
+msgid "Approve"
+msgstr "bestätigen"
+
+#: .\lecturer\templates\lecturer_course_form.html.py:65
+msgid "Cancel"
+msgstr "Abbrechen"
 
 #: .\lecturer\templates\lecturer_index.html.py:9
 msgid "Own Courses"
@@ -1013,19 +1100,17 @@ msgid "Edit own Profile"
 msgstr "Eigenes Profil bearbeiten"
 
 #: .\lecturer\templates\lecturer_profile.html.py:8
-#: .\lecturer\templates\lecturer_profile.html.py:30
-#: .\templates\base.html.py:60
+#: .\lecturer\templates\lecturer_profile.html.py:16
+#: .\templates\base.html.py:59
 msgid "Profile"
 msgstr "Profil"
 
-#: .\lecturer\templates\lecturer_profile.html.py:34
+#: .\lecturer\templates\lecturer_profile.html.py:20
 msgid "Save your profile"
 msgstr "Profil speichern"
 
-#: .\results\exporters.py:37
-#: .\results\templates\results_base.html.py:6
-#: .\results\templates\results_base.html.py:10
-#: .\templates\base.html.py:67
+#: .\results\exporters.py:37 .\results\templates\results_base.html.py:6
+#: .\results\templates\results_base.html.py:10 .\templates\base.html.py:66
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1073,7 +1158,7 @@ msgstr "Semester als Excel-Tabelle exportieren"
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: .\student\forms.py:17
+#: .\student\forms.py:13
 msgid "no answer"
 msgstr "Keine Angabe"
 
@@ -1084,8 +1169,7 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 #: .\student\templates\student_index.html.py:5
 #: .\student\templates\student_index.html.py:9
 #: .\student\templates\student_vote.html.py:6
-#: .\student\templates\student_vote.html.py:10
-#: .\templates\base.html.py:36
+#: .\student\templates\student_vote.html.py:10 .\templates\base.html.py:35
 msgid "Evaluation"
 msgstr "Bewertung"
 
@@ -1105,9 +1189,13 @@ msgstr "Sie können bald die folgenden Veranstaltungen bewerten:"
 msgid "starting"
 msgstr "beginnt am"
 
-#: .\student\templates\student_vote.html.py:48
+#: .\student\templates\student_vote.html.py:47
 msgid "Vote"
 msgstr "Abstimmen"
+
+#: .\student\templates\student_vote.html.py:48
+msgid "Mark others as 'no answer'"
+msgstr "Alle anderen mit 'keine Angabe' beantworten"
 
 #: .\templates\403.html.py:15
 msgid "You seem to not be allowed to view this page."
@@ -1118,59 +1206,622 @@ msgid "The page you're looking for seems to be missing."
 msgstr "Die Seite wurde leider nicht gefunden."
 
 #: .\templates\500.html.py:15
-msgid "Something seems to be broken here. The admins have been notified and will follow up with you."
-msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und werden ggf. nachfragen."
+msgid ""
+"Something seems to be broken here. The admins have been notified and will "
+"follow up with you."
+msgstr ""
+"Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und "
+"werden ggf. nachfragen."
 
-#: .\templates\base.html.py:32
+#: .\templates\base.html.py:31
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: .\templates\base.html.py:43
-#: .\templates\base.html.py:58
+#: .\templates\base.html.py:42 .\templates\base.html.py:57
 msgid "Overview"
 msgstr "Übersicht"
 
-#: .\templates\base.html.py:89
+#: .\templates\base.html.py:88
 msgid "Logout"
 msgstr "Abmelden"
 
-#: .\templates\base.html.py:100
+#: .\templates\base.html.py:99
 msgid "EvaP"
 msgstr "EvaP"
 
-#: .\templates\base.html.py:123
+#: .\templates\base.html.py:122
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: .\templates\base.html.py:127
-#: .\templates\faq.html.py:5
+#: .\templates\base.html.py:126 .\templates\faq.html.py:5
 #: .\templates\faq.html.py:9
 msgid "FAQ"
 msgstr "FAQ"
 
-#: .\templates\base.html.py:130
+#: .\templates\base.html.py:129
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: .\templates\base.html.py:132
+#: .\templates\base.html.py:131
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
-#: .\templates\faq.html.py:13
+#: .\templates\faq.html.py:14
+msgid "These are the Frequently Asked Questions (FAQs)"
+msgstr "Die sind die Häufig Gestellten Fragen (FAQs)"
+
+#: .\templates\faq.html.py:16
+msgid "General"
+msgstr "Allgemeines"
+
+#: .\templates\faq.html.py:19
+msgid "What is evaluation?"
+msgstr "Was ist die Evaluierung?"
+
+#: .\templates\faq.html.py:21
 msgid ""
 "\n"
-"        <h2>These are the Frequently Asked Questions (FAQs)</h2>\n"
-"        \n"
-"        <h3>First Question</h3>\n"
-"        <p>First Answer</p>\n"
+"        It's the assessment of all the courses at the HPI. It's the goal to "
+"improve the teaching quality by giving the lecturers feedback for their "
+"courses.\n"
+"        "
+msgstr ""
+"\n"
+"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am "
+"HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten "
+"und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten. "
+"<br>Die Studenten können vor Beginn der Prüfungen mittels eines Online-"
+"Systems anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. "
+"Die Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die "
+"Benotung seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen "
+"ist. Sie ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) "
+"durch das Evaluierungssystem zugänglich."
+
+#: .\templates\faq.html.py:27
+msgid "What is EvaP?"
+msgstr "Was ist EvaP?"
+
+#: .\templates\faq.html.py:29
+msgid ""
+"\n"
+"        It's this new platform - replacing the infamous EvaJ.\n"
+"        "
+msgstr ""
+"\n"
+"Von 2005 bis 2011 war dafür EvaJ – eine von HPI Studenten im Rahmen eines "
+"Seminars entwickelte Java-Anwendung im Einsatz. 2011 entschied sich der "
+"Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung "
+"technisch zu aufwändig geworden ist. Das neue System namens EvaP basiert auf "
+"Python und wurde von Michael Grünewald und Stefan Richter in Zusammenarbeit "
+"mit dem Fachschaftsrat entwickelt. Ab WS 2011/12 soll es zum Einsatz kommen."
+
+#: .\templates\faq.html.py:35
+msgid "Where are the data coming from?"
+msgstr "Wo kommen die Daten her?"
+
+#: .\templates\faq.html.py:37
+msgid ""
+"\n"
+"        The different information, imported into the system, are provided by "
+"the Studienreferat.<br>\n"
+"        After that the lectures, their proxies or the student "
+"representatives correct any mistakes.<br>\n"
+"        If you just found another error please contact the responsible "
+"lecturer or the student representatives.\n"
+"        "
+msgstr ""
+"\n"
+"Die verschiedenen Informationen, die in das System importiert wurden werden "
+"uns vom Studienreferat zu Verfügung gestellt.Danach werden von den Dozenten, "
+"deren Stellvertretern oder dem FSR möglich Fehler korrigiert.Falls Sie noch "
+"weitere Fehler entdeckt haben kontaktieren Sie bitte den zuständigen "
+"Dozenten oder den FSR."
+
+#: .\templates\faq.html.py:48
+msgid ""
+"\n"
+"    Explaining Questionnaires concept\n"
 "    "
 msgstr ""
 "\n"
-"\t\t<h2>Dies sind die \"Frequently Asked Questions\" (FAQs) also häufig gestellte Fragen und ihre Antworten.</h2>\n"
-"\t\t\n"
-"\t\t<h3>Erste Frage</h3>\n"
-"\t\t<p>Erste Antwort</p>\n"
-"\t"
+"<a name=\"questionnaire_concept\"></a>Im alten System wurden die Fragebögen "
+"aufgrund der Art der Lehrveranstaltung bestimmt. Es ist schwer möglich, alle "
+"denkbaren Lehrveranstaltungstypen aufzulisten, um aufgrund des Typs die "
+"Fragebögen zuzuordnen. Nicht alle Fragen für eine Vorlesung passen zu allen "
+"Vorlesungen. Manchmal ist eine Veranstaltung zwar offiziell eine Vorlesung, "
+"läuft aber eher wie ein Projekt ab.<br>Deshalb haben wir uns in EvaP für ein "
+"Baukastensystem entschieden. Die einzelnen Bausteine einer Lehrveranstaltung "
+"entsprechen jeweils einem Fragebogen mit der Kategorie als Namen. Zudem ist "
+"dieses System leicht auf neue Veranstaltungsarten erweiterbar und ermöglicht "
+"trotzdem eine Vergleichbarkeit der Lehrveranstaltungen. Die semantische "
+"Gestaltung der Fragebögen ist dabei völlig offen und nicht auf "
+"beispielsweise Vorlesung-, Übungs- und Seminarfragebögen beschränkt."
+
+#: .\templates\faq.html.py:53
+msgid "How are questionnaires constructed?"
+msgstr "Wie sind Fragebögen aufgebaut?"
+
+#: .\templates\faq.html.py:55
+msgid ""
+"\n"
+"        One questionnaire consists of different sub-questionnaires, e.g. "
+"about the contents or the teaching assistant.<br>\n"
+"        Each sub-questionnaire consists of one ore more questions.\n"
+"        "
+msgstr ""
+"\n"
+"Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Teil-"
+"Fragebögen, z.B. Fragen zu Lehrmitteln, dem Übungsleiter, dem Inhalt. Jeder "
+"Teilfragebogen besteht aus ein oder mehreren Fragen."
+
+#: .\templates\faq.html.py:62
+msgid "What kinds of questionnaires are there?"
+msgstr "Welche Arten von Fragebögen gibt es?"
+
+#: .\templates\faq.html.py:64
+msgid ""
+"\n"
+"        There are two kinds of questionnaires: one is about every person "
+"involved and one about an course itself.\n"
+"        "
+msgstr ""
+"\n"
+"Bei Fragebögen unterscheiden wir zwischen Personen- und Sachfragebögen. "
+"Sachfragebögen beziehen sich allgemein auf eine Lehrveranstaltung, z.B. auf "
+"die Lehrmittel und den Inhalt. Personenfragebögen beziehen sich auf einen "
+"Dozenten, z.B. Professor, Übungsleiter, Tutor..."
+
+#: .\templates\faq.html.py:70
+msgid "What types of questions are there?"
+msgstr "Welche Arten von Fragen gibt es? "
+
+#: .\templates\faq.html.py:72
+msgid ""
+"\n"
+"        There are two general types of questions:<br>\n"
+"        The first is called \"Likert\" and consists of five possible answers "
+"- from \"strongly agree\" to \"strongly disagree\".\n"
+"        Additionally there is the option to give <em>no answer</em>.<br>\n"
+"        With the second type it is possible to leave text comments, if the "
+"other questions miss an interesting point.\n"
+"        "
+msgstr ""
+"\n"
+"Grundsätzlich gibt es außerdem zwei Fragetypen:<ul><li>Likert-Fragen, die "
+"Zustimmung bzw. Ablehnung auf einer Skala von 1 bis 5 ermitteln. Dabei steht "
+"1 für volle Zustimmung und 5 für volle Ablehnung. Des Weiteren gibt es ein "
+"<em>keine Angabe</em>-Feld, sodass man sich enthalten kann.</"
+"li><li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li></"
+"ul>"
+
+#: .\templates\faq.html.py:81
+msgid "What types of courses are there?"
+msgstr "Welche Arten von Lehrveranstaltungen gibt es?"
+
+#: .\templates\faq.html.py:83
+msgid ""
+"\n"
+"        There are different types of courses, e.g. lectures, seminars, "
+"exercises and some more.\n"
+"        "
+msgstr ""
+"\n"
+"Hier der Versuch, einige Arten von Lehrveranstaltungen mit verschiedenem "
+"Leistungserfassungsprozess und Ablauf exemplarisch aufzuzählen. Dies soll "
+"als Beispiel dienen, warum eine feste Menge von möglichen Fragebögen wie im "
+"alten System nicht immer ausreichend ist.<ul><li>Reine Vorlesung mit "
+"mündlicher oder schriftlicher Prüfung (z.B. IT-Recht)</li><li>Vorlesung mit "
+"Übung (z.B. Datenbanksysteme, Parallele Programmierung, HCI Research)</"
+"li><li>Ringvorlesung ohne Prüfung (z.B. Softskillskolloquium, "
+"Forschungskolleg?)</li><li>Projektseminar (z.B. HCI-Seminar, Requirements "
+"Engineering) mit Betreuung</li><li>“Paper“-Seminar mit kleiner "
+"Programmieraufgabe (z.B. Question Answering, Software Design) Vortrag und "
+"Ausarbeitung (z.B. Beauty is our Business)</li><li>Blockseminar (z.B. "
+"Überzeugend Präsentieren)</li><li>Bachelorprojekt / Masterprojekt</li>"
+"\t<li>Sonstiges (z.B. D-School Basic Track)</li></ul>"
+
+#: .\templates\faq.html.py:89
+msgid "What kind of lecturer roles are there?"
+msgstr "Welche Dozentenrollen gibt es?"
+
+#: .\templates\faq.html.py:91
+msgid ""
+"\n"
+"        Accordingly there are different kinds of lecturers, like lecturers, "
+"seminar or excesses supervisors.\n"
+"        "
+msgstr ""
+"\n"
+"<ul>\t<li>Dozent (hält viele Vorträge)</li>\t<li>Gastdozent (hält einen "
+"Vortrag)</li>\t<li>Übungsleiter</li>\t<li>Projekt-/ Seminar- Betreuer</li>"
+"\t<li>Seminarleiter</li>\t<li>Verantwortlicher Professor / Lehrbeauftragter</"
+"li></ul>"
+
+#: .\templates\faq.html.py:97
+msgid "How are questionnaires assigned to courses?"
+msgstr "Wie werden Fragebögen zu einer Lehrveranstaltung hinzugefügt?"
+
+#: .\templates\faq.html.py:99
+msgid ""
+"\n"
+"        The assignment is done by the student representatives. But the "
+"lecturers can add additional questionnaires.\n"
+"        "
+msgstr ""
+"\n"
+"Die Zuordnung nimmt der Fachschaftsrat vor. Die Dozenten können allerdings "
+"weitere Fragebögen hinzufügen."
+
+#: .\templates\faq.html.py:107
+msgid "How do I log into the system?"
+msgstr "Wie melde ich mich am System an?"
+
+#: .\templates\faq.html.py:109
+msgid ""
+"\n"
+"        If you are an HPI student or lecturer you can just use your usual "
+"credentials.<br>\n"
+"        If you are an external student or lecturer you can get an access "
+"token by Email.\n"
+"        "
+msgstr ""
+"\n"
+"Für die Anmeldung am System gibt es zwei Möglichkeiten:<ul>\t<li>Anmeldung "
+"über Kerberos mit dem HPI-Login</li>\t<li>Für externe Nutzer: Anmeldung über "
+"einen Link, der per E-Mail verschickt wurde</li></ul>"
+
+#: .\templates\faq.html.py:116
+msgid "How are users registered? Who is able to create new users?"
+msgstr "Wie werden Nutzer registriert? Wer kann neue Benutzer anlegen?"
+
+#: .\templates\faq.html.py:118
+msgid ""
+"\n"
+"        New users are created by the Student Representatives. Ask them if "
+"there is the need for new users.\n"
+"        "
+msgstr ""
+"\n"
+"Die Zuordnung nimmt der Fachschaftsrat vor. Die Dozenten können allerdings "
+"weitere Fragebögen hinzufügen."
+
+#: .\templates\faq.html.py:124
+msgid "What are proxies?"
+msgstr "Was sind Stellvertreter?"
+
+#: .\templates\faq.html.py:126
+msgid ""
+"\n"
+"        As professors do not have much time, it is possible for them to "
+"elect one or more proxies, e.g. a secretary or an employee of the chair.\n"
+"        These people then can edit the courses as the original lecturer "
+"could, i.e. add questionnaires and setup the correct assistants and "
+"evaluation period.\n"
+"        "
+msgstr ""
+"\n"
+"Für die Vorbereitung der Evaluierung werden bestimmte Informationen, wie z."
+"B. die Namen der Übungsleiter benötigt. Diese Informationen können von den "
+"Hauptdozenten eingetragen werden. Die Hauptdozenten sind die Lehrpersonen, "
+"die im Belegungsimport genannt werden. Da jedoch beispielsweise ein "
+"Professor nicht für alle Veranstaltungen jedes Semester diese Informationen "
+"eintragen möchte, bietet EvaP die Möglichkeit, einen oder mehrere "
+"Stellvertreter zu definieren. Dieser <i>erbt</i> die Rechte des Dozenten."
+
+#: .\templates\faq.html.py:132
+msgid "Publication of results"
+msgstr "Veröffentlichung der Ergebnisse"
+
+#: .\templates\faq.html.py:135
+msgid "How are the results publicised?"
+msgstr "In welcher Form werden die Ergebnisse veröffentlicht?"
+
+#: .\templates\faq.html.py:137
+msgid ""
+"\n"
+"        The results are viewable in the EvaP system, after the exams for the "
+"course are done.<br>\n"
+"        Later the student representatives will hang out a hard copy of the "
+"results.\n"
+"        "
+msgstr ""
+"\n"
+"Jede Veranstaltung taucht in der Übersichtsliste auf mit dem Titel und einer "
+"Gesamtnote. Außerdem gibt es eine Detailansicht mit den aggregierten "
+"Antworten aller Einzelfragen. Zusätzlich zur Online-Darstellung gibt es "
+"einen Export, der ausgedruckt wird."
+
+#: .\templates\faq.html.py:144
+msgid "What information are in the printed export?"
+msgstr "Welche Informationen enthält der Ausdruck?"
+
+#: .\templates\faq.html.py:146
+msgid ""
+"\n"
+"        These prints contain the exact same information as shown in this "
+"system.<br>\n"
+"        The involved lecturers can also view the comments, which were given "
+"to them.\n"
+"        "
+msgstr ""
+"\n"
+"Für den Aushang bietet EvaP einen Export. Dieser enthält für alle Likert-"
+"Fragen die Durchschnittsnoten und die Standardabweichung. Nicht "
+"veröffentlicht sind hier die Kommentare. Im Studenten-Export finden sich nur "
+"Frageergebnisse mit ausreichender Repräsentativität (d.h. mindestens 5 "
+"Stimmen). Im GF-Export sind alle Ergebnisse vorhanden.<br>Die Ergebnisse von "
+"Personenfragen werden pro Frage zusammengefasst, d.h. alle Antworten zu "
+"Übungsleitern gehen in ein Ergebnis, die Antworten zu Dozenten jeweils "
+"ebenso. Siehe auch Abschnitt zu Gesamtnote."
+
+#: .\templates\faq.html.py:153
+msgid "How is the overall grade calculated?"
+msgstr "Wie wird die Gesamtnote berechnet?"
+
+#: .\templates\faq.html.py:155
+msgid ""
+"\n"
+"        The overall grade is the arithmetic average of all sub-grades.<br>\n"
+"        All personal questions together are equally weighted to the "
+"questions about the course itself.\n"
+"        "
+msgstr ""
+"\n"
+"Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten "
+"werden wiederum über den Durchschnitt aller abgegebenen Likert-Fragen "
+"berechnet. Alle Personennoten werden zusammen mit 50% gewichtet und die "
+"Sachfragen zählen zusammen die restlichen 50%."
+
+#: .\templates\faq.html.py:162
+msgid "How many answers are necessary to assure the representativeness?"
+msgstr ""
+"Wie viele Antworten müssen pro Frage abgegeben worden sein, damit sie "
+"veröffentlicht werden können und warum?"
+
+#: .\templates\faq.html.py:164
+msgid ""
+"\n"
+"        Currently at least five (5) answers are necessary (except <em>no "
+"answer</em>) to assure the representativeness.<br>\n"
+"        If you do not agree with that write an Email or just come over to "
+"start a discussion with the student representatives.\n"
+"        "
+msgstr ""
+"\n"
+"Im alten System wurden Evaluierungsergebnisse einer Lehrveranstaltung nur "
+"dann für die Studenten veröffentlicht, wenn mindestens fünf Fragebögen "
+"abgesendet wurden. Ziel war, dass nur aussagekräftige /repräsentative "
+"Ergebnisse veröffentlicht werden. Leider ist es häufiger vorgekommen, dass "
+"auch unvollständig ausgefüllte Fragebogen abgesendet und gewertet wurden. So "
+"wurden beispielsweise bei einem Seminar 6 Fragebögen abgeschickt, aber nur 1 "
+"Stimme pro Frage erfasst. Im alten System gab es auch keine Möglichkeit, "
+"sich bei einer Frage explizit zu enthalten – sobald das Häkchen irgendwo "
+"gesetzt war, konnte man es nicht wieder entfernen.<br>In EvaP wird die "
+"Repräsentativität nicht mittels der abgesandten Fragebogen für jede "
+"Lehrveranstaltung, sondern mittels der Stimmen <em>pro Frage</em> für jede "
+"einzelne Frage entschieden. Das heißt, die Auswertung einer Likert-Frage "
+"wird dann vom System veröffentlicht, wenn mindestens 5 Stimmen (<em>keine "
+"Angabe</em>-Stimmen zählen nicht) für diese Frage abgegeben wurden. Das kann "
+"dazu führen, dass einige Fragen veröffentlicht werden, andere jedoch nicht. "
+"Nicht veröffentlichte Fragen erscheinen in der Web-Detailansicht mit dem "
+"Fragetext und dem Hinweis, dass das Ergebnis aufgrund der Beteiligung nicht "
+"veröffentlicht werden konnte.<br>Zusätzlich wird im Ergebnis angezeigt, wie "
+"viele Stimmen insgesamt für eine Frage abgegeben wurden, damit man ein "
+"grobes Gefühl für die Repräsentativität des Ergebnisses bekommt und ggf. "
+"offline statistische Auswertungen veranlassen kann. Dadurch ergibt sich auch "
+"die Anzahl der „Keine-Antwort“- Stimmen, denn für eine Veranstaltung wird "
+"angegeben, wie viele Stimmzettel insgesamt abgegeben wurden, sowie wie viele "
+"Studenten das Fach belegt haben. Wenn eine Frage von vielen Studenten mit "
+"„keine Angabe“ bewertet wurde, könnte das ein Hinweis darauf sein, dass sie "
+"zur Lehrveranstaltung nicht gut gepasst hat.<br>Haben insgesamt zu wenig "
+"Studenten abgestimmt, werden folglich nur die Fragen, aber ohne Ergebnisse "
+"allgemein veröffentlicht."
+
+#: .\templates\faq.html.py:170
+msgid "Details for Lectures"
+msgstr "Details für Dozenten"
+
+#: .\templates\faq.html.py:173
+msgid "What data are necessary for a course and why?"
+msgstr "Welche Daten muss ich für eine Lehrveranstaltung angeben und warum?"
+
+#: .\templates\faq.html.py:175
+msgid ""
+"\n"
+"        You can define all involved persons and their roles. So it is "
+"possible for the students to give specific feedback.<br>\n"
+"        Additionally you can adapt the evaluation period if needed.\n"
+"        "
+msgstr ""
+"\n"
+"Sie können die involvierten Lehrbeauftragte und ihre Rollen detailliert "
+"festlegen, um individuelle Bewertungen zu ermöglichen und den beteiligten "
+"Personen zielgerichtet Feedback geben zu können. Es geht aber insbesondere "
+"auch, Lehranbietungsberechtigte aus der Evaluation herauszunehmen. Siehe "
+"auch: <a href=\"#questionnaire_concept\">Fragebogen-Konzept</a><br>Sie "
+"können überprüfen, ob der gewählte Evaluierungszeitraum korrekt ist. Die "
+"Evaluierung soll nicht die Notengebung beeinflussen und umgekehrt. Dies soll "
+"dadurch gewährleistet werden, indem die Evaluierung vor der letzten "
+"Prüfungsleistung abgeschlossen sein soll und die Ergebnisse der Evaluierung "
+"erst nach Bekanntgabe der Noten veröffentlicht werden. Falls der "
+"Evaluierungszeitraum korrigiert werden muss, benachrichtigen Sie bitte den "
+"Fachschaftsrat per E-Mail. Entsprechende Hinweise-Texte gibt es im Formular."
+
+#: .\templates\faq.html.py:182
+msgid "How should I configure the evaluation period of my course?"
+msgstr "Wie sollte der Evaluierungszeitraum gesetzt werden?"
+
+#: .\templates\faq.html.py:184
+msgid ""
+"\n"
+"        The evaluation must not influence the assessment of the student. So "
+"there are different criteria for the period:\n"
+"        <ul>\n"
+"            <li>It should end before the written exam or the first oral exam."
+"</li>\n"
+"            <li>It should be at least one week long.</li>\n"
+"            <li>It should start after one of the last lectures and not right "
+"at the beginning.</li>\n"
+"        </ul>\n"
+"        Of course there are courses for which it is not possible to fulfil "
+"all of the criteria. Please contact the student representatives if you are "
+"not sure.\n"
+"        "
+msgstr ""
+"\n"
+"Der Evaluationszeitraum sollte immer eine Woche sein und wird standardmäßig "
+"auf die letzten Woche Vorlesungszeit gesetzt. Im folgenden werden ein paar "
+"Beispiele erläutert, in den es Sinn machen könnte, die Standardeinstellung "
+"zu verändern.<ol><li>Vorlesung mit oder ohne Zwischenklausur: Evaluation "
+"sollte vor der Endklausur stattfinden, da zu diesem Zeitpunkt die "
+"Studierenden einen umfassenden Überblick über die Lehrveranstaltung erhalten "
+"haben und der Hauptteil der Prüfungsleistung noch nicht erbracht ist. In "
+"diesem Fall kann also der Standard belassen werden.</li><li>Blockseminar mit "
+"mehreren Terminen: Die Evaluation kann direkt vor dem letzten Prüfungsblock "
+"abgeschlossen werden. Der Evaluationszeitraum sollte aber nur bis dahin "
+"verschoben werden, falls es im letzten Block keinen oder nur noch kaum "
+"Lehrinhalt gibt. Ansonsten kann die Evaluation auch nach der Prüfung "
+"stattfinden.</li><li>Blockseminar in den Ferien: Hier sollte unbedingt der "
+"Evaluationszeitraum nach hinten verschoben werden. Gibt es zwischen "
+"Lehrinhalt und Prüfung keine ausreichende Zeit, so sollte die Evaluation "
+"nach der Prüfung durchgeführt werden.</li><li>Paper-/Projektseminar: Nach "
+"dem letzten regelmäßigen Treffen oder Vortrag wäre ein geeigneter Termin. "
+"Sollten Noten nicht vor dem regulären Evaluationszeitraum veröffentlicht "
+"werden, raten wir dringend dazu den Standardtermin zu belassen, damit die "
+"Studierenden nicht zu viele verschiedene Evaluationszeiträume haben.</li></"
+"ol>"
+
+#: .\templates\faq.html.py:196
+msgid "When will I get which Email notice?"
+msgstr "Welche E-Mail-Benachrichtigungen erhalte ich wann?"
+
+#: .\templates\faq.html.py:198
+msgid ""
+"\n"
+"        At some point in the middle of the semester you get an Email with "
+"all your courses to edit them if needed.<br>\n"
+"        You will also get an Email after the results are available.\n"
+"        "
+msgstr ""
+"\n"
+"Am Anfang des Semesters bekommen Sie (aber nicht Ihre Stellvertreter) eine E-"
+"Mail, die einen Link zum EvaP System enthält. In dieser E-Mail werden Sie "
+"gebeten, die aus den grundlegenden Lehrveranstaltungsdaten importierten "
+"Details anzupassen.<br>Nachdem Sie die Noten veröffentlicht haben, werden "
+"die Ergebnisse der Evaluierung bekannt gegeben. An alle involvierten "
+"Personen versendet der FSR  eine E-Mail, die einen Link zur EvaP Seite "
+"enthält und einen Link zur Gesamtübersicht. Sie können sich auf der EvaP "
+"Seite zusätzlich alle Kommentare zu Ihren Lehrveranstaltungen anschauen."
+
+#: .\templates\faq.html.py:205
+msgid "Which results do I see and what do they mean?"
+msgstr ""
+"Welche Informationen sehe ich bei der Auswertung und was bedeuten diese?"
+
+#: .\templates\faq.html.py:207
+msgid ""
+"\n"
+"        You can see the average grade and standard deviation of all Likert "
+"questions.<br>\n"
+"        Additionally you can view the comments the students gave to you, the "
+"course or the other people involved in the course.\n"
+"        "
+msgstr ""
+"\n"
+"Sie sehen für alle Likert-Fragen die Durchschnittsnoten und "
+"Standardabweichung. Außerdem können Sie alle Antworten auf Kommentarfragen "
+"anschauen. Diese wurden ggf. vom FSR bearbeitet oder es wurden einige "
+"unpassendeKommentare entfernt. "
+
+#: .\templates\faq.html.py:213
+msgid "Details for Students"
+msgstr "Details für Studierende"
+
+#: .\templates\faq.html.py:216
+msgid "How complete do I have to fill in the questionnaires?"
+msgstr ""
+"Wie (vollständig) muss ich den Fragebogen ausfüllen, damit er gewertet wird?"
+
+#: .\templates\faq.html.py:218
+msgid ""
+"\n"
+"        As complete as possible :)<br><br>\n"
+"        The results are only published if the representativeness is "
+"guaranteed.\n"
+"        All Likert questions need to be answered (at least with <em>no "
+"answer</em>), but not one text comment question, to submit an "
+"questionnaire.\n"
+"        "
+msgstr ""
+"\n"
+"So vollständig wie möglich. Bitte gib eine Stimme für jede Frage ab, die du "
+"beurteilen kannst. Nur bei ausreichender Stimmenanzahl werden die Ergebnisse "
+"veröffentlicht, sodass auch andere Studenten etwas davon haben.<br>Jede "
+"Likert-Frage muss ausgefüllt werden (notfalls mit „keine Angabe“), damit der "
+"Fragebogen abgesendet werden kann. Kommentarfragen müssen nicht ausgefüllt "
+"werden.<br>Siehe auch: <a href=\"#representativeness\">hier</a>"
+
+#: .\templates\faq.html.py:226
+msgid "What happens to my comments?"
+msgstr "Was passiert mit den Kommentaren?"
+
+#: .\templates\faq.html.py:228
+msgid ""
+"\n"
+"        As we cannot assure the representativeness or anonymity here all "
+"comments are provided to all people involved in the course they were given."
+"<br>\n"
+"        But the student representatives reserve the possibility to remove or "
+"change insults or other inappropriate texts.\n"
+"        "
+msgstr ""
+"\n"
+"Für Kommentarfragen gibt es keine Einschränkung aufgrund der "
+"Repräsentativität, da wir die Kommentare nicht inhaltlich entsprechend "
+"auswerten können. Alle Kommentare werden für den jeweiligen Dozenten "
+"veröffentlicht, egal wie viele Antworten es insgesamt gab.<br>Allerdings "
+"werden die Kommentare vor der Veröffentlichung für die Dozenten (für "
+"Studenten sind sie grundsätzlich nicht einsehbar) vom Fachschaftsrat "
+"„zensiert“ (siehe auch Kapitel Bearbeitung der Kommentare). Kurz gesagt "
+"werden unangemessene Beleidigungen und unsachliche Äußerungen entfernt/"
+"korrigiert. Wer seine Kritik sachlich und konstruktiv äußert, wird auch "
+"nicht zensiert."
+
+#: .\templates\faq.html.py:235
+msgid "How anonymous is my vote?"
+msgstr "Inwiefern ist meine Stimme anonym?"
+
+#: .\templates\faq.html.py:237
+msgid ""
+"\n"
+"        The system guarantees that there is no connection between a vote and "
+"a user.\n"
+"        It is just stored which user already submitted which questionnaire.\n"
+"        Pay attention: We cannot assure anonymity regarding text comment "
+"questions as it is possible for\n"
+"        the lecturer to guess from the contest or grammar of the text the "
+"student writing it.\n"
+"        <br><br>\n"
+"        All text answers are given in an arbitrary order - so you should not "
+"refer to your own answers (like \"see above\" or \"same as other teaching "
+"assistant\").\n"
+"        "
+msgstr ""
+"\n"
+"Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer "
+"zugeordnet werden kann. Das System speichert, wer eine Stimme für eine "
+"Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie "
+"ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt "
+"hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen "
+"Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen "
+"gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und "
+"den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die "
+"Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine "
+"Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das "
+"bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte "
+"Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert "
+"angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, "
+"kann der Dozent die zugehörige Antwort nicht finden."
 
 #: .\templates\index.html.py:9
 #, python-format
@@ -1188,18 +1839,26 @@ msgid ""
 "\n"
 "        <p>Welcome to the evaluation platform!</p>\n"
 "        \n"
-"        <p>You are currently not logged in. If you are a HPI student or lecturer,\n"
+"        <p>You are currently not logged in. If you are a HPI student or "
+"lecturer,\n"
 "                please log in using your usual HPI credentials.</p>\n"
 "        \n"
-"        <p>If you are an external student or lecturer, you can use your external\n"
-"        login key to gain access to the system. If you do not have an external\n"
-"                login key or if you have lost yours, you can create a new one below.</p>\n"
+"        <p>If you are an external student or lecturer, you can use your "
+"external\n"
+"        login key to gain access to the system. If you do not have an "
+"external\n"
+"                login key or if you have lost yours, you can create a new "
+"one below.</p>\n"
 "        "
 msgstr ""
 "\n"
 "  <p>Willkommen auf der Evaluierungsplattform des HPI!</p>\n"
 "  \n"
-"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, können Sie unten einen neuen erstellen.</p>"
+"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, "
+"melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren "
+"Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich "
+"anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, "
+"können Sie unten einen neuen erstellen.</p>"
 
 #: .\templates\index.html.py:25
 msgid "HPI student or lecturer"
@@ -1216,12 +1875,14 @@ msgstr "Externer Student oder Dozent"
 #: .\templates\index.html.py:32
 msgid ""
 "\n"
-"                Please enter your login key below. Be aware that login keys are\n"
+"                Please enter your login key below. Be aware that login keys "
+"are\n"
 "                automatically invalidated after three months.\n"
 "                "
 msgstr ""
 "\n"
-"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: Anmeldeschlüssel gelten nur drei Monate."
+"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: "
+"Anmeldeschlüssel gelten nur drei Monate."
 
 #: .\templates\index.html.py:40
 msgid "login key"
@@ -1238,18 +1899,44 @@ msgstr "Neuen Anmeldeschlüssel erzeugen"
 #: .\templates\index.html.py:54
 msgid ""
 "\n"
-"                If you do not have a login key or lost your previous login key, \n"
-"                you can create a new one here. Please enter your e-mail address \n"
-"                below. A new key will be sent to this address. Please make sure \n"
+"                If you do not have a login key or lost your previous login "
+"key, \n"
+"                you can create a new one here. Please enter your e-mail "
+"address \n"
+"                below. A new key will be sent to this address. Please make "
+"sure \n"
 "                that you use the same e-mail address that you used when you\n"
-"                enrolled. Otherwise the system cannot associate your address\n"
+"                enrolled. Otherwise the system cannot associate your "
+"address\n"
 "                with an user account.\n"
 "                "
 msgstr ""
 "\n"
-"  Falls Sie keinen Anmeldeschlüssel besitzen oder Ihren Schlüssel verloren haben, können Sie unten einen neuen erstellen. Bitte tragen Sie dazu Ihre E-Mail-Adresse in das Feld unten ein. Ein neuer Schlüssel wird Ihnen daraufhin per E-Mail zugesandt. Bitte verwenden Sie dazu die E-Mail-Adresse, welche Sie zur Einschreibung verwendet haben."
+"  Falls Sie keinen Anmeldeschlüssel besitzen oder Ihren Schlüssel verloren "
+"haben, können Sie unten einen neuen erstellen. Bitte tragen Sie dazu Ihre E-"
+"Mail-Adresse in das Feld unten ein. Ein neuer Schlüssel wird Ihnen daraufhin "
+"per E-Mail zugesandt. Bitte verwenden Sie dazu die E-Mail-Adresse, welche "
+"Sie zur Einschreibung verwendet haben."
 
 #: .\templates\index.html.py:80
 msgid "Generate Key"
 msgstr "Schlüssel erzeugen"
 
+#~ msgid "Save and Approve"
+#~ msgstr "Speichern und bestätigen"
+
+#~ msgid ""
+#~ "\n"
+#~ "        <h2>These are the Frequently Asked Questions (FAQs)</h2>\n"
+#~ "        \n"
+#~ "        <h3>First Question</h3>\n"
+#~ "        <p>First Answer</p>\n"
+#~ "    "
+#~ msgstr ""
+#~ "\n"
+#~ "\t\t<h2>Dies sind die \"Frequently Asked Questions\" (FAQs) also häufig "
+#~ "gestellte Fragen und ihre Antworten.</h2>\n"
+#~ "\t\t\n"
+#~ "\t\t<h3>Erste Frage</h3>\n"
+#~ "\t\t<p>Erste Antwort</p>\n"
+#~ "\t"
