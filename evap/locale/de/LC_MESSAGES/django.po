@@ -1652,9 +1652,10 @@ msgid "How should I configure the evaluation period of my course?"
 msgstr "Wie sollte der Evaluierungszeitraum gesetzt werden?"
 
 #: .\templates\faq.html.py:184
+#, fuzzy
 msgid ""
 "\n"
-"        The evaluation must not influence the assessment of the student. So "
+"        The evaluation must not influence the assessment of the students. So "
 "there are different criteria for the period:\n"
 "        <ul>\n"
 "            <li>It should end before the written exam or the first oral exam."
