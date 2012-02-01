@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-01 23:17+0100\n"
+"POT-Creation-Date: 2012-02-01 23:45+0100\n"
 "PO-Revision-Date: 2012-01-22 19:46+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
@@ -87,9 +87,10 @@ msgstr ""
 
 #: .\evaluation\models.py:83
 msgid "is for persons"
-msgstr "Personenfragenbogen"
+msgstr "Personenfragebogen"
 
 #: .\evaluation\models.py:84
+#: .\fsr\templates\fsr_questionnaire_index.html.py:23
 msgid "obsolete"
 msgstr "obsolet"
 
@@ -746,7 +747,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: .\fsr\templates\fsr_index.html.py:41
 #: .\fsr\templates\fsr_user_form.html.py:8
 #: .\fsr\templates\fsr_user_index.html.py:8 .\templates\base.html.py:47
-#: .\templates\faq.html.py:83
+#: .\templates\faq.html.py:76
 msgid "Users"
 msgstr "Benutzer"
 
@@ -1357,11 +1358,11 @@ msgstr ""
 "li><li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li></"
 "ul>"
 
-#: .\templates\faq.html.py:76
+#: .\templates\faq.html.py:69
 msgid "How are questionnaires assigned to courses?"
 msgstr "Wie werden Fragebögen einer Lehrveranstaltung zugeordnet?"
 
-#: .\templates\faq.html.py:78
+#: .\templates\faq.html.py:71
 msgid ""
 "\n"
 "        In general the assignment is done by the student representatives. "
@@ -1374,11 +1375,11 @@ msgstr ""
 "Zusätzlich können die Dozenten eigene Fragebögen ergänzen, falls Sie "
 "spezielle Fragen stellen wollen."
 
-#: .\templates\faq.html.py:86
+#: .\templates\faq.html.py:79
 msgid "How do I log into the system?"
 msgstr "Wie melde ich mich am System an?"
 
-#: .\templates\faq.html.py:88
+#: .\templates\faq.html.py:81
 msgid ""
 "\n"
 "        If you are an HPI student or lecturer you can just use your usual "
@@ -1392,11 +1393,11 @@ msgstr ""
 "über Kerberos mit dem HPI-Login</li>\t<li>Für externe Nutzer: Anmeldung über "
 "einen Link, der per E-Mail verschickt wurde</li></ul>"
 
-#: .\templates\faq.html.py:95
+#: .\templates\faq.html.py:88
 msgid "How are users registered? Who is able to create new users?"
 msgstr "Wie werden Nutzer registriert? Wer kann neue Benutzer anlegen?"
 
-#: .\templates\faq.html.py:97
+#: .\templates\faq.html.py:90
 msgid ""
 "\n"
 "        New users are created by the Student Representatives. Ask them if "
@@ -1407,11 +1408,11 @@ msgstr ""
 "Neue werden beim Datenimport automatisch angelegt. Zusätzlich kann der FSR "
 "weitere Nutzer anlegen, falls dies notwendig ist."
 
-#: .\templates\faq.html.py:103
+#: .\templates\faq.html.py:96
 msgid "What are proxies?"
 msgstr "Was sind Stellvertreter?"
 
-#: .\templates\faq.html.py:105
+#: .\templates\faq.html.py:98
 msgid ""
 "\n"
 "        As professors do not have much time, it is possible for them to "
@@ -1430,15 +1431,15 @@ msgstr ""
 "eintragen möchte, bietet EvaP die Möglichkeit, einen oder mehrere "
 "Stellvertreter zu definieren. Dieser <i>erbt</i> die Rechte des Dozenten."
 
-#: .\templates\faq.html.py:111
+#: .\templates\faq.html.py:104
 msgid "Publication of results"
 msgstr "Veröffentlichung der Ergebnisse"
 
-#: .\templates\faq.html.py:114
+#: .\templates\faq.html.py:107
 msgid "How are the results publicised?"
 msgstr "In welcher Form werden die Ergebnisse veröffentlicht?"
 
-#: .\templates\faq.html.py:116
+#: .\templates\faq.html.py:109
 msgid ""
 "\n"
 "        The results are viewable in the EvaP system, after the exams for the "
@@ -1453,11 +1454,11 @@ msgstr ""
 "Antworten aller Einzelfragen. Zusätzlich zur Online-Darstellung gibt es "
 "einen Export, der ausgedruckt wird."
 
-#: .\templates\faq.html.py:123
+#: .\templates\faq.html.py:116
 msgid "What information are in the printed export?"
 msgstr "Welche Informationen enthält der Ausdruck?"
 
-#: .\templates\faq.html.py:125
+#: .\templates\faq.html.py:118
 msgid ""
 "\n"
 "        These prints contain the exact same information as shown in this "
@@ -1476,11 +1477,11 @@ msgstr ""
 "Übungsleitern gehen in ein Ergebnis, die Antworten zu Dozenten jeweils "
 "ebenso. Siehe auch Abschnitt zu Gesamtnote."
 
-#: .\templates\faq.html.py:132
+#: .\templates\faq.html.py:125
 msgid "How is the overall grade calculated?"
 msgstr "Wie wird die Gesamtnote berechnet?"
 
-#: .\templates\faq.html.py:134
+#: .\templates\faq.html.py:127
 msgid ""
 "\n"
 "        The overall grade is the arithmetic average of all sub-grades.<br>\n"
@@ -1494,13 +1495,13 @@ msgstr ""
 "berechnet. Alle Personennoten werden zusammen mit 50% gewichtet und die "
 "Sachfragen zählen zusammen die restlichen 50%."
 
-#: .\templates\faq.html.py:141
+#: .\templates\faq.html.py:134
 msgid "How many answers are necessary to assure the representativeness?"
 msgstr ""
 "Wie viele Antworten müssen pro Frage abgegeben worden sein, damit sie "
 "veröffentlicht werden können und warum?"
 
-#: .\templates\faq.html.py:143
+#: .\templates\faq.html.py:136
 msgid ""
 "\n"
 "        Currently at least five (5) answers are necessary (except <em>no "
@@ -1529,15 +1530,15 @@ msgstr ""
 "„keine Angabe“ bewertet wurde, könnte das ein Hinweis darauf sein, dass sie "
 "zur Lehrveranstaltung nicht gut gepasst hat."
 
-#: .\templates\faq.html.py:149
+#: .\templates\faq.html.py:142
 msgid "Details for Lectures"
 msgstr "Details für Dozenten"
 
-#: .\templates\faq.html.py:152
+#: .\templates\faq.html.py:145
 msgid "What data are necessary for a course and why?"
 msgstr "Welche Daten muss ich für eine Lehrveranstaltung angeben und warum?"
 
-#: .\templates\faq.html.py:154
+#: .\templates\faq.html.py:147
 msgid ""
 "\n"
 "        You can define all involved persons and their questionnaires. So it "
@@ -1554,11 +1555,11 @@ msgstr ""
 "anpassen. Beachten sie dabei folgende Hinweise: <a href=\"#evaluation_period"
 "\">Hinweise zum Evaluationszeitraum</a>"
 
-#: .\templates\faq.html.py:161
+#: .\templates\faq.html.py:154
 msgid "How should I configure the evaluation period of my course?"
 msgstr "Wie sollte der Evaluierungszeitraum gesetzt werden?"
 
-#: .\templates\faq.html.py:163
+#: .\templates\faq.html.py:156
 msgid ""
 "\n"
 "        The evaluation must not influence the assessment of the students. So "
@@ -1602,11 +1603,11 @@ msgstr ""
 "belassen, damit die Studierenden nicht zu viele verschiedene "
 "Evaluationszeiträume haben.</li></ol>"
 
-#: .\templates\faq.html.py:175
+#: .\templates\faq.html.py:168
 msgid "What do the different course states mean?"
 msgstr "Was bedeuten die Status einer Lehrveranstaltung?"
 
-#: .\templates\faq.html.py:177
+#: .\templates\faq.html.py:170
 msgid ""
 "\n"
 "        There are eigth (8) different states a course can be in:\n"
@@ -1655,19 +1656,19 @@ msgstr ""
 "kann:\n"
 "<ol>\n"
 "<li><em>neu:</em>\n"
-"Direkt nach dem Import oder dem manuellen anlegen einer "
-"Lehrveranstaltung ist die in diesem Zustand. Der FSR kontrolliert diese "
-"Daten an dieser Stelle nur kurz lässt die Lehrveranstaltungen in den "
-"nächsten Zustand übergehen. Dies ist meist \"vorbereitet\". Wenn dies "
-"passiert wird vom System eine Email an die Dozenten verschickt.</li>\n"
+"Direkt nach dem Import oder dem manuellen anlegen einer Lehrveranstaltung "
+"ist die in diesem Zustand. Der FSR kontrolliert diese Daten an dieser Stelle "
+"nur kurz lässt die Lehrveranstaltungen in den nächsten Zustand übergehen. "
+"Dies ist meist \"vorbereitet\". Wenn dies passiert wird vom System eine "
+"Email an die Dozenten verschickt.</li>\n"
 "<li><em>vorbereitet:</em>\n"
 "In diesem Zustand können die Dozenten ihre Lehrveranstaltungen bearbeiten, "
 "bspw. Teilnehmer hinzufügen oder entfernen oder den Evaluationszeitraum "
 "anpassenFalls notwendig kann der FSR die Daten selbst ändern und bestätigen, "
 "was den Status sofort zu \"bestätigt\" äußert.</li>\n"
 "<li><em>vom Dozenten bestätigt:</em>\n"
-"Nachdem ein Dozent einen Kurs bestätigt hat überprüft der FSR "
-"die Daten erneut und bestätigt schließlich den Kurs</li>\n"
+"Nachdem ein Dozent einen Kurs bestätigt hat überprüft der FSR die Daten "
+"erneut und bestätigt schließlich den Kurs</li>\n"
 "<li><em>bestätigt:</em>\n"
 "Nachdem ein Kurs bestätigt wurde (schlußendlich vom FSR), so ist er in "
 "diesem Status.Er geht automatisch in den nächsten Status über, sobald der "
@@ -1675,10 +1676,9 @@ msgstr ""
 "<li><em>in Evaluierung:</em>\n"
 "In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li>\n"
 "<li><em>evaluiert:</em>\n"
-"Nach dem Ende des Evaluationszeitraumes geht jede "
-"Veranstaltung automatisch in diesen Zustand über. Vom FSR werden hier alle "
-"Kommentare durchgesehen überprüft wobei unpassende entfernt bzw. angepasst "
-"werden.</li>\n"
+"Nach dem Ende des Evaluationszeitraumes geht jede Veranstaltung automatisch "
+"in diesen Zustand über. Vom FSR werden hier alle Kommentare durchgesehen "
+"überprüft wobei unpassende entfernt bzw. angepasst werden.</li>\n"
 "<li><em>überprüft:</em>\n"
 "Erst nachdem die Noten einer Lehrveranstaltung bekanntgemacht wurden können "
 "dessen Abstimmungsergebnisse vom FSR freigeschaltet werden.</li>\n"
@@ -1688,11 +1688,11 @@ msgstr ""
 "Ausdruck vorbereiten und aushängen.</li>\n"
 "</ol>"
 
-#: .\templates\faq.html.py:209
+#: .\templates\faq.html.py:202
 msgid "When will I get which Email notice?"
 msgstr "Welche E-Mail-Benachrichtigungen erhalte ich wann?"
 
-#: .\templates\faq.html.py:211
+#: .\templates\faq.html.py:204
 msgid ""
 "\n"
 "        At some point in the middle of the semester you get an Email with "
@@ -1710,12 +1710,12 @@ msgstr ""
 "enthält und einen Link zur Gesamtübersicht. Sie können sich auf der EvaP "
 "Seite zusätzlich alle Kommentare zu Ihren Lehrveranstaltungen anschauen."
 
-#: .\templates\faq.html.py:218
+#: .\templates\faq.html.py:211
 msgid "Which results do I see and what do they mean?"
 msgstr ""
 "Welche Informationen sehe ich bei der Auswertung und was bedeuten diese?"
 
-#: .\templates\faq.html.py:220
+#: .\templates\faq.html.py:213
 msgid ""
 "\n"
 "        You can see the average grade and standard deviation of all Likert "
@@ -1730,16 +1730,16 @@ msgstr ""
 "anschauen. Diese wurden ggf. vom FSR bearbeitet oder es wurden einige "
 "unpassendeKommentare entfernt. "
 
-#: .\templates\faq.html.py:226
+#: .\templates\faq.html.py:219
 msgid "Details for Students"
 msgstr "Details für Studierende"
 
-#: .\templates\faq.html.py:229
+#: .\templates\faq.html.py:222
 msgid "How complete do I have to fill in the questionnaires?"
 msgstr ""
 "Wie (vollständig) muss ich den Fragebogen ausfüllen, damit er gewertet wird?"
 
-#: .\templates\faq.html.py:231
+#: .\templates\faq.html.py:224
 msgid ""
 "\n"
 "        As complete as possible :)<br><br>\n"
@@ -1758,11 +1758,11 @@ msgstr ""
 "Fragebogen abgesendet werden kann. Kommentarfragen müssen nicht ausgefüllt "
 "werden.<br>Siehe auch: <a href=\"#representativeness\">Repräsentativität</a>"
 
-#: .\templates\faq.html.py:239
+#: .\templates\faq.html.py:232
 msgid "What happens to my comments?"
 msgstr "Was passiert mit den Kommentaren?"
 
-#: .\templates\faq.html.py:241
+#: .\templates\faq.html.py:234
 msgid ""
 "\n"
 "        As we cannot assure the representativeness or anonymity here all "
@@ -1784,11 +1784,11 @@ msgstr ""
 "korrigiert. Wer seine Kritik sachlich und konstruktiv äußert, wird auch "
 "nicht zensiert."
 
-#: .\templates\faq.html.py:248
+#: .\templates\faq.html.py:241
 msgid "How anonymous is my vote?"
 msgstr "Inwiefern ist meine Stimme anonym?"
 
-#: .\templates\faq.html.py:250
+#: .\templates\faq.html.py:243
 msgid ""
 "\n"
 "        The system guarantees that there is no connection between a vote and "

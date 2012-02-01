@@ -20,7 +20,7 @@
             {% for questionnaire in questionnaires %}
                 <tr>
                     <td>
-                        <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">obsolete</span>{% endif %}
+                        <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">{% trans "obsolete" %}</span>{% endif %}
                         <br>
                         {% blocktrans count questionnaire.question_set.all.count as count %}
                         {{ count }} question{% plural %}
