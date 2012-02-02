@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-02 01:33+0100\n"
+"POT-Creation-Date: 2012-02-02 02:09+0100\n"
 "PO-Revision-Date: 2012-01-22 19:46+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
@@ -1080,13 +1080,21 @@ msgid "Participants"
 msgstr "Teilnehmer"
 
 #: .\lecturer\templates\lecturer_index.html.py:48
-#: .\lecturer\templates\lecturer_index.html.py:91
-msgid "There are no courses for you this semester yet."
-msgstr "In diesem Semester existiert noch keine Veranstaltung."
+msgid ""
+"There are no courses for you this semester yet. You will get informed by "
+"Email, as soon as your courses are approved for your review by the student "
+"representatives."
+msgstr ""
+"Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E-Mail "
+"informiert, sobald Ihre Veranstaltungen zur Überprüfung freigegeben wurden."
 
 #: .\lecturer\templates\lecturer_index.html.py:51
 msgid "Courses for which you are a proxy"
 msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
+
+#: .\lecturer\templates\lecturer_index.html.py:91
+msgid "There are no courses for you this semester yet."
+msgstr "Derzeit können Sie keine Veranstaltung als Stellvertreter bearbeiten."
 
 #: .\lecturer\templates\lecturer_index.html.py:95
 msgid "Own Profile"
