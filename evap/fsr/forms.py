@@ -113,7 +113,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len(list(self.template.receipient_list_for_course(self.instance, self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants'))))
+        return len([user for user in self.template.receipient_list_for_course(self.instance, self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants')) if not user.email])
     
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
