@@ -7,7 +7,7 @@ from evap.fsr.models import EmailTemplate
 
 
 class Command(BaseCommand):
-    args = ''
+    args = '<kind of jobs>'
     help = 'Runs updates/tasks based on time events'
     
     def update_courses(self):
@@ -38,5 +38,8 @@ class Command(BaseCommand):
         EmailTemplate.get_reminder_template().send_courses(found_courses, False, True)
     
     def handle(self, *args, **options):
-        self.update_courses()
-        self.check_reminders()
+        if len(args) > 0 and args[0] == 'daily':
+            self.check_reminders()
+        else:
+            self.update_courses()
+        
