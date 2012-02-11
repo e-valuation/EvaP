@@ -70,15 +70,16 @@ class EmailTemplate(models.Model):
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary))
     
-    def send_courses(self, courses, send_to_lecturers, send_to_participants):
+    def send_courses(self, courses, send_to_lecturers, send_to_participants, only_non_evaluated=False):
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
             for user in [user for user in self.receipient_list_for_course(course, send_to_lecturers, send_to_participants) if user.email != ""]:
-                if user in user_course_map:
-                    user_course_map[user].append(course)
-                else:
-                    user_course_map[user] = [course]
+                if (not only_non_evaluated) or (user not in course.voters.all()):
+                    if user in user_course_map:
+                        user_course_map[user].append(course)
+                    else:
+                        user_course_map[user] = [course]
         
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
