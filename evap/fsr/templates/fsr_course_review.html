@@ -14,17 +14,15 @@
 	    {% csrf_token %}
 	    {{ formset.management_form }}
 	    {% for form in formset %}
-		<h3>{% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}</h3>
-		{% for hidden in form.hidden_fields %}
-		    {{ hidden }}
-		{% endfor %}
-		{% if form.non_field_errors %}
-		    <div class="clearfix">
-			{{ form.non_field_errors }}
-		    </div>
-		{% endif %}
-		
-		{{ form.as_div }}
+			<h3>{% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}: {{ form.instance.question.text }}</h3>
+			{% for hidden in form.hidden_fields %}
+			    {{ hidden }}
+			{% endfor %}
+			{% if form.non_field_errors %}
+			    <div class="clearfix">{{ form.non_field_errors }}</div>
+			{% endif %}
+			
+			{{ form.as_div }}
 	    {% endfor %}
 	    <div class="actions">
 		<input type="submit" value="{% trans "Save" %}" class="btn primary"/>
