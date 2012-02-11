@@ -1,12 +1,10 @@
 import datetime
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 from evap.evaluation.models import Course
 from evap.fsr.models import EmailTemplate
-
-# days before end date to send reminder
-REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
 
 class Command(BaseCommand):
     args = '<kind of jobs>'
@@ -30,7 +28,7 @@ class Command(BaseCommand):
                 pass
     
     def check_reminders(self):
-        check_date = datetime.date.today() + datetime.timedelta(days=REMIND_X_DAYS_AHEAD_OF_END_DATE)
+        check_date = datetime.date.today() + datetime.timedelta(days=settings.REMIND_X_DAYS_AHEAD_OF_END_DATE)
         found_courses = []
         
         for course in Course.objects.all():
