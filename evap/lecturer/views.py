@@ -21,10 +21,10 @@ def index(request):
     if semester:
         sorter = lambda course: STATES_ORDERED.keys().index(course.state)
         
-        own_courses = list(semester.course_set.filter(assignments__lecturer=user, state__in=('new', 'prepared', 'lecturerApproved')))
+        own_courses = list(semester.course_set.filter(assignments__lecturer=user))
         own_courses.sort(key=sorter)
 
-        proxied_courses = list(semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=('new', 'prepared', 'lecturerApproved')))
+        proxied_courses = list(semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all()))
         proxied_courses.sort(key=sorter)
     else:
         own_courses = None
@@ -45,6 +45,25 @@ def profile_edit(request):
         return redirect('evap.lecturer.views.index')
     else:
         return render_to_response("lecturer_profile.html", dict(form=form), context_instance=RequestContext(request))
+
+@lecturer_or_proxy_required
+def course_view(request, course_id):
+    user = request.user
+    course = get_object_or_404(Course, id=course_id)
+        
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course', 'read_only'))
+    
+    form = CourseForm(request.POST or None, instance=course)
+    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(read_only=True).exclude(lecturer=None))
+    
+    # make everything read-only
+    for cform in formset.forms + [form]:
+        for name, field in cform.fields.iteritems():
+            field.widget.attrs['readonly'] = True
+            field.widget.attrs['disabled'] = True
+    
+    read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
+    return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course, edit=False), context_instance=RequestContext(request))
 
 
 @lecturer_or_proxy_required
@@ -81,17 +100,13 @@ def course_edit(request, course_id):
         return redirect('evap.lecturer.views.index')
     else:
         read_only_assignments = course.assignments.exclude(lecturer=None).filter(read_only=True)
-        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course), context_instance=RequestContext(request))
+        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course, edit=True), context_instance=RequestContext(request))
 
 
 @lecturer_or_proxy_required
 def course_preview(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
-
-    # check rights
-    if not (course.is_user_lecturer(user) and course.state=="prepared"):
-        raise PermissionDenied
 
     # build forms
     forms = SortedDict()
