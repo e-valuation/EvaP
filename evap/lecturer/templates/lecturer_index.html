@@ -12,6 +12,7 @@
             <thead>
             <tr>
                 <th class="maximize">{% trans "Name" %}</th>
+				<th class="maximize">{% trans "State" %}</th>
                 <th class="minimize">{% trans "Evaluation Period" %}</th>
                 <th class="minimize">{% trans "Participants" %}</th>
                 <th class="minimize">{% trans "Actions" %}</th>
@@ -26,6 +27,9 @@
                         </div>
                         <span class="label notice">{{ course.state|statename }}</span>
                     </td>
+					<td class="minimize">
+						{{ course.state|statename }}
+					</td>
                     <td class="minimize">
                         {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
                     </td>
@@ -33,12 +37,10 @@
                     <td class="minimize">
                         {% if course.state == 'prepared' %}
                             <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
-                            <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
                         {% else %}
-                            <a class="btn small disabled">{% trans "Edit" %}</a>
-                            <a class="btn small disabled">{% trans "Preview" %}</a>
+                            <a href="{% url evap.lecturer.views.course_view course.id %}" class="btn small">{% trans "View" %}</a>
                         {% endif %}
-                        
+                        <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -54,6 +56,7 @@
             <thead>
             <tr>
                 <th class="maximize">{% trans "Name" %}</th>
+				<th class="maximize">{% trans "State" %}</th>
                 <th class="minimize">{% trans "Evaluation Period" %}</th>
                 <th class="minimize">{% trans "Participants" %}</th>
                 <th class="minimize">{% trans "Actions" %}</th>
@@ -68,6 +71,9 @@
                         </div>
                         <span class="label notice">{{ course.state|statename }}</span>
                     </td>
+					<td class="minimize">
+						{{ course.state|statename }}
+					</td>
                     <td class="minimize">
                         {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
                     </td>
@@ -75,12 +81,10 @@
                     <td class="minimize">
                         {% if course.state == 'prepared' %}
                             <a href="{% url evap.lecturer.views.course_edit course.id %}" class="btn small">{% trans "Edit" %}</a>
-                            <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
                         {% else %}
-                            <a class="btn small disabled">{% trans "Edit" %}</a>
-                            <a class="btn small disabled">{% trans "Preview" %}</a>
+                            <a href="{% url evap.lecturer.views.course_view course.id %}" class="btn small">{% trans "View" %}</a>
                         {% endif %}
-                        
+                        <a href="{% url evap.lecturer.views.course_preview course.id %}" class="btn small">{% trans "Preview" %}</a>
                     </td>
                 </tr>
             {% endfor %}
