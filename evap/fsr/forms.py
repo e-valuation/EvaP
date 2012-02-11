@@ -285,12 +285,14 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
     
 class UserForm(forms.ModelForm, BootstrapMixin):
+    proxied_users = forms.IntegerField()
+    
     # steal form field definitions for the User model
     locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff')))
     
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies', 'is_staff', 'is_lecturer')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies', 'proxied_users', 'is_staff', 'is_lecturer')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -299,6 +301,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['proxies'].required = False
         self.fields['proxies'].queryset = User.objects.order_by("username")
         self.fields['is_staff'].label = label=_(u"FSR Member")
+        self.fields['proxied_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(), initial=self.instance.user.proxied_users.all(), label=_("Proxied Users"))
         
         # load user fields
         self.fields['username'].initial = self.instance.user.username
@@ -326,6 +329,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.last_name = self.cleaned_data.get('last_name')
         self.instance.user.email = self.cleaned_data.get('email')
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
+        self.instance.user.proxied_users = self.cleaned_data.get('proxied_users')
         self.instance.user.save()
         self.instance = self.instance.user.get_profile()
         
