@@ -128,6 +128,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
     edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
+    hidden = forms.BooleanField(label=_("Hidden"), required=False)
     
     class Meta:
         fields = ('edited_answer', 'needs_further_review')
@@ -141,14 +142,15 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
         cleaned_data = self.cleaned_data
         edited_answer = cleaned_data.get("edited_answer") or ""
         needs_further_review = cleaned_data.get("needs_further_review")
+        hidden = cleaned_data.get("hidden")
         
-        if normalize_newlines(self.instance.original_answer) == normalize_newlines(edited_answer):
-            # simply approved
-            self.instance.checked = True
-        elif not edited_answer.strip():
+        if not edited_answer.strip() or hidden:
             # hidden
             self.instance.checked = True
-            self.instance.hidden = True
+            self.instance.hidden = True        
+        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(edited_answer):
+            # simply approved
+            self.instance.checked = True
         else:
             # reviewed
             self.instance.checked = True
