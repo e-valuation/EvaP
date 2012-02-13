@@ -142,7 +142,7 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
         edited_answer = cleaned_data.get("edited_answer") or ""
         needs_further_review = cleaned_data.get("needs_further_review")
         
-        if self.instance.original_answer == normalize_newlines(edited_answer):
+        if normalize_newlines(self.instance.original_answer) == normalize_newlines(edited_answer):
             # simply approved
             self.instance.checked = True
         elif not edited_answer.strip():
