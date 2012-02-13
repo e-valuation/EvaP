@@ -126,7 +126,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
-    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"))
+    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
     
     class Meta:
