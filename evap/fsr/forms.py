@@ -147,6 +147,7 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
             self.instance.checked = True
         elif not edited_answer.strip():
             # hidden
+            self.instance.checked = True
             self.instance.hidden = True
         else:
             # reviewed
