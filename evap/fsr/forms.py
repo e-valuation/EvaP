@@ -139,7 +139,7 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
     
     def clean(self):
         cleaned_data = self.cleaned_data
-        edited_answer = cleaned_data.get("edited_answer")
+        edited_answer = cleaned_data.get("edited_answer") or ""
         needs_further_review = cleaned_data.get("needs_further_review")
         
         if self.instance.original_answer == normalize_newlines(edited_answer):
