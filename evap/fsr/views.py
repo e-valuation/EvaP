@@ -306,7 +306,7 @@ def course_review(request, semester_id, course_id, offset=None):
         count = 0
         for form in formset:
             form.instance.save()
-            if form.checked:
+            if form.instance.checked:
                 count = count + 1
         
         if course.state=="evaluated" and course.is_fully_checked():
