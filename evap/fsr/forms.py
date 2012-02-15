@@ -126,8 +126,9 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
-    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"))
+    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
+    hidden = forms.BooleanField(label=_("Hidden"), required=False)
     
     class Meta:
         fields = ('edited_answer', 'needs_further_review')
@@ -139,15 +140,17 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
     
     def clean(self):
         cleaned_data = self.cleaned_data
-        edited_answer = cleaned_data.get("edited_answer")
+        edited_answer = cleaned_data.get("edited_answer") or ""
         needs_further_review = cleaned_data.get("needs_further_review")
+        hidden = cleaned_data.get("hidden")
         
-        if self.instance.original_answer == normalize_newlines(edited_answer):
+        if not edited_answer.strip() or hidden:
+            # hidden
+            self.instance.checked = True
+            self.instance.hidden = True        
+        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(edited_answer):
             # simply approved
             self.instance.checked = True
-        elif not edited_answer.strip():
-            # hidden
-            self.instance.hidden = True
         else:
             # reviewed
             self.instance.checked = True
@@ -301,7 +304,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['proxies'].required = False
         self.fields['proxies'].queryset = User.objects.order_by("username")
         self.fields['is_staff'].label = label=_(u"FSR Member")
-        self.fields['proxied_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(), initial=self.instance.user.proxied_users.all(), label=_("Proxied Users"))
+        self.fields['proxied_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(), initial=self.instance.user.proxied_users.all(), label=_("Proxied Users"), required=False)
         
         # load user fields
         self.fields['username'].initial = self.instance.user.username
