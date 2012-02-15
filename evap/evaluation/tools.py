@@ -159,12 +159,13 @@ def calculate_average_grade(course):
 
 def questionnaires_and_assignments(course):
     """Yields tuples of (questionnaire, assignment) for the given course."""
-    
     result = []
-    
     
     for assignment in course.assignments.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_persons", "questionnaires__index__min"):
         for questionnaire in assignment.questionnaires.all():
             result.append((questionnaire, assignment))
+    
+    # sort questionnaires without lecturers first
     result.sort(key=lambda t: t[1].lecturer is not None)
+    
     return result

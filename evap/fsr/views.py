@@ -282,16 +282,22 @@ def course_review(request, semester_id, course_id, offset=None):
     
     reviewFS = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
     
-    # get offset for current course
-    key_name = "course_%d_offset" % course.id
-    offset = cache.get(key_name) or 0
+    # compute base queryset
+    base_queryset = course.textanswer_set.filter(checked=False)    
     
-    # compute querysets
-    base_queryset = course.textanswer_set.filter(checked=False)
-    form_queryset = base_queryset.order_by('id')[offset:offset + TextAnswer.elements_per_page]
+    # figure out offset
+    if offset is None:
+        # get offset for current course
+        key_name = "course_%d_offset" % course.id
+        offset = cache.get(key_name) or 0
+        
+        # store offset for next page view
+        cache.set(key_name, (offset + TextAnswer.elements_per_page) % base_queryset.count())
+    else:
+        offset = int(offset)
     
-    # store offset for next page view
-    cache.set(key_name, (offset + TextAnswer.elements_per_page) % base_queryset.count())
+    # compute form queryset
+    form_queryset = base_queryset.order_by('id')[offset:offset + TextAnswer.elements_per_page]    
     
     # create formset from sliced queryset
     formset = reviewFS(request.POST or None, queryset=form_queryset)
@@ -300,7 +306,7 @@ def course_review(request, semester_id, course_id, offset=None):
         count = 0
         for form in formset:
             form.instance.save()
-            if form.checked:
+            if form.instance.checked:
                 count = count + 1
         
         if course.state=="evaluated" and course.is_fully_checked():

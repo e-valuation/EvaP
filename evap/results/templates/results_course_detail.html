@@ -1,6 +1,5 @@
 {% extends "results_base.html" %}
 
-{% load conditions %}
 {% load morefilters %}
 {% load i18n %}
 {% load static %}
@@ -59,7 +58,6 @@
                     </td>
                 {% endifequal %}
                 {% ifequal result.question.kind "T" %}
-                    {% if_lecturer course %}
                     <td>{{ result.question.text }}</td>
                     <td colspan="3">
                         <ul>
@@ -68,7 +66,6 @@
                         {% endfor %}
                         </ul>
                     </td>
-                    {% endif_lecturer %}
                 {% endifequal %}
                 </tr>
             {% endfor %}
