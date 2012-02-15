@@ -44,14 +44,7 @@ class Semester(models.Model):
             if not course.can_fsr_delete:
                 return False
         return True
-    
-    @classmethod
-    def get_latest_or_none(cls):
-        try:
-            return cls.objects.all()[0]
-        except IndexError:
-            return None
-    
+        
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()

@@ -17,18 +17,13 @@ from evap.student.forms import QuestionsForm
 def index(request):
     user = request.user
     
-    semester = Semester.get_latest_or_none()
-    if semester:
-        sorter = lambda course: STATES_ORDERED.keys().index(course.state)
-        
-        own_courses = list(semester.course_set.filter(assignments__lecturer=user))
-        own_courses.sort(key=sorter)
+    sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+    
+    own_courses = list(Course.objects.filter(assignments__lecturer=user, state__in=['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
+    own_courses.sort(key=sorter)
 
-        proxied_courses = list(semester.course_set.filter(assignments__lecturer__in=user.proxied_users.all()))
-        proxied_courses.sort(key=sorter)
-    else:
-        own_courses = None
-        proxied_courses = None
+    proxied_courses = list(Course.objects.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
+    proxied_courses.sort(key=sorter)
     
     return render_to_response("lecturer_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
 
