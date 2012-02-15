@@ -30,8 +30,7 @@ def index(request):
     return render_to_response(
         "student_index.html",
         dict(current_courses=current_courses,
-             future_courses=future_courses,
-             semester=Semester.get_latest_or_none()),
+             future_courses=future_courses),
         context_instance=RequestContext(request))
 
 
