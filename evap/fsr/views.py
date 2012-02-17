@@ -220,7 +220,7 @@ def course_create(request, semester_id):
     formset = AssignmentFormset(request.POST or None, instance=course)
     
     if form.is_valid() and formset.is_valid():
-        form.save()
+        form.save(user=request.user)
         formset.save()
 
         messages.add_message(request, messages.INFO, _("Successfully created course."))
@@ -244,7 +244,7 @@ def course_edit(request, semester_id, course_id):
     formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(lecturer=None))
 
     if form.is_valid() and formset.is_valid():
-        form.save()
+        form.save(user=request.user)
         formset.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated course."))

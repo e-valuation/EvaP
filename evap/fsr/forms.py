@@ -39,12 +39,15 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
+    last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False)
+    last_modified_user_2 = forms.CharField(label=_(u"Last modified by"), required=False)
     
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'kind', 'study',
                   'vote_start_date', 'vote_end_date', 'participants',
-                  'general_questions')
+                  'general_questions',
+                  'last_modified_time_2', 'last_modified_user_2')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
@@ -58,13 +61,21 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
         
+        self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
+        self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
+        if self.instance.last_modified_user:
+            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.get_profile().full_name
+        self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
+
         if self.instance.state == "inEvaluation":
             self.fields['vote_start_date'].widget.attrs['readonly'] = True
             self.fields['vote_end_date'].widget.attrs['readonly'] = True
     
     def save(self, *args, **kw):
+        user = kw.pop("user")
         super(CourseForm, self).save(*args, **kw)
         self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.last_modified_user = user
         self.instance.save()
 
 
