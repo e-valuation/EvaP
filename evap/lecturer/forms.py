@@ -28,8 +28,10 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         return self.instance.study
 
     def save(self, *args, **kw):
+        user = kw.pop("user")
         super(CourseForm, self).save(*args, **kw)
         self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.last_modified_user = user
         self.instance.save()
 
 

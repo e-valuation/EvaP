@@ -120,6 +120,10 @@ class Course(models.Model):
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
     
+    # who last modified this course, shell be noted
+    last_modified_time = models.DateTimeField(auto_now=True)
+    last_modified_user = models.ForeignKey(User, related_name="+", null=True, blank=True)
+
     class Meta:
         ordering = ('semester', 'study', 'name_de')
         unique_together = (

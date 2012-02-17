@@ -81,7 +81,7 @@ def course_edit(request, course_id):
         if operation not in ('save', 'approve'):
             raise PermissionDenied
         
-        form.save()
+        form.save(user=request.user)
         formset.save()
         
         if operation == 'approve':
