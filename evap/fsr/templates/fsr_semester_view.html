@@ -51,8 +51,14 @@
                         <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
                         {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
                             {% if course.num_participants %}
-                                <td class="dontbreak right">{{ course.num_voters }}/{{ course.num_participants }}</td>
-                                <td class="dontbreak">({{ course.num_voters|percentage:course.num_participants }})</td>
+                                <td class="dontbreak right">
+                                    <span title="asd">{{ course.num_voters }}/{{ course.num_participants }}</span>
+                                    <span title="asd2">{{ course.checked_textanswer_set|length }}/{{ course.textanswer_set|length }}</span>
+                                </td>
+                                <td class="dontbreak">
+                                    <span>({{ course.num_voters|percentage:course.num_participants|default:'&mdash;' }})</span>
+                                    <span>({{ course.checked_textanswer_set.count|percentage:course.textanswer_set.count|default:'&mdash;' }})</span>
+                                </td>
                             {% else %}
                                 <td class="center" colspan="2">&mdash;</td>
                             {% endif %}
