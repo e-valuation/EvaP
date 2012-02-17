@@ -25,7 +25,8 @@
 			{{ form.as_div }}
 	    {% endfor %}
 	    <div class="actions">
-		<input type="submit" value="{% trans "Save" %}" class="btn primary"/>
+		<button name="operation" value="save" type="submit" class="btn primary">{% trans "Save"%}</button>
+		<button name="operation" value="save_and_next" type="submit" class="btn success">{% trans "Save and show next"%}</button>
 	    </div>
 	</fieldset>
     </form>
