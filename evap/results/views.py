@@ -67,9 +67,10 @@ def course_detail(request, semester_id, course_id):
         
     # remove all TextResults of other users
     for section in sections:
-        if section.lecturer != request.user:                
+        if section.lecturer != request.user:
             for index, result in list(enumerate(section.results))[::-1]:
-                del section.results[index]
+                if isinstance(section.results[index], TextResult):
+                    del section.results[index]
         
     # remove empty sections
     sections = [section for section in sections if section.results]
