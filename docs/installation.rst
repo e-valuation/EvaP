@@ -70,6 +70,10 @@ We recommend the following Apache configuration:
         </Location>
 
         Alias /static /opt/evap/evap/staticfiles
+        <Location /static>
+            ExpiresActive On
+            ExpiresDefault "access plus 1 month"
+        </Location>
         Alias /media /opt/evap/evap/upload
 
 Cron Configuration
