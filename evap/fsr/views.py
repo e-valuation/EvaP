@@ -310,12 +310,18 @@ def course_review(request, semester_id, course_id, offset=None):
                 count = count + 1
         
         if course.state=="evaluated" and course.is_fully_checked():
+            messages.add_message(request, messages.INFO, _("Successfully reviewed %(number)d course answers for %(name)s. %(name)s is now fully reviewed.") % {'number': count, 'name': course.name} )
             course.review_finished()
             course.save()
-        
-        messages.add_message(request, messages.INFO, _("Successfully reviewed %(number)d course answers for %(name)s.") % {'number': count, 'name': course.name} )
-
-        return redirect('evap.fsr.views.semester_view', semester_id)
+            return redirect('evap.fsr.views.semester_view', semester_id)
+        else:
+            messages.add_message(request, messages.INFO, _("Successfully reviewed %(number)d course answers for %(name)s.") % {'number': count, 'name': course.name} )
+            operation = request.POST.get('operation')
+            
+            if operation == 'save_and_next' and not course.is_fully_checked():
+                return redirect('evap.fsr.views.course_review', semester_id, course_id)
+            else:
+                return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer), context_instance=RequestContext(request))
 
