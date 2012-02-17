@@ -227,6 +227,13 @@ class Course(models.Model):
         else:
             return self.voter_count or 0
 
+    @property
+    def first_lecturer(self):
+        for assignment in self.assignments.exclude(lecturer=None):
+            if assignment.lecturer.get_profile().is_lecturer:
+                return assignment.lecturer
+        return None
+
     
     def has_enough_questionnaires(self):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
@@ -241,7 +248,7 @@ class Course(models.Model):
     
     def warnings(self):
         result = []
-        if not self.assignments.exists():
+        if not self.assignments.exclude(lecturer=None).exists():
             result.append(_(u"No lecturers assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))

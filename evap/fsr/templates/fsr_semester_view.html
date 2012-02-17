@@ -39,6 +39,9 @@
                                 {{ course.name }}
                             {% endif %}
                             </div>
+                            <div style="font-style: italic">
+                                {{ course.first_lecturer }}
+                            </div>
                             <span class="label">{{ course.study }}</span>
                             <span class="label">{{ course.kind }}</span>
                             {% for warning in course.warnings %}
