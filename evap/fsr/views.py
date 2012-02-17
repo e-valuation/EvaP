@@ -283,7 +283,7 @@ def course_review(request, semester_id, course_id, offset=None):
     reviewFS = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
     
     # compute base queryset
-    base_queryset = course.textanswer_set.filter(checked=False)    
+    base_queryset = course.textanswer_set.filter(checked=False).values_list('id', flat=True).order_by('id')
     
     # figure out offset
     if offset is None:
@@ -297,8 +297,9 @@ def course_review(request, semester_id, course_id, offset=None):
         offset = int(offset)
     
     # compute form queryset
-    form_queryset = base_queryset.order_by('id')[offset:offset + TextAnswer.elements_per_page]    
-    
+    length = min(TextAnswer.elements_per_page, len(base_queryset))
+    form_queryset = course.textanswer_set.filter(pk__in=[base_queryset[(offset + i) % len(base_queryset)] for i in range(0, length)])
+        
     # create formset from sliced queryset
     formset = reviewFS(request.POST or None, queryset=form_queryset)
     
