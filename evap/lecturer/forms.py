@@ -33,6 +33,15 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
+    
+    def validate_unique(self):
+        exclude = self._get_validation_exclusions()
+        exclude.remove('semester') # allow checking against the missing attribute
+        
+        try:
+            self.instance.validate_unique(exclude=exclude)
+        except forms.ValidationError, e:
+            self._update_errors(e.message_dict)
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
