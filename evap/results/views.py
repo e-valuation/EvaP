@@ -64,18 +64,15 @@ def course_detail(request, semester_id, course_id):
     course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
     
     sections = calculate_results(course)
-    
-    if not course.is_user_lecturer(request.user):
-        # user is not a lecturer, strip all text answers and resulting empty groups
         
-        # remove all TextResults
-        for section in sections:
+    # remove all TextResults of other users
+    for section in sections:
+        if section.lecturer != request.user:                
             for index, result in list(enumerate(section.results))[::-1]:
-                if isinstance(result, TextResult):
-                    del section.results[index]
+                del section.results[index]
         
-        # remove empty sections
-        sections = [section for section in sections if section.results]
+    # remove empty sections
+    sections = [section for section in sections if section.results]
     
     return render_to_response(
         "results_course_detail.html",
