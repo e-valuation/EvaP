@@ -267,6 +267,11 @@ class Course(models.Model):
         return TextAnswer.objects.filter(assignment__in=self.assignments.all()).filter(checked=False)
     
     @property
+    def checked_textanswer_set(self):
+        """Pseudo relationship to all text answers for this course"""
+        return TextAnswer.objects.filter(assignment__in=self.assignments.all()).filter(checked=True)
+    
+    @property
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(assignment__in=self.assignments.all())

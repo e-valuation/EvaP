@@ -12,7 +12,9 @@ def percentage(fraction, population):
     try:
         return "%.0f%%" % ((float(fraction) / float(population)) * 100)
     except ValueError:
-        return ''
+        return None
+    except ZeroDivisionError:
+        return None
 
 
 @register.filter(name='gradename')
