@@ -71,7 +71,8 @@
         "model":"evaluation.questionnaire",
         "fields":{
           "name_de":"Seminar",
-          "name_en":"Seminar"
+          "name_en":"Seminar",
+          "index": 0
         }
     },
     {
