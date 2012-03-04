@@ -52,8 +52,8 @@
                         {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
                             {% if course.num_participants %}
                                 <td class="dontbreak right">
-                                    <span title="asd">{{ course.num_voters }}/{{ course.num_participants }}</span>
-                                    <span title="asd2">{{ course.checked_textanswer_set|length }}/{{ course.textanswer_set|length }}</span>
+                                    <span title="{% trans "Participants" %}">{{ course.num_voters }}/{{ course.num_participants }}</span>
+                                    <span title="{% trans "Text Answers" %}">{{ course.checked_textanswer_set|length }}/{{ course.textanswer_set|length }}</span>
                                 </td>
                                 <td class="dontbreak">
                                     <span>({{ course.num_voters|percentage:course.num_participants|default:'&mdash;' }})</span>
