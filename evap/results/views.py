@@ -64,16 +64,16 @@ def course_detail(request, semester_id, course_id):
     course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
     
     sections = calculate_results(course)
-        
+    
+    if (request.user.is_staff != True):        
     # remove all TextResults of other users
-    for section in sections:
-        if not ((section.lecturer == request.user and course.is_user_lecturer(request.user)) or (section.lecturer == request.user)):
-            for index, result in list(enumerate(section.results))[::-1]:
-                if isinstance(section.results[index], TextResult):
-                    del section.results[index]
-        
+        for section in sections:
+            if not ((section.lecturer == None and course.is_user_lecturer(request.user)) or (section.lecturer == request.user)):
+                for index, result in list(enumerate(section.results))[::-1]:
+                    if isinstance(section.results[index], TextResult):
+                        del section.results[index]        
     # remove empty sections
-    sections = [section for section in sections if section.results]
+        sections = [section for section in sections if section.results]    
     
     return render_to_response(
         "results_course_detail.html",
