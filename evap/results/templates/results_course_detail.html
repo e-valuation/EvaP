@@ -59,7 +59,7 @@
                 {% endifequal %}
                 {% ifequal result.question.kind "T" %}
                     <td>{{ result.question.text }}</td>
-                    <td colspan="3">
+                    <td colspan="4">
                         <ul>
                         {% for text in result.texts %}
                             <li>{{ text|linebreaks }}</li>
