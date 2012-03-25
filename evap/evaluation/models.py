@@ -250,6 +250,14 @@ class Course(models.Model):
         
         return False
     
+    def is_user_lecturer_or_ta(self, user):
+        if self.assignments.filter(lecturer=user).exists():
+            return True
+        elif self.assignments.filter(lecturer__in=user.proxied_users.all()).exists():
+            return True
+        
+        return False
+    
     def warnings(self):
         result = []
         if not self.assignments.exclude(lecturer=None).exists():
