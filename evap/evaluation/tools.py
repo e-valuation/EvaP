@@ -108,7 +108,8 @@ def calculate_results(course):
                 answers = TextAnswer.objects.filter(
                     assignment__course=course,
                     assignment__lecturer=assignment.lecturer,
-                    question=question
+                    question=question,
+                    hidden=False
                     )
                 # only add to the results if answers exist at all
                 if answers:
