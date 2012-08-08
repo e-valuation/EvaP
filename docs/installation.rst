@@ -43,6 +43,14 @@ following settings:
 - Modify the ``LOGGING`` configuration so that it suits your needs.
 - Finally, set ``DEBUG`` to ``False``.
 
+Database Initialization
+-----------------------
+
+To initialize the database during the installation you have to perform the 
+following command in ``/opt/evap/evap`` directory:
+
+- ``python manage.py syncdb`` to initialize the database.
+
 File Refresh
 ------------
 
