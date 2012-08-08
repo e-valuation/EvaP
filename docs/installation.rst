@@ -7,7 +7,9 @@ Dependencies
 EvaP is written in Python using the Django framework and you need at least
 Python 2.6 to run it. Apart from Python and Django there are some other
 dependencies that are listed in the file ``requirements.txt``. The file is 
-in a format that pip can use to automatically install all the requirements.
+in a format that `pip <http://www.pip-installer.org/en/latest/installing.html>`_
+can use to automatically install all the requirements. This can be performed on
+the command line with ``pip install -r requirements.txt``.
 
 Filesystem Structure
 --------------------
