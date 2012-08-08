@@ -1,0 +1,38 @@
+[
+  {
+    "pk": 1, 
+    "model": "fsr.EmailTemplate", 
+    "fields": {
+      "name": "Lecturer Review Notice", 
+      "subject": "[EvaP] New Course ready for approval",
+	  "body": ""
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "fsr.EmailTemplate", 
+    "fields": {
+      "name": "Student Reminder", 
+      "subject": "[EvaP] Only 2 weeks left to evaluate",
+	  "body": ""
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "fsr.EmailTemplate", 
+    "fields": {
+      "name": "Publishing Notice", 
+      "subject": "[EvaP] A course has been published",
+	  "body": ""
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "fsr.EmailTemplate", 
+    "fields": {
+      "name": "Logon Key Created", 
+      "subject": "[EvaP] A logon key was created",
+	  "body": ""
+    }
+  }
+]

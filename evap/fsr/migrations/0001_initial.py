@@ -21,8 +21,6 @@ class Migration(SchemaMigration):
             ('body', self.gf('django.db.models.fields.TextField')()),
         ))
         db.send_create_signal('fsr', ['EmailTemplate'])
-        
-        EmailTemplate.create_initial_instances()
 
     def backwards(self, orm):
         
