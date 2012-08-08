@@ -9,7 +9,7 @@
     }
   }, 
   {
-    "pk": 1, 
+    "pk": 2, 
     "model": "fsr.EmailTemplate", 
     "fields": {
       "name": "Student Reminder", 
@@ -18,7 +18,7 @@
     }
   }, 
   {
-    "pk": 1, 
+    "pk": 3, 
     "model": "fsr.EmailTemplate", 
     "fields": {
       "name": "Publishing Notice", 
@@ -27,7 +27,7 @@
     }
   }, 
   {
-    "pk": 1, 
+    "pk": 4, 
     "model": "fsr.EmailTemplate", 
     "fields": {
       "name": "Logon Key Created", 
