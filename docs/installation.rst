@@ -11,6 +11,11 @@ in a format that `pip <http://www.pip-installer.org/en/latest/installing.html>`_
 can use to automatically install all the requirements. This can be performed on
 the command line with ``pip install -r requirements.txt``.
 
+*For Windows users:* Some dependencies have native code, such as lxml and PIL 
+(Python Imaging Library). As compiling these with your installed compiler 
+usually fails, you need to install the precompiled packages from
+`here <http://www.lfd.uci.edu/~gohlke/pythonlibs/>`_.
+
 Filesystem Structure
 --------------------
 
@@ -37,6 +42,14 @@ following settings:
 - You might want to change the ``SECRET_KEY``.
 - Modify the ``LOGGING`` configuration so that it suits your needs.
 - Finally, set ``DEBUG`` to ``False``.
+
+Database Initialization
+-----------------------
+
+To initialize the database during the installation you have to perform the 
+following command in ``/opt/evap/evap`` directory:
+
+- ``python manage.py syncdb`` to initialize the database.
 
 File Refresh
 ------------
