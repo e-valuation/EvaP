@@ -22,24 +22,6 @@ class EmailTemplate(models.Model):
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
     
     @classmethod
-    def create_initial_instances(cls):
-        initial_templates = (
-            ("Lecturer Review Notice", dict(subject="[EvaP] New Course ready for approval", body="")),
-            ("Student Reminder", dict(subject="[EvaP] Only 2 weeks left to evaluate", body="")),
-            ("Publishing Notice", dict(subject="[EvaP] A course has been published", body="")),
-            ("Logon Key Created", dict(subject="[EvaP] A logon key was created", body="")),
-        )
-        
-        # create new templates if necessary
-        relevant_pks = []
-        for name, defaults in initial_templates:
-            template, created = cls.objects.get_or_create(name=name, defaults=defaults)
-            relevant_pks.append(template.pk)
-        
-        # remove obsolete templates
-        cls.objects.exclude(pk__in=relevant_pks).delete()
-    
-    @classmethod
     def get_review_template(cls):
         return cls.objects.get(name="Lecturer Review Notice")
     
