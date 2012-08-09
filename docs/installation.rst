@@ -14,7 +14,11 @@ the command line with ``pip install -r requirements.txt``.
 *For Windows users:* Some dependencies have native code, such as lxml and PIL 
 (Python Imaging Library). As compiling these with your installed compiler 
 usually fails, you need to install the precompiled packages from
-`here <http://www.lfd.uci.edu/~gohlke/pythonlibs/>`_.
+`lfd.uci.edu <http://www.lfd.uci.edu/~gohlke/pythonlibs/>`_.
+
+*For Windows users:* For the translation of texts gettext is used.
+This can be downloaded as a precompiled package from
+`the GnuWin project <http://sourceforge.net/projects/gnuwin32/files/gettext/>`_.
 
 Filesystem Structure
 --------------------
@@ -66,8 +70,24 @@ directory after you have upgraded the files:
 
 Finally, restart the Apache web server.
 
-Apache 2 Configuration
-----------------------
+Development Environment: Setup and Server Running
+-------------------------------------------------
+
+The manual creation of a superuser is just recommended for development environments.
+In productive environments a Kerberos authentification system or similar should
+be used.
+
+To create a superuser perform in the ``/opt/evap/evap`` directory the command
+``python manage.py createsuperuser``.
+
+A login in a development environment can be simulated by setting the variable 
+``REMOTE_USER`` to your previously created user.
+
+The server for this environment can be started from within the ``/opt/evap/evap``
+directory with ``python manage.py runserver``.
+
+Productive Environment: Apache 2 Configuration
+----------------------------------------------
 
 We recommend the following Apache configuration:
 
@@ -92,8 +112,8 @@ We recommend the following Apache configuration:
         </Location>
         Alias /media /opt/evap/evap/upload
 
-Cron Configuration
-----------------------
+Productive Environment: Cron Configuration
+------------------------------------------
 
 EvaP has components which need to react to timed events.
 This behavior is implemented by running two cronjobs, which in turn trigger
