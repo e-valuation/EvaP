@@ -33,7 +33,7 @@ CACHES = {
 
 # config for feedback links
 FEEDBACK_EMAIL = "webmaster@localhost"
-TRACKER_URL = "https://bitbucket.org/michaelgruenewald/evap/issues"
+TRACKER_URL = "https://github.com/fsr-itse/EvaP"
 
 # config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
