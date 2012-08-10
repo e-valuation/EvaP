@@ -24,8 +24,11 @@ Filesystem Structure
 --------------------
 
 We recommend that you install the application into the directory ``/opt/evap``
-according to the filesystem hierarchy standard. Clone the repository or copy the
-files into that directory. The installation should be correct if the settings
+according to the filesystem hierarchy standard. In the remaining steps, we will 
+assume that this is your installation directory.
+
+Clone the repository or copy the files into that directory. 
+The installation should be correct if the settings
 file has the path ``/opt/evap/evap/settings.py``. Make sure that all files and
 directories are readable by the Apache web server. Additionally please make sure
 that the directory ``/opt/evap/evap/upload`` is writable by the web server.
@@ -95,9 +98,9 @@ We recommend the following Apache configuration:
 
         WSGIScriptAlias / /opt/evap/handler.wsgi
         <Location /login>
-                AuthName "HPI Domain Login"
+                AuthName "Kerberos Domain Login"
                 AuthType Kerberos
-                KrbAuthRealms HPI.UNI-POTSDAM.DE
+                KrbAuthRealms DOMAIN.EXAMPLE.COM
                 KrbMethodNegotiate On
                 KrbMethodK5Passwd On
                 KrbVerifyKDC off
