@@ -98,9 +98,9 @@ We recommend the following Apache configuration:
 
         WSGIScriptAlias / /opt/evap/handler.wsgi
         <Location /login>
-                AuthName "HPI Domain Login"
+                AuthName "Kerberos Domain Login"
                 AuthType Kerberos
-                KrbAuthRealms HPI.UNI-POTSDAM.DE
+                KrbAuthRealms DOMAIN.EXAMPLE.COM
                 KrbMethodNegotiate On
                 KrbMethodK5Passwd On
                 KrbVerifyKDC off
