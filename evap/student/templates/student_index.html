@@ -29,7 +29,7 @@
         {% trans "You will be able to vote on the following courses soon:" %}
         <ul>
             {% for course in future_courses %}
-                <li>{{ course.name }} ({% trans "starting" %} {{ course.vote_start_date|date:"DATE_FORMAT" }})</li>
+                <li>{{ course.name }} ({% trans "can be evaluated from" %} {{ course.vote_start_date|date:"DATE_FORMAT" }} {% trans "till" %} {{ course.vote_end_date|date:"DATE_FORMAT" }})</li>
             {% endfor %}
         </ul>
     {% endif %}
