@@ -298,7 +298,8 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
         
         for course in self.queryset:
             if self.filter_func(course):
-                self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
+                label = course.name + " (" + course.state + ")"
+                self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
     
     def clean(self):
         cleaned_data = self.cleaned_data
