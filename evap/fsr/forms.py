@@ -289,8 +289,9 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, queryset, filter_func, *args, **kwargs):
+    def __init__(self, study, queryset, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
+        self.study = study
         self.queryset = queryset
         self.selected_courses = []
         self.filter_func = filter_func or (lambda x: True)
@@ -306,7 +307,7 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
                 self.selected_courses.append(Course.objects.get(pk=id))
         return cleaned_data
 
-    
+
 class UserForm(forms.ModelForm, BootstrapMixin):
     proxied_users = forms.IntegerField()
     

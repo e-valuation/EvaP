@@ -6,18 +6,21 @@
     {{ block.super }}
     <form method="POST">
         {% csrf_token %}
-        {% if form.fields %}
+        {% if forms %}
             <div class="clearfix">
                 <label>{% trans "Courses" %}</label>
                 <div class="input">
                     <ul class="inputs-list">
-                        {% for field in form %}
-                            <li>
-                                <label>
-                                    {{ field }}
-                                    <span>{{ field.label }}</span>
-                                </label>
-                            </li>
+                        {% for form in forms %}
+                            <li>{{ form.study }}</li>
+                            {% for field in form %}
+                                <li>
+                                    <label>
+                                        {{ field }}
+                                        <span>{{ field.label }}</span>
+                                    </label>
+                                </li>
+                            {% endfor %}
                         {% endfor %}
                     </ul>
                 </div>
