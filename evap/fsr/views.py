@@ -97,21 +97,28 @@ def semester_delete(request, semester_id):
 @fsr_required
 def semester_publish(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state="reviewed").all(), None, request.POST or None)
+    courses = semester.course_set.filter(state="reviewed").all()
     
-    if form.is_valid():
-        for course in form.selected_courses:
-            course.publish()
-            course.save()
+    forms = helper_create_grouped_course_selection_forms(courses, None, request)
+    
+    valid = helper_are_course_selection_forms_valid(forms)
+    
+    if valid:
+        selected_courses = []
+        for form in forms:
+            for course in form.selected_courses:
+                course.publish()
+                course.save()
+                selected_courses.append(course)
         
         try:
-            EmailTemplate.get_publish_template().send_courses(form.selected_courses, True, True)
+            EmailTemplate.get_publish_template().send_courses(selected_courses, True, True)
         except:
             messages.add_message(request, messages.WARNING, _("Could not send emails to participants and lecturers"))
-        messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(form.selected_courses)))
+        messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_publish.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_publish.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -152,35 +159,47 @@ def semester_assign_questionnaires(request, semester_id):
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all(), lambda course: not course.warnings(), request.POST or None)
+    courses = semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all()
+
+    forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
     
-    if form.is_valid():
-        for course in form.selected_courses:
-            course.fsr_approve()
-            course.save()
-        
-        messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (len(form.selected_courses)))
+    valid = helper_are_course_selection_forms_valid(forms)
+    
+    if valid:
+        count = 0
+        for form in forms:
+            for course in form.selected_courses:
+                course.fsr_approve()
+                course.save()
+            count += len(form.selected_courses)
+        messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (count))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_approve.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_approve.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
 
 @fsr_required
 def semester_lecturer_ready(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = SelectCourseForm(semester.course_set.filter(state__in=['new', 'lecturerApproved']).all(), lambda course: not course.warnings(), request.POST or None)
+    courses = semester.course_set.filter(state__in=['new', 'lecturerApproved']).all()
     
-    if form.is_valid():
-        for course in form.selected_courses:
-            course.ready_for_lecturer(False)
-            course.save()
+    forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
+    
+    valid = helper_are_course_selection_forms_valid(forms)
+    
+    if valid:
+        selected_courses = []
+        for form in forms:
+            for course in form.selected_courses:
+                course.ready_for_lecturer(False)
+                course.save()
+                selected_courses.append(course)
         
-        print form.selected_courses
-        EmailTemplate.get_review_template().send_courses(form.selected_courses, True, False)
+        EmailTemplate.get_review_template().send_courses(selected_courses, True, False)
         
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_lecturer_ready.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_lecturer_ready.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -581,3 +600,27 @@ def template_edit(request, template_id):
         return redirect('evap.fsr.views.template_index')
     else:
         return render_to_response("fsr_template_form.html", dict(form=form, template=template), context_instance=RequestContext(request))
+
+
+def helper_create_grouped_course_selection_forms(courses, filter_func, request):
+    grouped_courses = {}
+    for course in courses:
+        study = course.study
+        if not grouped_courses.has_key(study):
+            grouped_courses[study] = []
+        grouped_courses[study].append(course)
+    
+    forms = []
+    for study, studyCourses in grouped_courses.items():
+        form = SelectCourseForm(study, studyCourses, filter_func, request.POST or None)
+        forms.append(form)
+    
+    return forms
+
+
+def helper_are_course_selection_forms_valid(forms):
+    valid = True
+    for form in forms:
+        if not form.is_valid():
+            valid = False
+    return valid
