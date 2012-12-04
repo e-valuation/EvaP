@@ -7,8 +7,8 @@ What is EvaP?
 EvaP (a successor to the infamous EvaJ) is a course evaluation system used 
 internally at Hasso Plattner Institute.
 
-For more documentation, look into the *docs* subdirectory or the generated 
-documentation.
+For the documentation, please look into the *docs* subdirectory or the generated 
+documentation at ReadTheDocs: https://evap.readthedocs.org.
 
 Contributors
 ------------
