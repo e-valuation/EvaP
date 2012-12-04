@@ -10,6 +10,13 @@ internally at Hasso Plattner Institute.
 For the documentation, please look into the *docs* subdirectory or the generated 
 documentation at ReadTheDocs: https://evap.readthedocs.org.
 
+Mailinglist
+-----------
+
+We have a mailinglist evap-dev@lists.myhpi.de
+
+You can add yourself to the list at http://lists.myhpi.de/HQowKfvd70oVOTPEWG2UhB0OO0rfo8Z
+
 Contributors
 ------------
 
@@ -19,13 +26,6 @@ Contributors
 - Stefanie Reinicke
 - Thomas Schulz
 - others
-
-Mailinglist
------------
-
-We have a mailinglist evap-dev@lists.myhpi.de
-
-You can add yourself to the list at http://lists.myhpi.de/HQowKfvd70oVOTPEWG2UhB0OO0rfo8Z
 
 License
 -------
