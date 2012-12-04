@@ -323,7 +323,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         # fix generated form
         self.fields['proxies'].required = False
         self.fields['proxies'].queryset = User.objects.order_by("username")
-        self.fields['is_staff'].label = label=_(u"FSR Member")
+        self.fields['is_staff'].label = _(u"FSR Member")
         self.fields['proxied_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
                                                                       initial=self.instance.user.proxied_users.all() if self.instance.pk else (),
                                                                       label=_("Proxied Users"),
