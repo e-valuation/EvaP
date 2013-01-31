@@ -892,8 +892,8 @@ msgid "Courses"
 msgstr "Veranstaltungen"
 
 #: .\fsr\templates\fsr_semester_approve.html.py:26
-msgid "Approve courses"
-msgstr "Veranstaltung bestätigen"
+msgid "Approve courses..."
+msgstr "Veranstaltungen bestätigen..."
 
 #: .\fsr\templates\fsr_semester_approve.html.py:29
 #: .\fsr\templates\fsr_semester_lecturer_ready.html.py:29
@@ -1014,8 +1014,8 @@ msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
 #: .\fsr\templates\fsr_semester_view.html.py:92
-msgid "Approve Courses"
-msgstr "Veranstaltung bestätigen"
+msgid "Approve courses..."
+msgstr "Veranstaltungen bestätigen..."
 
 #: .\fsr\templates\fsr_semester_view.html.py:96
 msgid "Re-Enable Courses for Lecturer Review"
