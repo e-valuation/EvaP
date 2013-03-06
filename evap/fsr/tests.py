@@ -83,6 +83,7 @@ class UsecaseTests(WebTest):
         questionnaire_form['question_set-0-text_de'] = "Frage 1"
         questionnaire_form['question_set-0-text_en'] = "Question 1"
         questionnaire_form['question_set-0-kind'] = "T"
+        questionnaire_form['index'] = 0
         page = questionnaire_form.submit().follow()
         
         # retrieve new questionnaire
@@ -100,6 +101,7 @@ class UsecaseTests(WebTest):
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
         questionnaire_form['public_name_en'] = "Public Test Questionnaire"
+        questionnaire_form['index'] = 0
         page = questionnaire_form.submit()
         
         assert "You must have at least one of these" in page
