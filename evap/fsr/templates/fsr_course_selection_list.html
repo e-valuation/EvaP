@@ -1,0 +1,27 @@
+{% load i18n %}
+
+{% if course_forms %}
+    <div class="clearfix">
+        <label>{% trans "Courses" %}</label>
+        <div class="input">
+            <ul class="inputs-list">
+                {% for form in course_forms %}
+                    <li>{{ form.study }}</li>
+                    {% for field in form %}
+                        <li>
+                            <label>
+                                {{ field }}
+                                <span>{{ field.label }}</span>
+                            </label>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="actions">
+        <input type="submit" value="{% trans btn_label %}" class="btn primary"/>
+    </div>
+{% else %}
+    {% trans empty_msg %}
+{% endif %}
