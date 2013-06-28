@@ -5,7 +5,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.template_index %}">{% trans "Templates" %}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.template_index" %}">{% trans "Templates" %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -20,7 +20,7 @@
             <tr>
                 <td class="maximize"><span title="{{ template.name }}">{{ template.name }}</span></td>
                 <td class="minimize">
-                    <a href="{% url evap.fsr.views.template_edit template.id %}" class="btn small">{% trans "Edit" %}</a>
+                    <a href="{% url "evap.fsr.views.template_edit" template.id %}" class="btn small">{% trans "Edit" %}</a>
                 </td>
             </tr>
         {% endfor %}

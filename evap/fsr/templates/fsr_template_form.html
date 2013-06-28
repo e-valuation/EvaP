@@ -5,8 +5,8 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.template_index %}">{% trans "Templates" %}</a></li>
-    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.template_index %}">{{ template.name }}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.template_index" %}">{% trans "Templates" %}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.template_index" %}">{{ template.name }}</a></li>
 {% endblock %}
 
 {% block content %}
