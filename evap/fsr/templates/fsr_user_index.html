@@ -5,7 +5,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.user_index %}">{% trans "Users" %}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -15,7 +15,7 @@
         <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
         <li class="{% if filter == 'lecturers' %}active{% endif %}"><a href="?filter=lecturers">{% trans "Lecturers" %}</a></li>
         <div class="pull-right">
-            <a href="{% url evap.fsr.views.user_create %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small success">{% trans "Create new user" %}</a>
+            <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small success">{% trans "Create new user" %}</a>
         </div>
     </ul>
     
@@ -52,9 +52,9 @@
                     {% endif %}
                 </td>
                 <td class="minimize">
-                    <a href="{% url evap.fsr.views.user_edit user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small">{% trans "Edit" %}</a>
+                    <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small">{% trans "Edit" %}</a>
                     {% if user.get_profile.can_fsr_delete %}
-                        <a href="{% url evap.fsr.views.user_delete user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small danger">{% trans "Delete" %}</a>
+                        <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small danger">{% trans "Delete" %}</a>
                     {% else %}
                         <a class="btn small danger disabled">{% trans "Delete" %}</a>
                     {% endif %}
