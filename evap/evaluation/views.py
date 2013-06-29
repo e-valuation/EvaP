@@ -44,16 +44,20 @@ def index(request):
             return redirect('evap.student.views.index')
 
 def login(request):
+    # if we already got authentication, e.g. from REMOTE_USER, just go to home
     if request.user.is_authenticated():
         return redirect("/")
     else:
+        # otherwise show login form
         if request.method == "POST":
             form = AuthenticationForm(data=request.POST)  
             
+            # check user input, uncluding authenticating the user
             if form.is_valid():
-                # Okay, security check complete. Log the user in.
+                # we succeeded, so log him in
                 auth_login(request, form.get_user())
 
+                # clean up our test cookie
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
 
@@ -61,6 +65,7 @@ def login(request):
         else:
             form = AuthenticationForm(request)
         
+        # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
             
         return render_to_response("login.html", dict(form=form), context_instance=RequestContext(request))
