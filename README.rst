@@ -10,6 +10,30 @@ internally at Hasso Plattner Institute.
 For the documentation, please look into the *docs* subdirectory or the generated 
 documentation at ReadTheDocs: https://evap.readthedocs.org.
 
+Installation
+------------
+
+EvaP is a plain Django application leveraging South for database migrations. In order to start hacking away, 
+
+(1) simply install the requirements::
+
+	pip install -r requirements
+
+(2) run the database initialization and migrations (this will use the defautl SQLite DB)::
+
+	python evap/manage.py syncdb
+	python evap/manage.py migrate
+	
+(3) start the development server::
+
+	python evap/manage.py runserver
+	
+(4) and open your browser::
+
+	http://localhost:8000/
+
+More detailed instructions (also covering production deployment) can be found at http://evap.readthedocs.org/en/latest/installation.html.
+
 Mailinglist
 -----------
 
