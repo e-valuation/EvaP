@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
@@ -40,6 +42,29 @@ def index(request):
             return redirect('evap.lecturer.views.index')
         else:
             return redirect('evap.student.views.index')
-    
+
+def login(request):
+    if request.user.is_authenticated():
+        return redirect("/")
+    else:
+        if request.method == "POST":
+            form = AuthenticationForm(data=request.POST)  
+            
+            if form.is_valid():
+                # Okay, security check complete. Log the user in.
+                auth_login(request, form.get_user())
+
+                if request.session.test_cookie_worked():
+                    request.session.delete_test_cookie()
+
+                return redirect("/")
+        else:
+            form = AuthenticationForm(request)
+        
+        request.session.set_test_cookie()
+            
+        return render_to_response("login.html", dict(form=form), context_instance=RequestContext(request))
+
+
 def faq(request):
     return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
