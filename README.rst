@@ -17,18 +17,26 @@ EvaP is a plain Django application leveraging South for database migrations. In 
 
 (1) simply install the requirements::
 
-	pip install -r requirements
-
-(2) run the database initialization and migrations (this will use the defautl SQLite DB)::
-
-	python evap/manage.py syncdb
-	python evap/manage.py migrate
+	pip install -r requirements.txt
 	
-(3) start the development server::
+(2) go into the evap folder::
+
+	cd evap
+
+(3) run the database initialization and migrations (this will use the defautl SQLite DB)::
+
+	python manage.py syncdb
+	python manage.py migrate
+
+(4) create yourself some users::
+
+	python manage.py create_user -p
+	
+(5) start the development server::
 
 	python evap/manage.py runserver
 	
-(4) and open your browser::
+(6) and open your browser::
 
 	http://localhost:8000/
 
