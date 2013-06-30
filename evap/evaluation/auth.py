@@ -181,7 +181,7 @@ def lecturer_or_proxy_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return user.get_profile().is_lecturer_or_proxy()
+        return UserProfile.get_for_user(user=user).is_lecturer_or_proxy()
     return user_passes_test_without_redirect(check_user)(func)
     
 def lecturer_required(func):
@@ -193,5 +193,5 @@ def lecturer_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return user.get_profile().is_lecturer
+        return UserProfile.get_for_user(user=user).is_lecturer
     return user_passes_test_without_redirect(check_user)(func)

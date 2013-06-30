@@ -31,6 +31,13 @@
             "is_staff":false
         }
     },
+	{
+		"pk":2,
+		"model":"evaluation.userprofile",
+		"fields": {
+			"user":2
+		}
+	},
     {
         "pk":1,
         "model":"evaluation.semester",

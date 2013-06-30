@@ -526,7 +526,7 @@ def user_index(request):
     if filter == "fsr":
         users = users.filter(is_staff=True)
     elif filter == "lecturers":
-        users = [user for user in users if user.get_profile().is_lecturer]
+        users = [user for user in users if UserProfile.get_for_user(user).is_lecturer]
     
     return render_to_response("fsr_user_index.html", dict(users=users, filter=filter), context_instance=RequestContext(request))
 
@@ -553,7 +553,7 @@ def user_create(request):
 @fsr_required
 def user_edit(request, user_id):
     user = get_object_or_404(User, id=user_id)
-    form = UserForm(request.POST or None, request.FILES or None, instance=user.get_profile())
+    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.get_for_user(user))
     
     if form.is_valid():
         form.save()
@@ -572,14 +572,14 @@ def user_edit(request, user_id):
 def user_delete(request, user_id):
     user = get_object_or_404(User, id=user_id)
     
-    if user.get_profile().can_fsr_delete:
+    if UserProfile.get_for_user(user).can_fsr_delete:
         if request.method == 'POST':
             user.delete()
             return redirect('evap.fsr.views.user_index')
         else:
             return render_to_response("fsr_user_delete.html", dict(user=user), context_instance=RequestContext(request))
     else:
-        messages.add_message(request, messages.ERROR, _("The user '%s' cannot be deleted, because he lectures courses.") % user.get_profile().full_name)
+        messages.add_message(request, messages.ERROR, _("The user '%s' cannot be deleted, because he lectures courses.") % UserProfile.get_for_user(user).full_name)
         return redirect('evap.fsr.views.user_index')
     
 @fsr_required
