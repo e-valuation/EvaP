@@ -6,7 +6,7 @@ from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Assignment, Course, Semester
+from evap.evaluation.models import Assignment, Course, Semester, UserProfile
 from evap.evaluation.auth import lecturer_required, lecturer_or_proxy_required
 from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.lecturer.forms import CourseForm, UserForm
@@ -31,7 +31,7 @@ def index(request):
 @lecturer_required
 def profile_edit(request):
     user = request.user
-    form = UserForm(request.POST or None, request.FILES or None, instance=user.get_profile())
+    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.objects.get_or_create(user=user))
     
     if form.is_valid():
         form.save()

@@ -3,7 +3,7 @@ from django_webtest import WebTest
 import webtest
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire
+from evap.evaluation.models import Semester, Questionnaire, UserProfile
 
 import os.path
 
@@ -64,7 +64,7 @@ class UsecaseTests(WebTest):
         self.app.extra_environ = environ
         
         user = User.objects.all()[0]
-        userprofile = user.get_profile()
+        userprofile = UserProfile.get_for_user(user)
         userprofile.generate_logon_key()
         userprofile.save()
         

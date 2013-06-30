@@ -172,7 +172,7 @@ class Course(models.Model):
     def has_lecturer(self):
         for assignment in self.assignments.all():
             if assignment.lecturer:
-                if assignment.lecturer.get_profile().is_lecturer:
+                if UserProfile.get_for_user(assignment.lecturer).is_lecturer:
                     return True
         return False
     
@@ -233,7 +233,7 @@ class Course(models.Model):
     @property
     def first_lecturer(self):
         for assignment in self.assignments.exclude(lecturer=None):
-            if assignment.lecturer.get_profile().is_lecturer:
+            if UserProfile.get_for_user(assignment.lecturer).is_lecturer:
                 return assignment.lecturer
         return None
 
@@ -242,7 +242,7 @@ class Course(models.Model):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
     def is_user_lecturer(self, user):
-        if self.assignments.filter(lecturer=user).exists() and user.get_profile().is_lecturer:
+        if self.assignments.filter(lecturer=user).exists() and UserProfile.get_for_user(user).is_lecturer:
             return True
         elif self.assignments.filter(lecturer__in=user.proxied_users.all()).exists():
             return True
@@ -440,6 +440,11 @@ class UserProfile(models.Model):
     
     def is_lecturer_or_proxy(self):
         return self.is_lecturer or UserProfile.objects.filter(proxies=self.user, is_lecturer=True).exists()
+    
+    @classmethod
+    def get_for_user(cls, user):
+        obj, _ = cls.objects.get_or_create(user=user)
+        return obj
     
     def generate_logon_key(self):
         while True:
