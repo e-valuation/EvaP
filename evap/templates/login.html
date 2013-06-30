@@ -4,7 +4,7 @@
 
 {% block content %}
     {{ block.super }}
-    <p>Welcome to the evaluation platform!</p>
+    <p>{% trans "Welcome to the evaluation platform!" %}</p>
 
 	{{ form.non_field_errors }}
 
@@ -22,7 +22,7 @@
 		</div>
 	    <div class="control-group">
 	      <div class="controls">
-			  <input type="submit" value="Login" class="btn" />
+			  <input type="submit" value="{% trans "Login" %}" class="btn" />
 		  </div>
 	  </div>
 	</form>

@@ -63,7 +63,7 @@ class Command(BaseCommand):
              action='store_true',
              dest='has_password',
              default=False,
-             help='The user to be created should get a password'),
+             help='The user to be created should have a password set in the DB (for development)'),
          )
     
     def handle(self, *args, **options):
