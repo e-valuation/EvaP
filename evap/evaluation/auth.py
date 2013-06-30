@@ -58,14 +58,17 @@ class CaseInsensitiveModelBackend(ModelBackend):
     By default ModelBackend does case _sensitive_ username authentication, which isn't what is
     generally expected.  This backend supports case insensitive username authentication.
     """
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, username=None, password=None, **kwargs):
+        UserModel = auth.get_user_model()
+        if username is None:
+            username = kwargs.get(UserModel.USERNAME_FIELD)
+        if username is None:
+            return None
         try:
-            user = User.objects.get(username__iexact=username)
+            user = UserModel._default_manager.get(**{UserModel.USERNAME_FIELD + "__iexact":username})
             if user.check_password(password):
                 return user
-            else:
-                return None
-        except User.DoesNotExist:
+        except UserModel.DoesNotExist:
             return None
 
 
@@ -94,7 +97,7 @@ class CaseInsensitiveRemoteUserBackend(RemoteUserBackend):
         # instead we use get_or_create when creating unknown users since it has
         # built-in safeguards for multiple threads.
         if self.create_unknown_user:
-            user, created = User.objects.get_or_create(username__iexact=username, defaults={'username': username})
+            user, created = User.objects.get_or_create(username__iexact=username, defaults={'username': username, 'email': 'user@example.com'})
             if created:
                 user = self.configure_user(user)
         else:

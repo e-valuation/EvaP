@@ -184,10 +184,12 @@ INSTALLED_APPS = (
 )
 if not DEBUG:
     INSTALLED_APPS += (
-        'sentry',
-        'raven.contrib.django',
+        'raven.contrib.django.raven_compat',
     )
 
+RAVEN_CONFIG = {
+    'dsn': 'http://public:secret@example.com/1',
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -203,6 +205,10 @@ LOGGING = {
          }
      },
     'handlers': {
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -222,6 +228,16 @@ LOGGING = {
         'evap.evaluation.management.commands.import_evaj': {
             'handlers': ['console'],
             'level': 'INFO'
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
         }
     }
 }

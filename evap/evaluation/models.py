@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
@@ -109,11 +108,11 @@ class Course(models.Model):
     study = models.CharField(max_length=100, verbose_name=_(u"study"))
     
     # students that are allowed to vote
-    participants = models.ManyToManyField(User, verbose_name=_(u"participants"), blank=True)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
     participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
     
     # students that already voted
-    voters = models.ManyToManyField(User, verbose_name=_(u"voters"), blank=True, related_name='+')
+    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"voters"), blank=True, related_name='+')
     voter_count = models.IntegerField(verbose_name=_(u"voter count"), blank=True, null=True, default=None)
     
     # when the evaluation takes place
@@ -122,7 +121,7 @@ class Course(models.Model):
     
     # who last modified this course, shell be noted
     last_modified_time = models.DateTimeField(auto_now=True)
-    last_modified_user = models.ForeignKey(User, related_name="+", null=True, blank=True)
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
     class Meta:
         ordering = ('semester', 'study', 'name_de')
@@ -293,7 +292,7 @@ class Assignment(models.Model):
     """A lecturer who is assigned to a course and his questionnaires."""
     
     course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='assignments')
-    lecturer = models.ForeignKey(User, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
+    lecturer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
     read_only = models.BooleanField(verbose_name=_("read-only"))
@@ -395,7 +394,7 @@ class TextAnswer(Answer):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
     
     # extending first_name and last_name from the user
     title = models.CharField(verbose_name=_(u"Title"), max_length=30, blank=True, null=True)
@@ -404,7 +403,7 @@ class UserProfile(models.Model):
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
     
     # proxies of the user, which can also manage their courses
-    proxies = models.ManyToManyField(User, verbose_name=_(u"Proxies"), related_name="proxied_users", blank=True)
+    proxies = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Proxies"), related_name="proxied_users", blank=True)
     
     # is the user possibly a lecturer
     is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"))
@@ -453,7 +452,7 @@ class UserProfile(models.Model):
         self.logon_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
     
     @staticmethod
-    @receiver(post_save, sender=User)
+    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
     def create_user_profile(sender, instance, created, **kwargs):
         """Creates a UserProfile object whenever a User is created."""
         if created:
