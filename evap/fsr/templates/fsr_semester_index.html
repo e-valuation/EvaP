@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <a href="{% url evap.fsr.views.semester_create %}" class="btn">{% trans "Create new semester" %}</a>
+        <a href="{% url "evap.fsr.views.semester_create" %}" class="btn">{% trans "Create new semester" %}</a>
     </p>
     <p>
     {% if semesters %}
@@ -13,7 +13,7 @@
         <ul>
         {% for semester in semesters %}
             <li>
-                <a href="{% url evap.fsr.views.semester_view semester.id %}">
+                <a href="{% url "evap.fsr.views.semester_view" semester.id %}">
                     {{ semester.name }}
                 </a>
             </li>

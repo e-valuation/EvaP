@@ -34,7 +34,7 @@
                 automatically invalidated after three months.
                 {% endblocktrans %}
             </p>
-            <form action="{% url evap.evaluation.views.index %}" method="GET">
+            <form action="{% url "evap.evaluation.views.index" %}" method="GET">
                 <fieldset>
                     <div class="clearfix">
                         <label for="userkey">{% trans "login key" %}</label>
@@ -60,7 +60,7 @@
                 with an user account.
                 {% endblocktrans %}
             </p>
-            <form action="{% url evap.evaluation.views.index %}" method="POST">
+            <form action="{% url "evap.evaluation.views.index" %}" method="POST">
                 <fieldset>
                 {% csrf_token %}
                 {% for field in new_key_form %}

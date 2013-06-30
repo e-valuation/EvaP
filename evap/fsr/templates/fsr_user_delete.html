@@ -9,7 +9,7 @@
         <p>{% blocktrans with name=user.name %}Do you really want to delete the user <em>{{ name }}</em>?{% endblocktrans %}</p>
         <input type="submit" value="{% trans "Yes" %}"/>
     </form>
-    <form method="GET" action="{% url evap.fsr.views.user_index %}" style="display: inline;">
+    <form method="GET" action="{% url "evap.fsr.views.user_index" %}" style="display: inline;">
         <input type="submit" value="{% trans "No" %}"/>
     </form>
 {% endblock %}
