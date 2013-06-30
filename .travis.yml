@@ -6,5 +6,4 @@ python:
 install:
   - pip install -r requirements.txt --use-mirrors
 script:
-  - cd evap
   - python manage.py test
