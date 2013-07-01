@@ -1,6 +1,6 @@
 django>=1.5,<1.6
 south>=0.7.3
-pil>=1.1.7
+pillow>=2.0.0
 xlrd>=0.7.1
 xlwt>=0.7.2
 lxml>=2.3
