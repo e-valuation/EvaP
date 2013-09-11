@@ -3,7 +3,7 @@ from django_webtest import WebTest
 import webtest
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire
+from evap.evaluation.models import Semester, Questionnaire, UserProfile
 
 import os.path
 
@@ -14,11 +14,10 @@ def lastform(page):
 
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
-    
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en', "REMOTE_USER":'fsr.user'}
     
     def test_import(self):
-        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("fsr_root"))
         
         # create a new semester
         page = page.click("[Ss]emesters")
@@ -58,11 +57,14 @@ class UsecaseTests(WebTest):
         self.assertEqual(check_lecturer.email, "567@web.de")
         
     def test_logon_key(self):
+        environ = self.app.extra_environ
+        self.app.extra_environ = {}
         with self.assertRaises(webtest.app.AppError):
-            self.app.get(reverse("evap.results.views.index"))
+            self.app.get(reverse("evap.results.views.index"), extra_environ={})
+        self.app.extra_environ = environ
         
         user = User.objects.all()[0]
-        userprofile = user.get_profile()
+        userprofile = UserProfile.get_for_user(user)
         userprofile.generate_logon_key()
         userprofile.save()
         

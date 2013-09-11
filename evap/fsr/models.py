@@ -15,7 +15,7 @@ def validate_template(value):
         raise ValidationError(str(e))
 
 
-class EmailTemplate(models.Model):
+class EmailTemplate(models.Model):    
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
     
     subject = models.CharField(max_length=100, verbose_name=_(u"Subject"), validators=[validate_template])
@@ -39,13 +39,15 @@ class EmailTemplate(models.Model):
     
     @classmethod
     def receipient_list_for_course(cls, course, send_to_lecturers, send_to_participants):
+        from evap.evaluation.models import UserProfile
+
         if send_to_participants:
             for user in course.participants.all():
                 yield user
         
         if send_to_lecturers:
             for assignment in course.assignments.exclude(lecturer=None):
-                if assignment.lecturer.get_profile().is_lecturer:
+                if UserProfile.get_for_user(assignment.lecturer).is_lecturer:
                     yield assignment.lecturer
     
     @classmethod
@@ -53,6 +55,8 @@ class EmailTemplate(models.Model):
         return Template(text).render(Context(dictionary))
     
     def send_courses(self, courses, send_to_lecturers, send_to_participants, only_non_evaluated=False):
+        from evap.evaluation.models import UserProfile
+
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
@@ -66,7 +70,7 @@ class EmailTemplate(models.Model):
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
             # if user is lecturer, also send to proxies
-            cc = [p.email for p in user.get_profile().proxies.all() if p.email] if user.get_profile().is_lecturer else []
+            cc = [p.email for p in UserProfile.get_for_user(user).proxies.all() if p.email] if UserProfile.get_for_user(user).is_lecturer else []
             
             mail = EmailMessage(
                 subject = self.render_string(self.subject, {'user': user, 'courses': courses}),

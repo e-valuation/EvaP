@@ -7,6 +7,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm
+from evap.evaluation.models import UserProfile
 from evap.fsr.models import EmailTemplate
 
 
@@ -18,7 +19,7 @@ def index(request):
             # user wants a new login key
             try:
                 user = User.objects.get(email__iexact=new_key_form.cleaned_data['email'])
-                profile = user.get_profile()
+                profile = UserProfile.get_for_user(user)
                 profile.generate_logon_key()
                 profile.save()
                 
@@ -38,7 +39,7 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('evap.fsr.views.index')
-        elif request.user.get_profile().is_lecturer:
+        elif UserProfile.get_for_user(request.user).is_lecturer:
             return redirect('evap.lecturer.views.index')
         else:
             return redirect('evap.student.views.index')

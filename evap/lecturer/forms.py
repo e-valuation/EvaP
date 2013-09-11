@@ -70,6 +70,6 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.last_name = self.cleaned_data.get('last_name')
         self.instance.user.email = self.cleaned_data.get('email')
         self.instance.user.save()
-        self.instance = self.instance.user.get_profile()
+        self.instance = UserProfile.get_for_user(self.instance.user)
         
         super(UserForm, self).save(*args, **kw)

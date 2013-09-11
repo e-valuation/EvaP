@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -19,9 +19,6 @@ urlpatterns = patterns('',
     url(r"^i18n/", include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),
 )
-
-if not settings.DEBUG:
-    urlpatterns.append(url(r'^sentry/', include('sentry.web.urls')))
 
 if settings.DEBUG:
     urlpatterns += patterns('',

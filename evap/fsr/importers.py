@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Course
+from evap.evaluation.models import Course, UserProfile
 
 import xlrd
 
@@ -27,14 +27,14 @@ class UserData(object):
                     last_name=self.last_name,
                     email=self.email)
         user.save()
-        profile = user.get_profile()
+        profile = UserProfile.get_for_user(user=user)
         profile.title = self.title
         profile.is_lecturer = self.is_lecturer
         profile.save()
         return user
 
     def update(self, user):
-        profile = user.get_profile()
+        profile = UserProfile.get_for_user(user=user)
         
         if not user.first_name:
             user.first_name = self.first_name

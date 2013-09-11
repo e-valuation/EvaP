@@ -5,10 +5,12 @@ from django.forms.models import ModelChoiceIterator
 from django.utils.html import escape, conditional_escape
 from django.utils.encoding import force_unicode
 
+from evap.evaluation.models import UserProfile
+
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return obj.get_profile().full_name
+        return UserProfile.get_for_user(obj).full_name
 
 
 class ToolTipModelChoiceIterator(ModelChoiceIterator):

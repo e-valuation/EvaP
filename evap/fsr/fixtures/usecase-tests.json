@@ -11,6 +11,14 @@
             "is_staff":true
         }
     },
+	{
+		"pk":1,
+		"model":"evaluation.userprofile",
+		"fields": {
+			"user":1,
+			"logon_key":1313
+		}
+	},
     {
         "pk":2,
         "model":"auth.user",
@@ -23,6 +31,13 @@
             "is_staff":false
         }
     },
+	{
+		"pk":2,
+		"model":"evaluation.userprofile",
+		"fields": {
+			"user":2
+		}
+	},
     {
         "pk":1,
         "model":"evaluation.semester",
@@ -46,7 +61,9 @@
                         
             "semester":1,
             "vote_start_date":"2010-08-18",
-            "vote_end_date":"2010-08-30"
+            "vote_end_date":"2010-08-30",
+			
+			"last_modified_time":"2010-07-01"
         }
     },
     {
@@ -63,7 +80,9 @@
             
             "semester":1,
             "vote_start_date":"2010-08-18",
-            "vote_end_date":"2010-08-30"
+            "vote_end_date":"2010-08-30",
+
+			"last_modified_time":"2010-07-01"
         }
     },
     {

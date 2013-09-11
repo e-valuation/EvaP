@@ -2,6 +2,6 @@
 
 <ul>
 {% for questionnaire in questionnaires %}
-    <li><a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}">{{ questionnaire.name }}</a></li>
+    <li><a href="{% url "evap.fsr.views.questionnaire_edit" questionnaire.id %}">{{ questionnaire.name }}</a></li>
 {% endfor %}
 </ul>

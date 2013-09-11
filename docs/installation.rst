@@ -55,7 +55,7 @@ Database Initialization
 -----------------------
 
 To initialize the database during the installation you have to perform the 
-following command in ``/opt/evap/evap`` directory:
+following command in ``/opt/evap`` directory:
 
 - ``python manage.py syncdb`` to initialize the database.
 
@@ -63,7 +63,7 @@ File Refresh
 ------------
 
 You have to run some additional commands during the installation and whenever
-you upgrade the software. Perform these steps in the ``/opt/evap/evap``
+you upgrade the software. Perform these steps in the ``/opt/evap``
 directory after you have upgraded the files:
 
 - ``python manage.py migrate`` to perform any potential database updates.
@@ -80,13 +80,13 @@ The manual creation of a superuser is just recommended for development environme
 In productive environments a Kerberos authentification system or similar should
 be used.
 
-To create a superuser perform in the ``/opt/evap/evap`` directory the command
+To create a superuser perform in the ``/opt/evap`` directory the command
 ``python manage.py createsuperuser``.
 
 A login in a development environment can be simulated by setting the variable 
 ``REMOTE_USER`` to your previously created user.
 
-The server for this environment can be started from within the ``/opt/evap/evap``
+The server for this environment can be started from within the ``/opt/evap``
 directory with ``python manage.py runserver``.
 
 Productive Environment: Apache 2 Configuration
@@ -128,7 +128,7 @@ For example you could use a /etc/cron.hourly/evap like
 
     #!/bin/sh
     
-    pushd  /opt/evap/evap
+    pushd  /opt/evap
     /usr/bin/python manage.py run_tasks
     popd
 
@@ -138,6 +138,6 @@ And a /etc/cron.daily/evap like
 
     #!/bin/sh
     
-    pushd  /opt/evap/evap
+    pushd  /opt/evap
     /usr/bin/python manage.py run_tasks daily
     popd

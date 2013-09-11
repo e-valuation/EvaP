@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import User
+from evap.evaluation.models import User, UserProfile
 
 
 def is_valid_email(value):
@@ -88,7 +88,7 @@ class Command(BaseCommand):
             if not password is None:
                 user.set_password(password)
                 user.save()
-            profile = user.get_profile()
+            profile = UserProfile.get_for_user(user)
             profile.is_lecturer = is_lecturer
             profile.save()
             
