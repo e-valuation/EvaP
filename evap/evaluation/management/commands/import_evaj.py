@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from evap.evaluation.models import Assignment, Course, GradeAnswer, Question, \
-                                   Questionnaire, Semester, TextAnswer
+                                   Questionnaire, Semester, TextAnswer, UserProfile
 
 from datetime import datetime
 from lxml import objectify
@@ -97,7 +97,7 @@ class Command(BaseCommand):
                 user = self.user_from_db(staff.loginName)
                 
                 # import name
-                profile = user.get_profile()
+                profile = UserProfile.get_for_user(user)
                 name_parts = unicode(staff.name).split()
                 if name_parts[0].startswith("Dr"):
                     user.last_name = " ".join(name_parts[1:])
