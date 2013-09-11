@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <p>{% trans "Welcome to the evaluation platform!" %}</p>
+
+	{{ form.non_field_errors }}
+
+	<form method="post" action="{% url evap.evaluation.views.login %}" class="form-horizontal">
+		{% csrf_token %}
+		<div class="control-group">
+			{{ form.username.errors }}
+			<label class="control-label" for="id_username">{{ form.username.label }}</label>
+			<div class="controls">{{ form.username }}</div>
+		</div>
+		<div class="control-group">
+			{{ form.password.errors }}
+			<label class="control-label" for="id_password">{{ form.password.label }}</label>
+			<div class="controls">{{ form.password }}</div>
+		</div>
+	    <div class="control-group">
+	      <div class="controls">
+			  <input type="submit" value="{% trans "Login" %}" class="btn" />
+		  </div>
+	  </div>
+	</form>
+
+{% endblock %}
