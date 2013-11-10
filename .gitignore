@@ -9,8 +9,7 @@ TAGS
 *.komodoproject
 
 # python files
-*.pyc
-*.pyo
+*.py[cod]
 
 # gettext binaries
 *.mo
