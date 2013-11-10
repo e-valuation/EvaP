@@ -1,3 +1,5 @@
+import getpass
+from optparse import make_option
 import sys
 
 from django.core import exceptions
@@ -5,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import User
+from evap.evaluation.models import User, UserProfile
 
 
 def is_valid_email(value):
@@ -41,10 +43,28 @@ def read_value(question, validator_func):
         else:
             return value
 
+def read_value_hidden(question, validator_func):
+    while True:
+        value = getpass.getpass(question)
+        try:
+            validator_func(value)
+        except exceptions.ValidationError, e:
+            sys.stderr.write(str(e.messages[0]))
+            continue
+        else:
+            return value
 
 class Command(BaseCommand):
     args = ''
     help = 'Creates a user'
+    
+    option_list = BaseCommand.option_list + (
+         make_option('-p',
+             action='store_true',
+             dest='has_password',
+             default=False,
+             help='The user to be created should have a password set in the DB (for development)'),
+         )
     
     def handle(self, *args, **options):
         try:
@@ -54,6 +74,9 @@ class Command(BaseCommand):
             # Get an email
             email = read_value('E-mail address: ', is_valid_email)
             
+            # Get password if it should be set
+            password = read_value_hidden('Password: ', lambda x: True) if options["has_password"] else None
+            
             # get fsr flag
             is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
@@ -62,7 +85,10 @@ class Command(BaseCommand):
             
             # create user
             user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
-            profile = user.get_profile()
+            if not password is None:
+                user.set_password(password)
+                user.save()
+            profile = UserProfile.get_for_user(user)
             profile.is_lecturer = is_lecturer
             profile.save()
             

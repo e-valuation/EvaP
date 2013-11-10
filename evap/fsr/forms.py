@@ -64,7 +64,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
         if self.instance.last_modified_user:
-            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.get_profile().full_name
+            self.fields['last_modified_user_2'].initial = UserProfile.get_for_user(self.instance.last_modified_user).full_name
         self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
 
         if self.instance.state == "inEvaluation":
@@ -289,15 +289,17 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, queryset, filter_func, *args, **kwargs):
+    def __init__(self, study, queryset, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
+        self.study = study
         self.queryset = queryset
         self.selected_courses = []
         self.filter_func = filter_func or (lambda x: True)
         
         for course in self.queryset:
             if self.filter_func(course):
-                self.fields[str(course.id)] = forms.BooleanField(label=course.name, required=False)
+                label = course.name + " (" + course.state + ")"
+                self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
     
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -306,7 +308,7 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
                 self.selected_courses.append(Course.objects.get(pk=id))
         return cleaned_data
 
-    
+
 class UserForm(forms.ModelForm, BootstrapMixin):
     proxied_users = forms.IntegerField()
     
@@ -357,7 +359,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
         self.instance.user.save()
         self.instance.user.proxied_users = self.cleaned_data.get('proxied_users')
-        self.instance = self.instance.user.get_profile()
+        self.instance = UserProfile.get_for_user(self.instance.user)
         
         super(UserForm, self).save(*args, **kw)
 

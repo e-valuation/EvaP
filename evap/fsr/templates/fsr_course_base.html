@@ -5,7 +5,7 @@
 {% block subtitle %}
     {{ block.super }}
     {% if course %}
-        <li> <span class="divider">/</span> <a href="{% url evap.fsr.views.course_edit semester.id course.id %}">{{ course.name }}</a></li>
+        <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.course_edit" semester.id course.id %}">{{ course.name }}</a></li>
     {% endif %}
 {% endblock %}
 

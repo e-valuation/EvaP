@@ -62,7 +62,7 @@ class QuestionsForm(forms.Form):
     def caption(self):
         if self.assignment.lecturer:
             try:
-                full_name = self.assignment.lecturer.get_profile().full_name
+                full_name = UserProfile.objects.get(user=self.assignment.lecturer).full_name
             except UserProfile.DoesNotExist:
                 full_name = self.assignment.lecturer.get_full_name() or self.assignment.lecturer.username
             return u"%s: %s" % (full_name, self.questionnaire.public_name)
@@ -73,4 +73,4 @@ class QuestionsForm(forms.Form):
         return self.questionnaire.teaser
     
     def image(self):
-        return self.assignment.lecturer.get_profile().picture if self.assignment.lecturer else None
+        return UserProfile.get_for_user(self.assignment.lecturer).picture if self.assignment.lecturer else None
