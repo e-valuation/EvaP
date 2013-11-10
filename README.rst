@@ -49,14 +49,22 @@ We have a mailinglist evap-dev@lists.myhpi.de
 
 You can add yourself to the list at http://lists.myhpi.de/HQowKfvd70oVOTPEWG2UhB0OO0rfo8Z
 
-Contributors
-------------
+Terminology used in EvaP
+------------------------
+- Each course will have a person **responsible for the course** (*Lehrveranstaltungs-Verantwortlicher*).
+- **Delegates** (*Stellvertreter*) are persons assigned to other persons. A delegate always has all the rights that the person (or persons) he or she is assigned to has.
+- All persons who are added to have teaching roles in a course (lecturers, tutors, etc.) are called **contributors** (*Beitragende*).
+
+Contributors to EvaP
+--------------------
 
 - Michael Grünewald
 - Stefan Richter
 - Matthias Jacob
 - Stefanie Reinicke
 - Thomas Schulz
+- Johannes Linke
+- Johannes Wolf
 - others
 
 License
