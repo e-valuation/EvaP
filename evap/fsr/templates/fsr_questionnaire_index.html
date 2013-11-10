@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <a href="{% url evap.fsr.views.questionnaire_create %}" class="btn small">{% trans "Create new questionnaire" %}</a>
+        <a href="{% url "evap.fsr.views.questionnaire_create" %}" class="btn small">{% trans "Create new questionnaire" %}</a>
     </p>
     <p>
     {% if questionnaires %}
@@ -32,14 +32,14 @@
                     </td>
                     <td class="right">
                         {% if not questionnaire.obsolete %}
-                            <a href="{% url evap.fsr.views.questionnaire_edit questionnaire.id %}" class="btn small primary">{% trans "Edit" %}</a>
+                            <a href="{% url "evap.fsr.views.questionnaire_edit" questionnaire.id %}" class="btn small primary">{% trans "Edit" %}</a>
                         {% else %}
                             <a href="#" class="btn small primary disabled">{% trans "Edit" %}</a>
                         {% endif %}
-                        <a href="{% url evap.fsr.views.questionnaire_view questionnaire.id %}" class="btn small">{% trans "Preview" %}</a>
-                        <a href="{% url evap.fsr.views.questionnaire_copy questionnaire.id %}" class="btn small">{% trans "Copy" %}</a>
+                        <a href="{% url "evap.fsr.views.questionnaire_view" questionnaire.id %}" class="btn small">{% trans "Preview" %}</a>
+                        <a href="{% url "evap.fsr.views.questionnaire_copy" questionnaire.id %}" class="btn small">{% trans "Copy" %}</a>
                         {% if questionnaire.can_fsr_delete %}
-                            <a href="{% url evap.fsr.views.questionnaire_delete questionnaire.id %}" class="btn small danger">{% trans "Delete" %}</a>
+                            <a href="{% url "evap.fsr.views.questionnaire_delete" questionnaire.id %}" class="btn small danger">{% trans "Delete" %}</a>
                         {% else %}
                             <a href="#" class="btn small danger disabled">{% trans "Delete" %}</a>
                         {% endif %}

@@ -5,7 +5,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url evap.results.views.semester_detail semester.id %}">{{ semester.name }}</a></li>
+    <li> <span class="divider">/</span> <a href="{% url "evap.results.views.semester_detail" semester.id %}">{{ semester.name }}</a></li>
 {% endblock %}
 
 {{% block content %}
@@ -26,7 +26,7 @@
             <tbody>
             {% for course in study.list %}
                 <tr>
-                    <td class="span13"><a href="{% url evap.results.views.course_detail semester.id course.id %}">{{ course }}</a></td>
+                    <td class="span13"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
                     <td class="span1">{{ course.grade|floatformat:1 }}</td>
                     {% if course.num_participants %}
                     <td class="span2">
@@ -52,8 +52,8 @@
 
     {% if request.user.is_staff %}
     <p>
-        <a href="{% url evap.results.views.semester_export semester.id %}" class="btn small">{% trans "Export semester as Excel table" %}</a>
-        <a href="{% url evap.results.views.semester_export semester.id %}?all" class="btn small">{% trans "Export semester as Excel table (GF)" %}</a>
+        <a href="{% url "evap.results.views.semester_export" semester.id %}" class="btn small">{% trans "Export semester as Excel table" %}</a>
+        <a href="{% url "evap.results.views.semester_export" semester.id %}?all" class="btn small">{% trans "Export semester as Excel table (GF)" %}</a>
     </p>
     {% endif %}
 {% endblock %}

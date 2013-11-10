@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import User
+from evap.evaluation.models import User, UserProfile
 
 
 class Command(BaseCommand):
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                     user.email = attrs['mail'][0]
                     user.save()
                     
-                    p = user.get_profile()
+                    p = UserProfile.get_for_user(user)
                     if not p.is_lecturer:
                         p.is_lecturer = dn.endswith("OU=Mitarbeiter,OU=INSTITUT,DC=hpi,DC=uni-potsdam,DC=de")
                     p.save()
