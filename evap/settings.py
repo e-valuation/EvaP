@@ -207,7 +207,7 @@ LOGGING = {
     'handlers': {
         'sentry': {
             'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
