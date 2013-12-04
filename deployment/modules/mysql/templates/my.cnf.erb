@@ -1,0 +1,17 @@
+<% @options.sort.map do |k,v| -%>
+<% if v.is_a?(Hash) -%>
+[<%= k %>]
+<% @options[k].sort.map do |ki, vi| -%>
+<% if vi == true -%>
+<%= ki %>
+<% elsif vi and vi != '' -%>
+<%= ki %> = <%= vi %>
+<% elsif vi -%>
+<%= ki %>
+<% end -%>
+<% end -%>
+
+<% end -%>
+<% end -%>
+
+!includedir /etc/mysql/conf.d/
