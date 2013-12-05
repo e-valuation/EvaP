@@ -8,9 +8,6 @@ node default {
         stage    => pre
     }
 
-    # configure ssh to our liking
-    include sshd
-
     # general packages
     package { ['git', 'build-essential', 'vim']:
         ensure => installed,
@@ -22,29 +19,15 @@ node default {
     } -> mysql::db { 'evap':
         user          => 'evap',
         password      => '0Am5dWVSC9kd',
-    }
-
+    } ->
     # python environment
-    package { ['python', 'python-dev', 'python-pip', 'python-imaging', 'python-lxml', 'libxml2-dev', 'libxslt-dev']:
+    package { ['python', 'python-dev', 'python-pip', 'python-imaging', 'python-lxml', 'python-mysqldb', 'libxml2-dev', 'libxslt-dev']:
         ensure => latest,
         require => Package['build-essential']
-    } -> class { 'mysql::bindings':
-        python_enable => True
     } -> exec { '/vagrant/requirements.txt':
         provider    => shell,
         command     => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
-    } -> file { 'evap-localsettings':
-        name    => '/vagrant/evap/localsettings.py',
-        source  => 'puppet:///modules/evap/localsettings.py'
-    } -> exec { 'django-syncdb':
-        provider    => shell,
-        command     => 'python manage.py syncdb --noinput --migrate',
-        cwd         => '/vagrant'
-    } -> exec { 'django-collectstatic': 
-        provider    => shell,
-        command     => 'python manage.py collectstatic --noinput',
-        cwd         => '/vagrant'
-    }
+    } -> class { 'evap': }
 
     # apache environment
     class { 'apache': 
