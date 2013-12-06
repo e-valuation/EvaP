@@ -36,15 +36,12 @@ node default {
     } -> class { 'evap': 
         #db_connector   => 'mysql'
         db_connector   => 'postgresql_psycopg2'
-    }
-
+    } ->
     # apache environment
     class { 'apache': 
         default_vhost => false
-    }
-    class { 'apache::mod::wsgi':
-    }
-    apache::vhost { 'evap':
+    } -> class { 'apache::mod::wsgi':
+    } ->  apache::vhost { 'evap':
         default_vhost               => true,
         vhost_name                  => '*',
         port                        => '80',
