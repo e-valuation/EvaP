@@ -11,23 +11,32 @@ node default {
     # general packages
     package { ['git', 'build-essential', 'vim']:
         ensure => installed,
-    }
-
+    } -> 
+    # python packages
+    package { ['python', 'python-dev', 'python-pip', 'libxml2-dev', 'libxslt-dev', 'python-lxml']:
+        ensure => installed,
+    } -> 
     # configure mysql
-    class { '::mysql::server':
-        root_password => '7FzSCogWAFCt'
-    } -> mysql::db { 'evap':
-        user          => 'evap',
-        password      => '0Am5dWVSC9kd',
-    } ->
-    # python environment
-    package { ['python', 'python-dev', 'python-pip', 'python-imaging', 'python-lxml', 'python-mysqldb', 'libxml2-dev', 'libxslt-dev']:
-        ensure => latest,
-        require => Package['build-essential']
+    #class { '::mysql::server':
+    #    root_password  => '7FzSCogWAFCt'
+    #} -> mysql::db { 'evap':
+    #    user           => 'evap',
+    #    password       => '0Am5dWVSC9kd',
+    #} -> package { 'python-mysqldb':
+    #    ensure         => latest,
+    class { 'postgresql::server':
+    } postgresql::server::db { 'evap':
+        user           => 'evap',
+        password       => postgresql_password('evap', '0Am5dWVSC9kd'),
+    } -> package { 'python-psycopg2':
+        ensure         => latest,
     } -> exec { '/vagrant/requirements.txt':
-        provider    => shell,
-        command     => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
-    } -> class { 'evap': }
+        provider       => shell,
+        command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
+    } -> class { 'evap': 
+        #db_connector   => 'mysql'
+        db_connector   => 'postgresql_psycopg2'
+    }
 
     # apache environment
     class { 'apache': 
