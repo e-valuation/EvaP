@@ -1,4 +1,4 @@
-class evap {
+class evap ($db_connector) {
     $secret_key = random_password(30)
     file { 'evap-localsettings':
         name    => '/vagrant/evap/localsettings.py',
