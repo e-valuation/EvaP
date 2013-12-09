@@ -25,9 +25,12 @@ node default {
     #} -> package { 'python-mysqldb':
     #    ensure         => latest,
     class { 'postgresql::server':
-    } postgresql::server::db { 'evap':
+    } -> postgresql::server::role { 'evap':
+        password_hash  => postgresql_password('evap', '0Am5dWVSC9kd'),
+        createdb       => true
+    } -> postgresql::server::db { 'evap':
         user           => 'evap',
-        password       => postgresql_password('evap', '0Am5dWVSC9kd'),
+        password       => ''
     } -> package { 'python-psycopg2':
         ensure         => latest,
     } -> exec { '/vagrant/requirements.txt':
