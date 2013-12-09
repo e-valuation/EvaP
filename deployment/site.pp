@@ -33,6 +33,9 @@ node default {
     } -> exec { '/vagrant/requirements.txt':
         provider       => shell,
         command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
+    } -> exec { '/vagrant/requirements-dev.txt':
+        provider       => shell,
+        command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements-dev.txt'
     } -> class { 'evap': 
         #db_connector   => 'mysql'
         db_connector   => 'postgresql_psycopg2'
