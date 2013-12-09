@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {% if request.user.is_active %}
+        <p style="min-height:400px;">
+            {% blocktrans with name=request.user.get_profile.full_name %}
+            You are currently logged in as {{ name }}.
+            {% endblocktrans %}
+        </p>
+    {% else %}
+        <h2>Welcome to the evaluation platform!</h2>
+        
+        <p>You are currently not logged in...</p><br/>
+
+        <div class="row">
+            <div class="span8">
+                <h2>{% trans "External student or lecturer" %}</h2>
+                <p>..., If you are an external student or lecturer, you can use your external
+                    login key to gain access to the system.</p>
+                <div class="well">
+                    <p>Please enter your login key below. Be aware that login keys are automatically invalidated after three months.</p>
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="login_key" />
+
+                        <fieldset>
+                            {% for field in login_key_form %}
+                                <div class="clearfix">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn success" type="submit" value="{% trans "Login" %}">
+                        </div>
+                    </form> 
+                </div>
+                <div class="well">
+                    <h4>{% trans "Generate a new external login key" %}</h4>
+                    <p>{% blocktrans %}
+                        If you do not have a login key or lost your previous login key, 
+                        you can create a new one here. Please enter your e-mail address 
+                        below. A new key will be sent to this address. Please make sure 
+                        that you use the same e-mail address that you used when you
+                        enrolled. Otherwise the system cannot associate your address
+                        with an user account.
+                        {% endblocktrans %}</p>
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="new_key" />
+                        <fieldset>
+                            {% for field in new_key_form %}
+                                <div class="clearfix">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn primary" type="submit" value="{% trans "Generate Key" %}">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="span8">
+                <h2>{% trans "HPI student or lecturer" %}</h2>
+                <p>..., If you are a HPI student or lecturer, please log in using your usual HPI credentials.</p>
+                
+                <div class="well">
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="login_username" />
+
+                        <fieldset>
+                            {% for field in login_username_form %}
+                                <div class="clearfix">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn success" type="submit" value="{% trans "Login" %}">
+                        </div>
+                    </form>
+                </div>    
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

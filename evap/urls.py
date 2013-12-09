@@ -8,7 +8,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r"^$", 'evap.evaluation.views.index'),
     url(r"^faq$", 'evap.evaluation.views.faq'),
-    url(r"^login$", 'evap.evaluation.views.login'),
     url(r"^logout$", 'django.contrib.auth.views.logout', {'next_page': "/"}),
     
     url(r"^fsr/", include('evap.fsr.urls')),

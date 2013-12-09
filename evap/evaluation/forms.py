@@ -1,6 +1,7 @@
 from itertools import chain
 
 from django import forms
+from django.contrib.auth import authenticate
 from django.forms import widgets
 from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
@@ -60,6 +61,81 @@ class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
         # the queryset.
         return QuestionnaireChoiceIterator(self)
     choices = property(_get_choices, forms.ChoiceField._set_choices)
+
+
+class LoginUsernameForm(forms.Form):
+    """Form encapsulating the login with username and password, for example from an Active Directory.
+    """
+
+    username = forms.CharField(label=_(u"Username"), max_length=254)
+    password = forms.CharField(label=_(u"Password"), widget=forms.PasswordInput)
+
+    def __init__(self, request=None, *args, **kwargs):
+        """
+        If request is passed in, the form will validate that cookies are
+        enabled. Note that the request (a HttpRequest object) must have set a
+        cookie with the key TEST_COOKIE_NAME and value TEST_COOKIE_VALUE before
+        running this validation.
+        """
+        self.request = request
+        self.user_cache = None
+        super(LoginUsernameForm, self).__init__(*args, **kwargs)
+
+    def clean_password(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            self.user_cache = authenticate(username=username, password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError(_("Please enter a correct username and password."))
+            elif not self.user_cache.is_active:
+                raise forms.ValidationError(_("This account is inactive."))
+        self.check_for_test_cookie()
+        return self.cleaned_data
+
+    def check_for_test_cookie(self):
+        if self.request and not self.request.session.test_cookie_worked():
+            raise forms.ValidationError(_("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."))
+
+    def get_user_id(self):
+        if self.user_cache:
+            return self.user_cache.id
+        return None
+
+    def get_user(self):
+        return self.user_cache
+
+
+class LoginKeyForm(forms.Form):
+    """Form encapsulating the login with a login key. It works together with the
+       evaluation.auth.RequestAuthUserBackend.
+    """
+
+    login_key = forms.CharField(label=_(u"logon key"))
+
+    def __init__(self, *args, **kwargs):
+        self.user_cache = None
+        super(LoginKeyForm, self).__init__(*args, **kwargs)
+
+    def clean_login_key(self):
+        login_key = self.cleaned_data.get('login_key')
+
+        if login_key:
+            self.user_cache = authenticate(key=login_key)
+            if self.user_cache is None:
+                raise forms.ValidationError(_("Please enter a correct username and password."))
+            elif not self.user_cache.is_active:
+                raise forms.ValidationError(_("This account is inactive."))
+        return self.cleaned_data
+
+    def get_user_id(self):
+        if self.user_cache:
+            return self.user_cache.id
+        return None
+
+    def get_user(self):
+        return self.user_cache
 
 
 class NewKeyForm(forms.Form):
