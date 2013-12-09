@@ -157,6 +157,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+LOGIN_URL = "/"
+
 ROOT_URLCONF = 'evap.urls'
 
 TEMPLATE_DIRS = (
