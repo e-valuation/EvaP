@@ -313,7 +313,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     represented_users = forms.IntegerField()
     
     # steal form field definitions for the User model
-    locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff')))
+    locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser')))
     
     class Meta:
         model = UserProfile
@@ -326,6 +326,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = User.objects.order_by("username")
         self.fields['is_staff'].label = _(u"FSR Member")
+        self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
                                                                       initial=self.instance.user.represented_users.all() if self.instance.pk else (),
                                                                       label=_("Represented Users"),
@@ -337,6 +338,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['last_name'].initial = self.instance.user.last_name
         self.fields['email'].initial = self.instance.user.email
         self.fields['is_staff'].initial = self.instance.user.is_staff
+        self.fields['is_superuser'].initial = self.instance.user.is_superuser
 
     def clean_username(self):
         conflicting_user = User.objects.filter(username__iexact=self.cleaned_data.get('username'))
@@ -357,6 +359,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.last_name = self.cleaned_data.get('last_name')
         self.instance.user.email = self.cleaned_data.get('email')
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
+        self.instance.user.is_superuser = self.cleaned_data.get('is_superuser')
         self.instance.user.save()
         self.instance.user.represented_users = self.cleaned_data.get('represented_users')
         self.instance = UserProfile.get_for_user(self.instance.user)
