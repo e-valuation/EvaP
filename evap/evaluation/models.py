@@ -448,7 +448,7 @@ class UserProfile(models.Model):
     
     def generate_logon_key(self):
         while True:
-            key = random.randrange(0, sys.maxint)
+            key = random.randrange(0, 2147483647)
             if not UserProfile.objects.filter(logon_key=key).exists():
                 # key not yet used
                 self.logon_key = key
