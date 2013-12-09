@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import auth, messages
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
@@ -98,7 +99,7 @@ def login_required(func):
     """
     def check_user(user):
         return user.is_authenticated()
-    return user_passes_test_without_redirect(check_user)(func)
+    return user_passes_test(check_user)(func)
 
 
 def fsr_required(func):
@@ -111,7 +112,7 @@ def fsr_required(func):
         if not user.is_authenticated():
             return False
         return user.is_staff
-    return user_passes_test_without_redirect(check_user)(func)
+    return user_passes_test(check_user)(func)
 
 
 def lecturer_or_delegate_required(func):
@@ -124,7 +125,7 @@ def lecturer_or_delegate_required(func):
         if not user.is_authenticated():
             return False
         return UserProfile.get_for_user(user=user).is_lecturer_or_delegate()
-    return user_passes_test_without_redirect(check_user)(func)
+    return user_passes_test(check_user)(func)
     
 def lecturer_required(func):
     """
@@ -136,4 +137,4 @@ def lecturer_required(func):
         if not user.is_authenticated():
             return False
         return UserProfile.get_for_user(user=user).is_lecturer
-    return user_passes_test_without_redirect(check_user)(func)
+    return user_passes_test(check_user)(func)
