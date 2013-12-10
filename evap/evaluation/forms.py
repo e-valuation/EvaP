@@ -112,7 +112,7 @@ class LoginKeyForm(forms.Form):
        evaluation.auth.RequestAuthUserBackend.
     """
 
-    login_key = forms.CharField(label=_(u"logon key"))
+    login_key = forms.IntegerField(label=_(u"login key"))
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -124,7 +124,7 @@ class LoginKeyForm(forms.Form):
         if login_key:
             self.user_cache = authenticate(key=login_key)
             if self.user_cache is None:
-                raise forms.ValidationError(_("Please enter a correct username and password."))
+                raise forms.ValidationError(_("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months."))
             elif not self.user_cache.is_active:
                 raise forms.ValidationError(_("This account is inactive."))
         return self.cleaned_data
