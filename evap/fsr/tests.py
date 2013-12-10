@@ -59,8 +59,7 @@ class UsecaseTests(WebTest):
     def test_logon_key(self):
         environ = self.app.extra_environ
         self.app.extra_environ = {}
-        with self.assertRaises(webtest.app.AppError):
-            self.app.get(reverse("evap.results.views.index"), extra_environ={})
+        self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
         self.app.extra_environ = environ
         
         user = User.objects.all()[0]
