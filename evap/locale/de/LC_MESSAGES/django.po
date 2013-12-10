@@ -253,7 +253,7 @@ msgid "Lecturer"
 msgstr "Dozent"
 
 #: .\evaluation\models.py:413 .\fsr\templates\fsr_user_index.html.py:48
-msgid "Logon Key"
+msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
 #: .\evaluation\models.py:414
