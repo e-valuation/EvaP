@@ -409,6 +409,8 @@ class UserProfile(models.Model):
     is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"))
     
     # key for url based logon of this user
+    MAX_LOGON_KEY = 2**31-1
+
     logon_key = models.IntegerField(verbose_name=_(u"Logon Key"), blank=True, null=True)
     logon_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
     
@@ -448,7 +450,7 @@ class UserProfile(models.Model):
     
     def generate_logon_key(self):
         while True:
-            key = random.randrange(0, 2147483647)
+            key = random.randrange(0, UserProfile.MAX_LOGON_KEY)
             if not UserProfile.objects.filter(logon_key=key).exists():
                 # key not yet used
                 self.logon_key = key
