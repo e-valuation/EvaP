@@ -19,10 +19,10 @@ def index(request):
     
     sorter = lambda course: STATES_ORDERED.keys().index(course.state)
     
-    own_courses = list(Course.objects.filter(assignments__lecturer=user, state__in=['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
+    own_courses = list(Course.objects.filter(assignments__lecturer=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
     own_courses.sort(key=sorter)
 
-    proxied_courses = list(Course.objects.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
+    proxied_courses = list(Course.objects.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
     proxied_courses.sort(key=sorter)
     
     return render_to_response("lecturer_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
