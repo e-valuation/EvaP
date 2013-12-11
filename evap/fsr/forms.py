@@ -317,7 +317,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_lecturer')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_superuser', 'is_lecturer')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -352,7 +352,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         
         raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
     
-    def save(self, *args, **kw):
+    def _post_clean(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
         self.instance.user.username = self.cleaned_data.get('username')
         self.instance.user.first_name = self.cleaned_data.get('first_name')
@@ -364,7 +364,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.represented_users = self.cleaned_data.get('represented_users')
         self.instance = UserProfile.get_for_user(self.instance.user)
         
-        super(UserForm, self).save(*args, **kw)
+        super(UserForm, self)._post_clean(*args, **kw)
 
 
 class LotteryForm(forms.Form, BootstrapMixin):
