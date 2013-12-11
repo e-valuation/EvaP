@@ -50,8 +50,8 @@
         <p>{% trans "There are no courses for you this semester yet. You will get informed by Email, as soon as your courses are approved for your review by the student representatives." %}</p>
     {% endif %}
     <br/>
-    <h3>{% trans "Courses for which you are a proxy" %}</h3>
-    {% if proxied_courses %}
+    <h3>{% trans "Courses for which you are a delegate" %}</h3>
+    {% if delegated_courses %}
         <table class="zebra-striped vertically-aligned">
             <thead>
             <tr>
@@ -63,7 +63,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for course in proxied_courses %}
+            {% for course in delegated_courses %}
                 <tr>
                     <td class="maximize">
                         <div>

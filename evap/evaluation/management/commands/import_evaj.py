@@ -222,7 +222,7 @@ class Command(BaseCommand):
                         vote_start_date=parse_date(str(xml_course.survey_start_date)),
                         vote_end_date=parse_date(str(xml_course.survey_start_date)),
                         kind=u",".join(self.get_lecture_types(xml_course)),
-                        study=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
+                        degree=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
                         state='published')
                     
                     course.participants = self.get_participants(xml_course)

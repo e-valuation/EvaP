@@ -44,7 +44,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'study',
+        fields = ('name_de', 'name_en', 'kind', 'degree',
                   'vote_start_date', 'vote_end_date', 'participants',
                   'general_questions',
                   'last_modified_time_2', 'last_modified_user_2')
@@ -55,7 +55,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_start_date'].localize = False
         self.fields['vote_end_date'].localize = False
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
-        self.fields['study'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('study', flat=True).order_by().distinct()])
+        self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
         self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
         
         if self.instance.general_assignment:
@@ -289,9 +289,9 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, study, queryset, filter_func, *args, **kwargs):
+    def __init__(self, degree, queryset, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
-        self.study = study
+        self.degree = degree
         self.queryset = queryset
         self.selected_courses = []
         self.filter_func = filter_func or (lambda x: True)
@@ -310,25 +310,25 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    proxied_users = forms.IntegerField()
+    represented_users = forms.IntegerField()
     
     # steal form field definitions for the User model
     locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff')))
     
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'proxies', 'proxied_users', 'is_staff', 'is_lecturer')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_lecturer')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         
         # fix generated form
-        self.fields['proxies'].required = False
-        self.fields['proxies'].queryset = User.objects.order_by("username")
+        self.fields['delegates'].required = False
+        self.fields['delegates'].queryset = User.objects.order_by("username")
         self.fields['is_staff'].label = _(u"FSR Member")
-        self.fields['proxied_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
-                                                                      initial=self.instance.user.proxied_users.all() if self.instance.pk else (),
-                                                                      label=_("Proxied Users"),
+        self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
+                                                                      initial=self.instance.user.represented_users.all() if self.instance.pk else (),
+                                                                      label=_("Represented Users"),
                                                                       required=False)
         
         # load user fields
@@ -358,7 +358,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.email = self.cleaned_data.get('email')
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
         self.instance.user.save()
-        self.instance.user.proxied_users = self.cleaned_data.get('proxied_users')
+        self.instance.user.represented_users = self.cleaned_data.get('represented_users')
         self.instance = UserProfile.get_for_user(self.instance.user)
         
         super(UserForm, self).save(*args, **kw)

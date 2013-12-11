@@ -107,7 +107,7 @@ msgid "type"
 msgstr "Typ"
 
 #: .\evaluation\models.py:109
-msgid "study"
+msgid "degree"
 msgstr "Studiengang"
 
 #: .\evaluation\models.py:112
@@ -244,7 +244,7 @@ msgid "Picture"
 msgstr "Foto"
 
 #: .\evaluation\models.py:407
-msgid "Proxies"
+msgid "Delegates"
 msgstr "Stellvertreter"
 
 #: .\evaluation\models.py:410 .\fsr\templates\fsr_user_index.html.py:45
@@ -422,7 +422,7 @@ msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
 #: .\fsr\forms.py:329
-msgid "Proxied Users"
+msgid "Represented Users"
 msgstr "Stellvertreter für"
 
 #: .\fsr\forms.py:349
@@ -1124,7 +1124,7 @@ msgstr ""
 "informiert, sobald Ihre Veranstaltungen zur Überprüfung freigegeben wurden."
 
 #: .\lecturer\templates\lecturer_index.html.py:53
-msgid "Courses for which you are a proxy"
+msgid "Courses for which you are a delegate"
 msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
 
 #: .\lecturer\templates\lecturer_index.html.py:95
@@ -1150,7 +1150,7 @@ msgid "Profile"
 msgstr "Profil"
 
 #: .\lecturer\templates\lecturer_profile.html.py:20
-msgid "People for which you are a proxy"
+msgid "People for which you are a delegate"
 msgstr "Personen für die Sie als Stellvertreter eingetragen sind"
 
 #: .\lecturer\templates\lecturer_profile.html.py:28
@@ -1356,7 +1356,7 @@ msgid ""
 "\n"
 "        The different information, imported into the system, are provided by "
 "the Studienreferat.<br>\n"
-"        After that the lectures, their proxies or the student "
+"        After that the lectures, their delegates or the student "
 "representatives correct any mistakes.<br>\n"
 "        If you just found another error please contact the responsible "
 "lecturer or the student representatives.\n"
@@ -1460,14 +1460,14 @@ msgstr ""
 "weitere Nutzer anlegen, falls dies notwendig ist."
 
 #: .\templates\faq.html.py:96
-msgid "What are proxies?"
+msgid "What are delegates?"
 msgstr "Was sind Stellvertreter?"
 
 #: .\templates\faq.html.py:98
 msgid ""
 "\n"
 "        As professors do not have much time, it is possible for them to "
-"elect one or more proxies, e.g. a secretary or an employee of the chair.\n"
+"elect one or more delegates, e.g. a secretary or an employee of the chair.\n"
 "        These people then can edit the courses as the original lecturer "
 "could, i.e. add questionnaires and setup the correct assistants and "
 "evaluation period.\n"

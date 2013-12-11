@@ -54,11 +54,11 @@ class UserData(object):
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
     
-    def __init__(self, name_de=None, name_en=None, kind=None, study=None):
+    def __init__(self, name_de=None, name_en=None, kind=None, degree=None):
         self.name_de = name_de
         self.name_en = name_en
         self.kind = kind
-        self.study = study
+        self.degree = degree
     
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
@@ -67,7 +67,7 @@ class CourseData(object):
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
                         semester=semester,
-                        study=self.study)
+                        degree=self.degree)
         course.save()
         return course
 
@@ -92,7 +92,7 @@ class ExcelImporter(object):
                         # assign data to data objects
                         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
                         lecturer_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12], is_lecturer=True)
-                        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], study=data[0][:-7])
+                        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
                     
                         # store data objects together with the data source location for problem tracking
                         self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
@@ -145,7 +145,7 @@ class ExcelImporter(object):
                         lecturer_count += 1
                     
                     try:
-                        course = Course.objects.get(semester=semester, name_de=course_data.name_de, study=course_data.study)
+                        course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                     except Course.DoesNotExist:
                         course = course_data.store_in_database(vote_start_date, vote_end_date, semester)
                         course.assignments.create(lecturer=lecturer, course=course)

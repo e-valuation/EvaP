@@ -105,7 +105,7 @@ class Course(models.Model):
     kind = models.CharField(max_length=100, verbose_name=_(u"type"))
     
     # bachelor, master, d-school course
-    study = models.CharField(max_length=100, verbose_name=_(u"study"))
+    degree = models.CharField(max_length=100, verbose_name=_(u"degree"))
     
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
@@ -124,10 +124,10 @@ class Course(models.Model):
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
     class Meta:
-        ordering = ('semester', 'study', 'name_de')
+        ordering = ('semester', 'degree', 'name_de')
         unique_together = (
-            ('semester', 'study', 'name_de'),
-            ('semester', 'study', 'name_en'),
+            ('semester', 'degree', 'name_de'),
+            ('semester', 'degree', 'name_en'),
         )
         verbose_name = _(u"course")
         verbose_name_plural = _(u"courses")
@@ -244,7 +244,7 @@ class Course(models.Model):
     def is_user_lecturer(self, user):
         if self.assignments.filter(lecturer=user).exists() and UserProfile.get_for_user(user).is_lecturer:
             return True
-        elif self.assignments.filter(lecturer__in=user.proxied_users.all()).exists():
+        elif self.assignments.filter(lecturer__in=user.represented_users.all()).exists():
             return True
         
         return False
@@ -252,7 +252,7 @@ class Course(models.Model):
     def is_user_lecturer_or_ta(self, user):
         if self.assignments.filter(lecturer=user).exists():
             return True
-        elif self.assignments.filter(lecturer__in=user.proxied_users.all()).exists():
+        elif self.assignments.filter(lecturer__in=user.represented_users.all()).exists():
             return True
         
         return False
@@ -402,8 +402,8 @@ class UserProfile(models.Model):
     # picture of the user
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
     
-    # proxies of the user, which can also manage their courses
-    proxies = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Proxies"), related_name="proxied_users", blank=True)
+    # delegates of the user, which can also manage their courses
+    delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
     
     # is the user possibly a lecturer
     is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"))
@@ -438,8 +438,8 @@ class UserProfile(models.Model):
     def has_courses(self):
         return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
     
-    def is_lecturer_or_proxy(self):
-        return self.is_lecturer or UserProfile.objects.filter(proxies=self.user, is_lecturer=True).exists()
+    def is_lecturer_or_delegate(self):
+        return self.is_lecturer or UserProfile.objects.filter(delegates=self.user, is_lecturer=True).exists()
     
     @classmethod
     def get_for_user(cls, user):
