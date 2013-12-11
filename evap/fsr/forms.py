@@ -321,6 +321,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
+        profile = UserProfile.get_for_user(self.instance.user)
         
         # fix generated form
         self.fields['proxies'].required = False
@@ -337,6 +338,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['last_name'].initial = self.instance.user.last_name
         self.fields['email'].initial = self.instance.user.email
         self.fields['is_staff'].initial = self.instance.user.is_staff
+        self.fields['is_lecturer'].initial = profile.is_lecturer
 
     def clean_username(self):
         conflicting_user = User.objects.filter(username__iexact=self.cleaned_data.get('username'))
@@ -360,6 +362,8 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.save()
         self.instance.user.proxied_users = self.cleaned_data.get('proxied_users')
         self.instance = UserProfile.get_for_user(self.instance.user)
+
+        self.instance.is_lecturer = self.cleaned_data.get('is_lecturer')
         
         super(UserForm, self).save(*args, **kw)
 
