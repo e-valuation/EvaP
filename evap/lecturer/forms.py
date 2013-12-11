@@ -11,7 +11,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'study', 'general_questions')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'degree', 'general_questions')
     
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
@@ -19,13 +19,13 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_start_date'].localize = False
         self.fields['vote_end_date'].localize = False        
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])        
-        self.fields['study'].widget.attrs['readonly'] = True
+        self.fields['degree'].widget.attrs['readonly'] = True
         
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
         
-    def clean_study(self):
-        return self.instance.study
+    def clean_degree(self):
+        return self.instance.degree
 
     def save(self, *args, **kw):
         user = kw.pop("user")
@@ -50,14 +50,14 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = UserProfile
-        fields = ('title', 'first_name', 'last_name', 'email', 'picture', 'proxies')
+        fields = ('title', 'first_name', 'last_name', 'email', 'picture', 'delegates')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         
         # fix generated form
-        self.fields['proxies'].required = False
-        self.fields['proxies'].queryset = User.objects.order_by("username")
+        self.fields['delegates'].required = False
+        self.fields['delegates'].queryset = User.objects.order_by("username")
         
         # load user fields
         self.fields['first_name'].initial = self.instance.user.first_name

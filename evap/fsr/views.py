@@ -605,14 +605,14 @@ def template_edit(request, template_id):
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
     grouped_courses = {}
     for course in courses:
-        study = course.study
-        if not grouped_courses.has_key(study):
-            grouped_courses[study] = []
-        grouped_courses[study].append(course)
+        degree = course.degree
+        if not grouped_courses.has_key(degree):
+            grouped_courses[degree] = []
+        grouped_courses[degree].append(course)
     
     forms = []
-    for study, studyCourses in grouped_courses.items():
-        form = SelectCourseForm(study, studyCourses, filter_func, request.POST or None)
+    for degree, degreeCourses in grouped_courses.items():
+        form = SelectCourseForm(degree, degreeCourses, filter_func, request.POST or None)
         forms.append(form)
     
     return forms

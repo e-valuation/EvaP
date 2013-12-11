@@ -172,22 +172,22 @@ def fsr_required(func):
     return user_passes_test_without_redirect(check_user)(func)
 
 
-def lecturer_or_proxy_required(func):
+def lecturer_or_delegate_required(func):
     """
     Decorator for views that checks that the user is logged in and marked as
-    lecturer or proxy for a lecturer.
+    lecturer or delegate for a lecturer.
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_lecturer_or_proxy()
+        return UserProfile.get_for_user(user=user).is_lecturer_or_delegate()
     return user_passes_test_without_redirect(check_user)(func)
     
 def lecturer_required(func):
     """
     Decorator for views that checks that the user is logged in and marked as
-    lecturer or proxy for a lecturer.
+    lecturer or delegate for a lecturer.
     """
     
     def check_user(user):

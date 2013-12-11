@@ -42,7 +42,7 @@
                             <div style="font-style: italic">
                                 {{ course.first_lecturer.get_profile.full_name }}
                             </div>
-                            <span class="label">{{ course.study }}</span>
+                            <span class="label">{{ course.degree }}</span>
                             <span class="label">{{ course.kind }}</span>
                             {% for warning in course.warnings %}
                                 <span class="label important">{{ warning }}</span>
