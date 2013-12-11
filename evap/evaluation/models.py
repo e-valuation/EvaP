@@ -444,6 +444,14 @@ class UserProfile(models.Model):
         return self.is_lecturer or UserProfile.objects.filter(delegates=self.user, is_lecturer=True).exists()
     
     @classmethod
+    def email_needs_logon_key(cls, email):
+        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])    
+
+    @property
+    def needs_logon_key(self):
+        return UserProfile.email_needs_logon_key(self.user.email)
+
+    @classmethod
     def get_for_user(cls, user):
         obj, _ = cls.objects.get_or_create(user=user)
         return obj
@@ -456,8 +464,11 @@ class UserProfile(models.Model):
                 self.logon_key = key
                 break
         
+        self.refresh_logon_key()
+
+    def refresh_logon_key(self):
         self.logon_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
-    
+
     @staticmethod
     @receiver(post_save, sender=settings.AUTH_USER_MODEL)
     def create_user_profile(sender, instance, created, **kwargs):

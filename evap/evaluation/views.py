@@ -29,9 +29,7 @@ def index(request):
             # user wants a new login key
 
             # check if we got a domain user
-            if new_key_form.cleaned_data['email'].endswith("hpi.uni-potsdam.de"):
-                messages.warning(request, _(u"HPI users cannot request login keys. Please login using your domain credentials."))
-            else:
+            if UserProfile.email_needs_logon_key(new_key_form.cleaned_data['email']):
                 # non HPI email, send him/her a new logon key
                 try:
                     user = User.objects.get(email__iexact=new_key_form.cleaned_data['email'])
@@ -44,6 +42,8 @@ def index(request):
                     messages.success(request, _(u"Successfully sent email with new login key."))
                 except User.DoesNotExist:
                     messages.warning(request, _(u"No user with this e-mail address was found."))
+            else:
+                messages.warning(request, _(u"HPI users cannot request login keys. Please login using your domain credentials."))
         elif login_key_form.is_valid():
             # user would like to login with a login key and passed key test
             auth_login(request, login_key_form.get_user())

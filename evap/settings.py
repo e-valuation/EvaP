@@ -42,13 +42,17 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # key authentication settings
-LOGIN_KEY_VALIDITY = 90 # days
+LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
 
 # minimum answer count to ensure anonymity
 MIN_ANSWERS = 5
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
+
+# email domains for the internal users of the hosting institution used to 
+# figure out who can login with username and password and who needs a login key
+INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de"]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
