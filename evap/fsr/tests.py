@@ -14,10 +14,11 @@ def lastform(page):
 
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en', "REMOTE_USER":'fsr.user'}
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
     
     def test_import(self):
-        page = self.app.get(reverse("fsr_root"))
+        page = self.app.get(reverse("fsr_root"), user='fsr.user')
+
         
         # create a new semester
         page = page.click("[Ss]emesters")
