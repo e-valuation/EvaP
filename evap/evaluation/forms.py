@@ -2,6 +2,7 @@ from itertools import chain
 
 from django import forms
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.forms import widgets
 from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
@@ -9,6 +10,8 @@ from django.utils.encoding import force_unicode
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+
+from evap.evaluation.models import UserProfile
 
 
 class QuestionnaireChoiceIterator(ModelChoiceIterator):
@@ -92,7 +95,7 @@ class LoginUsernameForm(forms.Form):
             elif not self.user_cache.is_active:
                 raise forms.ValidationError(_("This account is inactive."))
         self.check_for_test_cookie()
-        return self.cleaned_data
+        return password
 
     def check_for_test_cookie(self):
         if self.request and not self.request.session.test_cookie_worked():
@@ -112,7 +115,7 @@ class LoginKeyForm(forms.Form):
        evaluation.auth.RequestAuthUserBackend.
     """
 
-    login_key = forms.IntegerField(label=_(u"login key"))
+    login_key = forms.IntegerField(label=_(u"login key"), error_messages={'invalid': _("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months.")})
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -127,7 +130,7 @@ class LoginKeyForm(forms.Form):
                 raise forms.ValidationError(_("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months."))
             elif not self.user_cache.is_active:
                 raise forms.ValidationError(_("This account is inactive."))
-        return self.cleaned_data
+        return login_key
 
     def get_user_id(self):
         if self.user_cache:
@@ -140,6 +143,33 @@ class LoginKeyForm(forms.Form):
 
 class NewKeyForm(forms.Form):
     email = forms.EmailField(label=_(u"e-mail address"))
+
+    def __init__(self, *args, **kwargs):
+        self.user_cache = None
+        self.profile_cache = None
+
+        super(NewKeyForm, self).__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if not UserProfile.email_needs_logon_key(email):
+            raise forms.ValidationError(_(u"HPI users cannot request login keys. Please login using your domain credentials."))
+
+        try:
+            user = User.objects.get(email__iexact=email)
+            self.user_cache = user
+            self.profile_cache = UserProfile.get_for_user(user)
+        except User.DoesNotExist:
+            raise forms.ValidationError(_(u"No user with this e-mail address was found."))
+
+        return email
+
+    def get_user(self):
+        return self.user_cache
+
+    def get_profile(self):
+        return self.profile_cache
 
 
 class BootstrapFieldset(object):
