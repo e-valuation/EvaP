@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
-from django.contrib.auth.models import User
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -27,23 +26,13 @@ def index(request):
     if request.method == 'POST':
         if new_key_form.is_valid():
             # user wants a new login key
-
-            # check if we got a domain user
-            if UserProfile.email_needs_logon_key(new_key_form.cleaned_data['email']):
-                # non HPI email, send him/her a new logon key
-                try:
-                    user = User.objects.get(email__iexact=new_key_form.cleaned_data['email'])
-                    profile = UserProfile.get_for_user(user)
-                    profile.generate_logon_key()
-                    profile.save()
-                    
-                    EmailTemplate.get_logon_key_template().send_user(user)
-                    
-                    messages.success(request, _(u"Successfully sent email with new login key."))
-                except User.DoesNotExist:
-                    messages.warning(request, _(u"No user with this e-mail address was found."))
-            else:
-                messages.warning(request, _(u"HPI users cannot request login keys. Please login using your domain credentials."))
+            profile = new_key_form.get_profile()
+            profile.generate_logon_key()
+            profile.save()
+            
+            EmailTemplate.get_logon_key_template().send_user(new_key_form.get_user())
+            
+            messages.success(request, _(u"Successfully sent email with new login key."))
         elif login_key_form.is_valid():
             # user would like to login with a login key and passed key test
             auth_login(request, login_key_form.get_user())
