@@ -7,13 +7,13 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Assignment, Course, Semester, UserProfile
-from evap.evaluation.auth import lecturer_required, lecturer_or_proxy_required
+from evap.evaluation.auth import lecturer_required, lecturer_or_delegate_required
 from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.lecturer.forms import CourseForm, UserForm
 from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, LecturerFormSet
 from evap.student.forms import QuestionsForm
 
-@lecturer_or_proxy_required
+@lecturer_or_delegate_required
 def index(request):
     user = request.user
     
@@ -22,10 +22,10 @@ def index(request):
     own_courses = list(Course.objects.filter(assignments__lecturer=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
     own_courses.sort(key=sorter)
 
-    proxied_courses = list(Course.objects.filter(assignments__lecturer__in=user.proxied_users.all(), state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
-    proxied_courses.sort(key=sorter)
+    delegated_courses = list(Course.objects.filter(assignments__lecturer__in=user.represented_users.all(), state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation']))
+    delegated_courses.sort(key=sorter)
     
-    return render_to_response("lecturer_index.html", dict(own_courses=own_courses, proxied_courses=proxied_courses), context_instance=RequestContext(request))
+    return render_to_response("lecturer_index.html", dict(own_courses=own_courses, delegated_courses=delegated_courses), context_instance=RequestContext(request))
 
 
 @lecturer_required
@@ -41,7 +41,7 @@ def profile_edit(request):
     else:
         return render_to_response("lecturer_profile.html", dict(form=form), context_instance=RequestContext(request))
 
-@lecturer_or_proxy_required
+@lecturer_or_delegate_required
 def course_view(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
@@ -61,7 +61,7 @@ def course_view(request, course_id):
     return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course, edit=False), context_instance=RequestContext(request))
 
 
-@lecturer_or_proxy_required
+@lecturer_or_delegate_required
 def course_edit(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
@@ -98,7 +98,7 @@ def course_edit(request, course_id):
         return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, read_only_assignments=read_only_assignments, course=course, edit=True), context_instance=RequestContext(request))
 
 
-@lecturer_or_proxy_required
+@lecturer_or_delegate_required
 def course_preview(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
