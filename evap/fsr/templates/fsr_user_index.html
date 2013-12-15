@@ -45,6 +45,9 @@
                     {% if user.get_profile.is_lecturer %}
                         <span class="label notice">{% trans "Lecturer" %}</span>
                     {% endif %}
+                    {% if user.get_profile.is_responsible %}
+                        <span class="label notice">{% trans "Responsible" %}</span>
+                    {% endif %}
                     {% if user.get_profile.is_delegate %}
                         <span class="label notice">{% trans "Delegate" %}</span>
                     {% endif %}

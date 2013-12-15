@@ -123,6 +123,9 @@ class Course(models.Model):
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
+    # the responsible person for the course
+    responsible = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True)
+
     class Meta:
         ordering = ('semester', 'degree', 'name_de')
         unique_together = (
@@ -229,13 +232,6 @@ class Course(models.Model):
             return self.voters.count()
         else:
             return self.voter_count or 0
-
-    @property
-    def first_lecturer(self):
-        for assignment in self.assignments.exclude(lecturer=None):
-            if UserProfile.get_for_user(assignment.lecturer).is_lecturer:
-                return assignment.lecturer
-        return None
 
     
     def has_enough_questionnaires(self):
@@ -439,6 +435,10 @@ class UserProfile(models.Model):
     @property
     def is_lecturer(self):
         return Course.objects.filter(assignments__lecturer=self.user, assignments__read_only=False).exists()
+
+    @property
+    def is_responsible(self):
+        return Course.objects.filter(responsible=self.user).exists()
 
     @property
     def is_delegate(self):
