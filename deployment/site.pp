@@ -13,7 +13,7 @@ node default {
         ensure => installed,
     } -> 
     # python packages
-    package { ['python', 'python-dev', 'python-pip', 'libxml2-dev', 'libxslt-dev', 'python-lxml']:
+    package { ['python', 'python-dev', 'python-pip', 'libxml2-dev', 'libxslt-dev', 'python-lxml', 'gettext']:
         ensure => installed,
     } -> 
     # configure mysql
