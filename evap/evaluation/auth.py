@@ -181,7 +181,7 @@ def lecturer_or_delegate_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_lecturer_or_delegate()
+        return UserProfile.get_for_user(user=user).is_lecturer_or_delegate
     return user_passes_test_without_redirect(check_user)(func)
     
 def lecturer_required(func):
