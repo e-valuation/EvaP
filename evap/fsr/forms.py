@@ -17,10 +17,10 @@ from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleCh
 
 
 class ImportForm(forms.Form, BootstrapMixin):
-    vote_start_date = forms.DateField(label=_(u"first date to vote"))
-    vote_end_date = forms.DateField(label=_(u"last date to vote"))
+    vote_start_date = forms.DateField(label=_(u"First date to vote"))
+    vote_end_date = forms.DateField(label=_(u"Last date to vote"))
     
-    excel_file = forms.FileField(label=_(u"excel file"))
+    excel_file = forms.FileField(label=_(u"Excel file"))
     
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)

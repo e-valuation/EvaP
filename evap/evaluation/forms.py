@@ -115,7 +115,9 @@ class LoginKeyForm(forms.Form):
        evaluation.auth.RequestAuthUserBackend.
     """
 
-    login_key = forms.IntegerField(label=_(u"login key"), error_messages={'invalid': _("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months.")})
+    INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months.")
+
+    login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE})
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -127,7 +129,7 @@ class LoginKeyForm(forms.Form):
         if login_key:
             self.user_cache = authenticate(key=login_key)
             if self.user_cache is None:
-                raise forms.ValidationError(_("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months."))
+                raise forms.ValidationError(LoginKeyForm.INVALID_CODE_MESSAGE)
             elif not self.user_cache.is_active:
                 raise forms.ValidationError(_("This account is inactive."))
         return login_key
@@ -142,7 +144,7 @@ class LoginKeyForm(forms.Form):
 
 
 class NewKeyForm(forms.Form):
-    email = forms.EmailField(label=_(u"e-mail address"))
+    email = forms.EmailField(label=_(u"Email address"))
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
