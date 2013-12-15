@@ -38,7 +38,7 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Logon Key Created")
     
     @classmethod
-    def receipient_list_for_course(cls, course, send_to_lecturers, send_to_participants):
+    def recipient_list_for_course(cls, course, send_to_lecturers, send_to_participants):
         from evap.evaluation.models import UserProfile
 
         if send_to_participants:
@@ -60,7 +60,7 @@ class EmailTemplate(models.Model):
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
-            for user in [user for user in self.receipient_list_for_course(course, send_to_lecturers, send_to_participants) if user.email != ""]:
+            for user in [user for user in self.recipient_list_for_course(course, send_to_lecturers, send_to_participants) if user.email != ""]:
                 if (not only_non_evaluated) or (user not in course.voters.all()):
                     if user in user_course_map:
                         user_course_map[user].append(course)

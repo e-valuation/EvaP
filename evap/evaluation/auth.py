@@ -187,7 +187,7 @@ def lecturer_or_delegate_required(func):
 def lecturer_required(func):
     """
     Decorator for views that checks that the user is logged in and marked as
-    lecturer or delegate for a lecturer.
+    lecturer.
     """
     
     def check_user(user):

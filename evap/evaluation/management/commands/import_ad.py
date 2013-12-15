@@ -32,11 +32,6 @@ class Command(BaseCommand):
                     user.email = attrs['mail'][0]
                     user.save()
                     
-                    p = UserProfile.get_for_user(user)
-                    if not p.is_lecturer:
-                        p.is_lecturer = dn.endswith("OU=Mitarbeiter,OU=INSTITUT,DC=hpi,DC=uni-potsdam,DC=de")
-                    p.save()
-                    
                     print "Successfully updated: '{0}'".format(user.username)
                 except User.DoesNotExist:
                     pass

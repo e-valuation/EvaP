@@ -13,13 +13,12 @@ import xlrd
 class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
     
-    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None, is_lecturer=False):
+    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
         self.title = title
         self.email = email
-        self.is_lecturer = is_lecturer
     
     def store_in_database(self):
         user = User(username=self.username,
@@ -29,7 +28,6 @@ class UserData(object):
         user.save()
         profile = UserProfile.get_for_user(user=user)
         profile.title = self.title
-        profile.is_lecturer = self.is_lecturer
         profile.save()
         return user
 
@@ -44,8 +42,6 @@ class UserData(object):
             user.email = self.email
         if not profile.title:
             profile.title = self.title
-        if not profile.is_lecturer:
-            profile.is_lecturer = self.is_lecturer
         
         user.save()
         profile.save()
@@ -91,7 +87,7 @@ class ExcelImporter(object):
                     if len(data) == 13:
                         # assign data to data objects
                         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
-                        lecturer_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12], is_lecturer=True)
+                        lecturer_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
                         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
                     
                         # store data objects together with the data source location for problem tracking

@@ -317,7 +317,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_lecturer')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
