@@ -23,7 +23,7 @@
                 <h2>{% trans "HPI student or lecturer" %}</h2>
                 
                 <div class="well">
-                    <p>{% trans "As a HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+                    <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
                     <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="login_username" />

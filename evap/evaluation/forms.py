@@ -115,7 +115,7 @@ class LoginKeyForm(forms.Form):
        evaluation.auth.RequestAuthUserBackend.
     """
 
-    INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after three months.")
+    INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months.")
 
     login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE})
 
@@ -163,7 +163,7 @@ class NewKeyForm(forms.Form):
             self.user_cache = user
             self.profile_cache = UserProfile.get_for_user(user)
         except User.DoesNotExist:
-            raise forms.ValidationError(_(u"No user with this e-mail address was found. Please make sure  that you use the same e-mail address that you used when you enrolled. Otherwise the system cannot associate your address with an user account."))
+            raise forms.ValidationError(_(u"No user with this e-mail address was found. Please make sure that you use the same e-mail address that you used when you enrolled."))
 
         return email
 
