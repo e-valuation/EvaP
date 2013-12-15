@@ -31,43 +31,39 @@
                 <a class="brand" href="/">{% trans "Evaluation Platform" %}</a>
                 <ul class="nav">
                     {% if user.is_active %}
-                    {% if user.get_profile.has_courses %}
-                        <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
-                    {% endif %}
-                    
-                    {% if user.is_staff %}
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %}</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
-                            <li><a href="{% url "evap.fsr.views.semester_index" %}">{% trans "Semesters" %}</a>
-                            {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
+                        {% if user.get_profile.has_courses %}
+                            <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+                        {% endif %}
+                        
+                        {% if user.is_staff %}
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %}</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "evap.fsr.views.semester_index" %}">{% trans "Semesters" %}</a>
+                                    {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
+                                    </li>
+                                    <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+                                    <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+                                    <li><a href="{% url "evap.fsr.views.template_index" %}">{% trans "Templates" %}</a></li>
+                                </ul>
                             </li>
-                            <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
-                            <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
-                            <li><a href="{% url "evap.fsr.views.template_index" %}">{% trans "Templates" %}</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                    
-                    {% if user.get_profile.is_lecturer_or_delegate %}
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" href="{% url "evap.lecturer.views.index" %}">{% trans "Lecturer" %}</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url "evap.lecturer.views.index" %}">{% trans "Overview" %}</a></li>
-                            {% if user.get_profile.is_lecturer %}
-                                <li><a href="{% url "evap.lecturer.views.profile_edit" %}">{% trans "Profile" %}</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                    {% endif %}
-                    
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" href="{% url "evap.results.views.index" %}">{% trans "Results" %}</a>
-                        <ul class="dropdown-menu">
-                            {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
-                        </ul>
-                    </li>
+                        {% endif %}
+                        
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" href="{% url "evap.results.views.index" %}">{% trans "Results" %}</a>
+                            <ul class="dropdown-menu">
+                                {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
+                            </ul>
+                        </li>
+
+                        {% if user.get_profile.is_lecturer_or_delegate %}
+                            <li><a href="{% url "evap.lecturer.views.index" %}">{% trans "My courses" %}</a></li>
+                        {% endif %}
+
+                        {% if user.get_profile.is_lecturer %}
+                            <li><a href="{% url "evap.lecturer.views.profile_edit" %}">{% trans "My profile" %}</a></li>
+                        {% endif %}
                     {% endif %}
                 </ul>
                 <div class="pull-right">
