@@ -15,13 +15,43 @@
     {% else %}
         <h2>{% trans "Welcome to the evaluation platform!" %}</h2>
         
-        <p>{% trans "You are currently not logged in..." %}</p><br/>
+        <p>{% trans "You are currently not logged in." %}</p><br/>
 
         <div class="row">
+
+            <div class="span8">
+                <h2>{% trans "HPI student or lecturer" %}</h2>
+                
+                <div class="well">
+                    <p>{% trans "As a HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="login_username" />
+
+                        <fieldset>
+                            {% for field in login_username_form %}
+                                <div class="clearfix">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn success" type="submit" value="{% trans "Login" %}">
+                        </div>
+                    </form>
+                </div>    
+            </div>
+
             <div class="span8">
                 <h2>{% trans "External student or lecturer" %}</h2>
                 <div class="well">
-                    <p>{% trans "..., if you are an external student or lecturer, please log in using your login key or generate a new one below." %}</p>
+                    <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
                     <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="login_key" />
@@ -45,15 +75,8 @@
                     </form> 
                 </div>
                 <div class="well">
-                    <h4>{% trans "Generate a new external login key" %}</h4>
-                    <p>{% blocktrans %}
-                        If you do not have a login key or lost your previous login key, 
-                        you can create a new one here. Please enter your e-mail address 
-                        below. A new key will be sent to this address. Please make sure 
-                        that you use the same e-mail address that you used when you
-                        enrolled. Otherwise the system cannot associate your address
-                        with an user account.
-                        {% endblocktrans %}</p>
+                    <h4>{% trans "Don't have a key or lost it?" %}</h4>
+                    <p>{% trans "Please enter your email address to get a new login key. Please make sure  that you use the same e-mail address that you used when you enrolled. Otherwise the system cannot associate your address with an user account." %}</p>
                     <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="new_key" />
@@ -75,35 +98,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="span8">
-                <h2>{% trans "HPI student or lecturer" %}</h2>
-                
-                <div class="well">
-                    <p>{% trans "..., if you are a HPI student or lecturer, please log in using your usual HPI credentials." %}</p>
-                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="submit_type" value="login_username" />
-
-                        <fieldset>
-                            {% for field in login_username_form %}
-                                <div class="clearfix">
-                                    {{ field.label_tag }}
-                                    <div class="input">
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </fieldset>
-                        <div class="actions">
-                            <input class="btn success" type="submit" value="{% trans "Login" %}">
-                        </div>
-                    </form>
-                </div>    
             </div>
         </div>
     {% endif %}
