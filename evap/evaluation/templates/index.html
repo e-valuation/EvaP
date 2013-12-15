@@ -30,7 +30,7 @@
 
                         <fieldset>
                             {% for field in login_username_form %}
-                                <div class="clearfix">
+                                <div class="clearfix{% if field.errors %} error{% endif %}">
                                     {{ field.label_tag }}
                                     <div class="input">
                                         {{ field }}
@@ -52,13 +52,14 @@
                 <h2>{% trans "External student or lecturer" %}</h2>
                 <div class="well">
                     <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
+
                     <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="login_key" />
 
                         <fieldset>
                             {% for field in login_key_form %}
-                                <div class="clearfix">
+                                <div class="clearfix {% if field.errors %} error{% endif %}">
                                     {{ field.label_tag }}
                                     <div class="input">
                                         {{ field }}
@@ -82,7 +83,7 @@
                         <input type="hidden" name="submit_type" value="new_key" />
                         <fieldset>
                             {% for field in new_key_form %}
-                                <div class="clearfix">
+                                <div class="clearfix{% if field.errors %} error{% endif %}">
                                     {{ field.label_tag }}
                                     <div class="input">
                                         {{ field }}
