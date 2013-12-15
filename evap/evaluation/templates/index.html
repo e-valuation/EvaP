@@ -76,7 +76,7 @@
                 </div>
                 <div class="well">
                     <h4>{% trans "Don't have a key or lost it?" %}</h4>
-                    <p>{% trans "Please enter your email address to get a new login key. Please make sure  that you use the same e-mail address that you used when you enrolled. Otherwise the system cannot associate your address with an user account." %}</p>
+                    <p>{% trans "Please enter your email address to get a new login key." %}</p>
                     <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="new_key" />

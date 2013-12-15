@@ -163,7 +163,7 @@ class NewKeyForm(forms.Form):
             self.user_cache = user
             self.profile_cache = UserProfile.get_for_user(user)
         except User.DoesNotExist:
-            raise forms.ValidationError(_(u"No user with this e-mail address was found."))
+            raise forms.ValidationError(_(u"No user with this e-mail address was found. Please make sure  that you use the same e-mail address that you used when you enrolled. Otherwise the system cannot associate your address with an user account."))
 
         return email
 
