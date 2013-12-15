@@ -242,7 +242,7 @@ class Course(models.Model):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
     def is_user_lecturer(self, user):
-        if self.assignments.filter(lecturer=user).exists() and UserProfile.get_for_user(user).is_lecturer:
+        if self.assignments.filter(lecturer=user).exists():
             return True
         elif self.assignments.filter(lecturer__in=user.represented_users.all()).exists():
             return True
@@ -405,9 +405,6 @@ class UserProfile(models.Model):
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
     
-    # is the user possibly a lecturer
-    is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"))
-    
     # key for url based logon of this user
     logon_key = models.IntegerField(verbose_name=_(u"Logon Key"), blank=True, null=True)
     logon_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
@@ -435,11 +432,21 @@ class UserProfile(models.Model):
     def can_fsr_delete(self):
         return not Course.objects.filter(assignments__lecturer=self.user).exists()
     
+    @property
     def has_courses(self):
         return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
     
+    @property
+    def is_lecturer(self):
+        return Course.objects.filter(assignments__lecturer=self.user, assignments__read_only=False).exists()
+
+    @property
+    def is_delegate(self):
+        return UserProfile.objects.filter(delegates=self.user).exists()
+
+    @property
     def is_lecturer_or_delegate(self):
-        return self.is_lecturer or UserProfile.objects.filter(delegates=self.user, is_lecturer=True).exists()
+        return self.is_lecturer or self.is_delegate
     
     @classmethod
     def get_for_user(cls, user):

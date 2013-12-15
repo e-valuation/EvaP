@@ -22,7 +22,6 @@ from evap.student.forms import QuestionsForm
 
 import random
 
-
 @fsr_required
 def index(request):
     semesters = Semester.objects.all()
@@ -527,6 +526,8 @@ def user_index(request):
         users = users.filter(is_staff=True)
     elif filter == "lecturers":
         users = [user for user in users if UserProfile.get_for_user(user).is_lecturer]
+    elif filter == "delegates":
+        users = [user for user in users if UserProfile.get_for_user(user).is_delegate]
     
     return render_to_response("fsr_user_index.html", dict(users=users, filter=filter), context_instance=RequestContext(request))
 

@@ -14,6 +14,7 @@
         <li class="{% if not filter %}active{% endif %}"><a href="?">{% trans "All" %}</a></li>
         <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
         <li class="{% if filter == 'lecturers' %}active{% endif %}"><a href="?filter=lecturers">{% trans "Lecturers" %}</a></li>
+        <li class="{% if filter == 'delegates' %}active{% endif %}"><a href="?filter=delegates">{% trans "Delegates" %}</a></li>
         <div class="pull-right">
             <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small success">{% trans "Create new user" %}</a>
         </div>
@@ -43,6 +44,9 @@
                     {% endif %}
                     {% if user.get_profile.is_lecturer %}
                         <span class="label notice">{% trans "Lecturer" %}</span>
+                    {% endif %}
+                    {% if user.get_profile.is_delegate %}
+                        <span class="label notice">{% trans "Delegate" %}</span>
                     {% endif %}
                     {% if user.get_profile.logon_key %}
                         <span class="label notice">{% trans "Logon Key" %}</span>

@@ -80,16 +80,12 @@ class Command(BaseCommand):
             # get fsr flag
             is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
             
-            # get lecturer flag
-            is_lecturer = True if read_value("Is lecturer (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
-            
             # create user
             user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
             if not password is None:
                 user.set_password(password)
                 user.save()
             profile = UserProfile.get_for_user(user)
-            profile.is_lecturer = is_lecturer
             profile.save()
             
         except KeyboardInterrupt:
