@@ -61,7 +61,7 @@ msgid ""
 "Please enter a correct login key. Be aware that login keys are automatically "
 "invalidated after seven months."
 msgstr ""
-"Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: Anmeldeschlüssel "
+"Bitte geben Sie einen gültigen Anmeldeschlüssel ein. Hinweis: Anmeldeschlüssel "
 "gelten nur sieben Monate."
 
 #: evaluation/forms.py:120
@@ -84,11 +84,9 @@ msgstr ""
 
 #: evaluation/forms.py:166
 msgid ""
-"No user with this e-mail address was found. Please make sure that you use "
-"the same e-mail address that you used when you enrolled."
+"No user with this e-mail address was found. Please make sure to enter the email address already known to the university office."
 msgstr ""
-"Kein Benutzer mit dieser Email-Adresse gefunden. Bitte stellen Sie sicher, "
-"dass sie die gleiche Email-Adresse wie bei der Anmeldung verwenden."
+"Kein Benutzer mit dieser Email-Adresse gefunden. Bitte verwenden Sie die E-Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
 
 #: evaluation/models.py:25 evaluation/models.py:57 evaluation/models.py:100
 msgid "name (german)"
@@ -435,7 +433,7 @@ msgstr "HPI-Student oder -Dozent"
 msgid ""
 "As an HPI student or lecturer please log in using your usual HPI credentials."
 msgstr ""
-"Als HPI Student oder Dozent melden Sie sich bitte mit ihren üblichen HPI-"
+"Als HPI Student oder Dozent melden Sie sich bitte mit ihrem üblichen HPI-"
 "Login an."
 
 #: evaluation/templates/index.html:45 evaluation/templates/index.html.py:74
@@ -452,7 +450,7 @@ msgid ""
 "generate a new one below."
 msgstr ""
 "Als externer Student oder Dozent melden Sie sich bitte mit Ihrem "
-"Anmeldeschlüssel and oder lassen sich unten einen neuen zusenden."
+"Anmeldeschlüssel oder lassen sich unten einen neuen zusenden."
 
 #: evaluation/templates/index.html:79
 msgid "Don't have a key or lost it?"
