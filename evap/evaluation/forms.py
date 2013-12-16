@@ -163,7 +163,7 @@ class NewKeyForm(forms.Form):
             self.user_cache = user
             self.profile_cache = UserProfile.get_for_user(user)
         except User.DoesNotExist:
-            raise forms.ValidationError(_(u"No user with this e-mail address was found. Please make sure to enter the email address already known to the university office."))
+            raise forms.ValidationError(_(u"No user with this email address was found. Please make sure to enter the email address already known to the university office."))
 
         return email
 
