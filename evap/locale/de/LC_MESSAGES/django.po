@@ -84,9 +84,9 @@ msgstr ""
 
 #: evaluation/forms.py:166
 msgid ""
-"No user with this e-mail address was found. Please make sure to enter the email address already known to the university office."
+"No user with this email address was found. Please make sure to enter the email address already known to the university office."
 msgstr ""
-"Kein Benutzer mit dieser Email-Adresse gefunden. Bitte verwenden Sie die E-Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
+"Es wurde kein Benutzer mit dieser E-Mail-Adresse gefunden. Bitte verwenden Sie die E-Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
 
 #: evaluation/models.py:25 evaluation/models.py:57 evaluation/models.py:100
 msgid "name (german)"
@@ -374,7 +374,7 @@ msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
 #: evaluation/management/commands/create_user.py:15
-msgid "Enter a valid e-mail address.\n"
+msgid "Enter a valid email address.\n"
 msgstr "Eine gültige E-Mail-Adresse eingeben.\n"
 
 #: evaluation/management/commands/create_user.py:20
@@ -433,7 +433,7 @@ msgstr "HPI-Student oder -Dozent"
 msgid ""
 "As an HPI student or lecturer please log in using your usual HPI credentials."
 msgstr ""
-"Als HPI Student oder Dozent melden Sie sich bitte mit ihrem üblichen HPI-"
+"Als HPI-Student oder -Dozent melden Sie sich bitte mit ihrem üblichen HPI-"
 "Login an."
 
 #: evaluation/templates/index.html:45 evaluation/templates/index.html.py:74
@@ -450,7 +450,7 @@ msgid ""
 "generate a new one below."
 msgstr ""
 "Als externer Student oder Dozent melden Sie sich bitte mit Ihrem "
-"Anmeldeschlüssel oder lassen sich unten einen neuen zusenden."
+"Anmeldeschlüssel an oder lassen sich unten einen neuen zusenden."
 
 #: evaluation/templates/index.html:79
 msgid "Don't have a key or lost it?"
@@ -459,7 +459,7 @@ msgstr "Sie haben keinen Schlüssel oder ihn verloren?"
 #: evaluation/templates/index.html:80
 msgid "Please enter your email address to get a new login key."
 msgstr ""
-"Bitte geben Sie Ihre Email-Adresse ein, um einen neuen Anmeldeschlüssel zu "
+"Bitte geben Sie Ihre E-Mail-Adresse ein, um einen neuen Anmeldeschlüssel zu "
 "erhalten."
 
 #: evaluation/templates/index.html:98
@@ -785,7 +785,7 @@ msgid "No"
 msgstr "Nein"
 
 #: fsr/templates/fsr_course_email.html:14
-msgid "Send e-mail"
+msgid "Send email"
 msgstr "E-Mail senden"
 
 #: fsr/templates/fsr_course_form.html:11
@@ -1088,7 +1088,7 @@ msgid "Text Answers"
 msgstr "Textantworten"
 
 #: fsr/templates/fsr_semester_view.html:67
-msgid "E-Mail"
+msgid "Email"
 msgstr "E-Mail"
 
 #: fsr/templates/fsr_semester_view.html:73
@@ -1153,7 +1153,7 @@ msgid "Student Representative"
 msgstr "FSR-Mitglied"
 
 #: fsr/templates/fsr_user_index.html:51
-msgid "E-Mail address missing!"
+msgid "Email address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
 #: lecturer/views.py:39
@@ -1959,7 +1959,7 @@ msgstr ""
 "angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, "
 "kann der Dozent die zugehörige Antwort nicht finden."
 
-#~ msgid "No user with this e-mail address was found."
+#~ msgid "No user with this email address was found."
 #~ msgstr "Kein Benutzer mit dieser E-Mail-Adresse gefunden."
 
 #~ msgid "There are no courses ready to approve."
@@ -2009,11 +2009,11 @@ msgstr ""
 #~ "\n"
 #~ "                If you do not have a login key or lost your previous "
 #~ "login key, \n"
-#~ "                you can create a new one here. Please enter your e-mail "
+#~ "                you can create a new one here. Please enter your email "
 #~ "address \n"
 #~ "                below. A new key will be sent to this address. Please "
 #~ "make sure \n"
-#~ "                that you use the same e-mail address that you used when "
+#~ "                that you use the same email address that you used when "
 #~ "you\n"
 #~ "                enrolled. Otherwise the system cannot associate your "
 #~ "address\n"
