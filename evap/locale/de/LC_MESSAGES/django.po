@@ -65,12 +65,10 @@ msgstr ""
 "Anmeldeschlüssel gelten nur sieben Monate."
 
 #: evaluation/forms.py:120
-#, fuzzy
 msgid "Login key"
 msgstr "Anmeldeschlüssel"
 
 #: evaluation/forms.py:147
-#, fuzzy
 msgid "Email address"
 msgstr "E&#8209;Mail-Adresse"
 
@@ -469,17 +467,14 @@ msgid "Send Key"
 msgstr "Schlüssel zusenden"
 
 #: fsr/forms.py:20
-#, fuzzy
 msgid "First date to vote"
 msgstr "Erster Abstimmungstag"
 
 #: fsr/forms.py:21
-#, fuzzy
 msgid "Last date to vote"
 msgstr "Letzter Abstimmungstag"
 
 #: fsr/forms.py:23
-#, fuzzy
 msgid "Excel file"
 msgstr "Exceldatei"
 
@@ -526,7 +521,6 @@ msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
 #: fsr/forms.py:151
-#, fuzzy
 msgid "Hidden"
 msgstr "Versteckt?"
 
@@ -670,7 +664,7 @@ msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
 #: fsr/views.py:333
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Successfully reviewed %(number)d course answers for %(name)s. %(name)s is "
 "now fully reviewed."
@@ -843,7 +837,6 @@ msgid "Save"
 msgstr "Speichern"
 
 #: fsr/templates/fsr_course_review.html:29
-#, fuzzy
 msgid "Save and show next"
 msgstr "Speichern und bestätigen"
 
@@ -1085,7 +1078,6 @@ msgid "Participants"
 msgstr "Teilnehmer"
 
 #: fsr/templates/fsr_semester_view.html:56
-#, fuzzy
 msgid "Text Answers"
 msgstr "Textantworten"
 
