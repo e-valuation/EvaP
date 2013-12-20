@@ -30,8 +30,8 @@
     "pk": 4, 
     "model": "fsr.EmailTemplate", 
     "fields": {
-      "name": "Logon Key Created", 
-      "subject": "[EvaP] A logon key was created",
+      "name": "Login Key Created", 
+      "subject": "[EvaP] A login key was created",
 	  "body": ""
     }
   }
