@@ -12,7 +12,7 @@ from evap.evaluation.models import User, UserProfile
 
 def is_valid_email(value):
     if not EMAIL_RE.search(value):
-        raise exceptions.ValidationError(_('Enter a valid e-mail address.\n'))
+        raise exceptions.ValidationError(_('Enter a valid email address.\n'))
 
 
 def is_valid_username(username):
@@ -72,7 +72,7 @@ class Command(BaseCommand):
             username = read_value('Username: ', is_valid_username)
             
             # Get an email
-            email = read_value('E-mail address: ', is_valid_email)
+            email = read_value('Email address: ', is_valid_email)
             
             # Get password if it should be set
             password = read_value_hidden('Password: ', lambda x: True) if options["has_password"] else None

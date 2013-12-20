@@ -45,10 +45,10 @@
                         <span class="label notice">{% trans "Lecturer" %}</span>
                     {% endif %}
                     {% if user.get_profile.logon_key %}
-                        <span class="label notice">{% trans "Logon Key" %}</span>
+                        <span class="label notice">{% trans "Login Key" %}</span>
                     {% endif %}
                     {% if not user.email %}
-                        <span class="label important">{% trans "E-Mail address missing!" %}</span>
+                        <span class="label important">{% trans "Email address missing!" %}</span>
                     {% endif %}
                 </td>
                 <td class="minimize">
