@@ -33,7 +33,7 @@
                 
                 <div class="well">
                     <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
-                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="login_username" />
 
@@ -62,7 +62,7 @@
                 <div class="well">
                     <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
 
-                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="login_key" />
 
@@ -87,7 +87,7 @@
                 <div class="well">
                     <h4>{% trans "Don't have a key or lost it?" %}</h4>
                     <p>{% trans "Please enter your email address to get a new login key." %}</p>
-                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}" method="POST">
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="new_key" />
                         <fieldset>
