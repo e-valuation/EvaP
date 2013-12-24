@@ -51,6 +51,18 @@ def index(request):
 
         return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
     else:
+        # check for redirect variable
+        next = request.GET.get("next", None)
+        if not next is None:
+            if next.startswith("/fsr/"):
+                if request.user.is_staff:
+                    return redirect(next)
+            elif next.startswith("/lecturer/"):
+                if UserProfile.get_for_user(request.user).is_lecturer:
+                    return redirect(next)
+            else:
+                return redirect(next)
+
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('evap.fsr.views.index')
