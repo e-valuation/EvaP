@@ -23,6 +23,8 @@ Contributors to EvaP
 - Michael Grünewald
 - Stefan Richter
 - Matthias Jacob
+- Arvid Heise
+- Nicolas Fricke
 - Stefanie Reinicke
 - Thomas Schulz
 - Johannes Linke
