@@ -158,8 +158,6 @@ MIDDLEWARE_CLASSES = (
     'evap.evaluation.403.Django403Middleware',
 )
 
-AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
-
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
     'django.contrib.auth.backends.ModelBackend',

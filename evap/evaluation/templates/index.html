@@ -17,7 +17,7 @@
     {{ block.super }}
     {% if request.user.is_active %}
         <p style="min-height:400px;">
-            {% blocktrans with name=request.user.get_profile.full_name %}
+            {% blocktrans with name=request.user.userprofile.full_name %}
             You are currently logged in as {{ name }}.
             {% endblocktrans %}
         </p>
