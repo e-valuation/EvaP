@@ -35,6 +35,7 @@ class ImportForm(forms.Form, BootstrapMixin):
 class SemesterForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Semester
+        fields = "__all__"
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
@@ -91,6 +92,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 class AssignmentForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Assignment
+        fields = "__all__"
     
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
@@ -143,6 +145,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Questionnaire
+        fields = "__all__"
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
@@ -242,6 +245,7 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
+        fields = "__all__"
     
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
