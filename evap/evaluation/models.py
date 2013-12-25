@@ -72,7 +72,7 @@ class Questionnaire(models.Model):
     
     index = models.IntegerField(verbose_name=_(u"ordering index"))
     
-    is_for_persons = models.BooleanField(verbose_name=_(u"is for persons"))
+    is_for_persons = models.BooleanField(verbose_name=_(u"is for persons"), default=False)
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
@@ -295,7 +295,7 @@ class Assignment(models.Model):
     lecturer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
-    read_only = models.BooleanField(verbose_name=_("read-only"))
+    read_only = models.BooleanField(verbose_name=_("read-only"), default=False)
 
     class Meta:
         unique_together = (
@@ -376,8 +376,8 @@ class TextAnswer(Answer):
     reviewed_answer = models.TextField(verbose_name=_(u"reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_(u"original answer"), blank=True)
     
-    checked = models.BooleanField(verbose_name=_(u"answer checked"))
-    hidden = models.BooleanField(verbose_name=_(u"hide answer"))
+    checked = models.BooleanField(verbose_name=_(u"answer checked"), default=False)
+    hidden = models.BooleanField(verbose_name=_(u"hide answer"), default=False)
     
     class Meta:
         verbose_name = _(u"text answer")
@@ -406,7 +406,7 @@ class UserProfile(models.Model):
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
     
     # is the user possibly a lecturer
-    is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"))
+    is_lecturer = models.BooleanField(verbose_name=_(u"Lecturer"), default=False)
     
     # key for url based logon of this user
     MAX_LOGON_KEY = 2**31-1
