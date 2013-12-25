@@ -32,7 +32,7 @@
         {% for user in users %}
             <tr>
                 <td class="minimize">
-                    {{ user.get_profile.full_name }}
+                    {{ user.userprofile.full_name }}
                 </td>
                 <td class="maximize">
                     {{ user.username }}
@@ -41,10 +41,10 @@
                     {% if user.is_staff %}
                         <span class="label notice">{% trans "Student Representative" %}</span>
                     {% endif %}
-                    {% if user.get_profile.is_lecturer %}
+                    {% if user.userprofile.is_lecturer %}
                         <span class="label notice">{% trans "Lecturer" %}</span>
                     {% endif %}
-                    {% if user.get_profile.logon_key %}
+                    {% if user.userprofile.logon_key %}
                         <span class="label notice">{% trans "Login Key" %}</span>
                     {% endif %}
                     {% if not user.email %}
@@ -53,7 +53,7 @@
                 </td>
                 <td class="minimize">
                     <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small">{% trans "Edit" %}</a>
-                    {% if user.get_profile.can_fsr_delete %}
+                    {% if user.userprofile.can_fsr_delete %}
                         <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small danger">{% trans "Delete" %}</a>
                     {% else %}
                         <a class="btn small danger disabled">{% trans "Delete" %}</a>

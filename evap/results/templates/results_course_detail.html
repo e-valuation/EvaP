@@ -24,7 +24,7 @@
         
         {% for questionnaire, lecturer, results, grade in group.list %}
             {% if lecturer %}
-                <h5>{{ lecturer.get_profile.full_name }}</h5>
+                <h5>{{ lecturer.userprofile.full_name }}</h5>
             {% endif %}
             
             <table class="zebra-striped">

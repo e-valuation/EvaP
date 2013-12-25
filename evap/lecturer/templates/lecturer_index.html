@@ -95,7 +95,7 @@
         <p>{% trans "There are no courses for you this semester yet." %}</p>
     {% endif %}
 
-    {% if user.get_profile.is_lecturer %}
+    {% if user.userprofile.is_lecturer %}
         <h3>{% trans "Own Profile"%}</h3>
         <p>{% trans "You can edit your own user profile here:" %} <a href="{% url "evap.lecturer.views.profile_edit" %}" class="btn">{% trans "Edit own Profile" %}</a></p>
     {% endif %}
