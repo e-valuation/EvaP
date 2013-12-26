@@ -89,29 +89,31 @@
         </div>
     </div>
     <div class="container">
-        <div class="row">
-            <div class="span16">
-                <ul class="breadcrumb">
-                    {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                </ul>
+        {% block breadcrumbs %}
+            <div class="row">
+                <div class="span16">
+                    <ul class="breadcrumb">
+                        {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+                    </ul>
+                </div>
             </div>
-        </div>
+        {% endblock %}
         {% if messages %}
-        <div class="row">
-            <div class="span16">
-                {% for message in messages %}
-                <div class="alert-message{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-                {% endfor %}
+            <div class="row">
+                <div class="span16">
+                    {% for message in messages %}
+                        <div class="alert-message{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
         {% endif %}
         {% block rawcontent %}
-        <div class="row">
-            <div class="span16">
-                {% block content %}
-                {% endblock %}
+            <div class="row">
+                <div class="span16">
+                    {% block content %}
+                    {% endblock %}
+                </div>
             </div>
-        </div>
         {% endblock %}
         <footer>
             <p>

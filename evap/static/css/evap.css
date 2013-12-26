@@ -71,3 +71,16 @@ td.vote-inputs > textarea {
 ul.errorlist li {
     color: #B94A48;
 }
+
+/* lean forms with smaller border */
+form.lean-form {
+    margin-bottom: 0px;
+}
+form.lean-form fieldset {
+    margin-bottom: 0px;
+}
+
+form.lean-form div.actions {
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+}

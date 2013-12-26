@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-26 07:42+0100\n"
+"POT-Creation-Date: 2013-12-26 08:09+0100\n"
 "PO-Revision-Date: 2012-02-12 15:06+0100\n"
 "Last-Translator: Michael Gruenewald <mail@michaelgruenewald.eu>\n"
 "Language-Team: \n"
@@ -24,15 +24,68 @@ msgstr "Nicht erlaubt"
 #: evaluation/403.py:25
 #, python-format
 msgid "You don't have permission to access %s on this server."
-msgstr "Sie haben keine Rechte, um auf die Seite %s auf dem Server zuzugreifen."
+msgstr ""
+"Sie haben keine Rechte, um auf die Seite %s auf dem Server zuzugreifen."
 
-#: evaluation/auth.py:53
+#: evaluation/auth.py:54
 msgid "Invalid login key."
 msgstr "Ungültiger Anmeldeschlüssel"
 
-#: evaluation/forms.py:66
-msgid "e-mail address"
-msgstr "E-Mail-Adresse"
+#: evaluation/forms.py:73 fsr/templates/fsr_user_index.html:27
+msgid "Username"
+msgstr "Benutzername"
+
+#: evaluation/forms.py:74
+msgid "Password"
+msgstr "Passwort:"
+
+#: evaluation/forms.py:94
+msgid "Please enter a correct username and password."
+msgstr "Falscher Benutzername oder falsches Passwort."
+
+#: evaluation/forms.py:96 evaluation/forms.py:134
+msgid "This account is inactive."
+msgstr "Der Benutzeraccount ist inaktiv."
+
+#: evaluation/forms.py:102
+msgid ""
+"Your Web browser doesn't appear to have cookies enabled. Cookies are "
+"required for logging in."
+msgstr ""
+"In Ihrem Web Browser scheinen Cookies deaktiviert zu sein. Cookies werden "
+"zur Anmeldung benötigt."
+
+#: evaluation/forms.py:118
+msgid ""
+"Please enter a correct login key. Be aware that login keys are automatically "
+"invalidated after seven months."
+msgstr ""
+"Bitte geben Sie einen gültigen Anmeldeschlüssel ein. Hinweis: "
+"Anmeldeschlüssel gelten nur sieben Monate."
+
+#: evaluation/forms.py:120
+msgid "Login key"
+msgstr "Anmeldeschlüssel"
+
+#: evaluation/forms.py:147
+msgid "Email address"
+msgstr "E‑Mail-Adresse"
+
+#: evaluation/forms.py:159
+msgid ""
+"HPI users cannot request login keys. Please login using your domain "
+"credentials."
+msgstr ""
+"HPI-Benutzer können Anmeldeschlüssel anfordern. Bitte melden Sie sich mit "
+"Ihrem Domänenlogin an."
+
+#: evaluation/forms.py:166
+msgid ""
+"No user with this email address was found. Please make sure to enter the "
+"email address already known to the university office."
+msgstr ""
+"Es wurde kein Benutzer mit dieser E‑Mail-Adresse gefunden. Bitte verwenden "
+"Sie die E‑Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
 
 #: evaluation/models.py:25 evaluation/models.py:57 evaluation/models.py:100
 msgid "name (german)"
@@ -122,12 +175,11 @@ msgstr "Wähler"
 msgid "voter count"
 msgstr "Anzahl Wähler"
 
-#: evaluation/models.py:119 fsr/forms.py:20
+#: evaluation/models.py:119
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: evaluation/models.py:120 fsr/forms.py:21
-#: student/templates/student_index.html:22
+#: evaluation/models.py:120 student/templates/student_index.html:22
 msgid "last date to vote"
 msgstr "Letzter Abstimmungstag"
 
@@ -249,19 +301,20 @@ msgstr "Foto"
 msgid "Delegates"
 msgstr "Stellvertreter"
 
-#: evaluation/models.py:413 fsr/templates/fsr_user_index.html:55
-msgid "Logon Key"
+#: evaluation/models.py:415 fsr/templates/fsr_user_index.html:55
+#, fuzzy
+msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:414
+#: evaluation/models.py:416
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:417
+#: evaluation/models.py:419
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:418
+#: evaluation/models.py:420
 msgid "users"
 msgstr "Benutzer"
 
@@ -317,17 +370,19 @@ msgstr "überprüft"
 msgid "published"
 msgstr "veröffentlicht"
 
-#: evaluation/views.py:29
-msgid "No user with this e-mail address was found."
-msgstr "Kein Benutzer mit dieser E-Mail-Adresse gefunden."
+#: evaluation/views.py:35
+msgid "Successfully sent email with new login key."
+msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
 #: evaluation/management/commands/create_user.py:15
-msgid "Enter a valid e-mail address.\n"
-msgstr "Eine gültige E-Mail-Adresse eingeben.\n"
+msgid "Enter a valid email address.\n"
+msgstr "Bitte geben Sie eine gültige E‑Mail-Adresse ein.\n"
 
 #: evaluation/management/commands/create_user.py:20
-msgid "Error: That username is invalid. Use only letters, digits and underscores.\n"
-msgstr "Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und "
+msgid ""
+"Error: That username is invalid. Use only letters, digits and underscores.\n"
+msgstr ""
+"Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und "
 "Unterstriche verwenden.\n"
 
 #: evaluation/management/commands/create_user.py:27
@@ -352,8 +407,76 @@ msgstr "Angegebenes Semester existiert nicht."
 msgid "Supplied statistic does not exist."
 msgstr "Angegebene Statistik existiert nicht."
 
+#: evaluation/templates/index.html:20
+#, python-format
+msgid ""
+"\n"
+"            You are currently logged in as %(name)s.\n"
+"            "
+msgstr ""
+"\n"
+"  Sie sind zur Zeit als %(name)s angemeldet.\n"
+"            "
+
+#: evaluation/templates/index.html:25
+msgid "Welcome to the evaluation platform!"
+msgstr "Willkommen auf der EvaP Evaluierungsplattform!"
+
+#: evaluation/templates/index.html:27
+msgid "You are currently not logged in."
+msgstr "Sie sind derzeit nicht angemeldet."
+
+#: evaluation/templates/index.html:32
+msgid "HPI student or lecturer"
+msgstr "HPI-Student oder -Dozent"
+
+#: evaluation/templates/index.html:35
+msgid ""
+"As an HPI student or lecturer please log in using your usual HPI credentials."
+msgstr ""
+"Als HPI-Student oder -Dozent melden Sie sich bitte mit ihrem üblichen HPI-"
+"Login an."
+
+#: evaluation/templates/index.html:54 evaluation/templates/index.html.py:83
+msgid "Login"
+msgstr "Anmeldung"
+
+#: evaluation/templates/index.html:61
+msgid "External student or lecturer"
+msgstr "Externer Student oder Dozent"
+
+#: evaluation/templates/index.html:63
+msgid ""
+"As an external student or lecturer please log in using your login key or "
+"generate a new one below."
+msgstr ""
+"Als externer Student oder Dozent melden Sie sich bitte mit Ihrem "
+"Anmeldeschlüssel an oder lassen sich unten einen neuen zusenden."
+
+#: evaluation/templates/index.html:88
+msgid "Don't have a key or lost it?"
+msgstr "Sie haben keinen Schlüssel oder ihn verloren?"
+
+#: evaluation/templates/index.html:89
+msgid "Please enter your email address to get a new login key."
+msgstr ""
+"Bitte geben Sie Ihre E‑Mail-Adresse ein, um einen neuen Anmeldeschlüssel zu "
+"erhalten."
+
+#: evaluation/templates/index.html:107
+msgid "Send Key"
+msgstr "Schlüssel zusenden"
+
+#: fsr/forms.py:20
+msgid "First date to vote"
+msgstr "Erster Abstimmungstag"
+
+#: fsr/forms.py:21
+msgid "Last date to vote"
+msgstr "Letzter Abstimmungstag"
+
 #: fsr/forms.py:23
-msgid "excel file"
+msgid "Excel file"
 msgstr "Exceldatei"
 
 #: fsr/forms.py:41 lecturer/forms.py:10
@@ -362,11 +485,11 @@ msgstr "Allgemeine Fragen"
 
 #: fsr/forms.py:42
 msgid "Last modified"
-msgstr "Zuletzt bearbeitet"
+msgstr "Zuletzt verändert"
 
 #: fsr/forms.py:43
 msgid "Last modified by"
-msgstr "Zuletzt bearbeitet von"
+msgstr "Zuletzt verändert von"
 
 #: fsr/forms.py:111
 msgid "Send to participants?"
@@ -421,27 +544,32 @@ msgstr ""
 msgid ""
 "No responsible person found. Each course must have at least one responsible "
 "person."
-msgstr "Keine verantwortliche Person gefunden. Jede Veranstaltung muss mindestens "
+msgstr ""
+"Keine verantwortliche Person gefunden. Jede Veranstaltung muss mindestens "
 "einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:337
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: fsr/forms.py:340
+#: fsr/forms.py:338
+msgid "EvaP Administrator"
+msgstr ""
+
+#: fsr/forms.py:341
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:360
+#: fsr/forms.py:362
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:377
+#: fsr/forms.py:380
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
-#: fsr/importers.py:96
+#: fsr/importers.py:98
 #, python-format
 msgid ""
 "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', "
@@ -450,21 +578,21 @@ msgstr ""
 "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
 "'%(beginning)s', %(ncols)s Spalten"
 
-#: fsr/importers.py:97
+#: fsr/importers.py:99
 #, python-format
 msgid "Successfully read sheet '%s'."
 msgstr "Blatt '%s' erfolgreich gelesen."
 
-#: fsr/importers.py:99
+#: fsr/importers.py:101
 #, python-format
 msgid "A problem occured while reading sheet '%s'."
 msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 
-#: fsr/importers.py:101
+#: fsr/importers.py:103
 msgid "Successfully read excel file."
 msgstr "Exceldatei erfolgreich gelesen."
 
-#: fsr/importers.py:154
+#: fsr/importers.py:156
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -475,7 +603,7 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: fsr/importers.py:158
+#: fsr/importers.py:160
 #, python-format
 msgid ""
 "Successfully created %(courses)d course(s), %(students)d student(s) and "
@@ -484,7 +612,7 @@ msgstr ""
 "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) "
 "erfolgreich erstellt."
 
-#: fsr/importers.py:170
+#: fsr/importers.py:172
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
@@ -512,7 +640,7 @@ msgstr ""
 
 #: fsr/views.py:116
 msgid "Could not send emails to participants and lecturers"
-msgstr "Konnte keine E-Mail an Teilnehmer und Dozenten senden"
+msgstr "Konnte keine E‑Mail an Teilnehmer und Dozenten senden"
 
 #: fsr/views.py:117
 #, python-format
@@ -573,9 +701,9 @@ msgid ""
 "Successfully sent email to many participants/editors of '%(course)s', but "
 "%(count)d could not be reached as they do not have an email address."
 msgstr ""
-"E-Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' "
+"E‑Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' "
 "versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da "
-"sie keine E-Mail-Adresse haben."
+"sie keine E‑Mail-Adresse haben."
 
 #: fsr/views.py:384
 #, python-format
@@ -668,8 +796,8 @@ msgid "No"
 msgstr "Nein"
 
 #: fsr/templates/fsr_course_email.html:14
-msgid "Send e-mail"
-msgstr "E-Mail senden"
+msgid "Send email"
+msgstr "E‑Mail senden"
 
 #: fsr/templates/fsr_course_form.html:11
 #: fsr/templates/fsr_questionnaire_form.html:29
@@ -978,8 +1106,8 @@ msgid "Text Answers"
 msgstr "Textantworten"
 
 #: fsr/templates/fsr_semester_view.html:67
-msgid "E-Mail"
-msgstr "E-Mail"
+msgid "Email"
+msgstr "E‑Mail"
 
 #: fsr/templates/fsr_semester_view.html:73
 msgid "Review"
@@ -1023,7 +1151,7 @@ msgstr "Vorlage speichern"
 msgid "Do you really want to delete the user <em>%(name)s</em>?"
 msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: fsr/templates/fsr_user_form.html:34
+#: fsr/templates/fsr_user_form.html:39
 msgid "Save user"
 msgstr "Benutzer speichern"
 
@@ -1034,10 +1162,6 @@ msgstr "Alle"
 #: fsr/templates/fsr_user_index.html:19
 msgid "Create new user"
 msgstr "Neuen Benutzer erstellen"
-
-#: fsr/templates/fsr_user_index.html:27
-msgid "Username"
-msgstr "Benutzername"
 
 #: fsr/templates/fsr_user_index.html:28
 msgid "Information"
@@ -1063,7 +1187,7 @@ msgid "Delegate"
 msgstr "Stellvertreter"
 
 #: fsr/templates/fsr_user_index.html:58
-msgid "E-Mail address missing!"
+msgid "Email address missing!"
 msgstr "E-Mail-Adresse fehlt!"
 
 #: lecturer/views.py:39
@@ -1126,7 +1250,7 @@ msgid ""
 "Email, as soon as your courses are approved for your review by the student "
 "representatives."
 msgstr ""
-"Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E-Mail "
+"Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E‑Mail "
 "informiert, sobald Ihre Veranstaltungen zur Überprüfung freigegeben wurden."
 
 #: lecturer/templates/lecturer_index.html:53
@@ -1296,23 +1420,23 @@ msgstr "Profil"
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:95
+#: templates/base.html:96
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:118
+#: templates/base.html:120
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:122 templates/faq.html:5 templates/faq.html.py:9
+#: templates/base.html:124 templates/faq.html:5 templates/faq.html.py:9
 msgid "FAQ"
 msgstr "FAQ"
 
-#: templates/base.html:125
+#: templates/base.html:127
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:127
+#: templates/base.html:129
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
@@ -1460,7 +1584,7 @@ msgstr ""
 "\n"
 "Für die Anmeldung am System gibt es zwei Möglichkeiten:<ul>\t<li>Anmeldung "
 "über Kerberos mit dem HPI-Login</li>\t<li>Für externe Nutzer: Anmeldung über "
-"einen Link, der per E-Mail verschickt wurde</li></ul>"
+"einen Link, der per E‑Mail verschickt wurde</li></ul>"
 
 #: templates/faq.html:88
 msgid "How are users registered? Who is able to create new users?"
@@ -1759,7 +1883,7 @@ msgstr ""
 
 #: templates/faq.html:202
 msgid "When will I get which Email notice?"
-msgstr "Welche E-Mail-Benachrichtigungen erhalte ich wann?"
+msgstr "Welche E‑Mail-Benachrichtigungen erhalte ich wann?"
 
 #: templates/faq.html:204
 msgid ""
@@ -1771,11 +1895,11 @@ msgid ""
 msgstr ""
 "\n"
 "Am Anfang des Semesters bekommen Sie (aber nicht Ihre Stellvertreter) eine E-"
-"Mail, die einen Link zum EvaP System enthält. In dieser E-Mail werden Sie "
+"Mail, die einen Link zum EvaP System enthält. In dieser E‑Mail werden Sie "
 "gebeten, die aus den grundlegenden Lehrveranstaltungsdaten importierten "
 "Details anzupassen.<br>Nachdem Sie die Noten bekanntgemacht haben, werden "
 "die Ergebnisse der Evaluierung bekannt gegeben. An alle involvierten "
-"Personen versendet der FSR  eine E-Mail, die einen Link zur EvaP Seite "
+"Personen versendet der FSR  eine E‑Mail, die einen Link zur EvaP Seite "
 "enthält und einen Link zur Gesamtübersicht. Sie können sich auf der EvaP "
 "Seite zusätzlich alle Kommentare zu Ihren Lehrveranstaltungen anschauen."
 
@@ -1889,164 +2013,5 @@ msgstr ""
 "angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, "
 "kann der Dozent die zugehörige Antwort nicht finden."
 
-#: templates/index.html:9
-#, python-format
-msgid ""
-"\n"
-"            You are currently logged in as %(name)s.\n"
-"            "
-msgstr ""
-"\n"
-"  Sie sind zur Zeit als %(name)s angemeldet.\n"
-"            "
-
-#: templates/index.html:14
-msgid ""
-"\n"
-"        <p>Welcome to the evaluation platform!</p>\n"
-"        \n"
-"        <p>You are currently not logged in. If you are a HPI student or "
-"lecturer,\n"
-"                please log in using your usual HPI credentials.</p>\n"
-"        \n"
-"        <p>If you are an external student or lecturer, you can use your "
-"external\n"
-"        login key to gain access to the system. If you do not have an "
-"external\n"
-"                login key or if you have lost yours, you can create a new "
-"one below.</p>\n"
-"        "
-msgstr ""
-"\n"
-"  <p>Willkommen auf der Evaluierungsplattform des HPI!</p>\n"
-"  \n"
-"  <p>Sie sind zur Zeit nicht angemeldet. Wenn Sie einen HPI-Login haben, "
-"melden Sie sich bitte mit diesem an.</p> <p>Sie können Ihren "
-"Anmeldeschlüssel verwenden, falls Sie keinen HPI-Login haben, um sich "
-"anzumelden. Falls Sie keinen Anmeldeschlüssel besitzen oder verloren haben, "
-"können Sie unten einen neuen erstellen.</p>"
-
-#: templates/index.html:25
-msgid "HPI student or lecturer"
-msgstr "HPI-Student oder -Dozent"
-
-#: templates/index.html:27
-msgid "Click here to log in using your credentials."
-msgstr "Hier klicken, um sich mit Ihrem HPI-Login anzumelden."
-
-#: templates/index.html:29
-msgid "External student or lecturer"
-msgstr "Externer Student oder Dozent"
-
-#: templates/index.html:32
-msgid ""
-"\n"
-"                Please enter your login key below. Be aware that login keys "
-"are\n"
-"                automatically invalidated after three months.\n"
-"                "
-msgstr ""
-"\n"
-"  Bitte geben Sie Ihren Anmeldeschlüssel unten ein. Hinweis: "
-"Anmeldeschlüssel gelten nur drei Monate."
-
-#: templates/index.html:40
-msgid "login key"
-msgstr "Anmeldeschlüssel"
-
-#: templates/index.html:46 templates/login.html:25
-msgid "Login"
-msgstr "Anmeldung"
-
-#: templates/index.html:52
-msgid "Generate a new external login key"
-msgstr "Neuen Anmeldeschlüssel erzeugen"
-
-#: templates/index.html:54
-msgid ""
-"\n"
-"                If you do not have a login key or lost your previous login "
-"key, \n"
-"                you can create a new one here. Please enter your e-mail "
-"address \n"
-"                below. A new key will be sent to this address. Please make "
-"sure \n"
-"                that you use the same e-mail address that you used when you\n"
-"                enrolled. Otherwise the system cannot associate your "
-"address\n"
-"                with an user account.\n"
-"                "
-msgstr ""
-"\n"
-"  Falls Sie keinen Anmeldeschlüssel besitzen oder Ihren Schlüssel verloren "
-"haben, können Sie unten einen neuen erstellen. Bitte tragen Sie dazu Ihre E-"
-"Mail-Adresse in das Feld unten ein. Ein neuer Schlüssel wird Ihnen daraufhin "
-"per E-Mail zugesandt. Bitte verwenden Sie dazu die E-Mail-Adresse, welche "
-"Sie zur Einschreibung verwendet haben."
-
-#: templates/index.html:80
-msgid "Generate Key"
-msgstr "Schlüssel erzeugen"
-
-#: templates/login.html:7
-#, fuzzy
-msgid "Welcome to the evaluation platform!"
-msgstr "EvaP Evaluierungsplattform"
-
-#~ msgid "Managing lecturer missing"
-#~ msgstr "Kein verantwortlicher Dozent zugeordnet"
-
-#~ msgid "read-only"
-#~ msgstr "nur lesbar"
-
-#~ msgid "Lecturers"
-#~ msgstr "Dozenten"
-
-#~ msgid "There are no courses ready to approve."
-#~ msgstr "In diesem Semester sind keine Kurse zu bestätigen."
-
-#~ msgid "Show courses to lecturer"
-#~ msgstr "Dozenten Veranstaltungen vorlegen"
-
-#~ msgid "Publish courses"
-#~ msgstr "Veranstaltungen veröffentlichen"
-
-#~ msgid "There are no courses ready to publish."
-#~ msgstr "In diesem Semester sind keine Kurse zu veröffentlichen."
-
-#~ msgid "Approve"
-#~ msgstr "Bestätigen"
-
-#~ msgid "starting"
-#~ msgstr "beginnt am"
-
-#~ msgid "What kinds of questionnaires are there?"
-#~ msgstr "Welche Arten von Fragebögen gibt es?"
-
-#~ msgid ""
-#~ "\n"
-#~ "        There are two kinds of questionnaires: one is about every person "
-#~ "involved and one about an course itself.\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "Bei Fragebögen unterscheiden wir zwischen Personen- und Sachfragebögen. "
-#~ "Sachfragebögen beziehen sich allgemein auf eine Lehrveranstaltung, z.B. "
-#~ "auf die Lehrmittel und den Inhalt. Personenfragebögen beziehen sich auf "
-#~ "einen Dozenten, z.B. Professor, Übungsleiter, Tutor..."
-
-#~ msgid ""
-#~ "\n"
-#~ "        <h2>These are the Frequently Asked Questions (FAQs)</h2>\n"
-#~ "        \n"
-#~ "        <h3>First Question</h3>\n"
-#~ "        <p>First Answer</p>\n"
-#~ "    "
-#~ msgstr ""
-#~ "\n"
-#~ "\t\t<h2>Dies sind die \"Frequently Asked Questions\" (FAQs) also häufig "
-#~ "gestellte Fragen und ihre Antworten.</h2>\n"
-#~ "\t\t\n"
-#~ "\t\t<h3>Erste Frage</h3>\n"
-#~ "\t\t<p>Erste Antwort</p>\n"
-#~ "\t"
+#~ msgid "Logon Key"
+#~ msgstr "Anmeldeschlüssel"
