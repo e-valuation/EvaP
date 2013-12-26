@@ -113,6 +113,7 @@
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-tabs.js"></script>
     <script type="text/javascript">
+    //<![CDATA[
         $(function () {
             var tabs = $("<ul class='tabs'/>")
             $('#tab-content > div').each(function(i,e) {
@@ -125,5 +126,6 @@
             $('#tab-content > div:first-child').addClass('active');
             $('ul.tabs > li:first-child').addClass('active');
         });
+    //]]>
     </script>
 {% endblock %}
