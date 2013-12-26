@@ -123,9 +123,6 @@ class Course(models.Model):
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
-    # the responsible person for the course
-    responsible = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True)
-
     class Meta:
         ordering = ('semester', 'degree', 'name_de')
         unique_together = (
@@ -172,11 +169,10 @@ class Course(models.Model):
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
         
-    def has_lecturer(self):
+    def has_responsible_person(self):
         for assignment in self.assignments.all():
-            if assignment.lecturer:
-                if UserProfile.get_for_user(assignment.lecturer).is_lecturer:
-                    return True
+            if assignment.responsible:
+                return True
         return False
     
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
@@ -215,7 +211,7 @@ class Course(models.Model):
     @property
     def general_assignment(self):
         try:
-            return self.assignments.get(lecturer=None)
+            return self.assignments.filter(lecturer=None)[0]
         except Assignment.DoesNotExist:
             return None
     
@@ -233,22 +229,28 @@ class Course(models.Model):
         else:
             return self.voter_count or 0
 
+    @property
+    def responsible_contributors(self):
+        return [assignment.lecturer for assignment in self.assignments.all() if assignment.responsible]
+
+    @property
+    def responsible_contributors_names(self):
+        return [contributor.get_profile().full_name for contributor in self.responsible_contributors]
+
     
     def has_enough_questionnaires(self):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
-    def is_user_lecturer(self, user):
-        if self.assignments.filter(lecturer=user).exists():
+    def is_user_editor_or_delegate(self, user):
+        if self.assignments.filter(can_edit=True, lecturer=user).exists():
             return True
-        elif self.assignments.filter(lecturer__in=user.represented_users.all()).exists():
+        elif self.assignments.filter(can_edit=True, lecturer__in=user.represented_users.all()).exists():
             return True
         
         return False
     
-    def is_user_lecturer_or_ta(self, user):
+    def is_user_contributor(self, user):
         if self.assignments.filter(lecturer=user).exists():
-            return True
-        elif self.assignments.filter(lecturer__in=user.represented_users.all()).exists():
             return True
         
         return False
@@ -256,11 +258,11 @@ class Course(models.Model):
     def warnings(self):
         result = []
         if not self.assignments.exclude(lecturer=None).exists():
-            result.append(_(u"No lecturers assigned"))
+            result.append(_(u"No contributors assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
-        if not self.has_lecturer():
-            result.append(_(u"Managing lecturer missing"))
+        if not self.has_responsible_person():
+            result.append(_(u"Responsible person missing"))
         return result
     
     @property
@@ -291,12 +293,18 @@ class Assignment(models.Model):
     lecturer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
-    read_only = models.BooleanField(verbose_name=_("read-only"))
+    responsible = models.BooleanField(verbose_name = _(u"responsible"))
+    can_edit = models.BooleanField(verbose_name = _(u"can edit"))
 
     class Meta:
         unique_together = (
             ('course', 'lecturer'),
         )
+
+    def clean(self):
+        # responsible persons can always edit
+        if self.responsible:
+            self.can_edit = True
 
 
 class Question(models.Model):
@@ -420,7 +428,7 @@ class UserProfile(models.Model):
                 name = self.user.first_name + " " + name
             if self.title:
                 name = self.title + " " + name
-            return name
+            return name.strip()
         else:
             return self.user.username
     
@@ -429,24 +437,28 @@ class UserProfile(models.Model):
         return not Course.objects.filter(assignments__lecturer=self.user).exists()
     
     @property
-    def has_courses(self):
+    def enrolled_in_courses(self):
         return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
     
     @property
-    def is_lecturer(self):
-        return Course.objects.filter(assignments__lecturer=self.user, assignments__read_only=False).exists()
+    def is_contributor(self):
+        return Course.objects.filter(assignments__lecturer=self.user).exists()
+
+    @property
+    def is_editor(self):
+        return Course.objects.filter(assignments__can_edit = True, assignments__lecturer = self.user).exists()
 
     @property
     def is_responsible(self):
-        return Course.objects.filter(responsible=self.user).exists()
+        return Course.objects.filter(assignments__responsible = True, assignments__lecturer = self.user).exists()
 
     @property
     def is_delegate(self):
         return UserProfile.objects.filter(delegates=self.user).exists()
 
     @property
-    def is_lecturer_or_delegate(self):
-        return self.is_lecturer or self.is_delegate
+    def is_editor_or_delegate(self):
+        return self.is_editor or self.is_delegate
     
     @classmethod
     def get_for_user(cls, user):

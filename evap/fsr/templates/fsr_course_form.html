@@ -13,7 +13,7 @@
         </fieldset>
         
         <fieldset>
-            <legend>{% trans "Lecturers" %}</legend>
+            <legend>{% trans "Contributors" %}</legend>
             {{ formset.management_form }}
         </fieldset>
         
@@ -25,7 +25,7 @@
                 {% for field in formset.form %}
                     <th>{{ field.label }}</th>
                 {% endfor %}
-                <th>{% trans "Delete?" %}</th>
+                <th>{% trans "Remove?" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -37,9 +37,9 @@
                         {% for field in form_element.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                    {% for field in form_element.visible_fields %}
-                        <td>{{field.errors}} {{ field }}</td>
-                    {% endfor %}
+                        {% for field in form_element.visible_fields %}
+                            <td>{{ field.errors }} {{ field }}</td>
+                        {% endfor %}
                     </tr>
                 {% endfor %}
             </tbody>

@@ -96,7 +96,7 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
         super(AssignmentForm, self).__init__(*args, **kwargs)
         self.fields['lecturer'].queryset = User.objects.order_by("username")
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=True, obsolete=False))
-    
+
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
         exclude.remove('course') # allow checking against the missing attribute
@@ -107,10 +107,9 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
             self._update_errors(e.message_dict)
 
 
-
 class CourseEmailForm(forms.Form, BootstrapMixin):
     sendToParticipants = forms.BooleanField(label=_("Send to participants?"), required=False, initial=True)
-    sendToLecturers = forms.BooleanField(label=_("Send to lecturers?"), required=False)
+    sendToResponsibleContributors = forms.BooleanField(label=_("Send to responsible contributors?"), required=False)
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Body"))
     
@@ -122,8 +121,8 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def clean(self):
         cleaned_data = self.cleaned_data
         
-        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToLecturers')):
-            raise forms.ValidationError(_(u"No recipient selected. Choose at least participants or lecturers."))
+        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToResponsibleContributors')):
+            raise forms.ValidationError(_(u"No recipient selected. Choose at least participants or responsible contributors."))
         
         return cleaned_data
 
@@ -133,12 +132,12 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len([user for user in self.template.receipient_list_for_course(self.instance, self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants')) if not user.email])
+        return len([user for user in self.template.receipient_list_for_course(self.instance, self.cleaned_data.get('sendToResponsibleContributors'), self.cleaned_data.get('sendToParticipants')) if not user.email])
     
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_courses([self.instance], self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants'))
+        self.template.send_courses([self.instance], self.cleaned_data.get('sendToResponsibleContributors'), self.cleaned_data.get('sendToParticipants'))
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
@@ -204,23 +203,33 @@ class AtLeastOneFormSet(BaseInlineFormSet):
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
+
 class LecturerFormSet(AtLeastOneFormSet):
     def clean(self):
         super(LecturerFormSet, self).clean()
         
         found_lecturer = []
+        has_responsible = False
         for form in self.forms:
             try:
                 if form.cleaned_data:
                     lecturer = form.cleaned_data.get('lecturer')
                     if lecturer and lecturer in found_lecturer:
-                        raise forms.ValidationError(_(u'Duplicate lecturer found. Each lecturer should only be used once.'))
+                        raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
                     elif lecturer:
                         found_lecturer.append(lecturer)
+
+                    if form.cleaned_data.get('responsible'):
+                        has_responsible = True
+            
             except AttributeError:
                 # annoyingly, if a subform is invalid Django explicity raises
                 # an AttributeError for cleaned_data
                 pass
+
+        if not has_responsible:
+            raise forms.ValidationError(_(u'No responsible person found. Each course must have at least one responsible person.'))
+
 
 class IdLessQuestionFormSet(AtLeastOneFormSet):
     class PseudoQuerySet(list):
