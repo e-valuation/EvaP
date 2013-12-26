@@ -290,7 +290,7 @@ class BootstrapMixin(object):
             field_hash = {
                 'class' : mark_safe(css_class),
                 'label' : mark_safe(bf.label and bf.label_tag(bf.label) or ''),
-                'help_text' :mark_safe(help_text),
+                'help_text' :mark_safe(unicode(help_text)),
                 'field' : field_instance,
                 'bf' : mark_safe(unicode(bf.as_widget(attrs=attrs))),
                 'bf_raw' : bf,
