@@ -355,9 +355,9 @@ def course_email(request, semester_id, course_id):
         form.send()
         
         if form.all_recepients_reachable():
-            messages.add_message(request, messages.INFO, _("Successfully sent email to all participants/lecturers of '%s'.") % course.name)
+            messages.add_message(request, messages.INFO, _("Successfully sent email to all participants/editors of '%s'.") % course.name)
         else:
-            messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants/lecturers of '%(course)s', but %(count)d could not be reached as they do not have an email address.") % dict(course=course.name, count=form.missing_email_addresses()))
+            messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants/editors of '%(course)s', but %(count)d could not be reached as they do not have an email address.") % dict(course=course.name, count=form.missing_email_addresses()))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, course=course, form=form), context_instance=RequestContext(request))
@@ -524,8 +524,8 @@ def user_index(request):
     filter = request.GET.get('filter')
     if filter == "fsr":
         users = users.filter(is_staff=True)
-    elif filter == "lecturers":
-        users = [user for user in users if UserProfile.get_for_user(user).is_lecturer]
+    elif filter == "responsibles":
+        users = [user for user in users if UserProfile.get_for_user(user).is_responsible]
     elif filter == "delegates":
         users = [user for user in users if UserProfile.get_for_user(user).is_delegate]
     

@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        for course in orm.Course.objects.all():
-            assignments = course.assignments.exclude(lecturer=None)
-            if assignments:
-                course.responsible = assignments[0].lecturer
-            else:
-                course.responsible = None
-            course.save()
+        # Adding field 'Assignment.responsible'
+        db.add_column(u'evaluation_assignment', 'responsible',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        pass
+        # Deleting field 'Assignment.responsible'
+        db.delete_column(u'evaluation_assignment', 'responsible')
+
 
     models = {
         u'auth.group': {
@@ -61,7 +62,8 @@ class Migration(DataMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lecturer': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'lecturers'", 'null': 'True', 'to': u"orm['auth.User']"}),
             'questionnaires': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'assigned_to'", 'blank': 'True', 'to': u"orm['evaluation.Questionnaire']"}),
-            'read_only': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+            'read_only': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'responsible': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         u'evaluation.course': {
             'Meta': {'ordering': "('semester', 'degree', 'name_de')", 'unique_together': "(('semester', 'degree', 'name_de'), ('semester', 'degree', 'name_en'))", 'object_name': 'Course'},
@@ -74,7 +76,6 @@ class Migration(DataMigration):
             'name_en': ('django.db.models.fields.CharField', [], {'max_length': '140'}),
             'participant_count': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'participants': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.User']", 'symmetrical': 'False', 'blank': 'True'}),
-            'responsible': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
             'semester': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['evaluation.Semester']"}),
             'state': ('django_fsm.db.fields.fsmfield.FSMField', [], {'default': "'new'", 'max_length': '50'}),
             'vote_end_date': ('django.db.models.fields.DateField', [], {'null': 'True'}),
@@ -143,4 +144,3 @@ class Migration(DataMigration):
     }
 
     complete_apps = ['evaluation']
-    symmetrical = True

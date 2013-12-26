@@ -31,7 +31,7 @@
                 <a class="brand" href="/">{% trans "Evaluation Platform" %}</a>
                 <ul class="nav">
                     {% if user.is_active %}
-                        {% if user.get_profile.has_courses %}
+                        {% if user.get_profile.enrolled_in_courses %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
                         {% endif %}
                         
@@ -57,11 +57,11 @@
                             </ul>
                         </li>
 
-                        {% if user.get_profile.is_lecturer_or_delegate %}
+                        {% if user.get_profile.is_editor_or_delegate %}
                             <li><a href="{% url "evap.lecturer.views.index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
-                        {% if user.get_profile.is_lecturer %}
+                        {% if user.get_profile.is_editor %}
                             <li><a href="{% url "evap.lecturer.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
                     {% endif %}

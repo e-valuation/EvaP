@@ -144,7 +144,7 @@ class ExcelImporter(object):
                         course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                     except Course.DoesNotExist:
                         course = course_data.store_in_database(vote_start_date, vote_end_date, semester)
-                        course.assignments.create(lecturer=lecturer, course=course)
+                        course.assignments.create(lecturer=lecturer, course=course, responsible=True, can_edit=True)
                         course_count += 1
                     
                     # connect database objects

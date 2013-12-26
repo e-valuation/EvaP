@@ -14,36 +14,51 @@
         
         <fieldset>
             {{ formset.management_form }}
-            <legend>{% trans "Lecturers" %}</legend>
+            <legend>{% trans "Contributors" %}</legend>
             {{ formset.non_form_errors }}
             <table id="assignment_table">
                 <tr>
-                    {% for field in formset.form.visible_fields %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
-                    <th>{% trans "Delete?" %}</th>
+                    <th>{% trans "Contributor" %}</th>
+                    <th>{% trans "Questionnaires" %}</th>
+                    <th>{% trans "Can edit course" %}</th>
+                    <th>{% trans "Remove?" %}</th>
                 </tr>
-                <tbody>
-                    {% for assignment in read_only_assignments %}
-                        <tr>
-                            <td>{{ assignment.lecturer }}</td>
-                            <td>{{ assignment.questionnaires.all|join:", " }}</td>
-                            <td/>
-                        </tr>
-                    {% endfor %}
-                    
+                <tbody>                    
                     {% for form_element in formset %}
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
                         
                         <tr>
-                        {% for field in form_element.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
-                        {% for field in form_element.visible_fields %}
-                            <td>{{field.errors}} {{ field }}</td>
-                        {% endfor %}
+                            {% for field in form_element.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
+                            {{ form_element.responsible.as_hidden }}
+                            <td>
+                                {{form_element.lecturer.errors}}
+                                {% if form_element.responsible.value == True %}
+                                    {% for value, text in form_element.lecturer.field.choices %}
+                                        {% if value == form_element.lecturer.value %}
+                                            <select disabled="True"><option selected="selected" value={{value}}>{{ text }}</option></select>                                          
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ form_element.lecturer.as_hidden }}
+                                    <em>({% trans "responsible" %})</em>
+                                {% else %}
+                                    {{ form_element.lecturer }}
+                                {% endif %}
+                            </td>
+                            <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
+                            <td>
+                                {{form_element.can_edit.errors}}
+                                {% if form_element.responsible.value == True %}
+                                    <input checked="checked" type="checkbox" disabled="True" />
+                                    {{ form_element.can_edit.as_hidden }}
+                                {% else %}
+                                    {{ form_element.can_edit }}
+                                {% endif %}
+                            </td>
+                            <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -62,7 +77,7 @@
         <div class="actions">
 			{% if edit %}
 				<button name="operation" value="save" type="submit" class="btn primary">{% trans "Save"%}</button>
-	            <button name="operation" value="approve" type="submit" class="btn success">{% trans "Approve"%}</button>
+	            <button name="operation" value="approve" type="submit" class="btn success">{% trans "Save and approve"%}</button>
 			{% endif %}
             <a href="{% url "evap.lecturer.views.index" %}" class="btn">{% trans "Cancel" %}</a>
             <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn">{% trans "Preview" %}</a>

@@ -172,26 +172,26 @@ def fsr_required(func):
     return user_passes_test_without_redirect(check_user)(func)
 
 
-def lecturer_or_delegate_required(func):
+def editor_or_delegate_required(func):
     """
-    Decorator for views that checks that the user is logged in and marked as
-    lecturer or delegate for a lecturer.
+    Decorator for views that checks that the user is logged in, has edit rights
+    for at least one course or is a delegate for such a person.
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_lecturer_or_delegate
+        return UserProfile.get_for_user(user=user).is_editor_or_delegate
     return user_passes_test_without_redirect(check_user)(func)
     
-def lecturer_required(func):
+def editor_required(func):
     """
-    Decorator for views that checks that the user is logged in and marked as
-    lecturer.
+    Decorator for views that checks that the user is logged in and has edit
+    right for at least one course.
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_lecturer
+        return UserProfile.get_for_user(user=user).is_editor
     return user_passes_test_without_redirect(check_user)(func)

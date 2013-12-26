@@ -40,7 +40,7 @@
                             {% endif %}
                             </div>
                             <div style="font-style: italic">
-                                {{ course.responsible.get_profile.full_name }}
+                                {{ course.responsible_contributors_names|join:", " }}
                             </div>
                             <span class="label">{{ course.degree }}</span>
                             <span class="label">{{ course.kind }}</span>

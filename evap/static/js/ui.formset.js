@@ -1,4 +1,8 @@
 /**
+ * adapted for EvaP:
+ * only rows that have a delete checkbox will get a remove link
+ * 
+ * 
  * jQuery Formset 1.2
  * @author Stanislaus Madueke (stan DOT madueke AT gmail DOT com)
  * @requires jQuery 1.2.6 or later
@@ -88,17 +92,20 @@
         $$.each(function(i) {
             var row = $(this),
                 del = row.find('input:checkbox[id $= "-DELETE"]');
+
+            // only rows that have a delete checkbox will get a remove link
             if (del.length) {
                 // If you specify "can_delete = True" when creating an inline formset,
                 // Django adds a checkbox to each form in the formset.
                 // Replace the default checkbox with a hidden field:
                 del.before('<input type="hidden" name="' + del.attr('name') +'" id="' + del.attr('id') +'" />');
                 del.remove();
-            }
-            if (hasChildElements(row)) {
-                insertDeleteLink(row);
-                row.addClass(options.formCssClass);
-                applyExtraClasses(row, i);
+
+                if (hasChildElements(row)) {
+                    insertDeleteLink(row);
+                    row.addClass(options.formCssClass);
+                    applyExtraClasses(row, i);
+                }
             }
         });
 
