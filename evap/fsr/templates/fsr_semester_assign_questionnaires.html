@@ -22,7 +22,7 @@
 {% block scripts %}
     {{ block.super }}
     
-    <script>
+    <script type="text/javascript">
         $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
             $("select[multiple='multiple']").each(function(i,e) {
