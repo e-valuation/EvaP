@@ -90,10 +90,12 @@
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script type="text/javascript">
+    //<![CDATA[
         $('.twipsify').twipsy({
             html: true,
             placement: 'left',
             title: 'data-twipsy'
         });
+    //]]>
     </script>
 {% endblock %}
