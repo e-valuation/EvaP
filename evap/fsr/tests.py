@@ -135,7 +135,6 @@ class UsecaseTests(WebTest):
         # assign questionnaire to courses
         page = page.click("Semester 1 \(en\)", index=0)
         page = page.click("Assign Questionnaires")
-        print page
         assign_form = lastform(page)
         assign_form['Seminar'] = [1]
         assign_form['Vorlesung'] = [1]
