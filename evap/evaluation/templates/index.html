@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            $("#id_username").focus();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {% if request.user.is_active %}
+        <p style="min-height:400px;">
+            {% blocktrans with name=request.user.get_profile.full_name %}
+            You are currently logged in as {{ name }}.
+            {% endblocktrans %}
+        </p>
+    {% else %}
+        <h2>{% trans "Welcome to the evaluation platform!" %}</h2>
+        
+        <p>{% trans "You are currently not logged in." %}</p><br/>
+
+        <div class="row">
+
+            <div class="span8">
+                <h2>{% trans "HPI student or lecturer" %}</h2>
+                
+                <div class="well">
+                    <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="login_username" />
+
+                        <fieldset>
+                            {% for field in login_username_form %}
+                                <div class="clearfix{% if field.errors %} error{% endif %}">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn success" type="submit" value="{% trans "Login" %}">
+                        </div>
+                    </form>
+                </div>    
+            </div>
+
+            <div class="span8">
+                <h2>{% trans "External student or lecturer" %}</h2>
+                <div class="well">
+                    <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
+
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="login_key" />
+
+                        <fieldset>
+                            {% for field in login_key_form %}
+                                <div class="clearfix {% if field.errors %} error{% endif %}">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn success" type="submit" value="{% trans "Login" %}">
+                        </div>
+                    </form> 
+                </div>
+                <div class="well">
+                    <h4>{% trans "Don't have a key or lost it?" %}</h4>
+                    <p>{% trans "Please enter your email address to get a new login key." %}</p>
+                    <form class="lean-form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="new_key" />
+                        <fieldset>
+                            {% for field in new_key_form %}
+                                <div class="clearfix{% if field.errors %} error{% endif %}">
+                                    {{ field.label_tag }}
+                                    <div class="input">
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="actions">
+                            <input class="btn primary" type="submit" value="{% trans "Send Key" %}">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
