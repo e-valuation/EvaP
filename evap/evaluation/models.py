@@ -211,7 +211,7 @@ class Course(models.Model):
     @property
     def general_assignment(self):
         try:
-            return self.assignments.filter(lecturer=None)[0]
+            return self.assignments.get(lecturer=None)
         except Assignment.DoesNotExist:
             return None
     
@@ -230,13 +230,14 @@ class Course(models.Model):
             return self.voter_count or 0
 
     @property
-    def responsible_contributors(self):
-        return [assignment.lecturer for assignment in self.assignments.all() if assignment.responsible]
+    def responsible_contributor(self):
+        for assignment in self.assignments.all():
+            if assignment.responsible:
+                return assignment.lecturer
 
     @property
-    def responsible_contributors_names(self):
-        return [contributor.get_profile().full_name for contributor in self.responsible_contributors]
-
+    def responsible_contributors_name(self):
+        return self.responsible_contributor.get_profile().full_name
     
     def has_enough_questionnaires(self):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
