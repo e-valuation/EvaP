@@ -6,11 +6,11 @@ from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Assignment, Course, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Semester, UserProfile
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
-from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
+from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.contributor.forms import CourseForm, UserForm
-from evap.fsr.forms import AtLeastOneFormSet, AssignmentForm, ContributorFormSet
+from evap.fsr.forms import AtLeastOneFormSet, ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
 
 @editor_or_delegate_required
@@ -19,10 +19,10 @@ def index(request):
     
     sorter = lambda course: STATES_ORDERED.keys().index(course.state)
     
-    own_courses = list(set(Course.objects.filter(assignments__can_edit=True, assignments__contributor=user, state__in=['prepared', 'contributorApproved', 'approved', 'inEvaluation'])))
+    own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'contributorApproved', 'approved', 'inEvaluation'])))
     own_courses.sort(key=sorter)
 
-    delegated_courses = list(set(Course.objects.exclude(assignments__contributor=user).filter(assignments__can_edit=True, assignments__contributor__in=user.represented_users.all(), state__in=['prepared', 'contributorApproved', 'approved', 'inEvaluation'])))
+    delegated_courses = list(set(Course.objects.exclude(contributions__contributor=user).filter(contributions__can_edit=True, contributions__contributor__in=user.represented_users.all(), state__in=['prepared', 'contributorApproved', 'approved', 'inEvaluation'])))
     delegated_courses.sort(key=sorter)
     
     return render_to_response("contributor_index.html", dict(own_courses=own_courses, delegated_courses=delegated_courses), context_instance=RequestContext(request))
@@ -50,10 +50,10 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'contributorApproved', 'approved']):
         raise PermissionDenied
 
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=ContributorFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course'))
     
     form = CourseForm(request.POST or None, instance=course)
-    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(contributor=None))
+    formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
     
     # make everything read-only
     for cform in formset.forms + [form]:
@@ -73,10 +73,10 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ('prepared')):
         raise PermissionDenied
     
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=ContributorFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course'))
     
     form = CourseForm(request.POST or None, instance=course)
-    formset = AssignmentFormset(request.POST or None, prefix='assignment', instance=course, queryset=course.assignments.exclude(contributor=None))
+    formset = ContributionFormset(request.POST or None, prefix='contribution', instance=course, queryset=course.contributions.exclude(contributor=None))
     
     operation = request.POST.get('operation')
     
@@ -107,8 +107,8 @@ def course_preview(request, course_id):
 
     # build forms
     forms = SortedDict()
-    for questionnaire, assignment in questionnaires_and_assignments(course):
-        form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
-        forms[(assignment, questionnaire)] = form
+    for questionnaire, contribution in questionnaires_and_contributions(course):
+        form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+        forms[(contribution, questionnaire)] = form
     
     return render_to_response("contributor_course_preview.html", dict(forms=forms.values(), course=course), context_instance=RequestContext(request))

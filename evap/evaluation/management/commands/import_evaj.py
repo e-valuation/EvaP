@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from evap.evaluation.models import Assignment, Course, GradeAnswer, Question, \
+from evap.evaluation.models import Contribution, Course, GradeAnswer, Question, \
                                    Questionnaire, Semester, TextAnswer, UserProfile
 
 from datetime import datetime
@@ -230,19 +230,19 @@ class Command(BaseCommand):
                     course.save()
                     
                     # general quesitonnaires
-                    Assignment.objects.get(course=course, contributor=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
+                    Contribution.objects.get(course=course, contributor=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
                     
                     # contributor questionnaires
                     for contributor, questionnaire in self.get_contributors_with_questionnaires(xml_course):
-                        assignment, created = Assignment.objects.get_or_create(course=course, contributor=contributor)
-                        assignment.questionnaires.add(questionnaire)
+                        contribution, created = Contribution.objects.get_or_create(course=course, contributor=contributor)
+                        contribution.questionnaires.add(questionnaire)
                     
                     # answer --> GradeAnswer/TextAnswer
                     for assessment in self.get('assessment', course_id=xml_course.id):
                         for answer in self.get('answer', assessment_id=assessment.id):
                             staff_id = nint(getattr(answer, 'staff_id', None))
                             contributor = self.staff_cache[staff_id] if staff_id is not None else None
-                            assignment = course.assignments.get(contributor=contributor)
+                            contribution = course.contributions.get(contributor=contributor)
                             
                             status = str(answer.revised_status)
                             try:
@@ -253,7 +253,7 @@ class Command(BaseCommand):
                             
                             if status == "61":
                                 GradeAnswer.objects.create(
-                                    assignment=assignment,
+                                    contribution=contribution,
                                     question=question,
                                     answer=int(answer.response)
                                 )
@@ -280,7 +280,7 @@ class Command(BaseCommand):
                                         raise Exception("Invalid XML-file")
                                     
                                     TextAnswer.objects.create(
-                                        assignment=assignment,
+                                        contribution=contribution,
                                         question=question,
                                         original_answer=comment,
                                         checked=True,

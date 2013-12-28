@@ -1,17 +1,17 @@
-from evap.evaluation.models import Assignment, Course, GradeAnswer, Question, \
+from evap.evaluation.models import Contribution, Course, GradeAnswer, Question, \
                                    Questionnaire, Semester, TextAnswer, UserProfile
 from django.conf import settings
 from django.contrib import admin
 
 
-class AssignmentInline(admin.TabularInline):
-    model = Assignment
+class ContributionInline(admin.TabularInline):
+    model = Contribution
     extra = 3
 
 
 class CourseAdmin(admin.ModelAdmin):
     model = Course
-    inlines = [AssignmentInline]
+    inlines = [ContributionInline]
     list_display = ('__unicode__', 'semester', 'kind')
     list_filter = ('semester',)
     readonly_fields = ('state',)

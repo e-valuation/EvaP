@@ -142,9 +142,9 @@ class Course(models.Model):
     def save(self, *args, **kw):
         super(Course, self).save(*args, **kw)
         
-        # make sure there is a general assignment
-        if not self.general_assignment:
-            self.assignments.create(contributor=None)
+        # make sure there is a general contribution
+        if not self.general_contribution:
+            self.contributions.create(contributor=None)
     
     def is_fully_checked(self):
         """Shortcut for finding out whether all text answers to this course have been checked"""
@@ -170,8 +170,8 @@ class Course(models.Model):
         return self.state in ['new', 'prepared', 'contributorApproved']
         
     def has_responsible_contributor(self):
-        for assignment in self.assignments.all():
-            if assignment.responsible:
+        for contribution in self.contributions.all():
+            if contribution.responsible:
                 return True
         return False
     
@@ -209,10 +209,10 @@ class Course(models.Model):
         pass
 
     @property
-    def general_assignment(self):
+    def general_contribution(self):
         try:
-            return self.assignments.get(contributor=None)
-        except Assignment.DoesNotExist:
+            return self.contributions.get(contributor=None)
+        except Contribution.DoesNotExist:
             return None
     
     @property
@@ -231,9 +231,9 @@ class Course(models.Model):
 
     @property
     def responsible_contributor(self):
-        for assignment in self.assignments.all():
-            if assignment.responsible:
-                return assignment.contributor
+        for contribution in self.contributions.all():
+            if contribution.responsible:
+                return contribution.contributor
 
     @property
     def responsible_contributors_name(self):
@@ -244,25 +244,25 @@ class Course(models.Model):
         return self.responsible_contributor.username
     
     def has_enough_questionnaires(self):
-        return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
+        return all(contribution.questionnaires.exists() for contribution in self.contributions.all()) and self.general_contribution
     
     def is_user_editor_or_delegate(self, user):
-        if self.assignments.filter(can_edit=True, contributor=user).exists():
+        if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
-        elif self.assignments.filter(can_edit=True, contributor__in=user.represented_users.all()).exists():
+        elif self.contributions.filter(can_edit=True, contributor__in=user.represented_users.all()).exists():
             return True
         
         return False
     
     def is_user_contributor(self, user):
-        if self.assignments.filter(contributor=user).exists():
+        if self.contributions.filter(contributor=user).exists():
             return True
         
         return False
     
     def warnings(self):
         result = []
-        if not self.assignments.exclude(contributor=None).exists():
+        if not self.contributions.exclude(contributor=None).exists():
             result.append(_(u"No contributors assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
@@ -273,28 +273,28 @@ class Course(models.Model):
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(assignment__in=self.assignments.all())
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all())
 
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(assignment__in=self.assignments.all()).filter(checked=False)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=False)
     
     @property
     def checked_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(assignment__in=self.assignments.all()).filter(checked=True)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=True)
     
     @property
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswer.objects.filter(assignment__in=self.assignments.all())
+        return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
 
 
-class Assignment(models.Model):
+class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
     
-    course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='assignments')
+    course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributors')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
@@ -357,7 +357,7 @@ class Answer(models.Model):
     `TextAnswer`."""
     
     question = models.ForeignKey(Question)
-    assignment = models.ForeignKey(Assignment)
+    contribution = models.ForeignKey(Contribution)
     
     class Meta:
         abstract = True
@@ -441,7 +441,7 @@ class UserProfile(models.Model):
     
     @property
     def can_fsr_delete(self):
-        return not Course.objects.filter(assignments__contributor=self.user).exists()
+        return not Course.objects.filter(contributions__contributor=self.user).exists()
     
     @property
     def enrolled_in_courses(self):
@@ -449,15 +449,15 @@ class UserProfile(models.Model):
     
     @property
     def is_contributor(self):
-        return Course.objects.filter(assignments__contributor=self.user).exists()
+        return Course.objects.filter(contributions__contributor=self.user).exists()
 
     @property
     def is_editor(self):
-        return Course.objects.filter(assignments__can_edit = True, assignments__contributor = self.user).exists()
+        return Course.objects.filter(contributions__can_edit = True, contributions__contributor = self.user).exists()
 
     @property
     def is_responsible(self):
-        return Course.objects.filter(assignments__responsible = True, assignments__contributor = self.user).exists()
+        return Course.objects.filter(contributions__responsible = True, contributions__contributor = self.user).exists()
 
     @property
     def is_delegate(self):

@@ -31,12 +31,12 @@ class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
 
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
-    `assignment` and `questionnaire` to the constructor.
+    `contribution` and `questionnaire` to the constructor.
     
     See http://jacobian.org/writing/dynamic-form-generation/"""
     
     def __init__(self, *args, **kwargs):
-        self.assignment = kwargs.pop('assignment')
+        self.contribution = kwargs.pop('contribution')
         self.questionnaire = kwargs.pop('questionnaire')
         
         super(QuestionsForm, self).__init__(*args, **kwargs)
@@ -54,17 +54,17 @@ class QuestionsForm(forms.Form):
                                                coerce=coerce_grade,
                                                **field_args)
             
-            identifier = make_form_identifier(self.assignment,
+            identifier = make_form_identifier(self.contribution,
                                               self.questionnaire,
                                               question)
             self.fields[identifier] = field
 
     def caption(self):
-        if self.assignment.contributor:
+        if self.contribution.contributor:
             try:
-                full_name = UserProfile.objects.get(user=self.assignment.contributor).full_name
+                full_name = UserProfile.objects.get(user=self.contribution.contributor).full_name
             except UserProfile.DoesNotExist:
-                full_name = self.assignment.contributor.get_full_name() or self.assignment.contributor.username
+                full_name = self.contribution.contributor.get_full_name() or self.contribution.contributor.username
             return u"%s: %s" % (full_name, self.questionnaire.public_name)
         else:
             return self.questionnaire.public_name
@@ -73,4 +73,4 @@ class QuestionsForm(forms.Form):
         return self.questionnaire.teaser
     
     def image(self):
-        return UserProfile.get_for_user(self.assignment.contributor).picture if self.assignment.contributor else None
+        return UserProfile.get_for_user(self.contribution.contributor).picture if self.contribution.contributor else None

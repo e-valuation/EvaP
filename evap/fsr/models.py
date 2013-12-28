@@ -49,11 +49,11 @@ class EmailTemplate(models.Model):
                 yield user
         
         if send_to_contributors:
-            for assignment in course.assignments.exclude(contributor=None):
-                yield assignment.contributor
+            for contribution in course.contributions.exclude(contributor=None):
+                yield contribution.contributor
         elif send_to_editors:
-            for assignment in course.assignments.exclude(contributor=None).filter(can_edit=True):
-                yield assignment.contributor
+            for contribution in course.contributions.exclude(contributor=None).filter(can_edit=True):
+                yield contribution.contributor
     
     @classmethod
     def render_string(cls, text, dictionary):

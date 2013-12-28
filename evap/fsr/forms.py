@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
-from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile
 from evap.fsr.models import EmailTemplate
 from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
@@ -58,8 +58,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
         self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
         
-        if self.instance.general_assignment:
-            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
+        if self.instance.general_contribution:
+            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
         
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
@@ -74,7 +74,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def save(self, *args, **kw):
         user = kw.pop("user")
         super(CourseForm, self).save(*args, **kw)
-        self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
     
@@ -88,12 +88,12 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self._update_errors(e.message_dict)
 
 
-class AssignmentForm(forms.ModelForm, BootstrapMixin):
+class ContributionForm(forms.ModelForm, BootstrapMixin):
     class Meta:
-        model = Assignment
+        model = Contribution
     
     def __init__(self, *args, **kwargs):
-        super(AssignmentForm, self).__init__(*args, **kwargs)
+        super(ContributionForm, self).__init__(*args, **kwargs)
         self.fields['contributor'].queryset = User.objects.order_by("username")
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False))
 
