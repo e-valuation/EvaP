@@ -37,11 +37,7 @@
                             <td>
                                 {{form_element.lecturer.errors}}
                                 {% if form_element.responsible.value == True %}
-                                    {% for value, text in form_element.lecturer.field.choices %}
-                                        {% if value == form_element.lecturer.value %}
-                                            <select disabled="True"><option selected="selected" value={{value}}>{{ text }}</option></select>                                          
-                                        {% endif %}
-                                    {% endfor %}
+                                    <select disabled="True"><option selected="selected">{{ responsible }}</option></select>
                                     {{ form_element.lecturer.as_hidden }}
                                     <em>({% trans "responsible" %})</em>
                                 {% else %}

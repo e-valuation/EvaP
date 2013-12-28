@@ -61,7 +61,7 @@ def course_view(request, course_id):
             field.widget.attrs['readonly'] = True
             field.widget.attrs['disabled'] = True
     
-    return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, course=course, edit=False), context_instance=RequestContext(request))
+    return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username), context_instance=RequestContext(request))
 
 
 @editor_or_delegate_required
@@ -97,7 +97,7 @@ def course_edit(request, course_id):
         
         return redirect('evap.lecturer.views.index')
     else:
-        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, course=course, edit=True), context_instance=RequestContext(request))
+        return render_to_response("lecturer_course_form.html", dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username), context_instance=RequestContext(request))
 
 
 @editor_or_delegate_required
