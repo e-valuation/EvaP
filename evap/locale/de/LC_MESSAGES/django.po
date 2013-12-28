@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-12-28 02:28+0100\n"
-"PO-Revision-Date: 2013-12-27 17:42-0800\n"
+"PO-Revision-Date: 2013-12-27 19:05-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -191,7 +191,7 @@ msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
 #: evaluation/models.py:266
 msgid "No contributors assigned"
-msgstr "Kein Dozent zugeordnet"
+msgstr "Kein Mitwirkender zugeordnet"
 
 #: evaluation/models.py:268
 msgid "Not enough questionnaires assigned"
@@ -519,7 +519,7 @@ msgstr "Es muss mindestens eine/n geben."
 
 #: fsr/forms.py:219
 msgid "Duplicate contributor found. Each contributor should only be used once."
-msgstr "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
+msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben werden."
 
 #: fsr/forms.py:232
 msgid "No responsible person found. Each course must have exactly one responsible person."
@@ -577,7 +577,7 @@ msgstr "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die Ursprung
 #: fsr/importers.py:160
 #, python-format
 msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(lecturers)d lecturer(s)."
-msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Dozent(en) erfolgreich erstellt."
+msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Mitwirkende erfolgreich erstellt."
 
 #: fsr/importers.py:172
 #, python-format
@@ -607,7 +607,7 @@ msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung 
 
 #: fsr/views.py:116
 msgid "Could not send emails to participants and lecturers"
-msgstr "Konnte keine E‑Mail an Teilnehmer und Dozenten senden"
+msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 
 #: fsr/views.py:117
 #, python-format
@@ -646,9 +646,9 @@ msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
 #: fsr/views.py:332
-#, fuzzy, python-format
+#, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s. %(name)s is now fully reviewed."
-msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
+msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft. %(name)s ist jetzt vollständig überprüft."
 
 #: fsr/views.py:337
 #, python-format
@@ -656,14 +656,14 @@ msgid "Successfully reviewed %(number)d course answers for %(name)s."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
 #: fsr/views.py:358
-#, fuzzy, python-format
+#, python-format
 msgid "Successfully sent email to all participants/editors of '%s'."
-msgstr "Erfollgreich E‑Mail an alle Teilnehmer/Dozenten von '%s' versendet."
+msgstr "Erfolgreich E‑Mail an alle Teilnehmer/Mitwirkende von '%s' versendet."
 
 #: fsr/views.py:360
-#, fuzzy, python-format
+#, python-format
 msgid "Successfully sent email to many participants/editors of '%(course)s', but %(count)d could not be reached as they do not have an email address."
-msgstr "E‑Mail wurde erfollgreich an viele Teilnehmer/Dozenten von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E‑Mail-Adresse haben."
+msgstr "E‑Mail wurde erfolgreich an viele Teilnehmer/Mitwirkende von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E‑Mail-Adresse haben."
 
 #: fsr/views.py:384
 #, python-format
@@ -804,9 +804,8 @@ msgid "Save"
 msgstr "Speichern"
 
 #: fsr/templates/fsr_course_review.html:29
-#, fuzzy
 msgid "Save and show next"
-msgstr "Speichern und bestätigen"
+msgstr "Speichern und nächste anzeigen"
 
 #: fsr/templates/fsr_course_selection_list.html:5
 msgid "Courses"
@@ -827,7 +826,7 @@ msgstr "Beispieldatei"
 
 #: fsr/templates/fsr_import.html:9
 msgid "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses."
-msgstr "): Alle in der Datei enthaltenen Studierende, Dozenten und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
+msgstr "): Alle in der Datei enthaltenen Studierenden, Mitwirkenden und Kurse werden erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für alle Kurse eingetragen."
 
 #: fsr/templates/fsr_index.html:8
 #: fsr/templates/fsr_semester_base.html:7
@@ -1151,7 +1150,6 @@ msgid "Your EvaP"
 msgstr "Mein EvaP"
 
 #: lecturer/templates/lecturer_course_form.html:23
-#, fuzzy
 msgid "Can edit course"
 msgstr "Kann Veranstaltung bearbeiten"
 
@@ -1740,10 +1738,3 @@ msgid ""
 msgstr ""
 "\n"
 "Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
-
-#, fuzzy
-#~ msgid "Send to responsible contributor?"
-#~ msgstr "An Dozenten versenden?"
-
-#~ msgid "Delegate"
-#~ msgstr "Stellvertreter"
