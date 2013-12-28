@@ -60,15 +60,15 @@ class RequestAuthUserBackend(ModelBackend):
     allow authentication of users via URL parameters, i.e. supplied in an
     email.
     
-    It looks for the appropriate key in the logon_key field of the UserProfile.
+    It looks for the appropriate key in the login_key field of the UserProfile.
     """
     def authenticate(self, key):
         if not key:
             return None
         
         try:
-            profile = UserProfile.objects.get(logon_key=key,
-                                              logon_key_valid_until__gte=date.today())
+            profile = UserProfile.objects.get(login_key=key,
+                                              login_key_valid_until__gte=date.today())
             return profile.user
         except UserProfile.DoesNotExist:
             pass

@@ -42,8 +42,8 @@ class UserData(object):
             user.email = self.email
         if not profile.title:
             profile.title = self.title
-        if profile.needs_logon_key:
-            profile.refresh_logon_key()
+        if profile.needs_login_key:
+            profile.refresh_login_key()
         
         user.save()
         profile.save()

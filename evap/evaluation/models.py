@@ -410,11 +410,11 @@ class UserProfile(models.Model):
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
     
-    # key for url based logon of this user
-    MAX_LOGON_KEY = 2**31-1
+    # key for url based login of this user
+    MAX_LOGIN_KEY = 2**31-1
 
-    logon_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
-    logon_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
+    login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
+    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
     
     class Meta:
         verbose_name = _('user')
@@ -464,30 +464,30 @@ class UserProfile(models.Model):
         return self.is_editor or self.is_delegate
     
     @classmethod
-    def email_needs_logon_key(cls, email):
+    def email_needs_login_key(cls, email):
         return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])    
 
     @property
-    def needs_logon_key(self):
-        return UserProfile.email_needs_logon_key(self.user.email)
+    def needs_login_key(self):
+        return UserProfile.email_needs_login_key(self.user.email)
 
     @classmethod
     def get_for_user(cls, user):
         obj, _ = cls.objects.get_or_create(user=user)
         return obj
     
-    def generate_logon_key(self):
+    def generate_login_key(self):
         while True:
-            key = random.randrange(0, UserProfile.MAX_LOGON_KEY)
-            if not UserProfile.objects.filter(logon_key=key).exists():
+            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+            if not UserProfile.objects.filter(login_key=key).exists():
                 # key not yet used
-                self.logon_key = key
+                self.login_key = key
                 break
         
-        self.refresh_logon_key()
+        self.refresh_login_key()
 
-    def refresh_logon_key(self):
-        self.logon_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+    def refresh_login_key(self):
+        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
 
     @staticmethod
     @receiver(post_save, sender=settings.AUTH_USER_MODEL)

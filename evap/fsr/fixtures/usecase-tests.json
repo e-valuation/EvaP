@@ -16,7 +16,7 @@
 		"model":"evaluation.userprofile",
 		"fields": {
 			"user":1,
-			"logon_key":1313
+			"login_key":1313
 		}
 	},
     {
