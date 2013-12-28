@@ -57,7 +57,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(check_lecturer.last_name, "Aliquyam")
         self.assertEqual(check_lecturer.email, "567@web.de")
         
-    def test_logon_key(self):
+    def test_login_key(self):
         environ = self.app.extra_environ
         self.app.extra_environ = {}
         self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
@@ -65,10 +65,10 @@ class UsecaseTests(WebTest):
         
         user = User.objects.all()[0]
         userprofile = UserProfile.get_for_user(user)
-        userprofile.generate_logon_key()
+        userprofile.generate_login_key()
         userprofile.save()
         
-        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.logon_key
+        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.login_key
         self.app.get(url_with_key)
     
     def test_create_questionnaire(self):
