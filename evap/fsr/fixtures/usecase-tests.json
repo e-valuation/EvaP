@@ -118,7 +118,7 @@
     },
     {
 	"pk": 1,
-	"model": "evaluation.assignment",
+	"model": "evaluation.contribution",
 	"fields":{
             "course": 1,
 	    "contributor": 1
@@ -126,7 +126,7 @@
     },
     {
 	"pk": 2,
-	"model": "evaluation.assignment",
+	"model": "evaluation.contribution",
 	"fields":{
             "course": 1,
 	    "contributor": null
@@ -134,7 +134,7 @@
     },
     {
 	"pk": 3,
-	"model": "evaluation.assignment",
+	"model": "evaluation.contribution",
 	"fields":{
             "course": 2,
 	    "contributor": 1
@@ -142,7 +142,7 @@
     },
     {
         "pk": 4,
-        "model": "evaluation.assignment",
+        "model": "evaluation.contribution",
         "fields":{
             "course": 2,
             "contributor": null

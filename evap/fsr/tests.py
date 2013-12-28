@@ -144,5 +144,5 @@ class UsecaseTests(WebTest):
         semester = Semester.objects.get(pk=1)
         questionnaire = Questionnaire.objects.get(pk=1)
         for course in semester.course_set.all():
-            self.assertEqual(course.general_assignment.questionnaires.count(), 1)
-            self.assertEqual(course.general_assignment.questionnaires.get(), questionnaire)
+            self.assertEqual(course.general_contribution.questionnaires.count(), 1)
+            self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)

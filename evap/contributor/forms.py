@@ -21,8 +21,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])        
         self.fields['degree'].widget.attrs['readonly'] = True
         
-        if self.instance.general_assignment:
-            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
+        if self.instance.general_contribution:
+            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
         
     def clean_degree(self):
         return self.instance.degree
@@ -30,7 +30,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def save(self, *args, **kw):
         user = kw.pop("user")
         super(CourseForm, self).save(*args, **kw)
-        self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
     

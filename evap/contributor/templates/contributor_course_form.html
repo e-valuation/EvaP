@@ -16,7 +16,7 @@
             {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
             {{ formset.non_form_errors }}
-            <table id="assignment_table">
+            <table id="contribution_table">
                 <tr>
                     <th>{% trans "Contributor" %}</th>
                     <th>{% trans "Questionnaires" %}</th>
@@ -95,7 +95,7 @@
             $('a.add-row').addClass("btn small");
             
 			{% if edit %}
-			$('#assignment_table tbody tr').formset({prefix: 'assignments'});
+			$('#contribution_table tbody tr').formset({prefix: 'contributions'});
             $('#id_kind').combobox();
             {% endif %}
 			
