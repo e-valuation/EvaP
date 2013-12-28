@@ -238,6 +238,10 @@ class Course(models.Model):
     @property
     def responsible_contributors_name(self):
         return self.responsible_contributor.get_profile().full_name
+
+    @property
+    def responsible_contributors_username(self):
+        return self.responsible_contributor.username
     
     def has_enough_questionnaires(self):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
