@@ -68,6 +68,19 @@
             html: true,
             placement: 'left'
         });
+
+        function makeClickHandler(i) {
+            return function () {
+                if($("#id_assignments-" + i + "-responsible").is(":checked"))
+                    $("#id_assignments-" + i + "-can_edit").prop('checked', true);
+            };
+        }
+
+        // the number of lecturer select fields in the assignment table
+        var lecturerCount = $("#assignment_table select").length;
+        for(var i = 0; i < lecturerCount; i++){
+            $("#id_assignments-" + i + "-responsible").click(makeClickHandler(i));
+        }
     });
     </script>
     
