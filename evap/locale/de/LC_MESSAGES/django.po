@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-28 02:28+0100\n"
-"PO-Revision-Date: 2013-12-27 19:05-0800\n"
+"POT-Creation-Date: 2013-12-28 20:43+0100\n"
+"PO-Revision-Date: 2013-12-28 11:44-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,6 +16,186 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: contributor/forms.py:10
+#: fsr/forms.py:41
+msgid "General questions"
+msgstr "Allgemeine Fragen"
+
+#: contributor/views.py:39
+msgid "Successfully updated your profile."
+msgstr "Profil erfolgreich aktualisiert."
+
+#: contributor/views.py:94
+msgid "Successfully updated and approved course."
+msgstr "Veranstaltung erfolgreich geändert and bestätigt."
+
+#: contributor/views.py:96
+#: fsr/views.py:268
+msgid "Successfully updated course."
+msgstr "Veranstaltung erfolgreich geändert."
+
+#: contributor/templates/contributor_base.html:6
+msgid "Your EvaP"
+msgstr "Mein EvaP"
+
+#: contributor/templates/contributor_base.html:10
+#: contributor/templates/contributor_course_form.html:21
+#: fsr/templates/fsr_user_index.html:45
+#: results/templates/results_semester_detail.html:22
+msgid "Contributor"
+msgstr "Mitwirkender"
+
+#: contributor/templates/contributor_course_form.html:11
+#: fsr/templates/fsr_course_form.html:11
+#: fsr/templates/fsr_questionnaire_form.html:29
+msgid "General Options"
+msgstr "Allgemeine Optionen"
+
+#: contributor/templates/contributor_course_form.html:17
+#: fsr/templates/fsr_course_form.html:16
+msgid "Contributors"
+msgstr "Mitwirkende"
+
+#: contributor/templates/contributor_course_form.html:22
+#: fsr/templates/fsr_index.html:25
+#: fsr/templates/fsr_questionnaire_base.html:7
+#: templates/base.html:46
+#: templates/faq.html:45
+msgid "Questionnaires"
+msgstr "Fragebögen"
+
+#: contributor/templates/contributor_course_form.html:23
+msgid "Can edit course"
+msgstr "Kann Veranstaltung bearbeiten"
+
+#: contributor/templates/contributor_course_form.html:24
+#: fsr/templates/fsr_course_form.html:28
+msgid "Remove?"
+msgstr "Entfernen?"
+
+#: contributor/templates/contributor_course_form.html:42
+#: evaluation/models.py:301
+msgid "responsible"
+msgstr "verantwortlich"
+
+#: contributor/templates/contributor_course_form.html:65
+msgid "Students"
+msgstr "Studenten"
+
+#: contributor/templates/contributor_course_form.html:66
+msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR."
+msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen., Bitte benachrichtigen Sie den FSR, falls diese Daten nicht korrekt sind - bspw. Studierende fehlen."
+
+#: contributor/templates/contributor_course_form.html:75
+#: fsr/templates/fsr_course_review.html:28
+msgid "Save"
+msgstr "Speichern"
+
+#: contributor/templates/contributor_course_form.html:76
+msgid "Save and approve"
+msgstr "Speichern und bestätigen"
+
+#: contributor/templates/contributor_course_form.html:78
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: contributor/templates/contributor_course_form.html:79
+#: contributor/templates/contributor_index.html:43
+#: contributor/templates/contributor_index.html:87
+#: fsr/templates/fsr_questionnaire_index.html:39
+#: fsr/templates/fsr_semester_view.html:68
+msgid "Preview"
+msgstr "Vorschau"
+
+#: contributor/templates/contributor_index.html:9
+msgid "Own Courses"
+msgstr "Eigene Veranstaltungen"
+
+#: contributor/templates/contributor_index.html:14
+#: contributor/templates/contributor_index.html:58
+#: fsr/models.py:19
+#: fsr/templates/fsr_template_index.html:15
+#: fsr/templates/fsr_user_index.html:25
+msgid "Name"
+msgstr "Name"
+
+#: contributor/templates/contributor_index.html:15
+#: contributor/templates/contributor_index.html:59
+#: fsr/templates/fsr_semester_view.html:29
+msgid "State"
+msgstr "Zustand"
+
+#: contributor/templates/contributor_index.html:16
+#: contributor/templates/contributor_index.html:60
+msgid "Evaluation Period"
+msgstr "Abstimmungszeitraum"
+
+#: contributor/templates/contributor_index.html:17
+#: contributor/templates/contributor_index.html:61
+#: fsr/templates/fsr_semester_view.html:55
+msgid "Participants"
+msgstr "Teilnehmer"
+
+#: contributor/templates/contributor_index.html:18
+#: contributor/templates/contributor_index.html:62
+#: fsr/templates/fsr_questionnaire_index.html:16
+#: fsr/templates/fsr_template_index.html:16
+#: fsr/templates/fsr_user_index.html:28
+msgid "Actions"
+msgstr "Aktionen"
+
+#: contributor/templates/contributor_index.html:39
+#: contributor/templates/contributor_index.html:83
+#: fsr/templates/fsr_questionnaire_base.html:17
+#: fsr/templates/fsr_questionnaire_index.html:35
+#: fsr/templates/fsr_questionnaire_index.html:37
+#: fsr/templates/fsr_template_index.html:23
+#: fsr/templates/fsr_user_index.html:58
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: contributor/templates/contributor_index.html:41
+#: contributor/templates/contributor_index.html:85
+msgid "View"
+msgstr "Anzeigen"
+
+#: contributor/templates/contributor_index.html:50
+msgid "There are no courses for you this semester yet. You will get informed by Email, as soon as your courses are approved for your review by the student representatives."
+msgstr "Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E‑Mail informiert, sobald Ihre Veranstaltungen zur Überprüfung freigegeben wurden."
+
+#: contributor/templates/contributor_index.html:53
+msgid "Courses for which you are a delegate"
+msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
+
+#: contributor/templates/contributor_index.html:95
+msgid "There are no courses for you this semester yet."
+msgstr "Derzeit können Sie keine Veranstaltung als Stellvertreter bearbeiten."
+
+#: contributor/templates/contributor_index.html:99
+msgid "Own Profile"
+msgstr "Eigenes Profil"
+
+#: contributor/templates/contributor_index.html:100
+msgid "You can edit your own user profile here:"
+msgstr "Sie können Ihr eigenes Profil hier bearbeiten:"
+
+#: contributor/templates/contributor_index.html:100
+msgid "Edit own Profile"
+msgstr "Eigenes Profil bearbeiten"
+
+#: contributor/templates/contributor_profile.html:8
+#: contributor/templates/contributor_profile.html:16
+msgid "Profile"
+msgstr "Profil"
+
+#: contributor/templates/contributor_profile.html:20
+msgid "People for which you are a delegate"
+msgstr "Personen für die Sie als Stellvertreter eingetragen sind"
+
+#: contributor/templates/contributor_profile.html:28
+msgid "Save your profile"
+msgstr "Profil speichern"
 
 #: evaluation/403.py:25
 msgid "Forbidden"
@@ -126,7 +306,7 @@ msgid "ordering index"
 msgstr "Sortierindex"
 
 #: evaluation/models.py:75
-msgid "is for persons"
+msgid "is for contributors"
 msgstr "Personenfragebogen"
 
 #: evaluation/models.py:76
@@ -198,17 +378,12 @@ msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
 #: evaluation/models.py:270
-msgid "Responsible person missing"
+msgid "Responsible contributor missing"
 msgstr "kein Verantwortlicher zugewiesen"
 
 #: evaluation/models.py:298
-msgid "lecturer"
-msgstr "Dozent"
-
-#: evaluation/models.py:301
-#: lecturer/templates/lecturer_course_form.html:42
-msgid "responsible"
-msgstr "verantwortlich"
+msgid "contributor"
+msgstr "Mitwirkender"
 
 #: evaluation/models.py:302
 msgid "can edit"
@@ -341,8 +516,8 @@ msgid "prepared"
 msgstr "vorbereitet"
 
 #: evaluation/tools.py:22
-msgid "lecturer approved"
-msgstr "von Dozent bestätigt"
+msgid "contributor approved"
+msgstr "von Mitwirkenden bestätigt"
 
 #: evaluation/tools.py:23
 msgid "approved"
@@ -462,11 +637,6 @@ msgstr "Letzter Abstimmungstag"
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: fsr/forms.py:41
-#: lecturer/forms.py:10
-msgid "General questions"
-msgstr "Allgemeine Fragen"
-
 #: fsr/forms.py:42
 msgid "Last modified"
 msgstr "Zuletzt verändert"
@@ -522,12 +692,12 @@ msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben werden."
 
 #: fsr/forms.py:232
-msgid "No responsible person found. Each course must have exactly one responsible person."
-msgstr "Keine verantwortliche Person gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
+msgid "No responsible contributor found. Each course must have exactly one responsible contributor."
+msgstr "Keine Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:234
-msgid "Too many responsible persons found. Each course must have exactly one responsible person."
-msgstr "Zu viele verantwortliche Personen gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
+msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
+msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:340
 msgid "FSR Member"
@@ -576,21 +746,13 @@ msgstr "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die Ursprung
 
 #: fsr/importers.py:160
 #, python-format
-msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(lecturers)d lecturer(s)."
-msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(lecturers)d Mitwirkende erfolgreich erstellt."
+msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s)."
+msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d Mitwirkende erfolgreich erstellt."
 
 #: fsr/importers.py:172
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
-
-#: fsr/models.py:19
-#: fsr/templates/fsr_template_index.html:15
-#: fsr/templates/fsr_user_index.html:25
-#: lecturer/templates/lecturer_index.html:14
-#: lecturer/templates/lecturer_index.html:58
-msgid "Name"
-msgstr "Name"
 
 #: fsr/views.py:61
 msgid "Successfully created semester."
@@ -606,7 +768,7 @@ msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
 #: fsr/views.py:116
-msgid "Could not send emails to participants and lecturers"
+msgid "Could not send emails to participants and contributors"
 msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 
 #: fsr/views.py:117
@@ -630,11 +792,6 @@ msgstr "Veranstaltung erfolgreich erstellt."
 #: fsr/views.py:258
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
-
-#: fsr/views.py:268
-#: lecturer/views.py:96
-msgid "Successfully updated course."
-msgstr "Veranstaltung erfolgreich geändert."
 
 #: fsr/views.py:281
 #, python-format
@@ -758,22 +915,6 @@ msgstr "Nein"
 msgid "Send email"
 msgstr "E‑Mail senden"
 
-#: fsr/templates/fsr_course_form.html:11
-#: fsr/templates/fsr_questionnaire_form.html:29
-#: lecturer/templates/lecturer_course_form.html:11
-msgid "General Options"
-msgstr "Allgemeine Optionen"
-
-#: fsr/templates/fsr_course_form.html:16
-#: lecturer/templates/lecturer_course_form.html:17
-msgid "Contributors"
-msgstr "Mitwirkende"
-
-#: fsr/templates/fsr_course_form.html:28
-#: lecturer/templates/lecturer_course_form.html:24
-msgid "Remove?"
-msgstr "Entfernen?"
-
 #: fsr/templates/fsr_course_form.html:49
 msgid "Save course"
 msgstr "Veranstaltung speichern"
@@ -797,11 +938,6 @@ msgstr ""
 #, python-format
 msgid "Answer %(id)s"
 msgstr "Antwort %(id)s"
-
-#: fsr/templates/fsr_course_review.html:28
-#: lecturer/templates/lecturer_course_form.html:75
-msgid "Save"
-msgstr "Speichern"
 
 #: fsr/templates/fsr_course_review.html:29
 msgid "Save and show next"
@@ -846,14 +982,6 @@ msgstr "Es gibt noch keine Semester."
 msgid "Create new semester"
 msgstr "Neues Semester anlegen"
 
-#: fsr/templates/fsr_index.html:25
-#: fsr/templates/fsr_questionnaire_base.html:7
-#: lecturer/templates/lecturer_course_form.html:22
-#: templates/base.html:46
-#: templates/faq.html:45
-msgid "Questionnaires"
-msgstr "Fragebögen"
-
 #: fsr/templates/fsr_index.html:37
 #: fsr/templates/fsr_questionnaire_index.html:8
 msgid "Create new questionnaire"
@@ -873,8 +1001,8 @@ msgstr "Alle Benutzer"
 
 #: fsr/templates/fsr_index.html:45
 #: fsr/templates/fsr_user_index.html:16
-msgid "Responsible Persons"
-msgstr "Verantwortliche Personen"
+msgid "Responsible Contributors"
+msgstr "Verantwortliche"
 
 #: fsr/templates/fsr_index.html:47
 #: fsr/templates/fsr_template_form.html:8
@@ -882,16 +1010,6 @@ msgstr "Verantwortliche Personen"
 #: templates/base.html:48
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
-
-#: fsr/templates/fsr_questionnaire_base.html:17
-#: fsr/templates/fsr_questionnaire_index.html:35
-#: fsr/templates/fsr_questionnaire_index.html:37
-#: fsr/templates/fsr_template_index.html:23
-#: fsr/templates/fsr_user_index.html:58
-#: lecturer/templates/lecturer_index.html:39
-#: lecturer/templates/lecturer_index.html:83
-msgid "Edit"
-msgstr "Bearbeiten"
 
 #: fsr/templates/fsr_questionnaire_base.html:18
 #: fsr/templates/fsr_questionnaire_index.html:40
@@ -929,14 +1047,6 @@ msgstr "Fragebogen speichern"
 msgid "Questionnaire"
 msgstr "Fragebogen"
 
-#: fsr/templates/fsr_questionnaire_index.html:16
-#: fsr/templates/fsr_template_index.html:16
-#: fsr/templates/fsr_user_index.html:28
-#: lecturer/templates/lecturer_index.html:18
-#: lecturer/templates/lecturer_index.html:62
-msgid "Actions"
-msgstr "Aktionen"
-
 #: fsr/templates/fsr_questionnaire_index.html:25
 #, python-format
 msgid ""
@@ -971,20 +1081,12 @@ msgstr[1] ""
 "\n"
 "                        %(count)s Kurse"
 
-#: fsr/templates/fsr_questionnaire_index.html:39
-#: fsr/templates/fsr_semester_view.html:68
-#: lecturer/templates/lecturer_course_form.html:79
-#: lecturer/templates/lecturer_index.html:43
-#: lecturer/templates/lecturer_index.html:87
-msgid "Preview"
-msgstr "Vorschau"
-
 #: fsr/templates/fsr_questionnaire_index.html:52
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:9
-msgid "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed."
+msgid "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed."
 msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:17
@@ -1042,18 +1144,6 @@ msgstr "Veranstaltungen importieren"
 msgid "Assign Questionnaires"
 msgstr "Fragebögen zuordnen"
 
-#: fsr/templates/fsr_semester_view.html:29
-#: lecturer/templates/lecturer_index.html:15
-#: lecturer/templates/lecturer_index.html:59
-msgid "State"
-msgstr "Zustand"
-
-#: fsr/templates/fsr_semester_view.html:55
-#: lecturer/templates/lecturer_index.html:17
-#: lecturer/templates/lecturer_index.html:61
-msgid "Participants"
-msgstr "Teilnehmer"
-
 #: fsr/templates/fsr_semester_view.html:56
 msgid "Text Answers"
 msgstr "Textantworten"
@@ -1075,16 +1165,16 @@ msgid "Unpublish"
 msgstr "Zurückziehen"
 
 #: fsr/templates/fsr_semester_view.html:89
-msgid "Enable Courses for Lecturer Review"
-msgstr "Für Dozenten-Überprüfung freigeben"
+msgid "Enable Courses for Contributor Review"
+msgstr "Zur Überprüfung durch Mitwirkende freigeben"
 
 #: fsr/templates/fsr_semester_view.html:92
 msgid "Approve Courses"
 msgstr "Veranstaltungen bestätigen…"
 
 #: fsr/templates/fsr_semester_view.html:96
-msgid "Re-Enable Courses for Lecturer Review"
-msgstr "Kurse erneut für Dozenten-Überprüfung freigeben"
+msgid "Re-Enable Courses for Contributor Review"
+msgstr "Kurse erneut zur Überprüfung durch Mitwirkende freigeben"
 
 #: fsr/templates/fsr_semester_view.html:100
 msgid "Publish Courses"
@@ -1123,12 +1213,6 @@ msgstr "Information"
 msgid "Student Representative"
 msgstr "FSR-Mitglied"
 
-#: fsr/templates/fsr_user_index.html:45
-#: lecturer/templates/lecturer_base.html:10
-#: lecturer/templates/lecturer_course_form.html:21
-msgid "Contributor"
-msgstr "Mitwirkender"
-
 #: fsr/templates/fsr_user_index.html:48
 msgid "Responsible"
 msgstr "Verantwortlicher"
@@ -1136,89 +1220,6 @@ msgstr "Verantwortlicher"
 #: fsr/templates/fsr_user_index.html:54
 msgid "Email address missing!"
 msgstr "E‑Mail-Adresse fehlt!"
-
-#: lecturer/views.py:39
-msgid "Successfully updated your profile."
-msgstr "Profil erfolgreich aktualisiert."
-
-#: lecturer/views.py:94
-msgid "Successfully updated and approved course."
-msgstr "Veranstaltung erfolgreich geändert and bestätigt."
-
-#: lecturer/templates/lecturer_base.html:6
-msgid "Your EvaP"
-msgstr "Mein EvaP"
-
-#: lecturer/templates/lecturer_course_form.html:23
-msgid "Can edit course"
-msgstr "Kann Veranstaltung bearbeiten"
-
-#: lecturer/templates/lecturer_course_form.html:65
-msgid "Students"
-msgstr "Studenten"
-
-#: lecturer/templates/lecturer_course_form.html:66
-msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR."
-msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen., Bitte benachrichtigen Sie den FSR, falls diese Daten nicht korrekt sind - bspw. Studierende fehlen."
-
-#: lecturer/templates/lecturer_course_form.html:76
-msgid "Save and approve"
-msgstr "Speichern und bestätigen"
-
-#: lecturer/templates/lecturer_course_form.html:78
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: lecturer/templates/lecturer_index.html:9
-msgid "Own Courses"
-msgstr "Eigene Veranstaltungen"
-
-#: lecturer/templates/lecturer_index.html:16
-#: lecturer/templates/lecturer_index.html:60
-msgid "Evaluation Period"
-msgstr "Abstimmungszeitraum"
-
-#: lecturer/templates/lecturer_index.html:41
-#: lecturer/templates/lecturer_index.html:85
-msgid "View"
-msgstr "Anzeigen"
-
-#: lecturer/templates/lecturer_index.html:50
-msgid "There are no courses for you this semester yet. You will get informed by Email, as soon as your courses are approved for your review by the student representatives."
-msgstr "Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E‑Mail informiert, sobald Ihre Veranstaltungen zur Überprüfung freigegeben wurden."
-
-#: lecturer/templates/lecturer_index.html:53
-msgid "Courses for which you are a delegate"
-msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
-
-#: lecturer/templates/lecturer_index.html:95
-msgid "There are no courses for you this semester yet."
-msgstr "Derzeit können Sie keine Veranstaltung als Stellvertreter bearbeiten."
-
-#: lecturer/templates/lecturer_index.html:99
-msgid "Own Profile"
-msgstr "Eigenes Profil"
-
-#: lecturer/templates/lecturer_index.html:100
-msgid "You can edit your own user profile here:"
-msgstr "Sie können Ihr eigenes Profil hier bearbeiten:"
-
-#: lecturer/templates/lecturer_index.html:100
-msgid "Edit own Profile"
-msgstr "Eigenes Profil bearbeiten"
-
-#: lecturer/templates/lecturer_profile.html:8
-#: lecturer/templates/lecturer_profile.html:16
-msgid "Profile"
-msgstr "Profil"
-
-#: lecturer/templates/lecturer_profile.html:20
-msgid "People for which you are a delegate"
-msgstr "Personen für die Sie als Stellvertreter eingetragen sind"
-
-#: lecturer/templates/lecturer_profile.html:28
-msgid "Save your profile"
-msgstr "Profil speichern"
 
 #: results/exporters.py:37
 #: results/templates/results_base.html:6
@@ -1254,10 +1255,6 @@ msgstr "Es sind sind noch keine Ergebnisse verfügbar."
 #: results/templates/results_semester_detail.html:21
 msgid "Course"
 msgstr "Veranstaltung"
-
-#: results/templates/results_semester_detail.html:22
-msgid "Lecturer"
-msgstr "Dozent"
 
 #: results/templates/results_semester_detail.html:23
 msgid "Grade"
@@ -1738,3 +1735,4 @@ msgid ""
 msgstr ""
 "\n"
 "Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
+

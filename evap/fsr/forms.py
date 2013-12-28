@@ -38,7 +38,7 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_(u"General questions"))
     last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False)
     last_modified_user_2 = forms.CharField(label=_(u"Last modified by"), required=False)
     
@@ -94,8 +94,8 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
     
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
-        self.fields['lecturer'].queryset = User.objects.order_by("username")
-        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=True, obsolete=False))
+        self.fields['contributor'].queryset = User.objects.order_by("username")
+        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False))
 
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
@@ -205,20 +205,20 @@ class AtLeastOneFormSet(BaseInlineFormSet):
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
 
-class LecturerFormSet(AtLeastOneFormSet):
+class ContributorFormSet(AtLeastOneFormSet):
     def clean(self):
-        super(LecturerFormSet, self).clean()
+        super(ContributorFormSet, self).clean()
         
-        found_lecturer = []
+        found_contributor = []
         count_responsible = 0
         for form in self.forms:
             try:
                 if form.cleaned_data:
-                    lecturer = form.cleaned_data.get('lecturer')
-                    if lecturer and lecturer in found_lecturer:
+                    contributor = form.cleaned_data.get('contributor')
+                    if contributor and contributor in found_contributor:
                         raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
-                    elif lecturer:
-                        found_lecturer.append(lecturer)
+                    elif contributor:
+                        found_contributor.append(contributor)
 
                     if form.cleaned_data.get('responsible'):
                         count_responsible += 1
@@ -229,9 +229,9 @@ class LecturerFormSet(AtLeastOneFormSet):
                 pass
 
         if count_responsible < 1:
-            raise forms.ValidationError(_(u'No responsible person found. Each course must have exactly one responsible person.'))
+            raise forms.ValidationError(_(u'No responsible contributor found. Each course must have exactly one responsible contributor.'))
         elif count_responsible > 1:
-            raise forms.ValidationError(_(u'Too many responsible persons found. Each course must have exactly one responsible person.'))
+            raise forms.ValidationError(_(u'Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
 
 
 class IdLessQuestionFormSet(AtLeastOneFormSet):
@@ -268,7 +268,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
         
         # course kinds
-        for kind in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
+        for kind in semester.course_set.filter(state__in=['prepared', 'contributorApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
         
         # extra kinds

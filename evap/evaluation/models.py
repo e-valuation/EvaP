@@ -72,7 +72,7 @@ class Questionnaire(models.Model):
     
     index = models.IntegerField(verbose_name=_(u"ordering index"))
     
-    is_for_persons = models.BooleanField(verbose_name=_(u"is for persons"))
+    is_for_contributors = models.BooleanField(verbose_name=_(u"is for contributors"))
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
@@ -144,7 +144,7 @@ class Course(models.Model):
         
         # make sure there is a general assignment
         if not self.general_assignment:
-            self.assignments.create(lecturer=None)
+            self.assignments.create(contributor=None)
     
     def is_fully_checked(self):
         """Shortcut for finding out whether all text answers to this course have been checked"""
@@ -158,7 +158,7 @@ class Course(models.Model):
         return user in self.participants.all() and user not in self.voters.all()
     
     def can_fsr_edit(self):
-        return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
+        return self.state in ['new', 'prepared', 'contributorApproved', 'approved', 'inEvaluation']
     
     def can_fsr_delete(self):
         return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
@@ -167,24 +167,24 @@ class Course(models.Model):
         return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
     
     def can_fsr_approve(self):
-        return self.state in ['new', 'prepared', 'lecturerApproved']
+        return self.state in ['new', 'prepared', 'contributorApproved']
         
-    def has_responsible_person(self):
+    def has_responsible_contributor(self):
         for assignment in self.assignments.all():
             if assignment.responsible:
                 return True
         return False
     
-    @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
-    def ready_for_lecturer(self, send_mail=True):
+    @transition(field=state, source=['new', 'contributorApproved'], target='prepared')
+    def ready_for_contributors(self, send_mail=True):
         if send_mail:
             EmailTemplate.get_review_template().send_courses([self], True, False, False)
     
-    @transition(field=state, source='prepared', target='lecturerApproved')
-    def lecturer_approve(self):
+    @transition(field=state, source='prepared', target='contributorApproved')
+    def contributor_approve(self):
         pass
     
-    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved')
+    @transition(field=state, source=['new', 'prepared', 'contributorApproved'], target='approved')
     def fsr_approve(self):
         pass
     
@@ -211,7 +211,7 @@ class Course(models.Model):
     @property
     def general_assignment(self):
         try:
-            return self.assignments.get(lecturer=None)
+            return self.assignments.get(contributor=None)
         except Assignment.DoesNotExist:
             return None
     
@@ -233,7 +233,7 @@ class Course(models.Model):
     def responsible_contributor(self):
         for assignment in self.assignments.all():
             if assignment.responsible:
-                return assignment.lecturer
+                return assignment.contributor
 
     @property
     def responsible_contributors_name(self):
@@ -247,27 +247,27 @@ class Course(models.Model):
         return all(assignment.questionnaires.exists() for assignment in self.assignments.all()) and self.general_assignment
     
     def is_user_editor_or_delegate(self, user):
-        if self.assignments.filter(can_edit=True, lecturer=user).exists():
+        if self.assignments.filter(can_edit=True, contributor=user).exists():
             return True
-        elif self.assignments.filter(can_edit=True, lecturer__in=user.represented_users.all()).exists():
+        elif self.assignments.filter(can_edit=True, contributor__in=user.represented_users.all()).exists():
             return True
         
         return False
     
     def is_user_contributor(self, user):
-        if self.assignments.filter(lecturer=user).exists():
+        if self.assignments.filter(contributor=user).exists():
             return True
         
         return False
     
     def warnings(self):
         result = []
-        if not self.assignments.exclude(lecturer=None).exists():
+        if not self.assignments.exclude(contributor=None).exists():
             result.append(_(u"No contributors assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
-        if not self.has_responsible_person():
-            result.append(_(u"Responsible person missing"))
+        if not self.has_responsible_contributor():
+            result.append(_(u"Responsible contributor missing"))
         return result
     
     @property
@@ -292,10 +292,10 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
-    """A lecturer who is assigned to a course and his questionnaires."""
+    """A contributor who is assigned to a course and his questionnaires."""
     
     course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='assignments')
-    lecturer = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"lecturer"), blank=True, null=True, related_name='lecturers')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributors')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
     responsible = models.BooleanField(verbose_name = _(u"responsible"))
@@ -303,11 +303,11 @@ class Assignment(models.Model):
 
     class Meta:
         unique_together = (
-            ('course', 'lecturer'),
+            ('course', 'contributor'),
         )
 
     def clean(self):
-        # responsible persons can always edit
+        # responsible contributors can always edit
         if self.responsible:
             self.can_edit = True
 
@@ -378,7 +378,7 @@ class GradeAnswer(Answer):
 
 class TextAnswer(Answer):
     """A free-form text answer to a question (usually a comment about a course
-    or a lecturer)."""
+    or a contributor)."""
     
     elements_per_page = 5
     
@@ -441,7 +441,7 @@ class UserProfile(models.Model):
     
     @property
     def can_fsr_delete(self):
-        return not Course.objects.filter(assignments__lecturer=self.user).exists()
+        return not Course.objects.filter(assignments__contributor=self.user).exists()
     
     @property
     def enrolled_in_courses(self):
@@ -449,15 +449,15 @@ class UserProfile(models.Model):
     
     @property
     def is_contributor(self):
-        return Course.objects.filter(assignments__lecturer=self.user).exists()
+        return Course.objects.filter(assignments__contributor=self.user).exists()
 
     @property
     def is_editor(self):
-        return Course.objects.filter(assignments__can_edit = True, assignments__lecturer = self.user).exists()
+        return Course.objects.filter(assignments__can_edit = True, assignments__contributor = self.user).exists()
 
     @property
     def is_responsible(self):
-        return Course.objects.filter(assignments__responsible = True, assignments__lecturer = self.user).exists()
+        return Course.objects.filter(assignments__responsible = True, assignments__contributor = self.user).exists()
 
     @property
     def is_delegate(self):

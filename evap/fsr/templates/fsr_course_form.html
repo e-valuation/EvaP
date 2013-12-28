@@ -76,9 +76,9 @@
             };
         }
 
-        // the number of lecturer select fields in the assignment table
-        var lecturerCount = $("#assignment_table select").length;
-        for(var i = 0; i < lecturerCount; i++){
+        // the number of contributor select fields in the assignment table
+        var contributorCount = $("#assignment_table select").length;
+        for(var i = 0; i < contributorCount; i++){
             $("#id_assignments-" + i + "-responsible").click(makeClickHandler(i));
         }
     });
