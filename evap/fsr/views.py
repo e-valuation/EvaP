@@ -14,7 +14,7 @@ from evap.evaluation.tools import questionnaires_and_assignments, STATES_ORDERED
 from evap.fsr.forms import AssignmentForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                           SelectCourseForm, SemesterForm, UserForm, LecturerFormSet
+                           SelectCourseForm, SemesterForm, UserForm, ContributorFormSet
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
 from evap.fsr.tools import custom_redirect
@@ -113,7 +113,7 @@ def semester_publish(request, semester_id):
         try:
             EmailTemplate.get_publish_template().send_courses(selected_courses, True, True, True)
         except:
-            messages.add_message(request, messages.WARNING, _("Could not send emails to participants and lecturers"))
+            messages.add_message(request, messages.WARNING, _("Could not send emails to participants and contributors"))
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
@@ -144,7 +144,7 @@ def semester_assign_questionnaires(request, semester_id):
     form = QuestionnairesAssignForm(request.POST or None, semester=semester)
     
     if form.is_valid():
-        for course in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']):
+        for course in semester.course_set.filter(state__in=['prepared', 'contributorApproved', 'new', 'approved']):
             if form.cleaned_data[course.kind]:
                 course.general_assignment.questionnaires = form.cleaned_data[course.kind]
             course.save()
@@ -158,7 +158,7 @@ def semester_assign_questionnaires(request, semester_id):
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all()
+    courses = semester.course_set.filter(state__in=['new', 'prepared', 'contributorApproved']).all()
 
     forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
     
@@ -178,9 +178,9 @@ def semester_approve(request, semester_id):
 
 
 @fsr_required
-def semester_lecturer_ready(request, semester_id):
+def semester_contributor_ready(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.filter(state__in=['new', 'lecturerApproved']).all()
+    courses = semester.course_set.filter(state__in=['new', 'contributorApproved']).all()
     
     forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
     
@@ -190,7 +190,7 @@ def semester_lecturer_ready(request, semester_id):
         selected_courses = []
         for form in forms:
             for course in form.selected_courses:
-                course.ready_for_lecturer(False)
+                course.ready_for_contributors(False)
                 course.save()
                 selected_courses.append(course)
         
@@ -198,7 +198,7 @@ def semester_lecturer_ready(request, semester_id):
         
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_lecturer_ready.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
+        return render_to_response("fsr_semester_contributor_ready.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -232,7 +232,7 @@ def semester_lottery(request, semester_id):
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = Course(semester=semester)
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=ContributorFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
     form = CourseForm(request.POST or None, instance=course)
     formset = AssignmentFormset(request.POST or None, instance=course)
@@ -251,7 +251,7 @@ def course_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=ContributorFormSet, form=AssignmentForm, extra=1, exclude=('course'))
     
     # check course state
     if not course.can_fsr_edit():
@@ -259,7 +259,7 @@ def course_edit(request, semester_id, course_id):
         return redirect('evap.fsr.views.semester_view', semester_id)
     
     form = CourseForm(request.POST or None, instance=course)
-    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(lecturer=None))
+    formset = AssignmentFormset(request.POST or None, instance=course, queryset=course.assignments.exclude(contributor=None))
 
     if form.is_valid() and formset.is_valid():
         form.save(user=request.user)
@@ -364,11 +364,11 @@ def course_email(request, semester_id, course_id):
 
 
 @fsr_required
-def course_lecturer_ready(request, semester_id, course_id):
+def course_contributor_ready(request, semester_id, course_id):
     get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     
-    course.ready_for_lecturer()
+    course.ready_for_contributors()
     course.save()
     
     return redirect('evap.fsr.views.semester_view', semester_id)
@@ -429,7 +429,7 @@ def questionnaire_view(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     
     # build forms
-    assignment = Assignment(lecturer=request.user)
+    assignment = Assignment(contributor=request.user)
     form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
     
     return render_to_response("fsr_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire), context_instance=RequestContext(request))

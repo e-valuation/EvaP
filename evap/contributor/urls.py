@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-urlpatterns = patterns('evap.lecturer.views',
+urlpatterns = patterns('evap.contributor.views',
     url(r"^$", 'index'),
     url(r"^profile$", 'profile_edit'),
     url(r"^course/(\d+)$", 'course_view'),

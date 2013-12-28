@@ -52,10 +52,10 @@ class UsecaseTests(WebTest):
         self.assertEqual(check_student.first_name, "Diam")
         self.assertEqual(check_student.email, "Diam.Synephebos@student.hpi.uni-potsdam.de")
         
-        check_lecturer = User.objects.get(username="Sanctus.Aliquyam")
-        self.assertEqual(check_lecturer.first_name, "Sanctus")
-        self.assertEqual(check_lecturer.last_name, "Aliquyam")
-        self.assertEqual(check_lecturer.email, "567@web.de")
+        check_contributor = User.objects.get(username="Sanctus.Aliquyam")
+        self.assertEqual(check_contributor.first_name, "Sanctus")
+        self.assertEqual(check_contributor.last_name, "Aliquyam")
+        self.assertEqual(check_contributor.email, "567@web.de")
         
     def test_login_key(self):
         environ = self.app.extra_environ

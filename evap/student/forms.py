@@ -60,11 +60,11 @@ class QuestionsForm(forms.Form):
             self.fields[identifier] = field
 
     def caption(self):
-        if self.assignment.lecturer:
+        if self.assignment.contributor:
             try:
-                full_name = UserProfile.objects.get(user=self.assignment.lecturer).full_name
+                full_name = UserProfile.objects.get(user=self.assignment.contributor).full_name
             except UserProfile.DoesNotExist:
-                full_name = self.assignment.lecturer.get_full_name() or self.assignment.lecturer.username
+                full_name = self.assignment.contributor.get_full_name() or self.assignment.contributor.username
             return u"%s: %s" % (full_name, self.questionnaire.public_name)
         else:
             return self.questionnaire.public_name
@@ -73,4 +73,4 @@ class QuestionsForm(forms.Form):
         return self.questionnaire.teaser
     
     def image(self):
-        return UserProfile.get_for_user(self.assignment.lecturer).picture if self.assignment.lecturer else None
+        return UserProfile.get_for_user(self.assignment.contributor).picture if self.assignment.contributor else None

@@ -23,7 +23,7 @@ class EmailTemplate(models.Model):
     
     @classmethod
     def get_review_template(cls):
-        return cls.objects.get(name="Lecturer Review Notice")
+        return cls.objects.get(name="Contributor Review Notice")
     
     @classmethod
     def get_reminder_template(cls):
@@ -49,11 +49,11 @@ class EmailTemplate(models.Model):
                 yield user
         
         if send_to_contributors:
-            for assignment in course.assignments.exclude(lecturer=None):
-                yield assignment.lecturer
+            for assignment in course.assignments.exclude(contributor=None):
+                yield assignment.contributor
         elif send_to_editors:
-            for assignment in course.assignments.exclude(lecturer=None).filter(can_edit=True):
-                yield assignment.lecturer
+            for assignment in course.assignments.exclude(contributor=None).filter(can_edit=True):
+                yield assignment.contributor
     
     @classmethod
     def render_string(cls, text, dictionary):

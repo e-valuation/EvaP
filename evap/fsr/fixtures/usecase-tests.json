@@ -121,7 +121,7 @@
 	"model": "evaluation.assignment",
 	"fields":{
             "course": 1,
-	    "lecturer": 1
+	    "contributor": 1
 	}
     },
     {
@@ -129,7 +129,7 @@
 	"model": "evaluation.assignment",
 	"fields":{
             "course": 1,
-	    "lecturer": null
+	    "contributor": null
 	}
     },
     {
@@ -137,7 +137,7 @@
 	"model": "evaluation.assignment",
 	"fields":{
             "course": 2,
-	    "lecturer": 1
+	    "contributor": 1
 	}
     },
     {
@@ -145,7 +145,7 @@
         "model": "evaluation.assignment",
         "fields":{
             "course": 2,
-            "lecturer": null
+            "contributor": null
         }
     }
 ]

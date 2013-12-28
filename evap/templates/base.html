@@ -58,11 +58,11 @@
                         </li>
 
                         {% if user.get_profile.is_editor_or_delegate %}
-                            <li><a href="{% url "evap.lecturer.views.index" %}">{% trans "My courses" %}</a></li>
+                            <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
                         {% if user.get_profile.is_editor %}
-                            <li><a href="{% url "evap.lecturer.views.profile_edit" %}">{% trans "My profile" %}</a></li>
+                            <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
                     {% endif %}
                 </ul>
