@@ -8,7 +8,7 @@
     <p>
         {% trans "Select the questionnaires to assign each of these course and lecturer types. If you do select nothing, this kind will not be changed." %}
     </p>
-    <form method="POST" class="multiselect-form">
+    <form method="POST" class="form-horizontal multiselect-form">
 	{% csrf_token %}
 	<fieldset>
 	{{ form.as_div }}

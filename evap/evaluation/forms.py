@@ -188,8 +188,9 @@ class BootstrapFieldset(object):
 class BootstrapMixin(object):
     """"""
     
-    __TEMPLATE = """<div class="clearfix{% if errors %} error{% endif %}">""" \
-                 """{{ label }}<div class="input">""" \
+    __TEMPLATE = """<div class="form-group{% if errors %} error{% endif %}">""" \
+                 """<label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ label }}</label>""" \
+                 """<div class="col-sm-8">""" \
                  """{{ bf }}""" \
                  """{% if errors %}<span class="help-inline">{{ errors }}</span>{% endif %}""" \
                  """{% if help_text %}<span class="help-block">{{ help_text }}</span>{% endif %}""" \
@@ -277,19 +278,19 @@ class BootstrapMixin(object):
             
             if field_instance.help_text:
                 # The field has a help_text, construct <span> tag
-                help_text = '<span class="help_text">%s</span>' % escape(unicode(field_instance.help_text))
+                help_text = escape(unicode(field_instance.help_text))
             else:
                 help_text = u''
             
             attrs = {}
-            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput)):
-                attrs['class'] = 'span8'
+            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple)):
+                attrs['class'] = 'form-control'
             if isinstance(field_instance.widget, widgets.DateInput):
                 attrs['data-datepicker'] = "datepicker"
             
             field_hash = {
                 'class' : mark_safe(css_class),
-                'label' : mark_safe(bf.label and bf.label_tag(bf.label) or ''),
+                'label' : mark_safe(bf.label or ''),
                 'help_text' :mark_safe(unicode(help_text)),
                 'field' : field_instance,
                 'bf' : mark_safe(unicode(bf.as_widget(attrs=attrs))),
