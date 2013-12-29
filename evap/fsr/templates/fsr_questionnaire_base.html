@@ -4,9 +4,9 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+    <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
     {% if questionnaire %}
-        <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
+        <li><a href="{% url "evap.fsr.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
     {% endif %}
 {% endblock %}
 
