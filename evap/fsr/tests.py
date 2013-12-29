@@ -48,6 +48,14 @@ class UsecaseTests(WebTest):
         self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
         self.assertEqual(User.objects.count(), original_user_count + 24, "Wrong number of users after Excel import.")
         
+        check_course = Course.objects.get(name_en="Shake")
+        check_contributions = Contribution.objects.filter(course=check_course)
+        responsible_count = 0
+        for contribution in check_contributions:
+            if contribution.responsible:
+                responsible_count += 1
+        self.assertEqual(responsible_count, 1, "Wrong number of responsible contributors after Excel import.")
+
         check_student = User.objects.get(username="Diam.Synephebos")
         self.assertEqual(check_student.first_name, "Diam")
         self.assertEqual(check_student.email, "Diam.Synephebos@student.hpi.uni-potsdam.de")
@@ -146,3 +154,15 @@ class UsecaseTests(WebTest):
         for course in semester.course_set.all():
             self.assertEqual(course.general_contribution.questionnaires.count(), 1)
             self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
+
+    def test_remove_responsibility(self):
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+
+        # remove responsibility in lecturer's checkbox
+        page = page.click("Semester 1 \(en\)", index=0)
+        page = page.click("Shake")
+        form = lastform(page)
+        form['contributions-0-responsible'] = False
+        page = form.submit()
+
+        assert "No responsible contributor found" in page
