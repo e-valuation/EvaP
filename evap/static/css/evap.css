@@ -1,8 +1,38 @@
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -30px;
+  /* Pad bottom by footer height */
+  padding: 0 0 30px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height: 30px;
+  line-height: 30px;
+  background-color: #f5f5f5;
+}
+
+
 td.maximize, th.maximize {
     width: 100%;
 }
 td.minimize, th.minimize {
     width: 0%;
+    white-space: nowrap;
+}
+td.minimize-with-padding, th.minimize-with-padding {
+    width: 0%;
+    padding-left: 5px;
+    padding-right: 5px;
     white-space: nowrap;
 }
 
@@ -27,10 +57,6 @@ table.vertically-aligned * td {
 .vote-bg-3 { background: #f1e259; }
 .vote-bg-4 { background: #f19e59; }
 .vote-bg-5 { background: #f15959; }
-
-body {
-    padding-top: 55px;
-}
 
 @media print {
     body {
@@ -70,17 +96,4 @@ td.vote-inputs > textarea {
 
 ul.errorlist li {
     color: #B94A48;
-}
-
-/* lean forms with smaller border */
-form.lean-form {
-    margin-bottom: 0px;
-}
-form.lean-form fieldset {
-    margin-bottom: 0px;
-}
-
-form.lean-form div.actions {
-    margin-bottom: 0px;
-    padding-bottom: 0px;
 }
