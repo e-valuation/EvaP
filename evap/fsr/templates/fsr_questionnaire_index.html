@@ -34,14 +34,14 @@
                         {% if not questionnaire.obsolete %}
                             <a href="{% url "evap.fsr.views.questionnaire_edit" questionnaire.id %}" class="btn bnt-sm btn-primary">{% trans "Edit" %}</a>
                         {% else %}
-                            <a href="#" class="btn small primary disabled">{% trans "Edit" %}</a>
+                            <a href="#" class="btn btn-sm btn-primary" disabled="disabled">{% trans "Edit" %}</a>
                         {% endif %}
-                        <a href="{% url "evap.fsr.views.questionnaire_view" questionnaire.id %}" class="btn btn-sm bt-default">{% trans "Preview" %}</a>
+                        <a href="{% url "evap.fsr.views.questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                         <a href="{% url "evap.fsr.views.questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
                         {% if questionnaire.can_fsr_delete %}
                             <a href="{% url "evap.fsr.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                         {% else %}
-                            <a href="#" class="btn small danger disabled">{% trans "Delete" %}</a>
+                            <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete" %}</a>
                         {% endif %}
                     </td>
                 </tr>
