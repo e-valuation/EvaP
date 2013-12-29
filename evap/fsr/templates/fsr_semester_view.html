@@ -40,7 +40,7 @@
                             {% endif %}
                             </div>
                             <div style="font-style: italic">
-                                {{ course.first_lecturer.get_profile.full_name }}
+                                {{ course.first_lecturer.userprofile.full_name }}
                             </div>
                             <span class="label">{{ course.degree }}</span>
                             <span class="label">{{ course.kind }}</span>
@@ -112,7 +112,7 @@
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-tabs.js"></script>
-    <script>
+    <script type="text/javascript">
         $(function () {
             var tabs = $("<ul class='tabs'/>")
             $('#tab-content > div').each(function(i,e) {

@@ -35,6 +35,7 @@ class ImportForm(forms.Form, BootstrapMixin):
 class SemesterForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Semester
+        fields = "__all__"
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
@@ -56,7 +57,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_end_date'].localize = False
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
-        self.fields['participants'].queryset=User.objects.order_by("last_name", "first_name", "username")
+        self.fields['participants'].queryset = User.objects.order_by("last_name", "first_name", "username")
+        self.fields['participants'].help_text = ""
         
         if self.instance.general_assignment:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
@@ -91,6 +93,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 class AssignmentForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Assignment
+        fields = "__all__"
     
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
@@ -143,6 +146,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Questionnaire
+        fields = "__all__"
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
@@ -242,6 +246,7 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
+        fields = "__all__"
     
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
@@ -325,12 +330,15 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         # fix generated form
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = User.objects.order_by("username")
+        self.fields['delegates'].help_text = ""
         self.fields['is_staff'].label = _(u"FSR Member")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
                                                                       initial=self.instance.user.represented_users.all() if self.instance.pk else (),
                                                                       label=_("Represented Users"),
+                                                                      help_text="",
                                                                       required=False)
+        self.fields['represented_users'].help_text = ""
         
         # load user fields
         self.fields['username'].initial = self.instance.user.username
