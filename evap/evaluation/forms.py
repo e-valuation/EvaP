@@ -117,7 +117,7 @@ class LoginKeyForm(forms.Form):
 
     INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months.")
 
-    login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE})
+    login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE}, widget=forms.TextInput)
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
