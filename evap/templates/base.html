@@ -146,9 +146,7 @@
     <!-- multi-select plugin -->
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.localisation-min.js"></script>
     <script type="text/javascript">
-    //<![CDATA[
         $.localise.defaultLanguage = '{{ LANGUAGE_CODE|escapejs }}';
-    //]]>
     </script>
     
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo-1.4.2-min.js"></script>
@@ -158,14 +156,12 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/ui.formset.js"></script>
     
     <script type="text/javascript">
-    //<![CDATA[
         $(function(){
             // add a close button to each message and make it work
             $(".alert-message").append("<a class='close' href='#'>&#xd7;</a>").alert();
             // activate topbar
             $('#topbar').dropdown();
         });
-    //]]>
     </script>
     {% endblock %}
 </body>

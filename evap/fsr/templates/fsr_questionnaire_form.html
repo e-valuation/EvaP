@@ -6,7 +6,6 @@
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript">
-    //<![CDATA[
     $(document).ready(function() {
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
         $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
@@ -16,7 +15,6 @@
         
         $('#question_table tbody tr').formset({prefix: 'question_set'});                        
     });
-    //]]>
     </script>
     
     <!-- prevent from accendential closing -->
