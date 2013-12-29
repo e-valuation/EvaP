@@ -27,7 +27,7 @@
             {% for state, courses in courses_by_state %}
                 <div id="tab{{ forloop.counter }}">
                 <h3>{% trans "State" %}: <span>{{ state|statename }} ({{ courses|length }})</span></h3>
-                <table class="zebra-striped vertically-aligned">
+                <table class="table table-striped">
                 <tbody>
                 {% for course in courses %}
                     <tr>

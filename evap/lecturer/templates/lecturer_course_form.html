@@ -16,7 +16,7 @@
             {{ formset.management_form }}
             <legend>{% trans "Lecturers" %}</legend>
             {{ formset.non_form_errors }}
-            <table id="assignment_table">
+            <table id="assignment_table" class="table">
                 <tr>
                     {% for field in formset.form.visible_fields %}
                         <th>{{ field.label }}</th>
