@@ -26,10 +26,10 @@
             <tbody>
             {% for course in degree.list %}
                 <tr>
-                    <td class="span13"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
-                    <td class="span1">{{ course.grade|floatformat:1 }}</td>
+                    <td class="col-sm-10"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
+                    <td class="col-sm-1">{{ course.grade|floatformat:1 }}</td>
                     {% if course.num_participants %}
-                    <td class="span2">
+                    <td class="col-sm-2">
                         {% spaceless %}
                         <div style="background: #c9e1fa; display: inline-block; width: 70%;">
                             <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
@@ -40,7 +40,7 @@
                         <span style="font-size: 80%;">{{ course.num_participants }}</span>
                     </td>
                     {% else %}
-                    <td class="span2">
+                    <td class="col-sm-2">
                         &mdash;
                     </td>
                     {% endif %}
