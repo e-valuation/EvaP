@@ -5,7 +5,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script>
+    <script type="text/javascript">
     $(document).ready(function() {
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
         $(".multiselect-form select[multiple='multiple']").each(function(i,e) {

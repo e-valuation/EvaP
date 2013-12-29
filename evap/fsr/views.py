@@ -233,7 +233,7 @@ def semester_lottery(request, semester_id):
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = Course(semester=semester)
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course',))
     
     form = CourseForm(request.POST or None, instance=course)
     formset = AssignmentFormset(request.POST or None, instance=course)
@@ -252,7 +252,7 @@ def course_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course'))
+    AssignmentFormset = inlineformset_factory(Course, Assignment, formset=LecturerFormSet, form=AssignmentForm, extra=1, exclude=('course',))
     
     # check course state
     if not course.can_fsr_edit():
@@ -439,7 +439,7 @@ def questionnaire_view(request, questionnaire_id):
 @fsr_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = QuestionFormset(request.POST or None, instance=questionnaire)
@@ -457,7 +457,7 @@ def questionnaire_create(request):
 @fsr_required
 def questionnaire_edit(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
     
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = QuestionFormset(request.POST or None, instance=questionnaire)
@@ -480,7 +480,7 @@ def questionnaire_edit(request, questionnaire_id):
 def questionnaire_copy(request, questionnaire_id):
     if request.method == "POST":
         questionnaire = Questionnaire()
-        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
         
         form = QuestionnaireForm(request.POST, instance=questionnaire)
         formset = QuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
@@ -495,7 +495,7 @@ def questionnaire_copy(request, questionnaire_id):
             return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
     else:
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire'))
+        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
         
         form = QuestionnaireForm(instance=questionnaire)
         formset = QuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())

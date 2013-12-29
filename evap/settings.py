@@ -158,8 +158,6 @@ MIDDLEWARE_CLASSES = (
     'evap.evaluation.403.Django403Middleware',
 )
 
-AUTH_PROFILE_MODULE = 'evaluation.UserProfile'
-
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -173,7 +171,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, "templates")
+    os.path.join(SITE_ROOT, "templates"),
 )
 
 INSTALLED_APPS = (
