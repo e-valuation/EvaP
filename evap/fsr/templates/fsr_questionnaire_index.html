@@ -32,7 +32,7 @@
                     </td>
                     <td class="right">
                         {% if not questionnaire.obsolete %}
-                            <a href="{% url "evap.fsr.views.questionnaire_edit" questionnaire.id %}" class="btn bnt-sm btn-primary">{% trans "Edit" %}</a>
+                            <a href="{% url "evap.fsr.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
                         {% else %}
                             <a href="#" class="btn btn-sm btn-primary" disabled="disabled">{% trans "Edit" %}</a>
                         {% endif %}
