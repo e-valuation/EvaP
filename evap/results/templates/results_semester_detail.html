@@ -52,8 +52,8 @@
 
     {% if request.user.is_staff %}
     <p>
-        <a href="{% url "evap.results.views.semester_export" semester.id %}" class="btn small">{% trans "Export semester as Excel table" %}</a>
-        <a href="{% url "evap.results.views.semester_export" semester.id %}?all" class="btn small">{% trans "Export semester as Excel table (GF)" %}</a>
+        <a href="{% url "evap.results.views.semester_export" semester.id %}" class="btn btn-sm btn-default">{% trans "Export semester as Excel table" %}</a>
+        <a href="{% url "evap.results.views.semester_export" semester.id %}?all" class="btn btn-sm btn-default">{% trans "Export semester as Excel table (GF)" %}</a>
     </p>
     {% endif %}
 {% endblock %}

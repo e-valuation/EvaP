@@ -36,11 +36,11 @@
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
                         {% if course.state == 'prepared' %}
-                            <a href="{% url "evap.lecturer.views.course_edit" course.id %}" class="btn small">{% trans "Edit" %}</a>
+                            <a href="{% url "evap.lecturer.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                         {% else %}
-                            <a href="{% url "evap.lecturer.views.course_view" course.id %}" class="btn small">{% trans "View" %}</a>
+                            <a href="{% url "evap.lecturer.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                         {% endif %}
-                        <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -80,11 +80,11 @@
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
                         {% if course.state == 'prepared' %}
-                            <a href="{% url "evap.lecturer.views.course_edit" course.id %}" class="btn small">{% trans "Edit" %}</a>
+                            <a href="{% url "evap.lecturer.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                         {% else %}
-                            <a href="{% url "evap.lecturer.views.course_view" course.id %}" class="btn small">{% trans "View" %}</a>
+                            <a href="{% url "evap.lecturer.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                         {% endif %}
-                        <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -97,6 +97,6 @@
 
     {% if user.userprofile.is_lecturer %}
         <h3>{% trans "Own Profile"%}</h3>
-        <p>{% trans "You can edit your own user profile here:" %} <a href="{% url "evap.lecturer.views.profile_edit" %}" class="btn">{% trans "Edit own Profile" %}</a></p>
+        <p>{% trans "You can edit your own user profile here:" %} <a href="{% url "evap.lecturer.views.profile_edit" %}" class="btn btn-default">{% trans "Edit own Profile" %}</a></p>
     {% endif %}
 {% endblock %}
