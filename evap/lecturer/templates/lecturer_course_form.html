@@ -59,13 +59,15 @@
                 {% endfor %}
             </ul>
         </fieldset>
-        <div class="actions">
-			{% if edit %}
-				<button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
-	            <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Approve"%}</button>
-			{% endif %}
-            <a href="{% url "evap.lecturer.views.index" %}" class="btn btn-default">{% trans "Cancel" %}</a>
-            <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn btn-default">{% trans "Preview" %}</a>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+    			{% if edit %}
+    				<button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
+    	            <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Approve"%}</button>
+    			{% endif %}
+                <a href="{% url "evap.lecturer.views.index" %}" class="btn btn-default">{% trans "Cancel" %}</a>
+                <a href="{% url "evap.lecturer.views.course_preview" course.id %}" class="btn btn-default">{% trans "Preview" %}</a>
+            </div>
         </div>
     </form>
 {% endblock %}

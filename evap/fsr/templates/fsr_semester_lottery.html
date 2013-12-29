@@ -11,8 +11,10 @@
         <legend>{% trans "Lottery" %}</legend>
         {{ form.as_div }}
         </fieldset>
-        <div class="actions">
-            <input type="submit" value="{% trans "Perform Lottery" %}" class="btn btn-primary"/>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+                <input type="submit" value="{% trans "Perform Lottery" %}" class="btn btn-primary"/>
+            </div>
         </div>
     </form>
     {% else %}

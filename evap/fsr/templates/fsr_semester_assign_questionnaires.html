@@ -13,8 +13,10 @@
 	<fieldset>
 	{{ form.as_div }}
 	</fieldset>
-	<div class="actions">
-	    <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
+	<div class="form-group">
+        <div class="col-sm-offset-3 col-sm-8">
+	       <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
+        </div>
 	</div>
     </form>
 {% endblock %}
