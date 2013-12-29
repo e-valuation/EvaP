@@ -7,7 +7,7 @@
     {{ block.super }}
     <script type="text/javascript">
     $(document).ready(function() {
-        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+        $.localise('jquery.uix.multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
         $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
             $(e).width($(e).width());
             $(e).multiselect();
