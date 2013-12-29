@@ -3,7 +3,7 @@ from django_webtest import WebTest
 import webtest
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProfile
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
 
 import os.path
 
