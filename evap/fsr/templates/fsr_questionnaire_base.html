@@ -19,7 +19,7 @@
         {% if questionnaire.can_fsr_delete %}
             <a href="{% url "evap.fsr.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a></li>
         {% else %}
-            <a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></li>
+            <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete" %}</a></li>
         {% endif %}
     </p>
     {% endif %}

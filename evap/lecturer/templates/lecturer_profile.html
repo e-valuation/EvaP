@@ -10,7 +10,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="multiselect-form" enctype="multipart/form-data">
+    <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
 	{% csrf_token %}
 	<fieldset>
 	    <legend>{% trans "Profile" %}</legend>
