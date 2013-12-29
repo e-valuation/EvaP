@@ -23,7 +23,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST">
+    <form method="POST" class="form-horizontal">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
