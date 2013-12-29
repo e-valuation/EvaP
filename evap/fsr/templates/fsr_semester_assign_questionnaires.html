@@ -23,7 +23,6 @@
     {{ block.super }}
     
     <script type="text/javascript">
-    //<![CDATA[
         $(function() {
             $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
             $("select[multiple='multiple']").each(function(i,e) {
@@ -31,6 +30,5 @@
                 $(e).multiselect();
             });
         });
-    //]]>
     </script>
 {% endblock %}

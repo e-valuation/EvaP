@@ -55,7 +55,6 @@
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script type="text/javascript">
-    //<![CDATA[
     $(function() {
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
         $(".multiselect-form select[multiple='multiple']").multiselect();
@@ -70,7 +69,6 @@
             placement: 'left'
         });
     });
-    //]]>
     </script>
     
     <!-- prevent from accendential closing -->
