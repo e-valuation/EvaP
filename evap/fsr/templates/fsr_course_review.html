@@ -24,9 +24,11 @@
 			
 			{{ form.as_div }}
 	    {% endfor %}
-	    <div class="actions">
-		<button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
-		<button name="operation" value="save_and_next" type="submit" class="btn btn-success">{% trans "Save and show next"%}</button>
+	    <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+				<button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
+				<button name="operation" value="save_and_next" type="submit" class="btn btn-success">{% trans "Save and show next"%}</button>
+			</div>
 	    </div>
 	</fieldset>
     </form>

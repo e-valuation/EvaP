@@ -19,8 +19,10 @@
             </ul>
         </div>
     </div>
-    <div class="actions">
-        <input type="submit" value="{% trans btn_label %}" class="btn btn-primary"/>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-8">
+            <input type="submit" value="{% trans btn_label %}" class="btn btn-primary"/>
+        </div>
     </div>
 {% else %}
     {% trans empty_msg %}

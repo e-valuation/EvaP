@@ -7,8 +7,10 @@
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
         {{ form.as_div }}
-        <div class="actions">
-            <input type="submit" value="{% trans "Save semester" %}" class="btn btn-primary"/>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+            	<input type="submit" value="{% trans "Save semester" %}" class="btn btn-primary"/>
+            </div>
         </div>
     </form>
 {% endblock %}
