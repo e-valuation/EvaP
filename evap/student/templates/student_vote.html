@@ -7,8 +7,8 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
-    <li> <span class="divider">/</span> <a href="{% url "evap.student.views.vote" course.id %}">{{ course.name }}</a></li>
+    <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+    <li><a href="{% url "evap.student.views.vote" course.id %}">{{ course.name }}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -44,7 +44,7 @@
 	</table>
     {% endfor %}
     <div class="actions">
-	<input type="submit" value="{% trans "Vote" %}" class="btn primary" onclick="submitFormOkay = true;"/>
+	<input type="submit" value="{% trans "Vote" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
 	<a class="btn" onclick="markNoAnswer();">{% trans "Mark others as 'no answer'" %}</a>
     </div>
     </form>
