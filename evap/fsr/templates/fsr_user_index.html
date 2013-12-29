@@ -5,7 +5,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+    <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
 {% endblock %}
 
 {% block content %}

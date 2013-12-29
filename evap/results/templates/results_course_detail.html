@@ -6,8 +6,8 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.results.views.semester_detail" course.semester.id %}">{{ course.semester.name }}</a></li>
-    <li> <span class="divider">/</span> <a href="{% url "evap.results.views.course_detail" course.semester.id course.id %}">{{ course.name }}</a></li>
+    <li><a href="{% url "evap.results.views.semester_detail" course.semester.id %}">{{ course.semester.name }}</a></li>
+    <li><a href="{% url "evap.results.views.course_detail" course.semester.id course.id %}">{{ course.name }}</a></li>
 {% endblock %}
 
 {% block content %}
