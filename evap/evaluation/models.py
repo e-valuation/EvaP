@@ -168,12 +168,6 @@ class Course(models.Model):
     
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'contributorApproved']
-        
-    def has_responsible_contributor(self):
-        for contribution in self.contributions.all():
-            if contribution.responsible:
-                return True
-        return False
     
     @transition(field=state, source=['new', 'contributorApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
@@ -262,12 +256,8 @@ class Course(models.Model):
     
     def warnings(self):
         result = []
-        if not self.contributions.exclude(contributor=None).exists():
-            result.append(_(u"No contributors assigned"))
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
-        if not self.has_responsible_contributor():
-            result.append(_(u"Responsible contributor missing"))
         return result
     
     @property
@@ -435,7 +425,7 @@ class UserProfile(models.Model):
                 name = self.user.first_name + " " + name
             if self.title:
                 name = self.title + " " + name
-            return name.strip()
+            return name
         else:
             return self.user.username
     
