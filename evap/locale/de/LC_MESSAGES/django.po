@@ -77,8 +77,8 @@ msgid ""
 "HPI users cannot request login keys. Please login using your domain "
 "credentials."
 msgstr ""
-"HPI-Benutzer können Anmeldeschlüssel anfordern. Bitte melden Sie sich mit "
-"Ihrem Domänenlogin an."
+"HPI-Benutzer können keine Anmeldeschlüssel anfordern. Bitte melden Sie sich "
+"mit Ihrem Domänenlogin an."
 
 #: evaluation/forms.py:166
 msgid ""
