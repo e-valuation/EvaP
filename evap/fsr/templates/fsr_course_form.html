@@ -55,10 +55,11 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap/twipsy.js"></script>
     <script type="text/javascript">
     $(function() {
-        $.localise('jquery.uix.multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+        $("input[data-datepicker='datepicker']").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
+        $.localise('jquery.uix.multiselect', { path: '{% get_static_prefix %}js/locale/' });
         $(".multiselect-form select[multiple='multiple']").multiselect();
 
         $('#assignment_table tbody tr').formset({prefix: 'assignments'});
