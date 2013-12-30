@@ -54,6 +54,7 @@
             "name_de":"Course 1",
             "name_en":"Course 1 (en)",
             "kind":"Seminar",
+            "degree":"Bachelor",
             "state":"new",
             
             "participants":[ 2 ],
@@ -117,28 +118,28 @@
         }
     },
     {
-	"pk": 1,
-	"model": "evaluation.contribution",
-	"fields":{
-            "course": 1,
-	    "contributor": 1
-	}
+    	"pk": 1,
+    	"model": "evaluation.contribution",
+    	"fields":{
+                "course": 1,
+    	    "contributor": 1
+        }
     },
     {
-	"pk": 2,
-	"model": "evaluation.contribution",
-	"fields":{
-            "course": 1,
-	    "contributor": null
-	}
+    	"pk": 2,
+    	"model": "evaluation.contribution",
+    	"fields":{
+                "course": 1,
+    	    "contributor": null
+        }
     },
     {
-	"pk": 3,
-	"model": "evaluation.contribution",
-	"fields":{
-            "course": 2,
-	    "contributor": 1
-	}
+    	"pk": 3,
+    	"model": "evaluation.contribution",
+    	"fields":{
+                "course": 2,
+    	    "contributor": 1
+    	}
     },
     {
         "pk": 4,
