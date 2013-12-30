@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-30 22:12+0100\n"
-"PO-Revision-Date: 2013-12-30 22:15+0100\n"
+"POT-Creation-Date: 2013-12-30 23:29+0100\n"
+"PO-Revision-Date: 2013-12-30 23:30+0100\n"
 "Last-Translator: Stefan Richter <stefan@02strich.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -784,7 +784,7 @@ msgid "Send email"
 msgstr "E‑Mail senden"
 
 #: fsr/templates/fsr_course_form.html:11
-#: fsr/templates/fsr_questionnaire_form.html:29
+#: fsr/templates/fsr_questionnaire_form.html:33
 #: lecturer/templates/lecturer_course_form.html:11
 msgid "General Options"
 msgstr "Allgemeine Optionen"
@@ -796,12 +796,21 @@ msgid "Lecturers"
 msgstr "Dozenten"
 
 #: fsr/templates/fsr_course_form.html:28
-#: fsr/templates/fsr_questionnaire_form.html:44
+#: fsr/templates/fsr_questionnaire_form.html:48
 #: lecturer/templates/lecturer_course_form.html:24
 msgid "Delete?"
 msgstr "Löschen?"
 
-#: fsr/templates/fsr_course_form.html:50
+#: fsr/templates/fsr_course_form.html:51
+msgid ""
+"You are editing a course, which is already in evaluation. Please note that "
+"only the students who did not evaluate yet will see your changes."
+msgstr ""
+"Sie bearbeiten einen Kurs, welcher sich bereits in der Evaluierung befindet. "
+"Bitte beachten Sie, dass nur Studenten, welche den Kurs noch nicht evaluiert "
+"haben, Ihre Änderungen sehen werden."
+
+#: fsr/templates/fsr_course_form.html:53
 msgid "Save course"
 msgstr "Veranstaltung speichern"
 
@@ -942,11 +951,11 @@ msgstr "Löschen"
 msgid "Do you really want to delete the questionnaire <em>%(name)s</em>?"
 msgstr "Soll der Fragebogen <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: fsr/templates/fsr_questionnaire_form.html:34
+#: fsr/templates/fsr_questionnaire_form.html:38
 msgid "Questions"
 msgstr "Fragen"
 
-#: fsr/templates/fsr_questionnaire_form.html:64
+#: fsr/templates/fsr_questionnaire_form.html:68
 msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
@@ -1124,7 +1133,7 @@ msgstr "Vorlage speichern"
 msgid "Do you really want to delete the user <em>%(name)s</em>?"
 msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: fsr/templates/fsr_user_form.html:40
+#: fsr/templates/fsr_user_form.html:44
 msgid "Save user"
 msgstr "Benutzer speichern"
 
