@@ -26,7 +26,7 @@ def index(request):
     if request.method == 'POST':
         if new_key_form.is_valid():
             # user wants a new login key
-            profile = new_key_form.get_profile()
+            profile = new_key_form.userprofile()
             profile.generate_login_key()
             profile.save()
             

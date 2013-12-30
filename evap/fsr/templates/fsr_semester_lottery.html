@@ -21,7 +21,7 @@
         <ul>
             {% for user in winners %}
                 <li>
-                    {{ user.get_profile.full_name }}
+                    {{ user.userprofile.full_name }}
                     {% if user.email %}
                         (<a href="mailto:{{ user.email }}">{{ user.email }}</a>)
                     {% endif %}

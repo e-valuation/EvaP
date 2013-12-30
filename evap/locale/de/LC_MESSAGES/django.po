@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-12-28 21:29+0100\n"
-"PO-Revision-Date: 2013-12-28 12:29-0800\n"
+"PO-Revision-Date: 2013-12-29 16:21-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -246,7 +246,7 @@ msgstr "E‑Mail-Adresse"
 
 #: evaluation/forms.py:159
 msgid "HPI users cannot request login keys. Please login using your domain credentials."
-msgstr "HPI-Benutzer können Anmeldeschlüssel anfordern. Bitte melden Sie sich mit Ihrem Domänenlogin an."
+msgstr "HPI-Benutzer können keine Anmeldeschlüssel anfordern. Bitte melden Sie sich mit Ihrem Domänenlogin an."
 
 #: evaluation/forms.py:166
 msgid "No user with this email address was found. Please make sure to enter the email address already known to the university office."

@@ -31,7 +31,7 @@
                 <a class="brand" href="/">{% trans "Evaluation Platform" %}</a>
                 <ul class="nav">
                     {% if user.is_active %}
-                        {% if user.get_profile.enrolled_in_courses %}
+                        {% if user.userprofile.enrolled_in_courses %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
                         {% endif %}
                         
@@ -57,11 +57,11 @@
                             </ul>
                         </li>
 
-                        {% if user.get_profile.is_editor_or_delegate %}
+                        {% if user.userprofile.is_editor_or_delegate %}
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
-                        {% if user.get_profile.is_editor %}
+                        {% if user.userprofile.is_editor %}
                             <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
                     {% endif %}
@@ -124,7 +124,7 @@
                 <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
                 {% if request.user.is_active %}
-                    {% trans "Logged in as" %} {{ request.user.get_profile.full_name }}
+                    {% trans "Logged in as" %} {{ request.user.userprofile.full_name }}
                 {% else %}
                     {% trans "Not logged in" %}
                 {% endif %}
@@ -151,7 +151,7 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/ui.combobox.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/ui.formset.js"></script>
     
-    <script>
+    <script type="text/javascript">
         $(function(){
             // add a close button to each message and make it work
             $(".alert-message").append("<a class='close' href='#'>&#xd7;</a>").alert();

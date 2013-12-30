@@ -117,7 +117,7 @@ class LoginKeyForm(forms.Form):
 
     INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months.")
 
-    login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE})
+    login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE}, widget=forms.TextInput)
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -277,7 +277,7 @@ class BootstrapMixin(object):
             
             if field_instance.help_text:
                 # The field has a help_text, construct <span> tag
-                help_text = '<span class="help_text">%s</span>' % escape(field_instance.help_text)
+                help_text = '<span class="help_text">%s</span>' % escape(unicode(field_instance.help_text))
             else:
                 help_text = u''
             
@@ -290,7 +290,7 @@ class BootstrapMixin(object):
             field_hash = {
                 'class' : mark_safe(css_class),
                 'label' : mark_safe(bf.label and bf.label_tag(bf.label) or ''),
-                'help_text' :mark_safe(help_text),
+                'help_text' :mark_safe(unicode(help_text)),
                 'field' : field_instance,
                 'bf' : mark_safe(unicode(bf.as_widget(attrs=attrs))),
                 'bf_raw' : bf,
