@@ -1,5 +1,3 @@
-
-
 .uix-multiselect-original { position: absolute; left:-999999px; }
 .uix-multiselect { position: relative; float:left; }
 .uix-multiselect .multiselect-selected-list, .uix-multiselect .multiselect-available-list { position:absolute; overflow:hidden; }
@@ -8,7 +6,7 @@
 .uix-multiselect .ui-widget-header .uix-control-right, .uix-multiselect .ui-widget-header .uix-control-left { width:16px; height:16px; }
 .uix-multiselect .ui-widget-header .uix-control-right { float:right; }
 .uix-multiselect .ui-widget-header .uix-control-left { float:left; }
-.uix-multiselect .ui-widget-header .uix-search { float:right; height:14px; font-size:80%; }
+.uix-multiselect .ui-widget-header .uix-search { float:right; height:18px; font-size:80%; }
 .uix-multiselect .uix-list-container { position:relative; overflow:auto; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 .uix-multiselect .uix-list-container .ui-priority-secondary { padding-right:0; }
 .uix-multiselect .group-element { position:relative; padding-left:0;  white-space:nowrap; overflow:hidden; }
