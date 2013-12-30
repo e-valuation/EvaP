@@ -21,8 +21,7 @@ class UsecaseTests(WebTest):
 
         
         # create a new semester
-        page = page.click("[Ss]emesters")
-        page = page.click("[Nn]ew [Ss]emester")
+        page = page.click("[Cc]reate [Nn]ew [Ss]emester")
         semester_form = lastform(page)
         semester_form['name_de'] = "Testsemester"
         semester_form['name_en'] = "test semester"
@@ -75,8 +74,7 @@ class UsecaseTests(WebTest):
         page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new questionnaire
-        page = page.click("[Qq]uestionnaires")
-        page = page.click("[Nn]ew [Qq]uestionnaire")
+        page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
         questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
@@ -96,8 +94,7 @@ class UsecaseTests(WebTest):
         page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new questionnaire
-        page = page.click("[Qq]uestionnaires")
-        page = page.click("[Nn]ew [Qq]uestionnaire")
+        page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
         questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
@@ -116,7 +113,7 @@ class UsecaseTests(WebTest):
         page = self.app.get(reverse("fsr_root"), user="fsr.user")
         
         # create a new questionnaire
-        page = page.click("[Qq]uestionnaires")
+        page = page.click("Seminar")
         page = page.click("Copy")
         questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
