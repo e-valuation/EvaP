@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-30 23:29+0100\n"
-"PO-Revision-Date: 2013-12-30 23:30+0100\n"
+"POT-Creation-Date: 2013-12-30 23:45+0100\n"
+"PO-Revision-Date: 2013-12-30 23:45+0100\n"
 "Last-Translator: Stefan Richter <stefan@02strich.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -297,7 +297,7 @@ msgid "Delegates"
 msgstr "Stellvertreter"
 
 #: evaluation/models.py:410 fsr/templates/fsr_user_index.html:45
-#: lecturer/templates/lecturer_base.html:10 templates/base.html:63
+#: lecturer/templates/lecturer_base.html:10 templates/base.html:62
 msgid "Lecturer"
 msgstr "Dozent"
 
@@ -478,79 +478,79 @@ msgstr "Letzter Abstimmungstag"
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: fsr/forms.py:41 lecturer/forms.py:10
+#: fsr/forms.py:42 lecturer/forms.py:10
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
-#: fsr/forms.py:42
+#: fsr/forms.py:43
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: fsr/forms.py:43
+#: fsr/forms.py:44
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
-#: fsr/forms.py:112
+#: fsr/forms.py:115
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: fsr/forms.py:113
+#: fsr/forms.py:116
 msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
-#: fsr/forms.py:114 fsr/models.py:21
+#: fsr/forms.py:117 fsr/models.py:21
 msgid "Subject"
 msgstr "Betreff"
 
-#: fsr/forms.py:115 fsr/models.py:22
+#: fsr/forms.py:118 fsr/models.py:22
 msgid "Body"
 msgstr "Text"
 
-#: fsr/forms.py:126
+#: fsr/forms.py:129
 msgid "No recipient selected. Choose at least participants or lecturers."
 msgstr ""
 "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder "
 "Teilnehmer aus."
 
-#: fsr/forms.py:149
+#: fsr/forms.py:153
 msgid "Answer"
 msgstr "Antwort"
 
-#: fsr/forms.py:150
+#: fsr/forms.py:154
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: fsr/forms.py:151
+#: fsr/forms.py:155
 msgid "Hidden"
 msgstr "Versteckt?"
 
-#: fsr/forms.py:205
+#: fsr/forms.py:209
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: fsr/forms.py:217
+#: fsr/forms.py:221
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
 msgstr ""
 "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: fsr/forms.py:328
+#: fsr/forms.py:334
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: fsr/forms.py:329
+#: fsr/forms.py:335
 msgid "EvaP Administrator"
 msgstr "EvaP Administrator"
 
-#: fsr/forms.py:332
+#: fsr/forms.py:338
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:353
+#: fsr/forms.py:361
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:371
+#: fsr/forms.py:379
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -1157,6 +1157,12 @@ msgstr "FSR-Mitglied"
 msgid "Email address missing!"
 msgstr "E‑Mail-Adresse fehlt!"
 
+#: fsr/templates/fsr_user_index.html:59
+msgid "This user cannot be deleted because he is a contributor to a course"
+msgstr ""
+"Dieser Nutzer kann nicht gelöscht werden, da er zu einer Veranstaltung "
+"beiträgt."
+
 #: lecturer/views.py:39
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
@@ -1235,7 +1241,7 @@ msgid "Edit own Profile"
 msgstr "Eigenes Profil bearbeiten"
 
 #: lecturer/templates/lecturer_profile.html:8
-#: lecturer/templates/lecturer_profile.html:16 templates/base.html:67
+#: lecturer/templates/lecturer_profile.html:16 templates/base.html:66
 msgid "Profile"
 msgstr "Profil"
 
@@ -1248,7 +1254,7 @@ msgid "Save your profile"
 msgstr "Profil speichern"
 
 #: results/exporters.py:37 results/templates/results_base.html:6
-#: results/templates/results_base.html:10 templates/base.html:74
+#: results/templates/results_base.html:10 templates/base.html:73
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1359,31 +1365,31 @@ msgstr ""
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:50 templates/base.html.py:65
+#: templates/base.html:50 templates/base.html.py:64
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/base.html:83
+#: templates/base.html:82
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:94
+#: templates/base.html:93
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:121
+#: templates/base.html:120
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:125 templates/faq.html:5 templates/faq.html.py:9
+#: templates/base.html:124 templates/faq.html:5 templates/faq.html.py:9
 msgid "FAQ"
 msgstr "FAQ"
 
-#: templates/base.html:128
+#: templates/base.html:127
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:130
+#: templates/base.html:129
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
