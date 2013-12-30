@@ -26,11 +26,13 @@
             <p>
             {% if questionnaires %}
                 <ul>
+                    <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "All questionnaires" %}</a></li>
                 {% for questionnaire in questionnaires %}
                     <li><a href="{% url "evap.fsr.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
                 {% endfor %}
                 </ul>
             {% else %}
+                {% trans "There are no questionnaires yet." %}
             {% endif %}
             </p>
             <p>
