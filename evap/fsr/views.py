@@ -34,12 +34,6 @@ def index(request):
 
 
 @fsr_required
-def semester_index(request):
-    semesters = Semester.objects.all()
-    return render_to_response("fsr_semester_index.html", dict(semesters=semesters), context_instance=RequestContext(request))
-
-
-@fsr_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     
@@ -86,12 +80,12 @@ def semester_delete(request, semester_id):
     if semester.can_fsr_delete:
         if request.method == 'POST':
             semester.delete()
-            return redirect('evap.fsr.views.semester_index')
+            return redirect('fsr_root')
         else:
             return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
     else:
         messages.add_message(request, messages.ERROR, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
-        return redirect('evap.fsr.views.semester_index')
+        return redirect('fsr_root')
 
 
 @fsr_required
@@ -581,11 +575,6 @@ def user_delete(request, user_id):
     else:
         messages.add_message(request, messages.ERROR, _("The user '%s' cannot be deleted, because he lectures courses.") % UserProfile.get_for_user(user).full_name)
         return redirect('evap.fsr.views.user_index')
-    
-@fsr_required
-def template_index(request):
-    templates = EmailTemplate.objects.all()
-    return render_to_response("fsr_template_index.html", dict(templates=templates), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -597,7 +586,7 @@ def template_edit(request, template_id):
         form.save()
         
         messages.add_message(request, messages.INFO, _("Successfully updated template."))
-        return redirect('evap.fsr.views.template_index')
+        return redirect('fsr_root')
     else:
         return render_to_response("fsr_template_form.html", dict(form=form, template=template), context_instance=RequestContext(request))
 

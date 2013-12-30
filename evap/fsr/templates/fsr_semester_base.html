@@ -4,7 +4,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.fsr.views.semester_index" %}">{% trans "Semesters" %}</a></li>
+    <li>{% trans "Semesters" %}</li>
     {% if semester %}
         <li><a href="{% url "evap.fsr.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
     {% endif %}
