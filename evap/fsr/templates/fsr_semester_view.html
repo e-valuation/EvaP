@@ -111,16 +111,16 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap/tabs.js"></script>
     <script type="text/javascript">
         $(function () {
             var tabs = $("<ul class='nav nav-tabs'/>")
             $('#tab-content > div').each(function(i,e) {
                 tabs.append($("<li/>").append($("<a/>", {href: "#" + e.id}).text($('h3 span', e).text())));
             });
+
             $('#tab-content').addClass('tab-content');
-            $(tabs).insertBefore($('#tab-content')).tabs();
-            //$('#tab-content h3').remove();
+            $(tabs).insertBefore($('#tab-content'));
+
             // select first tab
             $('#tab-content > div:first-child').addClass('active');
             $('ul.tabs > li:first-child').addClass('active');
