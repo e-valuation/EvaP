@@ -5,8 +5,8 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.fsr.views.template_index" %}">{% trans "Templates" %}</a></li>
-    <li><a href="{% url "evap.fsr.views.template_index" %}">{{ template.name }}</a></li>
+    <li>{% trans "Templates" %}</li>
+    <li>{{ template.name }}</li>
 {% endblock %}
 
 {% block content %}
