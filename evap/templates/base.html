@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.min.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.uix.multiselect.css" />
+    <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
     <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" /> 
     {% endblock %}
     {% if debug %}
@@ -144,12 +145,20 @@
     </script>
     
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.uix.multiselect.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
     
     <script type="text/javascript">
         $(function(){
+            // show browser information
+            $.reject({
+                imagePath: '{% get_static_prefix %}images/browsers/',
+                closeCookie: true,
+                reject: { msie5: true, msie6: true, msie8: true }
+            });
+
             // add a close button to each message and make it work
             $(".alert").append("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>").alert();
 
