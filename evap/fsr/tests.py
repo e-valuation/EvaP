@@ -160,9 +160,13 @@ class UsecaseTests(WebTest):
 
         # remove responsibility in lecturer's checkbox
         page = page.click("Semester 1 \(en\)", index=0)
-        page = page.click("Shake")
+        page = page.click("Course 1 \(en\)")
         form = lastform(page)
+    
+        # add one questionnaire to avoid the error message preventing the responsibility error to show
+        form['general_questions'] = True
+        
         form['contributions-0-responsible'] = False
         page = form.submit()
-
+        
         assert "No responsible contributor found" in page
