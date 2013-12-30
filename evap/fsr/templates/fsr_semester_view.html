@@ -42,10 +42,10 @@
                             <div style="font-style: italic">
                                 {{ course.first_lecturer.userprofile.full_name }}
                             </div>
-                            <span class="label">{{ course.degree }}</span>
-                            <span class="label">{{ course.kind }}</span>
+                            <span class="label label-default">{{ course.degree }}</span>
+                            <span class="label label-default">{{ course.kind }}</span>
                             {% for warning in course.warnings %}
-                                <span class="label important">{{ warning }}</span>
+                                <span class="label label-warning">{{ warning }}</span>
                             {% endfor %}
                         </td>
                         <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
