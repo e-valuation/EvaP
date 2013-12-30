@@ -146,11 +146,13 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.uix.multiselect.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
     
     <script type="text/javascript">
         $(function(){
             // add a close button to each message and make it work
             $(".alert-message").append("<a class='close' href='#'>&#xd7;</a>").alert();
+
             // activate topbar
             $('#topbar').dropdown();
         });
