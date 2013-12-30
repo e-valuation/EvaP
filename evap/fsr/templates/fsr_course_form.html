@@ -57,6 +57,10 @@
     {{ block.super }}
     <script type="text/javascript">
     $(function() {
+        if ($.fn.button.noConflict != undefined) {
+            $.fn.button.noConflict();
+        }
+
         $("input[data-datepicker='datepicker']").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
 
         $.localise('jquery.uix.multiselect', { path: '{% get_static_prefix %}js/locale/' });
