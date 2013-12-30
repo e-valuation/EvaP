@@ -24,7 +24,7 @@
         
         {% for questionnaire, contributor, results, grade in group.list %}
             {% if contributor %}
-                <h5>{{ contributor.get_profile.full_name }}</h5>
+                <h5>{{ contributor.userprofile.full_name }}</h5>
             {% endif %}
             
             <table class="zebra-striped">
@@ -89,7 +89,7 @@
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
-    <script>
+    <script type="text/javascript">
         $('.twipsify').twipsy({
             html: true,
             placement: 'left',

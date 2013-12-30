@@ -1,4 +1,4 @@
-django>=1.5,<1.6
+django>=1.6,<1.7
 south>=0.7.3
 pillow>=2.0.0
 xlrd>=0.7.1

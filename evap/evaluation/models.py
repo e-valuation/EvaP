@@ -231,7 +231,7 @@ class Course(models.Model):
 
     @property
     def responsible_contributors_name(self):
-        return self.responsible_contributor.get_profile().full_name
+        return self.responsible_contributor.userprofile().full_name
 
     @property
     def responsible_contributors_username(self):
@@ -375,8 +375,8 @@ class TextAnswer(Answer):
     reviewed_answer = models.TextField(verbose_name=_(u"reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_(u"original answer"), blank=True)
     
-    checked = models.BooleanField(verbose_name=_(u"answer checked"))
-    hidden = models.BooleanField(verbose_name=_(u"hide answer"))
+    checked = models.BooleanField(verbose_name=_(u"answer checked"), default=False)
+    hidden = models.BooleanField(verbose_name=_(u"hide answer"), default=False)
     
     class Meta:
         verbose_name = _(u"text answer")
