@@ -49,6 +49,10 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
 class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = QuestionnaireSelectMultiple
     
+    def __init__(self, *args, **kwargs):
+        super(QuestionnaireMultipleChoiceField, self).__init__(*args, **kwargs)
+        self.help_text = ""
+    
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
