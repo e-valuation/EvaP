@@ -74,7 +74,6 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap/twipsy.js"></script>
     <script type="text/javascript">
         $(function() {
             $.localise('jquery.uix.multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
@@ -90,7 +89,7 @@
             $('#id_kind').combobox();
             {% endif %}
 			
-            $('.twipsify').twipsy({
+            $('.twipsify').tooltip({
                 html: true,
                 placement: 'left'
             });

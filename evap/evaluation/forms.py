@@ -40,7 +40,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
-            output.append(u'<li class="twipsify" title="%s"><label%s>%s %s</label></li>' % (escape(option_text), label_for, rendered_cb, option_label))
+            output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"',''), option_label))
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))    
 
