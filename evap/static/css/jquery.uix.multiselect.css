@@ -1,7 +1,7 @@
 .uix-multiselect-original { position: absolute; left:-999999px; }
 .uix-multiselect { position: relative; float:left; }
 .uix-multiselect .multiselect-selected-list, .uix-multiselect .multiselect-available-list { position:absolute; overflow:hidden; }
-.uix-multiselect .ui-widget-header { overflow:hidden;  white-space:nowrap; padding:2px 4px; }
+.uix-multiselect .ui-widget-header { overflow:hidden;  white-space:nowrap; padding:2px 4px; background: none;}
 .uix-multiselect .ui-widget-header div.header-text { white-space: nowrap; }
 .uix-multiselect .ui-widget-header .uix-control-right, .uix-multiselect .ui-widget-header .uix-control-left { width:16px; height:16px; }
 .uix-multiselect .ui-widget-header .uix-control-right { float:right; }
@@ -14,7 +14,7 @@
 .uix-multiselect .group-element span.collapse-handle { position:absolute; margin-top:-8px; top:50%; left:0; }
 .uix-multiselect .group-element .label { margin:0 3px;  white-space:nowrap; overflow:hidden; }
 .uix-multiselect .group-element .ui-icon { float:left; cursor:pointer; }
-.uix-multiselect .option-element, .dragged-element { cursor:pointer; padding:0 2px; }
+.uix-multiselect .option-element, .dragged-element { cursor:pointer; padding:0 2px; background: none; }
 .uix-multiselect .option-element.ui-state-disabled { font-style:italic; }
 .dragged-element, .dragged-grouped-element { padding:1px 3px; }
 .dragged-grouped-element { padding-left:16px; }
