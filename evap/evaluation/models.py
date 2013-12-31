@@ -288,8 +288,8 @@ class Contribution(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributors')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
                                             blank=True, related_name="assigned_to")
-    responsible = models.BooleanField(verbose_name = _(u"responsible"))
-    can_edit = models.BooleanField(verbose_name = _(u"can edit"))
+    responsible = models.BooleanField(verbose_name = _(u"responsible"), default=False)
+    can_edit = models.BooleanField(verbose_name = _(u"can edit"), default=False)
 
     class Meta:
         unique_together = (

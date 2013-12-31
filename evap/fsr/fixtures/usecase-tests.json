@@ -11,14 +11,14 @@
             "is_staff":true
         }
     },
-	{
-		"pk":1,
-		"model":"evaluation.userprofile",
-		"fields": {
-			"user":1,
-			"login_key":1313
-		}
-	},
+    {
+        "pk":1,
+        "model":"evaluation.userprofile",
+        "fields": {
+            "user":1,
+            "login_key":1313
+        }
+    },
     {
         "pk":2,
         "model":"auth.user",
@@ -31,13 +31,13 @@
             "is_staff":false
         }
     },
-	{
-		"pk":2,
-		"model":"evaluation.userprofile",
-		"fields": {
-			"user":2
-		}
-	},
+    {
+        "pk":2,
+            "model":"evaluation.userprofile",
+            "fields": {
+            "user":2
+        }
+    },
     {
         "pk":1,
         "model":"evaluation.semester",
@@ -63,8 +63,8 @@
             "semester":1,
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30",
-			
-			"last_modified_time":"2010-07-01"
+
+            "last_modified_time":"2010-07-01"
         }
     },
     {
@@ -83,7 +83,7 @@
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30",
 
-			"last_modified_time":"2010-07-01"
+            "last_modified_time":"2010-07-01"
         }
     },
     {
@@ -92,7 +92,8 @@
         "fields":{
           "name_de":"Seminar",
           "name_en":"Seminar",
-          "index": 0
+          "index": 0,
+          "is_for_contributors":false
         }
     },
     {
@@ -118,35 +119,43 @@
         }
     },
     {
-    	"pk": 1,
-    	"model": "evaluation.contribution",
-    	"fields":{
-                "course": 1,
-    	    "contributor": 1
+        "pk": 1,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 1,
+            "contributor": 1,
+            "responsible": true,
+            "can_edit": true
         }
     },
     {
-    	"pk": 2,
-    	"model": "evaluation.contribution",
-    	"fields":{
-                "course": 1,
-    	    "contributor": null
+        "pk": 2,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 1,
+            "contributor": null,
+            "responsible": false,
+            "can_edit": false
         }
     },
     {
-    	"pk": 3,
-    	"model": "evaluation.contribution",
-    	"fields":{
-                "course": 2,
-    	    "contributor": 1
-    	}
+        "pk": 3,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 2,
+            "contributor": 1,
+            "responsible": true,
+            "can_edit": true
+        }
     },
     {
         "pk": 4,
         "model": "evaluation.contribution",
         "fields":{
             "course": 2,
-            "contributor": null
+            "contributor": null,
+            "responsible": false,
+            "can_edit": false
         }
     }
 ]
