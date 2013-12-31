@@ -44,6 +44,10 @@ body {
 
 /*-----------------------------------------*/
 
+ul.inputs-list {
+  list-style-type: none;
+}
+
 td.maximize, th.maximize {
     width: 100%;
 }
