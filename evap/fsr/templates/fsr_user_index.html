@@ -52,7 +52,7 @@
                     {% endif %}
                 </td>
                 <td class="minimize-with-padding">
-                    <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-primary btn-sm">{% trans "Edit" %}</a>
+                    <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.userprofile.can_fsr_delete %}
                         <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
