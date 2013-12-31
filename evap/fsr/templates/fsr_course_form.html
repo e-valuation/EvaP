@@ -65,6 +65,8 @@
         }
 
         $("input[data-datepicker='datepicker']").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+        $("input[data-datepicker='datepicker']").datepicker( "option", "changeMonth", true );
+        $("input[data-datepicker='datepicker']").datepicker( "option", "changeYear", true );
 
         $.localise('jquery.uix.multiselect', { path: '{% get_static_prefix %}js/locale/' });
         $(".multiselect-form select[multiple='multiple']").multiselect();
