@@ -39,7 +39,7 @@
 
                         {% for field in login_username_form %}
                             <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                <label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
                                 <div class="col-sm-8">
                                     {{ field|add_class:"form-control" }}
                                     {% if field.errors %}
@@ -48,8 +48,8 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-8">
+                        <div class="form-group well">
+                            <div class="col-sm-offset-2 col-sm-8">
                                 <input class="btn btn-default" type="submit" value="{% trans "Login" %}">
                             </div>
                         </div>
@@ -69,7 +69,7 @@
                         <fieldset>
                             {% for field in login_key_form %}
                                  <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                    <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                    <label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
                                     <div class="col-sm-8">
                                         {{ field|add_class:"form-control" }}
                                         {% if field.errors %}
@@ -79,8 +79,8 @@
                                 </div>
                             {% endfor %}
                         </fieldset>
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-8">
+                        <div class="form-group well">
+                            <div class="col-sm-offset-2 col-sm-8">
                                 <input class="btn btn-default" type="submit" value="{% trans "Login" %}">
                             </div>
                         </div>
@@ -95,7 +95,7 @@
                         <fieldset>
                             {% for field in new_key_form %}
                                 <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                    <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                    <label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
                                     <div class="col-sm-8">
                                         {{ field|add_class:"form-control" }}
                                         {% if field.errors %}
@@ -105,8 +105,8 @@
                                 </div>
                             {% endfor %}
                         </fieldset>
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-8">
+                        <div class="form-group well">
+                            <div class="col-sm-offset-2 col-sm-8">
                                 <input class="btn btn-default" type="submit" value="{% trans "Send Key" %}">
                             </div>
                         </div>

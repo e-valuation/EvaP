@@ -193,7 +193,7 @@ class BootstrapMixin(object):
     """"""
     
     __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">""" \
-                 """<label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ label }}</label>""" \
+                 """<label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ label }}</label>""" \
                  """<div class="col-sm-8">""" \
                  """{{ bf }}""" \
                  """{% if errors %}<span class="help-block">{{ errors }}</span>{% endif %}""" \

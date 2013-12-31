@@ -45,8 +45,8 @@
             </tbody>
         </table>
         
-        <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-8">
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-8">
                 {% if form.instance.state == "inEvaluation" %}
                     <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
                 {% endif %}
