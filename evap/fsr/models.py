@@ -74,8 +74,14 @@ class EmailTemplate(models.Model):
         
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
-            # if user is responsible, also send to delegates
-            cc = [p.email for p in UserProfile.get_for_user(user).delegates.all() if p.email] if UserProfile.get_for_user(user).is_responsible else []
+            
+            cc = []
+            # if email will be sent to editors, also send to all their delegates in CC
+            if send_to_editors:
+                for course in courses:
+                    if course.contributions.filter(can_edit=True, contributor=user).exists():
+                        cc = [p.email for p in UserProfile.get_for_user(user).delegates.all() if p.email]
+                        break
             
             mail = EmailMessage(
                 subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
