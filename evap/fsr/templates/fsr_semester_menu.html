@@ -1,7 +1,5 @@
 {% load i18n %}
 
-<ul>
 {% for semester in semesters %}
-    <li><a href="{% url "evap.fsr.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
+    <li><a style="padding-left: 30px;" href="{% url "evap.fsr.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
 {% endfor %}
-</ul>
