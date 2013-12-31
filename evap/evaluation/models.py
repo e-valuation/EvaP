@@ -72,7 +72,7 @@ class Questionnaire(models.Model):
     
     index = models.IntegerField(verbose_name=_(u"ordering index"))
     
-    is_for_contributors = models.BooleanField(verbose_name=_(u"is for contributors"))
+    is_for_contributors = models.BooleanField(verbose_name=_(u"is for contributors"), default=False)
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
     
     class Meta:
@@ -158,7 +158,7 @@ class Course(models.Model):
         return user in self.participants.all() and user not in self.voters.all()
     
     def can_fsr_edit(self):
-        return self.state in ['new', 'prepared', 'contributorApproved', 'approved', 'inEvaluation']
+        return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
     
     def can_fsr_delete(self):
         return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
@@ -167,18 +167,18 @@ class Course(models.Model):
         return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
     
     def can_fsr_approve(self):
-        return self.state in ['new', 'prepared', 'contributorApproved']
+        return self.state in ['new', 'prepared', 'lecturerApproved']
     
-    @transition(field=state, source=['new', 'contributorApproved'], target='prepared')
+    @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
         if send_mail:
             EmailTemplate.get_review_template().send_courses([self], True, False, False)
     
-    @transition(field=state, source='prepared', target='contributorApproved')
+    @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):
         pass
     
-    @transition(field=state, source=['new', 'prepared', 'contributorApproved'], target='approved')
+    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved')
     def fsr_approve(self):
         pass
     

@@ -19,7 +19,7 @@ GRADE_NAMES = {
 STATES_ORDERED = SortedDict((
     ('new', _('new')),
     ('prepared', _('prepared')),
-    ('contributorApproved', _('contributor approved')),
+    ('lecturerApproved', _('lecturer approved')),
     ('approved', _('approved')),
     ('inEvaluation', _('in evaluation')),
     ('evaluated', _('evaluated')),

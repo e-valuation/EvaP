@@ -23,7 +23,7 @@ class EmailTemplate(models.Model):
     
     @classmethod
     def get_review_template(cls):
-        return cls.objects.get(name="Contributor Review Notice")
+        return cls.objects.get(name="Lecturer Review Notice")
     
     @classmethod
     def get_reminder_template(cls):

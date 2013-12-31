@@ -19,10 +19,10 @@ def index(request):
     
     sorter = lambda course: STATES_ORDERED.keys().index(course.state)
     
-    own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'contributorApproved', 'approved', 'inEvaluation'])))
+    own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation'])))
     own_courses.sort(key=sorter)
 
-    delegated_courses = list(set(Course.objects.exclude(contributions__contributor=user).filter(contributions__can_edit=True, contributions__contributor__in=user.represented_users.all(), state__in=['prepared', 'contributorApproved', 'approved', 'inEvaluation'])))
+    delegated_courses = list(set(Course.objects.exclude(contributions__contributor=user).filter(contributions__can_edit=True, contributions__contributor__in=user.represented_users.all(), state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation'])))
     delegated_courses.sort(key=sorter)
     
     return render_to_response("contributor_index.html", dict(own_courses=own_courses, delegated_courses=delegated_courses), context_instance=RequestContext(request))
@@ -47,7 +47,7 @@ def course_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
         
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'contributorApproved', 'approved']):
+    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved']):
         raise PermissionDenied
 
     ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course'))
