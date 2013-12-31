@@ -144,7 +144,7 @@ def semester_assign_questionnaires(request, semester_id):
     form = QuestionnairesAssignForm(request.POST or None, semester=semester)
     
     if form.is_valid():
-        for course in semester.course_set.filter(state__in=['prepared', 'contributorApproved', 'new', 'approved']):
+        for course in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']):
             if form.cleaned_data[course.kind]:
                 course.general_contribution.questionnaires = form.cleaned_data[course.kind]
             course.save()
@@ -158,7 +158,7 @@ def semester_assign_questionnaires(request, semester_id):
 @fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.filter(state__in=['new', 'prepared', 'contributorApproved']).all()
+    courses = semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all()
 
     forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
     
@@ -180,7 +180,7 @@ def semester_approve(request, semester_id):
 @fsr_required
 def semester_contributor_ready(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.filter(state__in=['new', 'contributorApproved']).all()
+    courses = semester.course_set.filter(state__in=['new', 'lecturerApproved']).all()
     
     forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
     

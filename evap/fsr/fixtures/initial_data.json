@@ -3,7 +3,7 @@
     "pk": 1, 
     "model": "fsr.EmailTemplate", 
     "fields": {
-      "name": "Contributor Review Notice", 
+      "name": "Lecturer Review Notice", 
       "subject": "[EvaP] New Course ready for approval",
 	  "body": ""
     }
