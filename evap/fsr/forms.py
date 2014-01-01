@@ -17,19 +17,10 @@ from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleCh
 
 
 class ImportForm(forms.Form, BootstrapMixin):
-    vote_start_date = forms.DateField(label=_(u"First date to vote"))
-    vote_end_date = forms.DateField(label=_(u"Last date to vote"))
+    vote_start_date = forms.DateField(label=_(u"First date to vote"), localize=True)
+    vote_end_date = forms.DateField(label=_(u"Last date to vote"), localize=True)
     
     excel_file = forms.FileField(label=_(u"Excel file"))
-    
-    def __init__(self, *args, **kwargs):
-        super(ImportForm, self).__init__(*args, **kwargs)
-        
-        self.fields['vote_start_date'].localize = False
-        self.fields['vote_start_date'].widget = forms.DateInput()
-        
-        self.fields['vote_end_date'].localize = False
-        self.fields['vote_end_date'].widget = forms.DateInput()
 
 
 class SemesterForm(forms.ModelForm, BootstrapMixin):
@@ -40,7 +31,7 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
-    last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False)
+    last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False, localize=True)
     last_modified_user_2 = forms.CharField(label=_(u"Last modified by"), required=False)
     
     class Meta:
@@ -53,8 +44,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
-        self.fields['vote_start_date'].localize = False
-        self.fields['vote_end_date'].localize = False
+        self.fields['vote_start_date'].localize = True
+        self.fields['vote_end_date'].localize = True
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
         self.fields['participants'].queryset = User.objects.order_by("last_name", "first_name", "username")
