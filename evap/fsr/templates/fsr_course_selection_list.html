@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if course_forms %}
-    <div class="clearfix">
+    <div class="form-group">
         <label>{% trans "Courses" %}</label>
         {% for form in course_forms %}
             <h4>{{ form.degree }}</h4>
