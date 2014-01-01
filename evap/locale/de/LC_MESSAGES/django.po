@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-30 23:45+0100\n"
-"PO-Revision-Date: 2013-12-30 23:45+0100\n"
+"POT-Creation-Date: 2014-01-01 17:22+0100\n"
+"PO-Revision-Date: 2014-01-01 17:23+0100\n"
 "Last-Translator: Stefan Richter <stefan@02strich.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -32,23 +32,23 @@ msgstr ""
 msgid "Invalid login key."
 msgstr "Ungültiger Anmeldeschlüssel"
 
-#: evaluation/forms.py:73 fsr/templates/fsr_user_index.html:26
+#: evaluation/forms.py:77 fsr/templates/fsr_user_index.html:26
 msgid "Username"
 msgstr "Benutzername"
 
-#: evaluation/forms.py:74
+#: evaluation/forms.py:78
 msgid "Password"
 msgstr "Passwort:"
 
-#: evaluation/forms.py:94
+#: evaluation/forms.py:98
 msgid "Please enter a correct username and password."
 msgstr "Falscher Benutzername oder falsches Passwort."
 
-#: evaluation/forms.py:96 evaluation/forms.py:134
+#: evaluation/forms.py:100 evaluation/forms.py:138
 msgid "This account is inactive."
 msgstr "Der Benutzeraccount ist inaktiv."
 
-#: evaluation/forms.py:102
+#: evaluation/forms.py:106
 msgid ""
 "Your Web browser doesn't appear to have cookies enabled. Cookies are "
 "required for logging in."
@@ -56,7 +56,7 @@ msgstr ""
 "In Ihrem Web Browser scheinen Cookies deaktiviert zu sein. Cookies werden "
 "zur Anmeldung benötigt."
 
-#: evaluation/forms.py:118
+#: evaluation/forms.py:122
 msgid ""
 "Please enter a correct login key. Be aware that login keys are automatically "
 "invalidated after seven months."
@@ -64,15 +64,15 @@ msgstr ""
 "Bitte geben Sie einen gültigen Anmeldeschlüssel ein. Hinweis: "
 "Anmeldeschlüssel gelten nur sieben Monate."
 
-#: evaluation/forms.py:120
+#: evaluation/forms.py:124
 msgid "Login key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/forms.py:147
+#: evaluation/forms.py:151
 msgid "Email address"
 msgstr "E‑Mail-Adresse"
 
-#: evaluation/forms.py:159
+#: evaluation/forms.py:163
 msgid ""
 "HPI users cannot request login keys. Please login using your domain "
 "credentials."
@@ -80,7 +80,7 @@ msgstr ""
 "HPI-Benutzer können keine Anmeldeschlüssel anfordern. Bitte melden Sie sich "
 "mit Ihrem Domänenlogin an."
 
-#: evaluation/forms.py:166
+#: evaluation/forms.py:170
 msgid ""
 "No user with this email address was found. Please make sure to enter the "
 "email address already known to the university office."
@@ -297,7 +297,7 @@ msgid "Delegates"
 msgstr "Stellvertreter"
 
 #: evaluation/models.py:410 fsr/templates/fsr_user_index.html:45
-#: lecturer/templates/lecturer_base.html:10 templates/base.html:62
+#: lecturer/templates/lecturer_base.html:10 templates/base.html:63
 msgid "Lecturer"
 msgstr "Dozent"
 
@@ -478,79 +478,79 @@ msgstr "Letzter Abstimmungstag"
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: fsr/forms.py:42 lecturer/forms.py:10
+#: fsr/forms.py:33 lecturer/forms.py:10
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
-#: fsr/forms.py:43
+#: fsr/forms.py:34
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: fsr/forms.py:44
+#: fsr/forms.py:35
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
-#: fsr/forms.py:115
+#: fsr/forms.py:106
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: fsr/forms.py:116
+#: fsr/forms.py:107
 msgid "Send to lecturers?"
 msgstr "An Dozenten versenden?"
 
-#: fsr/forms.py:117 fsr/models.py:21
+#: fsr/forms.py:108 fsr/models.py:21
 msgid "Subject"
 msgstr "Betreff"
 
-#: fsr/forms.py:118 fsr/models.py:22
+#: fsr/forms.py:109 fsr/models.py:22
 msgid "Body"
 msgstr "Text"
 
-#: fsr/forms.py:129
+#: fsr/forms.py:120
 msgid "No recipient selected. Choose at least participants or lecturers."
 msgstr ""
 "Kein Empfänger ausgewählt. Bitte wählen Sie mindestens Dozenten oder "
 "Teilnehmer aus."
 
-#: fsr/forms.py:153
+#: fsr/forms.py:144
 msgid "Answer"
 msgstr "Antwort"
 
-#: fsr/forms.py:154
+#: fsr/forms.py:145
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: fsr/forms.py:155
+#: fsr/forms.py:146
 msgid "Hidden"
 msgstr "Versteckt?"
 
-#: fsr/forms.py:209
+#: fsr/forms.py:200
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: fsr/forms.py:221
+#: fsr/forms.py:212
 msgid "Duplicate lecturer found. Each lecturer should only be used once."
 msgstr ""
 "Doppelte Dozenten gefunden. Jeder Dozent sollte nur einmal angegeben werden."
 
-#: fsr/forms.py:334
+#: fsr/forms.py:325
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: fsr/forms.py:335
+#: fsr/forms.py:326
 msgid "EvaP Administrator"
 msgstr "EvaP Administrator"
 
-#: fsr/forms.py:338
+#: fsr/forms.py:329
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:361
+#: fsr/forms.py:352
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:379
+#: fsr/forms.py:370
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -640,46 +640,51 @@ msgstr "Erfolgreich Fragebögen zugeordnet."
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: fsr/views.py:239
+#: fsr/views.py:194
+#, python-format
+msgid "Successfully marked %d courses as ready for lecturer review."
+msgstr "Erfolgreich %d Veranstaltungen als Bereit für die Dozenten markiert."
+
+#: fsr/views.py:240
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: fsr/views.py:253
+#: fsr/views.py:254
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:263 lecturer/views.py:93
+#: fsr/views.py:264 lecturer/views.py:93
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: fsr/views.py:276
+#: fsr/views.py:277
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:293
+#: fsr/views.py:294
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:327
+#: fsr/views.py:328
 #, python-format
 msgid ""
 "Successfully reviewed %(number)d course answers for %(name)s. %(name)s is "
 "now fully reviewed."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
-#: fsr/views.py:332
+#: fsr/views.py:333
 #, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
-#: fsr/views.py:353
+#: fsr/views.py:354
 #, python-format
 msgid "Successfully sent email to all participants/lecturers of '%s'."
 msgstr "Erfollgreich E‑Mail an alle Teilnehmer/Dozenten von '%s' versendet."
 
-#: fsr/views.py:355
+#: fsr/views.py:356
 #, python-format
 msgid ""
 "Successfully sent email to many participants/lecturers of '%(course)s', but "
@@ -689,52 +694,52 @@ msgstr ""
 "versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da "
 "sie keine E‑Mail-Adresse haben."
 
-#: fsr/views.py:379
+#: fsr/views.py:380
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr ""
 "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
 "Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:445 fsr/views.py:486
+#: fsr/views.py:446 fsr/views.py:487
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:460
+#: fsr/views.py:461
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:467
+#: fsr/views.py:468
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:511
+#: fsr/views.py:512
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:537
+#: fsr/views.py:538
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:555
+#: fsr/views.py:556
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:576
+#: fsr/views.py:577
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:588
+#: fsr/views.py:589
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
 #: fsr/templates/fsr_base.html:7 fsr/templates/fsr_base.html.py:11
 #: fsr/templates/fsr_index.html:46 fsr/templates/fsr_user_index.html:15
-#: templates/base.html:48
+#: templates/base.html:49
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
@@ -784,7 +789,7 @@ msgid "Send email"
 msgstr "E‑Mail senden"
 
 #: fsr/templates/fsr_course_form.html:11
-#: fsr/templates/fsr_questionnaire_form.html:33
+#: fsr/templates/fsr_questionnaire_form.html:32
 #: lecturer/templates/lecturer_course_form.html:11
 msgid "General Options"
 msgstr "Allgemeine Optionen"
@@ -796,7 +801,7 @@ msgid "Lecturers"
 msgstr "Dozenten"
 
 #: fsr/templates/fsr_course_form.html:28
-#: fsr/templates/fsr_questionnaire_form.html:48
+#: fsr/templates/fsr_questionnaire_form.html:47
 #: lecturer/templates/lecturer_course_form.html:24
 msgid "Delete?"
 msgstr "Löschen?"
@@ -877,7 +882,7 @@ msgstr ""
 
 #: fsr/templates/fsr_index.html:8 fsr/templates/fsr_semester_base.html:7
 #: fsr/templates/fsr_semester_base.html:17
-#: results/templates/results_index.html:8 templates/base.html:51
+#: results/templates/results_index.html:8 templates/base.html:52
 msgid "Semesters"
 msgstr "Semester"
 
@@ -890,7 +895,7 @@ msgid "Create new semester"
 msgstr "Neues Semester anlegen"
 
 #: fsr/templates/fsr_index.html:25 fsr/templates/fsr_questionnaire_base.html:7
-#: templates/base.html:54 templates/faq.html:45
+#: templates/base.html:55 templates/faq.html:45
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -909,7 +914,7 @@ msgid "Create new questionnaire"
 msgstr "Neuen Fragebogen anlegen"
 
 #: fsr/templates/fsr_index.html:43 fsr/templates/fsr_user_form.html:8
-#: fsr/templates/fsr_user_index.html:8 templates/base.html:55
+#: fsr/templates/fsr_user_index.html:8 templates/base.html:56
 #: templates/faq.html:76
 msgid "Users"
 msgstr "Benutzer"
@@ -919,7 +924,7 @@ msgid "All users"
 msgstr "Alle Benutzer"
 
 #: fsr/templates/fsr_index.html:49 fsr/templates/fsr_template_form.html:8
-#: templates/base.html:56
+#: templates/base.html:57
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
@@ -941,7 +946,7 @@ msgstr "Kopieren"
 #: fsr/templates/fsr_questionnaire_base.html:22
 #: fsr/templates/fsr_questionnaire_index.html:42
 #: fsr/templates/fsr_questionnaire_index.html:44
-#: fsr/templates/fsr_semester_view.html:70
+#: fsr/templates/fsr_semester_view.html:76
 #: fsr/templates/fsr_user_index.html:57 fsr/templates/fsr_user_index.html:59
 msgid "Delete"
 msgstr "Löschen"
@@ -951,11 +956,11 @@ msgstr "Löschen"
 msgid "Do you really want to delete the questionnaire <em>%(name)s</em>?"
 msgstr "Soll der Fragebogen <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: fsr/templates/fsr_questionnaire_form.html:38
+#: fsr/templates/fsr_questionnaire_form.html:37
 msgid "Questions"
 msgstr "Fragen"
 
-#: fsr/templates/fsr_questionnaire_form.html:68
+#: fsr/templates/fsr_questionnaire_form.html:67
 msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
@@ -1005,7 +1010,7 @@ msgstr[1] ""
 "                        %(count)s Kurse"
 
 #: fsr/templates/fsr_questionnaire_index.html:39
-#: fsr/templates/fsr_semester_view.html:68
+#: fsr/templates/fsr_semester_view.html:74
 #: lecturer/templates/lecturer_course_form.html:69
 #: lecturer/templates/lecturer_index.html:43
 #: lecturer/templates/lecturer_index.html:87
@@ -1072,55 +1077,49 @@ msgstr "Veranstaltungen importieren"
 msgid "Assign Questionnaires"
 msgstr "Fragebögen zuordnen"
 
-#: fsr/templates/fsr_semester_view.html:29
-#: lecturer/templates/lecturer_index.html:15
-#: lecturer/templates/lecturer_index.html:59
-msgid "State"
-msgstr "Zustand"
-
-#: fsr/templates/fsr_semester_view.html:55
+#: fsr/templates/fsr_semester_view.html:61
 #: lecturer/templates/lecturer_index.html:17
 #: lecturer/templates/lecturer_index.html:61
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: fsr/templates/fsr_semester_view.html:56
+#: fsr/templates/fsr_semester_view.html:62
 msgid "Text Answers"
 msgstr "Textantworten"
 
-#: fsr/templates/fsr_semester_view.html:67
+#: fsr/templates/fsr_semester_view.html:73
 msgid "Email"
 msgstr "E‑Mail"
 
-#: fsr/templates/fsr_semester_view.html:73
+#: fsr/templates/fsr_semester_view.html:79
 msgid "Review"
 msgstr "Überprüfen"
 
-#: fsr/templates/fsr_semester_view.html:76
+#: fsr/templates/fsr_semester_view.html:82
 msgid "Comments"
 msgstr "Kommentare"
 
-#: fsr/templates/fsr_semester_view.html:79
+#: fsr/templates/fsr_semester_view.html:85
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: fsr/templates/fsr_semester_view.html:89
+#: fsr/templates/fsr_semester_view.html:95
 msgid "Enable Courses for Lecturer Review"
 msgstr "Für Dozenten-Überprüfung freigeben"
 
-#: fsr/templates/fsr_semester_view.html:92
+#: fsr/templates/fsr_semester_view.html:98
 msgid "Approve Courses"
 msgstr "Veranstaltungen bestätigen…"
 
-#: fsr/templates/fsr_semester_view.html:96
+#: fsr/templates/fsr_semester_view.html:102
 msgid "Re-Enable Courses for Lecturer Review"
 msgstr "Kurse erneut für Dozenten-Überprüfung freigeben"
 
-#: fsr/templates/fsr_semester_view.html:100
+#: fsr/templates/fsr_semester_view.html:106
 msgid "Publish Courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: fsr/templates/fsr_semester_view.html:108
+#: fsr/templates/fsr_semester_view.html:114
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
@@ -1133,7 +1132,7 @@ msgstr "Vorlage speichern"
 msgid "Do you really want to delete the user <em>%(name)s</em>?"
 msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: fsr/templates/fsr_user_form.html:44
+#: fsr/templates/fsr_user_form.html:43
 msgid "Save user"
 msgstr "Benutzer speichern"
 
@@ -1201,6 +1200,11 @@ msgstr "Abbrechen"
 msgid "Own Courses"
 msgstr "Eigene Veranstaltungen"
 
+#: lecturer/templates/lecturer_index.html:15
+#: lecturer/templates/lecturer_index.html:59
+msgid "State"
+msgstr "Zustand"
+
 #: lecturer/templates/lecturer_index.html:16
 #: lecturer/templates/lecturer_index.html:60
 msgid "Evaluation Period"
@@ -1241,7 +1245,7 @@ msgid "Edit own Profile"
 msgstr "Eigenes Profil bearbeiten"
 
 #: lecturer/templates/lecturer_profile.html:8
-#: lecturer/templates/lecturer_profile.html:16 templates/base.html:66
+#: lecturer/templates/lecturer_profile.html:16 templates/base.html:67
 msgid "Profile"
 msgstr "Profil"
 
@@ -1254,7 +1258,7 @@ msgid "Save your profile"
 msgstr "Profil speichern"
 
 #: results/exporters.py:37 results/templates/results_base.html:6
-#: results/templates/results_base.html:10 templates/base.html:73
+#: results/templates/results_base.html:10 templates/base.html:74
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1313,7 +1317,7 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 #: student/templates/student_index.html:5
 #: student/templates/student_index.html:9
 #: student/templates/student_vote.html:6
-#: student/templates/student_vote.html:10 templates/base.html:43
+#: student/templates/student_vote.html:10 templates/base.html:44
 msgid "Evaluation"
 msgstr "Bewertung"
 
@@ -1361,35 +1365,47 @@ msgstr ""
 "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und "
 "werden ggf. nachfragen."
 
-#: templates/base.html:36
+#: templates/base.html:37
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:50 templates/base.html.py:64
+#: templates/base.html:51 templates/base.html.py:65
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/base.html:82
+#: templates/base.html:83
+msgid "Language"
+msgstr "Sprache"
+
+#: templates/base.html:85
+msgid "Deutsch"
+msgstr "Deutsch"
+
+#: templates/base.html:86
+msgid "English"
+msgstr "English"
+
+#: templates/base.html:90
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:93
+#: templates/base.html:101
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:120
+#: templates/base.html:128
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:124 templates/faq.html:5 templates/faq.html.py:9
+#: templates/base.html:132 templates/faq.html:5 templates/faq.html.py:9
 msgid "FAQ"
 msgstr "FAQ"
 
-#: templates/base.html:127
+#: templates/base.html:135
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:129
+#: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
