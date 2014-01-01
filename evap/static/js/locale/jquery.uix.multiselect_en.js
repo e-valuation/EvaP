@@ -17,14 +17,14 @@
 (function($) {
 
 $.uix.multiselect.i18n['en'] = {
-    itemsSelected_nil: 'no selected option',           // 0
-    itemsSelected: '{count} selected option',          // 0, 1
-    itemsSelected_plural: '{count} selected options',  // n
+    itemsSelected_nil: '0 selected',           // 0
+    itemsSelected: '{count} selected',          // 0, 1
+    itemsSelected_plural: '{count} selected',  // n
     //itemsSelected_plural_two: ...                    // 2
     //itemsSelected_plural_few: ...                    // 3, 4
-    itemsAvailable_nil: 'no item available',
-    itemsAvailable: '{count} available option',
-    itemsAvailable_plural: '{count} available options',
+    itemsAvailable_nil: '0 available',
+    itemsAvailable: '{count} available',
+    itemsAvailable_plural: '{count} available',
     //itemsAvailable_plural_two: ...
     //itemsAvailable_plural_few: ...
     itemsFiltered_nil: 'no option filtered',

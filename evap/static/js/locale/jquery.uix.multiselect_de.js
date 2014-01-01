@@ -16,16 +16,16 @@
 (function($) {
 
 $.uix.multiselect.i18n['de'] = {
-    itemsSelected_nil: 'keine Option ausgewählt',                        // 0
-    itemsSelected: 'eine Option ausgewählt',                             // 0, 1
-    itemsSelected_plural: '{count} Optionen ausgewählt',                 // n
-    itemsSelected_plural_two: '2 Optionen ausgewählt',                   // 2
-    itemsSelected_plural_few: '{count} Optionen ausgewählt',             // 3, 4
-    itemsAvailable_nil: 'keine Option verfügbar',
-    itemsAvailable: 'eine Option verfügbar',
-    itemsAvailable_plural: '{count} Optionen verfügbar',
-    itemsAvailable_plural_two: '2 Optionen verfügbar',
-    itemsAvailable_plural_few: '{count} Optionen verfügbar',
+    itemsSelected_nil: '0 ausgewählt',                        // 0
+    itemsSelected: '1 ausgewählt',                             // 0, 1
+    itemsSelected_plural: '{count} ausgewählt',                 // n
+    itemsSelected_plural_two: '2 ausgewählt',                   // 2
+    itemsSelected_plural_few: '{count} ausgewählt',             // 3, 4
+    itemsAvailable_nil: '0 verfügbar',
+    itemsAvailable: '1 verfügbar',
+    itemsAvailable_plural: '{count} verfügbar',
+    itemsAvailable_plural_two: '2 verfügbar',
+    itemsAvailable_plural_few: '{count} verfügbar',
     itemsFiltered_nil: 'keine Option gefiltert',
     itemsFiltered: 'eine Option gefiltert',
     itemsFiltered_plural: '{count} Optionen gefiltert',
