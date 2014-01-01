@@ -79,6 +79,13 @@
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Language" %} <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();">{% trans "Deutsch" %}</a></li>
+                        <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
+                    </ul>
+                </li>
                 {% if user.is_active %}
                     <li><a href="{% url "django.contrib.auth.views.logout" %}">{% trans "Logout" %}</a></li>
                 {% endif %}
@@ -138,15 +145,11 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_de.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-3.0.3.min.js"></script>
     
-    <!-- multi-select plugin -->
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.localisation.min.js"></script>
-    <script type="text/javascript">
-        $.localise.defaultLanguage = '{{ LANGUAGE_CODE|escapejs }}';
-    </script>
-    
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.uix.multiselect.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_en.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
     
