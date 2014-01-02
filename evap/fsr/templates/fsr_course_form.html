@@ -64,7 +64,7 @@
             $.fn.button.noConflict();
         }
 
-        $("input[data-datepicker='datepicker']").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+        $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
 
         $(".multiselect-form select[multiple='multiple']").multiselect({ locale: "{{ LANGUAGE_CODE }}" });
 
