@@ -80,6 +80,8 @@
                 $.fn.button.noConflict();
             }
             
+            $("input[data-datepicker='datepicker']").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
             $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
                 $(e).width($(e).width());
                 $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
@@ -88,8 +90,8 @@
             $('a.add-row').addClass("btn btn-sm btn-default");
             
 			{% if edit %}
-			$('#assignment_table tbody tr').formset({prefix: 'assignments'});
-            $('#id_kind').combobox();
+                $('#assignment_table tbody tr').formset({prefix: 'assignments'});
+                $('#id_kind').combobox();
             {% endif %}
 			
             $('.twipsify').tooltip({
