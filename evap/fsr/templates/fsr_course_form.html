@@ -65,8 +65,6 @@
         }
 
         $("input[data-datepicker='datepicker']").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
-        $("input[data-datepicker='datepicker']").datepicker( "option", "changeMonth", true );
-        $("input[data-datepicker='datepicker']").datepicker( "option", "changeYear", true );
 
         $(".multiselect-form select[multiple='multiple']").multiselect({ locale: "{{ LANGUAGE_CODE }}" });
 
