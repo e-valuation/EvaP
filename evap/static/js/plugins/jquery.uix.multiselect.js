@@ -811,7 +811,7 @@
                         if (_received_index) {
                             e = that._elements[_received_index];
                             _received_index = undefined;
-                            ui.item.replaceWith(e.listElement.addClass('ui-state-highlight option-selected'));
+                            ui.item.replaceWith(e.listElement.addClass('option-selected'));
                             that._widget._updateHeaders();
                             that._widget._triggerUIEvent(EVENT_CHANGE, { optionElements:[e.optionElement[0]], selected:true } );
                         } else {
@@ -849,12 +849,10 @@
                 .data('element-index', -1)
                 .hover(
                     function() {
-                        if (optElement.prop('selected')) $(this).removeClass('ui-state-highlight');
                         $(this).addClass('ui-state-hover');
                     },
                     function() {
                         $(this).removeClass('ui-state-hover');
-                        if (optElement.prop('selected')) $(this).addClass('ui-state-highlight');
                     }
                 );
             if (this._widget.options.selectionMode.indexOf('d&d') > -1) {
@@ -942,7 +940,7 @@
                 }
                 eData.listElement.insertAfter(prev);
             }
-            eData.listElement[(eData.selected?'add':'remove')+'Class']('ui-state-highlight option-selected');
+            eData.listElement[(eData.selected?'add':'remove')+'Class']('option-selected');
 
             if ((eData.selected || !eData.filtered) && !this._isOptionCollapsed(eData) && this._moveEffect && this._moveEffect.fn) {
                 eData.listElement.hide().show(this._moveEffect.fn, this._moveEffect.options, this._moveEffect.speed);
