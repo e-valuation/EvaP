@@ -7,7 +7,7 @@
     {{ block.super }}
     <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
     {% if object.id %}
-    <li><a href="{% url "evap.fsr.views.user_edit" object.id  %}">{{ object.userprofile.full_name }}</a></li>
+        <li>{{ object.userprofile.full_name }}</li>
     {% endif %}
 {% endblock %}
 
