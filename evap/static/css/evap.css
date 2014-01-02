@@ -46,6 +46,7 @@ body {
 
 ul.inputs-list {
   list-style-type: none;
+  padding-left: 0px;
 }
 
 td.maximize, th.maximize {
