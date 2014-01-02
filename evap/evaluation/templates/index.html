@@ -39,8 +39,8 @@
 
                         {% for field in login_username_form %}
                             <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                <label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                <div class="col-sm-6">
                                     {{ field|add_class:"form-control" }}
                                     {% if field.errors %}
                                         <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
@@ -49,8 +49,8 @@
                             </div>
                         {% endfor %}
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-8">
-                                <input class="btn btn-default" type="submit" value="{% trans "Login" %}">
+                            <div class="col-sm-offset-3 col-sm-8">
+                                <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
                             </div>
                         </div>
                     </form>
@@ -69,8 +69,8 @@
                         <fieldset>
                             {% for field in login_key_form %}
                                  <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                    <label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                    <div class="col-sm-8">
+                                    <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                    <div class="col-sm-6">
                                         {{ field|add_class:"form-control" }}
                                         {% if field.errors %}
                                             <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
@@ -80,8 +80,8 @@
                             {% endfor %}
                         </fieldset>
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-8">
-                                <input class="btn btn-default" type="submit" value="{% trans "Login" %}">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
                             </div>
                         </div>
                     </form> 
@@ -95,8 +95,8 @@
                         <fieldset>
                             {% for field in new_key_form %}
                                 <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                    <label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                    <div class="col-sm-8">
+                                    <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                    <div class="col-sm-6">
                                         {{ field|add_class:"form-control" }}
                                         {% if field.errors %}
                                             <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
@@ -106,8 +106,8 @@
                             {% endfor %}
                         </fieldset>
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-8">
-                                <input class="btn btn-default" type="submit" value="{% trans "Send Key" %}">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <input class="btn btn-success" type="submit" value="{% trans "Send Key" %}">
                             </div>
                         </div>
                     </form>
