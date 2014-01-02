@@ -6,7 +6,11 @@
     {{ block.super }}
     <li>{% trans "Semesters" %}</li>
     {% if semester %}
-        <li><a href="{% url "evap.fsr.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
+        {% if disable_breadcrumb_semester %}
+            <li>{{ semester.name }}</li>
+        {% else %}
+            <li><a href="{% url "evap.fsr.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
+        {% endif %}
     {% endif %}
 {% endblock %}
 

@@ -47,7 +47,7 @@ def semester_view(request, semester_id):
         this_courses = [course for course in courses if course.state == state]
         courses_by_state.append((state, this_courses))
     
-    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state, tab=tab), context_instance=RequestContext(request))
+    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab), context_instance=RequestContext(request))
 
 
 @fsr_required
