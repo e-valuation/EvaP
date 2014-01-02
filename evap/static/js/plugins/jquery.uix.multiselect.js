@@ -267,9 +267,6 @@
                     .insertBefore( this._headers[searchHeader] );
             }
             if (this.options.searchField) {
-                if (!isToggle) {
-                    this._headers[searchHeader].hide();
-                }
                 this._searchField = $('<input type="text" placeholder="search..." />').addClass('uix-search ui-widget-content ui-corner-' + (isToggle ? 'left' : 'all'))[isToggle ? 'hide' : 'show']()
                     .insertBefore( this._headers[searchHeader] )
                     .focus(function() { $(this).select(); })
@@ -373,7 +370,7 @@
             var t, info = this.optionCache.getSelectionInfo();
 
             this._headers['selected']
-                .text( this._t('itemsSelected', info.selected.total, {count:info.selected.total}) + " | " + this._t('itemsAvailable', info.available.total, {count:info.available.total}) )
+                .text( this._t('itemsSelected', info.selected.total, {count:info.selected.total}))
                 .parent().attr('title',
                     this.options.filterSelected
                     ? this._t('itemsSelected', info.selected.count, {count:info.selected.count}) + ", " +
@@ -428,7 +425,7 @@
             }
             // adjust search field width
             if (this._searchField) {
-                this._searchField.width( (sSize === 'Width' ? cAv : this.element.width()) - (isToggle ? 52 : 44) );  // issue #50
+                this._searchField.width( (sSize === 'Width' ? cAv : this.element.width()) - (isToggle ? 52 : 140) );  // issue #50
             }
 
             // calculate inner lists height
