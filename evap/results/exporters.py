@@ -15,7 +15,7 @@ class ExcelExporter(object):
     
     def export(self, response, all=False):
         courses_with_results = list()
-        for course in self.semester.course_set.all():
+        for course in self.semester.course_set.filter(state="published").all():
             results = SortedDict()
             for questionnaire, lecturer, data, grade in calculate_results(course):
                 results.setdefault(questionnaire.id, []).append((lecturer, data, grade))
