@@ -25,14 +25,13 @@
     {% if courses_by_state %}
         <ul class="nav nav-tabs">
             {% for state, courses in courses_by_state %}
-                <li><a href="#tab{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+                <li{% if forloop.first %} class="active"{% endif %}><a href="#tab{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
             {% endfor %}
         </ul>
 
             <div class="tab-content">
             {% for state, courses in courses_by_state %}
                 <div id="tab{{ forloop.counter }}" class="tab-pane{% if forloop.first %} active{% endif %}">
-                <h3></h3>
                 <table class="table table-striped">
                 <tbody>
                 {% for course in courses %}
