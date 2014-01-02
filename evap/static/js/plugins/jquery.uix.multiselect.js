@@ -840,11 +840,12 @@
         },
 
         _createElement: function(optElement, optGroup) {
-            var o = this._widget.options.optionRenderer
-                  ? this._widget.options.optionRenderer(optElement, optGroup)
-                  : $('<div></div>').text(optElement.text());
+            var o = this._widget.options.optionRenderer 
+                    ? this._widget.options.optionRenderer(optElement, optGroup)
+                    : $('<div style="float:left;"></div>').text(optElement.text());
+            var p = $('<div style="float: right;">+</div>')
             var optIcon = optElement.attr("data-option-icon");
-            var e = $('<div></div>').append(o).addClass('ui-state-default option-element')
+            var e = $('<div></div>').append(o).append(p).addClass('ui-state-default option-element clearfix')
                 .attr("unselectable", "on")  // disable text selection on this element (IE, Opera)
                 .data('element-index', -1)
                 .hover(
@@ -941,6 +942,7 @@
                 eData.listElement.insertAfter(prev);
             }
             eData.listElement[(eData.selected?'add':'remove')+'Class']('option-selected');
+            eData.listElement.children().eq(1).text(eData.selected?'-':'+');
 
             if ((eData.selected || !eData.filtered) && !this._isOptionCollapsed(eData) && this._moveEffect && this._moveEffect.fn) {
                 eData.listElement.hide().show(this._moveEffect.fn, this._moveEffect.options, this._moveEffect.speed);
