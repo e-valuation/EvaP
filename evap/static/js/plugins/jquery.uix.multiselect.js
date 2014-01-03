@@ -56,7 +56,7 @@
             selectionMode: 'click',    // how options can be selected separated by commas: 'click', "dblclick" and 'd&d' (default: 'click,d&d')
             showDefaultGroupHeader: false, // show the default option group header (default: false)
             showEmptyGroups: false,        // always display option groups even if empty (default: false)
-            splitRatio: 0.55,              // % of the left list's width of the widget total width (default 0.55)
+            splitRatio: 0.5,               // % of the left list's width of the widget total width (default 0.55)
             sortable: false,               // if the selected list should be user sortable or not
             sortMethod: null               // null, 'standard', 'natural'; a sort function name (see ItemComparators), or a custom function (default: null)
         },
@@ -425,7 +425,7 @@
             }
             // adjust search field width
             if (this._searchField) {
-                this._searchField.width( (sSize === 'Width' ? cAv : this.element.width()) - (isToggle ? 52 : 140) );  // issue #50
+                this._searchField.width( (sSize === 'Width' ? cAv : this.element.width()) - (isToggle ? 52 : 170) );  // issue #50
             }
 
             // calculate inner lists height
@@ -839,8 +839,8 @@
         _createElement: function(optElement, optGroup) {
             var o = this._widget.options.optionRenderer 
                     ? this._widget.options.optionRenderer(optElement, optGroup)
-                    : $('<div style="float:left;"></div>').text(optElement.text());
-            var p = $('<div style="float: right;">+</div>')
+                    : $('<div></div>').text(optElement.text());
+            var p = $('<span class="glyphicon glyphicon-plus"></span>')
             var optIcon = optElement.attr("data-option-icon");
             var e = $('<div></div>').append(o).append(p).addClass('ui-state-default option-element clearfix')
                 .attr("unselectable", "on")  // disable text selection on this element (IE, Opera)
@@ -939,7 +939,10 @@
                 eData.listElement.insertAfter(prev);
             }
             eData.listElement[(eData.selected?'add':'remove')+'Class']('option-selected');
-            eData.listElement.children().eq(1).text(eData.selected?'-':'+');
+            if (eData.selected)
+                eData.listElement.children().eq(1).removeClass("glyphicon-plus").addClass("glyphicon-minus");
+            else
+                eData.listElement.children().eq(1).removeClass("glyphicon-minus").addClass("glyphicon-plus");
 
             if ((eData.selected || !eData.filtered) && !this._isOptionCollapsed(eData) && this._moveEffect && this._moveEffect.fn) {
                 eData.listElement.hide().show(this._moveEffect.fn, this._moveEffect.options, this._moveEffect.speed);
