@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-31 06:08+0100\n"
-"PO-Revision-Date: 2013-12-30 21:09-0800\n"
+"POT-Creation-Date: 2014-01-03 03:35+0100\n"
+"PO-Revision-Date: 2014-01-02 18:36-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -679,36 +679,40 @@ msgstr "Versteckt?"
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: fsr/forms.py:222
+#: fsr/forms.py:223
+msgid "Please select the name of each added contributor. Remove empty rows if necessary."
+msgstr "Bitte wählen Sie die Namen aller hinzugefügten Mitwirkenden aus. Entfernen Sie leere Zeilen, falls notwendig."
+
+#: fsr/forms.py:225
 msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben werden."
 
-#: fsr/forms.py:235
+#: fsr/forms.py:238
 msgid "No responsible contributor found. Each course must have exactly one responsible contributor."
 msgstr "Keine Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:237
+#: fsr/forms.py:240
 msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
 msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:345
+#: fsr/forms.py:348
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: fsr/forms.py:346
+#: fsr/forms.py:349
 msgid "EvaP Administrator"
 msgstr "EvaP Administrator"
 
-#: fsr/forms.py:349
+#: fsr/forms.py:352
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:372
+#: fsr/forms.py:375
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:390
+#: fsr/forms.py:393
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -1727,3 +1731,4 @@ msgid ""
 msgstr ""
 "\n"
 "Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
+

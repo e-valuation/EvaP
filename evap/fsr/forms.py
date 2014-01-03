@@ -218,6 +218,9 @@ class ContributorFormSet(AtLeastOneFormSet):
             try:
                 if form.cleaned_data:
                     contributor = form.cleaned_data.get('contributor')
+                    delete = form.cleaned_data.get('DELETE')
+                    if contributor == None and not delete:
+                        raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
                     if contributor and contributor in found_contributor:
                         raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
                     elif contributor:
