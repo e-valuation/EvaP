@@ -232,7 +232,7 @@ def semester_lottery(request, semester_id):
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = Course(semester=semester)
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course'))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course',))
     
     form = CourseForm(request.POST or None, instance=course)
     formset = ContributionFormset(request.POST or None, instance=course)
