@@ -231,7 +231,7 @@ class Course(models.Model):
 
     @property
     def responsible_contributors_name(self):
-        return self.responsible_contributor.userprofile().full_name
+        return self.responsible_contributor.userprofile.full_name
 
     @property
     def responsible_contributors_username(self):
