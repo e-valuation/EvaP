@@ -60,15 +60,15 @@ class RequestAuthUserBackend(ModelBackend):
     allow authentication of users via URL parameters, i.e. supplied in an
     email.
     
-    It looks for the appropriate key in the logon_key field of the UserProfile.
+    It looks for the appropriate key in the login_key field of the UserProfile.
     """
     def authenticate(self, key):
         if not key:
             return None
         
         try:
-            profile = UserProfile.objects.get(logon_key=key,
-                                              logon_key_valid_until__gte=date.today())
+            profile = UserProfile.objects.get(login_key=key,
+                                              login_key_valid_until__gte=date.today())
             return profile.user
         except UserProfile.DoesNotExist:
             pass
@@ -115,26 +115,26 @@ def fsr_required(func):
     return user_passes_test(check_user)(func)
 
 
-def lecturer_or_delegate_required(func):
+def editor_or_delegate_required(func):
     """
-    Decorator for views that checks that the user is logged in and marked as
-    lecturer or delegate for a lecturer.
+    Decorator for views that checks that the user is logged in, has edit rights
+    for at least one course or is a delegate for such a person.
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_lecturer_or_delegate()
+        return UserProfile.get_for_user(user=user).is_editor_or_delegate
     return user_passes_test(check_user)(func)
     
-def lecturer_required(func):
+def editor_required(func):
     """
-    Decorator for views that checks that the user is logged in and marked as
-    lecturer or delegate for a lecturer.
+    Decorator for views that checks that the user is logged in and has edit
+    right for at least one course.
     """
     
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_lecturer
+        return UserProfile.get_for_user(user=user).is_editor
     return user_passes_test(check_user)(func)

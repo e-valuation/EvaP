@@ -29,7 +29,7 @@ STATES_ORDERED = SortedDict((
 
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'lecturer', 'results', 'average'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average'))
 GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'variance', 'distribution', 'show'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
@@ -46,7 +46,7 @@ def avg(iterable):
 def calculate_results(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    lecturer (or None), a list of single result elements and the average grade
+    contributor (or None), a list of single result elements and the average grade
     for that section (or None). The result elements are either `GradeResult` or
     `TextResult` instances."""
     
@@ -56,18 +56,18 @@ def calculate_results(course):
     if prior_results:
         return prior_results
     
-    # there will be one section per relevant questionnaire--lecturer pair
+    # there will be one section per relevant questionnaire--contributor pair
     sections = []
     
-    for questionnaire, assignment in questionnaires_and_assignments(course):
+    for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
             if question.is_grade_question():
                 # gather all numeric answers as a simple list
                 answers = GradeAnswer.objects.filter(
-                    assignment__course=course,
-                    assignment__lecturer=assignment.lecturer,
+                    contribution__course=course,
+                    contribution__contributor=contribution.contributor,
                     question=question
                     ).values_list('answer', flat=True)
                 
@@ -106,8 +106,8 @@ def calculate_results(course):
             elif question.is_text_question():
                 # gather text answers for this question
                 answers = TextAnswer.objects.filter(
-                    assignment__course=course,
-                    assignment__lecturer=assignment.lecturer,
+                    contribution__course=course,
+                    contribution__contributor=contribution.contributor,
                     question=question,
                     hidden=False
                     )
@@ -127,7 +127,7 @@ def calculate_results(course):
         average_grade = avg([result.average for result
                                             in results
                                             if isinstance(result, GradeResult)])
-        sections.append(ResultSection(questionnaire, assignment.lecturer, results, average_grade))
+        sections.append(ResultSection(questionnaire, contribution.contributor, results, average_grade))
     
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
@@ -142,9 +142,9 @@ def calculate_average_grade(course):
     generic_grades = []
     personal_grades = []
     
-    for questionnaire, lecturer, results, average in calculate_results(course):
+    for questionnaire, contributor, results, average in calculate_results(course):
         if average:
-            (personal_grades if lecturer else generic_grades).append(average)
+            (personal_grades if contributor else generic_grades).append(average)
     
     if not generic_grades:
         # not final grade without any generic grade
@@ -158,15 +158,15 @@ def calculate_average_grade(course):
         return avg((avg(generic_grades), avg(personal_grades)))
 
 
-def questionnaires_and_assignments(course):
-    """Yields tuples of (questionnaire, assignment) for the given course."""
+def questionnaires_and_contributions(course):
+    """Yields tuples of (questionnaire, contribution) for the given course."""
     result = []
     
-    for assignment in course.assignments.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_persons", "questionnaires__index__min"):
-        for questionnaire in assignment.questionnaires.all():
-            result.append((questionnaire, assignment))
+    for contribution in course.contributions.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_contributors", "questionnaires__index__min"):
+        for questionnaire in contribution.questionnaires.all():
+            result.append((questionnaire, contribution))
     
-    # sort questionnaires without lecturers first
-    result.sort(key=lambda t: t[1].lecturer is not None)
+    # sort questionnaires without contributors first
+    result.sort(key=lambda t: t[1].contributor is not None)
     
     return result

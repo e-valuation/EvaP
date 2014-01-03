@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def answer_histogram(self):
         import matplotlib.pyplot as plt
         
-        answers = GradeAnswer.objects.filter(assignment__course__semester=self.semester)
+        answers = GradeAnswer.objects.filter(contribution__course__semester=self.semester)
         
         fig = plt.figure()
         ax = fig.add_subplot(111)
