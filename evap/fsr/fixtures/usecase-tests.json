@@ -11,14 +11,14 @@
             "is_staff":true
         }
     },
-	{
-		"pk":1,
-		"model":"evaluation.userprofile",
-		"fields": {
-			"user":1,
-			"logon_key":1313
-		}
-	},
+    {
+        "pk":1,
+        "model":"evaluation.userprofile",
+        "fields": {
+            "user":1,
+            "login_key":1313
+        }
+    },
     {
         "pk":2,
         "model":"auth.user",
@@ -31,13 +31,13 @@
             "is_staff":false
         }
     },
-	{
-		"pk":2,
-		"model":"evaluation.userprofile",
-		"fields": {
-			"user":2
-		}
-	},
+    {
+        "pk":2,
+            "model":"evaluation.userprofile",
+            "fields": {
+            "user":2
+        }
+    },
     {
         "pk":1,
         "model":"evaluation.semester",
@@ -54,6 +54,7 @@
             "name_de":"Course 1",
             "name_en":"Course 1 (en)",
             "kind":"Seminar",
+            "degree":"Bachelor",
             "state":"new",
             
             "participants":[ 2 ],
@@ -62,8 +63,8 @@
             "semester":1,
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30",
-			
-			"last_modified_time":"2010-07-01"
+
+            "last_modified_time":"2010-07-01"
         }
     },
     {
@@ -82,7 +83,7 @@
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30",
 
-			"last_modified_time":"2010-07-01"
+            "last_modified_time":"2010-07-01"
         }
     },
     {
@@ -91,7 +92,8 @@
         "fields":{
           "name_de":"Seminar",
           "name_en":"Seminar",
-          "index": 0
+          "index": 0,
+          "is_for_contributors":false
         }
     },
     {
@@ -117,35 +119,43 @@
         }
     },
     {
-	"pk": 1,
-	"model": "evaluation.assignment",
-	"fields":{
+        "pk": 1,
+        "model": "evaluation.contribution",
+        "fields":{
             "course": 1,
-	    "lecturer": 1
-	}
+            "contributor": 1,
+            "responsible": true,
+            "can_edit": true
+        }
     },
     {
-	"pk": 2,
-	"model": "evaluation.assignment",
-	"fields":{
+        "pk": 2,
+        "model": "evaluation.contribution",
+        "fields":{
             "course": 1,
-	    "lecturer": null
-	}
+            "contributor": null,
+            "responsible": false,
+            "can_edit": false
+        }
     },
     {
-	"pk": 3,
-	"model": "evaluation.assignment",
-	"fields":{
+        "pk": 3,
+        "model": "evaluation.contribution",
+        "fields":{
             "course": 2,
-	    "lecturer": 1
-	}
+            "contributor": 1,
+            "responsible": true,
+            "can_edit": true
+        }
     },
     {
         "pk": 4,
-        "model": "evaluation.assignment",
+        "model": "evaluation.contribution",
         "fields":{
             "course": 2,
-            "lecturer": null
+            "contributor": null,
+            "responsible": false,
+            "can_edit": false
         }
     }
 ]

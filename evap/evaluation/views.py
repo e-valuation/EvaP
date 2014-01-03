@@ -13,7 +13,7 @@ def index(request):
     """Main entry page into EvaP providing all the login options available. THe username/password 
        login is thought to be used for internal users, e.g. by connecting to a LDAP directory.
        The login key mechanism is meant to be used to include external participants, e.g. visiting 
-       students or visiting lecturers.
+       students or visiting contributors.
     """
 
     # parse the form data into the respective form
@@ -26,11 +26,11 @@ def index(request):
     if request.method == 'POST':
         if new_key_form.is_valid():
             # user wants a new login key
-            profile = new_key_form.get_profile()
-            profile.generate_logon_key()
+            profile = new_key_form.userprofile()
+            profile.generate_login_key()
             profile.save()
             
-            EmailTemplate.get_logon_key_template().send_user(new_key_form.get_user())
+            EmailTemplate.get_login_key_template().send_user(new_key_form.get_user())
             
             messages.success(request, _(u"Successfully sent email with new login key."))
         elif login_key_form.is_valid():
@@ -57,8 +57,8 @@ def index(request):
             if next.startswith("/fsr/"):
                 if request.user.is_staff:
                     return redirect(next)
-            elif next.startswith("/lecturer/"):
-                if UserProfile.get_for_user(request.user).is_lecturer:
+            elif next.startswith("/contributor/"):
+                if UserProfile.get_for_user(request.user).is_contributor:
                     return redirect(next)
             else:
                 return redirect(next)
@@ -66,8 +66,8 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('evap.fsr.views.index')
-        elif UserProfile.get_for_user(request.user).is_lecturer:
-            return redirect('evap.lecturer.views.index')
+        elif UserProfile.get_for_user(request.user).is_contributor:
+            return redirect('evap.contributor.views.index')
         else:
             return redirect('evap.student.views.index')
 

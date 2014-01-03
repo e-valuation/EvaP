@@ -13,7 +13,7 @@
     <ul class="tabs">
         <li class="{% if not filter %}active{% endif %}"><a href="?">{% trans "All" %}</a></li>
         <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
-        <li class="{% if filter == 'lecturers' %}active{% endif %}"><a href="?filter=lecturers">{% trans "Lecturers" %}</a></li>
+        <li class="{% if filter == 'responsibles' %}active{% endif %}"><a href="?filter=responsibles">{% trans "Responsible Contributors" %}</a></li>
         <div class="pull-right">
             <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small success">{% trans "Create new user" %}</a>
         </div>
@@ -41,10 +41,13 @@
                     {% if user.is_staff %}
                         <span class="label notice">{% trans "Student Representative" %}</span>
                     {% endif %}
-                    {% if user.userprofile.is_lecturer %}
-                        <span class="label notice">{% trans "Lecturer" %}</span>
+                    {% if user.userprofile.contributor %}
+                        <span class="label notice">{% trans "Contributor" %}</span>
                     {% endif %}
-                    {% if user.userprofile.logon_key %}
+                    {% if user.userprofile.is_responsible %}
+                        <span class="label notice">{% trans "Responsible" %}</span>
+                    {% endif %}
+                    {% if user.userprofile.login_key %}
                         <span class="label notice">{% trans "Login Key" %}</span>
                     {% endif %}
                     {% if not user.email %}

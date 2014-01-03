@@ -17,8 +17,8 @@ class ExcelExporter(object):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
             results = SortedDict()
-            for questionnaire, lecturer, data, grade in calculate_results(course):
-                results.setdefault(questionnaire.id, []).append((lecturer, data, grade))
+            for questionnaire, contributor, data, grade in calculate_results(course):
+                results.setdefault(questionnaire.id, []).append((contributor, data, grade))
             courses_with_results.append((course, results))
         
         courses_with_results.sort(key=lambda cr: cr[0].kind)
@@ -96,7 +96,7 @@ class ExcelExporter(object):
                         values = []
                         variances = []
                         enough_answers = True
-                        for lecturer, data, grade in qn_results:
+                        for contributor, data, grade in qn_results:
                             for grade_result in data:
                                 if grade_result.question.id == question.id:
                                     if grade_result.average:

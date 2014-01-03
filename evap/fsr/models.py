@@ -34,36 +34,38 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Publishing Notice")
         
     @classmethod
-    def get_logon_key_template(cls):
+    def get_login_key_template(cls):
         try:
             return cls.objects.get(name="Login Key Created")
         except:
-            return cls.objects.get(name="Logon Key Created")
+            return cls.objects.get(name="Login Key Created")
     
     @classmethod
-    def receipient_list_for_course(cls, course, send_to_lecturers, send_to_participants):
+    def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_participants):
         from evap.evaluation.models import UserProfile
 
         if send_to_participants:
             for user in course.participants.all():
                 yield user
         
-        if send_to_lecturers:
-            for assignment in course.assignments.exclude(lecturer=None):
-                if UserProfile.get_for_user(assignment.lecturer).is_lecturer:
-                    yield assignment.lecturer
+        if send_to_contributors:
+            for contribution in course.contributions.exclude(contributor=None):
+                yield contribution.contributor
+        elif send_to_editors:
+            for contribution in course.contributions.exclude(contributor=None).filter(can_edit=True):
+                yield contribution.contributor
     
     @classmethod
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary))
     
-    def send_courses(self, courses, send_to_lecturers, send_to_participants, only_non_evaluated=False):
+    def send_courses(self, courses, send_to_editors, send_to_contributors, send_to_participants, only_non_evaluated=False):
         from evap.evaluation.models import UserProfile
 
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
-            for user in [user for user in self.receipient_list_for_course(course, send_to_lecturers, send_to_participants) if user.email != ""]:
+            for user in [user for user in self.recipient_list_for_course(course, send_to_editors, send_to_contributors, send_to_participants) if user.email != ""]:
                 if (not only_non_evaluated) or (user not in course.voters.all()):
                     if user in user_course_map:
                         user_course_map[user].append(course)
@@ -72,8 +74,14 @@ class EmailTemplate(models.Model):
         
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
-            # if user is lecturer, also send to delegates
-            cc = [p.email for p in UserProfile.get_for_user(user).delegates.all() if p.email] if UserProfile.get_for_user(user).is_lecturer else []
+            
+            cc = []
+            # if email will be sent to editors, also send to all their delegates in CC
+            if send_to_editors:
+                for course in courses:
+                    if course.contributions.filter(can_edit=True, contributor=user).exists():
+                        cc = [p.email for p in UserProfile.get_for_user(user).delegates.all() if p.email]
+                        break
             
             mail = EmailMessage(
                 subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
