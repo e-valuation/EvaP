@@ -69,17 +69,41 @@
             placement: 'left'
         });
 
-        function makeClickHandler(i) {
+        function makeClickHandler(i, contributorCount) {
             return function () {
-                if($("#id_contributions-" + i + "-responsible").is(":checked"))
+                // if the responsible checkbox is selected
+                if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+
+                    // uncheck and enable all
+                    for(var j = 0; j < contributorCount; j++){
+                        $("#id_contributions-" + j + "-responsible").prop('checked', false);
+                        $("#id_contributions-" + j + "-can_edit").prop('disabled', false);
+                    }
+
+                    // check self
+                    $("#id_contributions-" + i + "-responsible").prop('checked', true);
+
+                    // check and disable can-edit
                     $("#id_contributions-" + i + "-can_edit").prop('checked', true);
+                    $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+                }
+                // if the responsible checkbox is deselected
+                else {
+                    // enable can-edit
+                    $("#id_contributions-" + i + "-can_edit").prop('disabled', false);
+                }
             };
         }
 
         // the number of contributor select fields in the contribution table
         var contributorCount = $("#contribution_table select").length;
         for(var i = 0; i < contributorCount; i++){
-            $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i));
+            $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
+
+            // apply initial settings
+            if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+            }
         }
     });
     </script>
