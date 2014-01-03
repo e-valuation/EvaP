@@ -3,9 +3,14 @@
 {% load i18n %}
 {% load static %}
 
+{% block subtitle %}
+    {{ block.super }}
+    <li>{{ course.name }}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="multiselect-form">
+    <form method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
@@ -15,68 +20,74 @@
         <fieldset>
             {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
-            {{ formset.non_form_errors }}
-            <table id="contribution_table">
-                <tr>
-                    <th>{% trans "Contributor" %}</th>
-                    <th>{% trans "Questionnaires" %}</th>
-                    <th>{% trans "Can edit course" %}</th>
-                    <th>{% trans "Remove?" %}</th>
-                </tr>
-                <tbody>                    
-                    {% for form_element in formset %}
-                        {% if form_element.non_field_errors %}
-                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                        {% endif %}
-                        
-                        <tr>
-                            {% for field in form_element.hidden_fields %}
-                                {{ field }}
-                            {% endfor %}
-                            {{ form_element.responsible.as_hidden }}
-                            <td>
-                                {{form_element.contributor.errors}}
-                                {% if form_element.responsible.value == True %}
-                                    <select disabled="True"><option selected="selected">{{ responsible }}</option></select>
-                                    {{ form_element.contributor.as_hidden }}
-                                    <em>({% trans "responsible" %})</em>
-                                {% else %}
-                                    {{ form_element.contributor }}
-                                {% endif %}
-                            </td>
-                            <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
-                            <td>
-                                {{form_element.can_edit.errors}}
-                                {% if form_element.responsible.value == True %}
-                                    <input checked="checked" type="checkbox" disabled="True" />
-                                    {{ form_element.can_edit.as_hidden }}
-                                {% else %}
-                                    {{ form_element.can_edit }}
-                                {% endif %}
-                            </td>
-                            <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="col-sm-offset-2 col-sm-8">
+                {{ formset.non_form_errors }}
+                <table id="contribution_table">
+                    <tr>
+                        <th>{% trans "Contributor" %}</th>
+                        <th>{% trans "Questionnaires" %}</th>
+                        <th>{% trans "Can edit course" %}</th>
+                        <th>{% trans "Remove?" %}</th>
+                    </tr>
+                    <tbody>                    
+                        {% for form_element in formset %}
+                            {% if form_element.non_field_errors %}
+                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                            {% endif %}
+                            
+                            <tr>
+                                {% for field in form_element.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                                {{ form_element.responsible.as_hidden }}
+                                <td>
+                                    {{form_element.contributor.errors}}
+                                    {% if form_element.responsible.value == True %}
+                                        <select disabled="True"><option selected="selected">{{ responsible }}</option></select>
+                                        {{ form_element.contributor.as_hidden }}
+                                        <em>({% trans "responsible" %})</em>
+                                    {% else %}
+                                        {{ form_element.contributor }}
+                                    {% endif %}
+                                </td>
+                                <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
+                                <td>
+                                    {{form_element.can_edit.errors}}
+                                    {% if form_element.responsible.value == True %}
+                                        <input checked="checked" type="checkbox" disabled="True" />
+                                        {{ form_element.can_edit.as_hidden }}
+                                    {% else %}
+                                        {{ form_element.can_edit }}
+                                    {% endif %}
+                                </td>
+                                <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </fieldset>
         
         <fieldset>
             <legend>{% trans "Students" %}</legend>
-            <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
-            <ul>
-                {% for p in course.participants.all %}
-                    <li>{{ p.userprofile.full_name }}</li>
-                {% endfor %}
-            </ul>
+            <div class="col-sm-offset-2 col-sm-8">
+                <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
+                <ul>
+                    {% for p in course.participants.all %}
+                        <li>{{ p.userprofile.full_name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </fieldset>
-        <div class="actions">
-			{% if edit %}
-				<button name="operation" value="save" type="submit" class="btn primary">{% trans "Save"%}</button>
-	            <button name="operation" value="approve" type="submit" class="btn success">{% trans "Save and approve"%}</button>
-			{% endif %}
-            <a href="{% url "evap.contributor.views.index" %}" class="btn">{% trans "Cancel" %}</a>
-            <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn">{% trans "Preview" %}</a>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-8">
+    			{% if edit %}
+    				<button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
+    	            <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve"%}</button>
+    			{% endif %}
+                <a href="{% url "evap.contributor.views.index" %}" class="btn btn-default">{% trans "Cancel" %}</a>
+                <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-default">{% trans "Preview" %}</a>
+            </div>
         </div>
     </form>
 {% endblock %}
@@ -86,20 +97,23 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
         $(function() {
-            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
             $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
                 $(e).width($(e).width());
-                $(e).multiselect();
+                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
             });
 
-            $('a.add-row').addClass("btn small");
+            $('a.add-row').addClass("btn btn-sm btn-default");
             
 			{% if edit %}
 			$('#contribution_table tbody tr').formset({prefix: 'contributions'});
             $('#id_kind').combobox();
             {% endif %}
 			
-            $('.twipsify').twipsy({
+            $('.twipsify').tooltip({
                 html: true,
                 placement: 'left'
             });
