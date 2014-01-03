@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from evap.evaluation.models import Assignment, Course, GradeAnswer, Question, \
+from evap.evaluation.models import Contribution, Course, GradeAnswer, Question, \
                                    Questionnaire, Semester, TextAnswer, UserProfile
 
 from datetime import datetime
@@ -89,7 +89,7 @@ class Command(BaseCommand):
             student = self.get_one('student', id=enrollment.student_id)
             yield self.user_from_db(student.loginName)
     
-    def get_lecturers_with_questionnaires(self, course):
+    def get_contributors_with_questionnaires(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for ccm_to_staff in self.get('ccm_to_staff', ccm_id=ccm.id):
                 # staff --> User
@@ -126,7 +126,7 @@ class Command(BaseCommand):
                     
                     yield user, questionnaire
                 except NotOneException:
-                    logger.warn("Skipping questionnaire for lecturer %r in course %r.", user, course.name)
+                    logger.warn("Skipping questionnaire for contributor %r in course %r.", user, course.name)
     
     def get_questionnaires(self, course, evaluation_id, per_person="0"):
         questionnaire_template_id = self.get_one('evaluation', id=evaluation_id).questionnaire_template_id
@@ -230,19 +230,19 @@ class Command(BaseCommand):
                     course.save()
                     
                     # general quesitonnaires
-                    Assignment.objects.get(course=course, lecturer=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
+                    Contribution.objects.get(course=course, contributor=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
                     
-                    # lecturer questionnaires
-                    for lecturer, questionnaire in self.get_lecturers_with_questionnaires(xml_course):
-                        assignment, created = Assignment.objects.get_or_create(course=course, lecturer=lecturer)
-                        assignment.questionnaires.add(questionnaire)
+                    # contributor questionnaires
+                    for contributor, questionnaire in self.get_contributors_with_questionnaires(xml_course):
+                        contribution, created = Contribution.objects.get_or_create(course=course, contributor=contributor)
+                        contribution.questionnaires.add(questionnaire)
                     
                     # answer --> GradeAnswer/TextAnswer
                     for assessment in self.get('assessment', course_id=xml_course.id):
                         for answer in self.get('answer', assessment_id=assessment.id):
                             staff_id = nint(getattr(answer, 'staff_id', None))
-                            lecturer = self.staff_cache[staff_id] if staff_id is not None else None
-                            assignment = course.assignments.get(lecturer=lecturer)
+                            contributor = self.staff_cache[staff_id] if staff_id is not None else None
+                            contribution = course.contributions.get(contributor=contributor)
                             
                             status = str(answer.revised_status)
                             try:
@@ -253,7 +253,7 @@ class Command(BaseCommand):
                             
                             if status == "61":
                                 GradeAnswer.objects.create(
-                                    assignment=assignment,
+                                    contribution=contribution,
                                     question=question,
                                     answer=int(answer.response)
                                 )
@@ -280,7 +280,7 @@ class Command(BaseCommand):
                                         raise Exception("Invalid XML-file")
                                     
                                     TextAnswer.objects.create(
-                                        assignment=assignment,
+                                        contribution=contribution,
                                         question=question,
                                         original_answer=comment,
                                         checked=True,

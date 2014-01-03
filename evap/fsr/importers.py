@@ -13,13 +13,12 @@ import xlrd
 class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
     
-    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None, is_lecturer=False):
+    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
         self.title = title
         self.email = email
-        self.is_lecturer = is_lecturer
     
     def store_in_database(self):
         user = User(username=self.username,
@@ -29,7 +28,6 @@ class UserData(object):
         user.save()
         profile = UserProfile.get_for_user(user=user)
         profile.title = self.title
-        profile.is_lecturer = self.is_lecturer
         profile.save()
         return user
 
@@ -44,10 +42,8 @@ class UserData(object):
             user.email = self.email
         if not profile.title:
             profile.title = self.title
-        if not profile.is_lecturer:
-            profile.is_lecturer = self.is_lecturer
-        if profile.is_lecturer and profile.needs_logon_key:
-            profile.refresh_logon_key()
+        if profile.needs_login_key:
+            profile.refresh_login_key()
         
         user.save()
         profile.save()
@@ -80,7 +76,7 @@ class ExcelImporter(object):
         self.request = request
     
     def read_file(self, excel_file):
-        """Reads an excel file and stores all the student-lecturer-course
+        """Reads an excel file and stores all the student-contributor-course
         associations in the `associations` member."""
         
         book = xlrd.open_workbook(file_contents=excel_file.read())
@@ -93,11 +89,11 @@ class ExcelImporter(object):
                     if len(data) == 13:
                         # assign data to data objects
                         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
-                        lecturer_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12], is_lecturer=True)
+                        contributor_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
                         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
                     
                         # store data objects together with the data source location for problem tracking
-                        self.associations[(sheet.name, row)] = (student_data, lecturer_data, course_data)
+                        self.associations[(sheet.name, row)] = (student_data, contributor_data, course_data)
                     else:
                         messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet.name, row=row, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
@@ -111,12 +107,12 @@ class ExcelImporter(object):
         fixes and inferres data if possible. Should not validate against data
         already in the database."""
         
-        for (sheet, row), (student_data, lecturer_data, course_data) in self.associations.items():
+        for (sheet, row), (student_data, contributor_data, course_data) in self.associations.items():
             # try to infer first names from usernames
-            if not lecturer_data.first_name:
-                first, sep, last = lecturer_data.username.partition(".")
+            if not contributor_data.first_name:
+                first, sep, last = contributor_data.username.partition(".")
                 if sep == ".":
-                    lecturer_data.first_name = first
+                    contributor_data.first_name = first
             if student_data.email == None or student_data.email == "":
                 student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
     
@@ -128,8 +124,8 @@ class ExcelImporter(object):
         with transaction.commit_on_success():
             course_count = 0
             student_count = 0
-            lecturer_count = 0
-            for (sheet, row), (student_data, lecturer_data, course_data) in self.associations.items():
+            contributor_count = 0
+            for (sheet, row), (student_data, contributor_data, course_data) in self.associations.items():
                 try:
                     # create or retrieve database objects
                     try:
@@ -140,17 +136,17 @@ class ExcelImporter(object):
                         student_count += 1
                     
                     try:
-                        lecturer = User.objects.get(username__iexact=lecturer_data.username)
-                        lecturer_data.update(lecturer)
+                        contributor = User.objects.get(username__iexact=contributor_data.username)
+                        contributor_data.update(contributor)
                     except User.DoesNotExist:
-                        lecturer = lecturer_data.store_in_database()
-                        lecturer_count += 1
+                        contributor = contributor_data.store_in_database()
+                        contributor_count += 1
                     
                     try:
                         course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                     except Course.DoesNotExist:
                         course = course_data.store_in_database(vote_start_date, vote_end_date, semester)
-                        course.assignments.create(lecturer=lecturer, course=course)
+                        course.contributions.create(contributor=contributor, course=course, responsible=True, can_edit=True)
                         course_count += 1
                     
                     # connect database objects
@@ -161,8 +157,8 @@ class ExcelImporter(object):
                                                      "The original data location was row %(row)d of sheet '%(sheet)s'. " \
                                                      "The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
-            messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(lecturers)d lecturer(s).") %
-                                            dict(courses=course_count, students=student_count, lecturers=lecturer_count))
+            messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") %
+                                            dict(courses=course_count, students=student_count, contributors=contributor_count))
     
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):

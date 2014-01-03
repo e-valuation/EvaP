@@ -13,19 +13,19 @@
         </fieldset>
         
         <fieldset>
-            <legend>{% trans "Lecturers" %}</legend>
+            <legend>{% trans "Contributors" %}</legend>
             {{ formset.management_form }}
         </fieldset>
         
         {{ formset.non_form_errors }}
         
-        <table id="assignment_table">
+        <table id="contribution_table">
             <thead>
             <tr>
                 {% for field in formset.form %}
                     <th>{{ field.label }}</th>
                 {% endfor %}
-                <th>{% trans "Delete?" %}</th>
+                <th>{% trans "Remove?" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -37,9 +37,9 @@
                         {% for field in form_element.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                    {% for field in form_element.visible_fields %}
-                        <td>{{field.errors}} {{ field }}</td>
-                    {% endfor %}
+                        {% for field in form_element.visible_fields %}
+                            <td>{{ field.errors }} {{ field }}</td>
+                        {% endfor %}
                     </tr>
                 {% endfor %}
             </tbody>
@@ -59,7 +59,7 @@
         $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
         $(".multiselect-form select[multiple='multiple']").multiselect();
 
-        $('#assignment_table tbody tr').formset({prefix: 'assignments'});
+        $('#contribution_table tbody tr').formset({prefix: 'contributions'});
 
         $('#id_degree').combobox();
         $('#id_kind').combobox();
@@ -68,6 +68,43 @@
             html: true,
             placement: 'left'
         });
+
+        function makeClickHandler(i, contributorCount) {
+            return function () {
+                // if the responsible checkbox is selected
+                if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+
+                    // uncheck and enable all
+                    for(var j = 0; j < contributorCount; j++){
+                        $("#id_contributions-" + j + "-responsible").prop('checked', false);
+                        $("#id_contributions-" + j + "-can_edit").prop('disabled', false);
+                    }
+
+                    // check self
+                    $("#id_contributions-" + i + "-responsible").prop('checked', true);
+
+                    // check and disable can-edit
+                    $("#id_contributions-" + i + "-can_edit").prop('checked', true);
+                    $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+                }
+                // if the responsible checkbox is deselected
+                else {
+                    // enable can-edit
+                    $("#id_contributions-" + i + "-can_edit").prop('disabled', false);
+                }
+            };
+        }
+
+        // the number of contributor select fields in the contribution table
+        var contributorCount = $("#contribution_table select").length;
+        for(var i = 0; i < contributorCount; i++){
+            $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
+
+            // apply initial settings
+            if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+            }
+        }
     });
     </script>
     

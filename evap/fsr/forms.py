@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
-from evap.evaluation.models import Assignment, Course, Question, Questionnaire, \
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile
 from evap.fsr.models import EmailTemplate
 from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
@@ -39,7 +39,7 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=False, obsolete=False), label=_(u"General questions"))
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_(u"General questions"))
     last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False)
     last_modified_user_2 = forms.CharField(label=_(u"Last modified by"), required=False)
     
@@ -60,8 +60,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['participants'].queryset = User.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
         
-        if self.instance.general_assignment:
-            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_assignment.questionnaires.all()]
+        if self.instance.general_contribution:
+            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
         
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
@@ -76,7 +76,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def save(self, *args, **kw):
         user = kw.pop("user")
         super(CourseForm, self).save(*args, **kw)
-        self.instance.general_assignment.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
     
@@ -90,16 +90,15 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self._update_errors(e.message_dict)
 
 
-class AssignmentForm(forms.ModelForm, BootstrapMixin):
+class ContributionForm(forms.ModelForm, BootstrapMixin):
     class Meta:
-        model = Assignment
-        fields = "__all__"
+        model = Contribution
     
     def __init__(self, *args, **kwargs):
-        super(AssignmentForm, self).__init__(*args, **kwargs)
-        self.fields['lecturer'].queryset = User.objects.order_by("username")
-        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_persons=True, obsolete=False))
-    
+        super(ContributionForm, self).__init__(*args, **kwargs)
+        self.fields['contributor'].queryset = User.objects.order_by("username")
+        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False))
+
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
         exclude.remove('course') # allow checking against the missing attribute
@@ -110,10 +109,10 @@ class AssignmentForm(forms.ModelForm, BootstrapMixin):
             self._update_errors(e.message_dict)
 
 
-
 class CourseEmailForm(forms.Form, BootstrapMixin):
     sendToParticipants = forms.BooleanField(label=_("Send to participants?"), required=False, initial=True)
-    sendToLecturers = forms.BooleanField(label=_("Send to lecturers?"), required=False)
+    sendToEditors = forms.BooleanField(label=_("Send to editors?"), required=False)
+    sendToContributors = forms.BooleanField(label=_("Send to all contributors (includes editors)?"), required=False)
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Body"))
     
@@ -125,8 +124,8 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def clean(self):
         cleaned_data = self.cleaned_data
         
-        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToLecturers')):
-            raise forms.ValidationError(_(u"No recipient selected. Choose at least participants or lecturers."))
+        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToEditors') or cleaned_data.get('sendToContributors')):
+            raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
         
         return cleaned_data
 
@@ -136,12 +135,12 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len([user for user in self.template.receipient_list_for_course(self.instance, self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants')) if not user.email])
+        return len([user for user in self.template.recipient_list_for_course(self.instance, self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToParticipants')) if not user.email])
     
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_courses([self.instance], self.cleaned_data.get('sendToLecturers'), self.cleaned_data.get('sendToParticipants'))
+        self.template.send_courses([self.instance], self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToParticipants'))
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
@@ -208,23 +207,38 @@ class AtLeastOneFormSet(BaseInlineFormSet):
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
-class LecturerFormSet(AtLeastOneFormSet):
+
+class ContributorFormSet(AtLeastOneFormSet):
     def clean(self):
-        super(LecturerFormSet, self).clean()
+        super(ContributorFormSet, self).clean()
         
-        found_lecturer = []
+        found_contributor = []
+        count_responsible = 0
         for form in self.forms:
             try:
                 if form.cleaned_data:
-                    lecturer = form.cleaned_data.get('lecturer')
-                    if lecturer and lecturer in found_lecturer:
-                        raise forms.ValidationError(_(u'Duplicate lecturer found. Each lecturer should only be used once.'))
-                    elif lecturer:
-                        found_lecturer.append(lecturer)
+                    contributor = form.cleaned_data.get('contributor')
+                    delete = form.cleaned_data.get('DELETE')
+                    if contributor == None and not delete:
+                        raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
+                    if contributor and contributor in found_contributor:
+                        raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
+                    elif contributor:
+                        found_contributor.append(contributor)
+
+                    if form.cleaned_data.get('responsible'):
+                        count_responsible += 1
+            
             except AttributeError:
                 # annoyingly, if a subform is invalid Django explicity raises
                 # an AttributeError for cleaned_data
                 pass
+
+        if count_responsible < 1:
+            raise forms.ValidationError(_(u'No responsible contributor found. Each course must have exactly one responsible contributor.'))
+        elif count_responsible > 1:
+            raise forms.ValidationError(_(u'Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
+
 
 class IdLessQuestionFormSet(AtLeastOneFormSet):
     class PseudoQuerySet(list):
@@ -322,7 +336,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_superuser', 'is_lecturer')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_superuser')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)

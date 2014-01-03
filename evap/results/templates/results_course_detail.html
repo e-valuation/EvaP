@@ -22,9 +22,9 @@
             <p>{{ group.grouper.teaser }}</td>
         {% endif %}
         
-        {% for questionnaire, lecturer, results, grade in group.list %}
-            {% if lecturer %}
-                <h5>{{ lecturer.userprofile.full_name }}</h5>
+        {% for questionnaire, contributor, results, grade in group.list %}
+            {% if contributor %}
+                <h5>{{ contributor.userprofile.full_name }}</h5>
             {% endif %}
             
             <table class="zebra-striped">

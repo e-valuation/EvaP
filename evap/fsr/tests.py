@@ -3,7 +3,7 @@ from django_webtest import WebTest
 import webtest
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProfile
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
 
 import os.path
 
@@ -48,16 +48,24 @@ class UsecaseTests(WebTest):
         self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
         self.assertEqual(User.objects.count(), original_user_count + 24, "Wrong number of users after Excel import.")
         
+        check_course = Course.objects.get(name_en="Shake")
+        check_contributions = Contribution.objects.filter(course=check_course)
+        responsible_count = 0
+        for contribution in check_contributions:
+            if contribution.responsible:
+                responsible_count += 1
+        self.assertEqual(responsible_count, 1, "Wrong number of responsible contributors after Excel import.")
+
         check_student = User.objects.get(username="Diam.Synephebos")
         self.assertEqual(check_student.first_name, "Diam")
         self.assertEqual(check_student.email, "Diam.Synephebos@student.hpi.uni-potsdam.de")
         
-        check_lecturer = User.objects.get(username="Sanctus.Aliquyam")
-        self.assertEqual(check_lecturer.first_name, "Sanctus")
-        self.assertEqual(check_lecturer.last_name, "Aliquyam")
-        self.assertEqual(check_lecturer.email, "567@web.de")
+        check_contributor = User.objects.get(username="Sanctus.Aliquyam")
+        self.assertEqual(check_contributor.first_name, "Sanctus")
+        self.assertEqual(check_contributor.last_name, "Aliquyam")
+        self.assertEqual(check_contributor.email, "567@web.de")
         
-    def test_logon_key(self):
+    def test_login_key(self):
         environ = self.app.extra_environ
         self.app.extra_environ = {}
         self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
@@ -65,10 +73,10 @@ class UsecaseTests(WebTest):
         
         user = User.objects.all()[0]
         userprofile = UserProfile.get_for_user(user)
-        userprofile.generate_logon_key()
+        userprofile.generate_login_key()
         userprofile.save()
         
-        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.logon_key
+        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.login_key
         self.app.get(url_with_key)
     
     def test_create_questionnaire(self):
@@ -144,5 +152,21 @@ class UsecaseTests(WebTest):
         semester = Semester.objects.get(pk=1)
         questionnaire = Questionnaire.objects.get(pk=1)
         for course in semester.course_set.all():
-            self.assertEqual(course.general_assignment.questionnaires.count(), 1)
-            self.assertEqual(course.general_assignment.questionnaires.get(), questionnaire)
+            self.assertEqual(course.general_contribution.questionnaires.count(), 1)
+            self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
+
+    def test_remove_responsibility(self):
+        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+
+        # remove responsibility in lecturer's checkbox
+        page = page.click("Semester 1 \(en\)", index=0)
+        page = page.click("Course 1 \(en\)")
+        form = lastform(page)
+    
+        # add one questionnaire to avoid the error message preventing the responsibility error to show
+        form['general_questions'] = True
+        
+        form['contributions-0-responsible'] = False
+        page = form.submit()
+        
+        assert "No responsible contributor found" in page

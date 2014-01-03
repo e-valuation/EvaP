@@ -19,6 +19,7 @@
             <thead>
                 <tr>
                     <th>{% trans "Course" %}</th>
+                    <th>{% trans "Contributor" %}</th>
                     <th>{% trans "Grade" %}</th>
                     <th>{% trans "Voters" %}</th>
                 </tr>
@@ -26,7 +27,8 @@
             <tbody>
             {% for course in degree.list %}
                 <tr>
-                    <td class="span13"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
+                    <td class="span9"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
+                    <td class="span4">{{ course.responsible_contributors_name }}</td>
                     <td class="span1">{{ course.grade|floatformat:1 }}</td>
                     {% if course.num_participants %}
                     <td class="span2">

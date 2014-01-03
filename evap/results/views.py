@@ -68,7 +68,7 @@ def course_detail(request, semester_id, course_id):
     if (request.user.is_staff != True):        
     # remove all TextResults of other users
         for section in sections:
-            if not ((section.lecturer == None and course.is_user_lecturer_or_ta(request.user)) or (section.lecturer == request.user)):
+            if not ((section.contributor == None and course.is_user_contributor(request.user)) or (section.contributor == request.user)):
                 for index, result in list(enumerate(section.results))[::-1]:
                     if isinstance(section.results[index], TextResult):
                         del section.results[index]        
