@@ -188,7 +188,7 @@ INSTALLED_APPS = (
     'evap.fsr',
     'evap.results',
     'evap.student',
-    'evap.lecturer',
+    'evap.contributor',
 )
 if not DEBUG:
     INSTALLED_APPS += (

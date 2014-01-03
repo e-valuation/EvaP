@@ -1,11 +1,11 @@
-{% extends "lecturer_base.html" %}
+{% extends "contributor_base.html" %}
 
 {% load i18n %}
 {% load static %}
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.lecturer.views.index" %}">{% trans "Profile" %}</a></li>
+    <li><a href="{% url "evap.contributor.views.index" %}">{% trans "Profile" %}</a></li>
 {% endblock %}
 
 {% block content %}

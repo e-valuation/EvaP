@@ -159,7 +159,7 @@ class NewKeyForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data.get('email')
 
-        if not UserProfile.email_needs_logon_key(email):
+        if not UserProfile.email_needs_login_key(email):
             raise forms.ValidationError(_(u"HPI users cannot request login keys. Please login using your domain credentials."))
 
         try:

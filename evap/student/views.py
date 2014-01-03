@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course, Semester
-from evap.evaluation.tools import questionnaires_and_assignments
+from evap.evaluation.tools import questionnaires_and_contributions
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
@@ -43,16 +43,16 @@ def vote(request, course_id):
     
     # build forms
     forms = SortedDict()
-    for questionnaire, assignment in questionnaires_and_assignments(course):
-        form = QuestionsForm(request.POST or None, assignment=assignment, questionnaire=questionnaire)
-        forms[(assignment, questionnaire)] = form
+    for questionnaire, contribution in questionnaires_and_contributions(course):
+        form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+        forms[(contribution, questionnaire)] = form
     
     if all(form.is_valid() for form in forms.values()):
         # begin vote operation
         with transaction.commit_on_success():
-            for (assignment, questionnaire), form in forms.items():
+            for (contribution, questionnaire), form in forms.items():
                 for question in questionnaire.question_set.all():
-                    identifier = make_form_identifier(assignment, questionnaire, question)
+                    identifier = make_form_identifier(contribution, questionnaire, question)
                     value = form.cleaned_data.get(identifier)
                     
                     if type(value) in [str, unicode]:
@@ -61,7 +61,7 @@ def vote(request, course_id):
                     # store the answer if one was given
                     if value:
                         question.answer_class.objects.create(
-                            assignment=assignment,
+                            contribution=contribution,
                             question=question,
                             answer=value)
             
