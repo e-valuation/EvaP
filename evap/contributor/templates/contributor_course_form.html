@@ -20,7 +20,7 @@
         <fieldset>
             {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
-            <div class="col-sm-offset-2 col-sm-6">
+            <div class="col-sm-offset-2 col-sm-8">
                 {{ formset.non_form_errors }}
                 <table id="contribution_table">
                     <tr>
@@ -70,7 +70,7 @@
         
         <fieldset>
             <legend>{% trans "Students" %}</legend>
-            <div class="col-sm-offset-2 col-sm-6">
+            <div class="col-sm-offset-2 col-sm-8">
                 <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
                 <ul>
                     {% for p in course.participants.all %}
