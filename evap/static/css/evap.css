@@ -118,6 +118,7 @@ td.vote-inputs > div {
 
 td.vote-inputs > div > label {
     float: none;
+    font-weight: normal;
 }
 
 td.vote-inputs > div:nth-child(1) > label { color: #26920c; }
