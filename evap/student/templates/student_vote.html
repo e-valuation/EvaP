@@ -8,7 +8,7 @@
 {% block subtitle %}
     {{ block.super }}
     <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
-    <li><a href="{% url "evap.student.views.vote" course.id %}">{{ course.name }}</a></li>
+    <li>{{ course.name }}</li>
 {% endblock %}
 
 {% block content %}
