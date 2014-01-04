@@ -58,6 +58,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         # fix generated form
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['delegates'].help_text = ""
         
         # load user fields
         self.fields['first_name'].initial = self.instance.user.first_name
