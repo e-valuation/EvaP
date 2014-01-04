@@ -255,8 +255,9 @@ class QuestionForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
-        self.fields['text_de'].widget = forms.TextInput()
-        self.fields['text_en'].widget = forms.TextInput()
+        self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
+        self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
+        self.fields['kind'].widget.attrs['class'] = 'form-control'
 
 
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
