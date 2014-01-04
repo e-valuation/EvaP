@@ -16,7 +16,7 @@
 .uix-multiselect .group-element .ui-icon { float:left; cursor:pointer; }
 .uix-multiselect .option-element, .dragged-element { cursor:pointer; padding:0 2px; background: none; padding-left: 6px; }
 .uix-multiselect .option-element div { float: left; }
-.uix-multiselect .option-element span { float: right; font-size: 16px; }
+.uix-multiselect .option-element span { float: right; font-size: 12px; top: 3px; }
 .uix-multiselect .option-element.ui-state-disabled { font-style:italic; }
 .dragged-element, .dragged-grouped-element { padding:1px 3px; }
 .dragged-grouped-element { padding-left:16px; }
