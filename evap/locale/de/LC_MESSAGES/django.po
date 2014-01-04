@@ -1708,8 +1708,8 @@ msgstr ""
 "\n"
 "Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten "
 "werden wiederum über den Durchschnitt aller abgegebenen Likert-Fragen "
-"berechnet. Alle Personennoten werden zusammen mit 50% gewichtet und die "
-"Sachfragen zählen zusammen die restlichen 50%."
+"berechnet. Alle Personennoten werden zusammen mit 50%% gewichtet und die "
+"Sachfragen zählen zusammen die restlichen 50%%."
 
 #: templates/faq.html:134
 msgid "How many answers are necessary to assure the representativeness?"
