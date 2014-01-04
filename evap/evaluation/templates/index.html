@@ -32,7 +32,7 @@
                 <h2>{% trans "HPI student or lecturer" %}</h2>
                 
                 <div class="well well-sm">
-                    <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+                    <p style="padding: 5px 5px;">{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
                     <form class="form-horizontal" role="form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="login_username" />
@@ -60,7 +60,7 @@
             <div class="col-md-6">
                 <h2>{% trans "External student or lecturer" %}</h2>
                 <div class="well well-sm">
-                    <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
+                    <p style="padding: 5px 5px;">{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
 
                     <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                         {% csrf_token %}
@@ -87,8 +87,8 @@
                     </form> 
                 </div>
                 <div class="well well-sm">
-                    <h4>{% trans "Don't have a key or lost it?" %}</h4>
-                    <p>{% trans "Please enter your email address to get a new login key." %}</p>
+                    <h4 style="padding-left: 5px;">{% trans "Don't have a key or lost it?" %}</h4>
+                    <p style="padding: 5px 5px;">{% trans "Please enter your email address to get a new login key." %}</p>
                     <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="submit_type" value="new_key" />
