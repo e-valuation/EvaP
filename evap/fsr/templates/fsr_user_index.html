@@ -42,13 +42,13 @@
                         <span class="label label-primary">{% trans "Student Representative" %}</span>
                     {% endif %}
                     {% if user.userprofile.contributor %}
-                        <span class="label label-notice">{% trans "Contributor" %}</span>
+                        <span class="label label-info">{% trans "Contributor" %}</span>
                     {% endif %}
                     {% if user.userprofile.is_responsible %}
-                        <span class="label label-notice">{% trans "Responsible" %}</span>
+                        <span class="label label-info">{% trans "Responsible" %}</span>
                     {% endif %}
                     {% if user.userprofile.login_key %}
-                        <span class="label label-notice">{% trans "Login Key" %}</span>
+                        <span class="label label-info">{% trans "Login Key" %}</span>
                     {% endif %}
                     {% if not user.email %}
                         <span class="label label-danger">{% trans "Email address missing!" %}</span>
