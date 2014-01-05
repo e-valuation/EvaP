@@ -68,7 +68,7 @@
 
         $(".multiselect-form select[multiple='multiple']").multiselect({ locale: "{{ LANGUAGE_CODE }}" });
 
-        $('#contribution_table tbody tr').formset({prefix: 'contributions'});
+        $('#contribution_table tbody tr').formset({prefix: 'contributions', deleteText: '{% trans "remove" %}', addText: '{% trans "add another" %}'});
 
         $('#id_degree').combobox();
         $('#id_kind').combobox();

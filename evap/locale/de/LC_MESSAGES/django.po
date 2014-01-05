@@ -73,6 +73,12 @@ msgstr "Kann Veranstaltung bearbeiten"
 msgid "Remove?"
 msgstr "Entfernen?"
 
+msgid "remove"
+msgstr "Entfernen"
+
+msgid "add another"
+msgstr "Weiteren hinzufügen"
+
 #: contributor/templates/contributor_course_form.html:48
 #: evaluation/models.py:292
 msgid "responsible"
@@ -327,14 +333,6 @@ msgstr "Personenfragebogen"
 #: evaluation/models.py:76 fsr/templates/fsr_questionnaire_index.html:23
 msgid "obsolete"
 msgstr "obsolet"
-
-#: evaluation/models.py:80
-msgid "questionnaire"
-msgstr "Fragebogen"
-
-#: evaluation/models.py:81 evaluation/models.py:290
-msgid "questionnaires"
-msgstr "Fragebögen"
 
 #: evaluation/models.py:105
 msgid "type"
