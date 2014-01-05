@@ -29,7 +29,8 @@ def index(request):
     templates = EmailTemplate.objects.all()
     return render_to_response("fsr_index.html", dict(semesters=semesters,
                                                      questionnaires=questionnaires,
-                                                     templates=templates), context_instance=RequestContext(request))
+                                                     templates=templates,
+                                                     disable_breadcrumb_fsr=True), context_instance=RequestContext(request))
 
 
 @fsr_required
