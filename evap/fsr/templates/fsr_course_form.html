@@ -102,6 +102,7 @@
 
             // apply initial settings
             if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                $("#id_contributions-" + i + "-can_edit").prop('checked', true);
                 $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
             }
         }
