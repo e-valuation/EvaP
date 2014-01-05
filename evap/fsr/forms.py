@@ -88,7 +88,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(ContributionForm, self).__init__(*args, **kwargs)
         self.fields['contributor'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
-        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False))
+        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
 
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
