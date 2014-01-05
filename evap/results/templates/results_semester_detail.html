@@ -5,7 +5,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.results.views.semester_detail" semester.id %}">{{ semester.name }}</a></li>
+    <li>{{ semester.name }}</li>
 {% endblock %}
 
 {{% block content %}
