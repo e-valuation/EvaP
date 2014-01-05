@@ -109,7 +109,7 @@
             $('a.add-row').addClass("btn btn-sm btn-default");
             
 			{% if edit %}
-			$('#contribution_table tbody tr').formset({prefix: 'contributions'});
+			$('#contribution_table tbody tr').formset({prefix: 'contributions', deleteText: '{% trans "remove" %}', addText: '{% trans "add another" %}'});
             $('#id_kind').combobox();
             {% endif %}
 			
