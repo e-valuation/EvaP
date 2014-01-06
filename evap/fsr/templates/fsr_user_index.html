@@ -59,7 +59,7 @@
                     {% if user.userprofile.can_fsr_delete %}
                         <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
-                        <a class="btn btn-sm btn-danger twipsify-disabled" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>
+                        <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>
                     {% endif %}
                 </td>
             </tr>
@@ -73,21 +73,7 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
-            $(".twipsfy").tooltip()
-            $('.twipsify-disabled').after(function (e) {
-                d = $("<div>");
-                i = $(this);
-                d.css({
-                    top: -1 * i.outerHeight(),
-                    left: i.outerWidth() + 15,
-                    height: i.outerHeight(),
-                    width: i.outerWidth(),
-                    position: "relative",
-                })
-                d.attr("title", i.attr("title"));
-                d.tooltip({container: 'body'});
-                return d;
-            });
+            $(".twipsify").tooltip({container: 'body'});
 
             if ($.fn.button.noConflict != undefined) {
                 $.fn.button.noConflict();
