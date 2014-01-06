@@ -4,6 +4,8 @@ from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
+import json
+
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile
 from evap.fsr.models import EmailTemplate
@@ -73,4 +75,9 @@ def index(request):
 
 
 def faq(request):
-    return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
+    json_data = open('evap/templates/faq_' + request.LANGUAGE_CODE + '.json')
+
+    data = json.load(json_data)
+    json_data.close()
+    
+    return render_to_response("faq.html", dict(data=data), context_instance=RequestContext(request))
