@@ -136,8 +136,9 @@ class Course(models.Model):
         return self.name
     
     def clean(self):
-        if not (self.vote_start_date < self.vote_end_date):
-            raise ValidationError(_(u"The vote start date must be before the vote end date."))
+        if self.vote_start_date and self.vote_end_date:
+            if not (self.vote_start_date < self.vote_end_date):
+                raise ValidationError(_(u"The vote start date must be before the vote end date."))
     
     def save(self, *args, **kw):
         super(Course, self).save(*args, **kw)

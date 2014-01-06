@@ -40,7 +40,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
-            output.append(u'<li class="twipsify" title="%s"><label%s>%s %s</label></li>' % (escape(option_text), label_for, rendered_cb, option_label))
+            output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"',''), option_label))
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))    
 
@@ -48,6 +48,10 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
 
 class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = QuestionnaireSelectMultiple
+    
+    def __init__(self, *args, **kwargs):
+        super(QuestionnaireMultipleChoiceField, self).__init__(*args, **kwargs)
+        self.help_text = ""
     
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
@@ -188,10 +192,11 @@ class BootstrapFieldset(object):
 class BootstrapMixin(object):
     """"""
     
-    __TEMPLATE = """<div class="clearfix{% if errors %} error{% endif %}">""" \
-                 """{{ label }}<div class="input">""" \
+    __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">""" \
+                 """<label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ label }}</label>""" \
+                 """<div class="col-sm-6">""" \
                  """{{ bf }}""" \
-                 """{% if errors %}<span class="help-inline">{{ errors }}</span>{% endif %}""" \
+                 """{% if errors %}<span class="help-block">{{ errors }}</span>{% endif %}""" \
                  """{% if help_text %}<span class="help-block">{{ help_text }}</span>{% endif %}""" \
                  """</div></div>"""
     
@@ -277,19 +282,19 @@ class BootstrapMixin(object):
             
             if field_instance.help_text:
                 # The field has a help_text, construct <span> tag
-                help_text = '<span class="help_text">%s</span>' % escape(unicode(field_instance.help_text))
+                help_text = escape(unicode(field_instance.help_text))
             else:
                 help_text = u''
             
             attrs = {}
-            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput)):
-                attrs['class'] = 'span8'
-            if isinstance(field_instance.widget, widgets.DateInput):
+            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple)):
+                attrs['class'] = 'form-control'
+            if isinstance(field_instance.widget, widgets.DateInput) and not field_instance.widget.attrs.get("readonly", False):
                 attrs['data-datepicker'] = "datepicker"
             
             field_hash = {
                 'class' : mark_safe(css_class),
-                'label' : mark_safe(bf.label and bf.label_tag(bf.label) or ''),
+                'label' : mark_safe(bf.label or ''),
                 'help_text' :mark_safe(unicode(help_text)),
                 'field' : field_instance,
                 'bf' : mark_safe(unicode(bf.as_widget(attrs=attrs))),

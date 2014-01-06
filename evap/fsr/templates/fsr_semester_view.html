@@ -8,33 +8,38 @@
     {{ block.super }}
     
     <p>
-        <a href="{% url "evap.fsr.views.semester_edit" semester.id %}" class="btn small">{% trans "Edit Semester" %}</a>
+        <a href="{% url "evap.fsr.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
         {% if semester.can_fsr_delete %}
-            <a href="{% url "evap.fsr.views.semester_delete" semester.id %}" class="btn small danger">{% trans "Delete Semester" %}</a>
+            <a href="{% url "evap.fsr.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger">{% trans "Delete Semester" %}</a>
         {% else %}
-            <a href="#" class="btn small danger disabled">{% trans "Delete Semester" %}</a>
+            <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete Semester" %}</a>
         {% endif %}
         &nbsp;
-        <a href="{% url "evap.fsr.views.course_create" semester.id %}" class="btn small">{% trans "Create Course..." %}</a>
-        <a href="{% url "evap.fsr.views.semester_import" semester.id %}" class="btn small">{% trans "Import Courses" %}</a>
-        <a href="{% url "evap.fsr.views.semester_assign_questionnaires" semester.id %}" class="btn small">{% trans "Assign Questionnaires" %}</a>
+        <a href="{% url "evap.fsr.views.course_create" semester.id %}" class="btn btn-sm btn-default">{% trans "Create Course..." %}</a>
+        <a href="{% url "evap.fsr.views.semester_import" semester.id %}" class="btn btn-sm btn-default">{% trans "Import Courses" %}</a>
+        <a href="{% url "evap.fsr.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default">{% trans "Assign Questionnaires" %}</a>
         &nbsp;
-        <a href="{% url "evap.fsr.views.semester_lottery" semester.id %}" class="btn small">{% trans "Lottery" %}</a>
+        <a href="{% url "evap.fsr.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
     </p>
     
     {% if courses_by_state %}
-            <div id="tab-content">
+        <ul class="nav nav-tabs">
             {% for state, courses in courses_by_state %}
-                <div id="tab{{ forloop.counter }}">
-                <h3>{% trans "State" %}: <span>{{ state|statename }} ({{ courses|length }})</span></h3>
-                <table class="zebra-striped vertically-aligned">
+                <li{% if tab == forloop.counter %} class="active"{% endif %}><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+            {% endfor %}
+        </ul>
+
+            <div class="tab-content">
+            {% for state, courses in courses_by_state %}
+                <div id="tab{{ forloop.counter }}" class="tab-pane{% if tab == forloop.counter %} active{% endif %}">
+                <table class="table table-striped">
                 <tbody>
                 {% for course in courses %}
                     <tr>
                         <td class="maximize">
                             <div>
                             {% if course.can_fsr_edit %}
-                                <a href="{% url "evap.fsr.views.course_edit" semester.id course.id %}">{{ course.name }}</a>
+                                <a href="{% url "evap.fsr.views.course_edit" semester.id course.id %}?tab={{ forloop.parentloop.counter }}">{{ course.name }}</a>
                             {% else %}
                                 {{ course.name }}
                             {% endif %}
@@ -42,10 +47,10 @@
                             <div style="font-style: italic">
                                 {{ course.responsible_contributors_name }}
                             </div>
-                            <span class="label">{{ course.degree }}</span>
-                            <span class="label">{{ course.kind }}</span>
+                            <span class="label label-default">{{ course.degree }}</span>
+                            <span class="label label-default">{{ course.kind }}</span>
                             {% for warning in course.warnings %}
-                                <span class="label important">{{ warning }}</span>
+                                <span class="label label-warning">{{ warning }}</span>
                             {% endfor %}
                         </td>
                         <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
@@ -64,19 +69,19 @@
                             {% endif %}
                         {% endif %}
                         <td class="minimize">
-                            <a href="{% url "evap.fsr.views.course_email" semester.id course.id %}" class="btn small">{% trans "Email" %}</a>
-                            <a href="{% url "evap.fsr.views.course_preview" semester.id course.id %}" class="btn small">{% trans "Preview" %}</a>
+                            <a href="{% url "evap.fsr.views.course_email" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
+                            <a href="{% url "evap.fsr.views.course_preview" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                             {% if course.can_fsr_delete %}
-                                <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}" class="btn small danger">{% trans "Delete" %}</a>
+                                <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if course.can_fsr_review %}
-                                <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}" class="btn small">{% trans "Review" %}</a>
+                                <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Review" %}</a>
                             {% endif %}
                             {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-                                <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}" class="btn small">{% trans "Comments" %}</a>
+                                <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
                             {% endif %}
                             {% if state == 'published' %}
-                                <a href="{% url "evap.fsr.views.course_unpublish" semester.id course.id %}" title="{% trans "Unpublish" %}" class="btn small">{% trans "Unpublish" %}</a>
+                                <a href="{% url "evap.fsr.views.course_unpublish" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -86,18 +91,18 @@
                 
                 <p>
                 {% ifequal state "new" %}
-                    <a class="btn" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Enable Courses for Lecturer Review" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Enable Courses for Lecturer Review" %}</a>
                 {% endifequal %}
                 {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
-                    <a class="btn" href="{% url "evap.fsr.views.semester_approve" semester.id %}">{% trans "Approve Courses" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_approve" semester.id %}">{% trans "Approve Courses" %}</a>
                 {% endif %}
                 
                 {% ifequal state "lecturerApproved" %}
-                    <a class="btn" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Re-Enable Courses for Lecturer Review" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Re-Enable Courses for Lecturer Review" %}</a>
                 {% endifequal %}
                 
                 {% ifequal state "reviewed" %}
-                    <a class="btn" href="{% url "evap.fsr.views.semester_publish" semester.id %}">{% trans "Publish Courses" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_publish" semester.id %}">{% trans "Publish Courses" %}</a>
                 {% endifequal %}
                 </p>
                 <p>&nbsp;</p>
@@ -111,19 +116,12 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-tabs.js"></script>
+    
     <script type="text/javascript">
-        $(function () {
-            var tabs = $("<ul class='tabs'/>")
-            $('#tab-content > div').each(function(i,e) {
-                tabs.append($("<li/>").append($("<a/>", {href: "#" + e.id}).text($('h3 span', e).text())));
+        $(document).ready(function() {
+            $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {
+                history.pushState(null, null, "?tab=" + $(this).data("tab"));
             });
-            $('#tab-content').addClass('tab-content');
-            $(tabs).insertBefore($('#tab-content')).tabs();
-            $('#tab-content h3').remove();
-            // select first tab
-            $('#tab-content > div:first-child').addClass('active');
-            $('ul.tabs > li:first-child').addClass('active');
         });
     </script>
 {% endblock %}

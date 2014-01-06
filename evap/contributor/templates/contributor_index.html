@@ -8,7 +8,7 @@
     
     <h3>{% trans "Own Courses" %}</h3>
     {% if own_courses %}
-        <table class="zebra-striped vertically-aligned">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th class="maximize">{% trans "Name" %}</th>
@@ -25,7 +25,7 @@
                         <div>
                             {{ course.name }}
                         </div>
-                        <span class="label notice">{{ course.state|statename }}</span>
+                        <span class="label label-info">{{ course.state|statename }}</span>
                     </td>
 					<td class="minimize">
 						{{ course.state|statename }}
@@ -36,11 +36,11 @@
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
                         {% if course.state == 'prepared' %}
-                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn small">{% trans "Edit" %}</a>
+                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                         {% else %}
-                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn small">{% trans "View" %}</a>
+                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                         {% endif %}
-                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -52,7 +52,7 @@
     <br/>
     <h3>{% trans "Courses for which you are a delegate" %}</h3>
     {% if delegated_courses %}
-        <table class="zebra-striped vertically-aligned">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th class="maximize">{% trans "Name" %}</th>
@@ -69,7 +69,7 @@
                         <div>
                             {{ course.name }}
                         </div>
-                        <span class="label notice">{{ course.state|statename }}</span>
+                        <span class="label label-info">{{ course.state|statename }}</span>
                     </td>
 					<td class="minimize">
 						{{ course.state|statename }}
@@ -80,11 +80,11 @@
                     <td class="minimize">{{ course.num_participants }}</td>
                     <td class="minimize">
                         {% if course.state == 'prepared' %}
-                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn small">{% trans "Edit" %}</a>
+                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                         {% else %}
-                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn small">{% trans "View" %}</a>
+                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                         {% endif %}
-                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn small">{% trans "Preview" %}</a>
+                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -97,6 +97,6 @@
 
     {% if user.userprofile.is_editor %}
         <h3>{% trans "Own Profile"%}</h3>
-        <p>{% trans "You can edit your own user profile here:" %} <a href="{% url "evap.contributor.views.profile_edit" %}" class="btn">{% trans "Edit own Profile" %}</a></p>
+        <p>{% trans "You can edit your own user profile here:" %} <a href="{% url "evap.contributor.views.profile_edit" %}" class="btn btn-default">{% trans "Edit own Profile" %}</a></p>
     {% endif %}
 {% endblock %}

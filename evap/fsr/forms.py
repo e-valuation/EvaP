@@ -17,19 +17,10 @@ from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleCh
 
 
 class ImportForm(forms.Form, BootstrapMixin):
-    vote_start_date = forms.DateField(label=_(u"First date to vote"))
-    vote_end_date = forms.DateField(label=_(u"Last date to vote"))
+    vote_start_date = forms.DateField(label=_(u"First date to vote"), localize=True)
+    vote_end_date = forms.DateField(label=_(u"Last date to vote"), localize=True)
     
     excel_file = forms.FileField(label=_(u"Excel file"))
-    
-    def __init__(self, *args, **kwargs):
-        super(ImportForm, self).__init__(*args, **kwargs)
-        
-        self.fields['vote_start_date'].localize = False
-        self.fields['vote_start_date'].widget = forms.DateInput()
-        
-        self.fields['vote_end_date'].localize = False
-        self.fields['vote_end_date'].widget = forms.DateInput()
 
 
 class SemesterForm(forms.ModelForm, BootstrapMixin):
@@ -40,7 +31,7 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_(u"General questions"))
-    last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False)
+    last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False, localize=True)
     last_modified_user_2 = forms.CharField(label=_(u"Last modified by"), required=False)
     
     class Meta:
@@ -53,8 +44,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
         
-        self.fields['vote_start_date'].localize = False
-        self.fields['vote_end_date'].localize = False
+        self.fields['vote_start_date'].localize = True
+        self.fields['vote_end_date'].localize = True
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
         self.fields['participants'].queryset = User.objects.order_by("last_name", "first_name", "username")
@@ -93,11 +84,14 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 class ContributionForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Contribution
+        fields = "__all__"
     
     def __init__(self, *args, **kwargs):
         super(ContributionForm, self).__init__(*args, **kwargs)
-        self.fields['contributor'].queryset = User.objects.order_by("username")
-        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False))
+        self.fields['contributor'].widget.attrs['class'] = 'form-control'
+        
+        self.fields['contributor'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
 
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
@@ -264,8 +258,9 @@ class QuestionForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
-        self.fields['text_de'].widget = forms.TextInput()
-        self.fields['text_en'].widget = forms.TextInput()
+        self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
+        self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
+        self.fields['kind'].widget.attrs['class'] = 'form-control'
 
 
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
@@ -276,11 +271,11 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         
         # course kinds
         for kind in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
-            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         
         # extra kinds
         for extra in extras:
-            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False))
+            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
     
     def _clean_fields(self):
         for name, field in self.fields.items():
@@ -343,7 +338,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.order_by("username")
+        self.fields['delegates'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
         self.fields['delegates'].help_text = ""
         self.fields['is_staff'].label = _(u"FSR Member")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")

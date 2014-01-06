@@ -5,9 +5,9 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+    <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
     {% if object.id %}
-    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.user_edit" object.id  %}">{{ object.userprofile.full_name }}</a></li>
+        <li>{{ object.userprofile.full_name }}</li>
     {% endif %}
 {% endblock %}
 
@@ -16,10 +16,13 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
-            $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
             $("select[multiple='multiple']").each(function(i,e) {
                 //$(e).width($(e).width());
-                $(e).multiselect();
+                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
             });
 
             $("#id_is_staff").click(function() {
@@ -32,11 +35,13 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="multiselect-form" enctype="multipart/form-data">
+    <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
 	{% csrf_token %}
     {{ form.as_div }}
-    <div class="actions">
-    <input type="submit" value="{% trans "Save user" %}" class="btn primary"/>
+    <div class="form-group well">
+        <div class="col-sm-offset-2 col-sm-6">
+            <input type="submit" value="{% trans "Save user" %}" class="btn btn-primary"/>
+        </div>
     </div>
     </form>
     

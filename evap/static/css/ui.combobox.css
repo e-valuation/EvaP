@@ -38,7 +38,7 @@ input.ui-button { padding: .4em 1em; }
 button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra padding in Firefox */
 
 /* icon stuff */
-.ui-icon { height: 16px; width: 16px; display: block; background-image: url("../images/ui-icons.png"); background-repeat: no-repeat; }
+.ui-icon { height: 16px; width: 16px; display: block; background-image: url("../images/jqueryui/ui-icons.png"); background-repeat: no-repeat; }
 .ui-icon-triangle-1-s { background-position: -64px -16px; }
 
 /*

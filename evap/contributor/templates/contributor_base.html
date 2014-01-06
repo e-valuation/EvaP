@@ -7,5 +7,9 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.contributor.views.index" %}">{% trans "Contributor" %}</a></li>
+    {% if form %}
+    	<li><a href="{% url "evap.contributor.views.index" %}">{% trans "Contributor" %}</a></li>
+    {% else %}
+    	<li>{% trans "Contributor" %}</li>
+    {% endif %}
 {% endblock %}

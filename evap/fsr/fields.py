@@ -9,6 +9,11 @@ from evap.evaluation.models import UserProfile
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+
+    def __init__(self, *args, **kwargs):
+        super(UserModelMultipleChoiceField, self).__init__(*args, **kwargs)
+        self.help_text = ""
+
     def label_from_instance(self, obj):
         return UserProfile.get_for_user(obj).full_name
 
@@ -37,6 +42,10 @@ class ToolTipSelectMultiple(forms.SelectMultiple):
 
 class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = ToolTipSelectMultiple
+
+    def __init__(self, *args, **kwargs):
+        super(ToolTipModelMultipleChoiceField, self).__init__(*args, **kwargs)
+        self.help_text = ""
     
     def title_from_instance(self, obj):
         return obj.description

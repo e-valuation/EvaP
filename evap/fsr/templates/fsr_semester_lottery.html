@@ -5,14 +5,16 @@
 {% block content %}
     {{ block.super }}
     {% if not form.is_valid %}
-    <form method="POST">
+    <form method="POST" class="form-horizontal">
         {% csrf_token %}
         <fieldset>
         <legend>{% trans "Lottery" %}</legend>
         {{ form.as_div }}
         </fieldset>
-        <div class="actions">
-            <input type="submit" value="{% trans "Perform Lottery" %}" class="btn default primary"/>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                <input type="submit" value="{% trans "Perform Lottery" %}" class="btn btn-primary"/>
+            </div>
         </div>
     </form>
     {% else %}
