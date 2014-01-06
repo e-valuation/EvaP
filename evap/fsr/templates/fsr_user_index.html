@@ -5,65 +5,89 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+    <li>{% trans "Users" %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <ul class="tabs">
+    <ul class="nav nav-tabs">
         <li class="{% if not filter %}active{% endif %}"><a href="?">{% trans "All" %}</a></li>
         <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
         <li class="{% if filter == 'responsibles' %}active{% endif %}"><a href="?filter=responsibles">{% trans "Responsible Contributors" %}</a></li>
         <div class="pull-right">
-            <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small success">{% trans "Create new user" %}</a>
+            <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
         </div>
     </ul>
     
-    <table class="zebra-striped vertically-aligned">
+    <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% trans "Name" %}</th>
-                <th>{% trans "Username" %}</th>
-                <th>{% trans "Information" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <th class="minimize-with-padding">{% trans "Name" %}</th>
+                <th class="maximize">{% trans "Username" %}</th>
+                <th class="minimize-with-padding">{% trans "Information" %}</th>
+                <th class="minimize-with-padding">{% trans "Actions" %}</th>
             </tr>
         </thead>
         <tbody>
         {% for user in users %}
             <tr>
-                <td class="minimize">
+                <td class="minimize-with-padding">
                     {{ user.userprofile.full_name }}
                 </td>
                 <td class="maximize">
                     {{ user.username }}
                 </td>
-                <td class="minimize">
+                <td class="minimize-with-padding">
                     {% if user.is_staff %}
-                        <span class="label notice">{% trans "Student Representative" %}</span>
+                        <span class="label label-primary">{% trans "Student Representative" %}</span>
                     {% endif %}
                     {% if user.userprofile.contributor %}
-                        <span class="label notice">{% trans "Contributor" %}</span>
+                        <span class="label label-info">{% trans "Contributor" %}</span>
                     {% endif %}
                     {% if user.userprofile.is_responsible %}
-                        <span class="label notice">{% trans "Responsible" %}</span>
+                        <span class="label label-info">{% trans "Responsible" %}</span>
                     {% endif %}
                     {% if user.userprofile.login_key %}
-                        <span class="label notice">{% trans "Login Key" %}</span>
+                        <span class="label label-info">{% trans "Login Key" %}</span>
                     {% endif %}
                     {% if not user.email %}
-                        <span class="label important">{% trans "Email address missing!" %}</span>
+                        <span class="label label-danger">{% trans "Email address missing!" %}</span>
                     {% endif %}
                 </td>
-                <td class="minimize">
-                    <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small">{% trans "Edit" %}</a>
+                <td class="minimize-with-padding">
+                    <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.userprofile.can_fsr_delete %}
-                        <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn small danger">{% trans "Delete" %}</a>
+                        <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
-                        <a class="btn small danger disabled">{% trans "Delete" %}</a>
+                        <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>
                     {% endif %}
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".twipsify").tooltip({container: 'body'});
+
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            $("select[multiple='multiple']").each(function(i,e) {
+                //$(e).width($(e).width());
+                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+            });
+
+            $("#id_is_staff").click(function() {
+                if($("#id_is_staff").is(":checked"))
+                    $("#id_is_superuser").prop('checked', true);
+            });
+        });
+    </script>
 {% endblock %}

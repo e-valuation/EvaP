@@ -6,7 +6,11 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+    {% if course %}
+        <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+    {% else %}
+        <li>{% trans "Evaluation" %}</li>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

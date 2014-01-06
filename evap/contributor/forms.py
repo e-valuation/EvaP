@@ -16,8 +16,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
 
-        self.fields['vote_start_date'].localize = False
-        self.fields['vote_end_date'].localize = False        
+        self.fields['vote_start_date'].localize = True
+        self.fields['vote_end_date'].localize = True       
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])        
         self.fields['degree'].widget.attrs['readonly'] = True
         
@@ -57,7 +57,8 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.order_by("username")
+        self.fields['delegates'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['delegates'].help_text = ""
         
         # load user fields
         self.fields['first_name'].initial = self.instance.user.first_name

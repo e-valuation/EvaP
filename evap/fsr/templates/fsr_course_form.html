@@ -5,7 +5,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="multiselect-form">
+    <form method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
@@ -19,7 +19,7 @@
         
         {{ formset.non_form_errors }}
         
-        <table id="contribution_table">
+        <table id="contribution_table" class="table">
             <thead>
             <tr>
                 {% for field in formset.form %}
@@ -45,26 +45,35 @@
             </tbody>
         </table>
         
-        <div class="actions">
-            <input type="submit" value="{% trans "Save course" %}" class="btn primary" onclick="submitFormOkay = true;"/>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                {% if form.instance.state == "inEvaluation" %}
+                    <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
+                {% endif %}
+                <input type="submit" value="{% trans "Save course" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
+            </div>
         </div>
     </form>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script type="text/javascript">
     $(function() {
-        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
-        $(".multiselect-form select[multiple='multiple']").multiselect();
+        if ($.fn.button.noConflict != undefined) {
+            $.fn.button.noConflict();
+        }
 
-        $('#contribution_table tbody tr').formset({prefix: 'contributions'});
+        $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
+        $(".multiselect-form select[multiple='multiple']").multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+
+        $('#contribution_table tbody tr').formset({prefix: 'contributions', deleteText: '{% trans "remove" %}', addText: '{% trans "add another" %}'});
 
         $('#id_degree').combobox();
         $('#id_kind').combobox();
         
-        $('.twipsify').twipsy({
+        $('.twipsify').tooltip({
             html: true,
             placement: 'left'
         });

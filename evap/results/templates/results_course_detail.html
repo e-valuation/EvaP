@@ -6,8 +6,8 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.results.views.semester_detail" course.semester.id %}">{{ course.semester.name }}</a></li>
-    <li> <span class="divider">/</span> <a href="{% url "evap.results.views.course_detail" course.semester.id course.id %}">{{ course.name }}</a></li>
+    <li><a href="{% url "evap.results.views.semester_detail" course.semester.id %}">{{ course.semester.name }}</a></li>
+    <li>{{ course.name }}</li>
 {% endblock %}
 
 {% block content %}
@@ -27,7 +27,7 @@
                 <h5>{{ contributor.userprofile.full_name }}</h5>
             {% endif %}
             
-            <table class="zebra-striped">
+            <table class="table table-striped">
                 <tbody>
             {% for result in results %}
                 <tr>
@@ -73,11 +73,11 @@
                 <tfoot>
                     <!-- empty zero-height cells, necessary to make the overlapped colspans work -->
                     <tr>
-                        <th class="span4" style="padding: 0px;"></th>
-                        <th class="span8" style="padding: 0px;"></th>
-                        <th class="span1" style="padding: 0px;"></th>
-                        <th class="span2" style="padding: 0px;"></th>
-                        <th class="span1" style="padding: 0px;"></th>
+                        <th class="col-sm-3" style="padding: 0px;"></th>
+                        <th class="col-sm-6" style="padding: 0px;"></th>
+                        <th class="col-sm-1" style="padding: 0px;"></th>
+                        <th class="col-sm-2" style="padding: 0px;"></th>
+                        <th class="col-sm-1" style="padding: 0px;"></th>
                     </tr>
                 </tfoot>
             </table>
@@ -88,9 +88,8 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script type="text/javascript">
-        $('.twipsify').twipsy({
+        $('.twipsify').tooltip({
             html: true,
             placement: 'left',
             title: 'data-twipsy'

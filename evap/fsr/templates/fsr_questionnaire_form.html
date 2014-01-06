@@ -7,13 +7,16 @@
     {{ block.super }}
     <script type="text/javascript">
     $(document).ready(function() {
-        $.localise('ui-multiselect', {/*language: 'en',*/ path: '{% get_static_prefix %}js/locale/'});
+        if ($.fn.button.noConflict != undefined) {
+            $.fn.button.noConflict();
+        }
+
         $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
             $(e).width($(e).width());
-            $(e).multiselect();
+            $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}"});
         });
         
-        $('#question_table tbody tr').formset({prefix: 'question_set'});                        
+        $('#question_table tbody tr').formset({prefix: 'question_set', deleteText: '{% trans "remove" %}', addText: '{% trans "add another" %}'});
     });
     </script>
     
@@ -23,7 +26,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST">
+    <form method="POST" class="form-horizontal">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
@@ -34,14 +37,16 @@
             <legend>{% trans "Questions" %}</legend>
             {{ formset.management_form }}
             {{ formset.non_form_errors }}
-            <table id="question_table">
-                <tr>
-                    {% for field in formset.form %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
-                    <th></th>
-                    <th>{% trans "Delete?" %}</th>
-                </tr>
+            <table id="question_table" class="table">
+                <thead>
+                    <tr>
+                        {% for field in formset.form %}
+                            <th>{{ field.label }}</th>
+                        {% endfor %}
+                        <th></th>
+                        <th>{% trans "Delete?" %}</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {% for form_element in formset %}
                         {% if form_element.non_field_errors %}
@@ -57,8 +62,10 @@
                 </tbody>
             </table>
         </fieldset>
-        <div class="actions">
-            <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;" class="btn primary"/>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;" class="btn btn-primary"/>
+            </div>
         </div>
     </form>
 {% endblock %}

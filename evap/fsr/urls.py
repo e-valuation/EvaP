@@ -1,9 +1,10 @@
 from django.conf.urls import patterns, url
+from django.views.generic import RedirectView
 
 urlpatterns = patterns('evap.fsr.views',
     url(r"^$", 'index', name="fsr_root"),
     
-    url(r"^semester/$", 'semester_index'),
+    url(r"^semester/$", RedirectView.as_view(url='/fsr/')),
     url(r"^semester/create$", 'semester_create'),
     url(r"^semester/(\d+)$", 'semester_view'),
     url(r"^semester/(\d+)/edit$", 'semester_edit'),
@@ -37,6 +38,6 @@ urlpatterns = patterns('evap.fsr.views',
     url(r"^user/(\d+)/edit$", 'user_edit'),
     url(r"^user/(\d+)/delete$", 'user_delete'),
     
-    url(r"^template/$", 'template_index'),
+    url(r"^template/$", RedirectView.as_view(url='/fsr/')),
     url(r"^template/(\d+)$", 'template_edit'),
 )

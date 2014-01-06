@@ -6,7 +6,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ" %}</a></li>
+    <li>{% trans "FAQ" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
     <h3>{% trans "General" %}</h3>
     
     <a name="what_is_evaluation"></a>
-    <h5>{% trans "What is evaluation?" %}</h5>
+    <h4>{% trans "What is evaluation?" %}</h4>
     <p>
         {% blocktrans %}
         It's the assessment of all the courses at the HPI. It's the goal to improve the teaching quality by giving the lecturers feedback for their courses.
@@ -24,7 +24,7 @@
     </p>
     
     <a name="what_is_evap"></a>
-    <h5>{% trans "What is EvaP?" %}</h5>
+    <h4>{% trans "What is EvaP?" %}</h4>
     <p>
         {% blocktrans %}
         It's this new platform - replacing the infamous EvaJ.
@@ -32,7 +32,7 @@
     </p>
     
     <a name="data"></a>
-    <h5>{% trans "Where are the data coming from?" %}</h5>
+    <h4>{% trans "Where are the data coming from?" %}</h4>
     <p>
         {% blocktrans %}
         The different information, imported into the system, are provided by the Studienreferat.<br>
@@ -45,7 +45,7 @@
     <h3>{% trans "Questionnaires" %}</h3>
     
     <a name="questionnaires_construction"></a>
-    <h5>{% trans "How are questionnaires constructed?" %}</h5>
+    <h4>{% trans "How are questionnaires constructed?" %}</h4>
     <p>
         {% blocktrans %}
         Every questionnaire of a lecture consists of different sub-questionnaires, e.g. about the contents or the teaching assistant.<br>
@@ -54,7 +54,7 @@
     </p>
     
     <a name="kind_of_questions"></a>
-    <h5>{% trans "What types of questions are there?" %}</h5>
+    <h4>{% trans "What types of questions are there?" %}</h4>
     <p>
         {% blocktrans %}
         There are two general types of questions:<br>
@@ -66,7 +66,7 @@
     
   
     <a name="questionnaires_assignment"></a>
-    <h5>{% trans "How are questionnaires assigned to courses?" %}</h5>
+    <h4>{% trans "How are questionnaires assigned to courses?" %}</h4>
     <p>
         {% blocktrans %}
         In general the assignment is done by the student representatives. But the lecturers can add additional questionnaires themselves, if they have special questions.
@@ -76,7 +76,7 @@
     <h3>{% trans "Users" %}</h3>
     
     <a name="user_login"></a>
-    <h5>{% trans "How do I log into the system?" %}</h5>
+    <h4>{% trans "How do I log into the system?" %}</h4>
     <p>
         {% blocktrans %}
         If you are an HPI student or lecturer you can just use your usual credentials.<br>
@@ -85,7 +85,7 @@
     </p>
     
     <a name="create_user"></a>
-    <h5>{% trans "How are users registered? Who is able to create new users?" %}</h5>
+    <h4>{% trans "How are users registered? Who is able to create new users?" %}</h4>
     <p>
         {% blocktrans %}
         New users are created by the Student Representatives. Ask them if there is the need for new users.
@@ -93,7 +93,7 @@
     </p>
     
     <a name="delegate"></a>
-    <h5>{% trans "What are delegates?" %}</h5>
+    <h4>{% trans "What are delegates?" %}</h4>
     <p>
         {% blocktrans %}
         As professors do not have much time, it is possible for them to elect one or more delegates, e.g. a secretary or an employee of the chair.
@@ -104,7 +104,7 @@
     <h3>{% trans "Publication of results" %}</h3>
     
     <a name="result_publication"></a>
-    <h5>{% trans "How are the results publicised?" %}</h5>
+    <h4>{% trans "How are the results publicised?" %}</h4>
     <p>
         {% blocktrans %}
         The results are viewable in the EvaP system, after the exams for the course are done.<br>
@@ -113,7 +113,7 @@
     </p>
     
     <a name="export"></a>
-    <h5>{% trans "What information are in the printed export?" %}</h5>
+    <h4>{% trans "What information are in the printed export?" %}</h4>
     <p>
         {% blocktrans %}
         These prints contain the exact same information as shown in this system.<br>
@@ -122,7 +122,7 @@
     </p>
     
     <a name="overall_grade"></a>
-    <h5>{% trans "How is the overall grade calculated?" %}</h5>
+    <h4>{% trans "How is the overall grade calculated?" %}</h4>
     <p>
         {% blocktrans %}
         The overall grade is the arithmetic average of all sub-grades.<br>
@@ -131,7 +131,7 @@
     </p>
     
     <a name="representativeness"></a>
-    <h5>{% trans "How many answers are necessary to assure the representativeness?" %}</h5>
+    <h4>{% trans "How many answers are necessary to assure the representativeness?" %}</h4>
     <p>
         {% blocktrans %}
         Currently at least five (5) answers are necessary (except <em>no answer</em>) to assure the representativeness.<br>
@@ -142,7 +142,7 @@
     <h3>{% trans "Details for Lectures" %}</h3>
     
     <a name="course_data"></a>
-    <h5>{% trans "What data are necessary for a course and why?" %}</h5>
+    <h4>{% trans "What data are necessary for a course and why?" %}</h4>
     <p>
         {% blocktrans %}
         You can define all involved persons and their questionnaires. So it is possible for the students to give specific feedback.<br>
@@ -151,7 +151,7 @@
     </p>
     
     <a name="evaluation_period"></a>
-    <h5>{% trans "How should I configure the evaluation period of my course?" %}</h5>
+    <h4>{% trans "How should I configure the evaluation period of my course?" %}</h4>
     <p>
         {% blocktrans %}
         The evaluation must not influence the assessment of the students. So there are different criteria for the period:
@@ -165,7 +165,7 @@
     </p>
     
     <a name="course_state_model"></a>
-    <h5>{% trans "What do the different course states mean?" %}</h5>
+    <h4>{% trans "What do the different course states mean?" %}</h4>
     <p>
         {% blocktrans %}
         There are eigth (8) different states a course can be in:
@@ -199,7 +199,7 @@
     </p>
     
     <a name="email_notice"></a>
-    <h5>{% trans "When will I get which Email notice?" %}</h5>
+    <h4>{% trans "When will I get which Email notice?" %}</h4>
     <p>
         {% blocktrans %}
         At some point in the middle of the semester you get an Email with all your courses to edit them if needed.<br>
@@ -208,7 +208,7 @@
     </p>
     
     <a name="results_for_lecturers"></a>
-    <h5>{% trans "Which results do I see and what do they mean?" %}</h5>
+    <h4>{% trans "Which results do I see and what do they mean?" %}</h4>
     <p>
         {% blocktrans %}
         You can see the average grade and standard deviation of all Likert questions.<br>
@@ -219,7 +219,7 @@
     <h3>{% trans "Details for Students" %}</h3>
     
     <a name="questionnaire_completeness"></a>
-    <h5>{% trans "How complete do I have to fill in the questionnaires?" %}</h5>
+    <h4>{% trans "How complete do I have to fill in the questionnaires?" %}</h4>
     <p>
         {% blocktrans %}
         As complete as possible :)<br><br>
@@ -229,7 +229,7 @@
     </p>
     
     <a name="comments"></a>
-    <h5>{% trans "What happens to my comments?" %}</h5>
+    <h4>{% trans "What happens to my comments?" %}</h4>
     <p>
         {% blocktrans %}
         As we cannot assure the representativeness or anonymity here all comments are provided to all people involved in the course they were given.<br>
@@ -238,7 +238,7 @@
     </p>
     
     <a name="anonymity"></a>
-    <h5>{% trans "How anonymous is my vote?" %}</h5>
+    <h>{% trans "How anonymous is my vote?" %}</h4>
     <p>
         {% blocktrans %}
         The system guarantees that there is no connection between a vote and a user.

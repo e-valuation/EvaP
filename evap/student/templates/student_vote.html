@@ -7,46 +7,43 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
-    <li> <span class="divider">/</span> <a href="{% url "evap.student.views.vote" course.id %}">{{ course.name }}</a></li>
+    <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+    <li>{{ course.name }}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <form method="POST">
-    {% csrf_token %}
-    
-    {% for form in forms %}
-	{% if form.image %}
-	    <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
-	{% endif %}
-	<h4>
-	{{ form.caption }}
-	</h4>
-	{% if form.teaser %}
-	    <p>{{ form.teaser }}</p>
-	{% endif %}
-	{{ form.non_field_errors }}
-	<table class="zebra-striped vertically-aligned">
-	<tbody>
-	{% for field in form %}
-	<tr class="vote-row">
-	    <td class="span4">
-		{{ field.label }}
-	    </td>
-	    <td class="span12 vote-inputs">
-		{{ field.errors }}
-		{{ field }}
-	    </td>
-	</tr>
-	{% endfor %}
-	</tbody>
-	</table>
-    {% endfor %}
-    <div class="actions">
-	<input type="submit" value="{% trans "Vote" %}" class="btn primary" onclick="submitFormOkay = true;"/>
-	<a class="btn" onclick="markNoAnswer();">{% trans "Mark others as 'no answer'" %}</a>
-    </div>
+    <form method="POST" class="form-horizontal">
+        {% csrf_token %}
+
+        <div class="col-sm-offset-1 col-sm-10">
+            {% for form in forms %}
+                {% if form.image %}
+                    <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
+                {% endif %}
+                <h4>{{ form.caption }}</h4>
+                {% if form.teaser %}
+                    <p>{{ form.teaser }}</p>
+                {% endif %}
+                {{ form.non_field_errors }}
+                <table class="table table-striped">
+                    <tbody>
+                        {% for field in form %}
+                            <tr class="vote-row">
+                                <td class="col-sm-2">{{ field.label }}</td>
+                                <td class="vote-inputs">{{ field.errors }}{{ field }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+            <div class="form-group well">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <input type="submit" value="{% trans "Vote" %}" class="btn btn-success" onclick="submitFormOkay = true;"/>
+                    <a class="btn btn-default" onclick="markNoAnswer();">{% trans "Mark others as 'no answer'" %}</a>
+                </div>
+            </div>
+        </div>
     </form>
 {% endblock %}
 
@@ -54,14 +51,14 @@
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
     <script type="text/javascript">
-	function markNoAnswer() {
-	    $("td.vote-inputs").each(function(index) {
-		if($(this).find("input:radio").length == 6) {
-		    if($(this).find("input:radio:checked").length == 0) {
-			$(this).find("input:radio")[5].checked = true;
-		    }
-		}
-	    });
-	}
+    function markNoAnswer() {
+        $("td.vote-inputs").each(function(index) {
+        if($(this).find("input:radio").length == 6) {
+            if($(this).find("input:radio:checked").length == 0) {
+            $(this).find("input:radio")[5].checked = true;
+            }
+        }
+        });
+    }
     </script>
 {% endblock %}

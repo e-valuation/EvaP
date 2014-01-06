@@ -8,5 +8,9 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li> <span class="divider">/</span> <a href="{% url "fsr_root" %}">{% trans "Student Representatives" %}</a></li>
+    {% if disable_breadcrumb_fsr %}
+    	<li>{% trans "Student Representatives" %}</li>
+    {% else %}
+    	<li><a href="{% url "fsr_root" %}">{% trans "Student Representatives" %}</a></li>
+    {% endif %}
 {% endblock %}
