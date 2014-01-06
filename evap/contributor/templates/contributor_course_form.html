@@ -20,66 +20,62 @@
         <fieldset>
             {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
-            <div class="col-sm-10">
-                {{ formset.non_form_errors }}
-                <table id="contribution_table" class="table">
-                    <tr>
-                        <th>{% trans "Contributor" %}</th>
-                        <th>{% trans "Questionnaires" %}</th>
-                        <th>{% trans "Can edit course" %}</th>
-                        <th>{% trans "Remove?" %}</th>
-                    </tr>
-                    <tbody>                    
-                        {% for form_element in formset %}
-                            {% if form_element.non_field_errors %}
-                                <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                            {% endif %}
-                            
-                            <tr>
-                                {% for field in form_element.hidden_fields %}
-                                    {{ field }}
-                                {% endfor %}
-                                {{ form_element.responsible.as_hidden }}
-                                <td>
-                                    {{form_element.contributor.errors}}
-                                    {% if form_element.responsible.value == True %}
-                                        <select class="form-control" disabled="True"><option selected="selected">{{ responsible }}</option></select>
-                                        {{ form_element.contributor.as_hidden }}
-                                        <em>({% trans "responsible" %})</em>
-                                    {% else %}
-                                        {{ form_element.contributor }}
-                                    {% endif %}
-                                </td>
-                                <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
-                                <td>
-                                    {{form_element.can_edit.errors}}
-                                    <div class="checkbox">
-                                    {% if form_element.responsible.value == True %}
-                                        <input checked="checked" type="checkbox" disabled="True" />
-                                        {{ form_element.can_edit.as_hidden }}
-                                    {% else %}
-                                        {{ form_element.can_edit }}
-                                    {% endif %}
-                                    </div>
-                                </td>
-                                <td>{% if not form_element.responsible.value == True %}<div class="checkbox">{{ form_element.DELETE }}{% endif %}</div></td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            {{ formset.non_form_errors }}
+            <table id="contribution_table" class="table">
+                <tr>
+                    <th>{% trans "Contributor" %}</th>
+                    <th>{% trans "Questionnaires" %}</th>
+                    <th>{% trans "Can edit course" %}</th>
+                    <th>{% trans "Remove?" %}</th>
+                </tr>
+                <tbody>                    
+                    {% for form_element in formset %}
+                        {% if form_element.non_field_errors %}
+                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                        {% endif %}
+                        
+                        <tr>
+                            {% for field in form_element.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
+                            {{ form_element.responsible.as_hidden }}
+                            <td>
+                                {{form_element.contributor.errors}}
+                                {% if form_element.responsible.value == True %}
+                                    <select class="form-control" disabled="True"><option selected="selected">{{ responsible }}</option></select>
+                                    {{ form_element.contributor.as_hidden }}
+                                    <em>({% trans "responsible" %})</em>
+                                {% else %}
+                                    {{ form_element.contributor }}
+                                {% endif %}
+                            </td>
+                            <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
+                            <td>
+                                {{form_element.can_edit.errors}}
+                                <div class="checkbox">
+                                {% if form_element.responsible.value == True %}
+                                    <input checked="checked" type="checkbox" disabled="True" />
+                                    {{ form_element.can_edit.as_hidden }}
+                                {% else %}
+                                    {{ form_element.can_edit }}
+                                {% endif %}
+                                </div>
+                            </td>
+                            <td>{% if not form_element.responsible.value == True %}<div class="checkbox">{{ form_element.DELETE }}{% endif %}</div></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </fieldset>
         
         <fieldset>
             <legend>{% trans "Students" %}</legend>
-            <div class="col-sm-10">
-                <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
-                <ul>
-                    {% for p in course.participants.all %}
-                        <li>{{ p.userprofile.full_name }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+            <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
+            <ul>
+                {% for p in course.participants.all %}
+                    <li>{{ p.userprofile.full_name }}</li>
+                {% endfor %}
+            </ul>
         </fieldset>
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
