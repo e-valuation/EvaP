@@ -96,12 +96,13 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-twipsy.js"></script>
     <script>
         $(function() {
             if ($.fn.button.noConflict != undefined) {
                 $.fn.button.noConflict();
             }
+
+            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
 
             $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
                 $(e).width($(e).width());
