@@ -43,7 +43,7 @@
                                 <td>
                                     {{form_element.contributor.errors}}
                                     {% if form_element.responsible.value == True %}
-                                        <select disabled="True"><option selected="selected">{{ responsible }}</option></select>
+                                        <select class="form-control" disabled="True"><option selected="selected">{{ responsible }}</option></select>
                                         {{ form_element.contributor.as_hidden }}
                                         <em>({% trans "responsible" %})</em>
                                     {% else %}
@@ -53,12 +53,14 @@
                                 <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
                                 <td>
                                     {{form_element.can_edit.errors}}
+                                    <div class="checkbox">
                                     {% if form_element.responsible.value == True %}
                                         <input checked="checked" type="checkbox" disabled="True" />
                                         {{ form_element.can_edit.as_hidden }}
                                     {% else %}
                                         {{ form_element.can_edit }}
                                     {% endif %}
+                                    </div>
                                 </td>
                                 <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
                             </tr>
