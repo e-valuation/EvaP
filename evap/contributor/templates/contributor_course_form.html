@@ -62,7 +62,7 @@
                                     {% endif %}
                                     </div>
                                 </td>
-                                <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
+                                <td>{% if not form_element.responsible.value == True %}<div class="checkbox">{{ form_element.DELETE }}{% endif %}</div></td>
                             </tr>
                         {% endfor %}
                     </tbody>
