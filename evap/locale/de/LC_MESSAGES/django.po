@@ -1299,7 +1299,7 @@ msgstr "E‑Mail-Adresse fehlt!"
 #: fsr/templates/fsr_user_index.html:62
 msgid "This user cannot be deleted because he is a contributor to a course"
 msgstr ""
-"Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
+"Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
 #: results/exporters.py:37 results/templates/results_base.html:6
 #: results/templates/results_base.html:10 templates/base.html:71
