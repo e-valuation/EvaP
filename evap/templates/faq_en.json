@@ -1,0 +1,159 @@
+{
+	"faq": [
+		{
+			"id":"platform",
+			"topic":"The Platform",
+			"questions":
+			[
+				{
+					"id":"evap",
+					"question":"What is EvaP?",
+					"answer":"EvaP is an online platform being used for evaluation of university courses.<br />At first developed at <a href=\"http://www.hpi.uni-potsdam.de/willkommen.html?L=1\">Hasso Plattner Institute (HPI)</a> at the University of Potsdam in Germany, it is now an Open Source project on <a href=\"https://github.com/fsr-itse/EvaP\">GitHub</a>.<br />From 2005 to 2011 HPI used the older platform EvaJ – a Java application implemented by students during a seminar. In 2011 the student representatives decided to redevelop the evaluation platform when the old system became unmaintainable. The new platform called EvaP is now written in the Python programming language."
+				},
+				{
+					"id":"responsible",
+					"question":"Who runs the platform?",
+					"answer":"The student representatives run the platform and are responsible for the evaluation process."
+				},
+				{
+					"id":"login",
+					"question":"How do I login on the platform?",
+					"answer":"There are two options to login:<ul><li>Lecturers and Students from HPI can use their HPI login credentials.</li><li>External users have to use a login key, which they can get via email.</li></ul>"
+				},
+				{
+					"id":"loginkey",
+					"question":"Why do external users need a login key and how does it work?",
+					"answer":"External lecturers and students don't have HPI login credentials. But the platform still needs to make sure that they can login as the correct user.<br />If you want to get a login key for yourself, you need to enter your email address on the login page. This must be the address already registered on the platform. During the data import the student representatives are getting this email address from the \"Studienreferat\". Please make sure to use the email address already known to them.<br />You will immediately get your key via email. This key is linked to your email address, so the platform can identify you when using the key to login."
+				},
+				{
+					"id":"register",
+					"question":"How can I register?",
+					"answer":"Users are created automatically for new students and lecturers. Additional users can be added by the student representatives if necessary.<br />An autonomous registration is not possible."
+				}
+			]
+		},
+		{
+			"id":"evaluation",
+			"topic":"The Evaluation",
+			"questions":
+			[
+				{
+					"id":"what-is-evaluation",
+					"question":"What is the evaluation?",
+					"answer":"Evaluation is the process of getting feedback for courses. It aims at helping to improve the quality of teaching by providing this feedback to lecturers, students and HPI management.<br />This online platform allows students to anonymously complete questionnaires for all the courses they are enrolled in. Afterwards the results will be published online."
+				},
+				{
+					"id":"data",
+					"question":"Where does the data come from?",
+					"answer":"Every semester the student representatives are getting the enrolment data by the \"Studienreferat\". This includes all courses, their responsible lecturers and the enrolment information of all students. In this way it's ensured that all courses are available for evaluation and that students can only vote for the courses they are enrolled in. If you should find any mistake, please send a message to the student representatives."
+				},
+				{
+					"id":"questionnaires",
+					"question":"How are the questionnaires created?",
+					"answer":"The evaluation of a course consists of several questionnaires, e.g. questions about learning materials, exercise supervisors or the contents of the lecture. Each of these questionnaires holds one or several questions."
+				},
+				{
+					"id":"questions",
+					"question":"What types of questions are asked?",
+					"answer":"There are two types of questions:<ul><li>So called Likert questions that ask for agreement or disagreement on a five-step scale. It's also possible to answer \"no answer\".</li><li>Questions, where you can give your answer in a text field.</li></ul>"
+				},
+				{
+					"id":"questionnaire-selection",
+					"question":"How are the questionnaires for a course selected?",
+					"answer":"The initial selection is done by the student representatives. In addition lecturers can add more questionnaires if they would like to ask further questions."
+				}
+			]
+		},
+		{
+			"id":"results",
+			"topic":"The Evaluation Results",
+			"questions":
+			[
+				{
+					"id":"publish",
+					"question":"When are the results published?",
+					"answer":"The results of the evaluation will be published after the evaluation period ended and after all grades of the course have been published."
+				},
+				{
+					"id":"form",
+					"question":"In which form will the results be published?",
+					"answer":"Every logged-in user can see the results of past semesters on the platform. There are total grades per course and per Likert question.<br />Contributors of a course can also see the remarks that were given to them. The responsible lecturer can see all remarks.<br />Additionally the student representatives hang out an overview of all courses on which the grades and their standard deviation are shown. Remarks are not published on this post."
+				},
+				{
+					"id":"grades",
+					"question":"How are the grades calculated?",
+					"answer":"The total grade is the weighted average of all intermediate grades. The intermediate grades are calculated as the average of all Likert results. Strong agreement counts as 1, strong disagreement as 5. All person-related grades weigh 50% and all the other grades contribute to the remaining 50%."
+				},
+				{
+					"id":"visibility",
+					"question":"Why are not all grades visible?",
+					"answer":"To get at least a basic significance, grades are only shown when at least 20% of the participants of a course – and not less than two participants – answered the related question (\"no answer\" is not counted as an answer). The total grades are also not shown before this threshold was reached.<br />Irrespective of the number of participants, contributors of a course can see all grades related to them. The responsible lecturer can see all grades."
+				}
+			]
+		},
+		{
+			"id":"lecturers",
+			"topic":"Details for Lecturers",
+			"questions":
+			[
+				{
+					"id":"delegates",
+					"question":"What are delegates?",
+					"answer":"For the preparation of the evaluation some additional data is needed from the lecturers. In your profile EvaP provides the functionality to define one or more delegates who will get edit rights for all your courses and can then add the needed information in your name."
+				},
+				{
+					"id":"course-information",
+					"question":"What information do I have to provide for my courses and why?",
+					"answer":"<ul><li>The <em>evaluation period</em>: This is the timeframe in which participating students can evaluate your course. An initial period is set by the student representatives, but this needs to be individually redefined for many courses.<br />You can find more information on the evaluation period in the next question.</li><li><em>Adequate questionnaires</em>: These are also preselected by the student representatives based on the type of the course (Lecture, Seminar, Project, etc.). Please make sure that the selection is appropriate for your course.</li><li>All <em>contributors</em>: The enrolment data imported into the system contains the responsible lecturer for each course. In many cases there are more people involved in the course (lecturers, teaching assistants, etc.). Please add all additional persons with their appropriate questionnaires.</li></ul>All other information about your courses should already have been entered correctly. If you find any mistakes, please contact the student representatives."
+				},
+				{
+					"id":"period",
+					"question":"How should the evaluation period be defined?",
+					"answer":"The evaluation must not influence the course's grading and vice versa. This should be ensured by ending the evaluation before the final exam and publishing the evaluation's results not before the grades of the course have been published. The evaluation period should be at least one week and its standard value are the last weeks of the lecture period. Here are some examples:<ul><li><em>Lecture with or without midterm exams</em>: The evaluation should take place before the final exam, because the students will then already have a broad overview about the course and the main part of the exams is still to come. In this case the standard value for the evaluation period can be retained unless the exam takes place before the end of the lecture period.</li><li><em>Compact seminar with several dates</em>: The evaluation can be done directly before the last examination. The evaluation period should only be moved there if the last date does not have a lot of teaching content. Otherwise the evaluation can be done after the exam.</li><li><em>Compact seminar during the semester break</em>: In this case the evaluation period must be deferred. If there is not enough time between teaching content and examination, the evaluation can be done after the exam.</li><li><em>Paper/project seminar</em>: An optimal evaluation period would be after the last regular meeting or talk. If the grades will not be published before the end of the standard evaluation period, this period should not be changed to not create too many different evaluation periods for the students.</li></ul>"
+				},
+				{
+					"id":"states",
+					"question":"What do the states of a course mean?",
+					"answer":"There are eight different states in which a course can be:<ol><li><em>new</em><br />After importing or manually creating a course it has this state. The student representatives check the data and let the course switch to the next state. Once this happens the lecturers and their delegates will get an email from the platform.</li><li><em>prepared</em><br />This is the state where lecturers and their delegates can edit and approve the course.</li><li><em>lecturer approved</em><br />After a lecturer approved a course it will be again checked by the student representatives who will do the final approval.</li><li><em>approved</em><br />After the student representatives approved a course it will stay in this state until the evaluation period is reached.</li><li><em>in evaluation</em><br />When the course is in this state its participants can do the evaluation.</li><li><em>evaluated</em><br />After the evaluation period ended the course switches to this state. The student representatives will now check all comments and remove personal affronts if necessary.</li><li><em>reviewed</em><br />After reviewing all comments the course stays in this state until it's published.</li><li><em>published</em><br />The student representatives publish the results of the evaluation manually after the grades for the course have been published (in case there are some). The responsible lecturer, defined delegates and all contributors of a course will be notified once the results are published.<br />They can then be seen on the platform.</li></ol>"
+				},
+				{
+					"id":"emails",
+					"question":"When do I get which emails?",
+					"answer":"After the student representatives prepared your courses, you and your delegates will receive an email with a link to the evaluation platform. In this email you will be asked to complete the above mentioned information about your courses.<br />After the evaluation results of your courses have been published, you, your delegates and all contributors of this course will get another email informing about the publication."
+				},
+				{
+					"id":"publish-information",
+					"question":"Which information can I see on the result pages?",
+					"answer":"You can see the average grades, percentages of the distribution and the number of total votes for all Likert questions. Furthermore you can see the answers to comments on your own person. The responsible lecturer of a course can see the answers to everyone. Personal affronts in the comments are removed by the student representatives. Other than that there are no filters."
+				}
+			]
+		},
+		{
+			"id":"students",
+			"topic":"Details for Students",
+			"questions":
+			[
+				{
+					"id":"anonymity",
+					"question":"Is the evaluation anonymous?",
+					"answer":"Yes. The platform ensures that votes can't be related to a user. It saves who participated in a course's evaluation but not who voted how. As long as you are not the only participant in a course's evaluation no relation can be made.<br />When giving comments there is only a technical anonymity. Your style of writing and the content of the answer might allow lecturers to guess who wrote the comment, especially in small courses. When writing your answer you should be aware of that."
+				},
+				{
+					"id":"completeness",
+					"question":"How complete should my answers be?",
+					"answer":"As complete as possible. Please vote for everything that you can evaluate. Only high participation rates result in significant values that can help the lecturers and student representatives. Textual comments take more time to write but are very important feedback."
+				},
+				{
+					"id":"comments",
+					"question":"What happens to my comments?",
+					"answer":"All comments on contributors of a course will be shown to these persons. The responsible lecturer of a course can see all comments.<br />Before comments are published, the student representatives will remove personal affronts if necessary. Please provide constructive and polite feedback – only this can lead to positive changes."
+				},
+				{
+					"id":"reference",
+					"question":"Can I refer to other answers?",
+					"answer":"No. The questionnaires are not stored as a whole. Votes and comments will be aggregated per question. If you would write \"see above\", the lecturer can't find the respective answer."
+				}
+			]
+		}
+	]
+}
