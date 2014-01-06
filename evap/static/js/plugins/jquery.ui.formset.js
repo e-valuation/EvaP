@@ -45,7 +45,7 @@
                     // the remove button in the cell with the delete box
                     var del = row.find('input[id $= "-DELETE"]');
                     if (del.length) {
-                        del.before('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                        (del.parent().is("div")?del.parent():del).before('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
                     } else {
                         // if this fails, use the last cell
                         row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
