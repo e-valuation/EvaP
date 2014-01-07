@@ -12,12 +12,16 @@
 {% block scripts %}
 	{{ block.super }}
 	<script type="text/javascript">
-		$(function() {
-		    var anchor = window.location.hash.replace("#", "");
-		    if(anchor.trim() != ""){
-		    	$("#" + anchor + "-answer").collapse('show');
-		    }
+		$(document).ready(function() {			
+			// hide all answers but the one requested in the url
+			var anchor = window.location.hash.replace("#", "");
+			window.location.hash = anchor;
+			$(".panel-collapse").not("#" + anchor + "-answer").collapse('hide');
 		});
+
+		$('.panel-collapse').on('shown.bs.collapse', function () {
+			window.location.hash = this.id;
+		})
 	</script>
 {% endblock %}
 
@@ -37,7 +41,7 @@
 					</a>
 			      </h4>
 			    </div>
-			    <div id="{{ question.id }}-answer" class="panel-collapse collapse">
+			    <div id="{{ question.id }}-answer" class="panel-collapse collapse in">
 			      <div class="panel-body">
 					{{ question.answer|safe }}
 				  </div>
