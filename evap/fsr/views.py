@@ -114,7 +114,7 @@ def semester_publish(request, semester_id):
         except:
             messages.add_message(request, messages.WARNING, _("Could not send emails to participants and contributors"))
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(selected_courses)))
-        return redirect('evap.fsr.views.semester_view', semester.id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_publish.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
@@ -171,7 +171,7 @@ def semester_approve(request, semester_id):
                 course.save()
             count += len(form.selected_courses)
         messages.add_message(request, messages.INFO, _("Successfully approved %d courses.") % (count))
-        return redirect('evap.fsr.views.semester_view', semester.id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_approve.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
@@ -196,7 +196,7 @@ def semester_contributor_ready(request, semester_id):
         EmailTemplate.get_review_template().send_courses(selected_courses, True, False, False)
         
         messages.add_message(request, messages.INFO, _("Successfully marked %d courses as ready for lecturer review.") % (len(selected_courses)))
-        return redirect('evap.fsr.views.semester_view', semester.id)
+        return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_contributor_ready.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
 
@@ -283,7 +283,7 @@ def course_delete(request, semester_id, course_id):
     
     if request.method == 'POST':
         course.delete()
-        return custom_redirect('evap.fsr.views.semester_view', tab=request.GET.get('tab', '1'))
+        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
     else:
         return render_to_response("fsr_course_delete.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
 
