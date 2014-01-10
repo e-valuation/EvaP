@@ -28,11 +28,13 @@
             },
 
             updateElementIndex = function(elem, prefix, ndx) {
-                var idRegex = new RegExp('(' + prefix + '-\\d+-)|(^)'),
-                    replacement = prefix + '-' + ndx + '-';
-                if (elem.attr("for")) elem.attr("for", elem.attr("for").replace(idRegex, replacement));
-                if (elem.attr('id')) elem.attr('id', elem.attr('id').replace(idRegex, replacement));
-                if (elem.attr('name')) elem.attr('name', elem.attr('name').replace(idRegex, replacement));
+                var gRegex = new RegExp('(' + prefix + '-\\d+-)|(^)');
+                var idRegex = new RegExp('(id_' + prefix + '-\\d+-)|(^)');
+                var gReplacement = prefix + '-' + ndx + '-';
+                var idReplacement = 'id_' + prefix + '-' + ndx + '-';
+                if (elem.attr("for")) elem.attr("for", elem.attr("for").replace(gRegex, gReplacement));
+                if (elem.attr('id')) elem.attr('id', elem.attr('id').replace(idRegex, idReplacement));
+                if (elem.attr('name')) elem.attr('name', elem.attr('name').replace(gRegex, gReplacement));
             },
 
             hasChildElements = function(row) {
@@ -63,7 +65,8 @@
                 }
                 row.find('a.' + options.deleteCssClass).click(function() {
                     var row = $(this).parents('.' + options.formCssClass),
-                        del = row.find('input:hidden[id $= "-DELETE"]');
+                        del = row.find('input:hidden[id $= "-DELETE"]'),
+                        parent = row.parent();
                     if (del.length) {
                         // We're dealing with an inline formset; rather than remove
                         // this form from the DOM, we'll mark it as deleted and hide
@@ -72,11 +75,16 @@
                         row.hide();
                     } else {
                         row.remove();
-                        // Update the TOTAL_FORMS form count.
-                        // Also update names and IDs for all remaining form controls so they remain in sequence:
+
                         var forms = $('.' + options.formCssClass).not('.formset-custom-template');
+
+                        // Update the TOTAL_FORMS form count.
                         $('#id_' + options.prefix + '-TOTAL_FORMS').val(forms.length);
-                        for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                        // Also update names and IDs for all remaining form controls so they remain in sequence:                        
+                        var base_id = parent.children().not("." + options.formCssClass).length
+
+                        for (var i=base_id, formCount=forms.length; i<formCount; i++) {
                             applyExtraClasses(forms.eq(i), i);
                             forms.eq(i).find('input,select,textarea,label').each(function() {
                                 updateElementIndex($(this), options.prefix, i);
@@ -123,7 +131,10 @@
                 // Otherwise, use the last form in the formset; this works much better if you've got
                 // extra (>= 1) forms (thnaks to justhamade for pointing this out):
                 template = $('.' + options.formCssClass + ':last').clone(true).removeAttr('id');
+
+                // remove the delete bit as these lines should be removed and not marked
                 template.find('input:hidden[id $= "-DELETE"]').remove();
+
                 template.find('input,select,textarea,label').each(function() {
                     var elem = $(this);
                     // If this is a checkbox or radiobutton, uncheck it.
