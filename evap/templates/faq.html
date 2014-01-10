@@ -15,12 +15,16 @@
 		$(document).ready(function() {			
 			// hide all answers but the one requested in the url
 			var anchor = window.location.hash.replace("#", "");
-			window.location.hash = anchor;
-			$(".panel-collapse").not("#" + anchor + "-answer").collapse('hide');
+			if(anchor.trim() != ""){
+				$(".panel-collapse").not("#" + anchor).collapse('hide');
+				window.location.hash = anchor+"-question";
+			}
+			else
+				$(".panel-collapse").collapse('hide');
 		});
 
 		$('.panel-collapse').on('shown.bs.collapse', function () {
-			window.location.hash = this.id;
+			window.history.pushState('', this.id, '/faq#' + this.id);
 		})
 	</script>
 {% endblock %}
@@ -35,13 +39,13 @@
 		{% for question in entry.questions %}
 			<div class="panel panel-default">
 			    <div class="panel-heading">
-			      <h4 class="panel-title" id="{{ question.id }}">
-			        <a data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}-answer">
+			      <h4 class="panel-title" id="{{ question.id }}-question">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">
 					  {{ question.question }}
 					</a>
 			      </h4>
 			    </div>
-			    <div id="{{ question.id }}-answer" class="panel-collapse collapse in">
+			    <div id="{{ question.id }}" class="panel-collapse collapse in">
 			      <div class="panel-body">
 					{{ question.answer|safe }}
 				  </div>
