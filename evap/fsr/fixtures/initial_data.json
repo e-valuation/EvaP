@@ -13,7 +13,7 @@
     "model": "fsr.EmailTemplate", 
     "fields": {
       "name": "Student Reminder", 
-      "subject": "[EvaP] Only 2 weeks left to evaluate",
+      "subject": "[EvaP] Only 2 days left to evaluate",
 	  "body": ""
     }
   }, 
