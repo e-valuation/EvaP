@@ -66,7 +66,7 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('evap.fsr.views.index')
-        elif UserProfile.get_for_user(request.user).is_contributor:
+        elif UserProfile.get_for_user(request.user).is_editor_or_delegate:
             return redirect('evap.contributor.views.index')
         else:
             return redirect('evap.student.views.index')
