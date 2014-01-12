@@ -15,7 +15,11 @@
 		$(document).ready(function() {			
 			// hide all answers but the one requested in the url
 			var anchor = window.location.hash.replace("#", "");
+			if (anchor.substring(anchor.length - 9, anchor.length) == "-question"){
+				anchor = anchor.substring(0, anchor.length - 9);
+			}
 			if(anchor.trim() != ""){
+				// jump not to answer but to question
 				$(".panel-collapse").not("#" + anchor).collapse('hide');
 				window.location.hash = anchor+"-question";
 			}
