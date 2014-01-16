@@ -99,8 +99,8 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         
         try:
             self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError, e:
-            self._update_errors(e.message_dict)
+        except forms.ValidationError ase :
+            self._update_errors(e)
 
 
 class CourseEmailForm(forms.Form, BootstrapMixin):
