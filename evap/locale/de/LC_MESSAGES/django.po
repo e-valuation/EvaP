@@ -1208,8 +1208,8 @@ msgid "Delete Semester"
 msgstr "Semester löschen"
 
 #: fsr/templates/fsr_semester_view.html:18
-msgid "Create Course..."
-msgstr "Veranstaltung erstellen..."
+msgid "Create Course"
+msgstr "Veranstaltung erstellen"
 
 #: fsr/templates/fsr_semester_view.html:19
 msgid "Import Courses"
@@ -1240,20 +1240,20 @@ msgid "Unpublish"
 msgstr "Zurückziehen"
 
 #: fsr/templates/fsr_semester_view.html:94
-msgid "Enable Courses for Lecturer Review"
-msgstr "Zur Überprüfung durch Dozent freigeben"
+msgid "Enable Courses for Lecturer Review..."
+msgstr "Zur Überprüfung durch Dozent freigeben..."
 
 #: fsr/templates/fsr_semester_view.html:97
-msgid "Approve Courses"
-msgstr "Veranstaltungen bestätigen…"
+msgid "Approve Courses..."
+msgstr "Veranstaltungen bestätigen..."
 
 #: fsr/templates/fsr_semester_view.html:101
-msgid "Re-Enable Courses for Lecturer Review"
-msgstr "Kurse erneut zur Überprüfung durch Dozent freigeben"
+msgid "Re-Enable Courses for Lecturer Review..."
+msgstr "Kurse erneut zur Überprüfung durch Dozent freigeben..."
 
 #: fsr/templates/fsr_semester_view.html:105
-msgid "Publish Courses"
-msgstr "Veranstaltungen veröffentlichen"
+msgid "Publish Courses..."
+msgstr "Veranstaltungen veröffentlichen..."
 
 #: fsr/templates/fsr_semester_view.html:113
 msgid "There are no courses for this semester yet."

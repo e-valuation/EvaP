@@ -53,6 +53,12 @@ input::-webkit-inner-spin-button {
 
 /*-----------------------------------------*/
 
+p.text-muted {
+  margin-bottom: 0px;
+}
+
+/*-----------------------------------------*/
+
 ul.inputs-list {
   list-style-type: none;
   padding-left: 0px;

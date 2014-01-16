@@ -82,12 +82,12 @@
                         $('#id_' + options.prefix + '-TOTAL_FORMS').val(forms.length);
 
                         // Also update names and IDs for all remaining form controls so they remain in sequence:                        
-                        var base_id = parent.children().not("." + options.formCssClass).length
+                        var base_id = parent.children('tr').not("." + options.formCssClass).length
 
-                        for (var i=base_id, formCount=forms.length; i<formCount; i++) {
+                        for (var i=0, formCount=forms.length; i<formCount; i++) {
                             applyExtraClasses(forms.eq(i), i);
                             forms.eq(i).find('input,select,textarea,label').each(function() {
-                                updateElementIndex($(this), options.prefix, i);
+                                updateElementIndex($(this), options.prefix, i+base_id);
                             });
                         }
                     }

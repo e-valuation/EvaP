@@ -27,8 +27,8 @@
             <tbody>
             {% for course in degree.list %}
                 <tr>
-                    <td class="col-sm-10"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
-                    <td class="col-sm-1">{{ course.responsible_contributors_name }}</td>
+                    <td class="col-sm-5"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
+                    <td class="col-sm-5">{{ course.responsible_contributors_name }}</td>
                     <td class="col-sm-1">{{ course.grade|floatformat:1 }}</td>
                     {% if course.num_participants %}
                     <td class="col-sm-2">
