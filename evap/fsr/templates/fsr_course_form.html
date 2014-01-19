@@ -68,7 +68,17 @@
 
         $(".multiselect-form select[multiple='multiple']").multiselect({ locale: "{{ LANGUAGE_CODE }}" });
 
-        $('#contribution_table tbody tr').formset({prefix: 'contributions', deleteText: '{% trans "remove" %}', addText: '{% trans "add another" %}'});
+        $('#contribution_table tbody tr').formset({
+            prefix: 'contributions',
+            deleteText: '{% trans "remove" %}',
+            addText: '{% trans "add another" %}',
+            added: function() {
+                $('.twipsify').tooltip({
+                    html: true,
+                    placement: 'left'
+                });                
+            }
+        });
 
         $('#id_degree').combobox();
         $('#id_kind').combobox();

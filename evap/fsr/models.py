@@ -35,10 +35,7 @@ class EmailTemplate(models.Model):
         
     @classmethod
     def get_login_key_template(cls):
-        try:
-            return cls.objects.get(name="Login Key Created")
-        except:
-            return cls.objects.get(name="Login Key Created")
+        return cls.objects.get(name="Login Key Created")
     
     @classmethod
     def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_participants):
