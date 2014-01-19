@@ -149,7 +149,7 @@
             // FIXME: Perhaps using $.data would be a better idea?
             options.formTemplate = template;
 
-            if ($$.attr('tagName') == 'TR') {
+            if ($$.prop('tagName') == 'TR') {
                 // If forms are laid out as table rows, insert the
                 // "add" button in a new table row:
                 var numCols = $$.eq(0).children().length;
