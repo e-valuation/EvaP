@@ -16,7 +16,11 @@
             $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}"});
         });
         
-        $('#question_table tbody tr').formset({prefix: 'question_set', deleteText: '{% trans "remove" %}', addText: '{% trans "add another" %}'});
+        $('#question_table tbody tr').formset({
+            prefix: 'question_set',
+            deleteText: '{% trans "remove" %}',
+            addText: '{% trans "add another" %}'
+        });
     });
     </script>
     
