@@ -40,4 +40,7 @@ urlpatterns = patterns('evap.fsr.views',
     
     url(r"^template/$", RedirectView.as_view(url='/fsr/')),
     url(r"^template/(\d+)$", 'template_edit'),
+
+    url(r"faq/$", "faq_index"),
+    url(r"faq/(\d+)$", "faq_section"),
 )

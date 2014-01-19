@@ -9,12 +9,12 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile, FaqSection
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                           SelectCourseForm, SemesterForm, UserForm, ContributorFormSet
+                           SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, FaqSectionForm
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
 from evap.fsr.tools import custom_redirect
@@ -596,6 +596,27 @@ def template_edit(request, template_id):
         return redirect('fsr_root')
     else:
         return render_to_response("fsr_template_form.html", dict(form=form, template=template), context_instance=RequestContext(request))
+
+
+@fsr_required
+def faq_index(request):
+    sections = FaqSection.objects.all()
+
+    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_order=False, can_delete=True, extra=0)
+    formset = sectionFS(request.POST or None, queryset=sections)
+
+    if formset.is_valid():
+        formset.save()
+
+        messages.add_message(request, messages.INFO, _("Successfully updated the FaQ sections."))
+        return custom_redirect('evap.fsr.views.index')
+    else:
+        return render_to_response("fsr_faq_index.html", dict(formset=formset, sections=sections), context_instance=RequestContext(request))
+
+
+@fsr_required
+def faq_section(request, section_id):
+    pass
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
