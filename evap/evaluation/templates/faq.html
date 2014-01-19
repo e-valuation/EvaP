@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "FAQ" %} - {{ block.super }}{% endblock %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ" %}</a></li>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            var anchor = window.location.hash.replace("#", "");
+            if(anchor.trim() != ""){
+                $("#" + anchor + "-answer").collapse('show');
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h2>
+
+    <div class="panel-group" id="accordion">
+        {% for section in sections %}
+            <h3 id="{{ section.id }}">{{ section.title }}</h2>
+            {% for question in section.questions.all %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title" id="{{ question.id }}">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}-answer">{{ question.question }}</a>
+                        </h4>
+                    </div>
+                    <div id="{{ question.id }}-answer" class="panel-collapse collapse">
+                        <div class="panel-body">{{ question.answer|safe }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <br />
+{% endblock %}
