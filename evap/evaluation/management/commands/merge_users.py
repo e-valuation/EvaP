@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from evap.evaluation.models import User
+from django.contrib.auth.models import User
 from evap.evaluation.merge import merge_model_objects
 
 class Command(BaseCommand):

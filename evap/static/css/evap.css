@@ -1,6 +1,7 @@
 html,
 body {
   height: 100%;
+  padding-top: 40px; 
   /* The html and body elements cannot have any padding or margin. */
 }
 
@@ -49,6 +50,12 @@ input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+/*-----------------------------------------*/
+
+p.text-muted {
+  margin-bottom: 0px;
 }
 
 /*-----------------------------------------*/

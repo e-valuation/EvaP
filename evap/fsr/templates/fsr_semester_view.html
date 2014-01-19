@@ -15,7 +15,7 @@
             <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete Semester" %}</a>
         {% endif %}
         &nbsp;
-        <a href="{% url "evap.fsr.views.course_create" semester.id %}" class="btn btn-sm btn-default">{% trans "Create Course..." %}</a>
+        <a href="{% url "evap.fsr.views.course_create" semester.id %}" class="btn btn-sm btn-default">{% trans "Create Course" %}</a>
         <a href="{% url "evap.fsr.views.semester_import" semester.id %}" class="btn btn-sm btn-default">{% trans "Import Courses" %}</a>
         <a href="{% url "evap.fsr.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default">{% trans "Assign Questionnaires" %}</a>
         &nbsp;
@@ -91,18 +91,18 @@
                 
                 <p>
                 {% ifequal state "new" %}
-                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Enable Courses for Lecturer Review" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Enable Courses for Lecturer Review..." %}</a>
                 {% endifequal %}
                 {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
-                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_approve" semester.id %}">{% trans "Approve Courses" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_approve" semester.id %}">{% trans "Approve Courses..." %}</a>
                 {% endif %}
                 
                 {% ifequal state "lecturerApproved" %}
-                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Re-Enable Courses for Lecturer Review" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Re-Enable Courses for Lecturer Review..." %}</a>
                 {% endifequal %}
                 
                 {% ifequal state "reviewed" %}
-                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_publish" semester.id %}">{% trans "Publish Courses" %}</a>
+                    <a class="btn btn-default" href="{% url "evap.fsr.views.semester_publish" semester.id %}">{% trans "Publish Courses..." %}</a>
                 {% endifequal %}
                 </p>
                 <p>&nbsp;</p>
