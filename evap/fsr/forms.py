@@ -11,7 +11,8 @@ from django.utils.text import normalize_newlines
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, TextAnswer, UserProfile, FaqSection
+                                   Semester, TextAnswer, UserProfile, FaqSection, \
+                                   FaqQuestion
 from evap.fsr.models import EmailTemplate
 from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
 
@@ -406,4 +407,19 @@ class FaqSectionForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = FaqSection
         exclude = ()
+
+
+class FaqQuestionForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super(FaqQuestionForm, self).__init__(*args, **kwargs)
+
+        self.fields["question_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["question_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["answer_de"].widget.attrs['class'] = 'form-control'
+        self.fields["answer_en"].widget.attrs['class'] = 'form-control'
+        self.fields["order"].widget = forms.HiddenInput()
+
+    class Meta:
+        model = FaqQuestion
+        exclude = ("section",)
 

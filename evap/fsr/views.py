@@ -9,12 +9,14 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, TextAnswer, UserProfile, FaqSection
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                           SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, FaqSectionForm
+                           SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, \
+                           FaqSectionForm, FaqQuestionForm
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
 from evap.fsr.tools import custom_redirect
@@ -618,7 +620,19 @@ def faq_index(request):
 
 @fsr_required
 def faq_section(request, section_id):
-    pass
+    section = get_object_or_404(FaqSection, id=section_id)
+    questions = FaqQuestion.objects.filter(section=section)
+
+    questionFS = modelformset_factory(FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=0)
+    formset = questionFS(request.POST or None, queryset=questions)
+
+    if formset.is_valid():
+        formset.save()
+
+        messages.add_message(request, messages.INFO, _("Successfully updated the FAQ questions."))
+        return custom_redirect('evap.fsr.views.index')
+    else:
+        return render_to_response("fsr_faq_section.html", dict(formset=formset, section=section, questions=questions), context_instance=RequestContext(request))
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
