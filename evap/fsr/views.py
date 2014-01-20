@@ -27,9 +27,11 @@ def index(request):
     semesters = Semester.objects.all()
     questionnaires = Questionnaire.objects.filter(obsolete=False)
     templates = EmailTemplate.objects.all()
+    sections = FaqSection.objects.all()
     return render_to_response("fsr_index.html", dict(semesters=semesters,
                                                      questionnaires=questionnaires,
                                                      templates=templates,
+                                                     sections=sections,
                                                      disable_breadcrumb_fsr=True), context_instance=RequestContext(request))
 
 
