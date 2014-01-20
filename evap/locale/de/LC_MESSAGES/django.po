@@ -982,8 +982,8 @@ msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
 #: fsr/views.py:611
-msgid "Successfully updated the FaQ sections."
-msgstr "FaQ-Abschnitte erfolgreich geändert."
+msgid "Successfully updated the FAQ sections."
+msgstr "FAQ-Abschnitte erfolgreich geändert."
 
 #: fsr/templates/fsr_base.html:7 fsr/templates/fsr_base.html.py:12
 #: fsr/templates/fsr_base.html:14 fsr/templates/fsr_index.html:46
@@ -1089,12 +1089,12 @@ msgstr ""
 "Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
 
 #: fsr/templates/fsr_faq_index.html:8
-msgid "FaQ Sections"
-msgstr "FaQ-Abschnitte"
+msgid "FAQ Sections"
+msgstr "FAQ-Abschnitte"
 
 #: fsr/templates/fsr_faq_index.html:79
-msgid "Save FaQ sections"
-msgstr "FaQ-Sektionen speichern"
+msgid "Save FAQ sections"
+msgstr "FAQ-Sektionen speichern"
 
 #: fsr/templates/fsr_import.html:9
 msgid "Upload semester data from excel file ("
@@ -1160,7 +1160,7 @@ msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
 #: fsr/templates/fsr_index.html:55
-msgid "FaQ"
+msgid "FAQ"
 msgstr "FAQ"
 
 #: fsr/templates/fsr_index.html:57
