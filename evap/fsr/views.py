@@ -608,7 +608,7 @@ def faq_index(request):
     if formset.is_valid():
         formset.save()
 
-        messages.add_message(request, messages.INFO, _("Successfully updated the FaQ sections."))
+        messages.add_message(request, messages.INFO, _("Successfully updated the FAQ sections."))
         return custom_redirect('evap.fsr.views.index')
     else:
         return render_to_response("fsr_faq_index.html", dict(formset=formset, sections=sections), context_instance=RequestContext(request))
