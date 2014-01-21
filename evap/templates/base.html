@@ -26,67 +26,69 @@
 </head>
 <body>
 <div id="wrap">
-    <nav class="navbar navbar-inverse" role="navigation">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#evap-navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">{% trans "Evaluation Platform" %}</a>
-        </div>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#evap-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">{% trans "Evaluation Platform" %}</a>
+            </div>
 
-        <div class="collapse navbar-collapse" id="evap-navbar-collapse">
-            <ul class="nav navbar-nav">
-                {% if user.is_active %}
-                    {% if user.userprofile.enrolled_in_courses %}
-                        <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
-                    {% endif %}
-                    
-                    {% if user.is_staff %}
+            <div class="collapse navbar-collapse" id="evap-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    {% if user.is_active %}
+                        {% if user.userprofile.enrolled_in_courses %}
+                            <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+                        {% endif %}
+                        
+                        {% if user.is_staff %}
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "fsr_root" %}">{% trans "Semesters" %}</a>
+                                        {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
+                                    </li>
+                                    <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+                                    <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+                                    <li><a href="{% url "fsr_root" %}">{% trans "Templates" %}</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        {% if user.userprofile.is_editor_or_delegate %}
+                            <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
+                        {% endif %}
+
+                        {% if user.userprofile.is_editor %}
+                            <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
+                        {% endif %}
+                        
                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.results.views.index" %}">{% trans "Results" %} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
-                                <li><a href="{% url "fsr_root" %}">{% trans "Semesters" %}</a>
-                                    {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
-                                </li>
-                                <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
-                                <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
-                                <li><a href="{% url "fsr_root" %}">{% trans "Templates" %}</a></li>
+                                {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
                             </ul>
                         </li>
                     {% endif %}
-
-                    {% if user.userprofile.is_editor_or_delegate %}
-                        <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
-                    {% endif %}
-
-                    {% if user.userprofile.is_editor %}
-                        <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
-                    {% endif %}
-                    
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.results.views.index" %}">{% trans "Results" %} <b class="caret"></b></a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Language" %} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
+                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();">{% trans "Deutsch" %}</a></li>
+                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
                         </ul>
                     </li>
-                {% endif %}
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Language" %} <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();">{% trans "Deutsch" %}</a></li>
-                        <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
-                    </ul>
-                </li>
-                {% if user.is_active %}
-                    <li><a href="{% url "django.contrib.auth.views.logout" %}">{% trans "Logout" %}</a></li>
-                {% endif %}
-            </ul>
+                    {% if user.is_active %}
+                        <li><a href="{% url "django.contrib.auth.views.logout" %}">{% trans "Logout" %}</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </nav>
 
