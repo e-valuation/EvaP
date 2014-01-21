@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-20 19:31+0100\n"
-"PO-Revision-Date: 2014-01-20 19:32+0100\n"
+"POT-Creation-Date: 2014-01-21 08:13+0100\n"
+"PO-Revision-Date: 2014-01-21 08:13+0100\n"
 "Last-Translator: Stefan Richter <stefan@02strich.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1102,7 +1102,7 @@ msgstr ""
 msgid "FAQ Sections"
 msgstr "FAQ-Abschnitte"
 
-#: fsr/templates/fsr_faq_index.html:91 fsr/templates/fsr_faq_section.html:88
+#: fsr/templates/fsr_faq_index.html:91
 msgid "Save FAQ sections"
 msgstr "FAQ-Sektionen speichern"
 
@@ -1113,6 +1113,10 @@ msgstr "Frage/Antwort (deutsch)"
 #: fsr/templates/fsr_faq_section.html:60
 msgid "Question/Answer (english)"
 msgstr "Fragetext/Antwort (englisch)"
+
+#: fsr/templates/fsr_faq_section.html:88
+msgid "Save FAQ section"
+msgstr "FAQ-Sektion speichern"
 
 #: fsr/templates/fsr_import.html:9
 msgid "Upload semester data from excel file ("
