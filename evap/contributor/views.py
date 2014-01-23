@@ -22,9 +22,10 @@ def index(request):
     own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed'])))
     own_courses.sort(key=sorter)
 
-    represented_users = user.represented_users.all()
-    for u in represented_users:
-        u = u.user
+    represented_userprofiles = user.represented_users.all()
+    represented_users = []
+    for profile in represented_userprofiles:
+        represented_users.append(profile.user)
 
     delegated_courses = list(set(Course.objects.exclude(id__in=Course.objects.filter(contributions__can_edit=True, contributions__contributor=user)).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed'])))
     delegated_courses.sort(key=sorter)
