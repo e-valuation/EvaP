@@ -19,7 +19,8 @@
             <thead>
                 <tr>
                     <th>{% trans "Course" %}</th>
-                    <th>{% trans "Contributor" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Lecturer" %}</th>
                     <th>{% trans "Grade" %}</th>
                     <th>{% trans "Voters" %}</th>
                 </tr>
@@ -27,15 +28,16 @@
             <tbody>
             {% for course in degree.list %}
                 <tr>
-                    <td class="col-sm-5"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
-                    <td class="col-sm-5">{{ course.responsible_contributors_name }}</td>
+                    <td class="col-sm-4"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
+                    <td class="col-sm-2">{{ course.kind }}</td>
+                    <td class="col-sm-4">{{ course.responsible_contributors_name }}</td>
                     <td class="col-sm-1">{{ course.grade|floatformat:1 }}</td>
                     {% if course.num_participants %}
                     <td class="col-sm-2">
                         {% spaceless %}
                         <div style="background: #c9e1fa; display: inline-block; width: 70%;">
                             <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
-                                <div style="font-size: 80%; width: 100%; max-width: 100%; overflow: hidden; display: inline-block; vertical-align: middle;">&nbsp;{{ course.num_voters }}</div>
+                                <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ course.num_voters }}</div>
                             </div>
                         </div>
                         {% endspaceless %}
