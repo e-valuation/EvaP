@@ -475,7 +475,7 @@ msgstr "Reihenfolge"
 
 #: evaluation/models.py:406
 msgid "section title (german)"
-msgstr "Abschnittstitle (deutsch)"
+msgstr "Abschnittstitel (deutsch)"
 
 #: evaluation/models.py:407
 msgid "section title (english)"
@@ -632,7 +632,7 @@ msgstr "FAQ"
 
 #: evaluation/templates/faq.html:43
 msgid "These are the Frequently Asked Questions (FAQs)"
-msgstr "Die sind die Häufig Gestellten Fragen (FAQs)"
+msgstr "Diese sind die Häufig Gestellten Fragen (FAQs)"
 
 #: evaluation/templates/index.html:21
 #, python-format
@@ -1042,7 +1042,7 @@ msgstr "FAQ-Abschnitte"
 
 #: fsr/templates/fsr_faq_index.html:91
 msgid "Save FAQ sections"
-msgstr "FAQ-Sektionen speichern"
+msgstr "FAQ-Abschnitte speichern"
 
 #: fsr/templates/fsr_faq_section.html:59
 msgid "Question/Answer (german)"
@@ -1054,7 +1054,7 @@ msgstr "Fragetext/Antwort (englisch)"
 
 #: fsr/templates/fsr_faq_section.html:88
 msgid "Save FAQ section"
-msgstr "FAQ-Sektion speichern"
+msgstr "FAQ-Abschnitt speichern"
 
 #: fsr/templates/fsr_import.html:9
 msgid "Upload semester data from excel file ("
