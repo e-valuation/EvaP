@@ -244,8 +244,13 @@ class Course(models.Model):
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
-        elif self.contributions.filter(can_edit=True, contributor__in=user.represented_users.all()).exists():
-            return True
+        else:
+            represented_userprofiles = user.represented_users.all()
+            represented_users = []
+            for profile in represented_userprofiles:
+                represented_users.append(profile.user)
+            if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
+                return True
         
         return False
     
