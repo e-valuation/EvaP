@@ -246,9 +246,7 @@ class Course(models.Model):
             return True
         else:
             represented_userprofiles = user.represented_users.all()
-            represented_users = []
-            for profile in represented_userprofiles:
-                represented_users.append(profile.user)
+            represented_users = [profile.user for profile in represented_userprofiles]
             if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
                 return True
         
