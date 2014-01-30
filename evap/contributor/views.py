@@ -22,7 +22,10 @@ def index(request):
     own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed'])))
     own_courses.sort(key=sorter)
 
-    delegated_courses = list(set(Course.objects.exclude(id__in=Course.objects.filter(contributions__can_edit=True, contributions__contributor=user)).filter(contributions__can_edit=True, contributions__contributor__in=user.represented_users.all(), state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed'])))
+    represented_userprofiles = user.represented_users.all()
+    represented_users = [profile.user for profile in represented_userprofiles]
+
+    delegated_courses = list(set(Course.objects.exclude(id__in=Course.objects.filter(contributions__can_edit=True, contributions__contributor=user)).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed'])))
     delegated_courses.sort(key=sorter)
     
     return render_to_response("contributor_index.html", dict(own_courses=own_courses, delegated_courses=delegated_courses), context_instance=RequestContext(request))

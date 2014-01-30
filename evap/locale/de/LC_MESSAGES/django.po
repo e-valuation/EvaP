@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-17 08:17+0100\n"
-"PO-Revision-Date: 2014-01-16 23:18-0800\n"
+"POT-Creation-Date: 2014-01-21 05:41+0100\n"
+"PO-Revision-Date: 2014-01-29 20:32-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -44,13 +44,12 @@ msgstr "Mein EvaP"
 #: contributor/templates/contributor_base.html:13
 #: contributor/templates/contributor_course_form.html:26
 #: fsr/templates/fsr_user_index.html:45
-#: results/templates/results_semester_detail.html:22
 msgid "Contributor"
 msgstr "Mitwirkender"
 
 #: contributor/templates/contributor_course_form.html:16
 #: fsr/templates/fsr_course_form.html:11
-#: fsr/templates/fsr_questionnaire_form.html:32
+#: fsr/templates/fsr_questionnaire_form.html:36
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
@@ -64,7 +63,7 @@ msgstr "Mitwirkende"
 #: fsr/templates/fsr_index.html:25
 #: fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11
-#: templates/base.html:55
+#: templates/base.html:56
 #: templates/faq.html:45
 msgid "Questionnaires"
 msgstr "Fragebögen"
@@ -112,15 +111,15 @@ msgstr "Abbrechen"
 msgid "Preview"
 msgstr "Vorschau"
 
-#: contributor/templates/contributor_course_form.html:111
-#: fsr/templates/fsr_course_form.html:71
-#: fsr/templates/fsr_questionnaire_form.html:19
+#: contributor/templates/contributor_course_form.html:113
+#: fsr/templates/fsr_course_form.html:73
+#: fsr/templates/fsr_questionnaire_form.html:21
 msgid "remove"
 msgstr "Entfernen"
 
-#: contributor/templates/contributor_course_form.html:111
-#: fsr/templates/fsr_course_form.html:71
-#: fsr/templates/fsr_questionnaire_form.html:19
+#: contributor/templates/contributor_course_form.html:114
+#: fsr/templates/fsr_course_form.html:74
+#: fsr/templates/fsr_questionnaire_form.html:22
 msgid "add another"
 msgstr "Weiteren hinzufügen"
 
@@ -364,6 +363,7 @@ msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
 #: evaluation/models.py:120
+#: student/templates/student_index.html:26
 msgid "last date to vote"
 msgstr "letzter Bewertungstag"
 
@@ -879,7 +879,7 @@ msgstr "Vorlage erfolgreich geändert."
 #: fsr/templates/fsr_base.html:14
 #: fsr/templates/fsr_index.html:46
 #: fsr/templates/fsr_user_index.html:15
-#: templates/base.html:49
+#: templates/base.html:50
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
@@ -985,7 +985,7 @@ msgstr "): Alle in der Datei enthaltenen Studierenden, Mitwirkenden und Kurse we
 #: fsr/templates/fsr_semester_base.html:7
 #: fsr/templates/fsr_semester_base.html:21
 #: results/templates/results_index.html:8
-#: templates/base.html:52
+#: templates/base.html:53
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1014,7 +1014,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: fsr/templates/fsr_index.html:43
 #: fsr/templates/fsr_user_form.html:8
 #: fsr/templates/fsr_user_index.html:8
-#: templates/base.html:56
+#: templates/base.html:57
 #: templates/faq.html:76
 msgid "Users"
 msgstr "Benutzer"
@@ -1030,7 +1030,7 @@ msgstr "Verantwortliche"
 
 #: fsr/templates/fsr_index.html:49
 #: fsr/templates/fsr_template_form.html:8
-#: templates/base.html:57
+#: templates/base.html:58
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
@@ -1054,15 +1054,15 @@ msgstr "Löschen"
 msgid "Do you really want to delete the questionnaire <em>%(name)s</em>?"
 msgstr "Soll der Fragebogen <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: fsr/templates/fsr_questionnaire_form.html:37
+#: fsr/templates/fsr_questionnaire_form.html:41
 msgid "Questions"
 msgstr "Fragen"
 
-#: fsr/templates/fsr_questionnaire_form.html:47
+#: fsr/templates/fsr_questionnaire_form.html:51
 msgid "Delete?"
 msgstr "Löschen?"
 
-#: fsr/templates/fsr_questionnaire_form.html:67
+#: fsr/templates/fsr_questionnaire_form.html:71
 msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
@@ -1243,7 +1243,7 @@ msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 #: results/exporters.py:37
 #: results/templates/results_base.html:6
 #: results/templates/results_base.html:10
-#: templates/base.html:71
+#: templates/base.html:72
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1275,19 +1275,27 @@ msgstr "Es sind sind noch keine Ergebnisse verfügbar."
 msgid "Course"
 msgstr "Veranstaltung"
 
+#: results/templates/results_semester_detail.html:22
+msgid "Type"
+msgstr "Typ"
+
 #: results/templates/results_semester_detail.html:23
+msgid "Lecturer"
+msgstr "Dozent"
+
+#: results/templates/results_semester_detail.html:24
 msgid "Grade"
 msgstr "Note"
 
-#: results/templates/results_semester_detail.html:24
+#: results/templates/results_semester_detail.html:25
 msgid "Voters"
 msgstr "Wähler"
 
-#: results/templates/results_semester_detail.html:57
+#: results/templates/results_semester_detail.html:59
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: results/templates/results_semester_detail.html:58
+#: results/templates/results_semester_detail.html:60
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
@@ -1399,57 +1407,57 @@ msgstr "Die Seite wurde leider nicht gefunden."
 msgid "Something seems to be broken here. The admins have been notified and will follow up with you."
 msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und werden ggf. nachfragen."
 
-#: templates/base.html:37
+#: templates/base.html:38
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:51
+#: templates/base.html:52
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/base.html:63
+#: templates/base.html:64
 msgid "My courses"
 msgstr "Veranstaltungen"
 
-#: templates/base.html:67
+#: templates/base.html:68
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:80
+#: templates/base.html:81
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:82
+#: templates/base.html:83
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:83
+#: templates/base.html:84
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:87
+#: templates/base.html:88
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:98
+#: templates/base.html:100
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:125
+#: templates/base.html:127
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:129
+#: templates/base.html:131
 #: templates/faq.html:5
 #: templates/faq.html.py:9
 msgid "FAQ"
 msgstr "FAQ"
 
-#: templates/base.html:132
+#: templates/base.html:134
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:134
+#: templates/base.html:136
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
@@ -1819,8 +1827,3 @@ msgstr ""
 "\n"
 "Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
 
-#~ msgid "can be voted on from"
-#~ msgstr "kann bewertet werden vom"
-
-#~ msgid "till"
-#~ msgstr "bis zum"
