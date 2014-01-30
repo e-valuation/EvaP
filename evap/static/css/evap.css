@@ -1,7 +1,12 @@
 html,
 body {
   height: 100%;
+  padding-top: 40px; 
   /* The html and body elements cannot have any padding or margin. */
+}
+
+.navbar > .container {
+  width:auto;
 }
 
 /* Wrapper for page content to push down footer */
