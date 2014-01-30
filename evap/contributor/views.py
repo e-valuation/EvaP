@@ -23,9 +23,7 @@ def index(request):
     own_courses.sort(key=sorter)
 
     represented_userprofiles = user.represented_users.all()
-    represented_users = []
-    for profile in represented_userprofiles:
-        represented_users.append(profile.user)
+    represented_users = [profile.user for profile in represented_userprofiles]
 
     delegated_courses = list(set(Course.objects.exclude(id__in=Course.objects.filter(contributions__can_edit=True, contributions__contributor=user)).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed'])))
     delegated_courses.sort(key=sorter)
