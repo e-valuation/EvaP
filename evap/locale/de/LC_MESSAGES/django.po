@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-01-21 05:41+0100\n"
-"PO-Revision-Date: 2014-01-20 20:41-0800\n"
+"PO-Revision-Date: 2014-01-29 20:32-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -365,7 +365,7 @@ msgstr "Erster Abstimmungstag"
 #: evaluation/models.py:120
 #: student/templates/student_index.html:26
 msgid "last date to vote"
-msgstr "Letzter Abstimmungstag"
+msgstr "letzter Bewertungstag"
 
 #: evaluation/models.py:132
 #: evaluation/models.py:288
@@ -584,7 +584,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"  Sie sind zur Zeit als %(name)s angemeldet.\n"
+"  Sie sind zurzeit als %(name)s angemeldet.\n"
 "            "
 
 #: evaluation/templates/index.html:26
@@ -1312,35 +1312,86 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 #: student/templates/student_index.html:12
 #: student/templates/student_vote.html:6
 #: student/templates/student_vote.html:10
-#: templates/base.html:45
+#: templates/base.html:44
 msgid "Evaluation"
 msgstr "Bewertung"
 
-#: student/templates/student_index.html:23
-msgid "You can vote on the following courses:"
-msgstr "Sie können die folgenden Veranstaltungen bewerten:"
+#: student/templates/student_index.html:22
+msgid "Evaluation info"
+msgstr "Evaluierungs-Infos"
+
+#: student/templates/student_index.html:25
+msgid "Anonymity"
+msgstr "Anonymität"
+
+#: student/templates/student_index.html:26
+msgid "Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses."
+msgstr "Deine abgegebenen Stimmen und Kommentare können dir technisch nicht zugeordnet werden. Dir sollte aber bewusst sein, dass dich Dozenten insbesondere in kleinen Veranstaltungen an deinem Schreibstil erkennen könnten."
+
+#: student/templates/student_index.html:27
+#: student/templates/student_index.html:31
+#: student/templates/student_index.html:35
+msgid "More details:"
+msgstr "Mehr Infos:"
+
+#: student/templates/student_index.html:27
+msgid "FAQ/Anonymity"
+msgstr "FAQ/Anonymität"
+
+#: student/templates/student_index.html:29
+msgid "References to other answers"
+msgstr "Verweise auf andere Antworten"
 
 #: student/templates/student_index.html:30
-msgid "You cannot vote on any courses right now."
-msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
+msgid "Lecturers can't see completed questionnaires as a whole. If you would write \"see above\", the lecturer can't find the respective answer."
+msgstr "Dozenten können sich keine kompletten Fragebögen ansehen. Wenn du in einem Kommentar schreibst \"wie oben schon erwähnt\", kann der Dozent die zugehörige Antwort nicht finden."
+
+#: student/templates/student_index.html:31
+msgid "FAQ/Reference"
+msgstr "FAQ/Verweise"
 
 #: student/templates/student_index.html:33
-msgid "You will be able to vote on the following courses soon:"
-msgstr "Sie können bald die folgenden Veranstaltungen bewerten:"
+msgid "Evaluation Results"
+msgstr "Evaluierungs-Ergebnisse"
 
-#: student/templates/student_index.html:36
-msgid "can be voted on from"
-msgstr "Evaluierbar vom"
+#: student/templates/student_index.html:34
+msgid "Your comments and the average grades will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
+msgstr "Deine Kommentare und die durchschnittlichen Noten werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die durchschnittlichen Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
-#: student/templates/student_index.html:36
-msgid "till"
+#: student/templates/student_index.html:35
+msgid "FAQ/Results"
+msgstr "FAQ/Ergebnisse"
+
+#: student/templates/student_index.html:41
+msgid "Courses for evaluation"
+msgstr "Zu evaluierende Veranstaltungen"
+
+#: student/templates/student_index.html:46
+msgid "You can vote on the following courses:"
+msgstr "Du kannst die folgenden Veranstaltungen bewerten:"
+
+#: student/templates/student_index.html:49
+#: student/templates/student_index.html:61
+msgid "until"
 msgstr "bis zum"
 
-#: student/templates/student_vote.html:41
+#: student/templates/student_index.html:53
+msgid "You cannot vote on any courses right now."
+msgstr "Du kannst zurzeit keine Veranstaltungen bewerten."
+
+#: student/templates/student_index.html:58
+msgid "You will be able to vote on the following courses soon:"
+msgstr "Die folgenden Veranstaltungen kannst du bald bewerten:"
+
+#: student/templates/student_index.html:61
+msgid "from"
+msgstr "vom"
+
+#: student/templates/student_vote.html:42
 msgid "Vote"
 msgstr "Abstimmen"
 
-#: student/templates/student_vote.html:42
+#: student/templates/student_vote.html:43
 msgid "Mark others as 'no answer'"
 msgstr "Alle anderen mit 'keine Angabe' beantworten"
 
@@ -1776,5 +1827,3 @@ msgstr ""
 "\n"
 "Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
 
-#~ msgid "Select a semester: "
-#~ msgstr "Semester auswählen:"

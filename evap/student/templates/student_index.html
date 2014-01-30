@@ -15,27 +15,55 @@
 
 {% block content %}
     {{ block.super }}
-    
-    <h3>{{ semester.name }}</h3>
-    
-    <p>
-    {% if current_courses %}
-        {% trans "You can vote on the following courses:" %}
-        <ul>
-        {% for course in current_courses %}
-            <li><a href="{% url "evap.student.views.vote" course.id %}">{{ course.name }}</a> ({% trans "last date to vote" %} {{ course.vote_end_date|date:"DATE_FORMAT" }})</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        {% trans "You cannot vote on any courses right now." %}
-    {% endif %}
-    {% if future_courses %}
-        {% trans "You will be able to vote on the following courses soon:" %}
-        <ul>
-            {% for course in future_courses %}
-                <li>{{ course.name }} ({% trans "can be voted on from" %} {{ course.vote_start_date|date:"DATE_FORMAT" }} {% trans "till" %} {{ course.vote_end_date|date:"DATE_FORMAT" }})</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    </p>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Courses for evaluation" %}</h3>
+        </div>
+        <div class="panel-body">
+            <p>
+                {% if current_courses %}
+                    {% trans "You can vote on the following courses:" %}
+                    <ul>
+                    {% for course in current_courses %}
+                        <li><a href="{% url "evap.student.views.vote" course.id %}">{{ course.name }}</a> ({% trans "until" %} {{ course.vote_end_date|date:"DATE_FORMAT" }})</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    {% trans "You cannot vote on any courses right now." %}
+                {% endif %}
+            </p>
+            {% if future_courses %}
+                <p>
+                    {% trans "You will be able to vote on the following courses soon:" %}
+                    <ul>
+                        {% for course in future_courses %}
+                            <li>{{ course.name }} ({% trans "from" %} {{ course.vote_start_date|date:"DATE_FORMAT" }} {% trans "until" %} {{ course.vote_end_date|date:"DATE_FORMAT" }})</li>
+                        {% endfor %}
+                    </ul>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <small>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Evaluation info" %}</h3>
+            </div>
+            <div class="panel-body">
+                <b>{% trans "Anonymity" %}</b><br />
+                {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
+                <em>{% trans "More details:" %} <a href="/faq#21">{% trans "FAQ/Anonymity" %}</a></em><br />
+                <br />
+                <b>{% trans "References to other answers" %}</b><br />
+                {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
+                <em>{% trans "More details:" %} <a href="/faq#24">{% trans "FAQ/Reference" %}</a></em><br />
+                <br />
+                <b>{% trans "Evaluation Results" %}</b><br />
+                {% blocktrans %}Your comments and the average grades will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+                <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+            </div>
+        </div>
+    </small>
 {% endblock %}
