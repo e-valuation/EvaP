@@ -49,7 +49,14 @@
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
+                                    <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "fsr_root" %}">{% trans "Semesters" %}</a>
+                                        {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
+                                    </li>
+                                    <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+                                    <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+                                    <li><a href="{% url "fsr_root" %}">{% trans "Templates" %}</a></li>
+                                    <li><a href="{% url "evap.fsr.views.faq_index" %}">{% trans "FAQ" %}</a></li>
                                 </ul>
                             </li>
                         {% endif %}
@@ -65,14 +72,7 @@
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.results.views.index" %}">{% trans "Results" %} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
-                                <li><a href="{% url "fsr_root" %}">{% trans "Semesters" %}</a>
-                                    {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
-                                </li>
-                                <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
-                                <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
-                                <li><a href="{% url "fsr_root" %}">{% trans "Templates" %}</a></li>
-                                <li><a href="{% url "evap.fsr.views.faq_index" %}">{% trans "FAQ" %}</a></li>
+                                {% show_from 'evap.results.tools.all_semesters' "results_semester_menu.html" %}
                             </ul>
                         </li>
                     {% endif %}
