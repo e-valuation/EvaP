@@ -396,6 +396,46 @@ class TextAnswer(Answer):
     answer = property(_answer_get, _answer_set)
 
 
+class FaqSection(models.Model):
+    """Section in the frequently asked questions"""
+
+    __metaclass__ = LocalizeModelBase
+
+    order = models.IntegerField(verbose_name=_("section order"))
+
+    title_de = models.TextField(verbose_name=_(u"section title (german)"))
+    title_en = models.TextField(verbose_name=_(u"section title (english)"))
+    title = Translate
+
+    class Meta:
+        ordering = ['order', ]
+        verbose_name = _(u"section")
+        verbose_name_plural = _(u"sections")
+
+
+class FaqQuestion(models.Model):
+    """Question and answer in the frequently asked questions"""
+
+    __metaclass__ = LocalizeModelBase
+
+    section = models.ForeignKey(FaqSection, related_name="questions")
+
+    order = models.IntegerField(verbose_name=_("question order"))
+
+    question_de = models.TextField(verbose_name=_("question (german)"))
+    question_en = models.TextField(verbose_name=_("question (english)"))
+    question = Translate
+
+    answer_de = models.TextField(verbose_name=_("answer (german)"))
+    answer_en = models.TextField(verbose_name=_("answer (german)"))
+    answer = Translate
+
+    class Meta:
+        ordering = ['order', ]
+        verbose_name = _(u"question")
+        verbose_name_plural = _(u"questions")
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
     

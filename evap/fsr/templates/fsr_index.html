@@ -4,7 +4,7 @@
 
 {% block rawcontent %}
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3>{% trans "Semesters" %}</h3>
             <p>
             {% if semesters %}
@@ -21,7 +21,7 @@
                 <a href="{% url "evap.fsr.views.semester_create" %}" class="btn btn-sm btn-success">{% trans "Create new semester" %}</a>
             </p>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3>{% trans "Questionnaires" %}</h3>
             <p>
             {% if questionnaires %}
@@ -39,7 +39,7 @@
                 <a href="{% url "evap.fsr.views.questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
             </p>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3>{% trans "Users" %}</h3>
             <ul>
                 <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "All users" %}</a></li>
@@ -50,6 +50,15 @@
             <ul>
                 {% for template in templates %}
                     <li><a href="{% url "evap.fsr.views.template_edit" template.id %}">{{ template.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-3">
+            <h3>{% trans "FAQ" %}</h3>
+            <ul>
+                <li><a href="{% url "evap.fsr.views.faq_index" %}">{% trans "All Sections" %}</a></li>
+                {% for section in sections %}
+                    <li><a href="{% url "evap.fsr.views.faq_section" section.id %}">{{ section.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>

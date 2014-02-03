@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import UserProfile, FaqSection
 from evap.fsr.models import EmailTemplate
 
 
@@ -72,5 +72,5 @@ def index(request):
             return redirect('evap.student.views.index')
 
 
-def faq(request):
-    return render_to_response("faq.html", dict(), context_instance=RequestContext(request))
+def faq(request):    
+    return render_to_response("faq.html", dict(sections=FaqSection.objects.all()), context_instance=RequestContext(request))
