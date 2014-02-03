@@ -1,0 +1,92 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "evap.fsr.views.faq_index" %}">{% trans "FAQ Sections" %}</a></li>
+    <li>{{ section.title }}</li>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            $('#question_table tbody tr').formset({
+                prefix: 'form',
+                additionalDeleteCssClass: 'btn btn-danger btn-sm',
+                deleteText: '{% trans "remove" %}',
+                addText: '{% trans "add another" %}',
+                added: function(row) {
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                }
+            });
+
+            $('tbody').sortable({
+                items: 'tr',
+                handle: 'td:first',
+                update: function() {
+                    $(this).find('tr').each(function(i) {
+                        if ($(this).find('input[id$=-order]').val()) {
+                            $(this).find('input[id$=-order]').val(i);
+                        }
+                    });
+                }
+            });
+            $('tr td:first').css('cursor', 'move');
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table id="question_table" class="table">
+            {% for form in formset %}
+                {% if forloop.first %}
+                    <thead>
+                        <th style="width: 10px;">&nbsp;</th>
+                        <th>{% trans "Question/Answer (german)" %}</th>
+                        <th>{% trans "Question/Answer (english)" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </thead>
+                    <tbody>
+                {% endif %}
+
+                <tr>
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <td style="width: 10px;"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
+                    <td>
+                        {{ form.question_de }}
+                        {{ form.answer_de }}
+                    </td>
+                    <td>
+                        {{ form.question_en }}
+                        {{ form.answer_en }}
+                    </td>
+                    <td>{{ form.DELETE }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="form-group well">
+            <div class="col-sm-6">
+                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}
