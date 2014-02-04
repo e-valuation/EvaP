@@ -10,16 +10,7 @@ from evap.evaluation.tools import GRADE_NAMES
 
 
 GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
-GRADE_CHOICES.append((u"X", _(u"no answer")))
 
-
-def coerce_grade(string_value):
-    """Converts a grade string (first element of each GRADE_CHOICES pair) into
-    an integer or None."""
-    
-    if string_value == u"X":
-        return None
-    return int(string_value)
 
 
 class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
@@ -51,7 +42,7 @@ class QuestionsForm(forms.Form):
             elif question.is_grade_question():
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
                                                choices=GRADE_CHOICES,
-                                               coerce=coerce_grade,
+                                               coerce=int,
                                                **field_args)
             
             identifier = make_form_identifier(self.contribution,
