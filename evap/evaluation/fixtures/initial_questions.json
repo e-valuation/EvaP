@@ -1,0 +1,307 @@
+[
+	{
+		"pk": 1, 
+    	"model": "evaluation.FaqSection", 
+    	"fields": {
+    		"order": 0,
+    		"title_de": "Die Plattform",
+    		"title_en": "The Platform"
+    	}
+	},{
+		"pk": 2, 
+    	"model": "evaluation.FaqSection", 
+    	"fields": {
+    		"order": 1,
+    		"title_de": "Evaluierung",
+    		"title_en": "The Evaluation"
+    	}
+	},{
+		"pk": 3, 
+    	"model": "evaluation.FaqSection", 
+    	"fields": {
+    		"order": 2,
+    		"title_de": "Evaluierungs-Ergebnisse",
+    		"title_en": "The Evaluation Results"
+    	}
+	},{
+		"pk": 4, 
+    	"model": "evaluation.FaqSection", 
+    	"fields": {
+    		"order": 3,
+    		"title_de": "Details für Dozenten",
+    		"title_en": "Details for Lecturers"
+    	}
+	},{
+		"pk": 5, 
+    	"model": "evaluation.FaqSection", 
+    	"fields": {
+    		"order": 4,
+    		"title_de": "Details für Studierende",
+    		"title_en": "Details for Students"
+    	}
+	},{
+		"pk": 1, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 0,
+    		"section": 1,
+    		"question_de": "Was ist EvaP?",
+    		"question_en": "What is EvaP?",
+    		"answer_de": "EvaP ist eine Evaluierungsplattform für Lehrveranstaltungen an Universitäten.<br />Entwickelt wurde sie ursprünglich am <a href=\"http://www.hpi.uni-potsdam.de/\">Hasso-Plattner-Institut (HPI)</a> an der Universität Potsdam und ist mittlerweile ein Open-Source-Projekt auf <a href=\"https://github.com/fsr-itse/EvaP\">GitHub</a>.<br />Von 2005 bis 2011 war am HPI die Plattform EvaJ – eine von Studierenden im Rahmen eines Seminars entwickelte Java-Anwendung – im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufwändig geworden war. Das neue System namens EvaP basiert nun auf der Programmiersprache Python.",
+    		"answer_en": "EvaP is an online platform being used for evaluation of university courses.<br />At first developed at <a href=\"http://www.hpi.uni-potsdam.de/willkommen.html?L=1\">Hasso Plattner Institute (HPI)</a> at the University of Potsdam in Germany, it is now an Open Source project on <a href=\"https://github.com/fsr-itse/EvaP\">GitHub</a>.<br />From 2005 to 2011 HPI used the older platform EvaJ – a Java application implemented by students during a seminar. In 2011 the student representatives decided to redevelop the evaluation platform when the old system became unmaintainable. The new platform called EvaP is now written in the Python programming language."
+    	}
+	},{
+		"pk": 2, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 1,
+    		"section": 1,
+    		"question_de": "Wer betreibt die Plattform?",
+    		"question_en": "Who runs the platform?",
+    		"answer_de": "Für den Betrieb der Plattform und den Ablauf der Evaluierung ist der Fachschaftsrat verantwortlich.",
+    		"answer_en": "The student representatives run the platform and are responsible for the evaluation process."
+    	}
+	},{
+		"pk": 3, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 2,
+    		"section": 1,
+    		"question_de": "Wie melde ich mich auf der Plattform an?",
+    		"question_en": "How do I login on the platform?",
+    		"answer_de": "Für die Anmeldung gibt es zwei Möglichkeiten:<ul><li>Als HPI-Dozent oder -Student mit dem HPI-Login.</li><li>Als externer Nutzer mit einem Anmeldeschlüssel, der per E‑Mail versendet wird.</li></ul>",
+    		"answer_en": "There are two options to login:<ul><li>Lecturers and Students from HPI can use their HPI login credentials.</li><li>External users have to use a login key, which they can get via email.</li></ul>"
+    	}
+	},{
+		"pk": 4, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 3,
+    		"section": 1,
+    		"question_de": "Warum braucht man als externer Nutzer einen Anmeldeschlüssel und wie funktioniert dieser?",
+    		"question_en": "Why do external users need a login key and how does it work?",
+    		"answer_de": "Externe Dozenten und Studenten besitzen keinen HPI-Login. Dennoch muss sichergestellt werden, dass sie sich als der richtige Nutzer auf der Plattform anmelden können.<br />Um sich einen Anmeldeschlüssel generieren zu lassen, müssen Sie Ihre E-Mail-Adresse angeben. Verwenden Sie dazu bitte die Adresse, die auch dem Studienreferat bekannt ist, da nur diese an den Fachschaftsrat weitergegeben und somit auf der Plattform hinterlegt wird.<br />Sie erhalten Ihren Schlüssel anschließend per E-Mail zugeschickt und können sich mit diesem anmelden. Da der Schlüssel eindeutig Ihrer E-Mail-Adresse zugeordnet werden kann, weiß die Plattform, welcher Nutzer sich gerade anmeldet.",
+    		"answer_en": "External lecturers and students don't have HPI login credentials. But the platform still needs to make sure that they can login as the correct user.<br />If you want to get a login key for yourself, you need to enter your email address on the login page. This must be the address already registered on the platform. During the data import the student representatives are getting this email address from the \"Studienreferat\". Please make sure to use the email address already known to them.<br />You will immediately get your key via email. This key is linked to your email address, so the platform can identify you when using the key to login."
+    	}
+	},{
+		"pk": 5, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 4,
+    		"section": 1,
+    		"question_de": "Wie kann ich mich registrieren?",
+    		"question_en": "How can I register?",
+    		"answer_de": "Nutzer werden für neue Studierende und Dozenten automatisch angelegt. Zusätzlich kann der Fachschaftsrat weitere Nutzer anlegen, falls dies notwendig ist.<br />Eine selbstständige Registrierung ist nicht möglich.",
+    		"answer_en": "Users are created automatically for new students and lecturers. Additional users can be added by the student representatives if necessary.<br />An autonomous registration is not possible."
+    	}
+	},{
+		"pk": 6, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 0,
+    		"section": 2,
+    		"question_de": "Was ist die Evaluierung?",
+    		"question_en": "What is the evaluation?",
+    		"answer_de": "Die Evaluierung ist die Beurteilung von Lehrveranstaltungen. Ziel ist es, die Qualität der Lehre zu verbessern, indem Dozenten, Geschäftsleitung und Studierende Feedback zu den einzelnen Veranstaltungen erhalten.<br />Die Studierenden können auf dieser Online-Plattform anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die Auswertung der Fragebögen wird anschließend veröffentlicht und ist ebenfalls online zugänglich.",
+    		"answer_en": "Evaluation is the process of getting feedback for courses. It aims at helping to improve the quality of teaching by providing this feedback to lecturers, students and HPI management.<br />This online platform allows students to anonymously complete questionnaires for all the courses they are enrolled in. Afterwards the results will be published online."
+    	}
+	},{
+		"pk": 7, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 1,
+    		"section": 2,
+    		"question_de": "Woher kommen die Daten?",
+    		"question_en": "Where does the data come from?",
+    		"answer_de": "In jedem Semester erhält der Fachschaftsrat vom Studienreferat die Belegungsdaten. Diese Informationen enthalten alle Lehrveranstaltungen, den jeweiligen verantwortlichen Dozenten und die Belegungen der Studierenden. Somit ist sichergestellt, dass in EvaP alle Lehrveranstaltungen eingetragen sind und die Studierenden nur Veranstaltungen bewerten können, die sie auch tatsächlich belegt haben. Sollten Sie Fehler in den Daten bemerken, wenden Sie sich bitte an den Fachschaftsrat.",
+    		"answer_en": "Every semester the student representatives are getting the enrolment data by the \"Studienreferat\". This includes all courses, their responsible lecturers and the enrolment information of all students. In this way it's ensured that all courses are available for evaluation and that students can only vote for the courses they are enrolled in. If you should find any mistake, please send a message to the student representatives."
+    	}
+	},{
+		"pk": 8, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 2,
+    		"section": 2,
+    		"question_de": "Wie sind Fragebögen aufgebaut?",
+    		"question_en": "How are the questionnaires created?",
+    		"answer_de": "Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Fragebögen, z.B. Fragen zu Lehrmitteln, einem Übungsleiter oder dem Inhalt der Veranstaltung. Jeder dieser Fragebögen wiederum besteht aus einer oder mehreren Fragen.",
+    		"answer_en": "The evaluation of a course consists of several questionnaires, e.g. questions about learning materials, exercise supervisors or the contents of the lecture. Each of these questionnaires holds one or several questions."
+    	}
+	},{
+		"pk": 9, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 3,
+    		"section": 2,
+    		"question_de": "Welche Arten von Fragen gibt es?",
+    		"question_en": "What types of questions are asked?",
+    		"answer_de": "Grundsätzlich gibt es zwei Fragetypen:<ul><li>Sogenannte Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer fünfstufigen Skala ermitteln. Es ist auch möglich, mit „keine Angabe“ zu stimmen.</li><li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li></ul>",
+    		"answer_en": "There are two types of questions:<ul><li>So called Likert questions that ask for agreement or disagreement on a five-step scale. It's also possible to answer \"no answer\".</li><li>Questions, where you can give your answer in a text field.</li></ul>"
+    	}
+	},{
+		"pk": 10, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 4,
+    		"section": 2,
+    		"question_de": "Wie werden Fragebögen einer Lehrveranstaltung zugeordnet?",
+    		"question_en": "How are the questionnaires for a course selected?",
+    		"answer_de": "Zu Beginn nimmt der Fachschaftsrat die Zuordnung passender Fragebögen vor. Außerdem können Dozenten weitere Fragebögen ergänzen, falls Sie zusätzliche Fragen stellen wollen.",
+    		"answer_en": "The initial selection is done by the student representatives. In addition lecturers can add more questionnaires if they would like to ask further questions."
+    	}
+	},{
+		"pk": 11, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 0,
+    		"section": 3,
+    		"question_de": "Wann sind die Ergebnisse verfügbar?",
+    		"question_en": "When are the results published?",
+    		"answer_de": "Die Ergebnisse der Evaluierung werden veröffentlicht, nachdem der Evaluierungszeitraum abgelaufen ist und alle Noten der Veranstaltung bekanntgegeben wurden.",
+    		"answer_en": "The results of the evaluation will be published after the evaluation period ended and after all grades of the course have been published."
+    	}
+	},{
+		"pk": 12, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 1,
+    		"section": 3,
+    		"question_de": "In welcher Form werden die Ergebnisse veröffentlicht?",
+    		"question_en": "In which form will the results be published?",
+    		"answer_de": "Die Plattform bietet jedem angemeldeten Nutzer die Möglichkeit, die Ergebnisse der vergangenen Semester einzusehen. Für jede Lehrveranstaltung werden eine Gesamtnote und eine Note pro gestellte Likert-Frage angezeigt.<br />Mitwirkende einer Lehrveranstaltung können zudem die Kommentare sehen, die über sie selbst abgegeben wurden. Der Verantwortliche einer Lehrveranstaltung kann alle Kommentare einsehen.<br />Der Fachschaftsrat hängt zusätzlich einen Aushang aller Lehrveranstaltungen aus, auf dem die Noten und ihre jeweilige Standardabweichung angegeben sind. Kommentare werden hier nicht veröffentlicht.",
+    		"answer_en": "Every logged-in user can see the results of past semesters on the platform. There are total grades per course and per Likert question.<br />Contributors of a course can also see the remarks that were given to them. The responsible lecturer can see all remarks.<br />Additionally the student representatives hang out an overview of all courses on which the grades and their standard deviation are shown. Remarks are not published on this post."
+    	}
+	},{
+		"pk": 13, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 2,
+    		"section": 3,
+    		"question_de": "Wie werden die Noten berechnet?",
+    		"question_en": "How are the grades calculated?",
+    		"answer_de": "Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten werden über den Durchschnitt aller abgegebenen Likert-Fragen berechnet. Volle Zustimmung entspricht einer 1, volle Ablehnung einer 5. Alle Personennoten werden zusammen mit 50% gewichtet und die Noten der Sachfragen ergeben zusammen die restlichen 50%.",
+    		"answer_en": "The total grade is the weighted average of all intermediate grades. The intermediate grades are calculated as the average of all Likert results. Strong agreement counts as 1, strong disagreement as 5. All person-related grades weigh 50% and all the other grades contribute to the remaining 50%."
+    	}
+	},{
+		"pk": 14, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 3,
+    		"section": 3,
+    		"question_de": "Warum sind manche Noten nicht sichtbar?",
+    		"question_en": "Why are not all grades visible?",
+    		"answer_de": "Um zumindest eine grundlegende Aussagekraft zu haben, werden Noten erst dann angezeigt, wenn 20% der Teilnehmer der Lehrveranstaltung – mindestens aber zwei Teilnehmer – die entsprechende Frage beantwortet haben („keine Angabe“ zählt dabei nicht als Stimme). Eine Gesamtnote wird ebenfalls erst ab dieser Grenze angezeigt.<br />Mitwirkende einer Lehrveranstaltung können unabhängig von der Grenze alle Noten sehen, die sie selbst betreffen. Der Verantwortliche einer Lehrveranstaltung kann alle Noten einsehen.",
+    		"answer_en": "To get at least a basic significance, grades are only shown when at least 20% of the participants of a course – and not less than two participants – answered the related question (\"no answer\" is not counted as an answer). The total grades are also not shown before this threshold was reached.<br />Irrespective of the number of participants, contributors of a course can see all grades related to them. The responsible lecturer can see all grades."
+    	}
+	},{
+		"pk": 15, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 0,
+    		"section": 4,
+    		"question_de": "Was sind Stellvertreter?",
+    		"question_en": "What are delegates?",
+    		"answer_de": "Für die Vorbereitung der Evaluierung werden bestimmte Informationen von den Dozenten benötigt. EvaP bietet Ihnen in Ihrem Profil die Möglichkeit, einen oder mehrere Stellvertreter zu definieren. Diese erhalten die gleichen Bearbeitungsrechte wie Sie selbst und können die benötigten Informationen stellvertretend eintragen.",
+    		"answer_en": "For the preparation of the evaluation some additional data is needed from the lecturers. In your profile EvaP provides the functionality to define one or more delegates who will get edit rights for all your courses and can then add the needed information in your name."
+    	}
+	},{
+		"pk": 16, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 1,
+    		"section": 4,
+    		"question_de": "Welche Informationen muss ich für eine Lehrveranstaltung angeben und warum?",
+    		"question_en": "What information do I have to provide for my courses and why?",
+    		"answer_de": "<ul><li>Den <em>Evaluierungszeitraum</em>: Dieser bestimmt, in welchem Zeitraum der Fragebogen für die an der Lehrveranstaltung teilnehmenden Studierenden zur Evaluierung bereitsteht. Der Fachschaftsrat legt beim Anlegen der Veranstaltung einen Standardzeitraum fest, der für viele Veranstaltungen individuell angepasst werden muss.<br />Mehr Informationen dazu finden Sie in der nächsten Frage.</li><li>Die <em>passenden Fragebögen</em>: Auch hier wählt der Fachschaftsrat bereits Standard-Fragebögen aus, die sich nach der Art der Lehrveranstaltung (Vorlesung, Seminar, Projekt etc.) richten. Bitte stellen Sie sicher, dass die Auswahl auf Ihre Veranstaltung zutrifft.</li><li>Alle <em>Mitwirkenden</em>: Die Belegungsdaten, anhand derer der Fachschaftsrat die Veranstaltung anlegt, beinhalten die Information über den Verantwortlichen der Lehrveranstaltung, nicht aber über die eventuell zusätzlich beteiligten Dozenten, Übungsleiter, Seminarbetreuer etc. Fügen Sie bitte alle weiteren Personen hinzu und legen Sie die passenden Fragebögen fest.</li></ul>Alle weiteren Daten sollten bereits korrekt eingetragen sein. Wenn Sie dennoch Fehler feststellen, wenden Sie sich bitte an den Fachschaftsrat.",
+    		"answer_en": "<ul><li>The <em>evaluation period</em>: This is the timeframe in which participating students can evaluate your course. An initial period is set by the student representatives, but this needs to be individually redefined for many courses.<br />You can find more information on the evaluation period in the next question.</li><li><em>Adequate questionnaires</em>: These are also preselected by the student representatives based on the type of the course (Lecture, Seminar, Project, etc.). Please make sure that the selection is appropriate for your course.</li><li>All <em>contributors</em>: The enrolment data imported into the system contains the responsible lecturer for each course. In many cases there are more people involved in the course (lecturers, teaching assistants, etc.). Please add all additional persons with their appropriate questionnaires.</li></ul>All other information about your courses should already have been entered correctly. If you find any mistakes, please contact the student representatives."
+    	}
+	},{
+		"pk": 17, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 2,
+    		"section": 4,
+    		"question_de": "Wie sollte der Evaluierungszeitraum festgelegt werden?",
+    		"question_en": "How should the evaluation period be defined?",
+    		"answer_de": "Die Evaluierung darf die Notengebung nicht beeinflussen und umgekehrt. Dies soll dadurch gewährleistet werden, indem die Evaluierung vor der letzten Prüfungsleistung abgeschlossen wird und die Ergebnisse der Evaluierung erst nach Bekanntgabe der Noten veröffentlicht werden. Der Evaluierungszeitraum sollte mindestens eine Woche umfassen und wird standardmäßig auf die letzten Wochen der Vorlesungszeit gesetzt. Im Folgenden werden ein paar Beispiele gegeben:<ul><li><em>Vorlesung mit oder ohne Zwischenklausur</em>: Die Evaluierung sollte vor der Endklausur stattfinden, da zu diesem Zeitpunkt die Studierenden einen umfassenden Überblick über die Lehrveranstaltung erhalten haben und der Hauptteil der Prüfungsleistung noch nicht erbracht ist. In diesem Fall kann der Standard belassen werden, sofern die Klausur nicht vor Ende der Vorlesungszeit angesetzt ist.</li><li><em>Blockseminar mit mehreren Terminen</em>: Die Evaluierung kann direkt vor dem letzten Prüfungsblock abgeschlossen werden. Der Evaluierungszeitraum sollte aber nur bis dahin verschoben werden, falls es im letzten Block keinen oder nur noch kaum Lehrinhalt gibt. Ansonsten kann die Evaluierung auch nach der Prüfung stattfinden.</li><li><em>Blockseminar in der vorlesungsfreien Zeit</em>: Hier sollte der Evaluierungszeitraum unbedingt nach hinten verschoben werden. Gibt es zwischen Lehrinhalt und Prüfung keine ausreichende Zeit, so sollte die Evaluierung nach der Prüfung durchgeführt werden.</li><li><em>Paper-/Projektseminar</em>: Nach dem letzten regelmäßigen Treffen oder Vortrag wäre ein geeigneter Termin. Sollten die Noten nicht schon vor dem regulären Evaluierungszeitraum veröffentlicht werden, wird dazu geraten, den Standardtermin zu belassen, damit die Studierenden nicht zu viele verschiedene Evaluierungszeiträume haben.</li></ul>",
+    		"answer_en": "The evaluation must not influence the course's grading and vice versa. This should be ensured by ending the evaluation before the final exam and publishing the evaluation's results not before the grades of the course have been published. The evaluation period should be at least one week and its standard value are the last weeks of the lecture period. Here are some examples:<ul><li><em>Lecture with or without midterm exams</em>: The evaluation should take place before the final exam, because the students will then already have a broad overview about the course and the main part of the exams is still to come. In this case the standard value for the evaluation period can be retained unless the exam takes place before the end of the lecture period.</li><li><em>Compact seminar with several dates</em>: The evaluation can be done directly before the last examination. The evaluation period should only be moved there if the last date does not have a lot of teaching content. Otherwise the evaluation can be done after the exam.</li><li><em>Compact seminar during the semester break</em>: In this case the evaluation period must be deferred. If there is not enough time between teaching content and examination, the evaluation can be done after the exam.</li><li><em>Paper/project seminar</em>: An optimal evaluation period would be after the last regular meeting or talk. If the grades will not be published before the end of the standard evaluation period, this period should not be changed to not create too many different evaluation periods for the students.</li></ul>"
+    	}
+	},{
+		"pk": 18, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 3,
+    		"section": 4,
+    		"question_de": "Was bedeuten die Zustände einer Lehrveranstaltung?",
+    		"question_en": "What do the states of a course mean?",
+    		"answer_de": "Es gibt acht verschiedene Zustände, die eine Lehrveranstaltung durchlaufen kann:<ol><li><em>Neu</em><br />Direkt nach dem Import oder dem manuellen Anlegen einer Lehrveranstaltung befindet sie sich in diesem Zustand. Der Fachschaftsrat kontrolliert die Daten und lässt die Lehrveranstaltungen in den nächsten Zustand übergehen. Wenn dies passiert, wird von der Plattform eine E-Mail an die Dozenten und ihre Stellvertreter verschickt.</li><li><em>Vorbereitet</em><br />In diesem Zustand können die Dozenten und ihre Stellvertreter ihre Lehrveranstaltungen bearbeiten und anschließend bestätigen.</li><li><em>Vom Dozenten bestätigt</em><br />Nachdem ein Dozent eine Lehrveranstaltung bestätigt hat, überprüft der Fachschaftsrat die Daten erneut und bestätigt schließlich den Kurs.</li><li><em>Bestätigt</em><br />Nachdem ein Kurs vom Fachschaftsrat bestätigt wurde, befindet er in diesem Zustand. Die Evaluierung beginnt automatisch, sobald der Evaluierungszeitraum erreicht ist.</li><li><em>In Evaluierung</em><br />In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li><li><em>Evaluiert</em><br />Nach Ablauf des Evaluierungszeitraumes gehen evaluierte Lehrveranstaltungen automatisch in diesen Zustand über. Vom Fachschaftsrat werden alle Kommentare durchgesehen und Beleidigungen entfernt.</li><li><em>überprüft</em><br />Sobald alle Kommentare überprüft wurden, verbleibt die Lehrveranstaltung bis zu ihrer Veröffentlichung in diesem Zustand.</li><li><em>Veröffentlicht</em><br />Der Fachschaftsrat veröffentlicht die Ergebnisse der Lehrveranstaltungen manuell. Bei benoteten Veranstaltungen geschieht dies erst nach Veröffentlichung der Noten. Sie, Ihre Stellvertreter und alle Mitwirkenden der Lehrveranstaltung werden per E-Mail darüber benachrichtigt.<br />Alle veröffentlichten Veranstaltungen können auf der Plattform eingesehen werden.</li></ol>",
+    		"answer_en": "There are eight different states in which a course can be:<ol><li><em>new</em><br />After importing or manually creating a course it has this state. The student representatives check the data and let the course switch to the next state. Once this happens the lecturers and their delegates will get an email from the platform.</li><li><em>prepared</em><br />This is the state where lecturers and their delegates can edit and approve the course.</li><li><em>lecturer approved</em><br />After a lecturer approved a course it will be again checked by the student representatives who will do the final approval.</li><li><em>approved</em><br />After the student representatives approved a course it will stay in this state until the evaluation period is reached.</li><li><em>in evaluation</em><br />When the course is in this state its participants can do the evaluation.</li><li><em>evaluated</em><br />After the evaluation period ended the course switches to this state. The student representatives will now check all comments and remove personal affronts if necessary.</li><li><em>reviewed</em><br />After reviewing all comments the course stays in this state until it's published.</li><li><em>published</em><br />The student representatives publish the results of the evaluation manually after the grades for the course have been published (in case there are some). The responsible lecturer, defined delegates and all contributors of a course will be notified once the results are published.<br />They can then be seen on the platform.</li></ol>"
+    	}
+	},{
+		"pk": 19, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 4,
+    		"section": 4,
+    		"question_de": "Welche E‑Mail-Benachrichtigungen erhalte ich wann?",
+    		"question_en": "When do I get which emails?",
+    		"answer_de": "Während der Fachschaftsrat die Evaluierung vorbereitet, erhalten Sie und Ihre Stellvertreter eine E-Mail mit einem Link zur Evaluierungsplattform. Darin werden Sie gebeten, die oben aufgeführten Informationen für alle Ihre Lehrveranstaltungen anzupassen und zu ergänzen.<br />Sobald die Evaluierungsergebnisse Ihrer Lehrveranstaltungen veröffentlicht werden, erhalten Sie, Ihre Stellvertreter und alle Mitwirkenden der Veranstaltung eine E-Mail, die Sie darüber benachrichtigt.",
+    		"answer_en": "After the student representatives prepared your courses, you and your delegates will receive an email with a link to the evaluation platform. In this email you will be asked to complete the above mentioned information about your courses.<br />After the evaluation results of your courses have been published, you, your delegates and all contributors of this course will get another email informing about the publication."
+    	}
+	},{
+		"pk": 20, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 5,
+    		"section": 4,
+    		"question_de": "Welche Informationen sehe ich auf den Ergebnisseiten?",
+    		"question_en": "Which information can I see on the result pages?",
+    		"answer_de": "Sie sehen für alle Likert-Fragen die jeweiligen Durchschnittsnoten, eine prozentuale Verteilung und die Zahl der abgegebenen Stimmen. Außerdem können Sie die Antworten auf Kommentarfragen sehen, wenn diese Sie persönlich betreffen oder sie verantwortlich für die Lehrveranstaltung sind. Beleidigungen in Kommentaren werden vom Fachschaftsrat entfernt, zusätzliche Filter gibt es nicht.",
+    		"answer_en": "You can see the average grades, percentages of the distribution and the number of total votes for all Likert questions. Furthermore you can see the answers to comments on your own person. The responsible lecturer of a course can see the answers to everyone. Personal affronts in the comments are removed by the student representatives. Other than that there are no filters."
+    	}
+	},{
+		"pk": 21, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 0,
+    		"section": 5,
+    		"question_de": "Ist meine Bewertung anonym?",
+    		"question_en": "Is the evaluation anonymous?",
+    		"answer_de": "Ja. Die Plattform stellt sicher, dass die erfassten Stimmen keinem Nutzer zugeordnet werden können. Es wird gespeichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausfüllt. Wenn du also nicht gerade der einzige abstimmende Teilnehmer bist, ist es technisch nicht mehr nachvollziehbar, welche Noten oder Kommentare von dir stammen.<br />Bei Kommentar-Fragen gibt es jedoch nur eine technische Anonymität. Durch den gewählten Schreibstil und den Inhalt er Antwort kann es dem Dozenten gerade bei kleinen Veranstaltungen möglich sein, die Kommentare einzelnen Personen zuzuschreiben. Beim Formulieren der Kommentare sollte dir das bewusst sein.",
+    		"answer_en": "Yes. The platform ensures that votes can't be related to a user. It saves who participated in a course's evaluation but not who voted how. As long as you are not the only participant in a course's evaluation no relation can be made.<br />When giving comments there is only a technical anonymity. Your style of writing and the content of the answer might allow lecturers to guess who wrote the comment, especially in small courses. When writing your answer you should be aware of that."
+    	}
+	},{
+		"pk": 22, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 1,
+    		"section": 5,
+    		"question_de": "Wie (vollständig) muss ich den Fragebogen ausfüllen?",
+    		"question_en": "How complete should my answers be?",
+    		"answer_de": "So vollständig wie möglich. Bitte gib eine Stimme für jede Frage ab, die du beurteilen kannst. Nur bei einer hohen Teilnahmequote sind die Ergebnisse aussagekräftig und geben den Dozenten und dem Fachschaftsrat hilfreiches Feedback. Textkommentare benötigen zwar mehr Zeit zum Eintippen, sind dafür aber besonders wertvolle Rückmeldungen.",
+    		"answer_en": "As complete as possible. Please vote for everything that you can evaluate. Only high participation rates result in significant values that can help the lecturers and student representatives. Textual comments take more time to write but are very important feedback."
+    	}
+	},{
+		"pk": 23, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 2,
+    		"section": 5,
+    		"question_de": "Was passiert mit meinen Kommentaren?",
+    		"question_en": "What happens to my comments?",
+    		"answer_de": "Alle Kommentare zu Mitwirkenden der Lehrveranstaltung werden für die jeweilige Person veröffentlicht. Der Verantwortliche einer Lehrveranstaltung kann alle Kommentare einsehen.<br />Bevor die Kommentare veröffentlicht werden, entfernt der Fachschaftsrat Beleidigungen und angreifende Äußerungen. Bitte halte deine Kritik also freundlich und konstruktiv – sonst hilft sie keinem weiter.",
+    		"answer_en": "All comments on contributors of a course will be shown to these persons. The responsible lecturer of a course can see all comments.<br />Before comments are published, the student representatives will remove personal affronts if necessary. Please provide constructive and polite feedback – only this can lead to positive changes."
+    	}
+	},{
+		"pk": 24, 
+    	"model": "evaluation.FaqQuestion", 
+    	"fields": {
+    		"order": 3,
+    		"section": 5,
+    		"question_de": "Kann ich auf bereits zuvor gegebene Antworten verweisen?",
+    		"question_en": "Can I refer to other answers?",
+    		"answer_de": "Nein. Es nicht möglich, sich komplette ausgefüllte Fragebögen anzusehen. Die Stimmen und Kommentare werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden.",
+    		"answer_en": "No. The questionnaires are not stored as a whole. Votes and comments will be aggregated per question. If you would write \"see above\", the lecturer can't find the respective answer."
+    	}
+	}
+]

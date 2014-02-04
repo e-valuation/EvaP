@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-21 05:41+0100\n"
-"PO-Revision-Date: 2014-01-20 20:41-0800\n"
+"POT-Creation-Date: 2014-01-30 05:58+0100\n"
+"PO-Revision-Date: 2014-01-29 20:59-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -19,20 +19,20 @@ msgstr ""
 "X-Generator: Poedit 1.6.3\n"
 
 #: contributor/forms.py:10
-#: fsr/forms.py:33
+#: fsr/forms.py:34
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
-#: contributor/views.py:39
+#: contributor/views.py:42
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
-#: contributor/views.py:94
+#: contributor/views.py:97
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:96
-#: fsr/views.py:268
+#: contributor/views.py:99
+#: fsr/views.py:272
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -59,12 +59,12 @@ msgid "Contributors"
 msgstr "Mitwirkende"
 
 #: contributor/templates/contributor_course_form.html:27
-#: fsr/forms.py:94
+#: fsr/forms.py:95
 #: fsr/templates/fsr_index.html:25
 #: fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11
 #: templates/base.html:56
-#: templates/faq.html:45
+#: templates/base.html.py:79
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -78,7 +78,7 @@ msgid "Remove?"
 msgstr "Entfernen?"
 
 #: contributor/templates/contributor_course_form.html:47
-#: evaluation/models.py:292
+#: evaluation/models.py:295
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -105,7 +105,7 @@ msgstr "Abbrechen"
 
 #: contributor/templates/contributor_course_form.html:87
 #: contributor/templates/contributor_index.html:43
-#: contributor/templates/contributor_index.html:87
+#: contributor/templates/contributor_index.html:88
 #: fsr/templates/fsr_questionnaire_index.html:39
 #: fsr/templates/fsr_semester_view.html:73
 msgid "Preview"
@@ -113,12 +113,16 @@ msgstr "Vorschau"
 
 #: contributor/templates/contributor_course_form.html:113
 #: fsr/templates/fsr_course_form.html:73
+#: fsr/templates/fsr_faq_index.html:23
+#: fsr/templates/fsr_faq_section.html:24
 #: fsr/templates/fsr_questionnaire_form.html:21
 msgid "remove"
 msgstr "Entfernen"
 
 #: contributor/templates/contributor_course_form.html:114
 #: fsr/templates/fsr_course_form.html:74
+#: fsr/templates/fsr_faq_index.html:24
+#: fsr/templates/fsr_faq_section.html:25
 #: fsr/templates/fsr_questionnaire_form.html:22
 msgid "add another"
 msgstr "Weiteren hinzufügen"
@@ -152,13 +156,16 @@ msgstr "Teilnehmer"
 
 #: contributor/templates/contributor_index.html:18
 #: contributor/templates/contributor_index.html:62
+#: fsr/templates/fsr_faq_index.html:62
+#: fsr/templates/fsr_faq_section.html:61
 #: fsr/templates/fsr_questionnaire_index.html:16
 #: fsr/templates/fsr_user_index.html:28
 msgid "Actions"
 msgstr "Aktionen"
 
 #: contributor/templates/contributor_index.html:39
-#: contributor/templates/contributor_index.html:83
+#: contributor/templates/contributor_index.html:84
+#: fsr/templates/fsr_faq_index.html:79
 #: fsr/templates/fsr_questionnaire_base.html:19
 #: fsr/templates/fsr_questionnaire_index.html:35
 #: fsr/templates/fsr_questionnaire_index.html:37
@@ -167,7 +174,7 @@ msgid "Edit"
 msgstr "Bearbeiten"
 
 #: contributor/templates/contributor_index.html:41
-#: contributor/templates/contributor_index.html:85
+#: contributor/templates/contributor_index.html:86
 msgid "View"
 msgstr "Anzeigen"
 
@@ -179,19 +186,19 @@ msgstr "Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E�
 msgid "Courses for which you are a delegate"
 msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
 
-#: contributor/templates/contributor_index.html:95
+#: contributor/templates/contributor_index.html:96
 msgid "There are no courses for you this semester yet."
 msgstr "Derzeit können Sie keine Veranstaltung als Stellvertreter bearbeiten."
 
-#: contributor/templates/contributor_index.html:99
+#: contributor/templates/contributor_index.html:100
 msgid "Own Profile"
 msgstr "Eigenes Profil"
 
-#: contributor/templates/contributor_index.html:100
+#: contributor/templates/contributor_index.html:101
 msgid "You can edit your own user profile here:"
 msgstr "Sie können Ihr eigenes Profil hier bearbeiten:"
 
-#: contributor/templates/contributor_index.html:100
+#: contributor/templates/contributor_index.html:101
 msgid "Edit own Profile"
 msgstr "Eigenes Profil bearbeiten"
 
@@ -330,7 +337,7 @@ msgid "questionnaire"
 msgstr "Fragebogen"
 
 #: evaluation/models.py:81
-#: evaluation/models.py:290
+#: evaluation/models.py:293
 msgid "questionnaires"
 msgstr "Fragebögen"
 
@@ -363,12 +370,11 @@ msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
 #: evaluation/models.py:120
-#: student/templates/student_index.html:26
 msgid "last date to vote"
-msgstr "Letzter Abstimmungstag"
+msgstr "letzter Bewertungstag"
 
 #: evaluation/models.py:132
-#: evaluation/models.py:288
+#: evaluation/models.py:291
 msgid "course"
 msgstr "Veranstaltung"
 
@@ -380,113 +386,152 @@ msgstr "Veranstaltungen"
 msgid "The vote start date must be before the vote end date."
 msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
-#: evaluation/models.py:261
+#: evaluation/models.py:264
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:289
+#: evaluation/models.py:292
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:293
+#: evaluation/models.py:296
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:312
+#: evaluation/models.py:315
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:313
+#: evaluation/models.py:316
 msgid "Grade Question"
 msgstr "Auswahlfrage"
 
-#: evaluation/models.py:317
+#: evaluation/models.py:320
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:318
+#: evaluation/models.py:321
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:320
+#: evaluation/models.py:323
 msgid "kind of question"
 msgstr "Frageart"
 
-#: evaluation/models.py:326
+#: evaluation/models.py:329
+#: evaluation/models.py:435
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:327
+#: evaluation/models.py:330
+#: evaluation/models.py:436
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:355
-#: evaluation/models.py:363
+#: evaluation/models.py:358
+#: evaluation/models.py:366
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:356
+#: evaluation/models.py:359
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:366
+#: evaluation/models.py:369
 msgid "grade answer"
 msgstr "Auswahlantwort"
 
-#: evaluation/models.py:367
+#: evaluation/models.py:370
 msgid "grade answers"
 msgstr "Auswahlantworten"
 
-#: evaluation/models.py:376
+#: evaluation/models.py:379
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:377
+#: evaluation/models.py:380
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: evaluation/models.py:379
+#: evaluation/models.py:382
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: evaluation/models.py:380
+#: evaluation/models.py:383
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: evaluation/models.py:383
+#: evaluation/models.py:386
 msgid "text answer"
 msgstr "Textantwort"
 
-#: evaluation/models.py:384
+#: evaluation/models.py:387
 msgid "text answers"
 msgstr "Textantworten"
 
-#: evaluation/models.py:400
+#: evaluation/models.py:404
+msgid "section order"
+msgstr "Reihenfolge"
+
+#: evaluation/models.py:406
+msgid "section title (german)"
+msgstr "Abschnittstitel (deutsch)"
+
+#: evaluation/models.py:407
+msgid "section title (english)"
+msgstr "Abschnittstitel (englisch)"
+
+#: evaluation/models.py:412
+msgid "section"
+msgstr "Abschnitt"
+
+#: evaluation/models.py:413
+msgid "sections"
+msgstr "Abschnitte"
+
+#: evaluation/models.py:423
+msgid "question order"
+msgstr "Reihenfolge"
+
+#: evaluation/models.py:425
+msgid "question (german)"
+msgstr "Fragetext (deutsch)"
+
+#: evaluation/models.py:426
+msgid "question (english)"
+msgstr "Fragetext (englisch)"
+
+#: evaluation/models.py:429
+#: evaluation/models.py:430
+msgid "answer (german)"
+msgstr "Antwort (deutsch)"
+
+#: evaluation/models.py:443
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:403
+#: evaluation/models.py:446
 msgid "Picture"
 msgstr "Foto"
 
-#: evaluation/models.py:406
+#: evaluation/models.py:449
 msgid "Delegates"
 msgstr "Stellvertreter"
 
-#: evaluation/models.py:411
+#: evaluation/models.py:454
 #: fsr/templates/fsr_user_index.html:51
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:412
+#: evaluation/models.py:455
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:415
+#: evaluation/models.py:458
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:416
+#: evaluation/models.py:459
 msgid "users"
 msgstr "Benutzer"
 
@@ -542,7 +587,7 @@ msgstr "überprüft"
 msgid "published"
 msgstr "veröffentlicht"
 
-#: evaluation/views.py:35
+#: evaluation/views.py:37
 msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
@@ -576,6 +621,19 @@ msgstr "Angegebenes Semester existiert nicht."
 msgid "Supplied statistic does not exist."
 msgstr "Angegebene Statistik existiert nicht."
 
+#: evaluation/templates/faq.html:5
+#: evaluation/templates/faq.html.py:9
+#: fsr/templates/fsr_index.html:57
+#: templates/base.html:59
+#: templates/base.html.py:82
+#: templates/base.html:139
+msgid "FAQ"
+msgstr "FAQ"
+
+#: evaluation/templates/faq.html:43
+msgid "These are the Frequently Asked Questions (FAQs)"
+msgstr "Diese sind die Häufig Gestellten Fragen (FAQs)"
+
 #: evaluation/templates/index.html:21
 #, python-format
 msgid ""
@@ -584,7 +642,7 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"  Sie sind zur Zeit als %(name)s angemeldet.\n"
+"  Sie sind zurzeit als %(name)s angemeldet.\n"
 "            "
 
 #: evaluation/templates/index.html:26
@@ -628,102 +686,102 @@ msgstr "Bitte geben Sie Ihre E‑Mail-Adresse ein, um einen neuen Anmeldeschlüs
 msgid "Send Key"
 msgstr "Schlüssel zusenden"
 
-#: fsr/forms.py:20
+#: fsr/forms.py:21
 msgid "First date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: fsr/forms.py:21
+#: fsr/forms.py:22
 msgid "Last date to vote"
 msgstr "Letzter Abstimmungstag"
 
-#: fsr/forms.py:23
+#: fsr/forms.py:24
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: fsr/forms.py:34
+#: fsr/forms.py:35
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: fsr/forms.py:35
+#: fsr/forms.py:36
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
-#: fsr/forms.py:107
+#: fsr/forms.py:108
 msgid "Send to participants?"
 msgstr "An Teilnehmer versenden?"
 
-#: fsr/forms.py:108
+#: fsr/forms.py:109
 msgid "Send to editors?"
 msgstr "An Mitwirkende mit Bearbeitungsrechten versenden?"
 
-#: fsr/forms.py:109
+#: fsr/forms.py:110
 msgid "Send to all contributors (includes editors)?"
 msgstr "An alle Mitwirkenden versenden?"
 
-#: fsr/forms.py:110
+#: fsr/forms.py:111
 #: fsr/models.py:21
 msgid "Subject"
 msgstr "Betreff"
 
-#: fsr/forms.py:111
+#: fsr/forms.py:112
 #: fsr/models.py:22
 msgid "Body"
 msgstr "Text"
 
-#: fsr/forms.py:122
+#: fsr/forms.py:123
 msgid "No recipient selected. Choose at least one group of recipients."
 msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie wenigstens eine Empfängergruppe aus."
 
-#: fsr/forms.py:146
+#: fsr/forms.py:147
 msgid "Answer"
 msgstr "Antwort"
 
-#: fsr/forms.py:147
+#: fsr/forms.py:148
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: fsr/forms.py:148
+#: fsr/forms.py:149
 msgid "Hidden"
 msgstr "Versteckt?"
 
-#: fsr/forms.py:202
+#: fsr/forms.py:203
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: fsr/forms.py:217
+#: fsr/forms.py:218
 msgid "Please select the name of each added contributor. Remove empty rows if necessary."
 msgstr "Bitte wählen Sie die Namen aller hinzugefügten Mitwirkenden aus. Entfernen Sie leere Zeilen, falls notwendig."
 
-#: fsr/forms.py:219
+#: fsr/forms.py:220
 msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben werden."
 
-#: fsr/forms.py:232
+#: fsr/forms.py:233
 msgid "No responsible contributor found. Each course must have exactly one responsible contributor."
 msgstr "Keine Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:234
+#: fsr/forms.py:235
 msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
 msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:343
+#: fsr/forms.py:344
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: fsr/forms.py:344
+#: fsr/forms.py:345
 msgid "EvaP Administrator"
 msgstr "EvaP Administrator"
 
-#: fsr/forms.py:347
+#: fsr/forms.py:348
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:370
+#: fsr/forms.py:371
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:388
+#: fsr/forms.py:389
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -761,118 +819,126 @@ msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d Mitwi
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: fsr/views.py:60
+#: fsr/views.py:64
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: fsr/views.py:74
+#: fsr/views.py:78
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: fsr/views.py:91
+#: fsr/views.py:95
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: fsr/views.py:115
+#: fsr/views.py:119
 msgid "Could not send emails to participants and contributors"
 msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 
-#: fsr/views.py:116
+#: fsr/views.py:120
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: fsr/views.py:151
+#: fsr/views.py:155
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: fsr/views.py:173
+#: fsr/views.py:177
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen importiert."
 
-#: fsr/views.py:198
+#: fsr/views.py:202
 #, python-format
 msgid "Successfully marked %d courses as ready for lecturer review."
 msgstr "Erfolgreich %d Veranstaltungen als Bereit für die Dozenten markiert."
 
-#: fsr/views.py:244
+#: fsr/views.py:248
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: fsr/views.py:258
+#: fsr/views.py:262
 msgid "Editting not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:281
+#: fsr/views.py:285
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:298
+#: fsr/views.py:302
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:332
+#: fsr/views.py:336
 #, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s. %(name)s is now fully reviewed."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft. %(name)s ist jetzt vollständig überprüft."
 
-#: fsr/views.py:337
+#: fsr/views.py:341
 #, python-format
 msgid "Successfully reviewed %(number)d course answers for %(name)s."
 msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
 
-#: fsr/views.py:358
+#: fsr/views.py:362
 #, python-format
 msgid "Successfully sent email to all participants/editors of '%s'."
 msgstr "Erfolgreich E‑Mail an alle Teilnehmer/Mitwirkende von '%s' versendet."
 
-#: fsr/views.py:360
+#: fsr/views.py:364
 #, python-format
 msgid "Successfully sent email to many participants/editors of '%(course)s', but %(count)d could not be reached as they do not have an email address."
 msgstr "E‑Mail wurde erfolgreich an viele Teilnehmer/Mitwirkende von '%(course)s' versendet, allerdings konnten %(count)d Personen nicht erreicht werden, da sie keine E‑Mail-Adresse haben."
 
-#: fsr/views.py:384
+#: fsr/views.py:388
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:450
-#: fsr/views.py:491
+#: fsr/views.py:454
+#: fsr/views.py:495
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:465
+#: fsr/views.py:469
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:472
+#: fsr/views.py:476
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:516
+#: fsr/views.py:520
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:544
+#: fsr/views.py:548
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:562
+#: fsr/views.py:566
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:583
+#: fsr/views.py:587
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:595
+#: fsr/views.py:599
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
+
+#: fsr/views.py:615
+msgid "Successfully updated the FAQ sections."
+msgstr "FAQ-Abschnitte erfolgreich geändert."
+
+#: fsr/views.py:632
+msgid "Successfully updated the FAQ questions."
+msgstr "FAQ-Fragen erfolgreich geändert."
 
 #: fsr/templates/fsr_base.html:7
 #: fsr/templates/fsr_base.html.py:12
@@ -969,6 +1035,27 @@ msgstr "Veranstaltungen"
 msgid "Do you really want to unpublish the course <em>%(name)s</em>?"
 msgstr "Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
 
+#: fsr/templates/fsr_faq_index.html:8
+#: fsr/templates/fsr_faq_section.html:8
+msgid "FAQ Sections"
+msgstr "FAQ-Abschnitte"
+
+#: fsr/templates/fsr_faq_index.html:91
+msgid "Save FAQ sections"
+msgstr "FAQ-Abschnitte speichern"
+
+#: fsr/templates/fsr_faq_section.html:59
+msgid "Question/Answer (german)"
+msgstr "Frage/Antwort (deutsch)"
+
+#: fsr/templates/fsr_faq_section.html:60
+msgid "Question/Answer (english)"
+msgstr "Fragetext/Antwort (englisch)"
+
+#: fsr/templates/fsr_faq_section.html:88
+msgid "Save FAQ section"
+msgstr "FAQ-Abschnitt speichern"
+
 #: fsr/templates/fsr_import.html:9
 msgid "Upload semester data from excel file ("
 msgstr "Semester aus Excel-Tabelle importieren ("
@@ -986,6 +1073,7 @@ msgstr "): Alle in der Datei enthaltenen Studierenden, Mitwirkenden und Kurse we
 #: fsr/templates/fsr_semester_base.html:21
 #: results/templates/results_index.html:8
 #: templates/base.html:53
+#: templates/base.html.py:76
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1015,7 +1103,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: fsr/templates/fsr_user_form.html:8
 #: fsr/templates/fsr_user_index.html:8
 #: templates/base.html:57
-#: templates/faq.html:76
+#: templates/base.html.py:80
 msgid "Users"
 msgstr "Benutzer"
 
@@ -1031,8 +1119,13 @@ msgstr "Verantwortliche"
 #: fsr/templates/fsr_index.html:49
 #: fsr/templates/fsr_template_form.html:8
 #: templates/base.html:58
+#: templates/base.html.py:81
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
+
+#: fsr/templates/fsr_index.html:59
+msgid "All Sections"
+msgstr "Alle Abschnitte"
 
 #: fsr/templates/fsr_questionnaire_base.html:20
 #: fsr/templates/fsr_questionnaire_index.html:40
@@ -1243,7 +1336,7 @@ msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 #: results/exporters.py:37
 #: results/templates/results_base.html:6
 #: results/templates/results_base.html:10
-#: templates/base.html:72
+#: templates/base.html:73
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1316,25 +1409,76 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 msgid "Evaluation"
 msgstr "Bewertung"
 
-#: student/templates/student_index.html:23
-msgid "You can vote on the following courses:"
-msgstr "Sie können die folgenden Veranstaltungen bewerten:"
+#: student/templates/student_index.html:21
+msgid "Courses for evaluation"
+msgstr "Zu evaluierende Veranstaltungen"
 
-#: student/templates/student_index.html:30
-msgid "You cannot vote on any courses right now."
-msgstr "Sie können zur Zeit keine Veranstaltungen bewerten."
+#: student/templates/student_index.html:26
+msgid "You can vote on the following courses:"
+msgstr "Du kannst die folgenden Veranstaltungen bewerten:"
+
+#: student/templates/student_index.html:29
+#: student/templates/student_index.html:41
+msgid "until"
+msgstr "bis zum"
 
 #: student/templates/student_index.html:33
+msgid "You cannot vote on any courses right now."
+msgstr "Du kannst zurzeit keine Veranstaltungen bewerten."
+
+#: student/templates/student_index.html:38
 msgid "You will be able to vote on the following courses soon:"
-msgstr "Sie können bald die folgenden Veranstaltungen bewerten:"
+msgstr "Die folgenden Veranstaltungen kannst du bald bewerten:"
 
-#: student/templates/student_index.html:36
-msgid "can be voted on from"
-msgstr "Evaluierbar vom"
+#: student/templates/student_index.html:41
+msgid "from"
+msgstr "vom"
 
-#: student/templates/student_index.html:36
-msgid "till"
-msgstr "bis zum"
+#: student/templates/student_index.html:52
+msgid "Evaluation info"
+msgstr "Evaluierungs-Infos"
+
+#: student/templates/student_index.html:55
+msgid "Anonymity"
+msgstr "Anonymität"
+
+#: student/templates/student_index.html:56
+msgid "Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses."
+msgstr "Deine abgegebenen Stimmen und Kommentare können dir technisch nicht zugeordnet werden. Dir sollte aber bewusst sein, dass dich Dozenten insbesondere in kleinen Veranstaltungen an deinem Schreibstil erkennen könnten."
+
+#: student/templates/student_index.html:57
+#: student/templates/student_index.html:61
+#: student/templates/student_index.html:65
+msgid "More details:"
+msgstr "Mehr Infos:"
+
+#: student/templates/student_index.html:57
+msgid "FAQ/Anonymity"
+msgstr "FAQ/Anonymität"
+
+#: student/templates/student_index.html:59
+msgid "References to other answers"
+msgstr "Verweise auf andere Antworten"
+
+#: student/templates/student_index.html:60
+msgid "Lecturers can't see completed questionnaires as a whole. If you would write \"see above\", the lecturer can't find the respective answer."
+msgstr "Dozenten können sich keine kompletten Fragebögen ansehen. Wenn du in einem Kommentar schreibst \"wie oben schon erwähnt\", kann der Dozent die zugehörige Antwort nicht finden."
+
+#: student/templates/student_index.html:61
+msgid "FAQ/Reference"
+msgstr "FAQ/Verweise"
+
+#: student/templates/student_index.html:63
+msgid "Evaluation Results"
+msgstr "Evaluierungs-Ergebnisse"
+
+#: student/templates/student_index.html:64
+msgid "Your comments and the average grades will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
+msgstr "Deine Kommentare und die durchschnittlichen Noten werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die durchschnittlichen Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
+
+#: student/templates/student_index.html:65
+msgid "FAQ/Results"
+msgstr "FAQ/Ergebnisse"
 
 #: student/templates/student_vote.html:41
 msgid "Vote"
@@ -1361,420 +1505,46 @@ msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
 #: templates/base.html:52
+#: templates/base.html.py:75
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/base.html:64
+#: templates/base.html:65
 msgid "My courses"
 msgstr "Veranstaltungen"
 
-#: templates/base.html:68
+#: templates/base.html:69
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:81
+#: templates/base.html:89
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:83
+#: templates/base.html:91
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:84
+#: templates/base.html:92
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:88
+#: templates/base.html:96
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:100
+#: templates/base.html:108
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:127
+#: templates/base.html:135
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:131
-#: templates/faq.html:5
-#: templates/faq.html.py:9
-msgid "FAQ"
-msgstr "FAQ"
-
-#: templates/base.html:134
+#: templates/base.html:142
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:136
+#: templates/base.html:144
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-
-#: templates/faq.html:14
-msgid "These are the Frequently Asked Questions (FAQs)"
-msgstr "Die sind die Häufig Gestellten Fragen (FAQs)"
-
-#: templates/faq.html:16
-msgid "General"
-msgstr "Allgemeines"
-
-#: templates/faq.html:19
-msgid "What is evaluation?"
-msgstr "Was ist die Evaluierung?"
-
-#: templates/faq.html:21
-msgid ""
-"\n"
-"        It's the assessment of all the courses at the HPI. It's the goal to improve the teaching quality by giving the lecturers feedback for their courses.\n"
-"        "
-msgstr ""
-"\n"
-"Unter Evaluierung verstehen wir die Beurteilung von Lehrveranstaltungen am HPI. Ziel ist es, die Qualität der Lehre zu verbessern, indem die Dozenten und die HPI-Leitung Feedback zu den einzelnen Veranstaltungen erhalten. <br>Die Studenten können vor Beginn der Prüfungen mittels eines Online-Systems anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die Auswertung der Fragebögen wird frühestens veröffentlicht, wenn die Benotung seitens der Dozenten für die jeweilige Veranstaltung abgeschlossen ist. Sie ist den HPI-Studenten, den Dozenten und der Geschäftsführung (GF) durch das Evaluierungssystem zugänglich."
-
-#: templates/faq.html:27
-msgid "What is EvaP?"
-msgstr "Was ist EvaP?"
-
-#: templates/faq.html:29
-msgid ""
-"\n"
-"        It's this new platform - replacing the infamous EvaJ.\n"
-"        "
-msgstr ""
-"\n"
-"Von 2005 bis 2011 war dafür EvaJ – eine von HPI Studenten im Rahmen eines Seminars entwickelte Java-Anwendung im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufwändig geworden ist. Das neue System namens EvaP basiert auf Python und wurde von Michael Grünewald und Stefan Richter in Zusammenarbeit mit dem Fachschaftsrat entwickelt. Ab WS 2011/12 soll es zum Einsatz kommen."
-
-#: templates/faq.html:35
-msgid "Where are the data coming from?"
-msgstr "Wo kommen die Daten her?"
-
-#: templates/faq.html:37
-msgid ""
-"\n"
-"        The different information, imported into the system, are provided by the Studienreferat.<br>\n"
-"        After that the lectures, their delegates or the student representatives correct any mistakes.<br>\n"
-"        If you just found another error please contact the responsible lecturer or the student representatives.\n"
-"        "
-msgstr ""
-"\n"
-"Die verschiedenen Informationen, die in das System importiert wurden werden uns vom Studienreferat zu Verfügung gestellt. Danach werden von den Dozenten, deren Stellvertretern oder dem FSR mögliche Fehler korrigiert. Falls Sie dennoch weitere Fehler entdeckt haben kontaktieren Sie bitte den zuständigen Dozenten oder den FSR."
-
-#: templates/faq.html:48
-msgid "How are questionnaires constructed?"
-msgstr "Wie sind Fragebögen aufgebaut?"
-
-#: templates/faq.html:50
-msgid ""
-"\n"
-"        Every questionnaire of a lecture consists of different sub-questionnaires, e.g. about the contents or the teaching assistant.<br>\n"
-"        Each sub-questionnaire consists of one ore more questions.\n"
-"        "
-msgstr ""
-"\n"
-"Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Teil-Fragebögen, z.B. Fragen zu Lehrmitteln, dem Übungsleiter und dem Inhalt. Jeder dieser Teilfragebögen wiederum besteht aus ein oder mehreren Fragen."
-
-#: templates/faq.html:57
-msgid "What types of questions are there?"
-msgstr "Welche Arten von Fragen gibt es? "
-
-#: templates/faq.html:59
-msgid ""
-"\n"
-"        There are two general types of questions:<br>\n"
-"        The first is called \"Likert\" and consists of five possible answers - from \"strongly agree\" to \"strongly disagree\".\n"
-"        Additionally there is the option to give <em>no answer</em>.<br>\n"
-"        With the second type it is possible to leave text comments, if the other questions miss an interesting point.\n"
-"        "
-msgstr ""
-"\n"
-"Grundsätzlich gibt es außerdem zwei Fragetypen:<ul><li>Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer Skala von 1 bis 5 ermitteln. Dabei steht 1 für volle Zustimmung und 5 für volle Ablehnung. Des Weiteren gibt es ein <em>keine Angabe</em>-Feld, sodass man sich enthalten kann.</li><li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li></ul>"
-
-#: templates/faq.html:69
-msgid "How are questionnaires assigned to courses?"
-msgstr "Wie werden Fragebögen einer Lehrveranstaltung zugeordnet?"
-
-#: templates/faq.html:71
-msgid ""
-"\n"
-"        In general the assignment is done by the student representatives. But the lecturers can add additional questionnaires themselves, if they have special questions.\n"
-"        "
-msgstr ""
-"\n"
-"Grundlegend nimmt die Zuordnung passender Fragebögen der Fachschaftsrat vor. Zusätzlich können die Dozenten eigene Fragebögen ergänzen, falls Sie spezielle Fragen stellen wollen."
-
-#: templates/faq.html:79
-msgid "How do I log into the system?"
-msgstr "Wie melde ich mich am System an?"
-
-#: templates/faq.html:81
-msgid ""
-"\n"
-"        If you are an HPI student or lecturer you can just use your usual credentials.<br>\n"
-"        If you are an external student or lecturer you can get an access token by Email.\n"
-"        "
-msgstr ""
-"\n"
-"Für die Anmeldung am System gibt es zwei Möglichkeiten:<ul>\t<li>Anmeldung über Kerberos mit dem HPI-Login</li>\t<li>Für externe Nutzer: Anmeldung über einen Link, der per E‑Mail verschickt wurde</li></ul>"
-
-#: templates/faq.html:88
-msgid "How are users registered? Who is able to create new users?"
-msgstr "Wie werden Nutzer registriert? Wer kann neue Benutzer anlegen?"
-
-#: templates/faq.html:90
-msgid ""
-"\n"
-"        New users are created by the Student Representatives. Ask them if there is the need for new users.\n"
-"        "
-msgstr ""
-"\n"
-"Neue werden beim Datenimport automatisch angelegt. Zusätzlich kann der FSR weitere Nutzer anlegen, falls dies notwendig ist."
-
-#: templates/faq.html:96
-msgid "What are delegates?"
-msgstr "Was sind Stellvertreter?"
-
-#: templates/faq.html:98
-msgid ""
-"\n"
-"        As professors do not have much time, it is possible for them to elect one or more delegates, e.g. a secretary or an employee of the chair.\n"
-"        These people then can edit the courses as the original lecturer could, i.e. add questionnaires and setup the correct assistants and evaluation period.\n"
-"        "
-msgstr ""
-"\n"
-"Für die Vorbereitung der Evaluierung werden bestimmte Informationen, wie z.B. die Namen der Übungsleiter benötigt. Diese Informationen können von den Hauptdozenten eingetragen werden. Die Hauptdozenten sind die Lehrpersonen, die im Belegungsimport genannt werden. Da jedoch beispielsweise ein Professor nicht für alle Veranstaltungen jedes Semester diese Informationen eintragen möchte, bietet EvaP die Möglichkeit, einen oder mehrere Stellvertreter zu definieren. Dieser <i>erbt</i> die Rechte des Dozenten."
-
-#: templates/faq.html:104
-msgid "Publication of results"
-msgstr "Veröffentlichung der Ergebnisse"
-
-#: templates/faq.html:107
-msgid "How are the results publicised?"
-msgstr "In welcher Form werden die Ergebnisse veröffentlicht?"
-
-#: templates/faq.html:109
-msgid ""
-"\n"
-"        The results are viewable in the EvaP system, after the exams for the course are done.<br>\n"
-"        Later the student representatives will hang out a hard copy of the results.\n"
-"        "
-msgstr ""
-"\n"
-"Jede Veranstaltung taucht in der Übersichtsliste auf mit dem Titel und einer Gesamtnote. Außerdem gibt es eine Detailansicht mit den aggregierten Antworten aller Einzelfragen. Zusätzlich zur Online-Darstellung gibt es einen Export, der ausgedruckt wird."
-
-#: templates/faq.html:116
-msgid "What information are in the printed export?"
-msgstr "Welche Informationen enthält der Ausdruck?"
-
-#: templates/faq.html:118
-msgid ""
-"\n"
-"        These prints contain the exact same information as shown in this system.<br>\n"
-"        The involved lecturers can also view the comments, which were given to them.\n"
-"        "
-msgstr ""
-"\n"
-"Für den Aushang bietet EvaP einen Export. Dieser enthält für alle Likert-Fragen die Durchschnittsnoten und die Standardabweichung. Nicht veröffentlicht sind hier die Kommentare. Im Studenten-Export finden sich nur Frageergebnisse mit ausreichender Repräsentativität (d.h. mindestens 5 Stimmen). Im GF-Export sind alle Ergebnisse vorhanden.<br>Die Ergebnisse von Personenfragen werden pro Frage zusammengefasst, d.h. alle Antworten zu Übungsleitern gehen in ein Ergebnis, die Antworten zu Dozenten jeweils ebenso. Siehe auch Abschnitt zu Gesamtnote."
-
-#: templates/faq.html:125
-msgid "How is the overall grade calculated?"
-msgstr "Wie wird die Gesamtnote berechnet?"
-
-#: templates/faq.html:127
-msgid ""
-"\n"
-"        The overall grade is the arithmetic average of all sub-grades.<br>\n"
-"        All personal questions together are equally weighted to the questions about the course itself.\n"
-"        "
-msgstr ""
-"\n"
-"Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten werden wiederum über den Durchschnitt aller abgegebenen Likert-Fragen berechnet. Alle Personennoten werden zusammen mit 50%% gewichtet und die Sachfragen zählen zusammen die restlichen 50%%."
-
-#: templates/faq.html:134
-msgid "How many answers are necessary to assure the representativeness?"
-msgstr "Wie viele Antworten müssen pro Frage abgegeben worden sein, damit sie veröffentlicht werden können und warum?"
-
-#: templates/faq.html:136
-msgid ""
-"\n"
-"        Currently at least five (5) answers are necessary (except <em>no answer</em>) to assure the representativeness.<br>\n"
-"        If you do not agree with that write an Email or just come over to start a discussion with the student representatives.\n"
-"        "
-msgstr ""
-"\n"
-"Im alten System wurden Evaluierungsergebnisse einer Lehrveranstaltung nur dann für die Studenten veröffentlicht, wenn mindestens fünf Fragebögen abgesendet wurden. Ziel war, dass nur aussagekräftige/repräsentative Ergebnisse veröffentlicht werden. Dabei wird die Repräsentativität nicht mittels der abgesandten Fragebögen für jede Lehrveranstaltung, sondern mittels der Stimmen <em>pro einzelner Frage</em> entschieden. Das heißt, die Auswertung einer Likert-Frage wird dann vom System veröffentlicht, wenn mindestens fünf (5) Stimmen (<em>keine Angabe</em>-Stimmen zählen hierbei nicht) für diese Frage abgegeben wurden. Das kann dazu führen, dass einige Fragen eines Fragebogens veröffentlicht werden, andere jedoch nicht.<br>Zusätzlich wird im Ergebnis angezeigt, wie viele Stimmen insgesamt für eine Frage abgegeben wurden, damit man ein grobes Gefühl für die Repräsentativität des Ergebnisses bekommt. Dadurch ergibt sich auch die Anzahl der „keine Antwort“- Stimmen, denn für eine Veranstaltung wird angegeben, wie viele Fragebögen insgesamt abgegeben wurden, sowie wie viele Studierende das Fach belegt haben. Wenn eine Frage von vielen Studenten mit „keine Angabe“ bewertet wurde, könnte das ein Hinweis darauf sein, dass sie zur Lehrveranstaltung nicht gut gepasst hat."
-
-#: templates/faq.html:142
-msgid "Details for Lectures"
-msgstr "Details für Dozenten"
-
-#: templates/faq.html:145
-msgid "What data are necessary for a course and why?"
-msgstr "Welche Daten muss ich für eine Lehrveranstaltung angeben und warum?"
-
-#: templates/faq.html:147
-msgid ""
-"\n"
-"        You can define all involved persons and their questionnaires. So it is possible for the students to give specific feedback.<br>\n"
-"        The evaluation period can be changed to fit to specific important dates of the lecture.\n"
-"        "
-msgstr ""
-"\n"
-"Sie können die involvierten Lehrbeauftragte und deren Fragebögen detailliert festlegen, um individuelle Bewertungen zu ermöglichen und den beteiligten Personen zielgerichtet Feedback zukommen zu lassen. Sie können überprüfen, ob der gewählte Evaluierungszeitraum korrekt ist und ihr gegenbenfalls anpassen. Beachten sie dabei folgende Hinweise: <a href=\"#evaluation_period\">Hinweise zum Evaluationszeitraum</a>"
-
-#: templates/faq.html:154
-msgid "How should I configure the evaluation period of my course?"
-msgstr "Wie sollte der Evaluierungszeitraum gesetzt werden?"
-
-#: templates/faq.html:156
-msgid ""
-"\n"
-"        The evaluation must not influence the assessment of the students. So there are different criteria for the period:\n"
-"        <ul>\n"
-"            <li>It should end before the written exam or the first oral exam.</li>\n"
-"            <li>It should be at least one week long.</li>\n"
-"            <li>It should start after one of the last lectures and not right at the beginning or after every lecture is held.</li>\n"
-"        </ul>\n"
-"        Of course there are courses for which it is not possible to fulfil all of the criteria. Please contact the student representatives, if you are not sure.\n"
-"        "
-msgstr ""
-"\n"
-"Die Evaluierung darf nicht die Notengebung nicht beeinflussen. Dies sollte natürlich umgekehrt ebnso gelten. Dies soll dadurch gewährleistet werden, indem die Evaluierung vor der letzten Prüfungsleistung abgeschlossen sein soll und die Ergebnisse der Evaluierung erst nach Bekanntgabe der Noten veröffentlicht werden. Der Evaluationszeitraum sollte mindestens eine Woche sein und wird standardmäßig auf die letzten Woche Vorlesungszeit gesetzt. Im folgenden werden ein paar Beispiele erläutert, in den es Sinn machen könnte, die Standardeinstellung zu verändern.<ol><li>Vorlesung mit oder ohne Zwischenklausur: Evaluation sollte vor der Endklausur stattfinden, da zu diesem Zeitpunkt die Studierenden einen umfassenden Überblick über die Lehrveranstaltung erhalten haben und der Hauptteil der Prüfungsleistung noch nicht erbracht ist. In diesem Fall kann also der Standard belassen werden.</li><li>Blockseminar mit mehreren Terminen: Die Evaluation kann direkt vor dem letzten Prüfungsblock abgeschlossen werden. Der Evaluationszeitraum sollte aber nur bis dahin verschoben werden, falls es im letzten Block keinen oder nur noch kaum Lehrinhalt gibt. Ansonsten kann die Evaluation auch nach der Prüfung stattfinden.</li><li>Blockseminar in den Ferien: Hier sollte unbedingt der Evaluationszeitraum nach hinten verschoben werden. Gibt es zwischen Lehrinhalt und Prüfung keine ausreichende Zeit, so sollte die Evaluation nach der Prüfung durchgeführt werden.</li><li>Paper-/Projektseminar: Nach dem letzten regelmäßigen Treffen oder Vortrag wäre ein geeigneter Termin. Sollten Noten nicht vor dem regulären Evaluationszeitraum veröffentlicht werden, raten wir dringend dazu den Standardtermin zu belassen, damit die Studierenden nicht zu viele verschiedene Evaluationszeiträume haben.</li></ol>"
-
-#: templates/faq.html:168
-msgid "What do the different course states mean?"
-msgstr "Was bedeuten die Status einer Lehrveranstaltung?"
-
-#: templates/faq.html:170
-msgid ""
-"\n"
-"        There are eigth (8) different states a course can be in:\n"
-"        <ol>\n"
-"        <li><em>new:</em>\n"
-"            Right after import or creation by the student representatives all courses are in this state. The student\n"
-"            representatives new pre check these information and changes the course into the next state. This is\n"
-"            mainly \"pending for lecturer approval\". If this happens an Email is sent to the lecturers.</li>\n"
-"        <li><em>prepared:</em>\n"
-"            In this state the lecturers can edit their courses, i.e. add and remove participants or change the\n"
-"            evaluation period. If necessary the student representatives can approve the course, changing the\n"
-"            state to \"approved by FSR\".</li>\n"
-"        <li><em>lecturer approved by lecturer:</em>\n"
-"            After a lecturer approved a course the student representatives are checking the data and finally\n"
-"            approve the course themselves.</li>\n"
-"        <li><em>approved:</em>\n"
-"            After a course is approved (by the student representatives ultmatly) it is in this state. It will get\n"
-"            into the next state automatically, if the start of the evaluation period is reched.</li>\n"
-"        <li><em>in evaluation:</em>\n"
-"            In this state the participants can give their answers.</li>\n"
-"        <li><em>evaluated:</em>\n"
-"            After the end of the evaluation period is reached, the course will get into this state automatically.\n"
-"            Here the student representatives have to review all comment to remove inappropriate comments.</li>\n"
-"        <li><em>reviewed:</em>\n"
-"            Only after the grades are published by the lecturers the courses can be published by the student representatives.</li>\n"
-"        <li><em>published:</em>\n"
-"            Finally the results are here available in the system and the printout can be done, if nearly all courses\n"
-"            are in this state.</li>\n"
-"        </ol>\n"
-"        "
-msgstr ""
-"\n"
-"Es gibt acht (8) verschiedene Status, in der eine Lehrveranstaltung sein kann:\n"
-"<ol>\n"
-"<li><em>neu:</em>\n"
-"Direkt nach dem Import oder dem manuellen anlegen einer Lehrveranstaltung ist die in diesem Zustand. Der FSR kontrolliert diese Daten an dieser Stelle nur kurz lässt die Lehrveranstaltungen in den nächsten Zustand übergehen. Dies ist meist \"vorbereitet\". Wenn dies passiert wird vom System eine Email an die Dozenten verschickt.</li>\n"
-"<li><em>vorbereitet:</em>\n"
-"In diesem Zustand können die Dozenten ihre Lehrveranstaltungen bearbeiten, bspw. Teilnehmer hinzufügen oder entfernen oder den Evaluationszeitraum anpassenFalls notwendig kann der FSR die Daten selbst ändern und bestätigen, was den Status sofort zu \"bestätigt\" äußert.</li>\n"
-"<li><em>vom Dozenten bestätigt:</em>\n"
-"Nachdem ein Dozent einen Kurs bestätigt hat überprüft der FSR die Daten erneut und bestätigt schließlich den Kurs</li>\n"
-"<li><em>bestätigt:</em>\n"
-"Nachdem ein Kurs bestätigt wurde (schlußendlich vom FSR), so ist er in diesem Status.Er geht automatisch in den nächsten Status über, sobald der Evaluationszeitraum beginnt.</li>\n"
-"<li><em>in Evaluierung:</em>\n"
-"In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li>\n"
-"<li><em>evaluiert:</em>\n"
-"Nach dem Ende des Evaluationszeitraumes geht jede Veranstaltung automatisch in diesen Zustand über. Vom FSR werden hier alle Kommentare durchgesehen überprüft wobei unpassende entfernt bzw. angepasst werden.</li>\n"
-"<li><em>überprüft:</em>\n"
-"Erst nachdem die Noten einer Lehrveranstaltung bekanntgemacht wurden können dessen Abstimmungsergebnisse vom FSR freigeschaltet werden.</li>\n"
-"<li><em>veröffentlicht:</em>\n"
-"Schließlich sind die Evaluierungsergebnisse hier im System verfügbar. Nach dem dies für meisten Lehrveranstaltungen passiert ist, kann der FSR den Ausdruck vorbereiten und aushängen.</li>\n"
-"</ol>"
-
-#: templates/faq.html:202
-msgid "When will I get which Email notice?"
-msgstr "Welche E‑Mail-Benachrichtigungen erhalte ich wann?"
-
-#: templates/faq.html:204
-msgid ""
-"\n"
-"        At some point in the middle of the semester you get an Email with all your courses to edit them if needed.<br>\n"
-"        You will also get an Email after the results are available.\n"
-"        "
-msgstr ""
-"\n"
-"Am Anfang des Semesters bekommen Sie (aber nicht Ihre Stellvertreter) eine E-Mail, die einen Link zum EvaP System enthält. In dieser E‑Mail werden Sie gebeten, die aus den grundlegenden Lehrveranstaltungsdaten importierten Details anzupassen.<br>Nachdem Sie die Noten bekanntgemacht haben, werden die Ergebnisse der Evaluierung bekannt gegeben. An alle involvierten Personen versendet der FSR  eine E‑Mail, die einen Link zur EvaP Seite enthält und einen Link zur Gesamtübersicht. Sie können sich auf der EvaP Seite zusätzlich alle Kommentare zu Ihren Lehrveranstaltungen anschauen."
-
-#: templates/faq.html:211
-msgid "Which results do I see and what do they mean?"
-msgstr "Welche Informationen sehe ich bei der Auswertung und was bedeuten diese?"
-
-#: templates/faq.html:213
-msgid ""
-"\n"
-"        You can see the average grade and standard deviation of all Likert questions.<br>\n"
-"        Additionally you can view the comments the students gave to you, the course or the other people involved in the course.\n"
-"        "
-msgstr ""
-"\n"
-"Sie sehen für alle Likert-Fragen die Durchschnittsnoten und Standardabweichung. Außerdem können Sie alle Antworten auf Kommentarfragen anschauen. Diese wurden ggf. vom FSR bearbeitet oder es wurden einige unpassendeKommentare entfernt. "
-
-#: templates/faq.html:219
-msgid "Details for Students"
-msgstr "Details für Studierende"
-
-#: templates/faq.html:222
-msgid "How complete do I have to fill in the questionnaires?"
-msgstr "Wie (vollständig) muss ich den Fragebogen ausfüllen, damit er gewertet wird?"
-
-#: templates/faq.html:224
-msgid ""
-"\n"
-"        As complete as possible :)<br><br>\n"
-"        The results are only published if the representativeness is guaranteed.\n"
-"        All Likert questions need to be answered (at least with <em>no answer</em>), but not one text comment question, to submit an questionnaire.\n"
-"        "
-msgstr ""
-"\n"
-"So vollständig wie möglich. Bitte gib eine Stimme für jede Frage ab, die du beurteilen kannst. Nur bei ausreichender Stimmenanzahl werden die Ergebnisse veröffentlicht, sodass auch andere Studenten etwas davon haben.<br>Jede Likert-Frage muss ausgefüllt werden (notfalls mit „keine Angabe“), damit der Fragebogen abgesendet werden kann. Kommentarfragen müssen nicht ausgefüllt werden.<br>Siehe auch: <a href=\"#representativeness\">Repräsentativität</a>"
-
-#: templates/faq.html:232
-msgid "What happens to my comments?"
-msgstr "Was passiert mit den Kommentaren?"
-
-#: templates/faq.html:234
-msgid ""
-"\n"
-"        As we cannot assure the representativeness or anonymity here all comments are provided to all people involved in the course they were given.<br>\n"
-"        But the student representatives reserve the possibility to remove or change insults or other inappropriate texts.\n"
-"        "
-msgstr ""
-"\n"
-"Für Kommentarfragen gibt es keine Einschränkung aufgrund der Repräsentativität, da wir die Kommentare nicht inhaltlich entsprechend auswerten können. Alle Kommentare werden für den jeweiligen Dozenten veröffentlicht, egal wie viele Antworten es insgesamt gab.<br>Allerdings werden die Kommentare vor der Veröffentlichung für die Dozenten (für Studenten sind sie grundsätzlich nicht einsehbar) vom Fachschaftsrat „zensiert“ (siehe auch Kapitel Bearbeitung der Kommentare). Kurz gesagt werden unangemessene Beleidigungen und unsachliche Äußerungen entfernt/korrigiert. Wer seine Kritik sachlich und konstruktiv äußert, wird auch nicht zensiert."
-
-#: templates/faq.html:241
-msgid "How anonymous is my vote?"
-msgstr "Inwiefern ist meine Stimme anonym?"
-
-#: templates/faq.html:243
-msgid ""
-"\n"
-"        The system guarantees that there is no connection between a vote and a user.\n"
-"        It is just stored which user already submitted which questionnaire.\n"
-"        Pay attention: We cannot assure anonymity regarding text comment questions as it is possible for\n"
-"        the lecturer to guess from the contest or grammar of the text the student writing it.\n"
-"        <br><br>\n"
-"        All text answers are given in an arbitrary order - so you should not refer to your own answers (like \"see above\" or \"same as other teaching assistant\").\n"
-"        "
-msgstr ""
-"\n"
-"Das System stellt sicher, dass die erfasste Stimme nicht einem Nutzer zugeordnet werden kann. Das System speichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausgefüllt hat. Wenn du also nicht gerade der einzige bist, der abgestimmt hat, ist es nicht mehr nachvollziehbar, dass du diese Note / diesen Kommentar abgegeben hast.<br><em>Aber Achtung</em>: Bei Kommentar-Fragen gibt es nur eine technische Anonymität. Denn durch die gewählte Sprache und den Inhalt ist es dem Dozenten gerade bei Seminaren manchmal möglich, die Kommentare einzelnen Personen zuzuschreiben. Hier kann das System keine Anonymität gewährleisten. Beim Formulieren der Kommentare muss dir das bewusst sein.<br>Für die Dozenten ist es jedoch nicht möglich, ausgefüllte Fragebögen anzusehen. Denn die Stimmen werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden."
-
-#~ msgid "Select a semester: "
-#~ msgstr "Semester auswählen:"

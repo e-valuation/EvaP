@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "FAQ" %} - {{ block.super }}{% endblock %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ" %}</a></li>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var anchor = "";
+
+        function endsWith(str, suffix) {
+            return str.indexOf(suffix, str.length - suffix.length) !== -1;
+        }
+
+        $(document).ready(function() {                        
+            anchor = window.location.hash.replace("#", "");
+            anchor = anchor.split('-');
+            id = anchor[0];
+            type = 'q';
+            if(anchor.length > 1)
+                type = anchor[1];
+
+            if(type == "q" && id != ""){
+                $("#" + id).collapse('show');
+                window.history.pushState('', id, '/faq#' + id + '-q');
+            }
+
+            setTimeout(function() {
+                console.log("timeout");
+                window.scrollBy(0,-65);
+            }, 100);
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h2>
+
+    <div class="panel-group" id="accordion">
+        {% for section in sections %}
+            <h3 id="{{ section.id }}-s">{{ section.title }}</h2>
+            {% for question in section.questions.all %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title" id="{{ question.id }}-q">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">{{ question.question }}</a>
+                        </h4>
+                    </div>
+                    <script type="text/javascript">
+                        document.write('<div id="{{ question.id }}" class="panel-collapse collapse">');
+                    </script>
+                    <noscript>
+                        <div id="{{ question.id }}" class="panel-collapse collapse in">
+                    </noscript>
+                        <div class="panel-body">
+                            {{ question.answer|safe }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <br />
+{% endblock %}

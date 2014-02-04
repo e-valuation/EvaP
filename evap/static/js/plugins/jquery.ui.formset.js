@@ -47,22 +47,21 @@
                     // the remove button in the cell with the delete box
                     var del = row.find('input[id $= "-DELETE"]');
                     if (del.length) {
-                        (del.parent().is("div")?del.parent():del).before('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                        (del.parent().is("div")?del.parent():del).before('<a class="' + options.deleteCssClass + ' ' + options.additionalDeleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
                     } else {
                         // if this fails, use the last cell
-                        row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                        row.children(':last').append('<a class="' + options.deleteCssClass + ' ' + options.additionalDeleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
                     }
-                    
-                    
                 } else if (row.is('UL') || row.is('OL')) {
                     // If they're laid out as an ordered/unordered list,
                     // insert an <li> after the last list item:
-                    row.append('<li><a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a></li>');
+                    row.append('<li><a class="' + options.deleteCssClass + ' ' + options.additionalDeleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a></li>');
                 } else {
                     // Otherwise, just insert the remove button as the
                     // last child element of the form's container:
-                    row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
+                    row.append('<a class="' + options.deleteCssClass + ' ' + options.additionalDeleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
                 }
+
                 row.find('a.' + options.deleteCssClass).click(function() {
                     var row = $(this).parents('.' + options.formCssClass),
                         del = row.find('input:hidden[id $= "-DELETE"]'),
@@ -149,7 +148,7 @@
             // FIXME: Perhaps using $.data would be a better idea?
             options.formTemplate = template;
 
-            if ($$.attr('tagName') == 'TR') {
+            if ($$.prop('tagName') == 'TR') {
                 // If forms are laid out as table rows, insert the
                 // "add" button in a new table row:
                 var numCols = $$.eq(0).children().length;
@@ -188,6 +187,7 @@
         deleteText: 'remove',            // Text for the delete link
         addCssClass: 'add-row',          // CSS class applied to the add link
         deleteCssClass: 'delete-row',    // CSS class applied to the delete link
+        additionalDeleteCssClass: '',    // CSS classes applied to the delete link, but not used for locating it
         formCssClass: 'dynamic-form',    // CSS class applied to each form in a formset
         extraClasses: [],                // Additional CSS classes, which will be applied to each form in turn
         added: null,                     // Function called each time a new form is added
