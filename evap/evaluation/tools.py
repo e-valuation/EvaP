@@ -14,6 +14,7 @@ GRADE_NAMES = {
     3: _(u"Neither agree nor disagree"),
     4: _(u"Disagree"),
     5: _(u"Strongly disagree"),
+    6: _(u"no answer"),
 }
 
 STATES_ORDERED = SortedDict((
