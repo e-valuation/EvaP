@@ -105,9 +105,10 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseEmailForm(forms.Form, BootstrapMixin):
-    sendToParticipants = forms.BooleanField(label=_("Send to participants?"), required=False, initial=True)
-    sendToEditors = forms.BooleanField(label=_("Send to editors?"), required=False)
-    sendToContributors = forms.BooleanField(label=_("Send to all contributors (includes editors)?"), required=False)
+    sendToDueParticipants = forms.BooleanField(label=_("Send to participants who didn't vote yet"), required=False, initial=True)
+    sendToAllParticipants = forms.BooleanField(label=_("Send to all participants"), required=False)
+    sendToEditors = forms.BooleanField(label=_("Send to editors"), required=False)
+    sendToContributors = forms.BooleanField(label=_("Send to all contributors (includes editors)"), required=False)
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Body"))
     
@@ -119,7 +120,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def clean(self):
         cleaned_data = self.cleaned_data
         
-        if not (cleaned_data.get('sendToParticipants') or cleaned_data.get('sendToEditors') or cleaned_data.get('sendToContributors')):
+        if not (cleaned_data.get('sendToDueParticipants') or cleaned_data.get('sendToAllParticipants') or cleaned_data.get('sendToEditors') or cleaned_data.get('sendToContributors')):
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
         
         return cleaned_data
@@ -130,12 +131,12 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len([user for user in self.template.recipient_list_for_course(self.instance, self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToParticipants')) if not user.email])
+        return len([user for user in self.template.recipient_list_for_course(self.instance, self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToDueParticipants'), self.cleaned_data.get('sendToAllParticipants')) if not user.email])
     
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_courses([self.instance], self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToParticipants'))
+        self.template.send_courses([self.instance], self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToDueParticipants'), self.cleaned_data.get('sendToAllParticipants'))
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:

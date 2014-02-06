@@ -38,11 +38,14 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
     
     @classmethod
-    def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_participants):
+    def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
         from evap.evaluation.models import UserProfile
 
-        if send_to_participants:
+        if send_to_all_participants:
             for user in course.participants.all():
+                yield user
+        elif send_to_due_participants:
+            for user in course.due_participants:
                 yield user
         
         if send_to_contributors:
@@ -56,19 +59,17 @@ class EmailTemplate(models.Model):
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary))
     
-    def send_courses(self, courses, send_to_editors, send_to_contributors, send_to_participants, only_non_evaluated=False):
+    def send_courses(self, courses, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
         from evap.evaluation.models import UserProfile
-
         # pivot course-user relationship
         user_course_map = {}
         for course in courses:
-            for user in [user for user in self.recipient_list_for_course(course, send_to_editors, send_to_contributors, send_to_participants) if user.email != ""]:
-                if (not only_non_evaluated) or (user not in course.voters.all()):
-                    if user in user_course_map:
-                        user_course_map[user].append(course)
-                    else:
-                        user_course_map[user] = [course]
-        
+            for user in [user for user in self.recipient_list_for_course(course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants) if user.email != ""]:
+                if user in user_course_map:
+                    user_course_map[user].append(course)
+                else:
+                    user_course_map[user] = [course]
+
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
             
