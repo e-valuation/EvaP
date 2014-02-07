@@ -114,7 +114,7 @@ def semester_publish(request, semester_id):
                 selected_courses.append(course)
         
         try:
-            EmailTemplate.get_publish_template().send_courses(selected_courses, True, True, True)
+            EmailTemplate.get_publish_template().send_courses(selected_courses, send_to_contributors=True, send_to_all_participants=True)
         except:
             messages.add_message(request, messages.WARNING, _("Could not send emails to participants and contributors"))
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(selected_courses)))
@@ -197,7 +197,7 @@ def semester_contributor_ready(request, semester_id):
                 course.save()
                 selected_courses.append(course)
         
-        EmailTemplate.get_review_template().send_courses(selected_courses, True, False, False)
+        EmailTemplate.get_review_template().send_courses(selected_courses, send_to_editors=True)
         
         messages.add_message(request, messages.INFO, _("Successfully marked %d courses as ready for lecturer review.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester_id)
@@ -359,9 +359,9 @@ def course_email(request, semester_id, course_id):
         form.send()
         
         if form.all_recepients_reachable():
-            messages.add_message(request, messages.INFO, _("Successfully sent email to all participants/editors of '%s'.") % course.name)
+            messages.add_message(request, messages.INFO, _("Successfully sent emails for '%s'.") % course.name)
         else:
-            messages.add_message(request, messages.WARNING, _("Successfully sent email to many participants/editors of '%(course)s', but %(count)d could not be reached as they do not have an email address.") % dict(course=course.name, count=form.missing_email_addresses()))
+            messages.add_message(request, messages.WARNING, _("Successfully sent some emails for '%(course)s', but %(count)d could not be reached as they do not have an email address.") % dict(course=course.name, count=form.missing_email_addresses()))
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, course=course, form=form), context_instance=RequestContext(request))
