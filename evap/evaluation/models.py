@@ -173,7 +173,7 @@ class Course(models.Model):
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
         if send_mail:
-            EmailTemplate.get_review_template().send_courses([self], True, False, False, False)
+            EmailTemplate.get_review_template().send_courses([self], send_to_editors=True)
     
     @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):

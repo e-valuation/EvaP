@@ -59,7 +59,7 @@ class EmailTemplate(models.Model):
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary))
     
-    def send_courses(self, courses, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
+    def send_courses(self, courses, send_to_editors=False, send_to_contributors=False, send_to_due_participants=False, send_to_all_participants=False):
         from evap.evaluation.models import UserProfile
         # pivot course-user relationship
         user_course_map = {}
