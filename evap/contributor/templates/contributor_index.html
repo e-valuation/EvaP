@@ -43,12 +43,13 @@
         </div>
     </small>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Your courses" %}</h3>
-        </div>
-        <div class="panel-body">
-            {% if all_courses %}
+    {% for semester in semester_list %}
+        {% if semester.courses %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ semester.semester_name }}</h3>
+            </div>
+            <div class="panel-body">
                 <table class="table table-striped">
                     <thead>
                     <tr>
@@ -60,14 +61,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for course in all_courses %}
+                    {% for course in semester.courses %}
                         <tr>
                             <td class="maximize">
                                 <div>
                                     {{ course.name }}
                                 </div>
                                 <span class="label label-default">{{ course.kind }}</span>
-                                {% if course in delegated_courses %}<span class="label label-info twipsify" title="{% trans "You see this course because you are a delegate of the responsible lecturer." %}">{% trans "Delegate" %}</span>{% endif %}
+                                {% if course in delegated_courses %}<span class="label label-info twipsify" title="{% trans "You are seeing this course because you are a delegate of the responsible lecturer." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
                             <td class="minimize">
                                 {{ course.state|statename }}
@@ -92,10 +93,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
-            {% else %}
-                <p>{% trans "There are no courses for you this semester yet. You will get informed by Email, as soon as your courses are approved for your review by the student representatives." %}</p>
-            {% endif %}
+            </div>
         </div>
-    </div>
+        {% endif %}
+    {% endfor %}
 
 {% endblock %}
