@@ -82,7 +82,7 @@
                                     <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% else %}
                                     {% if course.state == 'prepared' %}
-                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
                                     {% else %}
                                         <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                                     {% endif %}
