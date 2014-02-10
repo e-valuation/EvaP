@@ -3,6 +3,16 @@
 {% load i18n %}
 {% load morefilters %}
 
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".twipsify").tooltip({container: 'body'});
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     
@@ -57,7 +67,7 @@
                                     {{ course.name }}
                                 </div>
                                 <span class="label label-default">{{ course.kind }}</span>
-                                {% if course in delegated_courses %}<span class="label label-info">{% trans "Delegate" %}</span>{% endif %}
+                                {% if course in delegated_courses %}<span class="label label-info twipsify" title="{% trans "You see this course because you are a delegate of the responsible lecturer." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
                             <td class="minimize">
                                 {{ course.state|statename }}
