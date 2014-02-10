@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-06 07:04+0100\n"
-"PO-Revision-Date: 2014-02-05 22:08-0800\n"
+"POT-Creation-Date: 2014-02-10 08:04+0100\n"
+"PO-Revision-Date: 2014-02-09 23:11-0800\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -23,15 +23,15 @@ msgstr ""
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
-#: contributor/views.py:42
+#: contributor/views.py:46
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
-#: contributor/views.py:97
+#: contributor/views.py:101
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:99
+#: contributor/views.py:103
 #: fsr/views.py:272
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
@@ -76,41 +76,40 @@ msgstr "Kann Veranstaltung bearbeiten"
 msgid "Remove?"
 msgstr "Entfernen?"
 
-#: contributor/templates/contributor_course_form.html:47
+#: contributor/templates/contributor_course_form.html:45
 #: evaluation/models.py:301
 msgid "responsible"
 msgstr "verantwortlich"
 
-#: contributor/templates/contributor_course_form.html:72
+#: contributor/templates/contributor_course_form.html:71
 msgid "Students"
 msgstr "Studenten"
 
-#: contributor/templates/contributor_course_form.html:73
+#: contributor/templates/contributor_course_form.html:72
 msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR."
 msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen., Bitte benachrichtigen Sie den FSR, falls diese Daten nicht korrekt sind - bspw. Studierende fehlen."
 
-#: contributor/templates/contributor_course_form.html:83
+#: contributor/templates/contributor_course_form.html:82
 #: fsr/templates/fsr_course_review.html:29
 msgid "Save"
 msgstr "Speichern"
 
-#: contributor/templates/contributor_course_form.html:84
+#: contributor/templates/contributor_course_form.html:83
 msgid "Save and approve"
 msgstr "Speichern und bestätigen"
 
-#: contributor/templates/contributor_course_form.html:86
+#: contributor/templates/contributor_course_form.html:85
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: contributor/templates/contributor_course_form.html:87
-#: contributor/templates/contributor_index.html:43
-#: contributor/templates/contributor_index.html:88
+#: contributor/templates/contributor_course_form.html:86
+#: contributor/templates/contributor_index.html:89
 #: fsr/templates/fsr_questionnaire_index.html:39
 #: fsr/templates/fsr_semester_view.html:73
 msgid "Preview"
 msgstr "Vorschau"
 
-#: contributor/templates/contributor_course_form.html:113
+#: contributor/templates/contributor_course_form.html:112
 #: fsr/templates/fsr_course_form.html:73
 #: fsr/templates/fsr_faq_index.html:23
 #: fsr/templates/fsr_faq_section.html:24
@@ -118,7 +117,7 @@ msgstr "Vorschau"
 msgid "remove"
 msgstr "Entfernen"
 
-#: contributor/templates/contributor_course_form.html:114
+#: contributor/templates/contributor_course_form.html:113
 #: fsr/templates/fsr_course_form.html:74
 #: fsr/templates/fsr_faq_index.html:24
 #: fsr/templates/fsr_faq_section.html:25
@@ -126,35 +125,91 @@ msgstr "Entfernen"
 msgid "add another"
 msgstr "Weiteren hinzufügen"
 
-#: contributor/templates/contributor_index.html:9
-msgid "Own Courses"
-msgstr "Eigene Veranstaltungen"
+#: contributor/templates/contributor_index.html:22
+#: student/templates/student_index.html:52
+msgid "Evaluation info"
+msgstr "Evaluierungs-Infos"
 
-#: contributor/templates/contributor_index.html:14
-#: contributor/templates/contributor_index.html:58
+#: contributor/templates/contributor_index.html:25
+#: evaluation/models.py:455
+msgid "Delegates"
+msgstr "Stellvertreter"
+
+#: contributor/templates/contributor_index.html:26
+msgid "Lecturers can assign delegates to help them with the preparation of the evaluation."
+msgstr "Dozenten können Stellvertreter definieren, die ihnen bei der Vorbereitung der Evaluierung helfen."
+
+#: contributor/templates/contributor_index.html:28
+msgid "You can assign your own delegates in your profile."
+msgstr "Sie können Stellvertreter in Ihrem Profil definieren."
+
+#: contributor/templates/contributor_index.html:28
+msgid "Edit profile"
+msgstr "Profil bearbeiten"
+
+#: contributor/templates/contributor_index.html:31
+msgid "Courses from lecturers who set you as a delegate are marked with a label below."
+msgstr "Kurse von Dozenten, von denen Sie als Stellvertreter definiert wurden, sind unten mit einem Label markiert."
+
+#: contributor/templates/contributor_index.html:33
+#: contributor/templates/contributor_index.html:37
+#: contributor/templates/contributor_index.html:41
+#: student/templates/student_index.html:57
+#: student/templates/student_index.html:61
+#: student/templates/student_index.html:65
+msgid "More details:"
+msgstr "Mehr Infos:"
+
+#: contributor/templates/contributor_index.html:33
+msgid "FAQ/Delegates"
+msgstr "FAQ/Stellvertreter"
+
+#: contributor/templates/contributor_index.html:35
+msgid "States of the courses"
+msgstr "Zustände der Kurse"
+
+#: contributor/templates/contributor_index.html:36
+msgid "You can only edit courses which are in the state \"prepared\". After you approved a course it will automatically change to the state \"lecturer approved\" and your preparation is finished."
+msgstr "Sie können nur Kurse im Zustand \"vorbereitet\" bearbeiten. Nachdem Sie einen Kurs bestätigt haben, wechselt dieser automatisch in den Zustand \"von Dozent bestätigt\" und Ihre Vorbereitung ist abgeschlossen."
+
+#: contributor/templates/contributor_index.html:37
+msgid "FAQ/States"
+msgstr "FAQ/Zustände"
+
+#: contributor/templates/contributor_index.html:39
+#: student/templates/student_index.html:63
+msgid "Evaluation Results"
+msgstr "Evaluierungs-Ergebnisse"
+
+#: contributor/templates/contributor_index.html:40
+msgid "The student's comments and the average grades will be shown to the lecturers who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
+msgstr "Die Kommentare und die durchschnittlichen Noten der Studierenden werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die durchschnittlichen Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
+
+#: contributor/templates/contributor_index.html:41
+#: student/templates/student_index.html:65
+msgid "FAQ/Results"
+msgstr "FAQ/Ergebnisse"
+
+#: contributor/templates/contributor_index.html:56
 #: fsr/models.py:19
 #: fsr/templates/fsr_user_index.html:25
 msgid "Name"
 msgstr "Name"
 
-#: contributor/templates/contributor_index.html:15
-#: contributor/templates/contributor_index.html:59
+#: contributor/templates/contributor_index.html:57
 msgid "State"
 msgstr "Zustand"
 
-#: contributor/templates/contributor_index.html:16
-#: contributor/templates/contributor_index.html:60
+#: contributor/templates/contributor_index.html:58
 msgid "Evaluation Period"
 msgstr "Abstimmungszeitraum"
 
-#: contributor/templates/contributor_index.html:17
-#: contributor/templates/contributor_index.html:61
+#: contributor/templates/contributor_index.html:59
 #: fsr/templates/fsr_semester_view.html:60
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: contributor/templates/contributor_index.html:18
-#: contributor/templates/contributor_index.html:62
+#: contributor/templates/contributor_index.html:60
 #: fsr/templates/fsr_faq_index.html:62
 #: fsr/templates/fsr_faq_section.html:61
 #: fsr/templates/fsr_questionnaire_index.html:16
@@ -162,8 +217,23 @@ msgstr "Teilnehmer"
 msgid "Actions"
 msgstr "Aktionen"
 
-#: contributor/templates/contributor_index.html:39
-#: contributor/templates/contributor_index.html:84
+#: contributor/templates/contributor_index.html:71
+msgid "You are seeing this course because you are a delegate of the responsible lecturer."
+msgstr "Sie sehen diese Veranstaltung, weil Sie Stellvertreter des verantwortlichen Dozenten sind."
+
+#: contributor/templates/contributor_index.html:71
+msgid "Delegate"
+msgstr "Stellvertreter"
+
+#: contributor/templates/contributor_index.html:82
+#: results/exporters.py:37
+#: results/templates/results_base.html:6
+#: results/templates/results_base.html:10
+#: templates/base.html:73
+msgid "Results"
+msgstr "Ergebnisse"
+
+#: contributor/templates/contributor_index.html:85
 #: fsr/templates/fsr_faq_index.html:79
 #: fsr/templates/fsr_questionnaire_base.html:19
 #: fsr/templates/fsr_questionnaire_index.html:35
@@ -172,34 +242,9 @@ msgstr "Aktionen"
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: contributor/templates/contributor_index.html:41
-#: contributor/templates/contributor_index.html:86
+#: contributor/templates/contributor_index.html:87
 msgid "View"
 msgstr "Anzeigen"
-
-#: contributor/templates/contributor_index.html:50
-msgid "There are no courses for you this semester yet. You will get informed by Email, as soon as your courses are approved for your review by the student representatives."
-msgstr "Derzeit können Sie keine Veranstaltungen bearbeiten. Sie werden per E‑Mail informiert, sobald Ihre Veranstaltungen zur Überprüfung freigegeben wurden."
-
-#: contributor/templates/contributor_index.html:53
-msgid "Courses for which you are a delegate"
-msgstr "Veranstaltungen für die Sie als Stellvertreter eingetragen sind"
-
-#: contributor/templates/contributor_index.html:96
-msgid "There are no courses for you this semester yet."
-msgstr "Derzeit können Sie keine Veranstaltung als Stellvertreter bearbeiten."
-
-#: contributor/templates/contributor_index.html:100
-msgid "Own Profile"
-msgstr "Eigenes Profil"
-
-#: contributor/templates/contributor_index.html:101
-msgid "You can edit your own user profile here:"
-msgstr "Sie können Ihr eigenes Profil hier bearbeiten:"
-
-#: contributor/templates/contributor_index.html:101
-msgid "Edit own Profile"
-msgstr "Eigenes Profil bearbeiten"
 
 #: contributor/templates/contributor_profile.html:8
 #: contributor/templates/contributor_profile.html:16
@@ -512,10 +557,6 @@ msgstr "Titel"
 #: evaluation/models.py:452
 msgid "Picture"
 msgstr "Foto"
-
-#: evaluation/models.py:455
-msgid "Delegates"
-msgstr "Stellvertreter"
 
 #: evaluation/models.py:460
 #: fsr/templates/fsr_user_index.html:51
@@ -1336,13 +1377,6 @@ msgstr "E‑Mail-Adresse fehlt!"
 msgid "This user cannot be deleted because he is a contributor to a course"
 msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: results/exporters.py:37
-#: results/templates/results_base.html:6
-#: results/templates/results_base.html:10
-#: templates/base.html:73
-msgid "Results"
-msgstr "Ergebnisse"
-
 #: results/exporters.py:69
 msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
@@ -1433,10 +1467,6 @@ msgstr "Die folgenden Veranstaltungen kannst du bald bewerten:"
 msgid "from"
 msgstr "vom"
 
-#: student/templates/student_index.html:52
-msgid "Evaluation info"
-msgstr "Evaluierungs-Infos"
-
 #: student/templates/student_index.html:55
 msgid "Anonymity"
 msgstr "Anonymität"
@@ -1444,12 +1474,6 @@ msgstr "Anonymität"
 #: student/templates/student_index.html:56
 msgid "Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses."
 msgstr "Deine abgegebenen Stimmen und Kommentare können dir technisch nicht zugeordnet werden. Dir sollte aber bewusst sein, dass dich Dozenten insbesondere in kleinen Veranstaltungen an deinem Schreibstil erkennen könnten."
-
-#: student/templates/student_index.html:57
-#: student/templates/student_index.html:61
-#: student/templates/student_index.html:65
-msgid "More details:"
-msgstr "Mehr Infos:"
 
 #: student/templates/student_index.html:57
 msgid "FAQ/Anonymity"
@@ -1467,17 +1491,9 @@ msgstr "Dozenten können sich keine kompletten Fragebögen ansehen. Wenn du in e
 msgid "FAQ/Reference"
 msgstr "FAQ/Verweise"
 
-#: student/templates/student_index.html:63
-msgid "Evaluation Results"
-msgstr "Evaluierungs-Ergebnisse"
-
 #: student/templates/student_index.html:64
 msgid "Your comments and the average grades will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
 msgstr "Deine Kommentare und die durchschnittlichen Noten werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die durchschnittlichen Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
-
-#: student/templates/student_index.html:65
-msgid "FAQ/Results"
-msgstr "FAQ/Ergebnisse"
 
 #: student/templates/student_vote.html:41
 msgid "Vote"
