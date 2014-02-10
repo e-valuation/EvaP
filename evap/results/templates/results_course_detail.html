@@ -34,7 +34,7 @@
                 {% ifequal result.question.kind "G" %}
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
-                        <span class="twipsify" data-twipsy="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
+                        <span class="twipsify" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
                     </td>
                     <td>
                         {% if result.show %}
