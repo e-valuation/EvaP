@@ -14,7 +14,9 @@
 	    {% csrf_token %}
 	    {{ formset.management_form }}
 	    {% for form in formset %}
-			<h3>{% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}: {{ form.instance.question.text }}</h3>
+			<h3>{% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}: 
+				{% if form.instance.contribution.contributor %}{{ form.instance.contribution.contributor.userprofile.full_name }}: {% endif %}
+				{{ form.instance.question.text }}</h3>
 			{% for hidden in form.hidden_fields %}
 			    {{ hidden }}
 			{% endfor %}
