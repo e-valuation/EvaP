@@ -77,12 +77,16 @@
                             </td>
                             <td class="minimize">{{ course.num_participants }}</td>
                             <td class="minimize">
-                                {% if course.state == 'prepared' %}
-                                    <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                {% if course.state == 'published' %}
+                                    <a href="{% url "evap.results.views.course_detail" 1 course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% else %}
-                                    <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                    {% if course.state == 'prepared' %}
+                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                    {% else %}
+                                        <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                    {% endif %}
+                                    <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                 {% endif %}
-                                <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                             </td>
                         </tr>
                     {% endfor %}
