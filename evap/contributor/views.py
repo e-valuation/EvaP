@@ -30,7 +30,7 @@ def index(request):
     all_courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
-    semester_list = [dict(semester_name=semester.name, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
+    semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
     
     return render_to_response("contributor_index.html", dict(semester_list=semester_list, delegated_courses=delegated_courses), context_instance=RequestContext(request))
 
