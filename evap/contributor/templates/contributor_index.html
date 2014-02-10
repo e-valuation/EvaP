@@ -79,7 +79,7 @@
                             <td class="minimize">{{ course.num_participants }}</td>
                             <td class="minimize">
                                 {% if course.state == 'published' %}
-                                    <a href="{% url "evap.results.views.course_detail" 1 course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                    <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% else %}
                                     {% if course.state == 'prepared' %}
                                         <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
