@@ -18,7 +18,13 @@
 		        <div class="panel-heading">
 		            <h3 class="panel-title">
 		                {% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}: 
-		                {% if form.instance.contribution.contributor %}{{ form.instance.contribution.contributor.userprofile.full_name }}: {% endif %}
+		                {% if form.instance.contribution.contributor %}
+		                    {% if form.instance.contribution.contributor.userprofile.full_name %}
+		                        {{ form.instance.contribution.contributor.userprofile.full_name }}: 
+		                    {% else %}
+		                        {{ form.instance.contribution.contributor.username }}: 
+		                    {% endif %}
+		                {% endif %}
 		                {{ form.instance.question.text }}
 		            </h3>
 		        </div>
