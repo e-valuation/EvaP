@@ -42,9 +42,8 @@
                             <td>
                                 {{form_element.contributor.errors}}
                                 {% if form_element.responsible.value == True %}
-                                    <select class="form-control" disabled="True"><option selected="selected">{{ responsible }}</option></select>
+                                    <select class="form-control" disabled="True"><option selected="selected">{{ responsible }} ({% trans "responsible" %})</option></select>
                                     {{ form_element.contributor.as_hidden }}
-                                    <em>({% trans "responsible" %})</em>
                                 {% else %}
                                     {{ form_element.contributor }}
                                 {% endif %}
