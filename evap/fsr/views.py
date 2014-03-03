@@ -168,14 +168,14 @@ def semester_revert_to_new(request, semester_id):
     valid = helper_are_course_selection_forms_valid(forms)
     
     if valid:
-        selected_courses = []
+        count = 0
         for form in forms:
             for course in form.selected_courses:
                 course.revert_to_new()
                 course.save()
-                selected_courses.append(course)
+            count += len(form.selected_courses)
         
-        messages.add_message(request, messages.INFO, _("Successfully reverted %d courses to New.") % (len(selected_courses)))
+        messages.add_message(request, messages.INFO, _("Successfully reverted %d courses to New.") % (count))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_semester_revert_to_new.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
