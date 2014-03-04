@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-03-02 19:26+0100\n"
-"PO-Revision-Date: 2014-03-03 23:29+0100\n"
+"PO-Revision-Date: 2014-03-04 07:48+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1327,7 +1327,7 @@ msgstr "Zur Überprüfung durch Dozent freigeben..."
 
 #: fsr/templates/fsr_semester_view.html:97
 msgid "Revert courses to New..."
-msgstr "Kurse als Neu zurückstufen..."
+msgstr "Kurse auf Neu zurücksetzen..."
 
 #: fsr/templates/fsr_semester_view.html:100
 msgid "Approve courses..."
