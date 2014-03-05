@@ -159,6 +159,29 @@ def semester_assign_questionnaires(request, semester_id):
 
 
 @fsr_required
+def semester_revert_to_new(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    courses = semester.course_set.filter(state__in=['prepared']).all()
+    
+    forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
+    
+    valid = helper_are_course_selection_forms_valid(forms)
+    
+    if valid:
+        count = 0
+        for form in forms:
+            for course in form.selected_courses:
+                course.revert_to_new()
+                course.save()
+            count += len(form.selected_courses)
+        
+        messages.add_message(request, messages.INFO, _("Successfully reverted %d courses to New.") % (count))
+        return redirect('evap.fsr.views.semester_view', semester_id)
+    else:
+        return render_to_response("fsr_semester_revert_to_new.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
+
+
+@fsr_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     courses = semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all()
