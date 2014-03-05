@@ -182,6 +182,10 @@ class Course(models.Model):
     @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved')
     def fsr_approve(self):
         pass
+
+    @transition(field=state, source='prepared', target='new')
+    def revert_to_new(self):
+        pass
     
     @transition(field=state, source='approved', target='inEvaluation')
     def evaluation_begin(self):
