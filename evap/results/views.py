@@ -65,10 +65,10 @@ def course_detail(request, semester_id, course_id):
     
     sections = calculate_results(course)
     
-    if (request.user.is_staff != True):        
-    # remove all TextResults of other users
+    if (request.user.is_staff != True): # don't remove TextResults for FSR members
+    # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
         for section in sections:
-            if not ((section.contributor == None and course.is_user_contributor(request.user)) or (section.contributor == request.user)):
+            if not user_can_see_textresults(request.user, course, section):
                 for index, result in list(enumerate(section.results))[::-1]:
                     if isinstance(section.results[index], TextResult):
                         del section.results[index]        
@@ -82,3 +82,17 @@ def course_detail(request, semester_id, course_id):
             sections=sections
         ),
         context_instance=RequestContext(request))
+
+
+def user_can_see_textresults(user, course, section):
+    if section.contributor == user:
+        return True
+    if course.is_user_responsible_or_delegate(user):
+        return True
+
+    represented_userprofiles = user.represented_users.all()
+    represented_users = [profile.user for profile in represented_userprofiles]
+    if section.contributor in represented_users:
+        return True
+
+    return False

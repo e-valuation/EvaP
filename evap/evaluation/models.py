@@ -91,6 +91,7 @@ class Questionnaire(models.Model):
 class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
     
+
     __metaclass__ = LocalizeModelBase
     
     state = FSMField(default='new', protected=True)
@@ -258,6 +259,17 @@ class Course(models.Model):
             represented_userprofiles = user.represented_users.all()
             represented_users = [profile.user for profile in represented_userprofiles]
             if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
+                return True
+        
+        return False
+
+    def is_user_responsible_or_delegate(self, user):
+        if self.contributions.filter(responsible=True, contributor=user).exists():
+            return True
+        else:
+            represented_userprofiles = user.represented_users.all()
+            represented_users = [profile.user for profile in represented_userprofiles]
+            if self.contributions.filter(responsible=True, contributor__in=represented_users).exists():
                 return True
         
         return False
