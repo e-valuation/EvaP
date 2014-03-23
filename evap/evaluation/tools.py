@@ -101,7 +101,7 @@ def calculate_results(course):
                     average=average,
                     variance=variance,
                     distribution=distribution,
-                    show=(len(answers) >= settings.MIN_ANSWER_COUNT and len(answers)/course.num_voters >= settings.MIN_ANSWER_PERCENTAGE)
+                    show=(len(answers) >= settings.MIN_ANSWER_COUNT and float(len(answers))/course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
                 ))
             
             elif question.is_text_question():
