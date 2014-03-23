@@ -57,6 +57,9 @@ def calculate_results(course):
     if prior_results:
         return prior_results
     
+    # check if grades for the course will be published
+    show = (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
     
@@ -101,7 +104,7 @@ def calculate_results(course):
                     average=average,
                     variance=variance,
                     distribution=distribution,
-                    show=(len(answers) >= settings.MIN_ANSWER_COUNT and float(len(answers))/course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+                    show=show
                 ))
             
             elif question.is_text_question():

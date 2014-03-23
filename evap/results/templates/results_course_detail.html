@@ -37,7 +37,7 @@
                         <span class="twipsify" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
                     </td>
                     <td>
-                        {% if result.show %}
+                        {% if result.show and result.count > 0 %}
                         <div class="distribution-bar twipsify"
                             title="{% for answer, rel in result.distribution.items %}{{answer|gradename}}: {{rel|floatformat}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
                             data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|gradename}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel|floatformat}}%</div></div>{% endfor %}</div>">
@@ -50,7 +50,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if result.show %}
+                        {% if result.show and result.count > 0 %}
                             {{ result.average|floatformat:1 }}
                         {% else %}
                             <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
