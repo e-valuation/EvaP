@@ -44,8 +44,9 @@ if DEBUG:
 # key authentication settings
 LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
 
-# minimum answer count to ensure anonymity
-MIN_ANSWERS = 5
+# minimum answers needed for publishing
+MIN_ANSWER_COUNT = 2
+MIN_ANSWER_PERCENTAGE = 0.2
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
