@@ -17,7 +17,7 @@
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     
     {% for group in sections_grouped %}
-        <h4>{{ group.grouper.name }}</h4>
+        <h4>{{ group.grouper.public_name }}</h4>
         {% if group.grouper.teaser %}
             <p>{{ group.grouper.teaser }}</td>
         {% endif %}
