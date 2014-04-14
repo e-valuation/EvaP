@@ -470,6 +470,9 @@ class UserProfile(models.Model):
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
     
+    # users to which all emails should be sent in cc without giving them delegate rights
+    cc_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"CC Users"), related_name="cc_users", blank=True)
+    
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
 
