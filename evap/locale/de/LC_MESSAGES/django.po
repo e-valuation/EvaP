@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-02 19:26+0100\n"
-"PO-Revision-Date: 2014-03-04 07:48+0100\n"
+"POT-Creation-Date: 2014-04-14 23:19+0200\n"
+"PO-Revision-Date: 2014-04-14 23:19+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -77,7 +77,7 @@ msgid "Remove?"
 msgstr "Entfernen?"
 
 #: contributor/templates/contributor_course_form.html:45
-#: evaluation/models.py:305
+#: evaluation/models.py:317
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -90,7 +90,7 @@ msgid "These students should be participating in your course. If this data is no
 msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen., Bitte benachrichtigen Sie den FSR, falls diese Daten nicht korrekt sind - bspw. Studierende fehlen."
 
 #: contributor/templates/contributor_course_form.html:82
-#: fsr/templates/fsr_course_review.html:29
+#: fsr/templates/fsr_course_review.html:45
 msgid "Save"
 msgstr "Speichern"
 
@@ -131,7 +131,7 @@ msgid "Evaluation info"
 msgstr "Evaluierungs-Infos"
 
 #: contributor/templates/contributor_index.html:25
-#: evaluation/models.py:459
+#: evaluation/models.py:471
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -316,13 +316,13 @@ msgstr "Es wurde kein Benutzer mit dieser E‑Mail-Adresse gefunden. Bitte verwe
 
 #: evaluation/models.py:25
 #: evaluation/models.py:57
-#: evaluation/models.py:100
+#: evaluation/models.py:101
 msgid "name (german)"
 msgstr "Name (deutsch)"
 
 #: evaluation/models.py:26
 #: evaluation/models.py:58
-#: evaluation/models.py:101
+#: evaluation/models.py:102
 msgid "name (english)"
 msgstr "Name (englisch)"
 
@@ -331,7 +331,7 @@ msgid "created at"
 msgstr "erstellt am"
 
 #: evaluation/models.py:34
-#: evaluation/models.py:98
+#: evaluation/models.py:99
 msgid "semester"
 msgstr "Semester"
 
@@ -381,197 +381,201 @@ msgid "questionnaire"
 msgstr "Fragebogen"
 
 #: evaluation/models.py:81
-#: evaluation/models.py:303
+#: evaluation/models.py:315
 msgid "questionnaires"
 msgstr "Fragebögen"
 
-#: evaluation/models.py:105
+#: evaluation/models.py:106
 msgid "type"
 msgstr "Typ"
 
-#: evaluation/models.py:108
+#: evaluation/models.py:109
 msgid "degree"
 msgstr "Studiengang"
 
-#: evaluation/models.py:111
+#: evaluation/models.py:112
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: evaluation/models.py:112
+#: evaluation/models.py:113
 msgid "participant count"
 msgstr "Teilnehmeranzahl"
 
-#: evaluation/models.py:115
+#: evaluation/models.py:116
 msgid "voters"
 msgstr "Wähler"
 
-#: evaluation/models.py:116
+#: evaluation/models.py:117
 msgid "voter count"
 msgstr "Anzahl Wähler"
 
-#: evaluation/models.py:119
+#: evaluation/models.py:120
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: evaluation/models.py:120
+#: evaluation/models.py:121
 msgid "last date to vote"
 msgstr "letzter Bewertungstag"
 
-#: evaluation/models.py:132
-#: evaluation/models.py:301
+#: evaluation/models.py:133
+#: evaluation/models.py:313
 msgid "course"
 msgstr "Veranstaltung"
 
-#: evaluation/models.py:133
+#: evaluation/models.py:134
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: evaluation/models.py:141
+#: evaluation/models.py:142
 msgid "The vote start date must be before the vote end date."
 msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
-#: evaluation/models.py:274
+#: evaluation/models.py:286
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:302
+#: evaluation/models.py:314
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:306
+#: evaluation/models.py:318
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:325
+#: evaluation/models.py:337
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:326
+#: evaluation/models.py:338
 msgid "Grade Question"
 msgstr "Auswahlfrage"
 
-#: evaluation/models.py:330
+#: evaluation/models.py:342
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:331
+#: evaluation/models.py:343
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:333
+#: evaluation/models.py:345
 msgid "kind of question"
 msgstr "Frageart"
 
-#: evaluation/models.py:339
-#: evaluation/models.py:445
+#: evaluation/models.py:351
+#: evaluation/models.py:457
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:340
-#: evaluation/models.py:446
+#: evaluation/models.py:352
+#: evaluation/models.py:458
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:368
-#: evaluation/models.py:376
+#: evaluation/models.py:380
+#: evaluation/models.py:388
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:369
+#: evaluation/models.py:381
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:379
+#: evaluation/models.py:391
 msgid "grade answer"
 msgstr "Auswahlantwort"
 
-#: evaluation/models.py:380
+#: evaluation/models.py:392
 msgid "grade answers"
 msgstr "Auswahlantworten"
 
-#: evaluation/models.py:389
+#: evaluation/models.py:401
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:390
+#: evaluation/models.py:402
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: evaluation/models.py:392
+#: evaluation/models.py:404
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: evaluation/models.py:393
+#: evaluation/models.py:405
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: evaluation/models.py:396
+#: evaluation/models.py:408
 msgid "text answer"
 msgstr "Textantwort"
 
-#: evaluation/models.py:397
+#: evaluation/models.py:409
 msgid "text answers"
 msgstr "Textantworten"
 
-#: evaluation/models.py:414
+#: evaluation/models.py:426
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:416
+#: evaluation/models.py:428
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evaluation/models.py:417
+#: evaluation/models.py:429
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evaluation/models.py:422
+#: evaluation/models.py:434
 msgid "section"
 msgstr "Abschnitt"
 
-#: evaluation/models.py:423
+#: evaluation/models.py:435
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evaluation/models.py:433
+#: evaluation/models.py:445
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:435
+#: evaluation/models.py:447
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:436
+#: evaluation/models.py:448
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:439
-#: evaluation/models.py:440
+#: evaluation/models.py:451
+#: evaluation/models.py:452
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evaluation/models.py:453
+#: evaluation/models.py:465
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:456
+#: evaluation/models.py:468
 msgid "Picture"
 msgstr "Foto"
 
-#: evaluation/models.py:464
+#: evaluation/models.py:474
+msgid "CC Users"
+msgstr "CC-Benutzer"
+
+#: evaluation/models.py:479
 #: fsr/templates/fsr_user_index.html:51
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:465
+#: evaluation/models.py:480
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:468
+#: evaluation/models.py:483
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:469
+#: evaluation/models.py:484
 msgid "users"
 msgstr "Benutzer"
 
@@ -811,24 +815,24 @@ msgstr "Keine Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Ver
 msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
 msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:345
+#: fsr/forms.py:348
 msgid "FSR Member"
 msgstr "FSR-Mitglieder"
 
-#: fsr/forms.py:346
+#: fsr/forms.py:349
 msgid "EvaP Administrator"
 msgstr "EvaP Administrator"
 
-#: fsr/forms.py:349
+#: fsr/forms.py:352
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:372
+#: fsr/forms.py:375
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:390
+#: fsr/forms.py:393
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -1069,12 +1073,12 @@ msgstr ""
 "\t\tHinweis: Zur besseren Benutzbarkeit werden lediglich %(elements_per_page)s Kommentare auf einmal dargestellt. For diese Veranstaltung wurden %(open)s von %(total)s Kommentaren noch nicht durchgesehen.\n"
 "\t    "
 
-#: fsr/templates/fsr_course_review.html:17
+#: fsr/templates/fsr_course_review.html:20
 #, python-format
 msgid "Answer %(id)s"
 msgstr "Antwort %(id)s"
 
-#: fsr/templates/fsr_course_review.html:30
+#: fsr/templates/fsr_course_review.html:46
 msgid "Save and show next"
 msgstr "Speichern und nächste anzeigen"
 

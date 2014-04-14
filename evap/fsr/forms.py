@@ -333,7 +333,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'is_staff', 'is_superuser')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
     
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -342,6 +342,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
         self.fields['delegates'].help_text = ""
+        self.fields['cc_users'].required = False
+        self.fields['cc_users'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['cc_users'].help_text = ""
         self.fields['is_staff'].label = _(u"FSR Member")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
