@@ -16,17 +16,17 @@ public class CommentSubstitution {
     public static void substitute(Properties properties, Connection connection)
             throws IOException, SQLException {
         System.out.println("Substituting comments");
-        
+
         String[] loremIpsum = getLoremIpsum(properties);
-        
+
         String table = properties.getProperty("db_comment_table");
         List<Comment> comments = readCommentsFromDB(table, connection);
-        
+
         substituteComments(loremIpsum, comments, table, connection);
-        
+
         System.out.println("Comments substituted");
     }
-    
+
     private static List<Comment> readCommentsFromDB(String table, Connection connection)
             throws SQLException {
         List<Comment> comments = new ArrayList<Comment>();
@@ -48,7 +48,7 @@ public class CommentSubstitution {
         String loremIpsumRaw = FileHelper.readLinesFromFile(loremIpsumFile).get(0);
         return loremIpsumRaw.split(" ");
     }
-    
+
     private static void substituteComments(String[] loremIpsum,
             List<Comment> comments, String table, Connection connection)
                     throws SQLException {
@@ -56,12 +56,12 @@ public class CommentSubstitution {
                 "UPDATE " + table + " " +
                 "SET reviewed_answer = ?, original_answer = ? " +
                 "WHERE id = ?");
-        
+
         for (Comment comment : comments) {
             int id = comment.getId();
             String reviewed_answer = comment.getReviewed_answer();
             String original_answer = comment.getOriginal_answer();
-            
+
             preparedStatement.setInt(3, id);
             preparedStatement.setString(1, getLoremIpsumSubstitution(loremIpsum, reviewed_answer));
             preparedStatement.setString(2, getLoremIpsumSubstitution(loremIpsum, original_answer));

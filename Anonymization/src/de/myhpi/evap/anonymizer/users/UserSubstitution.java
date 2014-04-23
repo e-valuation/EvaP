@@ -15,23 +15,23 @@ import de.myhpi.evap.anonymizer.FileHelper;
 
 public class UserSubstitution {
     public static final int NUMBER_OF_PERSONS = 2000;
-    
+
     public static void substitute(Properties properties, Connection connection)
                     throws IOException, SQLException {
         System.out.println("Substituting users");
-        
+
         String firstnamesFile = properties.getProperty("input_first_names");
         String lastnamesFile = properties.getProperty("input_last_names");
         String ignoreFile = properties.getProperty("input_ignores");
         String outputFile = properties.getProperty("output_users");
         String table = properties.getProperty("db_user_table");
-        
+
         List<Person> persons = createPersons(firstnamesFile, lastnamesFile);
         List<User> users = readUsersFromDB(table, connection);
         List<String> ignores = FileHelper.readLinesFromFile(ignoreFile);
 
         substituteUsers(users, persons, ignores, table, connection, outputFile);
-        
+
         System.out.println("Users substituted, results written to " + outputFile);
     }
 
@@ -40,7 +40,7 @@ public class UserSubstitution {
         List<String> firstnames = FileHelper.readLinesFromFile(firstnamesFile);
         List<String> lastnames = FileHelper.readLinesFromFile(lastnamesFile);
         List<Person> persons = new ArrayList<Person>(NUMBER_OF_PERSONS);
-        
+
         Random random = new Random(System.currentTimeMillis());
         while (persons.size() < NUMBER_OF_PERSONS) {
             int firstnameI = random.nextInt(firstnames.size());
@@ -56,7 +56,7 @@ public class UserSubstitution {
     private static List<User> readUsersFromDB(String table, Connection connection)
             throws SQLException {
         List<User> users = new ArrayList<User>();
-    
+
         Statement statement = connection.createStatement();
         statement.execute("SELECT username, email FROM " + table);
         ResultSet resultSet = statement.getResultSet();
@@ -67,7 +67,7 @@ public class UserSubstitution {
                 users.add(new User(username, email));
             }
         }
-        
+
         return users;
     }
 
@@ -79,9 +79,9 @@ public class UserSubstitution {
                 "UPDATE " + table + " " +
                 "SET username = ?, first_name = ?, last_name = ?, email = ? " +
                 "WHERE username = ?");
-        
+
         StringBuffer changes = new StringBuffer();
-        
+
         for (int i=0; i < users.size(); i++) {
             User user = users.get(i);
             if (!ignores.contains(user.getUsername().toLowerCase())) {
@@ -108,7 +108,7 @@ public class UserSubstitution {
                 preparedStatement.executeUpdate();
             }
         }
-        
+
         FileHelper.writeToFile(changes.toString(), outputFile);
     }
 }

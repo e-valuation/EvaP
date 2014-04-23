@@ -21,7 +21,7 @@ class RequestAuthMiddleware(object):
     If authentication is successful, the user is automatically logged in to
     persist the user in the session.
     """
-    
+
     field_name = "userkey"
 
     def process_request(self, request):
@@ -33,7 +33,7 @@ class RequestAuthMiddleware(object):
                 " MIDDLEWARE_CLASSES setting to insert"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
                 " before the RequestAuthMiddleware class.")
-        
+
         try:
             key = int(request.GET[self.field_name])
         except (KeyError, ValueError):
@@ -59,20 +59,20 @@ class RequestAuthUserBackend(ModelBackend):
     The RequestAuthBackend works together with the RequestAuthMiddleware to
     allow authentication of users via URL parameters, i.e. supplied in an
     email.
-    
+
     It looks for the appropriate key in the login_key field of the UserProfile.
     """
     def authenticate(self, key):
         if not key:
             return None
-        
+
         try:
             profile = UserProfile.objects.get(login_key=key,
                                               login_key_valid_until__gte=date.today())
             return profile.user
         except UserProfile.DoesNotExist:
             pass
-        
+
         return None
 
 
@@ -82,7 +82,7 @@ def user_passes_test_without_redirect(test_func):
     The test should be a callable that takes the user object and returns
     True if the user passes.
     """
-    
+
     def decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
@@ -107,7 +107,7 @@ def fsr_required(func):
     Decorator for views that checks that the user is logged in and member
     of the student representatives
     """
-    
+
     def check_user(user):
         if not user.is_authenticated():
             return False
@@ -120,19 +120,19 @@ def editor_or_delegate_required(func):
     Decorator for views that checks that the user is logged in, has edit rights
     for at least one course or is a delegate for such a person.
     """
-    
+
     def check_user(user):
         if not user.is_authenticated():
             return False
         return UserProfile.get_for_user(user=user).is_editor_or_delegate
     return user_passes_test(check_user)(func)
-    
+
 def editor_required(func):
     """
     Decorator for views that checks that the user is logged in and has edit
     right for at least one course.
     """
-    
+
     def check_user(user):
         if not user.is_authenticated():
             return False

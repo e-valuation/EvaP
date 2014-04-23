@@ -30,14 +30,14 @@
         </div>
     </div>
     </form>
-    
+
     <div>
         <img src="{{ object.thumbnail.url }}" />
     </div>
 {% endblock %}
 
 {% block scripts %}
-    {{ block.super }}    
+    {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() {
             if ($.fn.button.noConflict != undefined) {

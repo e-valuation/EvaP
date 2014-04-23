@@ -15,16 +15,16 @@ public class Main {
     public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
         Properties properties = new Properties();
         properties.load(new FileReader(args[0]));
-        
+
         Connection connection = connectToDB(properties);
-        
+
         UserSubstitution.substitute(properties, connection);
         CourseShuffling.shuffle(properties, connection);
         CommentSubstitution.substitute(properties, connection);
-        
+
         connection.close();
     }
-    
+
     private static Connection connectToDB(Properties properties) throws ClassNotFoundException, SQLException {
         Class.forName("org.postgresql.Driver");
         String db_url = properties.getProperty("db_url");

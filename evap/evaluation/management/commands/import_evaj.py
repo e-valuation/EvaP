@@ -27,9 +27,9 @@ class NotOneException(Exception):
 class Command(BaseCommand):
     args = "<path to XML file> [evaluation_id ...]"
     help = "Imports one or all semesters from an EvaJ XML dump."
-    
+
     question_template_type_map = {"22": "G", "23": "T"}
-    
+
     index_structure = dict(
         answer = [('assessment_id',)],
         assessment = [('course_id',)],
@@ -48,19 +48,19 @@ class Command(BaseCommand):
         topic_template = [('questionnaire_template_id',),
                           ('course_category_id', 'per_person', 'questionnaire_template_id')],
     )
-    
+
     def store(self, element, *specifiers):
         index = (element.tag, specifiers)
         keys = tuple(nint(getattr(element, s, None)) for s in specifiers)
         self.elements.setdefault(index, dict()).setdefault(keys, list())
         self.elements[index][keys].append(element)
-    
+
     def get(self, tag, **filters):
         specifiers = tuple(sorted(filters.keys()))
         index = (tag, specifiers)
         keys = tuple(nint(filters[s]) for s in specifiers)
         return self.elements[index].get(keys, ())
-    
+
     def get_one(self, *args, **kwargs):
         elements = self.get(*args, **kwargs)
         if len(elements) == 0:
@@ -68,34 +68,34 @@ class Command(BaseCommand):
         elif len(elements) != 1:
             raise NotOneException("More than one %r element for %r." % (args, kwargs))
         return elements[0]
-    
+
     def user_from_db(self, username):
         u = unicode(username)[:30]
         user, created = User.objects.get_or_create(username__iexact=u, defaults=dict(username=u))
         return user
-    
+
     def get_lecture_types(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             yield unicode(self.get_one('course_category', id=ccm.course_category_id).name_ge)
-    
+
     def get_participants(self, course):
         for enrollment in self.get('enrollment', course_id=course.id):
             # student --> User
             student = self.get_one('student', id=enrollment.student_id)
             yield self.user_from_db(student.loginName)
-    
+
     def get_voters(self, course):
         for enrollment in self.get('enrollment', course_id=course.id, voted=1):
             student = self.get_one('student', id=enrollment.student_id)
             yield self.user_from_db(student.loginName)
-    
+
     def get_contributors_with_questionnaires(self, course):
         for ccm in self.get('course_category_mapping', course_id=course.id):
             for ccm_to_staff in self.get('ccm_to_staff', ccm_id=ccm.id):
                 # staff --> User
                 staff = self.get_one('staff', id=ccm_to_staff.staff_id)
                 user = self.user_from_db(staff.loginName)
-                
+
                 # import name
                 profile = UserProfile.get_for_user(user)
                 name_parts = unicode(staff.name).split()
@@ -113,7 +113,7 @@ class Command(BaseCommand):
                     user.last_name = name_parts[1]
                 user.save()
                 profile.save()
-                    
+
                 # TODO: import name?
                 self.staff_cache[int(staff.id)] = user
                 try:
@@ -121,13 +121,13 @@ class Command(BaseCommand):
                                                   course_category_id=ccm.course_category_id,
                                                   questionnaire_template_id=course.evaluation_id,
                                                   per_person="1")
-                    
+
                     questionnaire = self.questionnaire_cache[int(topic_template.id)]
-                    
+
                     yield user, questionnaire
                 except NotOneException:
                     logger.warn("Skipping questionnaire for contributor %r in course %r.", user, course.name)
-    
+
     def get_questionnaires(self, course, evaluation_id, per_person="0"):
         questionnaire_template_id = self.get_one('evaluation', id=evaluation_id).questionnaire_template_id
         for ccm in self.get('course_category_mapping', course_id=course.id):
@@ -136,23 +136,23 @@ class Command(BaseCommand):
                                            questionnaire_template_id=questionnaire_template_id,
                                            per_person=per_person):
                 yield self.questionnaire_cache[int(topic_template.id)]
-    
+
     def handle(self, *args, **options):
         self.elements = dict()
         self.staff_cache = dict()
-        
+
         if len(args) < 1:
             raise CommandError("Not enough arguments given.")
-        
+
         self.read_xml(args[0])
-        
+
         if len(args) < 2:
             ids = [str(evaluation.id) for evaluation in self.get('evaluation')]
             raise CommandError("No evaluation IDs given. Valid IDs are: %s" % ", ".join(ids))
-        
+
         for arg in args[1:]:
             self.process_semester(arg)
-    
+
     def read_xml(self, filename):
         logger.info("Parsing XML file...")
         tree = objectify.parse(filename)
@@ -162,11 +162,11 @@ class Command(BaseCommand):
             if index_description:
                 for specifiers in index_description:
                     self.store(element, *specifiers)
-    
+
     def process_semester(self, semester_id):
         self.questionnaire_cache = dict() # topic template id -> Questionnaire
         self.question_cache = dict()  # question template id -> Question
-        
+
         # evaluation --> Semester
         evaluation = self.get_one('evaluation', id=semester_id)
         logger.info(u"Processing semester '%s'..." % evaluation.semester)
@@ -175,7 +175,7 @@ class Command(BaseCommand):
         # hack: use default start date to get the ordering right
         semester.created_at = parse_date(str(evaluation.default_start_date))
         semester.save()
-        
+
         # topic_template --> Questionnaire
         for topic_template in self.get('topic_template', questionnaire_template_id=evaluation.questionnaire_template_id):
             try:
@@ -186,9 +186,9 @@ class Command(BaseCommand):
                         name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
                         description=u"Imported from EvaJ, Semester %s" % evaluation.semester,
                         obsolete=True)
-                    
+
                     self.questionnaire_cache[int(topic_template.id)] = questionnaire
-                    
+
                     # question_template --> Question
                     for question_template in sorted(self.get('question_template', topic_template_id=topic_template.id), key=lambda qt: int(qt.idx)):
                         if str(question_template.type) == "21":
@@ -206,10 +206,10 @@ class Command(BaseCommand):
                 raise
             except:
                 logger.exception(u"An exception occurred while trying to import questionnaire '%s'!", topic_template.name_ge)
-        
+
         courses = self.get('course', evaluation_id=evaluation.id)
         course_count = 0
-        
+
         # course --> Course
         for xml_course in courses:
             logger.debug(u"Creating course %s (id=%d evaluation=%d)", unicode(xml_course.name), xml_course.id, xml_course.evaluation_id)
@@ -224,33 +224,33 @@ class Command(BaseCommand):
                         kind=u",".join(self.get_lecture_types(xml_course)),
                         degree=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
                         state='published')
-                    
+
                     course.participants = self.get_participants(xml_course)
                     course.voters = self.get_voters(xml_course)
                     course.save()
-                    
+
                     # general quesitonnaires
                     Contribution.objects.get(course=course, contributor=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
-                    
+
                     # contributor questionnaires
                     for contributor, questionnaire in self.get_contributors_with_questionnaires(xml_course):
                         contribution, created = Contribution.objects.get_or_create(course=course, contributor=contributor)
                         contribution.questionnaires.add(questionnaire)
-                    
+
                     # answer --> GradeAnswer/TextAnswer
                     for assessment in self.get('assessment', course_id=xml_course.id):
                         for answer in self.get('answer', assessment_id=assessment.id):
                             staff_id = nint(getattr(answer, 'staff_id', None))
                             contributor = self.staff_cache[staff_id] if staff_id is not None else None
                             contribution = course.contributions.get(contributor=contributor)
-                            
+
                             status = str(answer.revised_status)
                             try:
                                 question = self.question_cache[int(answer.question_template_id)]
                             except (AttributeError, KeyError):
                                 logger.warn("No question found for answer %r", answer.id)
                                 continue
-                            
+
                             if status == "61":
                                 GradeAnswer.objects.create(
                                     contribution=contribution,
@@ -261,7 +261,7 @@ class Command(BaseCommand):
                                 comment = getattr(answer, 'comment', None)
                                 if comment is not None:
                                     comment = unicode(comment).strip()
-                                
+
                                 if comment:
                                     if status == "62":
                                         additional_fields = dict(
@@ -278,7 +278,7 @@ class Command(BaseCommand):
                                         )
                                     else:
                                         raise Exception("Invalid XML-file")
-                                    
+
                                     TextAnswer.objects.create(
                                         contribution=contribution,
                                         question=question,
@@ -286,11 +286,11 @@ class Command(BaseCommand):
                                         checked=True,
                                         **additional_fields
                                     )
-                
+
                 course_count += 1
             except KeyboardInterrupt:
                 raise
             except Exception:
                 logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
-        
+
         logger.info("Done, %d of %d courses imported.", course_count, len(courses))

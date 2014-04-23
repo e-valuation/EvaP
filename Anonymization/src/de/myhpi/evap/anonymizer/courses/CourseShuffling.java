@@ -17,16 +17,16 @@ public class CourseShuffling {
     public static void shuffle(Properties properties, Connection connection)
             throws SQLException, IOException {
         System.out.println("Shuffling courses");
-        
+
         String table = properties.getProperty("db_course_table");
 
         List<Course> courses = readCoursesFromDB(table, connection);
         List<Course> shuffledCourses = new ArrayList<Course>(courses);
         Collections.shuffle(shuffledCourses);
-        
+
         String outputFile = properties.getProperty("output_courses");
         substituteCourses(courses, shuffledCourses, table, outputFile, connection);
-        
+
         System.out.println("Courses shuffled, results written to " + outputFile);
     }
 
@@ -52,9 +52,9 @@ public class CourseShuffling {
                 "UPDATE " + table + " " +
                 "SET name_de = ?, name_en = ? " +
                 "WHERE id = ?");
-        
+
         StringBuffer changes = new StringBuffer();
-        
+
         for (int i=0; i<courses.size(); i++) {
             Course original = courses.get(i);
             Course substitute = shuffledCourses.get(i);
@@ -67,7 +67,7 @@ public class CourseShuffling {
             preparedStatement.setString(2, substitute.getName_en());
             preparedStatement.executeUpdate();
         }
-        
+
         FileHelper.writeToFile(changes.toString(), outputFile);
     }
 }

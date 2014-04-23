@@ -51,7 +51,7 @@ MIN_ANSWER_PERCENTAGE = 0.2
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
 
-# email domains for the internal users of the hosting institution used to 
+# email domains for the internal users of the hosting institution used to
 # figure out who can login with username and password and who needs a login key
 INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de"]
 

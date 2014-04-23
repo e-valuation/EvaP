@@ -10,15 +10,15 @@ public class Course {
         this.name_de = name_de;
         this.name_en = name_en;
     }
-    
+
     public int getId() {
         return id;
     }
-    
+
     public String getName_de() {
         return name_de;
     }
-    
+
     public String getName_en() {
         return name_en;
     }

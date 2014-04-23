@@ -50,19 +50,19 @@ def calculate_results(course):
     contributor (or None), a list of single result elements and the average grade
     for that section (or None). The result elements are either `GradeResult` or
     `TextResult` instances."""
-    
+
     # return cached results if available
     cache_key = 'evap.fsr.results.views.calculate_results-%d' % course.id
     prior_results = cache.get(cache_key)
     if prior_results:
         return prior_results
-    
+
     # check if grades for the course will be published
     show = (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
-    
+
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
@@ -74,7 +74,7 @@ def calculate_results(course):
                     contribution__contributor=contribution.contributor,
                     question=question
                     ).values_list('answer', flat=True)
-                
+
                 # calculate average and distribution
                 if answers:
                     # average
@@ -96,7 +96,7 @@ def calculate_results(course):
                     average = None
                     variance = None
                     distribution = None
-                
+
                 # produce the result element
                 results.append(GradeResult(
                     question=question,
@@ -106,7 +106,7 @@ def calculate_results(course):
                     distribution=distribution,
                     show=show
                 ))
-            
+
             elif question.is_text_question():
                 # gather text answers for this question
                 answers = TextAnswer.objects.filter(
@@ -121,23 +121,23 @@ def calculate_results(course):
                         question=question,
                         texts=[answer.answer for answer in answers]
                     ))
-        
+
         # skip section if there were no questions with results
         if not results:
             continue
-        
+
         # compute average grade for this section, will return None if
         # no GradeResults exist in this section
         average_grade = avg([result.average for result
                                             in results
                                             if isinstance(result, GradeResult)])
         sections.append(ResultSection(questionnaire, contribution.contributor, results, average_grade))
-    
+
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
     #      change anyway.
     cache.set(cache_key, sections, 24 * 60 * 60)
-    
+
     return sections
 
 
@@ -145,11 +145,11 @@ def calculate_average_grade(course):
     """Determines the final grade for a course."""
     generic_grades = []
     personal_grades = []
-    
+
     for questionnaire, contributor, results, average in calculate_results(course):
         if average:
             (personal_grades if contributor else generic_grades).append(average)
-    
+
     if not generic_grades:
         # not final grade without any generic grade
         return None
@@ -165,12 +165,12 @@ def calculate_average_grade(course):
 def questionnaires_and_contributions(course):
     """Yields tuples of (questionnaire, contribution) for the given course."""
     result = []
-    
+
     for contribution in course.contributions.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_contributors", "questionnaires__index__min"):
         for questionnaire in contribution.questionnaires.all():
             result.append((questionnaire, contribution))
-    
+
     # sort questionnaires without contributors first
     result.sort(key=lambda t: t[1].contributor is not None)
-    
+
     return result

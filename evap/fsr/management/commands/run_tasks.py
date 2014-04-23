@@ -9,11 +9,11 @@ from evap.fsr.models import EmailTemplate
 class Command(BaseCommand):
     args = '<kind of jobs>'
     help = 'Runs updates/tasks based on time events'
-    
+
     def update_courses(self):
         """ Updates courses state, when evaluation time begins/ends."""
         today = datetime.date.today()
-        
+
         for course in Course.objects.all():
             try:
                 if course.state == "approved" and course.vote_start_date <= today:
@@ -26,15 +26,15 @@ class Command(BaseCommand):
                     course.save()
             except:
                 pass
-    
+
     def check_reminders(self):
         check_date = datetime.date.today() + datetime.timedelta(days=settings.REMIND_X_DAYS_AHEAD_OF_END_DATE)
         found_courses = [course for course in Course.objects.all() if course.state == "inEvaluation" and course.vote_end_date == check_date]
         EmailTemplate.get_reminder_template().send_courses(found_courses, send_to_due_participants=True)
-    
+
     def handle(self, *args, **options):
         if len(args) > 0 and args[0] == 'daily':
             self.check_reminders()
         else:
             self.update_courses()
-        
+

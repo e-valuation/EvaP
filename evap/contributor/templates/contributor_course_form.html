@@ -16,7 +16,7 @@
             <legend>{% trans "General Options" %}</legend>
             {{ form.as_div }}
         </fieldset>
-        
+
         <fieldset>
             {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
@@ -28,12 +28,12 @@
                     <th>{% trans "Can edit course" %}</th>
                     <th>{% trans "Remove?" %}</th>
                 </tr>
-                <tbody>                    
+                <tbody>
                     {% for form_element in formset %}
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
-                        
+
                         <tr>
                             {% for field in form_element.hidden_fields %}
                                 {{ field }}
@@ -66,7 +66,7 @@
                 </tbody>
             </table>
         </fieldset>
-        
+
         <fieldset>
             <legend>{% trans "Students" %}</legend>
             <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR." %}</p>
@@ -105,7 +105,7 @@
             });
 
             $('a.add-row').addClass("btn btn-sm btn-default");
-            
+
             {% if edit %}
             $('#contribution_table tbody tr').formset({
                 prefix: 'contributions',
@@ -121,7 +121,7 @@
 
             $('#id_kind').combobox();
             {% endif %}
-            
+
             $('.twipsify').tooltip({
                 html: true,
                 placement: 'left'

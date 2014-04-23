@@ -24,7 +24,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)
         output = [u'<ul class="inputs-list">']
-        
+
         # Normalize to strings
         str_values = set([force_unicode(v) for v in value])
         for i, (option_value, option_label, option_text) in enumerate(chain(self.choices, choices)):
@@ -35,30 +35,30 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
                 label_for = u' for="%s"' % final_attrs['id']
             else:
                 label_for = ''
-            
+
             cb = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
             output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"',''), option_label))
         output.append(u'</ul>')
-        return mark_safe(u'\n'.join(output))    
+        return mark_safe(u'\n'.join(output))
 
 
 
 class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = QuestionnaireSelectMultiple
-    
+
     def __init__(self, *args, **kwargs):
         super(QuestionnaireMultipleChoiceField, self).__init__(*args, **kwargs)
         self.help_text = ""
-    
+
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
         if hasattr(self, '_choices'):
             return self._choices
-        
+
         # Otherwise, execute the QuerySet in self.queryset to determine the
         # choices dynamically. Return a fresh ModelChoiceIterator that has not been
         # consumed. Note that we're instantiating a new ModelChoiceIterator *each*
@@ -180,18 +180,18 @@ class NewKeyForm(forms.Form):
 
 class BootstrapFieldset(object):
     """ Fieldset container. Renders to a <fieldset>. """
-    
+
     def __init__(self, legend, *fields):
         self.legend_html = legend and ('<legend>%s</legend>' % legend) or ''
         self.fields = fields
-    
+
     def as_html(self, form):
         return u'<fieldset>%s%s</fieldset>' % (self.legend_html, form.render_fields(self.fields), )
 
 
 class BootstrapMixin(object):
     """"""
-    
+
     __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">""" \
                  """<label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ label }}</label>""" \
                  """<div class="col-sm-6">""" \
@@ -199,22 +199,22 @@ class BootstrapMixin(object):
                  """{% if errors %}<span class="help-block">{{ errors }}</span>{% endif %}""" \
                  """{% if help_text %}<span class="help-block">{{ help_text }}</span>{% endif %}""" \
                  """</div></div>"""
-    
+
     def as_div(self):
         """ Render the form as a set of <div>s. """
-        
+
         top_errors = []
         output = self.__render_fields(self.__layout, top_errors)
-        
+
         top_errors.extend(self.non_field_errors())
-        
+
         if top_errors:
             errors = u"""<ul class="errorlist"><li>%s</li></ul>""" % u"</li><li>".join(top_errors)
         else:
             errors = u""
-        
+
         return mark_safe(errors + output)
-    
+
     @property
     def __layout(self):
         try:
@@ -222,7 +222,7 @@ class BootstrapMixin(object):
         except AttributeError:
             self.__layout_store = self.fields.keys()
             return self.__layout_store
-    
+
     @property
     def __custom_fields(self):
         try:
@@ -230,32 +230,32 @@ class BootstrapMixin(object):
         except AttributeError:
             self.__custom_fields_store = {}
             return self.__custom_fields_store
-    
+
     def __render_fields(self, fields, top_errors, separator=u""):
         """ Render a list of fields and join the fields by the value in separator. """
-        
+
         output = []
-        
+
         for field in fields:
             if isinstance(field, BootstrapFieldset):
                 output.append(field.as_html(self))
             else:
                 output.append(self.__render_field(field, top_errors))
-        
+
         return separator.join(output)
-    
+
     def __render_field(self, field, top_errors):
         """ Render a named field to HTML. """
-        
+
         try:
             field_instance = self.fields[field]
         except KeyError:
             raise Exception("Could not resolve form field '%s'." % field)
-        
+
         bf = forms.forms.BoundField(self, field_instance, field)
-        
+
         output = ''
-        
+
         if bf.errors:
             # If the field contains errors, render the errors to a <ul>
             # using the error_list helper function.
@@ -263,7 +263,7 @@ class BootstrapMixin(object):
             bf_errors = ', '.join([e for e in bf.errors])
         else:
             bf_errors = ''
-        
+
         if bf.is_hidden:
             # If the field is hidden, add it at the top of the form
             # self.prefix.append(unicode(bf))
@@ -271,27 +271,27 @@ class BootstrapMixin(object):
             # list which will be printed out at the top of form
             if bf_errors:
                 top_errors.extend(bf.errors)
-        
+
         else:
             # Find field + widget type css classes
             css_class = type(field_instance).__name__ + " " + type(field_instance.widget).__name__
-            
+
             # Add an extra class, Required, if applicable
             if field_instance.required:
                 css_class += " required"
-            
+
             if field_instance.help_text:
                 # The field has a help_text, construct <span> tag
                 help_text = escape(unicode(field_instance.help_text))
             else:
                 help_text = u''
-            
+
             attrs = {}
             if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple)):
                 attrs['class'] = 'form-control'
             if isinstance(field_instance.widget, widgets.DateInput) and not field_instance.widget.attrs.get("readonly", False):
                 attrs['data-datepicker'] = "datepicker"
-            
+
             field_hash = {
                 'class' : mark_safe(css_class),
                 'label' : mark_safe(bf.label or ''),
@@ -302,7 +302,7 @@ class BootstrapMixin(object):
                 'errors' : mark_safe(bf_errors),
                 'field_type' : mark_safe(field.__class__.__name__),
             }
-            
+
             output = Template(self.__TEMPLATE).render(Context(field_hash))
-        
+
         return mark_safe(output)

@@ -10,19 +10,19 @@
         <p>{% blocktrans with TextAnswer.elements_per_page as elements_per_page and course.open_textanswer_set|length as open and course.textanswer_set|length as total %}
         Note: for better usability only {{ elements_per_page }} comments are shown at once. For this course {{ open }} out of {{ total }} comments have not been reviewed.
         {% endblocktrans %}</p>
-        
+
         {% csrf_token %}
         {{ formset.management_form }}
         {% for form in formset %}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        {% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}: 
+                        {% blocktrans with form.instance.id as id %}Answer {{ id }}{% endblocktrans %}:
                         {% if form.instance.contribution.contributor %}
                             {% if form.instance.contribution.contributor.userprofile.full_name %}
-                                {{ form.instance.contribution.contributor.userprofile.full_name }}: 
+                                {{ form.instance.contribution.contributor.userprofile.full_name }}:
                             {% else %}
-                                {{ form.instance.contribution.contributor.username }}: 
+                                {{ form.instance.contribution.contributor.username }}:
                             {% endif %}
                         {% endif %}
                         {{ form.instance.question.text }}
