@@ -9,15 +9,15 @@
         {% trans "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed." %}
     </p>
     <form method="POST" class="form-horizontal multiselect-form">
-	{% csrf_token %}
-	<fieldset>
-	{{ form.as_div }}
-	</fieldset>
+    {% csrf_token %}
+    <fieldset>
+    {{ form.as_div }}
+    </fieldset>
     <div class="form-group well">
         <div class="col-sm-offset-2 col-sm-6">
-	       <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
+           <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
         </div>
-	</div>
+    </div>
     </form>
 {% endblock %}
 

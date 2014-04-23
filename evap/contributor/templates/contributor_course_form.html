@@ -78,10 +78,10 @@
         </fieldset>
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
-    			{% if edit %}
-    				<button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
-    	            <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve"%}</button>
-    			{% endif %}
+                {% if edit %}
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
+                    <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve"%}</button>
+                {% endif %}
                 <a href="{% url "evap.contributor.views.index" %}" class="btn btn-default">{% trans "Cancel" %}</a>
                 <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-default">{% trans "Preview" %}</a>
             </div>
@@ -106,8 +106,8 @@
 
             $('a.add-row').addClass("btn btn-sm btn-default");
             
-			{% if edit %}
-			$('#contribution_table tbody tr').formset({
+            {% if edit %}
+            $('#contribution_table tbody tr').formset({
                 prefix: 'contributions',
                 deleteText: '{% trans "remove" %}',
                 addText: '{% trans "add another" %}',
@@ -121,7 +121,7 @@
 
             $('#id_kind').combobox();
             {% endif %}
-			
+            
             $('.twipsify').tooltip({
                 html: true,
                 placement: 'left'

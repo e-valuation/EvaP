@@ -11,24 +11,24 @@
 {% block content %}
     {{ block.super }}
     <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
-	{% csrf_token %}
-	<fieldset>
-	    <legend>{% trans "Profile" %}</legend>
-	    {{ form.as_div }}
-	</fieldset>
-	<fieldset>
-		<legend>{% trans "People for which you are a delegate" %}</legend>
-		<ul>
-			{% for puser in form.instance.user.represented_users.all %}
-				<li>{{ puser.full_name }}</li>
-			{% endfor %}
-		</ul>
-	</fieldset>
+    {% csrf_token %}
+    <fieldset>
+        <legend>{% trans "Profile" %}</legend>
+        {{ form.as_div }}
+    </fieldset>
+    <fieldset>
+        <legend>{% trans "People for which you are a delegate" %}</legend>
+        <ul>
+            {% for puser in form.instance.user.represented_users.all %}
+                <li>{{ puser.full_name }}</li>
+            {% endfor %}
+        </ul>
+    </fieldset>
     <div class="form-group well">
         <div class="col-sm-offset-2 col-sm-6">
-	       <input type="submit" value="{% trans "Save your profile" %}" class="btn btn-primary"/>
+           <input type="submit" value="{% trans "Save your profile" %}" class="btn btn-primary"/>
         </div>
-	</div>
+    </div>
     </form>
     
     <div>

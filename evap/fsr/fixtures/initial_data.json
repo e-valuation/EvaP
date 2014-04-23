@@ -5,7 +5,7 @@
     "fields": {
       "name": "Lecturer Review Notice", 
       "subject": "[EvaP] New Course ready for approval",
-	  "body": ""
+      "body": ""
     }
   }, 
   {
@@ -14,7 +14,7 @@
     "fields": {
       "name": "Student Reminder", 
       "subject": "[EvaP] Only 2 days left to evaluate",
-	  "body": ""
+      "body": ""
     }
   }, 
   {
@@ -23,7 +23,7 @@
     "fields": {
       "name": "Publishing Notice", 
       "subject": "[EvaP] A course has been published",
-	  "body": ""
+      "body": ""
     }
   }, 
   {
@@ -32,7 +32,7 @@
     "fields": {
       "name": "Login Key Created", 
       "subject": "[EvaP] A login key was created",
-	  "body": ""
+      "body": ""
     }
   }
 ]
