@@ -11,14 +11,14 @@
             <legend>{% trans "General Options" %}</legend>
             {{ form.as_div }}
         </fieldset>
-        
+
         <fieldset>
             <legend>{% trans "Contributors" %}</legend>
             {{ formset.management_form }}
         </fieldset>
-        
+
         {{ formset.non_form_errors }}
-        
+
         <table id="contribution_table" class="table">
             <thead>
             <tr>
@@ -44,7 +44,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        
+
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
                 {% if form.instance.state == "inEvaluation" %}
@@ -76,13 +76,13 @@
                 $('.twipsify').tooltip({
                     html: true,
                     placement: 'left'
-                });                
+                });
             }
         });
 
         $('#id_degree').combobox();
         $('#id_kind').combobox();
-        
+
         $('.twipsify').tooltip({
             html: true,
             placement: 'left'
@@ -127,7 +127,7 @@
         }
     });
     </script>
-    
+
     <!-- prevent from accendential closing -->
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

@@ -13,20 +13,20 @@
 {% block content %}
     {{ block.super }}
     {% regroup sections by questionnaire as sections_grouped %}
-    
+
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
-    
+
     {% for group in sections_grouped %}
         <h4>{{ group.grouper.public_name }}</h4>
         {% if group.grouper.teaser %}
             <p>{{ group.grouper.teaser }}</td>
         {% endif %}
-        
+
         {% for questionnaire, contributor, results, grade in group.list %}
             {% if contributor %}
                 <h5>{{ contributor.userprofile.full_name }}</h5>
             {% endif %}
-            
+
             <table class="table table-striped">
                 <tbody>
             {% for result in results %}

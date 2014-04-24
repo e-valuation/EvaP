@@ -1,14 +1,14 @@
 License
 =======
 
-The software is licensed under the MIT license. The source code includes other 
-components in whole or in part; namely jQuery, jQuery UI, jQuery UI Multiselect 
+The software is licensed under the MIT license. The source code includes other
+components in whole or in part; namely jQuery, jQuery UI, jQuery UI Multiselect
 and jQuery Formset. These components are used under the MIT resp. BSD licenses.
-It also uses symbols of the Silk icon set from famfamfam.com, which is licensed 
+It also uses symbols of the Silk icon set from famfamfam.com, which is licensed
 under a Creative Commons Attribution 2.5 License.
 
-The source repository may include logos, names or other trademarks of the 
-Hasso Plattner Institute or other entities; potential usage restrictions for 
+The source repository may include logos, names or other trademarks of the
+Hasso Plattner Institute or other entities; potential usage restrictions for
 these elements still apply and are not touched by the software license.
 
 ::
@@ -22,10 +22,10 @@ these elements still apply and are not touched by the software license.
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

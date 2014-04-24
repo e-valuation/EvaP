@@ -12,14 +12,14 @@ import xlrd
 
 class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
-    
+
     def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
         self.title = title
         self.email = email
-    
+
     def store_in_database(self):
         user = User(username=self.username,
                     first_name=self.first_name,
@@ -33,7 +33,7 @@ class UserData(object):
 
     def update(self, user):
         profile = UserProfile.get_for_user(user=user)
-        
+
         if not user.first_name:
             user.first_name = self.first_name
         if not user.last_name:
@@ -44,20 +44,20 @@ class UserData(object):
             profile.title = self.title
         if profile.needs_login_key:
             profile.refresh_login_key()
-        
+
         user.save()
         profile.save()
 
 
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
-    
+
     def __init__(self, name_de=None, name_en=None, kind=None, degree=None):
         self.name_de = name_de
         self.name_en = name_en
         self.kind = kind
         self.degree = degree
-    
+
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
                         name_en=self.name_en,
@@ -74,13 +74,13 @@ class ExcelImporter(object):
     def __init__(self, request):
         self.associations = SortedDict()
         self.request = request
-    
+
     def read_file(self, excel_file):
         """Reads an excel file and stores all the student-contributor-course
         associations in the `associations` member."""
-        
+
         book = xlrd.open_workbook(file_contents=excel_file.read())
-        
+
         # read the file row by row, sheet by sheet
         for sheet in book.sheets():
             try:
@@ -91,7 +91,7 @@ class ExcelImporter(object):
                         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
                         contributor_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
                         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
-                    
+
                         # store data objects together with the data source location for problem tracking
                         self.associations[(sheet.name, row)] = (student_data, contributor_data, course_data)
                     else:
@@ -101,12 +101,12 @@ class ExcelImporter(object):
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
                 raise
         messages.info(self.request, _(u"Successfully read excel file."))
-    
+
     def validate_and_fix(self):
         """Validates the internal integrity of the data read by read_file and
         fixes and inferres data if possible. Should not validate against data
         already in the database."""
-        
+
         for (sheet, row), (student_data, contributor_data, course_data) in self.associations.items():
             # try to infer first names from usernames
             if not contributor_data.first_name:
@@ -115,12 +115,12 @@ class ExcelImporter(object):
                     contributor_data.first_name = first
             if student_data.email == None or student_data.email == "":
                 student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
-    
+
     def save_to_db(self, semester, vote_start_date, vote_end_date):
         """Stores the read and validated data in the database. Errors might still
         occur because the previous validation does check not for consistency with
         the data already in the database."""
-        
+
         with transaction.commit_on_success():
             course_count = 0
             student_count = 0
@@ -134,24 +134,24 @@ class ExcelImporter(object):
                     except User.DoesNotExist:
                         student = student_data.store_in_database()
                         student_count += 1
-                    
+
                     try:
                         contributor = User.objects.get(username__iexact=contributor_data.username)
                         contributor_data.update(contributor)
                     except User.DoesNotExist:
                         contributor = contributor_data.store_in_database()
                         contributor_count += 1
-                    
+
                     try:
                         course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                     except Course.DoesNotExist:
                         course = course_data.store_in_database(vote_start_date, vote_end_date, semester)
                         course.contributions.create(contributor=contributor, course=course, responsible=True, can_edit=True)
                         course_count += 1
-                    
+
                     # connect database objects
                     course.participants.add(student)
-                    
+
                 except Exception, e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. " \
                                                      "The original data location was row %(row)d of sheet '%(sheet)s'. " \
@@ -159,7 +159,7 @@ class ExcelImporter(object):
                     raise
             messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") %
                                             dict(courses=course_count, students=student_count, contributors=contributor_count))
-    
+
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):
         """Entry point for the view."""

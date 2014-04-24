@@ -15,28 +15,28 @@ def validate_template(value):
         raise ValidationError(str(e))
 
 
-class EmailTemplate(models.Model):    
+class EmailTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
-    
+
     subject = models.CharField(max_length=100, verbose_name=_(u"Subject"), validators=[validate_template])
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
-    
+
     @classmethod
     def get_review_template(cls):
         return cls.objects.get(name="Lecturer Review Notice")
-    
+
     @classmethod
     def get_reminder_template(cls):
         return cls.objects.get(name="Student Reminder")
-    
+
     @classmethod
     def get_publish_template(cls):
         return cls.objects.get(name="Publishing Notice")
-        
+
     @classmethod
     def get_login_key_template(cls):
         return cls.objects.get(name="Login Key Created")
-    
+
     @classmethod
     def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
         from evap.evaluation.models import UserProfile
@@ -47,18 +47,18 @@ class EmailTemplate(models.Model):
         elif send_to_due_participants:
             for user in course.due_participants:
                 yield user
-        
+
         if send_to_contributors:
             for contribution in course.contributions.exclude(contributor=None):
                 yield contribution.contributor
         elif send_to_editors:
             for contribution in course.contributions.exclude(contributor=None).filter(can_edit=True):
                 yield contribution.contributor
-    
+
     @classmethod
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary))
-    
+
     def send_courses(self, courses, send_to_editors=False, send_to_contributors=False, send_to_due_participants=False, send_to_all_participants=False):
         from evap.evaluation.models import UserProfile
         # pivot course-user relationship
@@ -72,7 +72,7 @@ class EmailTemplate(models.Model):
 
         # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
-            
+
             cc = []
             for course in courses:
                 # if email will be sent to editors, also send to all their delegates in CC
@@ -82,7 +82,7 @@ class EmailTemplate(models.Model):
                         break
                 # send email to all cc users of the current user
                 cc.extend([p.email for p in UserProfile.get_for_user(user).cc_users.all() if p.email])
-            
+
             mail = EmailMessage(
                 subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
                 body = self.render_string(self.body, {'user': user, 'courses': courses}),
@@ -91,11 +91,11 @@ class EmailTemplate(models.Model):
                 bcc = [a[1] for a in settings.MANAGERS],
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
-    
+
     def send_user(self, user):
         if not user.email:
             return
-        
+
         mail = EmailMessage(
             subject = self.render_string(self.subject, {'user': user}),
             body = self.render_string(self.body, {'user': user}),

@@ -41,6 +41,6 @@ class ValueFromSettings(template.Node):
     def __init__(self, var):
         super(ValueFromSettings, self).__init__()
         self.arg = template.Variable(var)
-    
+
     def render(self, context):
         return settings.__getattr__(str(self.arg))

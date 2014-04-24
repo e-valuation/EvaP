@@ -18,7 +18,7 @@ def is_valid_email(value):
 def is_valid_username(username):
     if not RE_VALID_USERNAME.match(username):
         raise exceptions.ValidationError(_("Error: That username is invalid. Use only letters, digits and underscores.\n"))
-    
+
     try:
         User.objects.get(username__iexact=username)
     except User.DoesNotExist:
@@ -57,7 +57,7 @@ def read_value_hidden(question, validator_func):
 class Command(BaseCommand):
     args = ''
     help = 'Creates a user'
-    
+
     option_list = BaseCommand.option_list + (
          make_option('-p',
              action='store_true',
@@ -65,21 +65,21 @@ class Command(BaseCommand):
              default=False,
              help='The user to be created should have a password set in the DB (for development)'),
          )
-    
+
     def handle(self, *args, **options):
         try:
             # Get a username
             username = read_value('Username: ', is_valid_username)
-            
+
             # Get an email
             email = read_value('Email address: ', is_valid_email)
-            
+
             # Get password if it should be set
             password = read_value_hidden('Password: ', lambda x: True) if options["has_password"] else None
-            
+
             # get fsr flag
             is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
-            
+
             # create user
             user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
             if not password is None:
@@ -87,7 +87,7 @@ class Command(BaseCommand):
                 user.save()
             profile = UserProfile.get_for_user(user)
             profile.save()
-            
+
         except KeyboardInterrupt:
             sys.stderr.write("\nOperation cancelled.\n")
             sys.exit(1)
