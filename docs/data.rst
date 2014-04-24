@@ -13,5 +13,5 @@ Especially to note are some constraints of this data model:
 Data Migration
 --------------
 
-The `evaluation` app is controlled by South -- a framework for Django that 
+The `evaluation` app is controlled by South -- a framework for Django that
 allows continuous changes in the data models without losing data.

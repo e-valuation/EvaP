@@ -10,9 +10,9 @@ from evap.fsr.models import EmailTemplate
 
 
 def index(request):
-    """Main entry page into EvaP providing all the login options available. THe username/password 
+    """Main entry page into EvaP providing all the login options available. THe username/password
        login is thought to be used for internal users, e.g. by connecting to a LDAP directory.
-       The login key mechanism is meant to be used to include external participants, e.g. visiting 
+       The login key mechanism is meant to be used to include external participants, e.g. visiting
        students or visiting contributors.
     """
 
@@ -29,9 +29,9 @@ def index(request):
             profile = new_key_form.get_profile()
             profile.generate_login_key()
             profile.save()
-            
+
             EmailTemplate.get_login_key_template().send_user(new_key_form.get_user())
-            
+
             messages.success(request, _(u"Successfully sent email with new login key."))
         elif login_key_form.is_valid():
             # user would like to login with a login key and passed key test
@@ -43,7 +43,7 @@ def index(request):
             # clean up our test cookie
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
-    
+
     # if not logged in by now, render form
     if not request.user.is_active:
         # set test cookie to verify whether they work in the next step
@@ -72,5 +72,5 @@ def index(request):
             return redirect('evap.student.views.index')
 
 
-def faq(request):    
+def faq(request):
     return render_to_response("faq.html", dict(sections=FaqSection.objects.all()), context_instance=RequestContext(request))

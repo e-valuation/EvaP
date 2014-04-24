@@ -23,19 +23,19 @@ class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
     `contribution` and `questionnaire` to the constructor.
-    
+
     See http://jacobian.org/writing/dynamic-form-generation/"""
-    
+
     def __init__(self, *args, **kwargs):
         self.contribution = kwargs.pop('contribution')
         self.questionnaire = kwargs.pop('questionnaire')
-        
+
         super(QuestionsForm, self).__init__(*args, **kwargs)
-        
+
         for question in self.questionnaire.question_set.all():
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
-            
+
             if question.is_text_question():
                 field = forms.CharField(required=False, widget=forms.Textarea(),
                                         **field_args)
@@ -44,7 +44,7 @@ class QuestionsForm(forms.Form):
                                                choices=GRADE_CHOICES,
                                                coerce=int,
                                                **field_args)
-            
+
             identifier = make_form_identifier(self.contribution,
                                               self.questionnaire,
                                               question)
@@ -59,9 +59,9 @@ class QuestionsForm(forms.Form):
             return u"%s: %s" % (full_name, self.questionnaire.public_name)
         else:
             return self.questionnaire.public_name
-    
+
     def teaser(self):
         return self.questionnaire.teaser
-    
+
     def image(self):
         return UserProfile.get_for_user(self.contribution.contributor).picture if self.contribution.contributor else None

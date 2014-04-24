@@ -13,7 +13,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    
+
     <script type="text/javascript">
         $(document).ready(function() {
             if ($.fn.button.noConflict != undefined) {
@@ -36,7 +36,7 @@
 {% block content %}
     {{ block.super }}
     <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
-	{% csrf_token %}
+    {% csrf_token %}
     {{ form.as_div }}
     <div class="form-group well">
         <div class="col-sm-offset-2 col-sm-6">
@@ -44,7 +44,7 @@
         </div>
     </div>
     </form>
-    
+
     <div>
         <img src="{{ object.thumbnail.url }}" />
     </div>

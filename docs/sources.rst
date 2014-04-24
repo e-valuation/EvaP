@@ -4,7 +4,7 @@ Source Code
 EvaP is a standard Django project, divided up into several applications:
 
 :py:mod:`evaluation`
-    contains all the data models relevant for the evaluation, but no views. 
+    contains all the data models relevant for the evaluation, but no views.
     It also contains some generic code used by other applications.
 
 :py:mod:`fsr`
@@ -22,4 +22,4 @@ EvaP is a standard Django project, divided up into several applications:
 Data Import
 -----------
 
-The key module for data imports is :py:mod:`fsr.importers`. 
+The key module for data imports is :py:mod:`fsr.importers`.

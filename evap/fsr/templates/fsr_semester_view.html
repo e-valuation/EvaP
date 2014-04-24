@@ -6,7 +6,7 @@
 
 {% block content %}
     {{ block.super }}
-    
+
     <p>
         <a href="{% url "evap.fsr.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
         {% if semester.can_fsr_delete %}
@@ -21,7 +21,7 @@
         &nbsp;
         <a href="{% url "evap.fsr.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
     </p>
-    
+
     {% if courses_by_state %}
         <ul class="nav nav-tabs">
             {% for state, courses in courses_by_state %}
@@ -88,7 +88,7 @@
                 {% endfor %}
                 </tbody>
                 </table>
-                
+
                 <p>
                 {% ifequal state "new" %}
                     <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Enable courses for Lecturer Review..." %}</a>
@@ -99,11 +99,11 @@
                 {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
                     <a class="btn btn-default" href="{% url "evap.fsr.views.semester_approve" semester.id %}">{% trans "Approve courses..." %}</a>
                 {% endif %}
-                
+
                 {% ifequal state "lecturerApproved" %}
                     <a class="btn btn-default" href="{% url "evap.fsr.views.semester_contributor_ready" semester.id %}">{% trans "Re-Enable courses for Lecturer Review..." %}</a>
                 {% endifequal %}
-                
+
                 {% ifequal state "reviewed" %}
                     <a class="btn btn-default" href="{% url "evap.fsr.views.semester_publish" semester.id %}">{% trans "Publish courses..." %}</a>
                 {% endifequal %}
@@ -119,7 +119,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    
+
     <script type="text/javascript">
         $(document).ready(function() {
             $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {

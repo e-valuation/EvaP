@@ -9,12 +9,12 @@ urlpatterns = patterns('',
     url(r"^$", 'evap.evaluation.views.index'),
     url(r"^faq$", 'evap.evaluation.views.faq'),
     url(r"^logout$", 'django.contrib.auth.views.logout', {'next_page': "/"}),
-    
+
     url(r"^fsr/", include('evap.fsr.urls')),
     url(r"^results/", include('evap.results.urls')),
     url(r"^student/", include('evap.student.urls')),
     url(r"^contributor/", include('evap.contributor.urls')),
-    
+
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),
 )

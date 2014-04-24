@@ -9,8 +9,8 @@
 {% block subtitle %}
     {{ block.super }}
     {% if disable_breadcrumb_fsr %}
-    	<li>{% trans "Student Representatives" %}</li>
+        <li>{% trans "Student Representatives" %}</li>
     {% else %}
-    	<li><a href="{% url "fsr_root" %}">{% trans "Student Representatives" %}</a></li>
+        <li><a href="{% url "fsr_root" %}">{% trans "Student Representatives" %}</a></li>
     {% endif %}
 {% endblock %}

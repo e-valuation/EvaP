@@ -1,38 +1,38 @@
 [
   {
-    "pk": 1, 
-    "model": "fsr.EmailTemplate", 
+    "pk": 1,
+    "model": "fsr.EmailTemplate",
     "fields": {
-      "name": "Lecturer Review Notice", 
+      "name": "Lecturer Review Notice",
       "subject": "[EvaP] New Course ready for approval",
-	  "body": ""
+      "body": ""
     }
-  }, 
+  },
   {
-    "pk": 2, 
-    "model": "fsr.EmailTemplate", 
+    "pk": 2,
+    "model": "fsr.EmailTemplate",
     "fields": {
-      "name": "Student Reminder", 
+      "name": "Student Reminder",
       "subject": "[EvaP] Only 2 days left to evaluate",
-	  "body": ""
+      "body": ""
     }
-  }, 
+  },
   {
-    "pk": 3, 
-    "model": "fsr.EmailTemplate", 
+    "pk": 3,
+    "model": "fsr.EmailTemplate",
     "fields": {
-      "name": "Publishing Notice", 
+      "name": "Publishing Notice",
       "subject": "[EvaP] A course has been published",
-	  "body": ""
+      "body": ""
     }
-  }, 
+  },
   {
-    "pk": 4, 
-    "model": "fsr.EmailTemplate", 
+    "pk": 4,
+    "model": "fsr.EmailTemplate",
     "fields": {
-      "name": "Login Key Created", 
+      "name": "Login Key Created",
       "subject": "[EvaP] A login key was created",
-	  "body": ""
+      "body": ""
     }
   }
 ]

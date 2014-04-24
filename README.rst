@@ -6,41 +6,41 @@
 What is EvaP?
 -------------
 
-EvaP (a successor to the infamous EvaJ) is a course evaluation system used 
+EvaP (a successor to the infamous EvaJ) is a course evaluation system used
 internally at Hasso Plattner Institute.
 
-For the documentation, please look into the *docs* subdirectory or the generated 
+For the documentation, please look into the *docs* subdirectory or the generated
 documentation at ReadTheDocs: https://evap.readthedocs.org.
 
 Installation
 ------------
 
-EvaP is a plain Django application leveraging South for database migrations. In order to start hacking away, 
+EvaP is a plain Django application leveraging South for database migrations. In order to start hacking away,
 
 (1) simply install the requirements::
 
-	pip install -r requirements.txt
-	
+    pip install -r requirements.txt
+
 (2) go into the evap folder::
 
-	cd evap
+    cd evap
 
 (3) run the database initialization and migrations (this will use the defautl SQLite DB)::
 
-	python manage.py syncdb
-	python manage.py migrate
+    python manage.py syncdb
+    python manage.py migrate
 
 (4) create yourself some users::
 
-	python manage.py create_user -p
-	
+    python manage.py create_user -p
+
 (5) start the development server::
 
-	python evap/manage.py runserver
-	
+    python evap/manage.py runserver
+
 (6) and open your browser::
 
-	http://localhost:8000/
+    http://localhost:8000/
 
 More detailed instructions (also covering production deployment) can be found at http://evap.readthedocs.org/en/latest/installation.html.
 
@@ -68,14 +68,14 @@ Contributors to EvaP
 License
 -------
 
-The software is licensed under the MIT license. The source code includes other 
-components in whole or in part; namely jQuery, jQuery UI, jQuery UI Multiselect 
+The software is licensed under the MIT license. The source code includes other
+components in whole or in part; namely jQuery, jQuery UI, jQuery UI Multiselect
 and jQuery Formset. These components are used under the MIT resp. BSD licenses.
-It also uses symbols of the Silk icon set from famfamfam.com, which is licensed 
+It also uses symbols of the Silk icon set from famfamfam.com, which is licensed
 under a Creative Commons Attribution 2.5 License.
 
-The source repository may include logos, names or other trademarks of the 
-Hasso Plattner Institute or other entities; potential usage restrictions for 
+The source repository may include logos, names or other trademarks of the
+Hasso Plattner Institute or other entities; potential usage restrictions for
 these elements still apply and are not touched by the software license.
 
 ::
@@ -89,10 +89,10 @@ these elements still apply and are not touched by the software license.
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

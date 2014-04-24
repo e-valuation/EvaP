@@ -1,4 +1,4 @@
-stage { 'pre': 
+stage { 'pre':
     before => Stage['main'],
 }
 
@@ -11,11 +11,11 @@ node default {
     # general packages
     package { ['git', 'build-essential', 'vim']:
         ensure => installed,
-    } -> 
+    } ->
     # python packages
     package { ['python', 'python-dev', 'python-pip', 'libxml2-dev', 'libxslt-dev', 'python-lxml', 'gettext']:
         ensure => installed,
-    } -> 
+    } ->
     # configure mysql
     #class { '::mysql::server':
     #    root_password  => '7FzSCogWAFCt'
@@ -39,13 +39,13 @@ node default {
     } -> exec { '/vagrant/requirements-dev.txt':
         provider       => shell,
         command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements-dev.txt'
-    } -> class { 'evap': 
+    } -> class { 'evap':
         #db_connector   => 'mysql'
         db_connector   => 'postgresql_psycopg2'
     }
 
     # apache environment
-    class { 'apache': 
+    class { 'apache':
         default_vhost => false
     }
     class { 'apache::mod::wsgi':
