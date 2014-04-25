@@ -61,6 +61,7 @@ Contributors to EvaP
 - Nicolas Fricke
 - Stefanie Reinicke
 - Thomas Schulz
+- Matthias Kohnen
 - Johannes Linke
 - Johannes Wolf
 - others
