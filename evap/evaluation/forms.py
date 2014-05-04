@@ -10,6 +10,7 @@ from django.utils.encoding import force_unicode
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import UserProfile
 
@@ -88,6 +89,7 @@ class LoginUsernameForm(forms.Form):
         self.user_cache = None
         super(LoginUsernameForm, self).__init__(*args, **kwargs)
 
+    @sensitive_variables('password')
     def clean_password(self):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
