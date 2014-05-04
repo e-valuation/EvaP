@@ -2,10 +2,14 @@ language: python
 python:
   - "2.6"
   - "2.7"
+  - "3.3"
+  - "3.4"
   - "pypy"
 matrix:
   allow_failures:
     - python: "pypy"
+    - python: "3.3"
+    - python: "3.4"
 install:
   - pip install -r requirements.txt --use-mirrors
   - pip install coveralls --use-mirrors
