@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 17:17+0200\n"
-"PO-Revision-Date: 2014-05-04 17:18+0100\n"
+"POT-Creation-Date: 2014-05-04 17:30+0200\n"
+"PO-Revision-Date: 2014-05-04 17:30+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -90,7 +90,6 @@ msgid "These students should be participating in your course. If this data is no
 msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen. Falls diese Daten nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte den Fachschaftsrat."
 
 #: contributor/templates/contributor_course_form.html:82
-#: fsr/templates/fsr_course_review.html:43
 msgid "Save"
 msgstr "Speichern"
 
@@ -797,8 +796,8 @@ msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
 #: fsr/forms.py:150
-msgid "Hidden"
-msgstr "Versteckt?"
+msgid "Do not publish"
+msgstr "Nicht veröffentlichen"
 
 #: fsr/forms.py:204
 msgid "You must have at least one of these."
@@ -1069,7 +1068,7 @@ msgstr "Überprüfen der Antworten"
 
 #: fsr/templates/fsr_course_review.html:10
 #, python-format
-msgid "Note: for better usability only %(elements_per_page)s comments are shown at once. For this course %(open)s out of %(total)s comments have not been reviewed."
+msgid "Note: For better usability only %(elements_per_page)s comments are shown at once. For this course %(open)s out of %(total)s comments have not been reviewed."
 msgstr "Hinweis: Zur besseren Benutzbarkeit werden lediglich %(elements_per_page)s Kommentare auf einmal dargestellt. Für diese Veranstaltung wurden %(open)s von %(total)s Kommentaren noch nicht durchgesehen."
 
 #: fsr/templates/fsr_course_review.html:18
@@ -1077,9 +1076,9 @@ msgstr "Hinweis: Zur besseren Benutzbarkeit werden lediglich %(elements_per_page
 msgid "Answer %(id)s"
 msgstr "Antwort %(id)s"
 
-#: fsr/templates/fsr_course_review.html:44
-msgid "Save and show next"
-msgstr "Speichern und nächste anzeigen"
+#: fsr/templates/fsr_course_review.html:43
+msgid "Save and continue"
+msgstr "Speichern und weiter"
 
 #: fsr/templates/fsr_course_selection_list.html:5
 msgid "Courses"
@@ -1568,4 +1567,3 @@ msgstr "Angemeldet als"
 #: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-
