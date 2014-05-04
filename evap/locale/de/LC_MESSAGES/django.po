@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 11:48+0200\n"
-"PO-Revision-Date: 2014-05-04 11:49+0100\n"
+"POT-Creation-Date: 2014-05-04 17:17+0200\n"
+"PO-Revision-Date: 2014-05-04 17:18+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -352,12 +352,12 @@ msgid "description (english)"
 msgstr "Beschreibung (englisch)"
 
 #: evaluation/models.py:65
-msgid "public name (german)"
-msgstr "Öffentlicher Name (deutsch)"
+msgid "display name (german)"
+msgstr "Anzeigename (deutsch)"
 
 #: evaluation/models.py:66
-msgid "public name (english)"
-msgstr "Öffentlicher Name (englisch)"
+msgid "display name (english)"
+msgstr "Anzeigename (englisch)"
 
 #: evaluation/models.py:69
 msgid "teaser (german)"
