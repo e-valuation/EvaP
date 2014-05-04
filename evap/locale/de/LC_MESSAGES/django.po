@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 17:30+0200\n"
-"PO-Revision-Date: 2014-05-04 17:30+0100\n"
+"POT-Creation-Date: 2014-05-04 18:18+0200\n"
+"PO-Revision-Date: 2014-05-04 18:19+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -820,7 +820,7 @@ msgid "Too many responsible contributors found. Each course must have exactly on
 msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:348
-msgid "FSR Member"
+msgid "Student representative"
 msgstr "FSR-Mitglied"
 
 #: fsr/forms.py:349
