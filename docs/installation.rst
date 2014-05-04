@@ -116,16 +116,6 @@ We recommend the following Apache configuration:
 ::
 
         WSGIScriptAlias / /opt/evap/handler.wsgi
-        <Location /login>
-                AuthName "Kerberos Domain Login"
-                AuthType Kerberos
-                KrbAuthRealms DOMAIN.EXAMPLE.COM
-                KrbMethodNegotiate On
-                KrbMethodK5Passwd On
-                KrbVerifyKDC off
-
-                Require valid-user
-        </Location>
 
         Alias /static /opt/evap/evap/staticfiles
         <Location /static>
@@ -133,6 +123,22 @@ We recommend the following Apache configuration:
             ExpiresDefault "access plus 1 month"
         </Location>
         Alias /media /opt/evap/evap/upload
+
+Productive Environment: Kerberos Authentication
+-----------------------------------------------
+
+EvaP is preconfigured for using Kerberos as an authentication backend. To enable this functionality you have to uncomment several lines in the ``requirements.txt`` and ``settings.py``:
+
+- in ``requirements.txt``:
+
+  - uncomment ``django_auth_kerberos`` and run another ``pip install -r requirements.txt`` if necessary
+
+- in ``settings.py``:
+
+  - in the list ``AUTHENTICATION_BACKEND``, enable ``django_auth_kerberos.backends.KrbBackend``
+  - uncomment the lines ``KRB5_REALM = 'EXAMPLE.COM'`` and ``KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'`` and define the actual values
+  - enable ``django_auth_kerberos`` in ``INSTALLED_APPS``
+
 
 Productive Environment: Cron Configuration
 ------------------------------------------

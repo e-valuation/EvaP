@@ -10,3 +10,4 @@ django-widget-tweaks
 WebTest>=1.3
 WebOb>=1.1.1
 raven
+#django_auth_kerberos
