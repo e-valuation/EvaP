@@ -65,7 +65,7 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course)
 
-    if (request.user.is_staff != True): # don't remove TextResults for FSR members
+    if (request.user.is_staff != True): # don't remove TextResults for student representatives
     # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
         for section in sections:
             if not user_can_see_textresults(request.user, course, section):
