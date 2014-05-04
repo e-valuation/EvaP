@@ -7,9 +7,7 @@
     <form action="{% url "evap.fsr.views.course_review" semester.id course.id offset %}" method="POST" class="form-horizontal multiselect-form">
     <fieldset>
         <legend>{% trans "Answer Review" %}</legend>
-        <p>{% blocktrans with TextAnswer.elements_per_page as elements_per_page and course.open_textanswer_set|length as open and course.textanswer_set|length as total %}
-        Note: for better usability only {{ elements_per_page }} comments are shown at once. For this course {{ open }} out of {{ total }} comments have not been reviewed.
-        {% endblocktrans %}</p>
+        <p>{% blocktrans with TextAnswer.elements_per_page as elements_per_page and course.open_textanswer_set|length as open and course.textanswer_set|length as total %}Note: For better usability only {{ elements_per_page }} comments are shown at once. For this course {{ open }} out of {{ total }} comments have not been reviewed.{% endblocktrans %}</p>
 
         {% csrf_token %}
         {{ formset.management_form }}
@@ -42,8 +40,7 @@
         {% endfor %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
-                <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
-                <button name="operation" value="save_and_next" type="submit" class="btn btn-success">{% trans "Save and show next"%}</button>
+                <button name="operation" value="save_and_next" type="submit" class="btn btn-primary">{% trans "Save and continue"%}</button>
             </div>
         </div>
     </fieldset>

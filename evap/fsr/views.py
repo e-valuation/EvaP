@@ -448,7 +448,9 @@ def course_preview(request, semester_id, course_id):
 @fsr_required
 def questionnaire_index(request):
     questionnaires = Questionnaire.objects.all()
-    return render_to_response("fsr_questionnaire_index.html", dict(questionnaires=questionnaires), context_instance=RequestContext(request))
+    course_questionnaires = questionnaires.filter(is_for_contributors=False)
+    contributor_questionnaires = questionnaires.filter(is_for_contributors=True)
+    return render_to_response("fsr_questionnaire_index.html", dict(course_questionnaires=course_questionnaires, contributor_questionnaires=contributor_questionnaires), context_instance=RequestContext(request))
 
 
 @fsr_required

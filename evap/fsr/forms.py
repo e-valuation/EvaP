@@ -147,7 +147,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
     edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
-    hidden = forms.BooleanField(label=_("Hidden"), required=False)
+    hidden = forms.BooleanField(label=_("Do not publish"), required=False)
 
     class Meta:
         fields = ('edited_answer', 'needs_further_review')
@@ -345,7 +345,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['cc_users'].required = False
         self.fields['cc_users'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
         self.fields['cc_users'].help_text = ""
-        self.fields['is_staff'].label = _(u"FSR Member")
+        self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
                                                                       initial=self.instance.user.represented_users.all() if self.instance.pk else (),

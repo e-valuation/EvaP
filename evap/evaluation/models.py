@@ -62,8 +62,8 @@ class Questionnaire(models.Model):
     description_en = models.TextField(verbose_name=_(u"description (english)"), blank=True, null=True)
     description = Translate
 
-    public_name_de = models.CharField(max_length=100, verbose_name=_(u"public name (german)"))
-    public_name_en = models.CharField(max_length=100, verbose_name=_(u"public name (english)"))
+    public_name_de = models.CharField(max_length=100, verbose_name=_(u"display name (german)"))
+    public_name_en = models.CharField(max_length=100, verbose_name=_(u"display name (english)"))
     public_name = Translate
 
     teaser_de = models.TextField(verbose_name=_(u"teaser (german)"), blank=True, null=True)

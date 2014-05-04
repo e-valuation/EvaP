@@ -78,7 +78,7 @@ class Command(BaseCommand):
             password = read_value_hidden('Password: ', lambda x: True) if options["has_password"] else None
 
             # get fsr flag
-            is_fsr = True if read_value("Is FSR member (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
+            is_fsr = True if read_value("Is student representative (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
 
             # create user
             user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
