@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 10:53+0200\n"
-"PO-Revision-Date: 2014-05-04 11:00+0100\n"
+"POT-Creation-Date: 2014-05-04 11:48+0200\n"
+"PO-Revision-Date: 2014-05-04 11:49+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -104,7 +104,8 @@ msgstr "Abbrechen"
 
 #: contributor/templates/contributor_course_form.html:86
 #: contributor/templates/contributor_index.html:89
-#: fsr/templates/fsr_questionnaire_index.html:39
+#: fsr/templates/fsr_questionnaire_index.html:40
+#: fsr/templates/fsr_questionnaire_index.html:83
 #: fsr/templates/fsr_semester_view.html:73
 msgid "Preview"
 msgstr "Vorschau"
@@ -212,7 +213,8 @@ msgstr "Teilnehmer"
 #: contributor/templates/contributor_index.html:60
 #: fsr/templates/fsr_faq_index.html:62
 #: fsr/templates/fsr_faq_section.html:61
-#: fsr/templates/fsr_questionnaire_index.html:16
+#: fsr/templates/fsr_questionnaire_index.html:22
+#: fsr/templates/fsr_questionnaire_index.html:65
 #: fsr/templates/fsr_user_index.html:28
 msgid "Actions"
 msgstr "Aktionen"
@@ -236,8 +238,10 @@ msgstr "Ergebnisse"
 #: contributor/templates/contributor_index.html:85
 #: fsr/templates/fsr_faq_index.html:79
 #: fsr/templates/fsr_questionnaire_base.html:19
-#: fsr/templates/fsr_questionnaire_index.html:35
-#: fsr/templates/fsr_questionnaire_index.html:37
+#: fsr/templates/fsr_questionnaire_index.html:36
+#: fsr/templates/fsr_questionnaire_index.html:38
+#: fsr/templates/fsr_questionnaire_index.html:79
+#: fsr/templates/fsr_questionnaire_index.html:81
 #: fsr/templates/fsr_user_index.html:58
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -372,7 +376,8 @@ msgid "is for contributors"
 msgstr "Personenfragebogen"
 
 #: evaluation/models.py:76
-#: fsr/templates/fsr_questionnaire_index.html:23
+#: fsr/templates/fsr_questionnaire_index.html:29
+#: fsr/templates/fsr_questionnaire_index.html:72
 msgid "obsolete"
 msgstr "obsolet"
 
@@ -953,46 +958,46 @@ msgstr "Einige E‑Mails für '%(course)s' wurden erfolgreich versendet, allerdi
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:477
-#: fsr/views.py:518
+#: fsr/views.py:479
+#: fsr/views.py:520
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:492
+#: fsr/views.py:494
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:499
+#: fsr/views.py:501
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:543
+#: fsr/views.py:545
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:571
+#: fsr/views.py:573
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:589
+#: fsr/views.py:591
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:610
+#: fsr/views.py:612
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:622
+#: fsr/views.py:624
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: fsr/views.py:638
+#: fsr/views.py:640
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: fsr/views.py:655
+#: fsr/views.py:657
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -1139,7 +1144,7 @@ msgid "All questionnaires"
 msgstr "Alle Fragebögen"
 
 #: fsr/templates/fsr_index.html:35
-#: fsr/templates/fsr_questionnaire_index.html:52
+#: fsr/templates/fsr_questionnaire_index.html:99
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
@@ -1175,14 +1180,17 @@ msgid "All Sections"
 msgstr "Alle Abschnitte"
 
 #: fsr/templates/fsr_questionnaire_base.html:20
-#: fsr/templates/fsr_questionnaire_index.html:40
+#: fsr/templates/fsr_questionnaire_index.html:41
+#: fsr/templates/fsr_questionnaire_index.html:84
 msgid "Copy"
 msgstr "Kopieren"
 
 #: fsr/templates/fsr_questionnaire_base.html:22
 #: fsr/templates/fsr_questionnaire_base.html:24
-#: fsr/templates/fsr_questionnaire_index.html:42
-#: fsr/templates/fsr_questionnaire_index.html:44
+#: fsr/templates/fsr_questionnaire_index.html:43
+#: fsr/templates/fsr_questionnaire_index.html:45
+#: fsr/templates/fsr_questionnaire_index.html:86
+#: fsr/templates/fsr_questionnaire_index.html:88
 #: fsr/templates/fsr_semester_view.html:75
 #: fsr/templates/fsr_user_index.html:60
 #: fsr/templates/fsr_user_index.html:62
@@ -1207,42 +1215,33 @@ msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
 #: fsr/templates/fsr_questionnaire_index.html:15
+msgid "Course questionnaires"
+msgstr "Lehrveranstaltungs-Fragebögen"
+
+#: fsr/templates/fsr_questionnaire_index.html:21
+#: fsr/templates/fsr_questionnaire_index.html:64
 msgid "Questionnaire"
 msgstr "Fragebogen"
 
-#: fsr/templates/fsr_questionnaire_index.html:25
+#: fsr/templates/fsr_questionnaire_index.html:31
+#: fsr/templates/fsr_questionnaire_index.html:74
 #, python-format
-msgid ""
-"\n"
-"                        %(count)s question"
-msgid_plural ""
-"\n"
-"                        %(count)s questions"
-msgstr[0] ""
-"\n"
-"                        %(count)s Frage"
-msgstr[1] ""
-"\n"
-"                        %(count)s Fragen"
+msgid "%(count)s question "
+msgid_plural " %(count)s questions"
+msgstr[0] "%(count)s Frage"
+msgstr[1] "%(count)s Fragen"
 
-#: fsr/templates/fsr_questionnaire_index.html:28
-msgid "used in "
-msgstr "verwendet in "
-
-#: fsr/templates/fsr_questionnaire_index.html:29
+#: fsr/templates/fsr_questionnaire_index.html:32
+#: fsr/templates/fsr_questionnaire_index.html:75
 #, python-format
-msgid ""
-"\n"
-"                        %(count)s course"
-msgid_plural ""
-"\n"
-"                        %(count)s courses"
-msgstr[0] ""
-"\n"
-"                        %(count)s Kurs"
-msgstr[1] ""
-"\n"
-"                        %(count)s Kurse"
+msgid "used %(count)s time "
+msgid_plural " used %(count)s times "
+msgstr[0] "%(count)s-mal verwendet"
+msgstr[1] "%(count)s-mal verwendet"
+
+#: fsr/templates/fsr_questionnaire_index.html:58
+msgid "Contributor questionnaires"
+msgstr "Personen-Fragebögen"
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:9
 msgid "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed."
