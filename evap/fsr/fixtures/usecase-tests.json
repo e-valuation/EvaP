@@ -56,10 +56,10 @@
             "kind":"Seminar",
             "degree":"Bachelor",
             "state":"new",
-            
+
             "participants":[ 2 ],
             "voters":[ ],
-                        
+
             "semester":1,
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30",
@@ -75,10 +75,10 @@
             "name_en":"Course 2 (en)",
             "kind":"Vorlesung",
             "state":"new",
-            
+
             "participants":[ 2 ],
             "voters":[ ],
-            
+
             "semester":1,
             "vote_start_date":"2010-08-18",
             "vote_end_date":"2010-08-30",

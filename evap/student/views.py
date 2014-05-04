@@ -26,7 +26,7 @@ def index(request):
     # split up into current and future courses
     current_courses = users_courses.filter(state='inEvaluation')
     future_courses = users_courses.filter(state='approved')
-    
+
     return render_to_response(
         "student_index.html",
         dict(current_courses=current_courses,
@@ -40,13 +40,13 @@ def vote(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
         raise PermissionDenied
-    
+
     # build forms
     forms = SortedDict()
     for questionnaire, contribution in questionnaires_and_contributions(course):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
         forms[(contribution, questionnaire)] = form
-    
+
     if all(form.is_valid() for form in forms.values()):
         # begin vote operation
         with transaction.commit_on_success():
@@ -54,23 +54,23 @@ def vote(request, course_id):
                 for question in questionnaire.question_set.all():
                     identifier = make_form_identifier(contribution, questionnaire, question)
                     value = form.cleaned_data.get(identifier)
-                    
+
                     if type(value) in [str, unicode]:
                         value = value.strip()
 
                     if value == 6: #no answer
                         value = None
-                    
+
                     # store the answer if one was given
                     if value:
                         question.answer_class.objects.create(
                             contribution=contribution,
                             question=question,
                             answer=value)
-            
+
             # remember that the user voted already
             course.voters.add(request.user)
-        
+
         messages.add_message(request, messages.INFO, _("Your vote was recorded."))
         return redirect('evap.student.views.index')
     else:

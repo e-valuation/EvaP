@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.uix.multiselect.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
-    <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" /> 
+    <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}
     {% if debug %}
     <!-- red topbar in debug mode -->
@@ -44,7 +44,7 @@
                         {% if user.userprofile.enrolled_in_courses %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
                         {% endif %}
-                        
+
                         {% if user.is_staff %}
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
@@ -68,7 +68,7 @@
                         {% if user.userprofile.is_editor %}
                             <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
-                        
+
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.results.views.index" %}">{% trans "Results" %} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -145,7 +145,7 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_de.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_en.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-3.0.3.min.js"></script>
-    
+
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.uix.multiselect.js"></script>
@@ -153,7 +153,7 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_en.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
-    
+
     <script type="text/javascript">
         $(function(){
             // show browser information

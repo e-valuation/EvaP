@@ -30,7 +30,7 @@ class ToolTipSelectMultiple(forms.SelectMultiple):
         return u'<option value="%s" title="%s" %s>%s</option>' % (
             escape(option_value), escape(option_title), selected_html,
             conditional_escape(force_unicode(option_label)))
-    
+
     def render_options(self, choices, selected_choices):
         # Normalize to strings.
         selected_choices = set([force_unicode(v) for v in selected_choices])
@@ -46,10 +46,10 @@ class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def __init__(self, *args, **kwargs):
         super(ToolTipModelMultipleChoiceField, self).__init__(*args, **kwargs)
         self.help_text = ""
-    
+
     def title_from_instance(self, obj):
         return obj.description
-    
+
     def _get_choices(self):
         if hasattr(self, '_choices'):
             return self._choices

@@ -15,7 +15,7 @@
             $(e).width($(e).width());
             $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}"});
         });
-        
+
         $('#question_table tbody tr').formset({
             prefix: 'question_set',
             deleteText: '{% trans "remove" %}',
@@ -23,7 +23,7 @@
         });
     });
     </script>
-    
+
     <!-- prevent from accendential closing -->
         <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}
@@ -36,7 +36,7 @@
             <legend>{% trans "General Options" %}</legend>
             {{ form.as_div }}
         </fieldset>
-        
+
         <fieldset>
             <legend>{% trans "Questions" %}</legend>
             {{ formset.management_form }}
@@ -56,7 +56,7 @@
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
-                        
+
                         <tr>
                         {% for field in form_element %}
                             <td>{{field.errors}} {{ field }}</td>

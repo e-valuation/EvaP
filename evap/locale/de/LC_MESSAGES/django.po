@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-14 23:19+0200\n"
-"PO-Revision-Date: 2014-04-14 23:19+0100\n"
+"POT-Creation-Date: 2014-05-04 18:18+0200\n"
+"PO-Revision-Date: 2014-05-04 18:19+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -86,11 +86,10 @@ msgid "Students"
 msgstr "Studenten"
 
 #: contributor/templates/contributor_course_form.html:72
-msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the FSR."
-msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen., Bitte benachrichtigen Sie den FSR, falls diese Daten nicht korrekt sind - bspw. Studierende fehlen."
+msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the student representatives."
+msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen. Falls diese Daten nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte den Fachschaftsrat."
 
 #: contributor/templates/contributor_course_form.html:82
-#: fsr/templates/fsr_course_review.html:45
 msgid "Save"
 msgstr "Speichern"
 
@@ -104,7 +103,8 @@ msgstr "Abbrechen"
 
 #: contributor/templates/contributor_course_form.html:86
 #: contributor/templates/contributor_index.html:89
-#: fsr/templates/fsr_questionnaire_index.html:39
+#: fsr/templates/fsr_questionnaire_index.html:40
+#: fsr/templates/fsr_questionnaire_index.html:83
 #: fsr/templates/fsr_semester_view.html:73
 msgid "Preview"
 msgstr "Vorschau"
@@ -212,14 +212,15 @@ msgstr "Teilnehmer"
 #: contributor/templates/contributor_index.html:60
 #: fsr/templates/fsr_faq_index.html:62
 #: fsr/templates/fsr_faq_section.html:61
-#: fsr/templates/fsr_questionnaire_index.html:16
+#: fsr/templates/fsr_questionnaire_index.html:22
+#: fsr/templates/fsr_questionnaire_index.html:65
 #: fsr/templates/fsr_user_index.html:28
 msgid "Actions"
 msgstr "Aktionen"
 
 #: contributor/templates/contributor_index.html:71
-msgid "You are seeing this course because you are a delegate of the responsible lecturer."
-msgstr "Sie sehen diese Veranstaltung, weil Sie Stellvertreter des verantwortlichen Dozenten sind."
+msgid "You are seeing this course because you are a delegate of a lecturer who can edit the course."
+msgstr "Sie sehen diese Veranstaltung, weil Sie Stellvertreter eines Mitwirkenden sind, der die Veranstaltung bearbeiten kann."
 
 #: contributor/templates/contributor_index.html:71
 msgid "Delegate"
@@ -236,8 +237,10 @@ msgstr "Ergebnisse"
 #: contributor/templates/contributor_index.html:85
 #: fsr/templates/fsr_faq_index.html:79
 #: fsr/templates/fsr_questionnaire_base.html:19
-#: fsr/templates/fsr_questionnaire_index.html:35
-#: fsr/templates/fsr_questionnaire_index.html:37
+#: fsr/templates/fsr_questionnaire_index.html:36
+#: fsr/templates/fsr_questionnaire_index.html:38
+#: fsr/templates/fsr_questionnaire_index.html:79
+#: fsr/templates/fsr_questionnaire_index.html:81
 #: fsr/templates/fsr_user_index.html:58
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -269,7 +272,7 @@ msgid "You don't have permission to access %s on this server."
 msgstr "Sie haben keine Rechte, um auf die Seite %s auf dem Server zuzugreifen."
 
 #: evaluation/auth.py:54
-msgid "Invalid login key."
+msgid "Invalid login key"
 msgstr "Ungültiger Anmeldeschlüssel"
 
 #: evaluation/forms.py:77
@@ -279,7 +282,7 @@ msgstr "Benutzername"
 
 #: evaluation/forms.py:78
 msgid "Password"
-msgstr "Passwort:"
+msgstr "Passwort"
 
 #: evaluation/forms.py:98
 msgid "Please enter a correct username and password."
@@ -292,7 +295,7 @@ msgstr "Der Benutzeraccount ist inaktiv."
 
 #: evaluation/forms.py:106
 msgid "Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."
-msgstr "In Ihrem Web Browser scheinen Cookies deaktiviert zu sein. Cookies werden zur Anmeldung benötigt."
+msgstr "In Ihrem Web-Browser scheinen Cookies deaktiviert zu sein. Cookies werden zur Anmeldung benötigt."
 
 #: evaluation/forms.py:122
 msgid "Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months."
@@ -348,12 +351,12 @@ msgid "description (english)"
 msgstr "Beschreibung (englisch)"
 
 #: evaluation/models.py:65
-msgid "public name (german)"
-msgstr "Öffentlicher Name (deutsch)"
+msgid "display name (german)"
+msgstr "Anzeigename (deutsch)"
 
 #: evaluation/models.py:66
-msgid "public name (english)"
-msgstr "Öffentlicher Name (englisch)"
+msgid "display name (english)"
+msgstr "Anzeigename (englisch)"
 
 #: evaluation/models.py:69
 msgid "teaser (german)"
@@ -372,7 +375,8 @@ msgid "is for contributors"
 msgstr "Personenfragebogen"
 
 #: evaluation/models.py:76
-#: fsr/templates/fsr_questionnaire_index.html:23
+#: fsr/templates/fsr_questionnaire_index.html:29
+#: fsr/templates/fsr_questionnaire_index.html:72
 msgid "obsolete"
 msgstr "obsolet"
 
@@ -679,7 +683,7 @@ msgstr "FAQ"
 
 #: evaluation/templates/faq.html:43
 msgid "These are the Frequently Asked Questions (FAQs)"
-msgstr "Diese sind die Häufig Gestellten Fragen (FAQs)"
+msgstr "Dies sind die Häufig Gestellten Fragen (FAQs)"
 
 #: evaluation/templates/index.html:21
 #, python-format
@@ -792,8 +796,8 @@ msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
 #: fsr/forms.py:150
-msgid "Hidden"
-msgstr "Versteckt?"
+msgid "Do not publish"
+msgstr "Nicht veröffentlichen"
 
 #: fsr/forms.py:204
 msgid "You must have at least one of these."
@@ -816,12 +820,12 @@ msgid "Too many responsible contributors found. Each course must have exactly on
 msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:348
-msgid "FSR Member"
-msgstr "FSR-Mitglieder"
+msgid "Student representative"
+msgstr "FSR-Mitglied"
 
 #: fsr/forms.py:349
 msgid "EvaP Administrator"
-msgstr "EvaP Administrator"
+msgstr "EvaP-Administrator"
 
 #: fsr/forms.py:352
 msgid "Represented Users"
@@ -953,46 +957,46 @@ msgstr "Einige E‑Mails für '%(course)s' wurden erfolgreich versendet, allerdi
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:477
-#: fsr/views.py:518
+#: fsr/views.py:479
+#: fsr/views.py:520
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:492
+#: fsr/views.py:494
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:499
+#: fsr/views.py:501
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:543
+#: fsr/views.py:545
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:571
+#: fsr/views.py:573
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:589
+#: fsr/views.py:591
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:610
+#: fsr/views.py:612
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:622
+#: fsr/views.py:624
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: fsr/views.py:638
+#: fsr/views.py:640
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: fsr/views.py:655
+#: fsr/views.py:657
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -1064,23 +1068,17 @@ msgstr "Überprüfen der Antworten"
 
 #: fsr/templates/fsr_course_review.html:10
 #, python-format
-msgid ""
-"\n"
-"\t\tNote: for better usability only %(elements_per_page)s comments are shown at once. For this course %(open)s out of %(total)s comments have not been reviewed.\n"
-"\t    "
-msgstr ""
-"\n"
-"\t\tHinweis: Zur besseren Benutzbarkeit werden lediglich %(elements_per_page)s Kommentare auf einmal dargestellt. For diese Veranstaltung wurden %(open)s von %(total)s Kommentaren noch nicht durchgesehen.\n"
-"\t    "
+msgid "Note: For better usability only %(elements_per_page)s comments are shown at once. For this course %(open)s out of %(total)s comments have not been reviewed."
+msgstr "Hinweis: Zur besseren Benutzbarkeit werden lediglich %(elements_per_page)s Kommentare auf einmal dargestellt. Für diese Veranstaltung wurden %(open)s von %(total)s Kommentaren noch nicht durchgesehen."
 
-#: fsr/templates/fsr_course_review.html:20
+#: fsr/templates/fsr_course_review.html:18
 #, python-format
 msgid "Answer %(id)s"
 msgstr "Antwort %(id)s"
 
-#: fsr/templates/fsr_course_review.html:46
-msgid "Save and show next"
-msgstr "Speichern und nächste anzeigen"
+#: fsr/templates/fsr_course_review.html:43
+msgid "Save and continue"
+msgstr "Speichern und weiter"
 
 #: fsr/templates/fsr_course_selection_list.html:5
 msgid "Courses"
@@ -1145,7 +1143,7 @@ msgid "All questionnaires"
 msgstr "Alle Fragebögen"
 
 #: fsr/templates/fsr_index.html:35
-#: fsr/templates/fsr_questionnaire_index.html:52
+#: fsr/templates/fsr_questionnaire_index.html:99
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
@@ -1181,14 +1179,17 @@ msgid "All Sections"
 msgstr "Alle Abschnitte"
 
 #: fsr/templates/fsr_questionnaire_base.html:20
-#: fsr/templates/fsr_questionnaire_index.html:40
+#: fsr/templates/fsr_questionnaire_index.html:41
+#: fsr/templates/fsr_questionnaire_index.html:84
 msgid "Copy"
 msgstr "Kopieren"
 
 #: fsr/templates/fsr_questionnaire_base.html:22
 #: fsr/templates/fsr_questionnaire_base.html:24
-#: fsr/templates/fsr_questionnaire_index.html:42
-#: fsr/templates/fsr_questionnaire_index.html:44
+#: fsr/templates/fsr_questionnaire_index.html:43
+#: fsr/templates/fsr_questionnaire_index.html:45
+#: fsr/templates/fsr_questionnaire_index.html:86
+#: fsr/templates/fsr_questionnaire_index.html:88
 #: fsr/templates/fsr_semester_view.html:75
 #: fsr/templates/fsr_user_index.html:60
 #: fsr/templates/fsr_user_index.html:62
@@ -1213,42 +1214,33 @@ msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
 #: fsr/templates/fsr_questionnaire_index.html:15
+msgid "Course questionnaires"
+msgstr "Lehrveranstaltungs-Fragebögen"
+
+#: fsr/templates/fsr_questionnaire_index.html:21
+#: fsr/templates/fsr_questionnaire_index.html:64
 msgid "Questionnaire"
 msgstr "Fragebogen"
 
-#: fsr/templates/fsr_questionnaire_index.html:25
+#: fsr/templates/fsr_questionnaire_index.html:31
+#: fsr/templates/fsr_questionnaire_index.html:74
 #, python-format
-msgid ""
-"\n"
-"                        %(count)s question"
-msgid_plural ""
-"\n"
-"                        %(count)s questions"
-msgstr[0] ""
-"\n"
-"                        %(count)s Frage"
-msgstr[1] ""
-"\n"
-"                        %(count)s Fragen"
+msgid "%(count)s question "
+msgid_plural " %(count)s questions"
+msgstr[0] "%(count)s Frage"
+msgstr[1] "%(count)s Fragen"
 
-#: fsr/templates/fsr_questionnaire_index.html:28
-msgid "used in "
-msgstr "verwendet in "
-
-#: fsr/templates/fsr_questionnaire_index.html:29
+#: fsr/templates/fsr_questionnaire_index.html:32
+#: fsr/templates/fsr_questionnaire_index.html:75
 #, python-format
-msgid ""
-"\n"
-"                        %(count)s course"
-msgid_plural ""
-"\n"
-"                        %(count)s courses"
-msgstr[0] ""
-"\n"
-"                        %(count)s Kurs"
-msgstr[1] ""
-"\n"
-"                        %(count)s Kurse"
+msgid "used %(count)s time "
+msgid_plural " used %(count)s times "
+msgstr[0] "%(count)s-mal verwendet"
+msgstr[1] "%(count)s-mal verwendet"
+
+#: fsr/templates/fsr_questionnaire_index.html:58
+msgid "Contributor questionnaires"
+msgstr "Personen-Fragebögen"
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:9
 msgid "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed."
@@ -1575,4 +1567,3 @@ msgstr "Angemeldet als"
 #: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-

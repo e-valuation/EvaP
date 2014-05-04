@@ -10,9 +10,9 @@
 
 {{% block content %}
     {{ block.super }}
-    
+
     {% regroup courses by degree as degrees %}
-    
+
     {% for degree in degrees %}
         <h3>{{ degree.grouper }}</h3>
         <table class="table table-striped">

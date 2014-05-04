@@ -7,7 +7,7 @@ class evap ($db_connector) {
         provider    => shell,
         command     => 'python manage.py syncdb --noinput --migrate',
         cwd         => '/vagrant'
-    } -> exec { 'django-collectstatic': 
+    } -> exec { 'django-collectstatic':
         provider    => shell,
         command     => 'python manage.py collectstatic --noinput',
         cwd         => '/vagrant'

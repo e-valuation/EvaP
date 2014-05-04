@@ -18,7 +18,7 @@
             <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
         </div>
     </ul>
-    
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -70,7 +70,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    
+
     <script type="text/javascript">
         $(document).ready(function() {
             $(".twipsify").tooltip({container: 'body'});

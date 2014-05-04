@@ -26,8 +26,8 @@ class LocalizeModelBase(ModelBase):
 
 
 def make_property(k):
-    """Creates a new property that implements the automatic translation 
-    described above. Every use of `Translate` in a class definition will be 
+    """Creates a new property that implements the automatic translation
+    described above. Every use of `Translate` in a class definition will be
     replaces with a property returned by this function."""
     def pget(self):
         try:
