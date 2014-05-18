@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'EvaP'
-copyright = u'2011, Michael Grünewald, Stefan Richter'
+copyright = u'2011-2014 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
