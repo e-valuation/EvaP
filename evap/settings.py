@@ -251,7 +251,7 @@ LOGGING = {
     }
 }
 
-# Create a local_settings.py if you want to override settings per machine
+# Create a localsettings.py if you want to override settings per machine
 # or user, e.g. for development or different settings in deployments using
 # multiple servers.
 _LOCAL_SETTINGS_FILENAME = os.path.join(SITE_ROOT, "localsettings.py")

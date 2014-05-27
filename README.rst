@@ -14,25 +14,47 @@ documentation at ReadTheDocs: https://evap.readthedocs.org.
 
 Installation
 ------------
+The vagrant setup and a quick manual install are shown here. For more detailed instructions (including production deployment) see http://evap.readthedocs.org/en/latest/installation.html.
 
-EvaP is a plain Django application leveraging South for database migrations. In order to start hacking away,
+(0) Checkout EvaP and its submodules::
+
+        git clone --recurse-submodules git@github.com:fsr-itse/EvaP.git
+
+Vagrant
+~~~~~~~
+(1) After installing Vagrant_, run in your EvaP root directory::
+
+        vagrant up
+
+(2) create yourself an admin account::
+
+        vagrant ssh
+        cd /vagrant
+        python manage.py createsuperuser
+        
+(3) and open your browser::
+
+        http://localhost:8000/
+
+Manual Install
+~~~~~~~~~~~~~~
 
 (1) simply install the requirements::
 
         pip install -r requirements.txt
 
-(2) go into the evap folder::
-
-        cd evap
-
-(3) run the database initialization and migrations (this will use the defautl SQLite DB)::
+(2) run the database initialization and migrations::
 
         python manage.py syncdb
         python manage.py migrate
 
-(4) create yourself some users::
+(3) make the translations work::
 
-        python manage.py create_user -p
+        python manage.py compilemessages
+
+(4) create yourself an admin account::
+
+        python manage.py createsuperuser
 
 (5) start the development server::
 
@@ -104,3 +126,4 @@ these elements still apply and are not touched by the software license.
 
 .. |build| image:: https://travis-ci.org/fsr-itse/EvaP.png
 .. _build: https://travis-ci.org/fsr-itse/EvaP
+.. _Vagrant: http://www.vagrantup.com/
