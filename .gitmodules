@@ -12,4 +12,4 @@
     url = https://github.com/puppetlabs/puppetlabs-mysql.git
 [submodule "puppetlabs-postgresql"]
     path = deployment/modules/postgresql
-    url = https://github.com/cyroxx/puppetlabs-postgresql.git
+    url = https://github.com/karyon/puppetlabs-postgresql.git
