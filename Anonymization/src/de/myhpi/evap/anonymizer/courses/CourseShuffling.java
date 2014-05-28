@@ -34,13 +34,15 @@ public class CourseShuffling {
             throws SQLException {
         List<Course> courses = new ArrayList<Course>();
         Statement statement = connection.createStatement();
-        statement.execute("SELECT id, name_de, name_en FROM " + table);
+        statement.execute("SELECT id, semester_id, degree, name_de, name_en FROM " + table);
         ResultSet resultSet = statement.getResultSet();
         while (resultSet.next()) {
             int id = resultSet.getInt("id");
+            int semester = resultSet.getInt("semester_id");
+            String degree = resultSet.getString("degree");
             String name_de = resultSet.getString("name_de");
             String name_en = resultSet.getString("name_en");
-            courses.add(new Course(id, name_de, name_en));
+            courses.add(new Course(id, semester, degree, name_de, name_en));
         }
         return courses;
     }
@@ -50,7 +52,7 @@ public class CourseShuffling {
             String outputFile, Connection connection) throws IOException, SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "UPDATE " + table + " " +
-                "SET name_de = ?, name_en = ? " +
+                "SET semester_id = ?, degree = ?, name_de = ?, name_en = ? " +
                 "WHERE id = ?");
 
         StringBuffer changes = new StringBuffer();
@@ -62,11 +64,19 @@ public class CourseShuffling {
                     .append(" => ")
                     .append(substitute.getId())
                     .append("\n");
-            preparedStatement.setInt(3, original.getId());
-            preparedStatement.setString(1, substitute.getName_de());
-            preparedStatement.setString(2, substitute.getName_en());
+            preparedStatement.setInt(5, original.getId());
+            preparedStatement.setInt(1, substitute.getSemester());
+            preparedStatement.setString(2, substitute.getDegree());
+            preparedStatement.setString(3, substitute.getName_de() + " "); //add a space to avoid name collisions
+            preparedStatement.setString(4, substitute.getName_en() + " ");
             preparedStatement.executeUpdate();
         }
+
+        //remove the space again
+        Statement statement = connection.createStatement();
+        statement.execute("UPDATE " + table + 
+                         " SET name_de=LEFT(name_de, char_length(name_de)-1)" +
+                         " , name_en=LEFT(name_en, char_length(name_en)-1)" );
 
         FileHelper.writeToFile(changes.toString(), outputFile);
     }
