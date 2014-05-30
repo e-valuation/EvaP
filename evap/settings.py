@@ -83,6 +83,11 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+# Additional locations of fixture files
+FIXTURE_DIRS = (
+    os.path.join(SITE_ROOT, "evaluation/fixtures"),
+)
+
 # Locale paths
 LOCALE_PATHS = (
     os.path.join(SITE_ROOT, "locale"),
