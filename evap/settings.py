@@ -161,8 +161,16 @@ MIDDLEWARE_CLASSES = (
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
+#   'django_auth_kerberos.backends.KrbBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+# kerberos realm and service
+#KRB5_REALM = 'EXAMPLE.COM'
+#KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
+
+# redirect url after login
+LOGIN_REDIRECT_URL = '/'
 
 LOGIN_URL = "/"
 
@@ -190,6 +198,7 @@ INSTALLED_APPS = (
     'evap.results',
     'evap.student',
     'evap.contributor',
+#   'django_auth_kerberos',
 )
 if not DEBUG:
     INSTALLED_APPS += (
