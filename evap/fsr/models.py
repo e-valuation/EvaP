@@ -16,9 +16,9 @@ def validate_template(value):
 
 
 class EmailTemplate(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
+    name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
 
-    subject = models.CharField(max_length=100, verbose_name=_(u"Subject"), validators=[validate_template])
+    subject = models.CharField(max_length=1024, verbose_name=_(u"Subject"), validators=[validate_template])
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
 
     @classmethod

@@ -22,8 +22,8 @@ class Semester(models.Model):
 
     __metaclass__ = LocalizeModelBase
 
-    name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (english)"))
 
     name = Translate
 
@@ -54,16 +54,16 @@ class Questionnaire(models.Model):
 
     __metaclass__ = LocalizeModelBase
 
-    name_de = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=100, unique=True, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (english)"))
     name = Translate
 
     description_de = models.TextField(verbose_name=_(u"description (german)"), blank=True, null=True)
     description_en = models.TextField(verbose_name=_(u"description (english)"), blank=True, null=True)
     description = Translate
 
-    public_name_de = models.CharField(max_length=100, verbose_name=_(u"display name (german)"))
-    public_name_en = models.CharField(max_length=100, verbose_name=_(u"display name (english)"))
+    public_name_de = models.CharField(max_length=1024, verbose_name=_(u"display name (german)"))
+    public_name_en = models.CharField(max_length=1024, verbose_name=_(u"display name (english)"))
     public_name = Translate
 
     teaser_de = models.TextField(verbose_name=_(u"teaser (german)"), blank=True, null=True)
@@ -98,15 +98,15 @@ class Course(models.Model):
 
     semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
 
-    name_de = models.CharField(max_length=140, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=140, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=1024, verbose_name=_(u"name (german)"))
+    name_en = models.CharField(max_length=1024, verbose_name=_(u"name (english)"))
     name = Translate
 
     # type of course: lecture, seminar, project
-    kind = models.CharField(max_length=100, verbose_name=_(u"type"))
+    kind = models.CharField(max_length=1024, verbose_name=_(u"type"))
 
     # bachelor, master, d-school course
-    degree = models.CharField(max_length=100, verbose_name=_(u"degree"))
+    degree = models.CharField(max_length=1024, verbose_name=_(u"degree"))
 
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
@@ -462,7 +462,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
     # extending first_name and last_name from the user
-    title = models.CharField(verbose_name=_(u"Title"), max_length=30, blank=True, null=True)
+    title = models.CharField(verbose_name=_(u"Title"), max_length=1024, blank=True, null=True)
 
     # picture of the user
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
