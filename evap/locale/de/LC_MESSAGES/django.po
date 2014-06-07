@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-05-04 18:18+0200\n"
-"PO-Revision-Date: 2014-05-04 18:19+0100\n"
+"PO-Revision-Date: 2014-06-08 00:53+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1274,7 +1274,7 @@ msgstr "Die Verlosung wurde durchgeführt und folgende Studierende haben gewonne
 
 #: fsr/templates/fsr_semester_lottery.html:35
 msgid "users were eligible for the lottery."
-msgstr "Nutzer konnten nahmen an der Verlosung teil."
+msgstr "Nutzer nahmen an der Verlosung teil."
 
 #: fsr/templates/fsr_semester_view.html:11
 msgid "Edit Semester"
@@ -1567,3 +1567,4 @@ msgstr "Angemeldet als"
 #: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
+
