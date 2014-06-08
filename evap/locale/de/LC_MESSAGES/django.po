@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 18:18+0200\n"
-"PO-Revision-Date: 2014-06-08 00:53+0100\n"
+"POT-Creation-Date: 2014-06-08 03:12+0200\n"
+"PO-Revision-Date: 2014-06-08 03:13+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -275,45 +275,45 @@ msgstr "Sie haben keine Rechte, um auf die Seite %s auf dem Server zuzugreifen."
 msgid "Invalid login key"
 msgstr "Ungültiger Anmeldeschlüssel"
 
-#: evaluation/forms.py:77
+#: evaluation/forms.py:78
 #: fsr/templates/fsr_user_index.html:26
 msgid "Username"
 msgstr "Benutzername"
 
-#: evaluation/forms.py:78
+#: evaluation/forms.py:79
 msgid "Password"
 msgstr "Passwort"
 
-#: evaluation/forms.py:98
+#: evaluation/forms.py:100
 msgid "Please enter a correct username and password."
 msgstr "Falscher Benutzername oder falsches Passwort."
 
-#: evaluation/forms.py:100
-#: evaluation/forms.py:138
+#: evaluation/forms.py:102
+#: evaluation/forms.py:140
 msgid "This account is inactive."
 msgstr "Der Benutzeraccount ist inaktiv."
 
-#: evaluation/forms.py:106
+#: evaluation/forms.py:108
 msgid "Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."
 msgstr "In Ihrem Web-Browser scheinen Cookies deaktiviert zu sein. Cookies werden zur Anmeldung benötigt."
 
-#: evaluation/forms.py:122
+#: evaluation/forms.py:124
 msgid "Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months."
 msgstr "Bitte geben Sie einen gültigen Anmeldeschlüssel ein. Hinweis: Anmeldeschlüssel gelten nur sieben Monate."
 
-#: evaluation/forms.py:124
+#: evaluation/forms.py:126
 msgid "Login key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/forms.py:151
+#: evaluation/forms.py:153
 msgid "Email address"
 msgstr "E‑Mail-Adresse"
 
-#: evaluation/forms.py:163
+#: evaluation/forms.py:165
 msgid "HPI users cannot request login keys. Please login using your domain credentials."
 msgstr "HPI-Benutzer können keine Anmeldeschlüssel anfordern. Bitte melden Sie sich mit Ihrem Domänenlogin an."
 
-#: evaluation/forms.py:170
+#: evaluation/forms.py:172
 msgid "No user with this email address was found. Please make sure to enter the email address already known to the university office."
 msgstr "Es wurde kein Benutzer mit dieser E‑Mail-Adresse gefunden. Bitte verwenden Sie die E‑Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
 
@@ -1394,11 +1394,15 @@ msgstr "Gesamtnote"
 msgid "Total Answers"
 msgstr "Antworten"
 
-#: results/templates/results_course_detail.html:37
+#: results/templates/results_course_detail.html:18
+msgid "The results of this course have not been published because it didn't get enough votes."
+msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
+
+#: results/templates/results_course_detail.html:41
 msgid "Answers given: "
 msgstr "Erhaltene Antworten: "
 
-#: results/templates/results_course_detail.html:56
+#: results/templates/results_course_detail.html:60
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
