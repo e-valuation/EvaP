@@ -44,7 +44,7 @@ def avg(iterable):
     return float(sum(items)) / len(items)
 
 
-def calculate_results(course):
+def calculate_results(course, staff_member=False):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements and the average grade
@@ -52,13 +52,13 @@ def calculate_results(course):
     `TextResult` instances."""
 
     # return cached results if available
-    cache_key = 'evap.fsr.results.views.calculate_results-%d' % course.id
+    cache_key = str.format('evap.fsr.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
     prior_results = cache.get(cache_key)
     if prior_results:
         return prior_results
 
     # check if grades for the course will be published
-    show = (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+    show = staff_member or (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []

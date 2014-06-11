@@ -14,6 +14,10 @@
     {{ block.super }}
     {% regroup sections by questionnaire as sections_grouped %}
 
+    {% if warning %}
+        <div class="alert alert-warning">{% trans "The results of this course have not been published because it didn't get enough votes." %}</div>
+    {% endif %}
+
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
 
     {% for group in sections_grouped %}
