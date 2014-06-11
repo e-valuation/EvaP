@@ -21,12 +21,12 @@ node default {
     #    root_password  => '7FzSCogWAFCt'
     #} -> mysql::db { 'evap':
     #    user           => 'evap',
-    #    password       => '0Am5dWVSC9kd',
+    #    password       => 'evap',
     #} -> package { 'python-mysqldb':
     #    ensure         => latest,
     class { 'postgresql::server':
     } -> postgresql::server::role { 'evap':
-        password_hash  => postgresql_password('evap', '0Am5dWVSC9kd'),
+        password_hash  => postgresql_password('evap', 'evap'),
         createdb       => true
     } -> postgresql::server::db { 'evap':
         user           => 'evap',
