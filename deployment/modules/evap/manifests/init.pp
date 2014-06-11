@@ -5,11 +5,23 @@ class evap ($db_connector) {
         content  => template('evap/localsettings.py.erb')
     } -> exec { 'django-syncdb':
         provider    => shell,
-        command     => 'python manage.py syncdb --noinput --migrate',
+        command     => 'python manage.py syncdb --noinput --no-initial-data',
+        cwd         => '/vagrant'
+    } -> exec { 'django-migrate':
+        provider    => shell,
+        command     => 'python manage.py migrate --noinput --no-initial-data',
         cwd         => '/vagrant'
     } -> exec { 'django-collectstatic':
         provider    => shell,
         command     => 'python manage.py collectstatic --noinput',
+        cwd         => '/vagrant'
+    } -> exec { 'evap-flush-db':
+        provider    => shell,
+        command     => 'python manage.py flush --noinput --no-initial-data',
+        cwd         => '/vagrant'
+    } -> exec { 'evap-load-testdata':
+        provider    => shell,
+        command     => 'python manage.py loaddata test_data.json',
         cwd         => '/vagrant'
     }
 }

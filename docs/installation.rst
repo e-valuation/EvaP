@@ -73,6 +73,16 @@ directory after you have upgraded the files:
 
 Finally, restart the Apache web server.
 
+Load test data
+--------------
+ 
+The Vagrant VM automatically loads test data from a fixture on it's creation. If
+you want to load this data in your manual installation, run the following
+commands (*Note: This will remove all data previously stored in the database*)::
+
+        python manage.py flush --no-initial-data
+        python manage.py loaddata test_data.json
+
 Development Environment: Setup and Server Running
 -------------------------------------------------
 
