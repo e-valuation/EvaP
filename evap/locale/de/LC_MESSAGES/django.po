@@ -920,7 +920,7 @@ msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
 #: fsr/views.py:285
-msgid "Editting not possible in current state."
+msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
 #: fsr/views.py:308
