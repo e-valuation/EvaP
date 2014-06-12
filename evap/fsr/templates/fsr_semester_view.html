@@ -64,6 +64,9 @@
                                     <span>({{ course.num_voters|percentage:course.num_participants|default:'&mdash;' }})</span>
                                     <span>({{ course.checked_textanswer_set.count|percentage:course.textanswer_set.count|default:'&mdash;' }})</span>
                                 </td>
+                                <td class="dontbreak">
+                                    {{ course.grade|floatformat:1|default:'&mdash;' }}
+                                </td>
                             {% else %}
                                 <td class="center" colspan="2">&mdash;</td>
                             {% endif %}

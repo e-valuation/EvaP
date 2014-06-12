@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
+from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, calculate_average_grade
 from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
@@ -49,6 +49,11 @@ def semester_view(request, semester_id):
     courses_by_state = []
     for state in STATES_ORDERED.keys():
         this_courses = [course for course in courses if course.state == state]
+        # annotate each course object with its grade
+        for course in this_courses:
+            # first, make sure that there is no preexisting grade attribute
+            course.grade = calculate_average_grade(course)
+
         courses_by_state.append((state, this_courses))
 
     return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab), context_instance=RequestContext(request))
