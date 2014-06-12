@@ -28,10 +28,20 @@
             <tbody>
             {% for course in degree.list %}
                 <tr>
-                    <td class="col-sm-4"><a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course }}</a></td>
+                    <td class="col-sm-4">
+                    {% if course.can_publish_grades %}
+                        <a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course.name }}</a>
+                    {% else %}                       
+                        <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
+                    {% endif %}
+                    </td>
                     <td class="col-sm-2">{{ course.kind }}</td>
                     <td class="col-sm-4">{{ course.responsible_contributors_name }}</td>
-                    <td class="col-sm-1">{{ course.grade|floatformat:1 }}</td>
+                    {% if course.can_publish_grades %}
+                        <td class="col-sm-1">{{ course.grade|floatformat:1 }}</td>
+                    {% else %}
+                        <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                    {% endif %}
                     {% if course.num_participants %}
                     <td class="col-sm-2">
                         {% spaceless %}
