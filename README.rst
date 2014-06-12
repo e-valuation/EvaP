@@ -1,11 +1,7 @@
 ﻿EvaP - Evaluation Platform
 ==========================
 
-|build|_
-
-.. image:: https://gemnasium.com/hubx/EvaP.svg
-        :alt: Dependency Status
-        :target: https://gemnasium.com/hubx/EvaP
+|build|_ |dependencies| |landscape| 
 
 What is EvaP?
 -------------
@@ -141,3 +137,10 @@ these elements still apply and are not touched by the software license.
 .. |build| image:: https://travis-ci.org/fsr-itse/EvaP.png
 .. _build: https://travis-ci.org/fsr-itse/EvaP
 .. _Vagrant: http://www.vagrantup.com/
+.. |dependencies| image:: https://gemnasium.com/fsr-itse/EvaP.svg
+        :alt: Dependency Status
+        :target: https://gemnasium.com/fsr-itse/EvaP
+.. |landscape| image:: https://landscape.io/github/fsr-itse/EvaP/master/landscape.png
+                       :target: https://landscape.io/github/fsr-itse/EvaP/master
+                       :alt: Code Health
+
