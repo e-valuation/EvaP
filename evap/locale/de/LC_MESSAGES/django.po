@@ -813,7 +813,7 @@ msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angeg
 
 #: fsr/forms.py:234
 msgid "No responsible contributor found. Each course must have exactly one responsible contributor."
-msgstr "Keine Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
+msgstr "Kein Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:236
 msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
@@ -1408,7 +1408,7 @@ msgstr "Nicht genügend Antworten eingegangen"
 
 #: results/templates/results_index.html:16
 msgid "No results available yet"
-msgstr "Es sind sind noch keine Ergebnisse verfügbar."
+msgstr "Es sind noch keine Ergebnisse verfügbar."
 
 #: results/templates/results_semester_detail.html:21
 msgid "Course"
