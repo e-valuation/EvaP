@@ -38,11 +38,25 @@ class ExcelExporter(object):
         self.row = 0
         self.col = 0
 
+        # Adding evaP colors to palette
+        xlwt.add_palette_colour("custom_dark_green", 0x20)
+        self.workbook.set_colour_RGB(0x20, 120, 241, 89)
+        xlwt.add_palette_colour("custom_light_green", 0x21)
+        self.workbook.set_colour_RGB(0x21, 188, 241, 89)
+        xlwt.add_palette_colour("custom_yellow", 0x22)
+        self.workbook.set_colour_RGB(0x22, 241, 226, 89)
+        xlwt.add_palette_colour("custom_orange", 0x23)
+        self.workbook.set_colour_RGB(0x23, 241, 158, 89)
+        xlwt.add_palette_colour("custom_red", 0x24)
+        self.workbook.set_colour_RGB(0x24, 241, 89, 89)
+
         # formatting for average grades
         avg_style = xlwt.easyxf('alignment: horiz centre; font: bold on; borders: left medium, top medium, bottom medium')
-        avg_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour light_green; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
-        avg_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
-        avg_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_very_good = xlwt.easyxf('pattern: pattern solid, fore_colour custom_dark_green; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour custom_light_green; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour custom_yellow; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour custom_orange; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        avg_style_very_bad = xlwt.easyxf('pattern: pattern solid, fore_colour custom_red; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
 
         # formatting for variances
         var_style_good = xlwt.easyxf('alignment: horiz centre; borders: right medium', num_format_str="0.0")
@@ -50,9 +64,11 @@ class ExcelExporter(object):
         var_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour gray40; alignment: horiz centre; borders: right medium', num_format_str="0.0")
 
         # formatting for overall grades
-        over_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour light_green; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
-        over_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
-        over_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour light_yellow; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_very_good = xlwt.easyxf('pattern: pattern solid, fore_colour custom_dark_green; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_good = xlwt.easyxf('pattern: pattern solid, fore_colour custom_light_green; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_medium = xlwt.easyxf('pattern: pattern solid, fore_colour custom_yellow; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_bad = xlwt.easyxf('pattern: pattern solid, fore_colour custom_orange; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
+        over_style_very_bad = xlwt.easyxf('pattern: pattern solid, fore_colour custom_red; alignment: horiz centre; font: bold on; borders: left medium, right medium', num_format_str="0.0")
 
         # formatting for special fields
         headline_style = xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on', num_format_str="0.0")
@@ -107,12 +123,16 @@ class ExcelExporter(object):
                                     break
                         if values and (enough_answers or all):
                             avg = sum(values) / len(values)
-                            if avg < 2:
+                            if avg < 1.5:
+                                self.writec(avg, avg_style_very_good)
+                            elif avg < 2.5:
                                 self.writec(avg, avg_style_good)
-                            elif avg < 3:
+                            elif avg < 3.5:
                                 self.writec(avg, avg_style_medium)
-                            else:
+                            elif avg < 4.5:
                                 self.writec(avg, avg_style_bad)
+                            else:
+                                self.writec(avg, avg_style_very_bad)
 
                             var = sum(variances) / len(variances)
                             if var < 0.5:
@@ -136,12 +156,16 @@ class ExcelExporter(object):
         for course, results in courses_with_results:
             avg = calculate_average_grade(course)
             if avg:
-                if avg < 2:
+                if avg < 1.5:
+                    self.writec(avg, over_style_very_good, cols=2)
+                elif avg < 2.5:
                     self.writec(avg, over_style_good, cols=2)
-                elif avg < 3:
+                elif avg < 3.5:
                     self.writec(avg, over_style_medium, cols=2)
-                else:
+                elif avg < 4.5:
                     self.writec(avg, over_style_bad, cols=2)
+                else:
+                    self.writec(avg, over_style_very_bad, cols=2)
             else:
                 self.writec(None, border_left_style)
                 self.writec(None, border_right_style)
