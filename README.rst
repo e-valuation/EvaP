@@ -3,6 +3,10 @@
 
 |build|_
 
+.. image:: https://gemnasium.com/hubx/EvaP.svg
+        :alt: Dependency Status
+        :target: https://gemnasium.com/hubx/EvaP
+
 What is EvaP?
 -------------
 
