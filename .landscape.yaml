@@ -1,0 +1,3 @@
+uses: django
+strictness: low
+doc-warnings: no
