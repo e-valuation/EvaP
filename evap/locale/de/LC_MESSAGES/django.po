@@ -87,7 +87,7 @@ msgstr "Studenten"
 
 #: contributor/templates/contributor_course_form.html:72
 msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the student representatives."
-msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen. Falls diese Daten nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte den Fachschaftsrat."
+msgstr "Diese Studierenden sollten Ihre Veranstaltung besuchen. Falls diese Daten nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte den Fachschaftsrat."
 
 #: contributor/templates/contributor_course_form.html:82
 msgid "Save"
@@ -256,7 +256,7 @@ msgstr "Profil"
 
 #: contributor/templates/contributor_profile.html:20
 msgid "People for which you are a delegate"
-msgstr "Personen für die Sie als Stellvertreter eingetragen sind"
+msgstr "Personen, für die Sie als Stellvertreter eingetragen sind"
 
 #: contributor/templates/contributor_profile.html:29
 msgid "Save your profile"
@@ -419,7 +419,7 @@ msgstr "Erster Abstimmungstag"
 
 #: evaluation/models.py:121
 msgid "last date to vote"
-msgstr "letzter Bewertungstag"
+msgstr "letzter Abstimmungstag"
 
 #: evaluation/models.py:133
 #: evaluation/models.py:313
@@ -710,7 +710,7 @@ msgstr "HPI-Student oder -Dozent"
 
 #: evaluation/templates/index.html:35
 msgid "As an HPI student or lecturer please log in using your usual HPI credentials."
-msgstr "Als HPI-Student oder -Dozent melden Sie sich bitte mit ihrem üblichen HPI-Login an."
+msgstr "Als HPI-Student oder -Dozent melden Sie sich bitte mit Ihrem üblichen HPI-Login an."
 
 #: evaluation/templates/index.html:53
 #: evaluation/templates/index.html.py:84
@@ -813,7 +813,7 @@ msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angeg
 
 #: fsr/forms.py:234
 msgid "No responsible contributor found. Each course must have exactly one responsible contributor."
-msgstr "Keine Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
+msgstr "Kein Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
 #: fsr/forms.py:236
 msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
@@ -920,7 +920,7 @@ msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
 #: fsr/views.py:285
-msgid "Editting not possible in current state."
+msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
 #: fsr/views.py:308
@@ -1244,7 +1244,7 @@ msgstr "Personen-Fragebögen"
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:9
 msgid "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed."
-msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
+msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen, wird die Vorlesungsart nicht verändert."
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:18
 msgid "Assign questionnaires"
@@ -1408,7 +1408,7 @@ msgstr "Nicht genügend Antworten eingegangen"
 
 #: results/templates/results_index.html:16
 msgid "No results available yet"
-msgstr "Es sind sind noch keine Ergebnisse verfügbar."
+msgstr "Es sind noch keine Ergebnisse verfügbar."
 
 #: results/templates/results_semester_detail.html:21
 msgid "Course"
