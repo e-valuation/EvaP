@@ -71,7 +71,7 @@
             <legend>{% trans "Students" %}</legend>
             <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the student representatives." %}</p>
             <ul>
-                {% for p in course.participants.all %}
+                {% for p in course.participants.all|dictsort:"last_name" %}
                     <li>{{ p.userprofile.full_name }}</li>
                 {% endfor %}
             </ul>
