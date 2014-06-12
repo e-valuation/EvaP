@@ -282,7 +282,7 @@ def course_edit(request, semester_id, course_id):
 
     # check course state
     if not course.can_fsr_edit():
-        messages.add_message(request, messages.ERROR, _("Editting not possible in current state."))
+        messages.add_message(request, messages.ERROR, _("Editing not possible in current state."))
         return redirect('evap.fsr.views.semester_view', semester_id)
 
     form = CourseForm(request.POST or None, instance=course)
