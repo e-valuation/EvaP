@@ -44,6 +44,9 @@ def avg(iterable):
     return float(sum(items)) / len(items)
 
 
+def can_publish_grades(course, staff_member=False):
+    return staff_member or (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+
 def calculate_results(course, staff_member=False):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
@@ -58,7 +61,7 @@ def calculate_results(course, staff_member=False):
         return prior_results
 
     # check if grades for the course will be published
-    show = staff_member or (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+    show = can_publish_grades(course, staff_member)
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
