@@ -4,20 +4,18 @@ import sys
 
 from django.core import exceptions
 from django.core.management.base import BaseCommand
-from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import User, UserProfile
+from evap.evaluation.models import UserProfile
+from django.contrib.auth.models import User
 
 
 def is_valid_email(value):
-    if not EMAIL_RE.search(value):
-        raise exceptions.ValidationError(_('Enter a valid email address.\n'))
+    User._meta.get_field('email').clean(value, None)
 
 
 def is_valid_username(username):
-    if not RE_VALID_USERNAME.match(username):
-        raise exceptions.ValidationError(_("Error: That username is invalid. Use only letters, digits and underscores.\n"))
+    User._meta.get_field('username').clean(username, None)
 
     try:
         User.objects.get(username__iexact=username)
