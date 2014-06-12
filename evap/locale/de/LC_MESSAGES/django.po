@@ -256,7 +256,7 @@ msgstr "Profil"
 
 #: contributor/templates/contributor_profile.html:20
 msgid "People for which you are a delegate"
-msgstr "Personen für die Sie als Stellvertreter eingetragen sind"
+msgstr "Personen, für die Sie als Stellvertreter eingetragen sind"
 
 #: contributor/templates/contributor_profile.html:29
 msgid "Save your profile"
@@ -1244,7 +1244,7 @@ msgstr "Personen-Fragebögen"
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:9
 msgid "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed."
-msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen wird die Vorlesungsart nicht verändert."
+msgstr "Wählen Sie die Fragebögen aus, welche Sie den Kursarten zuordnen wollen. Wenn Sie keine auswählen, wird die Vorlesungsart nicht verändert."
 
 #: fsr/templates/fsr_semester_assign_questionnaires.html:18
 msgid "Assign questionnaires"
