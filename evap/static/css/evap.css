@@ -49,6 +49,15 @@ body {
 
 /*-----------------------------------------*/
 
+.evap-logo-margins {
+    margin-top: -20px; 
+    margin-bottom: -18px; 
+    margin-left: -18px; 
+    max-height: 52px;
+}
+
+/*-----------------------------------------*/
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
