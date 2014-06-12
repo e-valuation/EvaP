@@ -87,7 +87,7 @@ msgstr "Studenten"
 
 #: contributor/templates/contributor_course_form.html:72
 msgid "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the student representatives."
-msgstr "Diese Studierenden sollten ihre Veranstaltung besuchen. Falls diese Daten nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte den Fachschaftsrat."
+msgstr "Diese Studierenden sollten Ihre Veranstaltung besuchen. Falls diese Daten nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte den Fachschaftsrat."
 
 #: contributor/templates/contributor_course_form.html:82
 msgid "Save"
@@ -710,7 +710,7 @@ msgstr "HPI-Student oder -Dozent"
 
 #: evaluation/templates/index.html:35
 msgid "As an HPI student or lecturer please log in using your usual HPI credentials."
-msgstr "Als HPI-Student oder -Dozent melden Sie sich bitte mit ihrem üblichen HPI-Login an."
+msgstr "Als HPI-Student oder -Dozent melden Sie sich bitte mit Ihrem üblichen HPI-Login an."
 
 #: evaluation/templates/index.html:53
 #: evaluation/templates/index.html.py:84
