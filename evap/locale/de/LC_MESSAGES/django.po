@@ -419,7 +419,7 @@ msgstr "Erster Abstimmungstag"
 
 #: evaluation/models.py:121
 msgid "last date to vote"
-msgstr "letzter Bewertungstag"
+msgstr "letzter Abstimmungstag"
 
 #: evaluation/models.py:133
 #: evaluation/models.py:313
