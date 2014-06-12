@@ -1387,10 +1387,14 @@ msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
 
 #: results/exporters.py:135
-msgid "Overall Grade"
-msgstr "Gesamtnote"
+msgid "Overall Average Grade"
+msgstr "Gesamtdurchschnittsnote"
 
 #: results/exporters.py:149
+msgid "Overall Median Grade"
+msgstr "Gesamtmediannote"
+
+#: results/exporters.py:163
 msgid "Total Answers"
 msgstr "Antworten"
 
@@ -1423,10 +1427,14 @@ msgid "Lecturer"
 msgstr "Dozent"
 
 #: results/templates/results_semester_detail.html:24
-msgid "Grade"
-msgstr "Note"
+msgid "Average Grade"
+msgstr "Durchschnittsnote"
 
 #: results/templates/results_semester_detail.html:25
+msgid "Median Grade"
+msgstr "Mediannote"
+
+#: results/templates/results_semester_detail.html:26
 msgid "Voters"
 msgstr "Wähler"
 

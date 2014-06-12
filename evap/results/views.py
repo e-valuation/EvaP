@@ -6,7 +6,7 @@ from django.utils.translation import get_language
 
 from evap.evaluation.auth import login_required, fsr_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_grade, TextResult
+from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
 
 from evap.results.exporters import ExcelExporter
 
@@ -26,10 +26,10 @@ def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     courses = list(semester.course_set.filter(state="published"))
 
-    # annotate each course object with its grade
+    # annotate each course object with its grades
     for course in courses:
-        # first, make sure that there is no preexisting grade attribute
-        course.grade = calculate_average_grade(course)
+        # first, make sure that there are no preexisting grade attributes
+        course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 
     return render_to_response(
         "results_semester_detail.html",

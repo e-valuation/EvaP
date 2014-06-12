@@ -1,5 +1,5 @@
 from evap.evaluation.models import Questionnaire
-from evap.evaluation.tools import calculate_results, calculate_average_grade
+from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades
 
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
@@ -17,8 +17,8 @@ class ExcelExporter(object):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
             results = SortedDict()
-            for questionnaire, contributor, data, grade in calculate_results(course):
-                results.setdefault(questionnaire.id, []).append((contributor, data, grade))
+            for questionnaire, contributor, data, avg_grade, med_grade in calculate_results(course):
+                results.setdefault(questionnaire.id, []).append((contributor, data, avg_grade, med_grade))
             courses_with_results.append((course, results))
 
         courses_with_results.sort(key=lambda cr: cr[0].kind)
@@ -112,7 +112,7 @@ class ExcelExporter(object):
                         values = []
                         variances = []
                         enough_answers = True
-                        for contributor, data, grade in qn_results:
+                        for contributor, data, avg_grade, med_grade in qn_results:
                             for grade_result in data:
                                 if grade_result.question.id == question.id:
                                     if grade_result.average:
@@ -152,9 +152,9 @@ class ExcelExporter(object):
                     self.writec(None, border_left_style)
                     self.writec(None, border_right_style)
 
-        self.writen(_(u"Overall Grade"), bold_style)
+        self.writen(_(u"Overall Average Grade"), bold_style)
         for course, results in courses_with_results:
-            avg = calculate_average_grade(course)
+            avg, med = calculate_average_and_medium_grades(course)
             if avg:
                 if avg < 1.5:
                     self.writec(avg, over_style_very_good, cols=2)
@@ -166,6 +166,20 @@ class ExcelExporter(object):
                     self.writec(avg, over_style_bad, cols=2)
                 else:
                     self.writec(avg, over_style_very_bad, cols=2)
+            else:
+                self.writec(None, border_left_style)
+                self.writec(None, border_right_style)
+
+        self.writen(_(u"Overall Median Grade"), bold_style)
+        for course, results in courses_with_results:
+            avg, med = calculate_average_and_medium_grades(course)
+            if med:
+                if med < 2:
+                    self.writec(med, over_style_good, cols=2)
+                elif avg < 3:
+                    self.writec(med, over_style_medium, cols=2)
+                else:
+                    self.writec(med, over_style_bad, cols=2)
             else:
                 self.writec(None, border_left_style)
                 self.writec(None, border_right_style)
