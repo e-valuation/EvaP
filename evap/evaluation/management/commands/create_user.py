@@ -36,7 +36,7 @@ def read_value(question, validator_func):
         try:
             validator_func(value)
         except exceptions.ValidationError, e:
-            sys.stderr.write(str(e.messages[0]))
+            sys.stderr.write(str(e.messages[0]) + '\n')
             continue
         else:
             return value
