@@ -37,7 +37,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'degree',
+        fields = ('name_de', 'name_en', 'kind_de', 'kind_en', 'degree',
                   'vote_start_date', 'vote_end_date', 'participants',
                   'general_questions',
                   'last_modified_time_2', 'last_modified_user_2')
@@ -47,7 +47,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
+        self.fields['kind_de'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind_de', flat=True).order_by().distinct()])
+        self.fields['kind_en'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind_en', flat=True).order_by().distinct()])
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
         self.fields['participants'].queryset = User.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
