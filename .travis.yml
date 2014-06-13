@@ -6,8 +6,8 @@ matrix:
   allow_failures:
     - python: "pypy"
 install:
-  - pip install -r requirements.txt --use-mirrors
-  - pip install coveralls --use-mirrors
+  - pip install -r requirements.txt
+  - pip install coveralls
 script:
   - coverage run manage.py test evap.evaluation evap.fsr evap.contributor evap.results evap.student
 after_success:
