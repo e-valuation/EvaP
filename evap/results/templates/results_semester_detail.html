@@ -21,7 +21,8 @@
                     <th>{% trans "Course" %}</th>
                     <th>{% trans "Type" %}</th>
                     <th>{% trans "Lecturer" %}</th>
-                    <th>{% trans "Grade" %}</th>
+                    <th>{% trans "Average Grade" %}</th>
+                    <th>{% trans "Median Grade" %}</th>
                     <th>{% trans "Voters" %}</th>
                 </tr>
             </thead>
@@ -36,10 +37,12 @@
                     {% endif %}
                     </td>
                     <td class="col-sm-2">{{ course.kind }}</td>
-                    <td class="col-sm-4">{{ course.responsible_contributors_name }}</td>
+                    <td class="col-sm-3">{{ course.responsible_contributors_name }}</td>
                     {% if course.can_publish_grades %}
-                        <td class="col-sm-1">{{ course.grade|floatformat:1 }}</td>
+                        <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>
+                        <td class="col-sm-1">{{ course.med_grade|floatformat:1 }}</td>
                     {% else %}
+                        <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
                         <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
                     {% endif %}
                     {% if course.num_participants %}
