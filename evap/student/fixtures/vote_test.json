@@ -1,0 +1,1113 @@
+[
+{
+  "pk": 1, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "permission", 
+    "name": "permission", 
+    "app_label": "auth"
+  }
+},
+{
+  "pk": 2, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "group", 
+    "name": "group", 
+    "app_label": "auth"
+  }
+},
+{
+  "pk": 3, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "user", 
+    "name": "user", 
+    "app_label": "auth"
+  }
+},
+{
+  "pk": 4, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "contenttype", 
+    "name": "content type", 
+    "app_label": "contenttypes"
+  }
+},
+{
+  "pk": 5, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "session", 
+    "name": "session", 
+    "app_label": "sessions"
+  }
+},
+{
+  "pk": 6, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "site", 
+    "name": "site", 
+    "app_label": "sites"
+  }
+},
+{
+  "pk": 7, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "logentry", 
+    "name": "log entry", 
+    "app_label": "admin"
+  }
+},
+{
+  "pk": 8, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "migrationhistory", 
+    "name": "migration history", 
+    "app_label": "south"
+  }
+},
+{
+  "pk": 9, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "semester", 
+    "name": "semester", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 10, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "questionnaire", 
+    "name": "questionnaire", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 11, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "course", 
+    "name": "course", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 12, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "contribution", 
+    "name": "contribution", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 13, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "question", 
+    "name": "question", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 14, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "gradeanswer", 
+    "name": "grade answer", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 15, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "textanswer", 
+    "name": "text answer", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 16, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "faqsection", 
+    "name": "section", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 17, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "faqquestion", 
+    "name": "question", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 18, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "userprofile", 
+    "name": "user", 
+    "app_label": "evaluation"
+  }
+},
+{
+  "pk": 19, 
+  "model": "contenttypes.contenttype", 
+  "fields": {
+    "model": "emailtemplate", 
+    "name": "email template", 
+    "app_label": "fsr"
+  }
+},
+{
+  "pk": 1, 
+  "model": "sites.site", 
+  "fields": {
+    "domain": "example.com", 
+    "name": "example.com"
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.semester", 
+  "fields": {
+    "created_at": "2014-06-14", 
+    "name_de": "Testsemester", 
+    "name_en": "test semester"
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.questionnaire", 
+  "fields": {
+    "public_name_de": "Dozentenfragebogen", 
+    "is_for_contributors": true, 
+    "teaser_en": "", 
+    "index": 1, 
+    "teaser_de": "", 
+    "public_name_en": "lecturere questionnaire", 
+    "description_en": "", 
+    "obsolete": false, 
+    "name_de": "Dozentenfragebogen", 
+    "description_de": "", 
+    "name_en": "lecturere questionnaire"
+  }
+},
+{
+  "pk": 2, 
+  "model": "evaluation.questionnaire", 
+  "fields": {
+    "public_name_de": "Tutorfragebogen", 
+    "is_for_contributors": true, 
+    "teaser_en": "", 
+    "index": 2, 
+    "teaser_de": "", 
+    "public_name_en": "tutor questionnaire", 
+    "description_en": "", 
+    "obsolete": false, 
+    "name_de": "Tutorfragebogen", 
+    "description_de": "", 
+    "name_en": "tutor questionnaire"
+  }
+},
+{
+  "pk": 3, 
+  "model": "evaluation.questionnaire", 
+  "fields": {
+    "public_name_de": "Vorlesungsfragebogen", 
+    "is_for_contributors": false, 
+    "teaser_en": "", 
+    "index": 1, 
+    "teaser_de": "", 
+    "public_name_en": "lecture questionnaire", 
+    "description_en": "", 
+    "obsolete": false, 
+    "name_de": "Vorlesungsfragebogen", 
+    "description_de": "", 
+    "name_en": "lecture questionnaire"
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.question", 
+  "fields": {
+    "questionnaire": 1, 
+    "_order": 0, 
+    "text_en": "test question", 
+    "text_de": "Testfrage", 
+    "kind": "G"
+  }
+},
+{
+  "pk": 2, 
+  "model": "evaluation.question", 
+  "fields": {
+    "questionnaire": 2, 
+    "_order": 0, 
+    "text_en": "test tutor question", 
+    "text_de": "Test Tutorenfrage", 
+    "kind": "G"
+  }
+},
+{
+  "pk": 3, 
+  "model": "evaluation.question", 
+  "fields": {
+    "questionnaire": 3, 
+    "_order": 0, 
+    "text_en": "test lecture question", 
+    "text_de": "Test Vorlesungsfrage", 
+    "kind": "G"
+  }
+},
+{
+  "pk": 1, 
+  "model": "fsr.emailtemplate", 
+  "fields": {
+    "body": "", 
+    "name": "Lecturer Review Notice", 
+    "subject": "[EvaP] New Course ready for approval"
+  }
+},
+{
+  "pk": 2, 
+  "model": "fsr.emailtemplate", 
+  "fields": {
+    "body": "", 
+    "name": "Student Reminder", 
+    "subject": "[EvaP] Only 2 days left to evaluate"
+  }
+},
+{
+  "pk": 3, 
+  "model": "fsr.emailtemplate", 
+  "fields": {
+    "body": "", 
+    "name": "Publishing Notice", 
+    "subject": "[EvaP] A course has been published"
+  }
+},
+{
+  "pk": 4, 
+  "model": "fsr.emailtemplate", 
+  "fields": {
+    "body": "", 
+    "name": "Login Key Created", 
+    "subject": "[EvaP] A login key was created"
+  }
+},
+{
+  "pk": 1, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_permission", 
+    "name": "Can add permission", 
+    "content_type": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_permission", 
+    "name": "Can change permission", 
+    "content_type": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_permission", 
+    "name": "Can delete permission", 
+    "content_type": 1
+  }
+},
+{
+  "pk": 4, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_group", 
+    "name": "Can add group", 
+    "content_type": 2
+  }
+},
+{
+  "pk": 5, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_group", 
+    "name": "Can change group", 
+    "content_type": 2
+  }
+},
+{
+  "pk": 6, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_group", 
+    "name": "Can delete group", 
+    "content_type": 2
+  }
+},
+{
+  "pk": 7, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_user", 
+    "name": "Can add user", 
+    "content_type": 3
+  }
+},
+{
+  "pk": 8, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_user", 
+    "name": "Can change user", 
+    "content_type": 3
+  }
+},
+{
+  "pk": 9, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_user", 
+    "name": "Can delete user", 
+    "content_type": 3
+  }
+},
+{
+  "pk": 10, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_contenttype", 
+    "name": "Can add content type", 
+    "content_type": 4
+  }
+},
+{
+  "pk": 11, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_contenttype", 
+    "name": "Can change content type", 
+    "content_type": 4
+  }
+},
+{
+  "pk": 12, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_contenttype", 
+    "name": "Can delete content type", 
+    "content_type": 4
+  }
+},
+{
+  "pk": 13, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_session", 
+    "name": "Can add session", 
+    "content_type": 5
+  }
+},
+{
+  "pk": 14, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_session", 
+    "name": "Can change session", 
+    "content_type": 5
+  }
+},
+{
+  "pk": 15, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_session", 
+    "name": "Can delete session", 
+    "content_type": 5
+  }
+},
+{
+  "pk": 16, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_site", 
+    "name": "Can add site", 
+    "content_type": 6
+  }
+},
+{
+  "pk": 17, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_site", 
+    "name": "Can change site", 
+    "content_type": 6
+  }
+},
+{
+  "pk": 18, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_site", 
+    "name": "Can delete site", 
+    "content_type": 6
+  }
+},
+{
+  "pk": 19, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_logentry", 
+    "name": "Can add log entry", 
+    "content_type": 7
+  }
+},
+{
+  "pk": 20, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_logentry", 
+    "name": "Can change log entry", 
+    "content_type": 7
+  }
+},
+{
+  "pk": 21, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_logentry", 
+    "name": "Can delete log entry", 
+    "content_type": 7
+  }
+},
+{
+  "pk": 22, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_migrationhistory", 
+    "name": "Can add migration history", 
+    "content_type": 8
+  }
+},
+{
+  "pk": 23, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_migrationhistory", 
+    "name": "Can change migration history", 
+    "content_type": 8
+  }
+},
+{
+  "pk": 24, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_migrationhistory", 
+    "name": "Can delete migration history", 
+    "content_type": 8
+  }
+},
+{
+  "pk": 25, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_semester", 
+    "name": "Can add semester", 
+    "content_type": 9
+  }
+},
+{
+  "pk": 26, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_semester", 
+    "name": "Can change semester", 
+    "content_type": 9
+  }
+},
+{
+  "pk": 27, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_semester", 
+    "name": "Can delete semester", 
+    "content_type": 9
+  }
+},
+{
+  "pk": 28, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_questionnaire", 
+    "name": "Can add questionnaire", 
+    "content_type": 10
+  }
+},
+{
+  "pk": 29, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_questionnaire", 
+    "name": "Can change questionnaire", 
+    "content_type": 10
+  }
+},
+{
+  "pk": 30, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_questionnaire", 
+    "name": "Can delete questionnaire", 
+    "content_type": 10
+  }
+},
+{
+  "pk": 31, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_course", 
+    "name": "Can add course", 
+    "content_type": 11
+  }
+},
+{
+  "pk": 32, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_course", 
+    "name": "Can change course", 
+    "content_type": 11
+  }
+},
+{
+  "pk": 33, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_course", 
+    "name": "Can delete course", 
+    "content_type": 11
+  }
+},
+{
+  "pk": 34, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_contribution", 
+    "name": "Can add contribution", 
+    "content_type": 12
+  }
+},
+{
+  "pk": 35, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_contribution", 
+    "name": "Can change contribution", 
+    "content_type": 12
+  }
+},
+{
+  "pk": 36, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_contribution", 
+    "name": "Can delete contribution", 
+    "content_type": 12
+  }
+},
+{
+  "pk": 37, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_question", 
+    "name": "Can add question", 
+    "content_type": 13
+  }
+},
+{
+  "pk": 38, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_question", 
+    "name": "Can change question", 
+    "content_type": 13
+  }
+},
+{
+  "pk": 39, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_question", 
+    "name": "Can delete question", 
+    "content_type": 13
+  }
+},
+{
+  "pk": 40, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_gradeanswer", 
+    "name": "Can add grade answer", 
+    "content_type": 14
+  }
+},
+{
+  "pk": 41, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_gradeanswer", 
+    "name": "Can change grade answer", 
+    "content_type": 14
+  }
+},
+{
+  "pk": 42, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_gradeanswer", 
+    "name": "Can delete grade answer", 
+    "content_type": 14
+  }
+},
+{
+  "pk": 43, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_textanswer", 
+    "name": "Can add text answer", 
+    "content_type": 15
+  }
+},
+{
+  "pk": 44, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_textanswer", 
+    "name": "Can change text answer", 
+    "content_type": 15
+  }
+},
+{
+  "pk": 45, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_textanswer", 
+    "name": "Can delete text answer", 
+    "content_type": 15
+  }
+},
+{
+  "pk": 46, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_faqsection", 
+    "name": "Can add section", 
+    "content_type": 16
+  }
+},
+{
+  "pk": 47, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_faqsection", 
+    "name": "Can change section", 
+    "content_type": 16
+  }
+},
+{
+  "pk": 48, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_faqsection", 
+    "name": "Can delete section", 
+    "content_type": 16
+  }
+},
+{
+  "pk": 49, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_faqquestion", 
+    "name": "Can add question", 
+    "content_type": 17
+  }
+},
+{
+  "pk": 50, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_faqquestion", 
+    "name": "Can change question", 
+    "content_type": 17
+  }
+},
+{
+  "pk": 51, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_faqquestion", 
+    "name": "Can delete question", 
+    "content_type": 17
+  }
+},
+{
+  "pk": 52, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_userprofile", 
+    "name": "Can add user", 
+    "content_type": 18
+  }
+},
+{
+  "pk": 53, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_userprofile", 
+    "name": "Can change user", 
+    "content_type": 18
+  }
+},
+{
+  "pk": 54, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_userprofile", 
+    "name": "Can delete user", 
+    "content_type": 18
+  }
+},
+{
+  "pk": 55, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "add_emailtemplate", 
+    "name": "Can add email template", 
+    "content_type": 19
+  }
+},
+{
+  "pk": 56, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "change_emailtemplate", 
+    "name": "Can change email template", 
+    "content_type": 19
+  }
+},
+{
+  "pk": 57, 
+  "model": "auth.permission", 
+  "fields": {
+    "codename": "delete_emailtemplate", 
+    "name": "Can delete email template", 
+    "content_type": 19
+  }
+},
+{
+  "pk": 1, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "evap", 
+    "first_name": "", 
+    "last_name": "", 
+    "is_active": true, 
+    "is_superuser": true, 
+    "is_staff": true, 
+    "last_login": "2014-06-14T17:31:13.386", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$BCofhRK399OP$HNQZoTWsF/KItaZH9UnX63smbb+MJzZuFaGc3VH8b8E=", 
+    "email": "evap@evap.de", 
+    "date_joined": "2014-06-14T16:28:01.487"
+  }
+},
+{
+  "pk": 2, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "tutor", 
+    "first_name": "", 
+    "last_name": "", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-06-14T17:05:07.164", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$0pXoDTCLeyk0$Vw93Fh6vE0O8rZfpXnoRa6gB13Gt0+loDFmnxDT/67g=", 
+    "email": "tutor@evap.de", 
+    "date_joined": "2014-06-14T16:28:36.233"
+  }
+},
+{
+  "pk": 3, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "lecturer", 
+    "first_name": "", 
+    "last_name": "", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-06-14T16:29:10.883", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$qggReihKjiB1$rFu5leVe2buOtVBtg2PtwIqN2TnCDoRUSTYp36xVmEQ=", 
+    "email": "lecturer@evap.de", 
+    "date_joined": "2014-06-14T16:29:10.883"
+  }
+},
+{
+  "pk": 4, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "student", 
+    "first_name": "", 
+    "last_name": "", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-06-14T17:04:57.872", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$rTwFGpAsID1Z$eQKdZdh4Fs4x/H3P6cafFxDlGuK2bVafD1M2hs35WP8=", 
+    "email": "student@evap.de", 
+    "date_joined": "2014-06-14T16:36:05.823"
+  }
+},
+{
+  "pk": 1, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 1, 
+    "action_time": "2014-06-14T16:28:36.293", 
+    "object_repr": "tutor", 
+    "object_id": "2", 
+    "change_message": "", 
+    "user": 1, 
+    "content_type": 3
+  }
+},
+{
+  "pk": 2, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 1, 
+    "action_time": "2014-06-14T16:28:54.301", 
+    "object_repr": "tutor", 
+    "object_id": "1", 
+    "change_message": "", 
+    "user": 1, 
+    "content_type": 18
+  }
+},
+{
+  "pk": 3, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 1, 
+    "action_time": "2014-06-14T16:29:10.947", 
+    "object_repr": "lecturer", 
+    "object_id": "3", 
+    "change_message": "", 
+    "user": 1, 
+    "content_type": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 1, 
+    "action_time": "2014-06-14T16:29:24.713", 
+    "object_repr": "lecturer", 
+    "object_id": "2", 
+    "change_message": "", 
+    "user": 1, 
+    "content_type": 18
+  }
+},
+{
+  "pk": 5, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 1, 
+    "action_time": "2014-06-14T16:37:59.962", 
+    "object_repr": "Vorlesungsfragebogen", 
+    "object_id": "3", 
+    "change_message": "", 
+    "user": 1, 
+    "content_type": 10
+  }
+},
+{
+  "pk": 6, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 2, 
+    "action_time": "2014-06-14T16:45:50.522", 
+    "object_repr": "student", 
+    "object_id": "4", 
+    "change_message": "login_key und login_key_valid_until ge\u00e4ndert.", 
+    "user": 1, 
+    "content_type": 18
+  }
+},
+{
+  "pk": 7, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 2, 
+    "action_time": "2014-06-14T16:46:04.949", 
+    "object_repr": "tutor", 
+    "object_id": "1", 
+    "change_message": "login_key und login_key_valid_until ge\u00e4ndert.", 
+    "user": 1, 
+    "content_type": 18
+  }
+},
+{
+  "pk": 8, 
+  "model": "admin.logentry", 
+  "fields": {
+    "action_flag": 2, 
+    "action_time": "2014-06-14T17:31:29.893", 
+    "object_repr": "student", 
+    "object_id": "4", 
+    "change_message": "password ge\u00e4ndert.", 
+    "user": 1, 
+    "content_type": 3
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.course", 
+  "fields": {
+    "name_de": "Testvorlesung", 
+    "participant_count": null, 
+    "degree": "bachelor", 
+    "voters": [], 
+    "semester": 1, 
+    "last_modified_time": "2014-06-14T16:39:18.338", 
+    "voter_count": null, 
+    "state": "inEvaluation", 
+    "last_modified_user": 1, 
+    "participants": [
+      2, 
+      4
+    ], 
+    "vote_end_date": "2999-12-31", 
+    "name_en": "test lecture", 
+    "kind": "lecture", 
+    "vote_start_date": "2014-06-14"
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.contribution", 
+  "fields": {
+    "contributor": null, 
+    "course": 1, 
+    "responsible": false, 
+    "questionnaires": [
+      3
+    ], 
+    "can_edit": false
+  }
+},
+{
+  "pk": 2, 
+  "model": "evaluation.contribution", 
+  "fields": {
+    "contributor": 2, 
+    "course": 1, 
+    "responsible": false, 
+    "questionnaires": [
+      2
+    ], 
+    "can_edit": false
+  }
+},
+{
+  "pk": 3, 
+  "model": "evaluation.contribution", 
+  "fields": {
+    "contributor": 3, 
+    "course": 1, 
+    "responsible": true, 
+    "questionnaires": [
+      1
+    ], 
+    "can_edit": true
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": "Tutor", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2999-12-31", 
+    "user": 2, 
+    "login_key": 1234
+  }
+},
+{
+  "pk": 2, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": "Lecturer", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2014-06-14", 
+    "user": 3, 
+    "login_key": null
+  }
+},
+{
+  "pk": 3, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": null, 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": null, 
+    "user": 1, 
+    "login_key": null
+  }
+},
+{
+  "pk": 4, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": "Student", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2999-12-31", 
+    "user": 4, 
+    "login_key": 123
+  }
+}
+]

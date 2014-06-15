@@ -45,6 +45,8 @@ def vote(request, course_id):
     forms = SortedDict()
     for questionnaire, contribution in questionnaires_and_contributions(course):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+        if form.contribution.contributor == request.user:
+            continue # users shall not vote about themselves
         forms[(contribution, questionnaire)] = form
 
     if all(form.is_valid() for form in forms.values()):
