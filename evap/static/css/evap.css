@@ -9,6 +9,14 @@ body {
   width:auto;
 }
 
+.navbar-fixed-top {
+    border-width: 0;
+}
+
+.navbar-brand {
+    padding: 0;
+}
+
 /* Wrapper for page content to push down footer */
 #wrap {
   min-height: 100%;

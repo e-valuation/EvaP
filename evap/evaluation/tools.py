@@ -30,8 +30,8 @@ STATES_ORDERED = SortedDict((
 
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average'))
-GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'variance', 'distribution', 'show'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average', 'median'))
+GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
 
@@ -44,12 +44,29 @@ def avg(iterable):
     return float(sum(items)) / len(items)
 
 
+def can_publish_grades(course, staff_member=False):
+    return staff_member or (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+
+
+def med(iterable):
+    """Simple arithmetic median function. Returns `None` if the length of
+    `iterable` is 0 or no items except None exist."""
+    items = [item for item in iterable if item is not None]
+    length = len(items)
+    if length == 0:
+        return None
+    sorted_items = sorted(items)
+    if not length % 2:
+        return (sorted_items[length / 2] + sorted_items[length / 2 - 1]) / 2.0
+    return sorted_items[length / 2]
+
+
 def calculate_results(course, staff_member=False):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of single result elements and the average grade
-    for that section (or None). The result elements are either `GradeResult` or
-    `TextResult` instances."""
+    contributor (or None), a list of single result elements, the average and
+    median grades for that section (or None). The result elements are either
+    `GradeResult` or `TextResult` instances."""
 
     # return cached results if available
     cache_key = str.format('evap.fsr.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
@@ -58,7 +75,7 @@ def calculate_results(course, staff_member=False):
         return prior_results
 
     # check if grades for the course will be published
-    show = staff_member or (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
+    show = can_publish_grades(course, staff_member)
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
@@ -75,10 +92,12 @@ def calculate_results(course, staff_member=False):
                     question=question
                     ).values_list('answer', flat=True)
 
-                # calculate average and distribution
+                # calculate average, median and distribution
                 if answers:
                     # average
                     average = avg(answers)
+                    # median
+                    median = med(answers)
                     # variance
                     variance = avg((average - answer) ** 2 for answer in answers)
                     # calculate relative distribution (histogram) of answers:
@@ -94,6 +113,7 @@ def calculate_results(course, staff_member=False):
                         distribution[k] = float(distribution[k]) / len(answers) * 100.0
                 else:
                     average = None
+                    median = None
                     variance = None
                     distribution = None
 
@@ -102,6 +122,7 @@ def calculate_results(course, staff_member=False):
                     question=question,
                     count=len(answers),
                     average=average,
+                    median=median,
                     variance=variance,
                     distribution=distribution,
                     show=show
@@ -126,12 +147,15 @@ def calculate_results(course, staff_member=False):
         if not results:
             continue
 
-        # compute average grade for this section, will return None if
+        # compute average and median grades for this section, will return None if
         # no GradeResults exist in this section
         average_grade = avg([result.average for result
                                             in results
                                             if isinstance(result, GradeResult)])
-        sections.append(ResultSection(questionnaire, contribution.contributor, results, average_grade))
+        median_grade = med([result.median for result
+                                            in results
+                                            if isinstance(result, GradeResult)])
+        sections.append(ResultSection(questionnaire, contribution.contributor, results, average_grade, median_grade))
 
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
@@ -141,25 +165,31 @@ def calculate_results(course, staff_member=False):
     return sections
 
 
-def calculate_average_grade(course):
-    """Determines the final grade for a course."""
-    generic_grades = []
-    personal_grades = []
+def calculate_average_and_medium_grades(course):
+    """Determines the final average and median grades for a course."""
+    avg_generic_grades = []
+    avg_personal_grades = []
+    med_generic_grades = []
+    med_personal_grades = []
 
-    for questionnaire, contributor, results, average in calculate_results(course):
+    for questionnaire, contributor, results, average, median in calculate_results(course):
         if average:
-            (personal_grades if contributor else generic_grades).append(average)
+            (avg_personal_grades if contributor else avg_generic_grades).append(average)
+        if median:
+            (med_personal_grades if contributor else med_generic_grades).append(median)
 
-    if not generic_grades:
-        # not final grade without any generic grade
-        return None
-    elif not personal_grades:
-        # determine final grade by using the average of the generic grades
-        return avg(generic_grades)
+    if not avg_generic_grades or not med_generic_grades:
+        # not final grades without any generic grade
+        return None, None
+    elif not avg_personal_grades or not med_personal_grades:
+        # determine final grades by using the average and median of the generic grades
+        return avg(avg_generic_grades), med(med_generic_grades)
     else:
-        # determine final grade by building the equally-weighted average of the
-        # generic and person-specific averages
-        return avg((avg(generic_grades), avg(personal_grades)))
+        # determine final grades by building the equally-weighted average/median of the
+        # generic and person-specific averages/medians
+        final_avg = avg((avg(avg_generic_grades), avg(avg_personal_grades)))
+        final_med = med((med(med_generic_grades), med(med_personal_grades)))
+        return final_avg, final_med
 
 
 def questionnaires_and_contributions(course):
