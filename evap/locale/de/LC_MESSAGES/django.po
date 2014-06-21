@@ -908,7 +908,7 @@ msgstr "Erfolgreich %d Veranstaltungen auf Neu zurückgesetzt."
 #: fsr/views.py:200
 #, python-format
 msgid "Successfully approved %d courses."
-msgstr "Erfolgreich %d Veranstaltungen importiert."
+msgstr "Erfolgreich %d Veranstaltungen bestätigt."
 
 #: fsr/views.py:225
 #, python-format
