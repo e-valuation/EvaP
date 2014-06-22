@@ -163,7 +163,7 @@ class Course(models.Model):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
     def can_fsr_delete(self):
-        return not (self.textanswer_set.exists() or self.likertanswer_set.exists() or not self.can_fsr_edit())
+        return not (self.textanswer_set.exists() or self.likertanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
 
     def can_fsr_review(self):
         return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
@@ -306,6 +306,11 @@ class Course(models.Model):
         """Pseudo relationship to all Likert answers for this course"""
         return LikertAnswer.objects.filter(contribution__in=self.contributions.all())
 
+    @property
+    def gradeanswer_set(self):
+        """Pseudo relationship to all grade answers for this course"""
+        return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
+
 
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
@@ -335,7 +340,8 @@ class Question(models.Model):
 
     QUESTION_KINDS = (
         (u"T", _(u"Text Question")),
-        (u"L", _(u"Likert Question"))
+        (u"L", _(u"Likert Question")),
+        (u"G", _(u"Grade Question")),
     )
 
     questionnaire = models.ForeignKey(Questionnaire)
@@ -357,6 +363,8 @@ class Question(models.Model):
             return TextAnswer
         elif self.kind == u"L":
             return LikertAnswer
+        elif self.kind == u"G":
+            return GradeAnswer
         else:
             raise Exception("Unknown answer kind: %r" % self.kind)
 
@@ -366,11 +374,14 @@ class Question(models.Model):
     def is_text_question(self):
         return self.answer_class == TextAnswer
 
+    def is_grade_question(self):
+        return self.answer_class == GradeAnswer
+
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `LikertAnswer` and
-    `TextAnswer`."""
+    user ist not stored in the object. Concrete subclasses are `LikertAnswer`,
+    `TextAnswer` and `GradeAnswer`."""
 
     question = models.ForeignKey(Question)
     contribution = models.ForeignKey(Contribution)
@@ -390,6 +401,16 @@ class LikertAnswer(Answer):
     class Meta:
         verbose_name = _(u"Likert answer")
         verbose_name_plural = _(u"Likert answers")
+
+
+class GradeAnswer(Answer):
+    """A grade answer to a question with `1` being best and `5` being worst."""
+
+    answer = models.IntegerField(verbose_name=_(u"answer"))
+
+    class Meta:
+        verbose_name = _(u"grade answer")
+        verbose_name_plural = _(u"grade answers")
 
 
 class TextAnswer(Answer):

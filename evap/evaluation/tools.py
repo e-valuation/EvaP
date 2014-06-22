@@ -3,7 +3,7 @@ from django.core.cache import cache
 from django.db.models import Min, Count
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import LikertAnswer, TextAnswer
+from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
 
 from collections import namedtuple
@@ -14,6 +14,15 @@ LIKERT_NAMES = {
     3: _(u"Neither agree nor disagree"),
     4: _(u"Disagree"),
     5: _(u"Strongly disagree"),
+    6: _(u"no answer"),
+}
+
+GRADE_NAMES = {
+    1: _(u"1"),
+    2: _(u"2"),
+    3: _(u"3"),
+    4: _(u"4"),
+    5: _(u"5"),
     6: _(u"no answer"),
 }
 
@@ -30,9 +39,10 @@ STATES_ORDERED = SortedDict((
 
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average', 'median'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total'))
 LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
+GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
 
 
 def avg(iterable):
@@ -60,13 +70,23 @@ def med(iterable):
         return (sorted_items[length / 2] + sorted_items[length / 2 - 1]) / 2.0
     return sorted_items[length / 2]
 
+def mix(a, b, alpha):
+    if a == None and b == None:
+        return None
+    if a == None:
+        return b
+    if b == None:
+        return a
+
+    return alpha * a + (1 - alpha) * b
+
 
 def calculate_results(course, staff_member=False):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
     median grades for that section (or None). The result elements are either
-    `LikertResult` or `TextResult` instances."""
+    `LikertResult`, `TextResult` or `GradeResult` instances."""
 
     # return cached results if available
     cache_key = str.format('evap.fsr.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
@@ -127,7 +147,49 @@ def calculate_results(course, staff_member=False):
                     distribution=distribution,
                     show=show
                 ))
+            elif question.is_grade_question():
+                # gather all numeric answers as a simple list
+                answers = GradeAnswer.objects.filter(
+                    contribution__course=course,
+                    contribution__contributor=contribution.contributor,
+                    question=question
+                    ).values_list('answer', flat=True)
 
+                # calculate average, median and distribution
+                if answers:
+                    # average
+                    average = avg(answers)
+                    # median
+                    median = med(answers)
+                    # variance
+                    variance = avg((average - answer) ** 2 for answer in answers)
+                    # calculate relative distribution (histogram) of answers:
+                    # set up a sorted dictionary with a count of zero for each grade
+                    distribution = SortedDict()
+                    for i in range(1, 6):
+                        distribution[i] = 0
+                    # count the answers
+                    for answer in answers:
+                        distribution[answer] += 1
+                    # divide by the number of answers to get relative 0..1 values
+                    for k in distribution:
+                        distribution[k] = float(distribution[k]) / len(answers) * 100.0
+                else:
+                    average = None
+                    median = None
+                    variance = None
+                    distribution = None
+
+                # produce the result element
+                results.append(GradeResult(
+                    question=question,
+                    count=len(answers),
+                    average=average,
+                    median=median,
+                    variance=variance,
+                    distribution=distribution,
+                    show=show
+                ))
             elif question.is_text_question():
                 # gather text answers for this question
                 answers = TextAnswer.objects.filter(
@@ -147,15 +209,31 @@ def calculate_results(course, staff_member=False):
         if not results:
             continue
 
-        # compute average and median grades for this section, will return None if
-        # no LikertResults exist in this section
+        # compute average and median grades for all LikertResults in this
+        # section, will return None if no LikertResults exist in this section
+        average_likert = avg([result.average for result
+                                            in results
+                                            if isinstance(result, LikertResult)])
+        median_likert = med([result.median for result
+                                            in results
+                                            if isinstance(result, LikertResult)])
+
+        # compute average and median grades for all GradeResults in this
+        # section, will return None if no GradeResults exist in this section
         average_grade = avg([result.average for result
                                             in results
-                                            if isinstance(result, LikertResult)])
+                                            if isinstance(result, GradeResult)])
         median_grade = med([result.median for result
                                             in results
-                                            if isinstance(result, LikertResult)])
-        sections.append(ResultSection(questionnaire, contribution.contributor, results, average_grade, median_grade))
+                                            if isinstance(result, GradeResult)])
+
+        average_total = mix(average_grade, average_likert, GRADE_PERCENTAGE)
+        median_total = mix(median_grade, median_likert, GRADE_PERCENTAGE)
+        
+        sections.append(ResultSection(questionnaire, contribution.contributor, results,
+            average_likert, median_likert,
+            average_grade, median_grade,
+            average_total, median_total))
 
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
@@ -167,29 +245,39 @@ def calculate_results(course, staff_member=False):
 
 def calculate_average_and_medium_grades(course):
     """Determines the final average and median grades for a course."""
-    avg_generic_grades = []
-    avg_personal_grades = []
-    med_generic_grades = []
-    med_personal_grades = []
+    avg_generic_likert = []
+    avg_contribution_likert = []
+    med_generic_likert = []
+    med_contribution_likert = []
+    avg_generic_grade = []
+    avg_contribution_grade = []
+    med_generic_grade = []
+    med_contribution_grade = []
 
-    for questionnaire, contributor, results, average, median in calculate_results(course):
-        if average:
-            (avg_personal_grades if contributor else avg_generic_grades).append(average)
-        if median:
-            (med_personal_grades if contributor else med_generic_grades).append(median)
+    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total in calculate_results(course):
+        if average_likert:
+            (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
+        if median_likert:
+            (med_contribution_likert if contributor else med_generic_likert).append(median_likert)
+        if average_grade:
+            (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
+        if median_grade:
+            (med_contribution_grade if contributor else med_generic_grade).append(median_grade)
 
-    if not avg_generic_grades or not med_generic_grades:
-        # not final grades without any generic grade
-        return None, None
-    elif not avg_personal_grades or not med_personal_grades:
-        # determine final grades by using the average and median of the generic grades
-        return avg(avg_generic_grades), med(med_generic_grades)
-    else:
-        # determine final grades by building the equally-weighted average/median of the
-        # generic and person-specific averages/medians
-        final_avg = avg((avg(avg_generic_grades), avg(avg_personal_grades)))
-        final_med = med((med(med_generic_grades), med(med_personal_grades)))
-        return final_avg, final_med
+    # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
+    # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
+    # final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
+    # final = GP * final_grade + (1-GP) * final_likert
+
+    final_likert_avg = mix(avg(avg_contribution_likert), avg(avg_generic_likert), CONTRIBUTION_PERCENTAGE)
+    final_likert_med = mix(med(med_contribution_likert), med(med_generic_likert), CONTRIBUTION_PERCENTAGE)
+    final_grade_avg = mix(avg(avg_contribution_grade), avg(avg_generic_grade), CONTRIBUTION_PERCENTAGE)
+    final_grade_med = mix(med(med_contribution_grade), med(med_generic_grade), CONTRIBUTION_PERCENTAGE)
+
+    final_avg = mix(final_grade_avg, final_likert_avg, GRADE_PERCENTAGE)
+    final_med = mix(final_grade_med, final_likert_med, GRADE_PERCENTAGE)
+    
+    return final_avg, final_med
 
 
 def questionnaires_and_contributions(course):
