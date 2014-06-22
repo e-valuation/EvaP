@@ -63,6 +63,11 @@ def vote(request, course_id):
                     if value == 6: #no answer
                         value = None
 
+                    print contribution
+                    print question
+                    print value
+                    print ''
+
                     # store the answer if one was given
                     if value:
                         question.answer_class.objects.create(

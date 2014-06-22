@@ -227,8 +227,8 @@ def calculate_results(course, staff_member=False):
                                             in results
                                             if isinstance(result, GradeResult)])
 
-        average_total = mix(average_grade, average_likert, GRADE_PERCENTAGE)
-        median_total = mix(median_grade, median_likert, GRADE_PERCENTAGE)
+        average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
+        median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
         
         sections.append(ResultSection(questionnaire, contribution.contributor, results,
             average_likert, median_likert,
@@ -269,13 +269,13 @@ def calculate_average_and_medium_grades(course):
     # final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
     # final = GP * final_grade + (1-GP) * final_likert
 
-    final_likert_avg = mix(avg(avg_contribution_likert), avg(avg_generic_likert), CONTRIBUTION_PERCENTAGE)
-    final_likert_med = mix(med(med_contribution_likert), med(med_generic_likert), CONTRIBUTION_PERCENTAGE)
-    final_grade_avg = mix(avg(avg_contribution_grade), avg(avg_generic_grade), CONTRIBUTION_PERCENTAGE)
-    final_grade_med = mix(med(med_contribution_grade), med(med_generic_grade), CONTRIBUTION_PERCENTAGE)
+    final_likert_avg = mix(avg(avg_contribution_likert), avg(avg_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
+    final_likert_med = mix(med(med_contribution_likert), med(med_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
+    final_grade_avg = mix(avg(avg_contribution_grade), avg(avg_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
+    final_grade_med = mix(med(med_contribution_grade), med(med_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
 
-    final_avg = mix(final_grade_avg, final_likert_avg, GRADE_PERCENTAGE)
-    final_med = mix(final_grade_med, final_likert_med, GRADE_PERCENTAGE)
+    final_avg = mix(final_grade_avg, final_likert_avg, settings.GRADE_PERCENTAGE)
+    final_med = mix(final_grade_med, final_likert_med, settings.GRADE_PERCENTAGE)
     
     return final_avg, final_med
 

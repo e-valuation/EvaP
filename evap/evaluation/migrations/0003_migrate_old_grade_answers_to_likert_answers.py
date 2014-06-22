@@ -1,21 +1,30 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Renaming model 'GradeAnswer' to 'LikertAnswer'
-        db.rename_table(u'evaluation_gradeanswer', u'evaluation_likertanswer')
-
+        for question in orm.Question.objects.all():
+            if question.kind == 'G':
+                question.kind = 'L'
+                question.save()
+        for gradeanswer in orm.GradeAnswer.objects.all():
+            orm.LikertAnswer.objects.create(question=gradeanswer.question, contribution=gradeanswer.contribution, answer=gradeanswer.answer)
+            gradeanswer.delete()
 
     def backwards(self, orm):
-        # Renaming model 'LikertAnswer' to 'GradeAnswer'
-        db.rename_table(u'evaluation_likertanswer', u'evaluation_gradeanswer')
-
+        for question in orm.Question.objects.all():
+            if question.kind == 'L':
+                question.kind = 'G'
+                question.save()
+        for gradeanswer in orm.GradeAnswer.objects.all():
+            gradeanswer.delete()
+        for likertanswer in orm.LikertAnswer.objects.all():
+            orm.GradeAnswer.objects.create(question=likertanswer.question, contribution=likertanswer.contribution, answer=likertanswer.answer)
+            likertanswer.delete()
 
     models = {
         u'auth.group': {
@@ -98,6 +107,13 @@ class Migration(SchemaMigration):
             'title_de': ('django.db.models.fields.TextField', [], {}),
             'title_en': ('django.db.models.fields.TextField', [], {})
         },
+        u'evaluation.gradeanswer': {
+            'Meta': {'object_name': 'GradeAnswer'},
+            'answer': ('django.db.models.fields.IntegerField', [], {}),
+            'contribution': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['evaluation.Contribution']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'question': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['evaluation.Question']"})
+        },
         u'evaluation.likertanswer': {
             'Meta': {'object_name': 'LikertAnswer'},
             'answer': ('django.db.models.fields.IntegerField', [], {}),
@@ -160,3 +176,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['evaluation']
+    symmetrical = True

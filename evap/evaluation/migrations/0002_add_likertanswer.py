@@ -8,19 +8,19 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'GradeAnswer'
-        db.create_table(u'evaluation_gradeanswer', (
+        # Adding model 'LikertAnswer'
+        db.create_table(u'evaluation_likertanswer', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('question', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['evaluation.Question'])),
             ('contribution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['evaluation.Contribution'])),
             ('answer', self.gf('django.db.models.fields.IntegerField')()),
         ))
-        db.send_create_signal(u'evaluation', ['GradeAnswer'])
+        db.send_create_signal(u'evaluation', ['LikertAnswer'])
 
 
     def backwards(self, orm):
-        # Deleting model 'GradeAnswer'
-        db.delete_table(u'evaluation_gradeanswer')
+        # Deleting model 'LikertAnswer'
+        db.delete_table(u'evaluation_likertanswer')
 
 
     models = {
