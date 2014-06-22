@@ -120,8 +120,8 @@
   "pk": 14, 
   "model": "contenttypes.contenttype", 
   "fields": {
-    "model": "gradeanswer", 
-    "name": "grade answer", 
+    "model": "likertanswer", 
+    "name": "Likert answer", 
     "app_label": "evaluation"
   }
 },
@@ -246,7 +246,7 @@
     "_order": 0, 
     "text_en": "test question", 
     "text_de": "Testfrage", 
-    "kind": "G"
+    "kind": "L"
   }
 },
 {
@@ -257,7 +257,7 @@
     "_order": 0, 
     "text_en": "test tutor question", 
     "text_de": "Test Tutorenfrage", 
-    "kind": "G"
+    "kind": "L"
   }
 },
 {
@@ -268,7 +268,7 @@
     "_order": 0, 
     "text_en": "test lecture question", 
     "text_de": "Test Vorlesungsfrage", 
-    "kind": "G"
+    "kind": "L"
   }
 },
 {
@@ -662,8 +662,8 @@
   "pk": 40, 
   "model": "auth.permission", 
   "fields": {
-    "codename": "add_gradeanswer", 
-    "name": "Can add grade answer", 
+    "codename": "add_likertanswer", 
+    "name": "Can add Likert answer", 
     "content_type": 14
   }
 },
@@ -671,8 +671,8 @@
   "pk": 41, 
   "model": "auth.permission", 
   "fields": {
-    "codename": "change_gradeanswer", 
-    "name": "Can change grade answer", 
+    "codename": "change_likertanswer", 
+    "name": "Can change Likert answer", 
     "content_type": 14
   }
 },
@@ -680,8 +680,8 @@
   "pk": 42, 
   "model": "auth.permission", 
   "fields": {
-    "codename": "delete_gradeanswer", 
-    "name": "Can delete grade answer", 
+    "codename": "delete_likertanswer", 
+    "name": "Can delete Likert answer", 
     "content_type": 14
   }
 },

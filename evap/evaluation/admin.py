@@ -1,4 +1,4 @@
-from evap.evaluation.models import Contribution, Course, GradeAnswer, Question, \
+from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, \
                                    Questionnaire, Semester, TextAnswer, UserProfile
 from django.conf import settings
 from django.contrib import admin
@@ -45,4 +45,4 @@ admin.site.register(UserProfile, UserProfileAdmin)
 
 if settings.DEBUG:
     admin.site.register(TextAnswer)
-    admin.site.register(GradeAnswer)
+    admin.site.register(LikertAnswer)

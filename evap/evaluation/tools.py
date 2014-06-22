@@ -3,12 +3,12 @@ from django.core.cache import cache
 from django.db.models import Min, Count
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import GradeAnswer, TextAnswer
+from evap.evaluation.models import LikertAnswer, TextAnswer
 
 
 from collections import namedtuple
 
-GRADE_NAMES = {
+LIKERT_NAMES = {
     1: _(u"Strongly agree"),
     2: _(u"Agree"),
     3: _(u"Neither agree nor disagree"),
@@ -31,7 +31,7 @@ STATES_ORDERED = SortedDict((
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average', 'median'))
-GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
+LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
 
 
@@ -66,7 +66,7 @@ def calculate_results(course, staff_member=False):
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
     median grades for that section (or None). The result elements are either
-    `GradeResult` or `TextResult` instances."""
+    `LikertResult` or `TextResult` instances."""
 
     # return cached results if available
     cache_key = str.format('evap.fsr.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
@@ -84,9 +84,9 @@ def calculate_results(course, staff_member=False):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
-            if question.is_grade_question():
+            if question.is_likert_question():
                 # gather all numeric answers as a simple list
-                answers = GradeAnswer.objects.filter(
+                answers = LikertAnswer.objects.filter(
                     contribution__course=course,
                     contribution__contributor=contribution.contributor,
                     question=question
@@ -118,7 +118,7 @@ def calculate_results(course, staff_member=False):
                     distribution = None
 
                 # produce the result element
-                results.append(GradeResult(
+                results.append(LikertResult(
                     question=question,
                     count=len(answers),
                     average=average,
@@ -148,13 +148,13 @@ def calculate_results(course, staff_member=False):
             continue
 
         # compute average and median grades for this section, will return None if
-        # no GradeResults exist in this section
+        # no LikertResults exist in this section
         average_grade = avg([result.average for result
                                             in results
-                                            if isinstance(result, GradeResult)])
+                                            if isinstance(result, LikertResult)])
         median_grade = med([result.median for result
                                             in results
-                                            if isinstance(result, GradeResult)])
+                                            if isinstance(result, LikertResult)])
         sections.append(ResultSection(questionnaire, contribution.contributor, results, average_grade, median_grade))
 
     # store results into cache

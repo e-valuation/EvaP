@@ -163,7 +163,7 @@ class Course(models.Model):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
     def can_fsr_delete(self):
-        return not (self.textanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
+        return not (self.textanswer_set.exists() or self.likertanswer_set.exists() or not self.can_fsr_edit())
 
     def can_fsr_review(self):
         return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
@@ -302,9 +302,9 @@ class Course(models.Model):
         return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=True)
 
     @property
-    def gradeanswer_set(self):
-        """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
+    def likertanswer_set(self):
+        """Pseudo relationship to all Likert answers for this course"""
+        return LikertAnswer.objects.filter(contribution__in=self.contributions.all())
 
 
 class Contribution(models.Model):
@@ -335,7 +335,7 @@ class Question(models.Model):
 
     QUESTION_KINDS = (
         (u"T", _(u"Text Question")),
-        (u"G", _(u"Grade Question"))
+        (u"L", _(u"Likert Question"))
     )
 
     questionnaire = models.ForeignKey(Questionnaire)
@@ -355,13 +355,13 @@ class Question(models.Model):
     def answer_class(self):
         if self.kind == u"T":
             return TextAnswer
-        elif self.kind == u"G":
-            return GradeAnswer
+        elif self.kind == u"L":
+            return LikertAnswer
         else:
             raise Exception("Unknown answer kind: %r" % self.kind)
 
-    def is_grade_question(self):
-        return self.answer_class == GradeAnswer
+    def is_likert_question(self):
+        return self.answer_class == LikertAnswer
 
     def is_text_question(self):
         return self.answer_class == TextAnswer
@@ -369,7 +369,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `GradeAnswer` and
+    user ist not stored in the object. Concrete subclasses are `LikertAnswer` and
     `TextAnswer`."""
 
     question = models.ForeignKey(Question)
@@ -381,15 +381,15 @@ class Answer(models.Model):
         verbose_name_plural = _(u"answers")
 
 
-class GradeAnswer(Answer):
+class LikertAnswer(Answer):
     """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
     being *strongly disagree*."""
 
     answer = models.IntegerField(verbose_name=_(u"answer"))
 
     class Meta:
-        verbose_name = _(u"grade answer")
-        verbose_name_plural = _(u"grade answers")
+        verbose_name = _(u"Likert answer")
+        verbose_name_plural = _(u"Likert answers")
 
 
 class TextAnswer(Answer):

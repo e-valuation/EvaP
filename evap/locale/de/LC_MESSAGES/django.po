@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-08 03:12+0200\n"
-"PO-Revision-Date: 2014-06-08 03:13+0100\n"
+"POT-Creation-Date: 2014-06-22 12:09+0200\n"
+"PO-Revision-Date: 2014-06-22 12:09+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -211,7 +211,7 @@ msgstr "Teilnehmer"
 
 #: contributor/templates/contributor_index.html:60
 #: fsr/templates/fsr_faq_index.html:62
-#: fsr/templates/fsr_faq_section.html:61
+#: fsr/templates/fsr_faq_section.html:64
 #: fsr/templates/fsr_questionnaire_index.html:22
 #: fsr/templates/fsr_questionnaire_index.html:65
 #: fsr/templates/fsr_user_index.html:28
@@ -451,8 +451,8 @@ msgid "Text Question"
 msgstr "Freitextfrage"
 
 #: evaluation/models.py:338
-msgid "Grade Question"
-msgstr "Auswahlfrage"
+msgid "Likert Question"
+msgstr "Likert-Frage"
 
 #: evaluation/models.py:342
 msgid "question text (german)"
@@ -486,12 +486,12 @@ msgid "answers"
 msgstr "Antworten"
 
 #: evaluation/models.py:391
-msgid "grade answer"
-msgstr "Auswahlantwort"
+msgid "Likert answer"
+msgstr "Likert-Antwort"
 
 #: evaluation/models.py:392
-msgid "grade answers"
-msgstr "Auswahlantworten"
+msgid "Likert answers"
+msgstr "Likert-Antworten"
 
 #: evaluation/models.py:401
 msgid "reviewed answer"
@@ -643,19 +643,11 @@ msgstr "veröffentlicht"
 msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
-#: evaluation/management/commands/create_user.py:15
-msgid "Enter a valid email address.\n"
-msgstr "Bitte geben Sie eine gültige E‑Mail-Adresse ein.\n"
-
-#: evaluation/management/commands/create_user.py:20
-msgid "Error: That username is invalid. Use only letters, digits and underscores.\n"
-msgstr "Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und Unterstriche verwenden.\n"
-
-#: evaluation/management/commands/create_user.py:27
+#: evaluation/management/commands/create_user.py:25
 msgid "Error: That username is already taken.\n"
 msgstr "Fehler: Der Benutzername ist bereits vergeben.\n"
 
-#: evaluation/management/commands/create_user.py:32
+#: evaluation/management/commands/create_user.py:30
 msgid "Error: Please answer with yes or no\n"
 msgstr "Fehler: Bitte mit JA oder NEIN antworten\n"
 
@@ -1098,15 +1090,15 @@ msgstr "FAQ-Abschnitte"
 msgid "Save FAQ sections"
 msgstr "FAQ-Abschnitte speichern"
 
-#: fsr/templates/fsr_faq_section.html:59
+#: fsr/templates/fsr_faq_section.html:62
 msgid "Question/Answer (german)"
 msgstr "Frage/Antwort (deutsch)"
 
-#: fsr/templates/fsr_faq_section.html:60
+#: fsr/templates/fsr_faq_section.html:63
 msgid "Question/Answer (english)"
 msgstr "Fragetext/Antwort (englisch)"
 
-#: fsr/templates/fsr_faq_section.html:88
+#: fsr/templates/fsr_faq_section.html:91
 msgid "Save FAQ section"
 msgstr "FAQ-Abschnitt speichern"
 
@@ -1382,19 +1374,19 @@ msgstr "E‑Mail-Adresse fehlt!"
 msgid "This user cannot be deleted because he is a contributor to a course"
 msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: results/exporters.py:69
+#: results/exporters.py:85
 msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
 
-#: results/exporters.py:135
+#: results/exporters.py:155
 msgid "Overall Average Grade"
 msgstr "Gesamtdurchschnittsnote"
 
-#: results/exporters.py:149
+#: results/exporters.py:173
 msgid "Overall Median Grade"
 msgstr "Gesamtmediannote"
 
-#: results/exporters.py:163
+#: results/exporters.py:191
 msgid "Total Answers"
 msgstr "Antworten"
 
@@ -1407,6 +1399,9 @@ msgid "Answers given: "
 msgstr "Erhaltene Antworten: "
 
 #: results/templates/results_course_detail.html:60
+#: results/templates/results_semester_detail.html:36
+#: results/templates/results_semester_detail.html:45
+#: results/templates/results_semester_detail.html:46
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
@@ -1438,15 +1433,15 @@ msgstr "Mediannote"
 msgid "Voters"
 msgstr "Wähler"
 
-#: results/templates/results_semester_detail.html:59
+#: results/templates/results_semester_detail.html:72
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: results/templates/results_semester_detail.html:60
+#: results/templates/results_semester_detail.html:73
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: student/views.py:74
+#: student/views.py:76
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -1579,4 +1574,3 @@ msgstr "Angemeldet als"
 #: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-

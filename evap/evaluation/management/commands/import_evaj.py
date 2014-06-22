@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from evap.evaluation.models import Contribution, Course, GradeAnswer, Question, \
+from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, \
                                    Questionnaire, Semester, TextAnswer, UserProfile
 
 from datetime import datetime
@@ -28,7 +28,7 @@ class Command(BaseCommand):
     args = "<path to XML file> [evaluation_id ...]"
     help = "Imports one or all semesters from an EvaJ XML dump."
 
-    question_template_type_map = {"22": "G", "23": "T"}
+    question_template_type_map = {"22": "L", "23": "T"}
 
     index_structure = dict(
         answer = [('assessment_id',)],
@@ -237,7 +237,7 @@ class Command(BaseCommand):
                         contribution, created = Contribution.objects.get_or_create(course=course, contributor=contributor)
                         contribution.questionnaires.add(questionnaire)
 
-                    # answer --> GradeAnswer/TextAnswer
+                    # answer --> LikertAnswer/TextAnswer
                     for assessment in self.get('assessment', course_id=xml_course.id):
                         for answer in self.get('answer', assessment_id=assessment.id):
                             staff_id = nint(getattr(answer, 'staff_id', None))
@@ -252,7 +252,7 @@ class Command(BaseCommand):
                                 continue
 
                             if status == "61":
-                                GradeAnswer.objects.create(
+                                LikertAnswer.objects.create(
                                     contribution=contribution,
                                     question=question,
                                     answer=int(answer.response)

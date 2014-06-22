@@ -6,10 +6,10 @@ from django.utils.safestring import mark_safe
 
 from evap.student.tools import make_form_identifier
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tools import GRADE_NAMES
+from evap.evaluation.tools import LIKERT_NAMES
 
 
-GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
+LIKERT_CHOICES = [(unicode(k), v) for k, v in LIKERT_NAMES.items()]
 
 
 
@@ -39,9 +39,9 @@ class QuestionsForm(forms.Form):
             if question.is_text_question():
                 field = forms.CharField(required=False, widget=forms.Textarea(),
                                         **field_args)
-            elif question.is_grade_question():
+            elif question.is_likert_question():
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
-                                               choices=GRADE_CHOICES,
+                                               choices=LIKERT_CHOICES,
                                                coerce=int,
                                                **field_args)
 
