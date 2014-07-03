@@ -14,11 +14,14 @@ class Command(BaseCommand):
         """ Updates courses state, when evaluation time begins/ends."""
         today = datetime.date.today()
 
+        courses_where_evaluation_begins = []
+
         for course in Course.objects.all():
             try:
                 if course.state == "approved" and course.vote_start_date <= today:
                     course.evaluation_begin()
                     course.save()
+                    courses_where_evaluation_begins.append(course)
                 elif course.state == "inEvaluation" and course.vote_end_date < today:
                     course.evaluation_end()
                     if course.is_fully_checked():
@@ -26,6 +29,11 @@ class Command(BaseCommand):
                     course.save()
             except:
                 pass
+
+        # if the evaluation period of some courses started today we nnotify all students that they are now able to vote
+        if (len(courses_where_evaluation_begins) > 0):
+            EmailTemplate.get_evaluation_started_template().send_courses(courses_where_evaluation_begins, send_to_due_participants=True)
+
 
     def check_reminders(self):
         check_date = datetime.date.today() + datetime.timedelta(days=settings.REMIND_X_DAYS_AHEAD_OF_END_DATE)

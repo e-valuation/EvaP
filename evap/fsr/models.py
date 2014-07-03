@@ -38,6 +38,10 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
 
     @classmethod
+    def get_evaluation_started_template(cls):
+        return cls.objects.get(name="Courses can be evaluated")
+
+    @classmethod
     def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
         from evap.evaluation.models import UserProfile
 

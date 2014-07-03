@@ -34,5 +34,14 @@
       "subject": "[EvaP] A login key was created",
       "body": ""
     }
+  },
+  {
+    "pk": 5,
+    "model": "fsr.EmailTemplate",
+    "fields": {
+      "name": "Courses can be evaluated",
+      "subject": "[EvaP] You can now evaluate new courses",
+      "body": ""
+    }
   }
 ]
