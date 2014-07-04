@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-22 19:39+0200\n"
-"PO-Revision-Date: 2014-06-22 19:48+0100\n"
+"POT-Creation-Date: 2014-07-04 23:12+0200\n"
+"PO-Revision-Date: 2014-07-04 23:13+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -182,8 +182,8 @@ msgid "Evaluation Results"
 msgstr "Evaluierungs-Ergebnisse"
 
 #: contributor/templates/contributor_index.html:40
-msgid "The student's comments and the average grades will be shown to the lecturers who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
-msgstr "Die Kommentare und die durchschnittlichen Noten der Studierenden werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die durchschnittlichen Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
+msgid "The student's comments will be shown to the lecturers who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
+msgstr "Die Kommentare der Studierenden werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die Durchschnitts- und Median-Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
 #: contributor/templates/contributor_index.html:41
 #: student/templates/student_index.html:65
@@ -857,12 +857,12 @@ msgstr "EvaP-Administrator"
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:375
+#: fsr/forms.py:381
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:393
+#: fsr/forms.py:405
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -1477,7 +1477,7 @@ msgstr "Semester als Excel-Tabelle exportieren"
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: student/views.py:81
+#: student/views.py:76
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -1540,8 +1540,8 @@ msgid "FAQ/Reference"
 msgstr "FAQ/Verweise"
 
 #: student/templates/student_index.html:64
-msgid "Your comments and the average grades will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
-msgstr "Deine Kommentare und die durchschnittlichen Noten werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die durchschnittlichen Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
+msgid "Your comments will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
+msgstr "Deine Kommentare werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die Durchschnitts- und Median-Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
 #: student/templates/student_vote.html:41
 msgid "Vote"
