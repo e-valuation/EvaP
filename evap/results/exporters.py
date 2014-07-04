@@ -17,8 +17,8 @@ class ExcelExporter(object):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
             results = SortedDict()
-            for questionnaire, contributor, data, avg_grade, med_grade in calculate_results(course):
-                results.setdefault(questionnaire.id, []).append((contributor, data, avg_grade, med_grade))
+            for questionnaire, contributor, data, avg_likert, med_likert, avg_grade, med_grade, avg_total, med_total in calculate_results(course):
+                results.setdefault(questionnaire.id, []).append((contributor, data, avg_total, med_total))
             courses_with_results.append((course, results))
 
         courses_with_results.sort(key=lambda cr: cr[0].kind)

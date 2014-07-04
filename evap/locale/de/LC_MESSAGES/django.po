@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-08 03:12+0200\n"
-"PO-Revision-Date: 2014-06-08 03:13+0100\n"
+"POT-Creation-Date: 2014-06-22 19:39+0200\n"
+"PO-Revision-Date: 2014-06-22 19:48+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -77,7 +77,7 @@ msgid "Remove?"
 msgstr "Entfernen?"
 
 #: contributor/templates/contributor_course_form.html:45
-#: evaluation/models.py:317
+#: evaluation/models.py:322
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -131,7 +131,7 @@ msgid "Evaluation info"
 msgstr "Evaluierungs-Infos"
 
 #: contributor/templates/contributor_index.html:25
-#: evaluation/models.py:471
+#: evaluation/models.py:492
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -211,7 +211,7 @@ msgstr "Teilnehmer"
 
 #: contributor/templates/contributor_index.html:60
 #: fsr/templates/fsr_faq_index.html:62
-#: fsr/templates/fsr_faq_section.html:61
+#: fsr/templates/fsr_faq_section.html:64
 #: fsr/templates/fsr_questionnaire_index.html:22
 #: fsr/templates/fsr_questionnaire_index.html:65
 #: fsr/templates/fsr_user_index.html:28
@@ -385,7 +385,7 @@ msgid "questionnaire"
 msgstr "Fragebogen"
 
 #: evaluation/models.py:81
-#: evaluation/models.py:315
+#: evaluation/models.py:320
 msgid "questionnaires"
 msgstr "Fragebögen"
 
@@ -422,7 +422,7 @@ msgid "last date to vote"
 msgstr "letzter Abstimmungstag"
 
 #: evaluation/models.py:133
-#: evaluation/models.py:313
+#: evaluation/models.py:318
 msgid "course"
 msgstr "Veranstaltung"
 
@@ -438,148 +438,161 @@ msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:314
+#: evaluation/models.py:319
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:318
+#: evaluation/models.py:323
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:337
+#: evaluation/models.py:342
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:338
-msgid "Grade Question"
-msgstr "Auswahlfrage"
+#: evaluation/models.py:343
+msgid "Likert Question"
+msgstr "Likert-Frage"
 
-#: evaluation/models.py:342
+#: evaluation/models.py:344
+msgid "Grade Question"
+msgstr "Bewertungsfrage"
+
+#: evaluation/models.py:348
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:343
+#: evaluation/models.py:349
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:345
+#: evaluation/models.py:351
 msgid "kind of question"
 msgstr "Frageart"
 
-#: evaluation/models.py:351
-#: evaluation/models.py:457
+#: evaluation/models.py:357
+#: evaluation/models.py:478
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:352
-#: evaluation/models.py:458
+#: evaluation/models.py:358
+#: evaluation/models.py:479
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:380
-#: evaluation/models.py:388
+#: evaluation/models.py:391
+#: evaluation/models.py:399
+#: evaluation/models.py:409
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:381
+#: evaluation/models.py:392
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:391
+#: evaluation/models.py:402
+msgid "Likert answer"
+msgstr "Likert-Antwort"
+
+#: evaluation/models.py:403
+msgid "Likert answers"
+msgstr "Likert-Antworten"
+
+#: evaluation/models.py:412
 msgid "grade answer"
-msgstr "Auswahlantwort"
+msgstr "Bewertungs-Antwort"
 
-#: evaluation/models.py:392
+#: evaluation/models.py:413
 msgid "grade answers"
-msgstr "Auswahlantworten"
+msgstr "Bewertungs-Antworten"
 
-#: evaluation/models.py:401
+#: evaluation/models.py:422
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:402
+#: evaluation/models.py:423
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: evaluation/models.py:404
+#: evaluation/models.py:425
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: evaluation/models.py:405
+#: evaluation/models.py:426
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: evaluation/models.py:408
+#: evaluation/models.py:429
 msgid "text answer"
-msgstr "Textantwort"
+msgstr "Text-Antwort"
 
-#: evaluation/models.py:409
+#: evaluation/models.py:430
 msgid "text answers"
-msgstr "Textantworten"
+msgstr "Text-Antworten"
 
-#: evaluation/models.py:426
+#: evaluation/models.py:447
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:428
+#: evaluation/models.py:449
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evaluation/models.py:429
+#: evaluation/models.py:450
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evaluation/models.py:434
+#: evaluation/models.py:455
 msgid "section"
 msgstr "Abschnitt"
 
-#: evaluation/models.py:435
+#: evaluation/models.py:456
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evaluation/models.py:445
+#: evaluation/models.py:466
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:447
+#: evaluation/models.py:468
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:448
+#: evaluation/models.py:469
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:451
-#: evaluation/models.py:452
+#: evaluation/models.py:472
+#: evaluation/models.py:473
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evaluation/models.py:465
+#: evaluation/models.py:486
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:468
+#: evaluation/models.py:489
 msgid "Picture"
 msgstr "Foto"
 
-#: evaluation/models.py:474
+#: evaluation/models.py:495
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evaluation/models.py:479
+#: evaluation/models.py:500
 #: fsr/templates/fsr_user_index.html:51
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:480
+#: evaluation/models.py:501
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:483
+#: evaluation/models.py:504
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:484
+#: evaluation/models.py:505
 msgid "users"
 msgstr "Benutzer"
 
@@ -604,38 +617,59 @@ msgid "Strongly disagree"
 msgstr "Stimme nicht zu"
 
 #: evaluation/tools.py:17
+#: evaluation/tools.py:26
 msgid "no answer"
 msgstr "Keine Angabe"
 
 #: evaluation/tools.py:21
+msgid "1"
+msgstr "1"
+
+#: evaluation/tools.py:22
+msgid "2"
+msgstr "2"
+
+#: evaluation/tools.py:23
+msgid "3"
+msgstr "3"
+
+#: evaluation/tools.py:24
+msgid "4"
+msgstr "4"
+
+#: evaluation/tools.py:25
+msgid "5"
+msgstr "5"
+
+#: evaluation/tools.py:30
 msgid "new"
 msgstr "neu"
 
-#: evaluation/tools.py:22
+#: evaluation/tools.py:31
 msgid "prepared"
 msgstr "vorbereitet"
 
-#: evaluation/tools.py:23
+#: evaluation/tools.py:32
 msgid "lecturer approved"
 msgstr "von Dozent bestätigt"
 
-#: evaluation/tools.py:24
+#: evaluation/tools.py:33
 msgid "approved"
 msgstr "bestätigt"
 
-#: evaluation/tools.py:25
+#: evaluation/tools.py:34
 msgid "in evaluation"
 msgstr "in Evaluierung"
 
-#: evaluation/tools.py:26
+#: evaluation/tools.py:35
 msgid "evaluated"
 msgstr "evaluiert"
 
-#: evaluation/tools.py:27
+#: evaluation/tools.py:36
 msgid "reviewed"
 msgstr "überprüft"
 
-#: evaluation/tools.py:28
+#: evaluation/tools.py:37
 msgid "published"
 msgstr "veröffentlicht"
 
@@ -643,19 +677,11 @@ msgstr "veröffentlicht"
 msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
-#: evaluation/management/commands/create_user.py:15
-msgid "Enter a valid email address.\n"
-msgstr "Bitte geben Sie eine gültige E‑Mail-Adresse ein.\n"
-
-#: evaluation/management/commands/create_user.py:20
-msgid "Error: That username is invalid. Use only letters, digits and underscores.\n"
-msgstr "Fehler: Der Benutzername ist ungültig. Bitte nur Buchstaben, Ziffern und Unterstriche verwenden.\n"
-
-#: evaluation/management/commands/create_user.py:27
+#: evaluation/management/commands/create_user.py:25
 msgid "Error: That username is already taken.\n"
 msgstr "Fehler: Der Benutzername ist bereits vergeben.\n"
 
-#: evaluation/management/commands/create_user.py:32
+#: evaluation/management/commands/create_user.py:30
 msgid "Error: Please answer with yes or no\n"
 msgstr "Fehler: Bitte mit JA oder NEIN antworten\n"
 
@@ -908,7 +934,7 @@ msgstr "Erfolgreich %d Veranstaltungen auf Neu zurückgesetzt."
 #: fsr/views.py:200
 #, python-format
 msgid "Successfully approved %d courses."
-msgstr "Erfolgreich %d Veranstaltungen importiert."
+msgstr "Erfolgreich %d Veranstaltungen bestätigt."
 
 #: fsr/views.py:225
 #, python-format
@@ -1098,15 +1124,15 @@ msgstr "FAQ-Abschnitte"
 msgid "Save FAQ sections"
 msgstr "FAQ-Abschnitte speichern"
 
-#: fsr/templates/fsr_faq_section.html:59
+#: fsr/templates/fsr_faq_section.html:62
 msgid "Question/Answer (german)"
 msgstr "Frage/Antwort (deutsch)"
 
-#: fsr/templates/fsr_faq_section.html:60
+#: fsr/templates/fsr_faq_section.html:63
 msgid "Question/Answer (english)"
 msgstr "Fragetext/Antwort (englisch)"
 
-#: fsr/templates/fsr_faq_section.html:88
+#: fsr/templates/fsr_faq_section.html:91
 msgid "Save FAQ section"
 msgstr "FAQ-Abschnitt speichern"
 
@@ -1382,19 +1408,19 @@ msgstr "E‑Mail-Adresse fehlt!"
 msgid "This user cannot be deleted because he is a contributor to a course"
 msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: results/exporters.py:69
+#: results/exporters.py:85
 msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
 
-#: results/exporters.py:135
+#: results/exporters.py:155
 msgid "Overall Average Grade"
 msgstr "Gesamtdurchschnittsnote"
 
-#: results/exporters.py:149
+#: results/exporters.py:173
 msgid "Overall Median Grade"
 msgstr "Gesamtmediannote"
 
-#: results/exporters.py:163
+#: results/exporters.py:191
 msgid "Total Answers"
 msgstr "Antworten"
 
@@ -1403,10 +1429,15 @@ msgid "The results of this course have not been published because it didn't get 
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
 #: results/templates/results_course_detail.html:41
+#: results/templates/results_course_detail.html:67
 msgid "Answers given: "
 msgstr "Erhaltene Antworten: "
 
 #: results/templates/results_course_detail.html:60
+#: results/templates/results_course_detail.html:86
+#: results/templates/results_semester_detail.html:36
+#: results/templates/results_semester_detail.html:45
+#: results/templates/results_semester_detail.html:46
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
@@ -1438,15 +1469,15 @@ msgstr "Mediannote"
 msgid "Voters"
 msgstr "Wähler"
 
-#: results/templates/results_semester_detail.html:59
+#: results/templates/results_semester_detail.html:72
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: results/templates/results_semester_detail.html:60
+#: results/templates/results_semester_detail.html:73
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: student/views.py:74
+#: student/views.py:81
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
