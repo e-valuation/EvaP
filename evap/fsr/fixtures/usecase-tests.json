@@ -102,7 +102,7 @@
         "fields":{
             "text_de":"Q1",
             "text_en":"Q1 (en)",
-            "kind":"G",
+            "kind":"L",
             "_order":0,
             "questionnaire":1
         }

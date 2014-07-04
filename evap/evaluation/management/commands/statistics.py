@@ -2,7 +2,7 @@ from django.core import exceptions
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Semester, GradeAnswer
+from evap.evaluation.models import Semester, LikertAnswer
 
 class Command(BaseCommand):
     args = '<name of statistic> <semester id>'
@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def answer_histogram(self):
         import matplotlib.pyplot as plt
 
-        answers = GradeAnswer.objects.filter(contribution__course__semester=self.semester)
+        answers = LikertAnswer.objects.filter(contribution__course__semester=self.semester)
 
         fig = plt.figure()
         ax = fig.add_subplot(111)

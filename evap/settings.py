@@ -48,6 +48,13 @@ LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
 MIN_ANSWER_COUNT = 2
 MIN_ANSWER_PERCENTAGE = 0.2
 
+# the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
+# final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
+# final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
+# final = GP * final_grade + (1-GP) * final_likert
+GRADE_PERCENTAGE = 0.8
+CONTRIBUTION_PERCENTAGE = 0.5
+
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
 
