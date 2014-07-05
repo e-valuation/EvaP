@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-04 23:12+0200\n"
-"PO-Revision-Date: 2014-07-04 23:13+0100\n"
+"POT-Creation-Date: 2014-07-05 23:21+0200\n"
+"PO-Revision-Date: 2014-07-05 23:23+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -105,7 +105,7 @@ msgstr "Abbrechen"
 #: contributor/templates/contributor_index.html:89
 #: fsr/templates/fsr_questionnaire_index.html:40
 #: fsr/templates/fsr_questionnaire_index.html:83
-#: fsr/templates/fsr_semester_view.html:73
+#: fsr/templates/fsr_semester_view.html:74
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -227,6 +227,7 @@ msgid "Delegate"
 msgstr "Stellvertreter"
 
 #: contributor/templates/contributor_index.html:82
+#: fsr/templates/fsr_semester_view.html:89
 #: results/exporters.py:37
 #: results/templates/results_base.html:6
 #: results/templates/results_base.html:10
@@ -1216,7 +1217,7 @@ msgstr "Kopieren"
 #: fsr/templates/fsr_questionnaire_index.html:45
 #: fsr/templates/fsr_questionnaire_index.html:86
 #: fsr/templates/fsr_questionnaire_index.html:88
-#: fsr/templates/fsr_semester_view.html:75
+#: fsr/templates/fsr_semester_view.html:77
 #: fsr/templates/fsr_user_index.html:60
 #: fsr/templates/fsr_user_index.html:62
 msgid "Delete"
@@ -1331,39 +1332,44 @@ msgstr "Textantworten"
 msgid "Email"
 msgstr "E‑Mail"
 
-#: fsr/templates/fsr_semester_view.html:78
+#: fsr/templates/fsr_semester_view.html:80
 msgid "Review"
 msgstr "Überprüfen"
 
-#: fsr/templates/fsr_semester_view.html:81
+#: fsr/templates/fsr_semester_view.html:83
+#: fsr/templates/fsr_semester_view.html:87
 msgid "Comments"
 msgstr "Kommentare"
 
 #: fsr/templates/fsr_semester_view.html:84
+msgid "Result Preview"
+msgstr "Ergebnis-Vorschau"
+
+#: fsr/templates/fsr_semester_view.html:88
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: fsr/templates/fsr_semester_view.html:94
+#: fsr/templates/fsr_semester_view.html:99
 msgid "Enable courses for Lecturer Review..."
 msgstr "Zur Überprüfung durch Dozent freigeben..."
 
-#: fsr/templates/fsr_semester_view.html:97
+#: fsr/templates/fsr_semester_view.html:102
 msgid "Revert courses to New..."
 msgstr "Kurse auf Neu zurücksetzen..."
 
-#: fsr/templates/fsr_semester_view.html:100
+#: fsr/templates/fsr_semester_view.html:105
 msgid "Approve courses..."
 msgstr "Veranstaltungen bestätigen..."
 
-#: fsr/templates/fsr_semester_view.html:104
+#: fsr/templates/fsr_semester_view.html:109
 msgid "Re-Enable courses for Lecturer Review..."
 msgstr "Kurse erneut zur Überprüfung durch Dozent freigeben..."
 
-#: fsr/templates/fsr_semester_view.html:108
+#: fsr/templates/fsr_semester_view.html:113
 msgid "Publish courses..."
 msgstr "Veranstaltungen veröffentlichen..."
 
-#: fsr/templates/fsr_semester_view.html:116
+#: fsr/templates/fsr_semester_view.html:121
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
@@ -1425,16 +1431,20 @@ msgid "Total Answers"
 msgstr "Antworten"
 
 #: results/templates/results_course_detail.html:18
+msgid "This is a preview. The course is still in the process of evaluation."
+msgstr "Dies ist eine Vorschau. Die Lehrveranstaltung befindet sich noch im Prozess der Evaluierung."
+
+#: results/templates/results_course_detail.html:20
 msgid "The results of this course have not been published because it didn't get enough votes."
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
-#: results/templates/results_course_detail.html:41
-#: results/templates/results_course_detail.html:67
+#: results/templates/results_course_detail.html:43
+#: results/templates/results_course_detail.html:69
 msgid "Answers given: "
 msgstr "Erhaltene Antworten: "
 
-#: results/templates/results_course_detail.html:60
-#: results/templates/results_course_detail.html:86
+#: results/templates/results_course_detail.html:62
+#: results/templates/results_course_detail.html:88
 #: results/templates/results_semester_detail.html:36
 #: results/templates/results_semester_detail.html:45
 #: results/templates/results_semester_detail.html:46

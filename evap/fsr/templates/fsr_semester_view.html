@@ -70,18 +70,23 @@
                         {% endif %}
                         <td class="minimize">
                             <a href="{% url "evap.fsr.views.course_email" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
-                            <a href="{% url "evap.fsr.views.course_preview" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                            {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
+                                <a href="{% url "evap.fsr.views.course_preview" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                            {% endif %}
                             {% if course.can_fsr_delete %}
                                 <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if course.can_fsr_review %}
                                 <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Review" %}</a>
                             {% endif %}
-                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
                                 <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
+                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Result Preview" %}" class="btn btn-sm btn-default">{% trans "Result Preview" %}</a>
                             {% endif %}
                             {% if state == 'published' %}
+                                <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
                                 <a href="{% url "evap.fsr.views.course_unpublish" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
+                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                             {% endif %}
                         </td>
                     </tr>
