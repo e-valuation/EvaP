@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-05 23:21+0200\n"
-"PO-Revision-Date: 2014-07-05 23:23+0100\n"
+"POT-Creation-Date: 2014-07-05 23:43+0200\n"
+"PO-Revision-Date: 2014-07-11 11:39+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1342,7 +1342,7 @@ msgid "Comments"
 msgstr "Kommentare"
 
 #: fsr/templates/fsr_semester_view.html:84
-msgid "Result Preview"
+msgid "Preview results"
 msgstr "Ergebnis-Vorschau"
 
 #: fsr/templates/fsr_semester_view.html:88

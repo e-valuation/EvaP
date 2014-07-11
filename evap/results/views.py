@@ -85,12 +85,14 @@ def course_detail(request, semester_id, course_id):
         sections = [section for section in sections if section.results]
 
     # show a warning if course is still in evaluation (for staff preview)
-    evaluation_warning = course.state != 'published' and request.user.is_staff
+    evaluation_warning = course.state != 'published'
 
     # check whether course has a sufficient number of votes for publishing it
     sufficient_votes = course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
-        # show a publishing warning to fsr members when the results are not publicly available
+    # results for a course might not be visible because there are not enough answers
+    # but it can still be "published" e.g. to show the comment results to lecturers
+    # the FSR can still see all results but gets a warning message
     sufficient_votes_warning = (not sufficient_votes) and request.user.is_staff
 
     return render_to_response(
