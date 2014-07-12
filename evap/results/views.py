@@ -63,7 +63,13 @@ def semester_export(request, semester_id):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
+    
+    # staff can see preview of results even when course is not published
+    if request.user.is_staff:
+        course = get_object_or_404(semester.course_set.filter(state__in=['inEvaluation', 'evaluated', 'reviewed', 'published']), id=course_id)
+    # everyone else can only see published results
+    else:
+        course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
 
     sections = calculate_results(course, request.user.is_staff)
 
@@ -78,18 +84,24 @@ def course_detail(request, semester_id, course_id):
         # remove empty sections
         sections = [section for section in sections if section.results]
 
-    # check whether results are published
-    published = course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE
+    # show a warning if course is still in evaluation (for staff preview)
+    evaluation_warning = course.state != 'published'
 
-    # show a publishing warning to fsr members when the results are not publicly available
-    warning = (not published) and request.user.is_staff
+    # check whether course has a sufficient number of votes for publishing it
+    sufficient_votes = course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE
+
+    # results for a course might not be visible because there are not enough answers
+    # but it can still be "published" e.g. to show the comment results to lecturers
+    # the FSR can still see all results but gets a warning message
+    sufficient_votes_warning = (not sufficient_votes) and request.user.is_staff
 
     return render_to_response(
         "results_course_detail.html",
         dict(
             course=course,
             sections=sections,
-            warning=warning
+            evaluation_warning=evaluation_warning,
+            sufficient_votes_warning=sufficient_votes_warning
         ),
         context_instance=RequestContext(request))
 

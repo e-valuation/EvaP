@@ -14,7 +14,9 @@
     {{ block.super }}
     {% regroup sections by questionnaire as sections_grouped %}
 
-    {% if warning %}
+    {% if evaluation_warning %}
+        <div class="alert alert-warning">{% trans "This is a preview. The course is still in the process of evaluation." %}</div>
+    {% elif sufficient_votes_warning %}
         <div class="alert alert-warning">{% trans "The results of this course have not been published because it didn't get enough votes." %}</div>
     {% endif %}
 
