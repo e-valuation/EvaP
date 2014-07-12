@@ -77,7 +77,7 @@
                                 <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if course.can_fsr_review %}
-                                <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Review" %}</a>
+                                <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-primary">{% trans "Review" %}</a>
                             {% endif %}
                             {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
                                 <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
