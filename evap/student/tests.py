@@ -14,12 +14,12 @@ class VoteTests(TestCase):
             return self.client.get(reverse('evap.student.views.vote', kwargs={'course_id': course.id}))
         response = get_vote_page() 
         tutorUser = User.objects.get(username='tutor')
-        for form in response.context['forms']:
-            self.assertNotEquals(form.contribution.contributor, tutorUser,
+        for contributor in response.context['contributor_questionnaires']:
+            self.assertNotEquals(contributor.user, tutorUser,
                     "Contributor should not see the questionnaire about themselves")
         self.client.logout()
         if not self.client.login(username='student', password='student'):
             self.fail('Fixture error: student user could not log in')
         response = get_vote_page()
-        self.assertTrue(any(form.contribution.contributor == tutorUser for form in response.context['forms']),
+        self.assertTrue(any(contributor.user == tutorUser for contributor in response.context['contributor_questionnaires']),
                 "Regular students should see the questionnaire about a contributor")
