@@ -15,27 +15,76 @@
     {{ block.super }}
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
-
-        {% for form in forms %}
-            {% if form.image %}
-                <img src="{{ MEDIA_URL }}{{ form.image }}" height="100px" />
-            {% endif %}
-            <h4>{{ form.caption }}</h4>
-            {% if form.teaser %}
-                <p>{{ form.teaser }}</p>
-            {% endif %}
-            {{ form.non_field_errors }}
-            <table class="table table-striped">
-                <tbody>
-                    {% for field in form %}
-                        <tr class="vote-row">
-                            <td>{{ field.label }}</td>
-                            <td class="col-sm-8 vote-inputs">{{ field.errors }}{{ field }}</td>
-                        </tr>
+        
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Questions about the course" %}</h3>
+            </div>
+            <div class="panel-body">
+                {% for form in course_forms %}
+                    <h4>{{ form.caption }}</h4>
+                    {% if form.teaser %}
+                        <p>{{ form.teaser }}</p>
+                    {% endif %}
+                    {{ form.non_field_errors }}
+                    <table class="table table-striped">
+                        <tbody>
+                            {% for field in form %}
+                                <tr class="vote-row">
+                                    <td>{{ field.label }}</td>
+                                    <td class="col-sm-8 vote-inputs">{{ field.errors }}{{ field }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{% trans "Questions about the contributors" %}</h3>
+                </div>
+                <div class="panel-body">
+                    <p>{% trans "Please vote for all contributors you worked with (click to open)." %}</p>
+                    {% for contributor,forms in contributor_questionnaires.items %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
+                                </h3>
+                            </div>
+                            <script type="text/javascript">
+                                document.write('<div id="{{ contributor.id }}" class="panel-collapse collapse">');
+                            </script>
+                            <noscript>
+                                <div id="{{ contributor.id }}" class="panel-collapse collapse in">
+                            </noscript>
+                                <div class="panel-body">
+                                    {% for form in forms %}
+                                        <h4>{{ form.caption }}</h4>
+                                        {% if form.teaser %}
+                                            <p>{{ form.teaser }}</p>
+                                        {% endif %}
+                                        {{ form.non_field_errors }}
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                {% for field in form %}
+                                                    <tr class="vote-row">
+                                                        <td>{{ field.label }}</td>
+                                                        <td class="col-sm-8 vote-inputs">{{ field.errors }}{{ field }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                     {% endfor %}
-                </tbody>
-            </table>
-        {% endfor %}
+                </div>
+            </div>
+        </div>
         <div class="form-group well">
             <div class="col-sm-offset-3 col-sm-6">
                 <input type="submit" value="{% trans "Vote" %}" class="btn btn-success" onclick="submitFormOkay = true;"/>
