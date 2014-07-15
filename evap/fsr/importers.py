@@ -173,3 +173,70 @@ class ExcelImporter(object):
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+
+
+class ExcelUserImporter(object):
+    def __init__(self, request):
+        self.associations = SortedDict()
+        self.request = request
+
+    def read_file(self, excel_file):
+        """Reads an excel file and stores all user data."""
+
+        book = xlrd.open_workbook(file_contents=excel_file.read())
+
+        # read the file row by row, sheet by sheet
+        for sheet in book.sheets():
+            try:
+                for row in range(1, sheet.nrows):
+                    data = sheet.row_values(row)
+                    if len(data) == 5:
+                        # assign data to data objects
+                        user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
+
+                        # store data objects together with the data source location for problem tracking
+                        self.associations[(sheet.name, row)] = (user_data)
+                    else:
+                        messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet.name, row=row, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
+                messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
+            except:
+                messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
+                raise
+        messages.info(self.request, _(u"Successfully read excel file."))
+
+    def save_to_db(self):
+        """Stores the read data in the database. Errors might still
+        occur because of the data already in the database."""
+
+        with transaction.commit_on_success():
+            users_count = 0
+            for (sheet, row), (user_data) in self.associations.items():
+                try:
+                    # create or retrieve database objects
+                    try:
+                        user = User.objects.get(username__iexact=user_data.username)
+                        user_data.update(user)
+                    except User.DoesNotExist:
+                        user = user_data.store_in_database()
+                        users_count += 1
+
+                except Exception, e:
+                    messages.warning(self.request, _("A problem occured while writing the entries to the database. " \
+                                                     "The original data location was row %(row)d of sheet '%(sheet)s'. " \
+                                                     "The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
+                    raise
+            messages.info(self.request, _("Successfully created %(users)d user(s).") %
+                                            dict(users=users_count))
+
+    @classmethod
+    def process(cls, request, excel_file):
+        """Entry point for the view."""
+        try:
+            importer = cls(request)
+            importer.read_file(excel_file)
+            importer.save_to_db()
+        except Exception, e:
+            messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
+            if settings.DEBUG:
+                # re-raise error for further introspection if in debug mode
+                raise
