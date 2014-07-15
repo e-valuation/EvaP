@@ -39,7 +39,6 @@
         <div class="form-group well">
             <div class="col-sm-offset-3 col-sm-6">
                 <input type="submit" value="{% trans "Vote" %}" class="btn btn-success" onclick="submitFormOkay = true;"/>
-                <a class="btn btn-default" onclick="markNoAnswer();">{% trans "Mark others as 'no answer'" %}</a>
             </div>
         </div>
     </form>
@@ -48,15 +47,4 @@
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
-    <script type="text/javascript">
-    function markNoAnswer() {
-        $("td.vote-inputs").each(function(index) {
-        if($(this).find("input:radio").length == 6) {
-            if($(this).find("input:radio:checked").length == 0) {
-            $(this).find("input:radio")[5].checked = true;
-            }
-        }
-        });
-    }
-    </script>
 {% endblock %}
