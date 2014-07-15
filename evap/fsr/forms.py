@@ -24,7 +24,7 @@ class ImportForm(forms.Form, BootstrapMixin):
     excel_file = forms.FileField(label=_(u"Excel file"))
 
 
-class ImportUserForm(forms.Form, BootstrapMixin):
+class UserImportForm(forms.Form, BootstrapMixin):
     excel_file = forms.FileField(label=_(u"Excel file"))
 
 
