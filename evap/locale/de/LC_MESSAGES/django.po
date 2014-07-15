@@ -1504,7 +1504,7 @@ msgstr "Semester als Excel-Tabelle exportieren"
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: student/views.py:76
+#: student/views.py:86
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -1570,13 +1570,21 @@ msgstr "FAQ/Verweise"
 msgid "Your comments will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
 msgstr "Deine Kommentare werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die Durchschnitts- und Median-Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
-#: student/templates/student_vote.html:41
+#: student/templates/student_vote.html:21
+msgid "Questions about the course"
+msgstr "Fragen zur Lehrveranstaltung"
+
+#: student/templates/student_vote.html:46
+msgid "Questions about the contributors"
+msgstr "Fragen zu den Mitwirkenden"
+
+#: student/templates/student_vote.html:49
+msgid "Please vote for all contributors you worked with (click to open)."
+msgstr "Bitte bewerte alle Mitwirkenden, mit denen du zu tun hattest."
+
+#: student/templates/student_vote.html:90
 msgid "Vote"
 msgstr "Abstimmen"
-
-#: student/templates/student_vote.html:42
-msgid "Mark others as 'no answer'"
-msgstr "Alle anderen mit 'keine Angabe' beantworten"
 
 #: templates/403.html:15
 msgid "You seem to not be allowed to view this page."

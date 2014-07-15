@@ -58,14 +58,7 @@ class QuestionsForm(forms.Form):
             self.fields[identifier] = field
 
     def caption(self):
-        if self.contribution.contributor:
-            try:
-                full_name = UserProfile.objects.get(user=self.contribution.contributor).full_name
-            except UserProfile.DoesNotExist:
-                full_name = self.contribution.contributor.get_full_name() or self.contribution.contributor.username
-            return u"%s: %s" % (full_name, self.questionnaire.public_name)
-        else:
-            return self.questionnaire.public_name
+        return self.questionnaire.public_name
 
     def teaser(self):
         return self.questionnaire.teaser
