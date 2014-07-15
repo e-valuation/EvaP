@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-05 23:43+0200\n"
-"PO-Revision-Date: 2014-07-11 11:39+0100\n"
+"POT-Creation-Date: 2014-07-12 23:30+0200\n"
+"PO-Revision-Date: 2014-07-12 23:31+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1438,18 +1438,54 @@ msgstr "Dies ist eine Vorschau. Die Lehrveranstaltung befindet sich noch im Proz
 msgid "The results of this course have not been published because it didn't get enough votes."
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
-#: results/templates/results_course_detail.html:43
-#: results/templates/results_course_detail.html:69
-msgid "Answers given: "
-msgstr "Erhaltene Antworten: "
+#: results/templates/results_course_detail.html:27
+#: templates/base.html:52
+msgid "Overview"
+msgstr "Übersicht"
 
-#: results/templates/results_course_detail.html:62
-#: results/templates/results_course_detail.html:88
+#: results/templates/results_course_detail.html:33
+msgid "Degree"
+msgstr "Studiengang"
+
+#: results/templates/results_course_detail.html:34
+#: results/templates/results_semester_detail.html:22
+msgid "Type"
+msgstr "Typ"
+
+#: results/templates/results_course_detail.html:35
+#: results/templates/results_semester_detail.html:23
+msgid "Lecturer"
+msgstr "Dozent"
+
+#: results/templates/results_course_detail.html:36
+#: results/templates/results_semester_detail.html:24
+msgid "Average Grade"
+msgstr "Durchschnittsnote"
+
+#: results/templates/results_course_detail.html:37
+#: results/templates/results_semester_detail.html:25
+msgid "Median Grade"
+msgstr "Mediannote"
+
+#: results/templates/results_course_detail.html:38
+#: results/templates/results_semester_detail.html:26
+msgid "Voters"
+msgstr "Wähler"
+
+#: results/templates/results_course_detail.html:51
+#: results/templates/results_course_detail.html:52
+#: results/templates/results_course_detail.html:120
+#: results/templates/results_course_detail.html:146
 #: results/templates/results_semester_detail.html:36
 #: results/templates/results_semester_detail.html:45
 #: results/templates/results_semester_detail.html:46
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
+
+#: results/templates/results_course_detail.html:101
+#: results/templates/results_course_detail.html:127
+msgid "Answers given: "
+msgstr "Erhaltene Antworten: "
 
 #: results/templates/results_index.html:16
 msgid "No results available yet"
@@ -1458,26 +1494,6 @@ msgstr "Es sind noch keine Ergebnisse verfügbar."
 #: results/templates/results_semester_detail.html:21
 msgid "Course"
 msgstr "Veranstaltung"
-
-#: results/templates/results_semester_detail.html:22
-msgid "Type"
-msgstr "Typ"
-
-#: results/templates/results_semester_detail.html:23
-msgid "Lecturer"
-msgstr "Dozent"
-
-#: results/templates/results_semester_detail.html:24
-msgid "Average Grade"
-msgstr "Durchschnittsnote"
-
-#: results/templates/results_semester_detail.html:25
-msgid "Median Grade"
-msgstr "Mediannote"
-
-#: results/templates/results_semester_detail.html:26
-msgid "Voters"
-msgstr "Wähler"
 
 #: results/templates/results_semester_detail.html:72
 msgid "Export semester as Excel table"
@@ -1576,10 +1592,6 @@ msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert u
 #: templates/base.html:38
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
-
-#: templates/base.html:52
-msgid "Overview"
-msgstr "Übersicht"
 
 #: templates/base.html:65
 msgid "My courses"

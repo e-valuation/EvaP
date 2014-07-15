@@ -95,6 +95,9 @@ def course_detail(request, semester_id, course_id):
     # the FSR can still see all results but gets a warning message
     sufficient_votes_warning = (not sufficient_votes) and request.user.is_staff
 
+    course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
+    course.can_publish_grades = can_publish_grades(course, request.user.is_staff)
+
     return render_to_response(
         "results_course_detail.html",
         dict(
