@@ -13,6 +13,9 @@
 
 {% block content %}
     {{ block.super }}
+    {% if errors %}
+        <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all contributors or click on "I can't give feedback" to skip a person.{% endblocktrans %}</div>
+    {% endif %}
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
         
@@ -46,20 +49,20 @@
                     <h3 class="panel-title">{% trans "Questions about the contributors" %}</h3>
                 </div>
                 <div class="panel-body">
-                    <p>{% trans "Please vote for all contributors you worked with (click to open)." %}</p>
+                    <div class="bs-callout bs-callout-info">
+                        {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
+                    </div>
                     {% for contributor,forms in contributor_questionnaires.items %}
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                <h3 class="panel-title">
-                                    <a data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
-                                </h3>
+                                <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
+                                <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                             </div>
-                            <script type="text/javascript">
-                                document.write('<div id="{{ contributor.id }}" class="panel-collapse collapse">');
-                            </script>
-                            <noscript>
+                            {% if contributor.id in errors %}
                                 <div id="{{ contributor.id }}" class="panel-collapse collapse in">
-                            </noscript>
+                            {% else %}
+                                <div id="{{ contributor.id }}" class="panel-collapse collapse in">
+                            {% endif %}
                                 <div class="panel-body">
                                     {% for form in forms %}
                                         <h4>{{ form.caption }}</h4>
@@ -96,4 +99,26 @@
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+    <script type="text/javascript">
+        function markNoAnswer() {
+            $("td.vote-inputs").each(function(index) {
+            if($(this).find("input:radio").length == 6) {
+                if($(this).find("input:radio:checked").length == 0) {
+                    $(this).find("input:radio")[5].checked = true;
+                }
+            }
+            });
+        }
+
+        function markNoAnswerFor(contributorId) {
+            $("#" + contributorId + " td.vote-inputs").each(function(index) {
+                if($(this).find("input:radio").length == 6) {
+                    if($(this).find("input:radio:checked").length == 0) {
+                        $(this).find("input:radio")[5].checked = true;
+                    }
+                }
+            });
+            $("#" + contributorId).collapse('hide');
+        }
+    </script>
 {% endblock %}

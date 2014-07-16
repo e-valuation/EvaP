@@ -58,49 +58,56 @@ def vote(request, course_id):
             for question in questionnaire.question_set.all():
                 identifier = make_form_identifier(contribution, questionnaire, question)
 
-    if all(form.is_valid() for form in form_group[contributor].values() for contributor in form_group):
-        # begin vote operation
-        with transaction.commit_on_success():
-            for contributor in form_group:
-                for (contribution, questionnaire), form in form_group[contributor].items():
-                    for question in questionnaire.question_set.all():
-                        identifier = make_form_identifier(contribution, questionnaire, question)
-                        value = form.cleaned_data.get(identifier)
+    for contributor in form_group:
+        for form in form_group[contributor].values():
+            if not form.is_valid():
+                course_forms = []
+                contributor_questionnaires = {}
+                errors = []
 
-                        if type(value) in [str, unicode]:
-                            value = value.strip()
+                for form in form_group[None].values():
+                    course_forms.append(form)
 
-                        if value == 6: #no answer
-                            value = None
+                for contributor in form_group:
+                    if contributor != None:
+                        user_profile = UserProfile.get_for_user(contributor)
+                        contributor_questionnaires[user_profile] = form_group[contributor].values()
+                        for form in form_group[contributor].values():
+                            if form.errors:
+                                errors.append(contributor.id)
 
-                        # store the answer if one was given
-                        if value:
-                            question.answer_class.objects.create(
-                                contribution=contribution,
-                                question=question,
-                                answer=value)
+                return render_to_response(
+                    "student_vote.html",
+                    dict(course_forms=course_forms,
+                         contributor_questionnaires=contributor_questionnaires,
+                         errors=errors,
+                         course=course),
+                    context_instance=RequestContext(request))
 
-            # remember that the user voted already
-            course.voters.add(request.user)
-
-        messages.add_message(request, messages.INFO, _("Your vote was recorded."))
-        return redirect('evap.student.views.index')
-    else:
-        course_forms = []
-        contributor_questionnaires = {}
-
-        for form in form_group[None].values():
-            print form
-            course_forms.append(form)
-
+    # all forms are valid
+    # begin vote operation
+    with transaction.commit_on_success():
         for contributor in form_group:
-            if contributor != None:
-                user_profile = UserProfile.get_for_user(contributor)
-                contributor_questionnaires[user_profile] = form_group[contributor].values()
+            for (contribution, questionnaire), form in form_group[contributor].items():
+                for question in questionnaire.question_set.all():
+                    identifier = make_form_identifier(contribution, questionnaire, question)
+                    value = form.cleaned_data.get(identifier)
 
-        return render_to_response(
-            "student_vote.html",
-            dict(course_forms=course_forms,
-                 contributor_questionnaires=contributor_questionnaires,
-                 course=course),
-            context_instance=RequestContext(request))
+                    if type(value) in [str, unicode]:
+                        value = value.strip()
+
+                    if value == 6: #no answer
+                        value = None
+
+                    # store the answer if one was given
+                    if value:
+                        question.answer_class.objects.create(
+                            contribution=contribution,
+                            question=question,
+                            answer=value)
+
+        # remember that the user voted already
+        course.voters.add(request.user)
+
+    messages.add_message(request, messages.INFO, _("Your vote was recorded."))
+    return redirect('evap.student.views.index')

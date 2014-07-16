@@ -42,13 +42,11 @@ class QuestionsForm(forms.Form):
             elif question.is_likert_question():
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
                                                choices=LIKERT_CHOICES,
-                                               initial=6, # no answer
                                                coerce=int,
                                                **field_args)
             elif question.is_grade_question():
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
                                                choices=GRADE_CHOICES,
-                                               initial=6, # no answer
                                                coerce=int,
                                                **field_args)
 
