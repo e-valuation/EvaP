@@ -6,7 +6,7 @@ from django.utils.translation import get_language
 
 from evap.evaluation.auth import login_required, fsr_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult, can_publish_grades
+from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
 
 from evap.results.exporters import ExcelExporter
 
@@ -30,13 +30,13 @@ def semester_detail(request, semester_id):
     for course in courses:
         # first, make sure that there are no preexisting grade attributes
         course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
-        course.can_publish_grades = can_publish_grades(course, request.user.is_staff)
 
     return render_to_response(
         "results_semester_detail.html",
         dict(
             semester=semester,
-            courses=courses
+            courses=courses,
+            staff=request.user.is_staff
         ),
         context_instance=RequestContext(request))
 
@@ -95,13 +95,16 @@ def course_detail(request, semester_id, course_id):
     # the FSR can still see all results but gets a warning message
     sufficient_votes_warning = (not sufficient_votes) and request.user.is_staff
 
+    course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
+
     return render_to_response(
         "results_course_detail.html",
         dict(
             course=course,
             sections=sections,
             evaluation_warning=evaluation_warning,
-            sufficient_votes_warning=sufficient_votes_warning
+            sufficient_votes_warning=sufficient_votes_warning,
+            staff=request.user.is_staff
         ),
         context_instance=RequestContext(request))
 

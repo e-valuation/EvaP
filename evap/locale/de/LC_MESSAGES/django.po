@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-05 23:43+0200\n"
-"PO-Revision-Date: 2014-07-11 11:39+0100\n"
+"POT-Creation-Date: 2014-07-15 21:03+0200\n"
+"PO-Revision-Date: 2014-07-15 21:04+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -77,7 +77,7 @@ msgid "Remove?"
 msgstr "Entfernen?"
 
 #: contributor/templates/contributor_course_form.html:45
-#: evaluation/models.py:322
+#: evaluation/models.py:327
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -131,7 +131,7 @@ msgid "Evaluation info"
 msgstr "Evaluierungs-Infos"
 
 #: contributor/templates/contributor_index.html:25
-#: evaluation/models.py:492
+#: evaluation/models.py:497
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -386,7 +386,7 @@ msgid "questionnaire"
 msgstr "Fragebogen"
 
 #: evaluation/models.py:81
-#: evaluation/models.py:320
+#: evaluation/models.py:325
 msgid "questionnaires"
 msgstr "Fragebögen"
 
@@ -423,7 +423,7 @@ msgid "last date to vote"
 msgstr "letzter Abstimmungstag"
 
 #: evaluation/models.py:133
-#: evaluation/models.py:318
+#: evaluation/models.py:323
 msgid "course"
 msgstr "Veranstaltung"
 
@@ -435,165 +435,169 @@ msgstr "Veranstaltungen"
 msgid "The vote start date must be before the vote end date."
 msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
-#: evaluation/models.py:286
+#: evaluation/models.py:289
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:319
+#: evaluation/models.py:291
+msgid "Not enough participants to publish results"
+msgstr "Nicht genügend Teilnehmer für Veröffentlichung"
+
+#: evaluation/models.py:324
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:323
+#: evaluation/models.py:328
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:342
+#: evaluation/models.py:347
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:343
+#: evaluation/models.py:348
 msgid "Likert Question"
 msgstr "Likert-Frage"
 
-#: evaluation/models.py:344
+#: evaluation/models.py:349
 msgid "Grade Question"
 msgstr "Bewertungsfrage"
 
-#: evaluation/models.py:348
+#: evaluation/models.py:353
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:349
+#: evaluation/models.py:354
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:351
+#: evaluation/models.py:356
 msgid "kind of question"
 msgstr "Frageart"
 
-#: evaluation/models.py:357
-#: evaluation/models.py:478
+#: evaluation/models.py:362
+#: evaluation/models.py:483
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:358
-#: evaluation/models.py:479
+#: evaluation/models.py:363
+#: evaluation/models.py:484
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:391
-#: evaluation/models.py:399
-#: evaluation/models.py:409
+#: evaluation/models.py:396
+#: evaluation/models.py:404
+#: evaluation/models.py:414
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:392
+#: evaluation/models.py:397
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:402
+#: evaluation/models.py:407
 msgid "Likert answer"
 msgstr "Likert-Antwort"
 
-#: evaluation/models.py:403
+#: evaluation/models.py:408
 msgid "Likert answers"
 msgstr "Likert-Antworten"
 
-#: evaluation/models.py:412
+#: evaluation/models.py:417
 msgid "grade answer"
 msgstr "Bewertungs-Antwort"
 
-#: evaluation/models.py:413
+#: evaluation/models.py:418
 msgid "grade answers"
 msgstr "Bewertungs-Antworten"
 
-#: evaluation/models.py:422
+#: evaluation/models.py:427
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:423
+#: evaluation/models.py:428
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: evaluation/models.py:425
+#: evaluation/models.py:430
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: evaluation/models.py:426
+#: evaluation/models.py:431
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: evaluation/models.py:429
+#: evaluation/models.py:434
 msgid "text answer"
 msgstr "Text-Antwort"
 
-#: evaluation/models.py:430
+#: evaluation/models.py:435
 msgid "text answers"
 msgstr "Text-Antworten"
 
-#: evaluation/models.py:447
+#: evaluation/models.py:452
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:449
+#: evaluation/models.py:454
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evaluation/models.py:450
+#: evaluation/models.py:455
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evaluation/models.py:455
+#: evaluation/models.py:460
 msgid "section"
 msgstr "Abschnitt"
 
-#: evaluation/models.py:456
+#: evaluation/models.py:461
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evaluation/models.py:466
+#: evaluation/models.py:471
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:468
+#: evaluation/models.py:473
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:469
+#: evaluation/models.py:474
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:472
-#: evaluation/models.py:473
+#: evaluation/models.py:477
+#: evaluation/models.py:478
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evaluation/models.py:486
+#: evaluation/models.py:491
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:489
+#: evaluation/models.py:494
 msgid "Picture"
 msgstr "Foto"
 
-#: evaluation/models.py:495
+#: evaluation/models.py:500
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evaluation/models.py:500
+#: evaluation/models.py:505
 #: fsr/templates/fsr_user_index.html:51
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:501
+#: evaluation/models.py:506
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:504
+#: evaluation/models.py:509
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:505
+#: evaluation/models.py:510
 msgid "users"
 msgstr "Benutzer"
 
@@ -858,12 +862,12 @@ msgstr "EvaP-Administrator"
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:381
+#: fsr/forms.py:375
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:405
+#: fsr/forms.py:393
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -1403,6 +1407,8 @@ msgid "Student Representative"
 msgstr "FSR-Mitglied"
 
 #: fsr/templates/fsr_user_index.html:48
+#: results/templates/results_course_detail.html:35
+#: results/templates/results_semester_detail.html:23
 msgid "Responsible"
 msgstr "Verantwortlicher"
 
@@ -1438,18 +1444,49 @@ msgstr "Dies ist eine Vorschau. Die Lehrveranstaltung befindet sich noch im Proz
 msgid "The results of this course have not been published because it didn't get enough votes."
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
-#: results/templates/results_course_detail.html:43
-#: results/templates/results_course_detail.html:69
-msgid "Answers given: "
-msgstr "Erhaltene Antworten: "
+#: results/templates/results_course_detail.html:27
+#: templates/base.html:52
+msgid "Overview"
+msgstr "Übersicht"
 
-#: results/templates/results_course_detail.html:62
-#: results/templates/results_course_detail.html:88
+#: results/templates/results_course_detail.html:33
+msgid "Degree"
+msgstr "Studiengang"
+
+#: results/templates/results_course_detail.html:34
+#: results/templates/results_semester_detail.html:22
+msgid "Type"
+msgstr "Typ"
+
+#: results/templates/results_course_detail.html:36
+#: results/templates/results_semester_detail.html:24
+msgid "Average Grade"
+msgstr "Durchschnittsnote"
+
+#: results/templates/results_course_detail.html:37
+#: results/templates/results_semester_detail.html:25
+msgid "Median Grade"
+msgstr "Mediannote"
+
+#: results/templates/results_course_detail.html:38
+#: results/templates/results_semester_detail.html:26
+msgid "Voters"
+msgstr "Wähler"
+
+#: results/templates/results_course_detail.html:51
+#: results/templates/results_course_detail.html:52
+#: results/templates/results_course_detail.html:120
+#: results/templates/results_course_detail.html:146
 #: results/templates/results_semester_detail.html:36
 #: results/templates/results_semester_detail.html:45
 #: results/templates/results_semester_detail.html:46
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
+
+#: results/templates/results_course_detail.html:101
+#: results/templates/results_course_detail.html:127
+msgid "Answers given: "
+msgstr "Erhaltene Antworten: "
 
 #: results/templates/results_index.html:16
 msgid "No results available yet"
@@ -1458,26 +1495,6 @@ msgstr "Es sind noch keine Ergebnisse verfügbar."
 #: results/templates/results_semester_detail.html:21
 msgid "Course"
 msgstr "Veranstaltung"
-
-#: results/templates/results_semester_detail.html:22
-msgid "Type"
-msgstr "Typ"
-
-#: results/templates/results_semester_detail.html:23
-msgid "Lecturer"
-msgstr "Dozent"
-
-#: results/templates/results_semester_detail.html:24
-msgid "Average Grade"
-msgstr "Durchschnittsnote"
-
-#: results/templates/results_semester_detail.html:25
-msgid "Median Grade"
-msgstr "Mediannote"
-
-#: results/templates/results_semester_detail.html:26
-msgid "Voters"
-msgstr "Wähler"
 
 #: results/templates/results_semester_detail.html:72
 msgid "Export semester as Excel table"
@@ -1577,10 +1594,6 @@ msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert u
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:52
-msgid "Overview"
-msgstr "Übersicht"
-
 #: templates/base.html:65
 msgid "My courses"
 msgstr "Veranstaltungen"
@@ -1620,4 +1633,3 @@ msgstr "Angemeldet als"
 #: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-
