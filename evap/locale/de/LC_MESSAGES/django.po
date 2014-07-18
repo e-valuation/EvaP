@@ -441,7 +441,7 @@ msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
 #: evaluation/models.py:291
 msgid "Not enough participants to publish results"
-msgstr "Nicht genügend Teilnehmer für Veröffentlichung"
+msgstr "Zu wenig Teilnehmer für Veröffentlichung"
 
 #: evaluation/models.py:324
 msgid "contributor"
