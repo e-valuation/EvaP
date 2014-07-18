@@ -30,7 +30,7 @@
             {% for course in degree.list %}
                 <tr>
                     <td class="col-sm-4">
-                    {% if course.can_publish_grades %}
+                    {% if staff or course.can_publish_grades %}
                         <a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course.name }}</a>
                     {% else %}                       
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
@@ -38,7 +38,7 @@
                     </td>
                     <td class="col-sm-2">{{ course.kind }}</td>
                     <td class="col-sm-3">{{ course.responsible_contributors_name }}</td>
-                    {% if course.can_publish_grades %}
+                    {% if staff or course.can_publish_grades %}
                         <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>
                         <td class="col-sm-1">{{ course.med_grade|floatformat:1 }}</td>
                     {% else %}

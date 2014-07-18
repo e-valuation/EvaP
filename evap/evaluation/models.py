@@ -171,6 +171,9 @@ class Course(models.Model):
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
 
+    def can_publish_grades(self):
+        return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
+
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
         if send_mail:
@@ -284,6 +287,8 @@ class Course(models.Model):
         result = []
         if not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
+        if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades():
+            result.append(_(u"Not enough participants to publish results"))
         return result
 
     @property

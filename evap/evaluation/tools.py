@@ -53,11 +53,6 @@ def avg(iterable):
         return None
     return float(sum(items)) / len(items)
 
-
-def can_publish_grades(course, staff_member=False):
-    return staff_member or (course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE)
-
-
 def med(iterable):
     """Simple arithmetic median function. Returns `None` if the length of
     `iterable` is 0 or no items except None exist."""
@@ -95,7 +90,7 @@ def calculate_results(course, staff_member=False):
         return prior_results
 
     # check if grades for the course will be published
-    show = can_publish_grades(course, staff_member)
+    show = staff_member or course.can_publish_grades()
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
