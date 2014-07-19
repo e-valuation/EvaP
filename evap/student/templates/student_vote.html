@@ -100,24 +100,8 @@
     {{ block.super }}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
     <script type="text/javascript">
-        function markNoAnswer() {
-            $("td.vote-inputs").each(function(index) {
-            if($(this).find("input:radio").length == 6) {
-                if($(this).find("input:radio:checked").length == 0) {
-                    $(this).find("input:radio")[5].checked = true;
-                }
-            }
-            });
-        }
-
         function markNoAnswerFor(contributorId) {
-            $("#" + contributorId + " td.vote-inputs").each(function(index) {
-                if($(this).find("input:radio").length == 6) {
-                    if($(this).find("input:radio:checked").length == 0) {
-                        $(this).find("input:radio")[5].checked = true;
-                    }
-                }
-            });
+            $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").prop('checked', true);
             $("#" + contributorId).collapse('hide');
         }
     </script>
