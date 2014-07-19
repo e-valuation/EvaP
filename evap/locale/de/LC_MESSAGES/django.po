@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-15 21:03+0200\n"
-"PO-Revision-Date: 2014-07-15 21:04+0100\n"
+"POT-Creation-Date: 2014-07-20 00:18+0200\n"
+"PO-Revision-Date: 2014-07-20 00:19+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1504,7 +1504,7 @@ msgstr "Semester als Excel-Tabelle exportieren"
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: student/views.py:86
+#: student/views.py:112
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -1570,19 +1570,27 @@ msgstr "FAQ/Verweise"
 msgid "Your comments will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
 msgstr "Deine Kommentare werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die Durchschnitts- und Median-Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
-#: student/templates/student_vote.html:21
+#: student/templates/student_vote.html:17
+msgid "Please make sure to vote for all contributors or click on \"I can't give feedback\" to skip a person."
+msgstr "Bitte bewerte alle Mitwirkenden oder klicke auf \"Ich kann diesen Mitwirkenden nicht bewerten\", um die Person zu überspringen."
+
+#: student/templates/student_vote.html:24
 msgid "Questions about the course"
 msgstr "Fragen zur Lehrveranstaltung"
 
-#: student/templates/student_vote.html:46
+#: student/templates/student_vote.html:49
 msgid "Questions about the contributors"
 msgstr "Fragen zu den Mitwirkenden"
 
-#: student/templates/student_vote.html:49
-msgid "Please vote for all contributors you worked with (click to open)."
-msgstr "Bitte bewerte alle Mitwirkenden, mit denen du zu tun hattest."
+#: student/templates/student_vote.html:53
+msgid "Please vote for all contributors you worked with. Click on \"I can't give feedback\" to skip a person."
+msgstr "Bitte bewerte alle Mitwirkenden oder klicke auf \"Ich kann diesen Mitwirkenden nicht bewerten\", um die Person zu überspringen."
 
-#: student/templates/student_vote.html:90
+#: student/templates/student_vote.html:59
+msgid "I can't give feedback about this contributor"
+msgstr "Ich kann diesen Mitwirkenden nicht bewerten"
+
+#: student/templates/student_vote.html:93
 msgid "Vote"
 msgstr "Abstimmen"
 
@@ -1641,3 +1649,4 @@ msgstr "Angemeldet als"
 #: templates/base.html:137
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
+
