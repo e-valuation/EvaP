@@ -91,8 +91,10 @@ class ExcelImporter(object):
         messages.info(self.request, _(u"Successfully read excel file."))
 
     def read_one_enrollment(self, data, sheet_name, row_id):
-        if len(data) == 13:
-             # assign data to data objects
+        if len(data) != 13:
+            messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet_name, row=row_id, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
+            return False
+        else:            
             student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
             contributor_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
             course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
@@ -100,21 +102,17 @@ class ExcelImporter(object):
             # store data objects together with the data source location for problem tracking
             self.associations[(sheet_name, row_id)] = (student_data, contributor_data, course_data)
             return True
-        else:
-            messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet_name, row=row_id, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
-            return False
 
     def read_one_user(self, data, sheet_name, row_id):
-        if len(data) == 5:            
-            # assign data to data objects
+        if len(data) != 5:
+            messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet_name, row=row_id, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
+            return False
+        else:
             user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
 
             # store data objects together with the data source location for problem tracking
             self.associations[(sheet_name, row_id)] = (user_data)
             return True
-        else:
-            messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet_name, row=row_id, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
-            return False
 
     def validate_and_fix_enrollments(self):
         """Validates the internal integrity of the data read by read_file and

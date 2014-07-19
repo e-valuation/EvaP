@@ -584,15 +584,15 @@ def user_create(request):
 def user_import(request):
     form = UserImportForm(request.POST or None, request.FILES or None)
 
-    if form.is_valid():
+    if not form.is_valid():
+        return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
+    else:
         # extract data from form
         excel_file = form.cleaned_data['excel_file']
 
         # parse table
         ExcelImporter.process_users(request, excel_file)
-        return redirect('evap.fsr.views.user_index')
-    else:
-        return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
+        return redirect('evap.fsr.views.user_index')       
 
 
 @fsr_required
