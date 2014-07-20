@@ -134,7 +134,7 @@ these elements still apply and are not touched by the software license.
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 
-.. |build| image:: https://travis-ci.org/fsr-itse/EvaP.png
+.. |build| image:: https://travis-ci.org/fsr-itse/EvaP.svg
 .. _build: https://travis-ci.org/fsr-itse/EvaP
 .. _Vagrant: http://www.vagrantup.com/
 .. |dependencies| image:: https://gemnasium.com/fsr-itse/EvaP.svg
