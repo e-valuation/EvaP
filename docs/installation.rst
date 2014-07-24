@@ -7,7 +7,7 @@ Vagrant
 Usually it's easiest to just use the Vagrant VM. Since we use puppet in git 
 submodules for easier configuration of the VM, you'll need to clone with 
 ``--recurse-submodules`` or run ``git submodule update --init`` after checking 
-out EvaP, and of yourse you need to have Vagrant_ installed. Then you can run 
+out EvaP, and of course you need to have Vagrant_ installed. Then you can run 
 ``vagrant up`` in your EvaP root directory; this builds you a fully working 
 EvaP installation with PostgreSQL as database and Apache as webserver.
 
@@ -102,7 +102,7 @@ directory with ``python manage.py runserver``.
 Productive Environment: Settings
 --------
 
-The configuration of the application is done by creating a ``local_settings.py``
+The configuration of the application is done by creating a ``localsettings.py``
 in the ``evap`` folder and overwriting the defaults from ``settings.py`` there.
 The defaults should be OK for most development purposes.
 For a production environment you should change the following settings:
