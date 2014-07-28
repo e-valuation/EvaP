@@ -36,7 +36,7 @@
     {% for degree in degrees %}
         <h3>{{ degree.grouper }}</h3>
         <table class="table table-striped">
-            <thead>
+            <thead style="white-space:nowrap">
                 <tr>
                     <th>{% trans "Course" %}</th>
                     <th>{% trans "Type" %}</th>
@@ -56,14 +56,14 @@
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
                     {% endif %}
                     </td>
-                    <td class="col-sm-2">{{ course.kind }}</td>
+                    <td class="col-sm-1">{{ course.kind }}</td>
                     <td class="col-sm-3" data-order="{{ course.responsible_contributor.last_name }}">{{ course.responsible_contributors_name }}</td>
                     {% if staff or course.can_publish_grades %}
                         <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>
                         <td class="col-sm-1">{{ course.med_grade|floatformat:1 }}</td>
                     {% else %}
-                        <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
-                        <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                        <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                        <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                     {% endif %}
                     {% if course.num_participants %}
                     <td class="col-sm-2" data-order="{% widthratio course.num_voters course.num_participants 100 %}">
