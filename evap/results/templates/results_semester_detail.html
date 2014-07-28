@@ -57,7 +57,7 @@
                     {% endif %}
                     </td>
                     <td class="col-sm-2">{{ course.kind }}</td>
-                    <td class="col-sm-3">{{ course.responsible_contributors_name }}</td>
+                    <td class="col-sm-3" data-order="{{ course.responsible_contributor.last_name }}">{{ course.responsible_contributors_name }}</td>
                     {% if staff or course.can_publish_grades %}
                         <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>
                         <td class="col-sm-1">{{ course.med_grade|floatformat:1 }}</td>
