@@ -1,11 +1,31 @@
 {% extends "results_base.html" %}
 
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 {% load morefilters %}
+{% load static %}
 
 {% block subtitle %}
     {{ block.super }}
     <li>{{ semester.name }}</li>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.table').dataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                }
+            });
+        });
+    </script>
 {% endblock %}
 
 {{% block content %}
@@ -46,7 +66,7 @@
                         <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
                     {% endif %}
                     {% if course.num_participants %}
-                    <td class="col-sm-2">
+                    <td class="col-sm-2" data-order="{% widthratio course.num_voters course.num_participants 100 %}">
                         {% spaceless %}
                         <div style="background: #c9e1fa; display: inline-block; width: 70%;">
                             <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
@@ -57,7 +77,7 @@
                         <span style="font-size: 80%;">{{ course.num_participants }}</span>
                     </td>
                     {% else %}
-                    <td class="col-sm-2">
+                    <td class="col-sm-2" data-order="0">
                         &mdash;
                     </td>
                     {% endif %}
