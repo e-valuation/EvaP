@@ -16,7 +16,7 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.table').dataTable({
+            $('.course-table').dataTable({
                 "paging": false,
                 "info": false,
                 "stateSave": true,
@@ -35,7 +35,7 @@
 
     {% for degree in degrees %}
         <h3>{{ degree.grouper }}</h3>
-        <table class="table table-striped">
+        <table class="table table-striped course-table">
             <thead style="white-space:nowrap">
                 <tr>
                     <th>{% trans "Course" %}</th>
