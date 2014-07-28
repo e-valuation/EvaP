@@ -1,11 +1,31 @@
 {% extends "results_base.html" %}
 
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 {% load morefilters %}
+{% load static %}
 
 {% block subtitle %}
     {{ block.super }}
     <li>{{ semester.name }}</li>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.course-table').dataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                }
+            });
+        });
+    </script>
 {% endblock %}
 
 {{% block content %}
@@ -15,8 +35,8 @@
 
     {% for degree in degrees %}
         <h3>{{ degree.grouper }}</h3>
-        <table class="table table-striped">
-            <thead>
+        <table class="table table-striped course-table">
+            <thead style="white-space:nowrap">
                 <tr>
                     <th>{% trans "Course" %}</th>
                     <th>{% trans "Type" %}</th>
@@ -36,17 +56,17 @@
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
                     {% endif %}
                     </td>
-                    <td class="col-sm-2">{{ course.kind }}</td>
-                    <td class="col-sm-3">{{ course.responsible_contributors_name }}</td>
+                    <td class="col-sm-1">{{ course.kind }}</td>
+                    <td class="col-sm-3" data-order="{{ course.responsible_contributor.last_name }}">{{ course.responsible_contributors_name }}</td>
                     {% if staff or course.can_publish_grades %}
                         <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>
                         <td class="col-sm-1">{{ course.med_grade|floatformat:1 }}</td>
                     {% else %}
-                        <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
-                        <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                        <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                        <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                     {% endif %}
                     {% if course.num_participants %}
-                    <td class="col-sm-2">
+                    <td class="col-sm-2" data-order="{% widthratio course.num_voters course.num_participants 100 %}">
                         {% spaceless %}
                         <div style="background: #c9e1fa; display: inline-block; width: 70%;">
                             <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
@@ -57,7 +77,7 @@
                         <span style="font-size: 80%;">{{ course.num_participants }}</span>
                     </td>
                     {% else %}
-                    <td class="col-sm-2">
+                    <td class="col-sm-2" data-order="0">
                         &mdash;
                     </td>
                     {% endif %}
