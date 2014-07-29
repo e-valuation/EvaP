@@ -36,6 +36,7 @@ urlpatterns = patterns('evap.fsr.views',
 
     url(r"^user/$", 'user_index'),
     url(r"^user/create$", 'user_create'),
+    url(r"^user/import$", 'user_import'),
     url(r"^user/(\d+)/edit$", 'user_edit'),
     url(r"^user/(\d+)/delete$", 'user_delete'),
 

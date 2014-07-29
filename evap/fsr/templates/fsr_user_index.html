@@ -15,6 +15,7 @@
         <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
         <li class="{% if filter == 'responsibles' %}active{% endif %}"><a href="?filter=responsibles">{% trans "Responsible Contributors" %}</a></li>
         <div class="pull-right">
+            <a href="{% url "evap.fsr.views.user_import" %}" class="btn btn-sm btn-default">{% trans "Import Users" %}</a>
             <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
         </div>
     </ul>
