@@ -60,29 +60,31 @@ def vote(request, course_id):
 
     for contributor in form_group:
         for form in form_group[contributor].values():
-            if not form.is_valid():
-                course_forms = []
-                contributor_questionnaires = {}
-                errors = []
+            if form.is_valid():
+                continue
+            course_forms = []
+            contributor_questionnaires = {}
+            errors = []
 
-                for form in form_group[None].values():
-                    course_forms.append(form)
+            for form in form_group[None].values():
+                course_forms.append(form)
 
-                for contributor in form_group:
-                    if contributor != None:
-                        user_profile = UserProfile.get_for_user(contributor)
-                        contributor_questionnaires[user_profile] = form_group[contributor].values()
-                        for form in form_group[contributor].values():
-                            if form.errors:
-                                errors.append(contributor.id)
+            for contributor in form_group:
+                if contributor == None:
+                    continue
+                user_profile = UserProfile.get_for_user(contributor)
+                contributor_questionnaires[user_profile] = form_group[contributor].values()
+                for form in form_group[contributor].values():
+                    if form.errors:
+                        errors.append(contributor.id)
 
-                return render_to_response(
-                    "student_vote.html",
-                    dict(course_forms=course_forms,
-                         contributor_questionnaires=contributor_questionnaires,
-                         errors=errors,
-                         course=course),
-                    context_instance=RequestContext(request))
+            return render_to_response(
+                "student_vote.html",
+                dict(course_forms=course_forms,
+                     contributor_questionnaires=contributor_questionnaires,
+                     errors=errors,
+                     course=course),
+                context_instance=RequestContext(request))
 
     # all forms are valid
     # begin vote operation
