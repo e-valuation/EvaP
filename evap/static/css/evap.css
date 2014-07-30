@@ -158,7 +158,9 @@ ul.errorlist li {
     color: #B94A48;
 }
 
-
+.nobottompadding {
+  padding-bottom: 0px;
+}
 
 
 /* Bootstrap callouts

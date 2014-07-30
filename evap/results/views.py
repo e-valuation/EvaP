@@ -81,8 +81,17 @@ def course_detail(request, semester_id, course_id):
                     if isinstance(section.results[index], TextResult):
                         del section.results[index]
 
-        # remove empty sections
-        sections = [section for section in sections if section.results]
+    # remove empty sections and group by contributor
+    course_sections = []
+    contributor_sections = {}
+    for section in sections:
+        if section.results:
+            if section.contributor == None:
+                course_sections.append(section)
+            else:
+                if not section.contributor in contributor_sections:
+                    contributor_sections[section.contributor] = []
+                contributor_sections[section.contributor].append(section)
 
     # show a warning if course is still in evaluation (for staff preview)
     evaluation_warning = course.state != 'published'
@@ -101,7 +110,8 @@ def course_detail(request, semester_id, course_id):
         "results_course_detail.html",
         dict(
             course=course,
-            sections=sections,
+            course_sections=course_sections,
+            contributor_sections=contributor_sections,
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
             staff=request.user.is_staff
