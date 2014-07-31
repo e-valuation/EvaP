@@ -85,13 +85,14 @@ def course_detail(request, semester_id, course_id):
     course_sections = []
     contributor_sections = {}
     for section in sections:
-        if section.results:
-            if section.contributor == None:
-                course_sections.append(section)
-            else:
-                if not section.contributor in contributor_sections:
-                    contributor_sections[section.contributor] = []
-                contributor_sections[section.contributor].append(section)
+        if not section.results:
+            continue
+        if section.contributor == None:
+            course_sections.append(section)
+        else:
+            if section.contributor not in contributor_sections:
+                contributor_sections[section.contributor] = []
+            contributor_sections[section.contributor].append(section)
 
     # show a warning if course is still in evaluation (for staff preview)
     evaluation_warning = course.state != 'published'
