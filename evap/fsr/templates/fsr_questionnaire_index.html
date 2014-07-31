@@ -29,7 +29,7 @@
                                     <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">{% trans "obsolete" %}</span>{% endif %}
                                     <br>
                                     {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question {% plural %} {{ count }} questions{% endblocktrans %},
-                                    {% blocktrans count questionnaire.assigned_to.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
+                                    {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
                                 </td>
                                 <td class="right">
                                     {% if not questionnaire.obsolete %}
@@ -72,7 +72,7 @@
                                     <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">{% trans "obsolete" %}</span>{% endif %}
                                     <br>
                                     {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question {% plural %} {{ count }} questions{% endblocktrans %},
-                                    {% blocktrans count questionnaire.assigned_to.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
+                                    {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
                                 </td>
                                 <td class="right">
                                     {% if not questionnaire.obsolete %}
