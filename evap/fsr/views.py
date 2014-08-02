@@ -16,7 +16,7 @@ from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswer
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                            SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, \
-                           FaqSectionForm, FaqQuestionForm
+                           FaqSectionForm, FaqQuestionForm, UserImportForm
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.models import EmailTemplate
 from evap.fsr.tools import custom_redirect
@@ -135,7 +135,7 @@ def semester_import(request, semester_id):
         vote_end_date = form.cleaned_data['vote_end_date']
 
         # parse table
-        ExcelImporter.process(request, excel_file, semester, vote_start_date, vote_end_date)
+        ExcelImporter.process_enrollments(request, excel_file, semester, vote_start_date, vote_end_date)
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
@@ -578,6 +578,21 @@ def user_create(request):
             return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
+
+
+@fsr_required
+def user_import(request):
+    form = UserImportForm(request.POST or None, request.FILES or None)
+
+    if not form.is_valid():
+        return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
+    else:
+        # extract data from form
+        excel_file = form.cleaned_data['excel_file']
+
+        # parse table
+        ExcelImporter.process_users(request, excel_file)
+        return redirect('evap.fsr.views.user_index')       
 
 
 @fsr_required

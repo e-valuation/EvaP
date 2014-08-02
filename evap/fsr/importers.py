@@ -75,34 +75,46 @@ class ExcelImporter(object):
         self.associations = SortedDict()
         self.request = request
 
-    def read_file(self, excel_file):
-        """Reads an excel file and stores all the student-contributor-course
-        associations in the `associations` member."""
-
+    def for_each_row_in_excel_file_do(self, excel_file, execute_per_row):
         book = xlrd.open_workbook(file_contents=excel_file.read())
 
         # read the file row by row, sheet by sheet
         for sheet in book.sheets():
             try:
                 for row in range(1, sheet.nrows):
-                    data = sheet.row_values(row)
-                    if len(data) == 13:
-                        # assign data to data objects
-                        student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
-                        contributor_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
-                        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
-
-                        # store data objects together with the data source location for problem tracking
-                        self.associations[(sheet.name, row)] = (student_data, contributor_data, course_data)
-                    else:
-                        messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet.name, row=row, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
+                    execute_per_row(sheet.row_values(row), sheet.name, row)
+                        
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
             except:
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
                 raise
         messages.info(self.request, _(u"Successfully read excel file."))
 
-    def validate_and_fix(self):
+    def read_one_enrollment(self, data, sheet_name, row_id):
+        if len(data) != 13:
+            messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet_name, row=row_id, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
+            return False
+        else:            
+            student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
+            contributor_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
+            course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
+
+            # store data objects together with the data source location for problem tracking
+            self.associations[(sheet_name, row_id)] = (student_data, contributor_data, course_data)
+            return True
+
+    def read_one_user(self, data, sheet_name, row_id):
+        if len(data) != 5:
+            messages.warning(self.request, _(u"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s") % dict(sheet=sheet_name, row=row_id, ncols=len(data), beginning=data[0] if len(data) > 0 else ''))
+            return False
+        else:
+            user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
+
+            # store data objects together with the data source location for problem tracking
+            self.associations[(sheet_name, row_id)] = (user_data)
+            return True
+
+    def validate_and_fix_enrollments(self):
         """Validates the internal integrity of the data read by read_file and
         fixes and inferres data if possible. Should not validate against data
         already in the database."""
@@ -116,7 +128,7 @@ class ExcelImporter(object):
             if student_data.email == None or student_data.email == "":
                 student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
 
-    def save_to_db(self, semester, vote_start_date, vote_end_date):
+    def save_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         """Stores the read and validated data in the database. Errors might still
         occur because the previous validation does check not for consistency with
         the data already in the database."""
@@ -160,14 +172,51 @@ class ExcelImporter(object):
             messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") %
                                             dict(courses=course_count, students=student_count, contributors=contributor_count))
 
+    def save_users_to_db(self):
+        """Stores the read data in the database. Errors might still
+        occur because of the data already in the database."""
+
+        with transaction.commit_on_success():
+            users_count = 0
+            for (sheet, row), (user_data) in self.associations.items():
+                try:
+                    # create or retrieve database objects
+                    try:
+                        user = User.objects.get(username__iexact=user_data.username)
+                        user_data.update(user)
+                    except User.DoesNotExist:
+                        user = user_data.store_in_database()
+                        users_count += 1
+
+                except Exception, e:
+                    messages.warning(self.request, _("A problem occured while writing the entries to the database. " \
+                                                     "The original data location was row %(row)d of sheet '%(sheet)s'. " \
+                                                     "The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
+                    raise
+            messages.info(self.request, _("Successfully created %(users)d user(s).") %
+                                            dict(users=users_count))
+
     @classmethod
-    def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):
+    def process_enrollments(cls, request, excel_file, semester, vote_start_date, vote_end_date):
         """Entry point for the view."""
         try:
             importer = cls(request)
-            importer.read_file(excel_file)
-            importer.validate_and_fix()
-            importer.save_to_db(semester, vote_start_date, vote_end_date)
+            importer.for_each_row_in_excel_file_do(excel_file, importer.read_one_enrollment)
+            importer.validate_and_fix_enrollments()
+            importer.save_enrollments_to_db(semester, vote_start_date, vote_end_date)
+        except Exception, e:
+            messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
+            if settings.DEBUG:
+                # re-raise error for further introspection if in debug mode
+                raise
+
+    @classmethod
+    def process_users(cls, request, excel_file):
+        """Entry point for the view."""
+        try:
+            importer = cls(request)
+            importer.for_each_row_in_excel_file_do(excel_file, importer.read_one_user)
+            importer.save_users_to_db()
         except Exception, e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
