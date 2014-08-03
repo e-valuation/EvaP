@@ -518,27 +518,29 @@ class UserProfile(models.Model):
 
     @property
     def can_fsr_delete(self):
-        return not Course.objects.filter(contributions__contributor=self.user).exists()
+        return not self.is_contributor()
 
     @property
     def enrolled_in_courses(self):
+        # if a user voted on all his courses, doesn't this exclude him?
         return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
 
     @property
     def is_contributor(self):
-        return Course.objects.filter(contributions__contributor=self.user).exists()
+        return self.user.contributors.exists()
 
     @property
     def is_editor(self):
-        return Course.objects.filter(contributions__can_edit = True, contributions__contributor = self.user).exists()
+        return self.user.contributors.filter(can_edit=True).exists()
 
     @property
     def is_responsible(self):
-        return Course.objects.filter(contributions__responsible = True, contributions__contributor = self.user).exists()
+        #in the user list, self.user.contributors is prefetched, therefore use it directly and don't filter it
+        return any(contribution.responsible for contribution in self.user.contributors.all())
 
     @property
     def is_delegate(self):
-        return UserProfile.objects.filter(delegates=self.user).exists()
+        return self.delegates.exists()
 
     @property
     def is_editor_or_delegate(self):
