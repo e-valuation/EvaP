@@ -522,8 +522,7 @@ class UserProfile(models.Model):
 
     @property
     def enrolled_in_courses(self):
-        # if a user voted on all his courses, doesn't this exclude him?
-        return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
+        return self.user.course_set.exists()
 
     @property
     def is_contributor(self):
