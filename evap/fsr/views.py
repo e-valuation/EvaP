@@ -548,15 +548,13 @@ def questionnaire_delete(request, questionnaire_id):
 
 @fsr_required
 def user_index(request):
-    users = User.objects.order_by("last_name", "first_name", "username")
+    users = User.objects.order_by("last_name", "first_name", "username").select_related('userprofile').prefetch_related('contributors')
 
     filter = request.GET.get('filter')
     if filter == "fsr":
         users = users.filter(is_staff=True)
     elif filter == "responsibles":
-        users = [user for user in users if UserProfile.get_for_user(user).is_responsible]
-    elif filter == "delegates":
-        users = [user for user in users if UserProfile.get_for_user(user).is_delegate]
+        users = users.filter(contributors__responsible=True).distinct()
 
     return render_to_response("fsr_user_index.html", dict(users=users, filter=filter), context_instance=RequestContext(request))
 

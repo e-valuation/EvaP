@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -138,7 +139,7 @@ class Course(models.Model):
 
     def clean(self):
         if self.vote_start_date and self.vote_end_date:
-            if not (self.vote_start_date < self.vote_end_date):
+            if self.vote_start_date >= self.vote_end_date:
                 raise ValidationError(_(u"The vote start date must be before the vote end date."))
 
     def save(self, *args, **kw):
@@ -150,23 +151,23 @@ class Course(models.Model):
 
     def is_fully_checked(self):
         """Shortcut for finding out whether all text answers to this course have been checked"""
-        return not self.textanswer_set.filter(checked=False).exists()
+        return not self.open_textanswer_set.exists()
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
-        if (not self.state == "inEvaluation") or (self.vote_end_date < datetime.date.today()):
-            return False
-
-        return user in self.participants.all() and user not in self.voters.all()
+        return (self.state == "inEvaluation"
+            and datetime.date.today() <= self.vote_end_date
+            and user in self.participants.all()
+            and user not in self.voters.all())
 
     def can_fsr_edit(self):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
     def can_fsr_delete(self):
-        return not (self.textanswer_set.exists() or self.likertanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
+        return self.can_fsr_edit() and not self.voters.exists()
 
     def can_fsr_review(self):
-        return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
+        return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
 
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
@@ -220,29 +221,23 @@ class Course(models.Model):
 
     @property
     def num_participants(self):
-        if self.participants.exists():
-            return self.participants.count()
-        else:
-            return self.participant_count or 0
+        if self.participant_count:
+            return self.participant_count
+        return self.participants.count()
 
     @property
     def num_voters(self):
-        if self.voters.exists():
-            return self.voters.count()
-        else:
-            return self.voter_count or 0
+        if self.voter_count:
+            return self.voter_count
+        return self.voters.count()
 
     @property
     def due_participants(self):
-        for user in self.participants.all():
-            if not user in self.voters.all():
-                yield user
+        return self.participants.exclude(pk__in=self.voters.all())
 
     @property
     def responsible_contributor(self):
-        for contribution in self.contributions.all():
-            if contribution.responsible:
-                return contribution.contributor
+        return self.contributions.get(responsible=True).contributor
 
     @property
     def responsible_contributors_name(self):
@@ -253,7 +248,7 @@ class Course(models.Model):
         return self.responsible_contributor.username
 
     def has_enough_questionnaires(self):
-        return all(contribution.questionnaires.exists() for contribution in self.contributions.all()) and self.general_contribution
+        return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
@@ -278,14 +273,11 @@ class Course(models.Model):
         return False
 
     def is_user_contributor(self, user):
-        if self.contributions.filter(contributor=user).exists():
-            return True
-
-        return False
+        return self.contributions.filter(contributor=user).exists()
 
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires():
+        if self.state == 'new' and not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades():
             result.append(_(u"Not enough participants to publish results"))
@@ -299,12 +291,12 @@ class Course(models.Model):
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=False)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=False)
 
     @property
     def checked_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=True)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=True)
 
     @property
     def likertanswer_set(self):
@@ -526,27 +518,29 @@ class UserProfile(models.Model):
 
     @property
     def can_fsr_delete(self):
-        return not Course.objects.filter(contributions__contributor=self.user).exists()
+        return not self.is_contributor()
 
     @property
     def enrolled_in_courses(self):
+        # if a user voted on all his courses, doesn't this exclude him?
         return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
 
     @property
     def is_contributor(self):
-        return Course.objects.filter(contributions__contributor=self.user).exists()
+        return self.user.contributors.exists()
 
     @property
     def is_editor(self):
-        return Course.objects.filter(contributions__can_edit = True, contributions__contributor = self.user).exists()
+        return self.user.contributors.filter(can_edit=True).exists()
 
     @property
     def is_responsible(self):
-        return Course.objects.filter(contributions__responsible = True, contributions__contributor = self.user).exists()
+        #in the user list, self.user.contributors is prefetched, therefore use it directly and don't filter it
+        return any(contribution.responsible for contribution in self.user.contributors.all())
 
     @property
     def is_delegate(self):
-        return UserProfile.objects.filter(delegates=self.user).exists()
+        return self.delegates.exists()
 
     @property
     def is_editor_or_delegate(self):

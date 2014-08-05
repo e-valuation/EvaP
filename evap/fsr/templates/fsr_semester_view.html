@@ -55,18 +55,20 @@
                         </td>
                         <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
                         {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-                            {% if course.num_participants %}
-                                <td class="dontbreak right">
-                                    <span title="{% trans "Participants" %}">{{ course.num_voters }}/{{ course.num_participants }}</span>
-                                    <span title="{% trans "Text Answers" %}">{{ course.checked_textanswer_set|length }}/{{ course.textanswer_set|length }}</span>
-                                </td>
-                                <td class="dontbreak">
-                                    <span>({{ course.num_voters|percentage:course.num_participants|default:'&mdash;' }})</span>
-                                    <span>({{ course.checked_textanswer_set.count|percentage:course.textanswer_set.count|default:'&mdash;' }})</span>
-                                </td>
-                            {% else %}
-                                <td class="center" colspan="2">&mdash;</td>
-                            {% endif %}
+                            {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_checked_textanswers=course.checked_textanswer_set.count %}
+                                {% if num_participants %}
+                                    <td class="dontbreak right">
+                                        <span title="{% trans "Participants" %}">{{ num_voters }}/{{ num_participants }}</span>
+                                        <span title="{% trans "Text Answers" %}">{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
+                                    </td>
+                                    <td class="dontbreak">
+                                        <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
+                                        <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
+                                    </td>
+                                {% else %}
+                                    <td class="center" colspan="2">&mdash;</td>
+                                {% endif %}
+                            {% endwith %}
                         {% endif %}
                         <td class="minimize">
                             <a href="{% url "evap.fsr.views.course_email" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
