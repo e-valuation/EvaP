@@ -69,6 +69,10 @@
                                     <td class="center" colspan="2">&mdash;</td>
                                 {% endif %}
                             {% endwith %}
+                        {% else %}
+                            <td class="right">
+                                {{ course.num_participants }}&nbsp{% trans "participants" %}
+                            </td>
                         {% endif %}
                         <td class="minimize">
                             <a href="{% url "evap.fsr.views.course_email" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
