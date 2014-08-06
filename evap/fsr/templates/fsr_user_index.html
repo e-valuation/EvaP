@@ -1,6 +1,7 @@
 {% extends "fsr_base.html" %}
 
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 {% load static %}
 
 {% block subtitle %}
@@ -10,17 +11,7 @@
 
 {% block content %}
     {{ block.super }}
-    <ul class="nav nav-tabs">
-        <li class="{% if not filter %}active{% endif %}"><a href="?">{% trans "All" %}</a></li>
-        <li class="{% if filter == 'fsr' %}active{% endif %}"><a href="?filter=fsr">{% trans "Student Representatives" %}</a></li>
-        <li class="{% if filter == 'responsibles' %}active{% endif %}"><a href="?filter=responsibles">{% trans "Responsible Contributors" %}</a></li>
-        <div class="pull-right">
-            <a href="{% url "evap.fsr.views.user_import" %}" class="btn btn-sm btn-default">{% trans "Import Users" %}</a>
-            <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
-        </div>
-    </ul>
-
-    <table class="table table-striped">
+    <table class="table table-striped user-table">
         <thead>
             <tr>
                 <th class="minimize-with-padding">{% trans "Name" %}</th>
@@ -42,7 +33,7 @@
                     {% if user.is_staff %}
                         <span class="label label-primary">{% trans "Student Representative" %}</span>
                     {% endif %}
-                    {% if user.userprofile.contributor %}
+                    {% if user.userprofile.is_contributor %}
                         <span class="label label-info">{% trans "Contributor" %}</span>
                     {% endif %}
                     {% if user.userprofile.is_responsible %}
@@ -56,9 +47,9 @@
                     {% endif %}
                 </td>
                 <td class="minimize-with-padding">
-                    <a href="{% url "evap.fsr.views.user_edit" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
+                    <a href="{% url "evap.fsr.views.user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.userprofile.can_fsr_delete %}
-                        <a href="{% url "evap.fsr.views.user_delete" user.id %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                        <a href="{% url "evap.fsr.views.user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
                         <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>
                     {% endif %}
@@ -88,6 +79,23 @@
             $("#id_is_staff").click(function() {
                 if($("#id_is_staff").is(":checked"))
                     $("#id_is_superuser").prop('checked', true);
+            });
+        });
+    </script>
+
+
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.user-table').dataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "ordering": false,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                }
             });
         });
     </script>

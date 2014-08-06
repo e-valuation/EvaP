@@ -550,13 +550,7 @@ def questionnaire_delete(request, questionnaire_id):
 def user_index(request):
     users = User.objects.order_by("last_name", "first_name", "username").select_related('userprofile').prefetch_related('contributions')
 
-    filter = request.GET.get('filter')
-    if filter == "fsr":
-        users = users.filter(is_staff=True)
-    elif filter == "responsibles":
-        users = users.filter(contributions__responsible=True).distinct()
-
-    return render_to_response("fsr_user_index.html", dict(users=users, filter=filter), context_instance=RequestContext(request))
+    return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -565,15 +559,9 @@ def user_create(request):
     form = UserForm(request.POST or None, instance=profile)
 
     if form.is_valid():
-        #profile.user.save()
         form.save()
-
         messages.add_message(request, messages.INFO, _("Successfully created user."))
-
-        if "filter" in request.GET:
-            return custom_redirect('evap.fsr.views.user_index', filter=request.GET['filter'])
-        else:
-            return redirect('evap.fsr.views.user_index')
+        return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -582,15 +570,12 @@ def user_create(request):
 def user_import(request):
     form = UserImportForm(request.POST or None, request.FILES or None)
 
-    if not form.is_valid():
-        return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
-    else:
-        # extract data from form
+    if form.is_valid():
         excel_file = form.cleaned_data['excel_file']
-
-        # parse table
         ExcelImporter.process_users(request, excel_file)
         return redirect('evap.fsr.views.user_index')       
+    else:
+        return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
 
 
 @fsr_required
@@ -600,13 +585,8 @@ def user_edit(request, user_id):
 
     if form.is_valid():
         form.save()
-
         messages.add_message(request, messages.INFO, _("Successfully updated user."))
-
-        if "filter" in request.GET:
-            return custom_redirect('evap.fsr.views.user_index', filter=request.GET['filter'])
-        else:
-            return redirect('evap.fsr.views.user_index')
+        return redirect('evap.fsr.views.user_index')
     else:
         return render_to_response("fsr_user_form.html", dict(form=form, object=user), context_instance=RequestContext(request))
 
