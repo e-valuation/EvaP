@@ -86,7 +86,7 @@ class Questionnaire(models.Model):
 
     @property
     def can_fsr_delete(self):
-        return not self.assigned_to.exists()
+        return not self.contributions.exists()
 
 
 class Course(models.Model):
@@ -313,9 +313,8 @@ class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
     course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributors')
-    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
-                                            blank=True, related_name="assigned_to")
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributions')
+    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name = _(u"responsible"), default=False)
     can_edit = models.BooleanField(verbose_name = _(u"can edit"), default=False)
 
@@ -526,16 +525,16 @@ class UserProfile(models.Model):
 
     @property
     def is_contributor(self):
-        return self.user.contributors.exists()
+        return self.user.contributions.exists()
 
     @property
     def is_editor(self):
-        return self.user.contributors.filter(can_edit=True).exists()
+        return self.user.contributions.filter(can_edit=True).exists()
 
     @property
     def is_responsible(self):
-        #in the user list, self.user.contributors is prefetched, therefore use it directly and don't filter it
-        return any(contribution.responsible for contribution in self.user.contributors.all())
+        #in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
+        return any(contribution.responsible for contribution in self.user.contributions.all())
 
     @property
     def is_delegate(self):
