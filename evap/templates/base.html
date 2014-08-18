@@ -96,15 +96,17 @@
     </nav>
 
     <div class="container">
-        {% block breadcrumbs %}
-            <div class="row">
-                <div class="col-md-12">
-                    <ol class="breadcrumb">
-                        {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                    </ol>
+        {% if user.is_staff %}
+            {% block breadcrumbs %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <ol class="breadcrumb">
+                            {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+                        </ol>
+                    </div>
                 </div>
-            </div>
-        {% endblock %}
+            {% endblock %}
+        {% endif %}
         {% if messages %}
             <div class="row">
                 <div class="col-md-12">

@@ -13,7 +13,7 @@
     <form method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <fieldset>
-            <legend>{% trans "General Options" %}</legend>
+            <legend>{{ course.name }} ({{ course.semester.name }})</legend>
             {{ form.as_div }}
         </fieldset>
 
