@@ -44,7 +44,18 @@
                 <ul class="nav navbar-nav">
                     {% if user.is_active %}
                         {% if user.userprofile.enrolled_in_courses %}
-                            <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+                            {% if user.userprofile.is_editor_or_delegate %}
+                                <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
+                                <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
+                            {% else %}
+                                <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses" %}</a></li>
+                            {% endif %}
+                        {% elif user.userprofile.is_editor_or_delegate %}
+                            <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
+                        {% endif %}
+
+                        {% if user.userprofile.is_editor %}
+                            <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
                         {% if user.is_staff %}
@@ -61,14 +72,6 @@
                                     <li><a href="{% url "evap.fsr.views.faq_index" %}">{% trans "FAQ" %}</a></li>
                                 </ul>
                             </li>
-                        {% endif %}
-
-                        {% if user.userprofile.is_editor_or_delegate %}
-                            <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
-                        {% endif %}
-
-                        {% if user.userprofile.is_editor %}
-                            <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
                         <li class="dropdown">

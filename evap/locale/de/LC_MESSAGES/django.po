@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-18 23:32+0200\n"
-"PO-Revision-Date: 2014-08-18 23:36+0100\n"
+"POT-Creation-Date: 2014-08-18 23:49+0200\n"
+"PO-Revision-Date: 2014-08-18 23:50+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -64,7 +64,7 @@ msgstr "Mitwirkende"
 #: fsr/templates/fsr_index.html:25
 #: fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11
-#: templates/base.html:58
+#: templates/base.html:69
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -236,7 +236,7 @@ msgstr "Stellvertreter"
 #: results/templates/results_base.html:10
 #: student/templates/student_index.html:75
 #: student/templates/student_index.html:77
-#: templates/base.html:75
+#: templates/base.html:78
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -727,8 +727,8 @@ msgstr "Angegebene Statistik existiert nicht."
 #: evaluation/templates/faq.html:5
 #: evaluation/templates/faq.html.py:9
 #: fsr/templates/fsr_index.html:55
-#: templates/base.html:61
-#: templates/base.html.py:134
+#: templates/base.html:72
+#: templates/base.html.py:137
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -1063,7 +1063,7 @@ msgstr "FAQ-Fragen erfolgreich geändert."
 #: fsr/templates/fsr_base.html:7
 #: fsr/templates/fsr_base.html.py:12
 #: fsr/templates/fsr_base.html:14
-#: templates/base.html:52
+#: templates/base.html:63
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
@@ -1185,7 +1185,7 @@ msgstr "): Alle in der Datei enthaltenen Studierenden, Mitwirkenden und Kurse we
 #: fsr/templates/fsr_semester_base.html:7
 #: fsr/templates/fsr_semester_base.html:21
 #: results/templates/results_index.html:8
-#: templates/base.html:55
+#: templates/base.html:66
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1214,7 +1214,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: fsr/templates/fsr_index.html:43
 #: fsr/templates/fsr_user_form.html:8
 #: fsr/templates/fsr_user_index.html:9
-#: templates/base.html:59
+#: templates/base.html:70
 msgid "Users"
 msgstr "Benutzer"
 
@@ -1224,7 +1224,7 @@ msgstr "Alle Benutzer"
 
 #: fsr/templates/fsr_index.html:47
 #: fsr/templates/fsr_template_form.html:8
-#: templates/base.html:60
+#: templates/base.html:71
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
@@ -1468,7 +1468,7 @@ msgid "The results of this course have not been published because it didn't get 
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
 #: results/templates/results_course_detail.html:26
-#: templates/base.html:54
+#: templates/base.html:65
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -1537,7 +1537,6 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 #: student/templates/student_index.html:13
 #: student/templates/student_vote.html:6
 #: student/templates/student_vote.html:10
-#: templates/base.html:47
 msgid "Evaluation"
 msgstr "Bewertung"
 
@@ -1626,69 +1625,51 @@ msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert u
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:67
-msgid "My courses"
-msgstr "Veranstaltungen"
+#: templates/base.html:48
+msgid "My courses (student)"
+msgstr "Meine Veranstaltungen (Student)"
 
-#: templates/base.html:71
+#: templates/base.html:49
+msgid "My courses (lecturer)"
+msgstr "Meine Veranstaltungen (Mitwirkender)"
+
+#: templates/base.html:51
+#: templates/base.html.py:54
+msgid "My courses"
+msgstr "Meine Veranstaltungen"
+
+#: templates/base.html:58
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:84
+#: templates/base.html:87
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:86
+#: templates/base.html:89
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:87
+#: templates/base.html:90
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:91
+#: templates/base.html:94
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:103
+#: templates/base.html:106
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:130
+#: templates/base.html:133
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:137
+#: templates/base.html:140
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:139
+#: templates/base.html:142
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-
-#~ msgid "Courses for evaluation"
-#~ msgstr "Zu evaluierende Veranstaltungen"
-
-#~ msgid "You can vote on the following courses:"
-#~ msgstr "Du kannst die folgenden Veranstaltungen bewerten:"
-
-#~ msgid "until"
-#~ msgstr "bis zum"
-
-#~ msgid "You cannot vote on any courses right now."
-#~ msgstr "Du kannst zurzeit keine Veranstaltungen bewerten."
-
-#~ msgid "You will be able to vote on the following courses soon:"
-#~ msgstr "Die folgenden Veranstaltungen kannst du bald bewerten:"
-
-#~ msgid "from"
-#~ msgstr "vom"
-
-#~ msgid "Responsible Contributors"
-#~ msgstr "Verantwortliche"
-
-#~ msgid "All"
-#~ msgstr "Alle"
-
-#~ msgid "Create new user"
-#~ msgstr "Neuen Benutzer erstellen"
