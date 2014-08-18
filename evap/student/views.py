@@ -8,7 +8,8 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course, Semester, UserProfile
-from evap.evaluation.tools import questionnaires_and_contributions_by_contributor
+from evap.evaluation.tools import questionnaires_and_contributions_by_contributor, STATES_ORDERED
+
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
@@ -17,20 +18,19 @@ from datetime import datetime
 
 @login_required
 def index(request):
-    # retrieve all courses, which the user can evaluate at some point
-    users_courses = Course.objects.filter(
-            participants=request.user
-        ).exclude(
-            voters=request.user
-        )
-    # split up into current and future courses
-    current_courses = users_courses.filter(state='inEvaluation')
-    future_courses = users_courses.filter(state='approved')
+    # retrieve all courses, where the user is a participant and that are not new
+    courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
+    voted_courses = list(set(Course.objects.filter(voters=request.user)))
+
+    sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+    courses.sort(key=sorter)
+
+    semesters = Semester.objects.all()
+    semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
     return render_to_response(
         "student_index.html",
-        dict(current_courses=current_courses,
-             future_courses=future_courses),
+        dict(semester_list=semester_list, voted_courses=voted_courses),
         context_instance=RequestContext(request))
 
 

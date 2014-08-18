@@ -26,6 +26,7 @@ GRADE_NAMES = {
     6: _(u"no answer"),
 }
 
+# the names used for contributors and staff
 STATES_ORDERED = SortedDict((
     ('new', _('new')),
     ('prepared', _('prepared')),
@@ -37,6 +38,17 @@ STATES_ORDERED = SortedDict((
     ('published', _('published'))
 ))
 
+# the names used for students
+STUDENT_STATES_ORDERED = SortedDict((
+    ('new', _('upcoming')),
+    ('prepared', _('upcoming')),
+    ('lecturerApproved', _('upcoming')),
+    ('approved', _('upcoming')),
+    ('inEvaluation', _('in evaluation')),
+    ('evaluated', _('evaluation finished')),
+    ('reviewed', _('evaluation finished')),
+    ('published', _('published'))
+))
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total'))
