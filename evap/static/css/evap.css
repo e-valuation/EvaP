@@ -199,3 +199,14 @@ Side notes for calling out things
     background-color: #d9edf7;
     border-color: #31708f;
 }
+
+
+
+
+.participants-warning {
+    opacity: 0.3;
+}
+
+.glyphicon.participants-warning {
+    padding-left: 10px;
+}

@@ -105,6 +105,11 @@ def course_detail(request, semester_id, course_id):
     # the FSR can still see all results but gets a warning message
     sufficient_votes_warning = (not sufficient_votes) and request.user.is_staff
 
+    # when there are less answers to a question than this number, a warning is shown next to the question
+    representative_percent_number = settings.MIN_ANSWER_PERCENTAGE * course.num_participants
+    representative_percentage = "{:.0%}".format(settings.MIN_ANSWER_PERCENTAGE)
+    representative_number = settings.MIN_ANSWER_COUNT
+
     course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 
     return render_to_response(
@@ -115,6 +120,9 @@ def course_detail(request, semester_id, course_id):
             contributor_sections=contributor_sections,
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
+            representative_number=representative_number,
+            representative_percent_number=representative_percent_number,
+            representative_percentage = representative_percentage,
             staff=request.user.is_staff
         ),
         context_instance=RequestContext(request))
