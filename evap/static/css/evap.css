@@ -210,3 +210,16 @@ Side notes for calling out things
 .glyphicon.participants-warning {
     padding-left: 10px;
 }
+
+.questionnaire-warning p {
+    padding-left: 3px;
+}
+
+.inline-headers h4, .inline-headers p {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.questionnaire-warning {
+    margin-top:10px;
+}

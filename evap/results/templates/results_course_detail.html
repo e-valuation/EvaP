@@ -82,7 +82,6 @@
         <div class="panel-body nobottompadding">
             {% regroup course_sections by questionnaire as sections_grouped %}
             {% for group in sections_grouped %}
-                <h4>{{ group.grouper.public_name }}</h4>
                 {% include "results_course_detail_questionnaires.html" %}
             {% endfor %}
         </div>
@@ -101,7 +100,6 @@
                     </div>
                     <div class="panel-body nobottompadding">
                         {% for group in sections_grouped %}
-                            <h4>{{ group.grouper.public_name }}</h4>
                             {% include "results_course_detail_questionnaires.html" %}
                         {% endfor %}
                     </div>
