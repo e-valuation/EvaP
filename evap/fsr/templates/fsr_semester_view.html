@@ -57,21 +57,31 @@
                         {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
                             {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_checked_textanswers=course.checked_textanswer_set.count %}
                                 {% if num_participants %}
-                                    <td class="dontbreak right">
-                                        <span title="{% trans "Participants" %}">{{ num_voters }}/{{ num_participants }}</span>
-                                        <span title="{% trans "Text Answers" %}">{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
-                                    </td>
-                                    <td class="dontbreak">
-                                        <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
-                                        <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
+                                    <td class="minimize">
+                                        <p class="twipsify" title="{% trans "Voters" %}">
+                                            <span class="glyphicon glyphicon-user"></span>
+                                            <span>{{ num_voters }}/{{ num_participants }}</span>
+                                            <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
+                                        </p>
+                                        <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="twipsify" title="{% trans "Reviewed text answers" %}">
+                                            <span class="glyphicon glyphicon-comment"></span>
+                                            <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
+                                            <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
+                                        </a>
                                     </td>
                                 {% else %}
-                                    <td class="center" colspan="2">&mdash;</td>
+                                    <p class="twipsify" title="{% trans "Voters" %}">
+                                        <span class="glyphicon glyphicon-user"></span>
+                                        <span>&mdash;</span>
+                                    </p>
                                 {% endif %}
                             {% endwith %}
                         {% else %}
-                            <td class="right">
-                                {{ course.num_participants }}&nbsp{% trans "participants" %}
+                            <td class="minimize">
+                                <p class="twipsify" title="{% trans "Participants" %}">
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    <span>{{ course.num_participants }}</span>
+                                </p>
                             </td>
                         {% endif %}
                         <td class="minimize">
@@ -79,20 +89,18 @@
                             {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
                                 <a href="{% url "evap.fsr.views.course_preview" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                             {% endif %}
-                            {% if course.can_fsr_delete %}
-                                <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
+                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
                             {% endif %}
                             {% if course.can_fsr_review %}
                                 <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-primary">{% trans "Review" %}</a>
                             {% endif %}
-                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
-                                <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
-                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
+                            {% if course.can_fsr_delete %}
+                                <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if state == 'published' %}
-                                <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
-                                <a href="{% url "evap.fsr.views.course_unpublish" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
                                 <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                <a href="{% url "evap.fsr.views.course_unpublish" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -136,6 +144,8 @@
             $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {
                 history.pushState(null, null, "?tab=" + $(this).data("tab"));
             });
+
+            $(".twipsify").tooltip({container: 'body'});
         });
     </script>
 {% endblock %}
