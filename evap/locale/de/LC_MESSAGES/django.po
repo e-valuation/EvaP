@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-18 23:49+0200\n"
-"PO-Revision-Date: 2014-08-18 23:50+0100\n"
+"POT-Creation-Date: 2014-08-19 14:37+0200\n"
+"PO-Revision-Date: 2014-08-19 14:38+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -55,7 +55,7 @@ msgstr "Allgemeine Optionen"
 
 #: contributor/templates/contributor_course_form.html:22
 #: fsr/templates/fsr_course_form.html:16
-#: results/templates/results_course_detail.html:93
+#: results/templates/results_course_detail.html:92
 msgid "Contributors"
 msgstr "Mitwirkende"
 
@@ -64,7 +64,7 @@ msgstr "Mitwirkende"
 #: fsr/templates/fsr_index.html:25
 #: fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11
-#: templates/base.html:69
+#: templates/base.html:58
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -127,6 +127,7 @@ msgid "add another"
 msgstr "Weiteren hinzufügen"
 
 #: contributor/templates/contributor_index.html:22
+#: student/templates/student_index.html:52
 msgid "Evaluation info"
 msgstr "Evaluierungs-Infos"
 
@@ -234,7 +235,7 @@ msgstr "Stellvertreter"
 #: results/exporters.py:94
 #: results/templates/results_base.html:6
 #: results/templates/results_base.html:10
-#: student/templates/student_index.html:75
+#: templates/base.html:75
 #: student/templates/student_index.html:77
 #: templates/base.html:78
 msgid "Results"
@@ -727,8 +728,8 @@ msgstr "Angegebene Statistik existiert nicht."
 #: evaluation/templates/faq.html:5
 #: evaluation/templates/faq.html.py:9
 #: fsr/templates/fsr_index.html:55
-#: templates/base.html:72
-#: templates/base.html.py:137
+#: templates/base.html:61
+#: templates/base.html.py:134
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -893,6 +894,12 @@ msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
 #: fsr/importers.py:87
+#: fsr/importers.py:98
+#, python-format
+msgid "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s"
+msgstr "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s', %(ncols)s Spalten"
+
+#: fsr/importers.py:99
 #, python-format
 msgid "Successfully read sheet '%s'."
 msgstr "Blatt '%s' erfolgreich gelesen."
@@ -924,9 +931,9 @@ msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %
 msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d Mitwirkende erfolgreich erstellt."
 
 #: fsr/importers.py:196
-#, python-format
+#, fuzzy, python-format
 msgid "Successfully created %(users)d user(s)."
-msgstr "Erfolgreich %(users)d Benutzer erstellt."
+msgstr "Benutzer erfolgreich erstellt."
 
 #: fsr/importers.py:208
 #: fsr/importers.py:221
@@ -1063,7 +1070,7 @@ msgstr "FAQ-Fragen erfolgreich geändert."
 #: fsr/templates/fsr_base.html:7
 #: fsr/templates/fsr_base.html.py:12
 #: fsr/templates/fsr_base.html:14
-#: templates/base.html:63
+#: templates/base.html:52
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
@@ -1185,7 +1192,7 @@ msgstr "): Alle in der Datei enthaltenen Studierenden, Mitwirkenden und Kurse we
 #: fsr/templates/fsr_semester_base.html:7
 #: fsr/templates/fsr_semester_base.html:21
 #: results/templates/results_index.html:8
-#: templates/base.html:66
+#: templates/base.html:55
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1214,7 +1221,7 @@ msgstr "Neuen Fragebogen anlegen"
 #: fsr/templates/fsr_index.html:43
 #: fsr/templates/fsr_user_form.html:8
 #: fsr/templates/fsr_user_index.html:9
-#: templates/base.html:70
+#: templates/base.html:59
 msgid "Users"
 msgstr "Benutzer"
 
@@ -1223,8 +1230,13 @@ msgid "All users"
 msgstr "Alle Benutzer"
 
 #: fsr/templates/fsr_index.html:47
+#: fsr/templates/fsr_user_index.html:16
+msgid "Responsible Contributors"
+msgstr "Verantwortliche"
+
+#: fsr/templates/fsr_index.html:49
 #: fsr/templates/fsr_template_form.html:8
-#: templates/base.html:71
+#: templates/base.html:60
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
@@ -1414,8 +1426,9 @@ msgid "Save user"
 msgstr "Benutzer speichern"
 
 #: fsr/templates/fsr_user_import.html:9
+#, fuzzy
 msgid "Upload user data from excel file ("
-msgstr "Benutzer aus Excel-Tabelle importieren ("
+msgstr "Semester aus Excel-Tabelle importieren ("
 
 #: fsr/templates/fsr_user_import.html:9
 msgid "). This will create all containing users."
@@ -1468,7 +1481,7 @@ msgid "The results of this course have not been published because it didn't get 
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
 #: results/templates/results_course_detail.html:26
-#: templates/base.html:65
+#: templates/base.html:54
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -1498,8 +1511,8 @@ msgstr "Wähler"
 
 #: results/templates/results_course_detail.html:50
 #: results/templates/results_course_detail.html:51
-#: results/templates/results_course_detail_questionnaires.html:32
-#: results/templates/results_course_detail_questionnaires.html:58
+#: results/templates/results_course_detail_questionnaires.html:54
+#: results/templates/results_course_detail_questionnaires.html:80
 #: results/templates/results_semester_detail.html:56
 #: results/templates/results_semester_detail.html:67
 #: results/templates/results_semester_detail.html:68
@@ -1511,16 +1524,29 @@ msgstr "Nicht genügend Antworten eingegangen"
 msgid "Course"
 msgstr "Veranstaltung"
 
-#: results/templates/results_course_detail_questionnaires.html:13
-#: results/templates/results_course_detail_questionnaires.html:39
+#: results/templates/results_course_detail_questionnaires.html:11
+msgid "Only a few participants answered these questions."
+msgstr "Nur wenige Teilnehmer haben diese Fragen beantwortet."
+
+#: results/templates/results_course_detail_questionnaires.html:22
+#: results/templates/results_course_detail_questionnaires.html:61
 msgid "Answers given: "
 msgstr "Erhaltene Antworten: "
+
+#: results/templates/results_course_detail_questionnaires.html:25
+msgid "Only a few participants answered this question."
+msgstr "Nur wenige Teilnehmer haben diese Frage beantwortet."
 
 #: results/templates/results_index.html:16
 msgid "No results available yet"
 msgstr "Es sind noch keine Ergebnisse verfügbar."
 
 #: results/templates/results_semester_detail.html:96
+#: results/templates/results_semester_detail.html:21
+msgid "Course"
+msgstr "Veranstaltung"
+
+#: results/templates/results_semester_detail.html:72
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
@@ -1537,10 +1563,37 @@ msgstr "Ihre Stimme wurde aufgezeichnet."
 #: student/templates/student_index.html:13
 #: student/templates/student_vote.html:6
 #: student/templates/student_vote.html:10
+#: templates/base.html:47
 msgid "Evaluation"
 msgstr "Bewertung"
 
 #: student/templates/student_index.html:22
+#: student/templates/student_index.html:21
+msgid "Courses for evaluation"
+msgstr "Zu evaluierende Veranstaltungen"
+
+#: student/templates/student_index.html:26
+msgid "You can vote on the following courses:"
+msgstr "Du kannst die folgenden Veranstaltungen bewerten:"
+
+#: student/templates/student_index.html:29
+#: student/templates/student_index.html:41
+msgid "until"
+msgstr "bis zum"
+
+#: student/templates/student_index.html:33
+msgid "You cannot vote on any courses right now."
+msgstr "Du kannst zurzeit keine Veranstaltungen bewerten."
+
+#: student/templates/student_index.html:38
+msgid "You will be able to vote on the following courses soon:"
+msgstr "Die folgenden Veranstaltungen kannst du bald bewerten:"
+
+#: student/templates/student_index.html:41
+msgid "from"
+msgstr "vom"
+
+#: student/templates/student_index.html:55
 msgid "Anonymity"
 msgstr "Anonymität"
 
@@ -1638,38 +1691,39 @@ msgstr "Meine Veranstaltungen (Mitwirkender)"
 msgid "My courses"
 msgstr "Meine Veranstaltungen"
 
-#: templates/base.html:58
+#: templates/base.html:71
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:87
+#: templates/base.html:84
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:89
+#: templates/base.html:86
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:90
+#: templates/base.html:87
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:94
+#: templates/base.html:91
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:106
+#: templates/base.html:103
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:133
+#: templates/base.html:130
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:140
+#: templates/base.html:137
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:142
+#: templates/base.html:139
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
+
