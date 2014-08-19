@@ -380,10 +380,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     def _post_clean(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
-        self.instance.user.username = self.cleaned_data.get('username')
-        self.instance.user.first_name = self.cleaned_data.get('first_name')
-        self.instance.user.last_name = self.cleaned_data.get('last_name')
-        self.instance.user.email = self.cleaned_data.get('email')
+        self.instance.user.username = self.cleaned_data.get('username').strip().lower()
+        self.instance.user.first_name = self.cleaned_data.get('first_name').strip()
+        self.instance.user.last_name = self.cleaned_data.get('last_name').strip()
+        self.instance.user.email = self.cleaned_data.get('email').strip().lower()
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
         self.instance.user.is_superuser = self.cleaned_data.get('is_superuser')
         self.instance.user.save()

@@ -14,11 +14,11 @@ class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
 
     def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-        self.title = title
-        self.email = email
+        self.username = username.strip().lower()
+        self.first_name = first_name.strip()
+        self.last_name = last_name.strip()
+        self.title = title.strip()
+        self.email = email.strip().lower()
 
     def store_in_database(self):
         user = User(username=self.username,
@@ -53,10 +53,10 @@ class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
 
     def __init__(self, name_de=None, name_en=None, kind=None, degree=None):
-        self.name_de = name_de
-        self.name_en = name_en
-        self.kind = kind
-        self.degree = degree
+        self.name_de = name_de.strip()
+        self.name_en = name_en.strip()
+        self.kind = kind.strip()
+        self.degree = degree.strip()
 
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
