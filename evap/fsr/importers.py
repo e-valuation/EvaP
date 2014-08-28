@@ -13,7 +13,7 @@ import xlrd
 class UserData(object):
     """Holds information about a user, retrieved from the Excel file."""
 
-    def __init__(self, username=None, first_name=None, last_name=None, title=None, email=None):
+    def __init__(self, username='', first_name='', last_name='', title='', email=''):
         self.username = username.strip().lower()
         self.first_name = first_name.strip()
         self.last_name = last_name.strip()
@@ -52,7 +52,7 @@ class UserData(object):
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
 
-    def __init__(self, name_de=None, name_en=None, kind=None, degree=None):
+    def __init__(self, name_de='', name_en='', kind='', degree=''):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
         self.kind = kind.strip()
@@ -120,11 +120,6 @@ class ExcelImporter(object):
         already in the database."""
 
         for (sheet, row), (student_data, contributor_data, course_data) in self.associations.items():
-            # try to infer first names from usernames
-            if not contributor_data.first_name:
-                first, sep, last = contributor_data.username.partition(".")
-                if sep == ".":
-                    contributor_data.first_name = first
             if student_data.email == None or student_data.email == "":
                 student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
 

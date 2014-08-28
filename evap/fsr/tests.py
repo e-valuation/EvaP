@@ -68,12 +68,12 @@ class UsecaseTests(WebTest):
                 responsible_count += 1
         self.assertEqual(responsible_count, 1, "Wrong number of responsible contributors after Excel import.")
 
-        check_student = User.objects.get(username="Diam.Synephebos")
+        check_student = User.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
-        self.assertEqual(check_student.email, "Diam.Synephebos@student.hpi.uni-potsdam.de")
+        self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
 
-        check_contributor = User.objects.get(username="Sanctus.Aliquyam")
-        self.assertEqual(check_contributor.first_name, "Sanctus")
+        check_contributor = User.objects.get(username="sanctus.aliquyam")
+        self.assertEqual(check_contributor.first_name, "")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
         self.assertEqual(check_contributor.email, "567@web.de")
 
