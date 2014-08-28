@@ -11,6 +11,10 @@
 
 {% block content %}
     {{ block.super }}
+    <div>
+        <a href="{% url "evap.fsr.views.user_import" %}" class="btn btn-sm btn-default">{% trans "Import Users" %}</a>
+        <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
+    </div>
     <table class="table table-striped user-table">
         <thead>
             <tr>

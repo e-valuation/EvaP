@@ -95,7 +95,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         super(ContributionForm, self).__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
-        self.fields['contributor'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['contributor'].queryset = User.objects.order_by('username')
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
 
     def validate_unique(self):
@@ -344,10 +344,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['delegates'].queryset = User.objects.order_by('username')
         self.fields['delegates'].help_text = ""
         self.fields['cc_users'].required = False
-        self.fields['cc_users'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['cc_users'].queryset = User.objects.order_by('username')
         self.fields['cc_users'].help_text = ""
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
@@ -380,10 +380,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     def _post_clean(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
-        self.instance.user.username = self.cleaned_data.get('username')
-        self.instance.user.first_name = self.cleaned_data.get('first_name')
-        self.instance.user.last_name = self.cleaned_data.get('last_name')
-        self.instance.user.email = self.cleaned_data.get('email')
+        self.instance.user.username = self.cleaned_data.get('username').strip().lower()
+        self.instance.user.first_name = self.cleaned_data.get('first_name').strip()
+        self.instance.user.last_name = self.cleaned_data.get('last_name').strip()
+        self.instance.user.email = self.cleaned_data.get('email').strip().lower()
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
         self.instance.user.is_superuser = self.cleaned_data.get('is_superuser')
         self.instance.user.save()
