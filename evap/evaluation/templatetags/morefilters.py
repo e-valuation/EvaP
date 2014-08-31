@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template import Library
-from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED
+from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STUDENT_STATES_ORDERED
 
 register = Library()
 
@@ -29,6 +29,10 @@ def gradename(grade):
 @register.filter(name='statename')
 def statename(state):
     return STATES_ORDERED.get(state)
+
+@register.filter(name='studentstatename')
+def studentstatename(state):
+    return STUDENT_STATES_ORDERED.get(state)
 
 
 @register.tag

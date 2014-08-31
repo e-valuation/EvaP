@@ -17,6 +17,17 @@ import datetime
 import random
 import sys
 
+# for converting state into student_state
+STUDENT_STATES_NAMES = {
+    'new': 'upcoming',
+    'prepared': 'upcoming',
+    'lecturerApproved': 'upcoming',
+    'approved': 'upcoming',
+    'inEvaluation': 'inEvaluation',
+    'evaluated': 'evaluationFinished',
+    'reviewed': 'evaluationFinished',
+    'published': 'published'
+}
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
@@ -91,7 +102,6 @@ class Questionnaire(models.Model):
 
 class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
-
 
     __metaclass__ = LocalizeModelBase
 
@@ -211,6 +221,10 @@ class Course(models.Model):
     @transition(field=state, source='published', target='reviewed')
     def revoke(self):
         pass
+
+    @property
+    def student_state(self):
+        return STUDENT_STATES_NAMES[self.state]
 
     @property
     def general_contribution(self):

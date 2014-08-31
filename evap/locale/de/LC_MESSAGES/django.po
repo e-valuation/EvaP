@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-20 00:18+0200\n"
-"PO-Revision-Date: 2014-07-20 00:19+0100\n"
+"POT-Creation-Date: 2014-08-18 23:49+0200\n"
+"PO-Revision-Date: 2014-08-18 23:50+0100\n"
 "Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: Poedit 1.6.3\n"
 
 #: contributor/forms.py:10
-#: fsr/forms.py:34
+#: fsr/forms.py:38
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
@@ -43,7 +43,7 @@ msgstr "Mein EvaP"
 #: contributor/templates/contributor_base.html:11
 #: contributor/templates/contributor_base.html:13
 #: contributor/templates/contributor_course_form.html:26
-#: fsr/templates/fsr_user_index.html:45
+#: fsr/templates/fsr_user_index.html:37
 msgid "Contributor"
 msgstr "Mitwirkender"
 
@@ -55,15 +55,16 @@ msgstr "Allgemeine Optionen"
 
 #: contributor/templates/contributor_course_form.html:22
 #: fsr/templates/fsr_course_form.html:16
+#: results/templates/results_course_detail.html:93
 msgid "Contributors"
 msgstr "Mitwirkende"
 
 #: contributor/templates/contributor_course_form.html:27
-#: fsr/forms.py:95
+#: fsr/forms.py:99
 #: fsr/templates/fsr_index.html:25
 #: fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11
-#: templates/base.html:56
+#: templates/base.html:69
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -77,7 +78,7 @@ msgid "Remove?"
 msgstr "Entfernen?"
 
 #: contributor/templates/contributor_course_form.html:45
-#: evaluation/models.py:327
+#: evaluation/models.py:318
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -105,7 +106,7 @@ msgstr "Abbrechen"
 #: contributor/templates/contributor_index.html:89
 #: fsr/templates/fsr_questionnaire_index.html:40
 #: fsr/templates/fsr_questionnaire_index.html:83
-#: fsr/templates/fsr_semester_view.html:74
+#: fsr/templates/fsr_semester_view.html:80
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -126,12 +127,11 @@ msgid "add another"
 msgstr "Weiteren hinzufügen"
 
 #: contributor/templates/contributor_index.html:22
-#: student/templates/student_index.html:52
 msgid "Evaluation info"
 msgstr "Evaluierungs-Infos"
 
 #: contributor/templates/contributor_index.html:25
-#: evaluation/models.py:497
+#: evaluation/models.py:488
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -154,9 +154,9 @@ msgstr "Kurse von Dozenten, von denen Sie als Stellvertreter definiert wurden, s
 #: contributor/templates/contributor_index.html:33
 #: contributor/templates/contributor_index.html:37
 #: contributor/templates/contributor_index.html:41
-#: student/templates/student_index.html:57
-#: student/templates/student_index.html:61
-#: student/templates/student_index.html:65
+#: student/templates/student_index.html:24
+#: student/templates/student_index.html:28
+#: student/templates/student_index.html:32
 msgid "More details:"
 msgstr "Mehr Infos:"
 
@@ -177,7 +177,7 @@ msgid "FAQ/States"
 msgstr "FAQ/Zustände"
 
 #: contributor/templates/contributor_index.html:39
-#: student/templates/student_index.html:63
+#: student/templates/student_index.html:30
 msgid "Evaluation Results"
 msgstr "Evaluierungs-Ergebnisse"
 
@@ -186,26 +186,29 @@ msgid "The student's comments will be shown to the lecturers who were evaluated 
 msgstr "Die Kommentare der Studierenden werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die Durchschnitts- und Median-Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
 #: contributor/templates/contributor_index.html:41
-#: student/templates/student_index.html:65
+#: student/templates/student_index.html:32
 msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
 #: contributor/templates/contributor_index.html:56
 #: fsr/models.py:19
-#: fsr/templates/fsr_user_index.html:25
+#: fsr/templates/fsr_user_index.html:17
+#: student/templates/student_index.html:46
 msgid "Name"
 msgstr "Name"
 
 #: contributor/templates/contributor_index.html:57
+#: student/templates/student_index.html:47
 msgid "State"
 msgstr "Zustand"
 
 #: contributor/templates/contributor_index.html:58
+#: student/templates/student_index.html:48
 msgid "Evaluation Period"
 msgstr "Abstimmungszeitraum"
 
 #: contributor/templates/contributor_index.html:59
-#: fsr/templates/fsr_semester_view.html:60
+#: fsr/templates/fsr_semester_view.html:61
 msgid "Participants"
 msgstr "Teilnehmer"
 
@@ -214,7 +217,7 @@ msgstr "Teilnehmer"
 #: fsr/templates/fsr_faq_section.html:64
 #: fsr/templates/fsr_questionnaire_index.html:22
 #: fsr/templates/fsr_questionnaire_index.html:65
-#: fsr/templates/fsr_user_index.html:28
+#: fsr/templates/fsr_user_index.html:20
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -227,11 +230,13 @@ msgid "Delegate"
 msgstr "Stellvertreter"
 
 #: contributor/templates/contributor_index.html:82
-#: fsr/templates/fsr_semester_view.html:89
-#: results/exporters.py:37
+#: fsr/templates/fsr_semester_view.html:95
+#: results/exporters.py:94
 #: results/templates/results_base.html:6
 #: results/templates/results_base.html:10
-#: templates/base.html:73
+#: student/templates/student_index.html:75
+#: student/templates/student_index.html:77
+#: templates/base.html:78
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -242,7 +247,7 @@ msgstr "Ergebnisse"
 #: fsr/templates/fsr_questionnaire_index.html:38
 #: fsr/templates/fsr_questionnaire_index.html:79
 #: fsr/templates/fsr_questionnaire_index.html:81
-#: fsr/templates/fsr_user_index.html:58
+#: fsr/templates/fsr_user_index.html:50
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -277,7 +282,7 @@ msgid "Invalid login key"
 msgstr "Ungültiger Anmeldeschlüssel"
 
 #: evaluation/forms.py:78
-#: fsr/templates/fsr_user_index.html:26
+#: fsr/templates/fsr_user_index.html:18
 msgid "Username"
 msgstr "Benutzername"
 
@@ -318,286 +323,287 @@ msgstr "HPI-Benutzer können keine Anmeldeschlüssel anfordern. Bitte melden Sie
 msgid "No user with this email address was found. Please make sure to enter the email address already known to the university office."
 msgstr "Es wurde kein Benutzer mit dieser E‑Mail-Adresse gefunden. Bitte verwenden Sie die E‑Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
 
-#: evaluation/models.py:25
-#: evaluation/models.py:57
-#: evaluation/models.py:101
-msgid "name (german)"
-msgstr "Name (deutsch)"
-
 #: evaluation/models.py:26
 #: evaluation/models.py:58
 #: evaluation/models.py:102
+msgid "name (german)"
+msgstr "Name (deutsch)"
+
+#: evaluation/models.py:27
+#: evaluation/models.py:59
+#: evaluation/models.py:103
 msgid "name (english)"
 msgstr "Name (englisch)"
 
-#: evaluation/models.py:30
+#: evaluation/models.py:31
 msgid "created at"
 msgstr "erstellt am"
 
-#: evaluation/models.py:34
-#: evaluation/models.py:99
+#: evaluation/models.py:35
+#: evaluation/models.py:100
 msgid "semester"
 msgstr "Semester"
 
-#: evaluation/models.py:35
+#: evaluation/models.py:36
 msgid "semesters"
 msgstr "Semester"
 
-#: evaluation/models.py:61
+#: evaluation/models.py:62
 msgid "description (german)"
 msgstr "Beschreibung (deutsch)"
 
-#: evaluation/models.py:62
+#: evaluation/models.py:63
 msgid "description (english)"
 msgstr "Beschreibung (englisch)"
 
-#: evaluation/models.py:65
+#: evaluation/models.py:66
 msgid "display name (german)"
 msgstr "Anzeigename (deutsch)"
 
-#: evaluation/models.py:66
+#: evaluation/models.py:67
 msgid "display name (english)"
 msgstr "Anzeigename (englisch)"
 
-#: evaluation/models.py:69
+#: evaluation/models.py:70
 msgid "teaser (german)"
 msgstr "Einleitung (deutsch)"
 
-#: evaluation/models.py:70
+#: evaluation/models.py:71
 msgid "teaser (english)"
 msgstr "Einleitung (englisch)"
 
-#: evaluation/models.py:73
+#: evaluation/models.py:74
 msgid "ordering index"
 msgstr "Sortierindex"
 
-#: evaluation/models.py:75
+#: evaluation/models.py:76
 msgid "is for contributors"
 msgstr "Personenfragebogen"
 
-#: evaluation/models.py:76
+#: evaluation/models.py:77
 #: fsr/templates/fsr_questionnaire_index.html:29
 #: fsr/templates/fsr_questionnaire_index.html:72
 msgid "obsolete"
 msgstr "obsolet"
 
-#: evaluation/models.py:80
+#: evaluation/models.py:81
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: evaluation/models.py:81
-#: evaluation/models.py:325
+#: evaluation/models.py:82
+#: evaluation/models.py:317
 msgid "questionnaires"
 msgstr "Fragebögen"
 
-#: evaluation/models.py:106
+#: evaluation/models.py:107
 msgid "type"
 msgstr "Typ"
 
-#: evaluation/models.py:109
+#: evaluation/models.py:110
 msgid "degree"
 msgstr "Studiengang"
 
-#: evaluation/models.py:112
+#: evaluation/models.py:113
+#: fsr/templates/fsr_semester_view.html:74
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: evaluation/models.py:113
+#: evaluation/models.py:114
 msgid "participant count"
 msgstr "Teilnehmeranzahl"
 
-#: evaluation/models.py:116
+#: evaluation/models.py:117
 msgid "voters"
 msgstr "Wähler"
 
-#: evaluation/models.py:117
+#: evaluation/models.py:118
 msgid "voter count"
 msgstr "Anzahl Wähler"
 
-#: evaluation/models.py:120
+#: evaluation/models.py:121
 msgid "first date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: evaluation/models.py:121
+#: evaluation/models.py:122
 msgid "last date to vote"
 msgstr "letzter Abstimmungstag"
 
-#: evaluation/models.py:133
-#: evaluation/models.py:323
+#: evaluation/models.py:134
+#: evaluation/models.py:315
 msgid "course"
 msgstr "Veranstaltung"
 
-#: evaluation/models.py:134
+#: evaluation/models.py:135
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: evaluation/models.py:142
+#: evaluation/models.py:143
 msgid "The vote start date must be before the vote end date."
 msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
-#: evaluation/models.py:289
+#: evaluation/models.py:281
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:291
+#: evaluation/models.py:283
 msgid "Not enough participants to publish results"
 msgstr "Zu wenig Teilnehmer für Veröffentlichung"
 
-#: evaluation/models.py:324
+#: evaluation/models.py:316
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:328
+#: evaluation/models.py:319
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:347
+#: evaluation/models.py:338
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:348
+#: evaluation/models.py:339
 msgid "Likert Question"
 msgstr "Likert-Frage"
 
-#: evaluation/models.py:349
+#: evaluation/models.py:340
 msgid "Grade Question"
 msgstr "Bewertungsfrage"
 
-#: evaluation/models.py:353
+#: evaluation/models.py:344
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:354
+#: evaluation/models.py:345
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:356
+#: evaluation/models.py:347
 msgid "kind of question"
 msgstr "Frageart"
 
-#: evaluation/models.py:362
-#: evaluation/models.py:483
+#: evaluation/models.py:353
+#: evaluation/models.py:474
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:363
-#: evaluation/models.py:484
+#: evaluation/models.py:354
+#: evaluation/models.py:475
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:396
-#: evaluation/models.py:404
-#: evaluation/models.py:414
+#: evaluation/models.py:387
+#: evaluation/models.py:395
+#: evaluation/models.py:405
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:397
+#: evaluation/models.py:388
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:407
+#: evaluation/models.py:398
 msgid "Likert answer"
 msgstr "Likert-Antwort"
 
-#: evaluation/models.py:408
+#: evaluation/models.py:399
 msgid "Likert answers"
 msgstr "Likert-Antworten"
 
-#: evaluation/models.py:417
+#: evaluation/models.py:408
 msgid "grade answer"
 msgstr "Bewertungs-Antwort"
 
-#: evaluation/models.py:418
+#: evaluation/models.py:409
 msgid "grade answers"
 msgstr "Bewertungs-Antworten"
 
-#: evaluation/models.py:427
+#: evaluation/models.py:418
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:428
+#: evaluation/models.py:419
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: evaluation/models.py:430
+#: evaluation/models.py:421
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: evaluation/models.py:431
+#: evaluation/models.py:422
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: evaluation/models.py:434
+#: evaluation/models.py:425
 msgid "text answer"
 msgstr "Text-Antwort"
 
-#: evaluation/models.py:435
+#: evaluation/models.py:426
 msgid "text answers"
 msgstr "Text-Antworten"
 
-#: evaluation/models.py:452
+#: evaluation/models.py:443
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:454
+#: evaluation/models.py:445
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evaluation/models.py:455
+#: evaluation/models.py:446
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evaluation/models.py:460
+#: evaluation/models.py:451
 msgid "section"
 msgstr "Abschnitt"
 
-#: evaluation/models.py:461
+#: evaluation/models.py:452
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evaluation/models.py:471
+#: evaluation/models.py:462
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:473
+#: evaluation/models.py:464
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:474
+#: evaluation/models.py:465
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:477
-#: evaluation/models.py:478
+#: evaluation/models.py:468
+#: evaluation/models.py:469
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evaluation/models.py:491
+#: evaluation/models.py:482
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:494
+#: evaluation/models.py:485
 msgid "Picture"
 msgstr "Foto"
 
-#: evaluation/models.py:500
+#: evaluation/models.py:491
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evaluation/models.py:505
-#: fsr/templates/fsr_user_index.html:51
+#: evaluation/models.py:496
+#: fsr/templates/fsr_user_index.html:43
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:506
+#: evaluation/models.py:497
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:509
+#: evaluation/models.py:500
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:510
+#: evaluation/models.py:501
 msgid "users"
 msgstr "Benutzer"
 
@@ -646,37 +652,51 @@ msgstr "4"
 msgid "5"
 msgstr "5"
 
-#: evaluation/tools.py:30
+#: evaluation/tools.py:31
 msgid "new"
 msgstr "neu"
 
-#: evaluation/tools.py:31
+#: evaluation/tools.py:32
 msgid "prepared"
 msgstr "vorbereitet"
 
-#: evaluation/tools.py:32
+#: evaluation/tools.py:33
 msgid "lecturer approved"
 msgstr "von Dozent bestätigt"
 
-#: evaluation/tools.py:33
+#: evaluation/tools.py:34
 msgid "approved"
 msgstr "bestätigt"
 
-#: evaluation/tools.py:34
+#: evaluation/tools.py:35
+#: evaluation/tools.py:47
 msgid "in evaluation"
 msgstr "in Evaluierung"
 
-#: evaluation/tools.py:35
+#: evaluation/tools.py:36
 msgid "evaluated"
 msgstr "evaluiert"
 
-#: evaluation/tools.py:36
+#: evaluation/tools.py:37
 msgid "reviewed"
 msgstr "überprüft"
 
-#: evaluation/tools.py:37
+#: evaluation/tools.py:38
+#: evaluation/tools.py:50
 msgid "published"
 msgstr "veröffentlicht"
+
+#: evaluation/tools.py:43
+#: evaluation/tools.py:44
+#: evaluation/tools.py:45
+#: evaluation/tools.py:46
+msgid "upcoming"
+msgstr "in Vorbereitung"
+
+#: evaluation/tools.py:48
+#: evaluation/tools.py:49
+msgid "evaluation finished"
+msgstr "Evaluierung beendet"
 
 #: evaluation/views.py:35
 msgid "Successfully sent email with new login key."
@@ -706,9 +726,9 @@ msgstr "Angegebene Statistik existiert nicht."
 
 #: evaluation/templates/faq.html:5
 #: evaluation/templates/faq.html.py:9
-#: fsr/templates/fsr_index.html:57
-#: templates/base.html:59
-#: templates/base.html.py:132
+#: fsr/templates/fsr_index.html:55
+#: templates/base.html:72
+#: templates/base.html.py:137
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -777,130 +797,139 @@ msgid "Last date to vote"
 msgstr "Letzter Abstimmungstag"
 
 #: fsr/forms.py:24
+#: fsr/forms.py:28
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: fsr/forms.py:35
+#: fsr/forms.py:39
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: fsr/forms.py:36
+#: fsr/forms.py:40
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
-#: fsr/forms.py:108
+#: fsr/forms.py:112
 msgid "Send to participants who didn't vote yet"
 msgstr "An Teilnehmer versenden, die noch nicht abgestimmt haben"
 
-#: fsr/forms.py:109
+#: fsr/forms.py:113
 msgid "Send to all participants"
 msgstr "An alle Teilnehmer versenden"
 
-#: fsr/forms.py:110
+#: fsr/forms.py:114
 msgid "Send to editors"
 msgstr "An Mitwirkende mit Bearbeitungsrechten versenden"
 
-#: fsr/forms.py:111
+#: fsr/forms.py:115
 msgid "Send to all contributors (includes editors)"
 msgstr "An alle Mitwirkenden versenden"
 
-#: fsr/forms.py:112
+#: fsr/forms.py:116
 #: fsr/models.py:21
 msgid "Subject"
 msgstr "Betreff"
 
-#: fsr/forms.py:113
+#: fsr/forms.py:117
 #: fsr/models.py:22
 msgid "Body"
 msgstr "Text"
 
-#: fsr/forms.py:124
+#: fsr/forms.py:128
 msgid "No recipient selected. Choose at least one group of recipients."
 msgstr "Kein Empfänger ausgewählt. Bitte wählen Sie wenigstens eine Empfängergruppe aus."
 
-#: fsr/forms.py:148
+#: fsr/forms.py:152
 msgid "Answer"
 msgstr "Antwort"
 
-#: fsr/forms.py:149
+#: fsr/forms.py:153
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: fsr/forms.py:150
+#: fsr/forms.py:154
 msgid "Do not publish"
 msgstr "Nicht veröffentlichen"
 
-#: fsr/forms.py:204
+#: fsr/forms.py:208
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: fsr/forms.py:219
+#: fsr/forms.py:223
 msgid "Please select the name of each added contributor. Remove empty rows if necessary."
 msgstr "Bitte wählen Sie die Namen aller hinzugefügten Mitwirkenden aus. Entfernen Sie leere Zeilen, falls notwendig."
 
-#: fsr/forms.py:221
+#: fsr/forms.py:225
 msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben werden."
 
-#: fsr/forms.py:234
+#: fsr/forms.py:238
 msgid "No responsible contributor found. Each course must have exactly one responsible contributor."
 msgstr "Kein Verantwortlicher gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:236
+#: fsr/forms.py:240
 msgid "Too many responsible contributors found. Each course must have exactly one responsible contributor."
 msgstr "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen Verantwortlichen besitzen."
 
-#: fsr/forms.py:348
+#: fsr/forms.py:352
 msgid "Student representative"
 msgstr "FSR-Mitglied"
 
-#: fsr/forms.py:349
+#: fsr/forms.py:353
 msgid "EvaP Administrator"
 msgstr "EvaP-Administrator"
 
-#: fsr/forms.py:352
+#: fsr/forms.py:356
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: fsr/forms.py:375
+#: fsr/forms.py:379
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:393
+#: fsr/forms.py:397
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
-#: fsr/importers.py:98
-#, python-format
-msgid "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s"
-msgstr "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s', %(ncols)s Spalten"
-
-#: fsr/importers.py:99
+#: fsr/importers.py:87
 #, python-format
 msgid "Successfully read sheet '%s'."
 msgstr "Blatt '%s' erfolgreich gelesen."
 
-#: fsr/importers.py:101
+#: fsr/importers.py:89
 #, python-format
 msgid "A problem occured while reading sheet '%s'."
 msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 
-#: fsr/importers.py:103
+#: fsr/importers.py:91
 msgid "Successfully read excel file."
 msgstr "Exceldatei erfolgreich gelesen."
 
-#: fsr/importers.py:156
+#: fsr/importers.py:95
+#: fsr/importers.py:108
+#, python-format
+msgid "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', number of columns: %(ncols)s"
+msgstr "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit '%(beginning)s', %(ncols)s Spalten"
+
+#: fsr/importers.py:168
+#: fsr/importers.py:192
 #, python-format
 msgid "A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'"
 msgstr "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung lautete: '%(error)s'"
 
-#: fsr/importers.py:160
+#: fsr/importers.py:172
 #, python-format
 msgid "Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s)."
 msgstr "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d Mitwirkende erfolgreich erstellt."
 
-#: fsr/importers.py:172
+#: fsr/importers.py:196
+#, python-format
+msgid "Successfully created %(users)d user(s)."
+msgstr "Erfolgreich %(users)d Benutzer erstellt."
+
+#: fsr/importers.py:208
+#: fsr/importers.py:221
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
@@ -1006,37 +1035,35 @@ msgstr "Fragebogen erfolgreich geändert."
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:573
+#: fsr/views.py:563
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:591
+#: fsr/views.py:588
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:612
+#: fsr/views.py:605
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:624
+#: fsr/views.py:617
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: fsr/views.py:640
+#: fsr/views.py:633
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: fsr/views.py:657
+#: fsr/views.py:650
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
 #: fsr/templates/fsr_base.html:7
 #: fsr/templates/fsr_base.html.py:12
 #: fsr/templates/fsr_base.html:14
-#: fsr/templates/fsr_index.html:46
-#: fsr/templates/fsr_user_index.html:15
-#: templates/base.html:50
+#: templates/base.html:63
 msgid "Student Representatives"
 msgstr "Fachschaftsrat"
 
@@ -1146,6 +1173,7 @@ msgid "Upload semester data from excel file ("
 msgstr "Semester aus Excel-Tabelle importieren ("
 
 #: fsr/templates/fsr_import.html:9
+#: fsr/templates/fsr_user_import.html:9
 msgid "Sample File"
 msgstr "Beispieldatei"
 
@@ -1157,7 +1185,7 @@ msgstr "): Alle in der Datei enthaltenen Studierenden, Mitwirkenden und Kurse we
 #: fsr/templates/fsr_semester_base.html:7
 #: fsr/templates/fsr_semester_base.html:21
 #: results/templates/results_index.html:8
-#: templates/base.html:53
+#: templates/base.html:66
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1185,8 +1213,8 @@ msgstr "Neuen Fragebogen anlegen"
 
 #: fsr/templates/fsr_index.html:43
 #: fsr/templates/fsr_user_form.html:8
-#: fsr/templates/fsr_user_index.html:8
-#: templates/base.html:57
+#: fsr/templates/fsr_user_index.html:9
+#: templates/base.html:70
 msgid "Users"
 msgstr "Benutzer"
 
@@ -1195,17 +1223,12 @@ msgid "All users"
 msgstr "Alle Benutzer"
 
 #: fsr/templates/fsr_index.html:47
-#: fsr/templates/fsr_user_index.html:16
-msgid "Responsible Contributors"
-msgstr "Verantwortliche"
-
-#: fsr/templates/fsr_index.html:49
 #: fsr/templates/fsr_template_form.html:8
-#: templates/base.html:58
+#: templates/base.html:71
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
-#: fsr/templates/fsr_index.html:59
+#: fsr/templates/fsr_index.html:57
 msgid "All Sections"
 msgstr "Alle Abschnitte"
 
@@ -1221,9 +1244,9 @@ msgstr "Kopieren"
 #: fsr/templates/fsr_questionnaire_index.html:45
 #: fsr/templates/fsr_questionnaire_index.html:86
 #: fsr/templates/fsr_questionnaire_index.html:88
-#: fsr/templates/fsr_semester_view.html:77
-#: fsr/templates/fsr_user_index.html:60
-#: fsr/templates/fsr_user_index.html:62
+#: fsr/templates/fsr_semester_view.html:83
+#: fsr/templates/fsr_user_index.html:52
+#: fsr/templates/fsr_user_index.html:54
 msgid "Delete"
 msgstr "Löschen"
 
@@ -1328,52 +1351,52 @@ msgstr "Veranstaltungen importieren"
 msgid "Assign Questionnaires"
 msgstr "Fragebögen zuordnen"
 
-#: fsr/templates/fsr_semester_view.html:61
+#: fsr/templates/fsr_semester_view.html:62
 msgid "Text Answers"
 msgstr "Textantworten"
 
-#: fsr/templates/fsr_semester_view.html:72
+#: fsr/templates/fsr_semester_view.html:78
 msgid "Email"
 msgstr "E‑Mail"
 
-#: fsr/templates/fsr_semester_view.html:80
+#: fsr/templates/fsr_semester_view.html:86
 msgid "Review"
 msgstr "Überprüfen"
 
-#: fsr/templates/fsr_semester_view.html:83
-#: fsr/templates/fsr_semester_view.html:87
+#: fsr/templates/fsr_semester_view.html:89
+#: fsr/templates/fsr_semester_view.html:93
 msgid "Comments"
 msgstr "Kommentare"
 
-#: fsr/templates/fsr_semester_view.html:84
+#: fsr/templates/fsr_semester_view.html:90
 msgid "Preview results"
 msgstr "Ergebnis-Vorschau"
 
-#: fsr/templates/fsr_semester_view.html:88
+#: fsr/templates/fsr_semester_view.html:94
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: fsr/templates/fsr_semester_view.html:99
+#: fsr/templates/fsr_semester_view.html:105
 msgid "Enable courses for Lecturer Review..."
 msgstr "Zur Überprüfung durch Dozent freigeben..."
 
-#: fsr/templates/fsr_semester_view.html:102
+#: fsr/templates/fsr_semester_view.html:108
 msgid "Revert courses to New..."
 msgstr "Kurse auf Neu zurücksetzen..."
 
-#: fsr/templates/fsr_semester_view.html:105
+#: fsr/templates/fsr_semester_view.html:111
 msgid "Approve courses..."
 msgstr "Veranstaltungen bestätigen..."
 
-#: fsr/templates/fsr_semester_view.html:109
+#: fsr/templates/fsr_semester_view.html:115
 msgid "Re-Enable courses for Lecturer Review..."
 msgstr "Kurse erneut zur Überprüfung durch Dozent freigeben..."
 
-#: fsr/templates/fsr_semester_view.html:113
+#: fsr/templates/fsr_semester_view.html:119
 msgid "Publish courses..."
 msgstr "Veranstaltungen veröffentlichen..."
 
-#: fsr/templates/fsr_semester_view.html:121
+#: fsr/templates/fsr_semester_view.html:127
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
@@ -1390,101 +1413,106 @@ msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
 msgid "Save user"
 msgstr "Benutzer speichern"
 
-#: fsr/templates/fsr_user_index.html:14
-msgid "All"
-msgstr "Alle"
+#: fsr/templates/fsr_user_import.html:9
+msgid "Upload user data from excel file ("
+msgstr "Benutzer aus Excel-Tabelle importieren ("
 
-#: fsr/templates/fsr_user_index.html:18
-msgid "Create new user"
-msgstr "Neuen Benutzer erstellen"
+#: fsr/templates/fsr_user_import.html:9
+msgid "). This will create all containing users."
+msgstr "). Alle enthaltenen Nutzer werden angelegt."
 
-#: fsr/templates/fsr_user_index.html:27
+#: fsr/templates/fsr_user_index.html:19
 msgid "Information"
 msgstr "Information"
 
-#: fsr/templates/fsr_user_index.html:42
+#: fsr/templates/fsr_user_index.html:34
 msgid "Student Representative"
 msgstr "FSR-Mitglied"
 
-#: fsr/templates/fsr_user_index.html:48
-#: results/templates/results_course_detail.html:35
-#: results/templates/results_semester_detail.html:23
+#: fsr/templates/fsr_user_index.html:40
+#: results/templates/results_course_detail.html:34
+#: results/templates/results_semester_detail.html:43
 msgid "Responsible"
 msgstr "Verantwortlicher"
 
-#: fsr/templates/fsr_user_index.html:54
+#: fsr/templates/fsr_user_index.html:46
 msgid "Email address missing!"
 msgstr "E‑Mail-Adresse fehlt!"
 
-#: fsr/templates/fsr_user_index.html:62
+#: fsr/templates/fsr_user_index.html:54
 msgid "This user cannot be deleted because he is a contributor to a course"
 msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: results/exporters.py:85
+#: results/exporters.py:101
 msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
 
-#: results/exporters.py:155
+#: results/exporters.py:153
 msgid "Overall Average Grade"
 msgstr "Gesamtdurchschnittsnote"
 
-#: results/exporters.py:173
+#: results/exporters.py:161
 msgid "Overall Median Grade"
 msgstr "Gesamtmediannote"
 
-#: results/exporters.py:191
+#: results/exporters.py:169
 msgid "Total Answers"
 msgstr "Antworten"
 
-#: results/templates/results_course_detail.html:18
+#: results/templates/results_course_detail.html:17
 msgid "This is a preview. The course is still in the process of evaluation."
 msgstr "Dies ist eine Vorschau. Die Lehrveranstaltung befindet sich noch im Prozess der Evaluierung."
 
-#: results/templates/results_course_detail.html:20
+#: results/templates/results_course_detail.html:19
 msgid "The results of this course have not been published because it didn't get enough votes."
 msgstr "Die Ergebnisse dieser Veranstaltung wurden nicht veröffentlicht, weil nicht genügend Teilnehmer abgestimmt haben."
 
-#: results/templates/results_course_detail.html:27
-#: templates/base.html:52
+#: results/templates/results_course_detail.html:26
+#: templates/base.html:65
 msgid "Overview"
 msgstr "Übersicht"
 
-#: results/templates/results_course_detail.html:33
+#: results/templates/results_course_detail.html:32
 msgid "Degree"
 msgstr "Studiengang"
 
-#: results/templates/results_course_detail.html:34
-#: results/templates/results_semester_detail.html:22
+#: results/templates/results_course_detail.html:33
+#: results/templates/results_semester_detail.html:42
 msgid "Type"
 msgstr "Typ"
 
-#: results/templates/results_course_detail.html:36
-#: results/templates/results_semester_detail.html:24
+#: results/templates/results_course_detail.html:35
+#: results/templates/results_semester_detail.html:44
 msgid "Average Grade"
 msgstr "Durchschnittsnote"
 
-#: results/templates/results_course_detail.html:37
-#: results/templates/results_semester_detail.html:25
+#: results/templates/results_course_detail.html:36
+#: results/templates/results_semester_detail.html:45
 msgid "Median Grade"
 msgstr "Mediannote"
 
-#: results/templates/results_course_detail.html:38
-#: results/templates/results_semester_detail.html:26
+#: results/templates/results_course_detail.html:37
+#: results/templates/results_semester_detail.html:46
 msgid "Voters"
 msgstr "Wähler"
 
+#: results/templates/results_course_detail.html:50
 #: results/templates/results_course_detail.html:51
-#: results/templates/results_course_detail.html:52
-#: results/templates/results_course_detail.html:120
-#: results/templates/results_course_detail.html:146
-#: results/templates/results_semester_detail.html:36
-#: results/templates/results_semester_detail.html:45
-#: results/templates/results_semester_detail.html:46
+#: results/templates/results_course_detail_questionnaires.html:32
+#: results/templates/results_course_detail_questionnaires.html:58
+#: results/templates/results_semester_detail.html:56
+#: results/templates/results_semester_detail.html:67
+#: results/templates/results_semester_detail.html:68
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
-#: results/templates/results_course_detail.html:101
-#: results/templates/results_course_detail.html:127
+#: results/templates/results_course_detail.html:80
+#: results/templates/results_semester_detail.html:41
+msgid "Course"
+msgstr "Veranstaltung"
+
+#: results/templates/results_course_detail_questionnaires.html:13
+#: results/templates/results_course_detail_questionnaires.html:39
 msgid "Answers given: "
 msgstr "Erhaltene Antworten: "
 
@@ -1492,83 +1520,70 @@ msgstr "Erhaltene Antworten: "
 msgid "No results available yet"
 msgstr "Es sind noch keine Ergebnisse verfügbar."
 
-#: results/templates/results_semester_detail.html:21
-msgid "Course"
-msgstr "Veranstaltung"
-
-#: results/templates/results_semester_detail.html:72
+#: results/templates/results_semester_detail.html:96
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: results/templates/results_semester_detail.html:73
+#: results/templates/results_semester_detail.html:97
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: student/views.py:112
+#: student/views.py:114
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
-#: student/templates/student_index.html:5
-#: student/templates/student_index.html:10
-#: student/templates/student_index.html:12
+#: student/templates/student_index.html:6
+#: student/templates/student_index.html:11
+#: student/templates/student_index.html:13
 #: student/templates/student_vote.html:6
 #: student/templates/student_vote.html:10
-#: templates/base.html:45
 msgid "Evaluation"
 msgstr "Bewertung"
 
-#: student/templates/student_index.html:21
-msgid "Courses for evaluation"
-msgstr "Zu evaluierende Veranstaltungen"
-
-#: student/templates/student_index.html:26
-msgid "You can vote on the following courses:"
-msgstr "Du kannst die folgenden Veranstaltungen bewerten:"
-
-#: student/templates/student_index.html:29
-#: student/templates/student_index.html:41
-msgid "until"
-msgstr "bis zum"
-
-#: student/templates/student_index.html:33
-msgid "You cannot vote on any courses right now."
-msgstr "Du kannst zurzeit keine Veranstaltungen bewerten."
-
-#: student/templates/student_index.html:38
-msgid "You will be able to vote on the following courses soon:"
-msgstr "Die folgenden Veranstaltungen kannst du bald bewerten:"
-
-#: student/templates/student_index.html:41
-msgid "from"
-msgstr "vom"
-
-#: student/templates/student_index.html:55
+#: student/templates/student_index.html:22
 msgid "Anonymity"
 msgstr "Anonymität"
 
-#: student/templates/student_index.html:56
+#: student/templates/student_index.html:23
 msgid "Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses."
 msgstr "Deine abgegebenen Stimmen und Kommentare können dir technisch nicht zugeordnet werden. Dir sollte aber bewusst sein, dass dich Dozenten insbesondere in kleinen Veranstaltungen an deinem Schreibstil erkennen könnten."
 
-#: student/templates/student_index.html:57
+#: student/templates/student_index.html:24
 msgid "FAQ/Anonymity"
 msgstr "FAQ/Anonymität"
 
-#: student/templates/student_index.html:59
+#: student/templates/student_index.html:26
 msgid "References to other answers"
 msgstr "Verweise auf andere Antworten"
 
-#: student/templates/student_index.html:60
+#: student/templates/student_index.html:27
 msgid "Lecturers can't see completed questionnaires as a whole. If you would write \"see above\", the lecturer can't find the respective answer."
 msgstr "Dozenten können sich keine kompletten Fragebögen ansehen. Wenn du in einem Kommentar schreibst \"wie oben schon erwähnt\", kann der Dozent die zugehörige Antwort nicht finden."
 
-#: student/templates/student_index.html:61
+#: student/templates/student_index.html:28
 msgid "FAQ/Reference"
 msgstr "FAQ/Verweise"
 
-#: student/templates/student_index.html:64
+#: student/templates/student_index.html:31
 msgid "Your comments will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation."
 msgstr "Deine Kommentare werden den bewerteten Personen und dem Verantwortlichen der zugehörigen Lehrveranstaltung zugänglich gemacht – aber erst nachdem die Noten der Prüfungen dieser Veranstaltung veröffentlicht wurden. Außerdem werden bei Veröffentlichung die Durchschnitts- und Median-Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der Teilnehmer abgestimmt haben."
+
+#: student/templates/student_index.html:62
+msgid "You did not evaluate this course"
+msgstr "Du hast diese Veranstaltung nicht evaluiert"
+
+#: student/templates/student_index.html:77
+msgid "We did not receive enough votes to publish the results of this course"
+msgstr "Es gab nicht genügend Teilnehmer, um die Ergebnisse dieser Veranstaltung zu veröffentlichen"
+
+#: student/templates/student_index.html:81
+msgid "You already evaluated this course"
+msgstr "Du hast diese Veranstaltung schon evaluiert"
+
+#: student/templates/student_index.html:81
+#: student/templates/student_index.html:83
+msgid "Evaluate"
+msgstr "Evaluieren"
 
 #: student/templates/student_vote.html:17
 msgid "Please make sure to vote for all contributors or click on \"I can't give feedback\" to skip a person."
@@ -1606,47 +1621,55 @@ msgstr "Die Seite wurde leider nicht gefunden."
 msgid "Something seems to be broken here. The admins have been notified and will follow up with you."
 msgstr "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und werden ggf. nachfragen."
 
-#: templates/base.html:38
+#: templates/base.html:40
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:65
-msgid "My courses"
-msgstr "Veranstaltungen"
+#: templates/base.html:48
+msgid "My courses (student)"
+msgstr "Meine Veranstaltungen (Student)"
 
-#: templates/base.html:69
+#: templates/base.html:49
+msgid "My courses (lecturer)"
+msgstr "Meine Veranstaltungen (Mitwirkender)"
+
+#: templates/base.html:51
+#: templates/base.html.py:54
+msgid "My courses"
+msgstr "Meine Veranstaltungen"
+
+#: templates/base.html:58
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:82
+#: templates/base.html:87
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:84
+#: templates/base.html:89
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:85
+#: templates/base.html:90
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:89
+#: templates/base.html:94
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:101
+#: templates/base.html:106
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:128
+#: templates/base.html:133
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:135
+#: templates/base.html:140
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:137
+#: templates/base.html:142
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
-
