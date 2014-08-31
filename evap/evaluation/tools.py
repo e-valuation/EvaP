@@ -88,23 +88,20 @@ def get_answers(course, contribution, question):
     answers = None
     
     if question.is_likert_question():
-        # gather all numeric answers as a simple list
         answers = LikertAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
     
-    if question.is_grade_question():
-        # gather all numeric answers as a simple list
+    elif question.is_grade_question():
         answers = GradeAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
     
-    if question.is_text_question():
-        # gather text answers for this question
+    elif question.is_text_question():
         answers = TextAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
@@ -157,7 +154,6 @@ def calculate_results(course, staff_member=False):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_likert_question():
-                # gather all numeric answers as a simple list
                 answers = get_answers(course, contribution, question)
 
                 # calculate average, median and distribution
@@ -197,7 +193,6 @@ def calculate_results(course, staff_member=False):
                     warning=len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
                 ))
             elif question.is_grade_question():
-                # gather all numeric answers as a simple list
                 answers = get_answers(course, contribution, question)
 
                 # calculate average, median and distribution
@@ -237,7 +232,6 @@ def calculate_results(course, staff_member=False):
                     warning=len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
                 ))
             elif question.is_text_question():
-                # gather text answers for this question
                 answers = get_answers(course, contribution, question)
 
                 # only add to the results if answers exist at all
