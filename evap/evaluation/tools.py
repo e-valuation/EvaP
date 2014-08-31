@@ -266,13 +266,16 @@ def calculate_results(course, staff_member=False):
         average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
         median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
 
-        warning = questionnaire_med_answers[questionnaire] > 0 and questionnaire_max_answers[(questionnaire, contribution)] < settings.RESULTS_WARNING_PERCENTAGE * questionnaire_med_answers[questionnaire]
+        max_answers_this_questionnaire = questionnaire_max_answers[(questionnaire, contribution)]
+        med_answers_this_questionnaire_type = questionnaire_med_answers[questionnaire]
+        warning_threshold = settings.RESULTS_WARNING_PERCENTAGE * med_answers_this_questionnaire_type
+        section_warning = med_answers_this_questionnaire_type > 0 and max_answers_this_questionnaire < warning_threshold
         
         sections.append(ResultSection(questionnaire, contribution.contributor, results,
             average_likert, median_likert,
             average_grade, median_grade,
             average_total, median_total,
-            warning))
+            section_warning))
 
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
