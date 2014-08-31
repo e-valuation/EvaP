@@ -40,13 +40,9 @@ STATES_ORDERED = SortedDict((
 
 # the names used for students
 STUDENT_STATES_ORDERED = SortedDict((
-    ('new', _('upcoming')),
-    ('prepared', _('upcoming')),
-    ('lecturerApproved', _('upcoming')),
-    ('approved', _('upcoming')),
     ('inEvaluation', _('in evaluation')),
-    ('evaluated', _('evaluation finished')),
-    ('reviewed', _('evaluation finished')),
+    ('upcoming', _('upcoming')),
+    ('evaluationFinished', _('evaluation finished')),
     ('published', _('published'))
 ))
 

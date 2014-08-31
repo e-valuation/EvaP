@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course, Semester, UserProfile
-from evap.evaluation.tools import questionnaires_and_contributions_by_contributor, STATES_ORDERED
+from evap.evaluation.tools import questionnaires_and_contributions_by_contributor, STUDENT_STATES_ORDERED
 
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
@@ -22,7 +22,7 @@ def index(request):
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
 
-    sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+    sorter = lambda course: (STUDENT_STATES_ORDERED.keys().index(course.student_state), course.name)
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
