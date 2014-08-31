@@ -17,29 +17,24 @@
     {{ block.super }}
 
     <small>
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">{% trans "Evaluation info" %}</h3>
-            </div>
-            <div class="panel-body">
-                <b>{% trans "Delegates" %}</b><br />
-                {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
-                {% if user.userprofile.is_editor %}
-                    {% blocktrans %}You can assign your own delegates in your profile.{% endblocktrans %} <a href="{% url "evap.contributor.views.profile_edit" %}" class="btn btn-xs btn-default">{% trans "Edit profile" %}</a><br />
-                {% endif %}
-                {% if delegated_courses %}
-                    {% blocktrans %}Courses from lecturers who set you as a delegate are marked with a label below.{% endblocktrans %}<br />
-                {% endif %}
-                <em>{% trans "More details:" %} <a href="/faq#15">{% trans "FAQ/Delegates" %}</a></em><br />
-                <br />
-                <b>{% trans "States of the courses" %}</b><br />
-                {% blocktrans %}You can only edit courses which are in the state "prepared". After you approved a course it will automatically change to the state "lecturer approved" and your preparation is finished.{% endblocktrans %}<br />
-                <em>{% trans "More details:" %} <a href="/faq#18">{% trans "FAQ/States" %}</a></em><br />
-                <br />
-                <b>{% trans "Evaluation Results" %}</b><br />
-                {% blocktrans %}The student's comments will be shown to the lecturers who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
-                <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
-            </div>
+        <div class="bs-callout bs-callout-info">
+            <b>{% trans "Delegates" %}</b><br />
+            {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
+            {% if user.userprofile.is_editor %}
+                {% blocktrans %}You can assign your own delegates in your profile.{% endblocktrans %} <a href="{% url "evap.contributor.views.profile_edit" %}" class="btn btn-xs btn-default">{% trans "Edit profile" %}</a><br />
+            {% endif %}
+            {% if delegated_courses %}
+                {% blocktrans %}Courses from lecturers who set you as a delegate are marked with a label below.{% endblocktrans %}<br />
+            {% endif %}
+            <em>{% trans "More details:" %} <a href="/faq#15">{% trans "FAQ/Delegates" %}</a></em><br />
+            <br />
+            <b>{% trans "States of the courses" %}</b><br />
+            {% blocktrans %}You can only edit courses which are in the state "prepared". After you approved a course it will automatically change to the state "lecturer approved" and your preparation is finished.{% endblocktrans %}<br />
+            <em>{% trans "More details:" %} <a href="/faq#18">{% trans "FAQ/States" %}</a></em><br />
+            <br />
+            <b>{% trans "Evaluation Results" %}</b><br />
+            {% blocktrans %}The student's comments will be shown to the lecturers who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+            <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
         </div>
     </small>
 
@@ -53,31 +48,31 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th class="maximize">{% trans "Name" %}</th>
-                        <th class="maximize">{% trans "State" %}</th>
-                        <th class="minimize">{% trans "Evaluation Period" %}</th>
-                        <th class="minimize">{% trans "Participants" %}</th>
-                        <th class="minimize">{% trans "Actions" %}</th>
+                        <th class="col-sm-5">{% trans "Name" %}</th>
+                        <th class="col-sm-2">{% trans "State" %}</th>
+                        <th class="col-sm-2">{% trans "Evaluation Period" %}</th>
+                        <th class="col-sm-1">{% trans "Participants" %}</th>
+                        <th class="col-sm-2"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for course in semester.courses %}
                         <tr>
-                            <td class="maximize">
+                            <td>
                                 <div>
                                     {{ course.name }}
                                 </div>
                                 <span class="label label-default">{{ course.kind }}</span>
                                 {% if course in delegated_courses %}<span class="label label-info twipsify" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
-                            <td class="minimize">
+                            <td>
                                 {{ course.state|statename }}
                             </td>
-                            <td class="minimize">
+                            <td>
                                 {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
                             </td>
-                            <td class="minimize">{{ course.num_participants }}</td>
-                            <td class="minimize">
+                            <td>{{ course.num_participants }}</td>
+                            <td>
                                 {% if course.state == 'published' %}
                                     <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% else %}
