@@ -50,42 +50,42 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for course in semester.courses%}
-                        <tr>
-                            <td>
-                                <div>
-                                    {{ course.name }}
-                                </div>
-                                <span class="label label-default">{{ course.kind }}</span>
-                                {% if course not in voted_courses %}
-                                    {% if course.state == 'evaluated' or course.state == 'published' %}
-                                        <span class="label label-info">{% trans "You did not evaluate this course" %}</span>
+                        {% for course in semester.courses %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        {{ course.name }}
+                                    </div>
+                                    <span class="label label-default">{{ course.kind }}</span>
+                                    {% if course not in voted_courses %}
+                                        {% if course.state == 'evaluated' or course.state == 'published' %}
+                                            <span class="label label-info">{% trans "You did not evaluate this course" %}</span>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {{ course.state|studentstatename }}
-                            </td>
-                            <td>
-                                {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
-                            </td>
-                            <td>
-                                {% if course.state == 'published' %}
-                                    {% if course.can_publish_grades %}
-                                        <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-                                    {% else %}
-                                        <a class="btn btn-sm btn-default twipsify" disabled="disabled" title="{% trans "We did not receive enough votes to publish the results of this course" %}">{% trans "Results" %}</a>
+                                </td>
+                                <td>
+                                    {{ course.state|studentstatename }}
+                                </td>
+                                <td>
+                                    {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
+                                </td>
+                                <td>
+                                    {% if course.state == 'published' %}
+                                        {% if course.can_publish_grades %}
+                                            <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                        {% else %}
+                                            <a class="btn btn-sm btn-default twipsify" disabled="disabled" title="{% trans "We did not receive enough votes to publish the results of this course" %}">{% trans "Results" %}</a>
+                                        {% endif %}
+                                    {% elif course.state == 'inEvaluation' %}
+                                        {% if course in voted_courses %}
+                                            <a class="btn btn-sm btn-primary twipsify" disabled="disabled" title="{% trans "You already evaluated this course" %}">{% trans "Evaluate" %}</a>
+                                        {% else %}
+                                            <a href="{% url "evap.student.views.vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
+                                        {% endif %}
                                     {% endif %}
-                                {% elif course.state == 'inEvaluation' %}
-                                    {% if course in voted_courses %}
-                                        <a class="btn btn-sm btn-primary twipsify" disabled="disabled" title="{% trans "You already evaluated this course" %}">{% trans "Evaluate" %}</a>
-                                    {% else %}
-                                        <a href="{% url "evap.student.views.vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
-                                    {% endif %}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
