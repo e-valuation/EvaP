@@ -114,7 +114,9 @@ class Course(models.Model):
     name = Translate
 
     # type of course: lecture, seminar, project
-    kind = models.CharField(max_length=1024, verbose_name=_(u"type"))
+    kind_de = models.CharField(max_length=1024, verbose_name=_(u"type (german)"))
+    kind_en = models.CharField(max_length=1024, verbose_name=_(u"type (english)"))
+    kind = Translate
 
     # bachelor, master, d-school course
     degree = models.CharField(max_length=1024, verbose_name=_(u"degree"))
