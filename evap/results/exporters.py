@@ -29,11 +29,11 @@ class ExcelExporter(object):
         'border_right':  xlwt.easyxf('borders: right medium'),
         'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
 
-    grade_color_palette = [["custom_dark_green",  0x20, (120, 241, 89)],
-                               ["custom_light_green", 0x21, (188, 241, 89)],
-                               ["custom_yellow",      0x22, (241, 226, 89)],
-                               ["custom_orange",      0x23, (241, 158, 89)],
-                               ["custom_red",         0x24, (241,  89, 89)]]
+    grade_color_palette = [["custom_dark_green",  0x20, (136, 191, 74)],
+                               ["custom_light_green", 0x21, (187, 209, 84)],
+                               ["custom_yellow",      0x22, (239, 226, 88)],
+                               ["custom_orange",      0x23, (242, 158, 88)],
+                               ["custom_red",         0x24, (235,  89, 90)]]
 
     # Adding evaP colors to palette
     for index, c in enumerate(grade_color_palette):
