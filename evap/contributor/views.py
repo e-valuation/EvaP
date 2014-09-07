@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester, UserProfile
@@ -13,6 +12,7 @@ from evap.contributor.forms import CourseForm, UserForm
 from evap.fsr.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
 
+from collections import OrderedDict
 
 @editor_or_delegate_required
 def index(request):
@@ -114,7 +114,7 @@ def course_preview(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # build forms
-    forms = SortedDict()
+    forms = OrderedDict()
     for questionnaire, contribution in questionnaires_and_contributions(course):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
         forms[(contribution, questionnaire)] = form

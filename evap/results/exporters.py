@@ -1,9 +1,9 @@
 from evap.evaluation.models import Questionnaire
 from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades
 
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
+from collections import OrderedDict
 from collections import defaultdict
 import datetime
 import xlwt
@@ -74,7 +74,7 @@ class ExcelExporter(object):
     def export(self, response, ignore_not_enough_answers=False):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
-            results = SortedDict()
+            results = OrderedDict()
             for questionnaire, contributor, data, avg_likert, med_likert, avg_grade, med_grade, avg_total, med_total in calculate_results(course):
                 results.setdefault(questionnaire.id, []).append((contributor, data, avg_total, med_total))
             courses_with_results.append((course, results))

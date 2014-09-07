@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import fsr_required
@@ -438,7 +438,7 @@ def course_preview(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # build forms
-    forms = SortedDict()
+    forms = OrderedDict()
     for questionnaire, contribution in questionnaires_and_contributions(course):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
         forms[(contribution, questionnaire)] = form

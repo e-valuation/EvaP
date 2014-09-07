@@ -2,12 +2,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Course, UserProfile
 
 import xlrd
+from collections import OrderedDict
 
 
 class UserData(object):
@@ -72,7 +72,7 @@ class CourseData(object):
 
 class ExcelImporter(object):
     def __init__(self, request):
-        self.associations = SortedDict()
+        self.associations = OrderedDict()
         self.request = request
 
     def for_each_row_in_excel_file_do(self, excel_file, execute_per_row):
