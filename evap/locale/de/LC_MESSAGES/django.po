@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-07 12:56+0200\n"
-"PO-Revision-Date: 2014-09-07 12:57+0100\n"
-"Last-Translator: Johannes Wolf <johannes.wolf@student.hpi.uni-potsdam.de>\n"
+"POT-Creation-Date: 2014-09-07 15:37+0200\n"
+"PO-Revision-Date: 2014-09-07 15:37+0100\n"
+"Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.6.5\n"
 
 #: contributor/forms.py:10 fsr/forms.py:38
 msgid "General questions"
@@ -932,7 +932,7 @@ msgstr ""
 "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
 "'%(beginning)s', %(ncols)s Spalten"
 
-#: fsr/importers.py:163 fsr/importers.py:187
+#: fsr/importers.py:163 fsr/importers.py:185
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -940,10 +940,10 @@ msgid ""
 "been: '%(error)s'"
 msgstr ""
 "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die "
-"Ursprungsdaten stehen in Blatt %(sheet)s, Zeile %(row)d. Die Fehlermeldung "
+"Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: fsr/importers.py:167
+#: fsr/importers.py:165
 #, python-format
 msgid ""
 "Successfully created %(courses)d course(s), %(students)d student(s) and "
@@ -952,12 +952,12 @@ msgstr ""
 "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d "
 "Mitwirkende erfolgreich erstellt."
 
-#: fsr/importers.py:191
+#: fsr/importers.py:187
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
-#: fsr/importers.py:203 fsr/importers.py:216
+#: fsr/importers.py:199 fsr/importers.py:212
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
@@ -1518,7 +1518,6 @@ msgid "This user cannot be deleted because he is a contributor to a course"
 msgstr "Der Nutzer kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
 #: results/exporters.py:101
-#, python-brace-format
 msgid "Evaluation {0} - created on {1}"
 msgstr "Evaluation {0} - erstellt am {1}"
 
@@ -1531,8 +1530,8 @@ msgid "Overall Median Grade"
 msgstr "Gesamtmediannote"
 
 #: results/exporters.py:169
-msgid "Total Answers"
-msgstr "Antworten"
+msgid "Total Voters/Total Participants"
+msgstr "Anzahl Abstimmende/Anzahl Teilnehmer"
 
 #: results/templates/results_course_detail.html:17
 msgid "This is a preview. The course is still in the process of evaluation."

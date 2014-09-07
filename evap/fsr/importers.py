@@ -160,9 +160,7 @@ class ExcelImporter(object):
                     course.participants.add(student)
 
                 except Exception, e:
-                    messages.warning(self.request, _("A problem occured while writing the entries to the database. " \
-                                                     "The original data location was row %(row)d of sheet '%(sheet)s'. " \
-                                                     "The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
+                    messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
             messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") %
                                             dict(courses=course_count, students=student_count, contributors=contributor_count))
@@ -184,9 +182,7 @@ class ExcelImporter(object):
                         users_count += 1
 
                 except Exception, e:
-                    messages.warning(self.request, _("A problem occured while writing the entries to the database. " \
-                                                     "The original data location was row %(row)d of sheet '%(sheet)s'. " \
-                                                     "The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
+                    messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
             messages.info(self.request, _("Successfully created %(users)d user(s).") %
                                             dict(users=users_count))

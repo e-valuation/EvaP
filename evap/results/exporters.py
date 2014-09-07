@@ -23,7 +23,7 @@ class ExcelExporter(object):
         'headline':      xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on', num_format_str="0.0"),
         'course':        xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium'),
         'course_unfinished': xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium; font: italic on'),
-        'total_answers': xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
+        'total_voters': xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
         'bold':          xlwt.easyxf('font: bold on'),
         'border_left':   xlwt.easyxf('borders: left medium'),
         'border_right':  xlwt.easyxf('borders: right medium'),
@@ -166,9 +166,9 @@ class ExcelExporter(object):
             else:
                 self.write_two_empty_cells_with_borders()
 
-        self.writen(_(u"Total Answers"), "bold")
+        self.writen(_(u"Total Voters/Total Participants"), "bold")
         for course, results in courses_with_results:
-            self.writec(course.num_voters, "total_answers", cols=2)
+            self.writec(str(course.num_voters) + "/" + str(course.num_participants) + " ({:.0%})".format(float(course.num_voters)/float(course.num_participants)), "total_voters", cols=2)
 
         self.workbook.save(response)
 
