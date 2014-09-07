@@ -63,11 +63,18 @@
                                             <span>{{ num_voters }}/{{ num_participants }}</span>
                                             <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
                                         </p>
-                                        <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="twipsify" title="{% trans "Reviewed text answers" %}">
-                                            <span class="glyphicon glyphicon-comment"></span>
-                                            <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
-                                            <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
-                                        </a>
+                                        {% if course.can_fsr_review %}
+                                            <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="twipsify" title="{% trans "Click to review text answers" %}">
+                                                <span class="glyphicon glyphicon-comment"></span>
+                                                <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
+                                                <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
+                                            </a>
+                                        {% else %}
+                                            <p class="twipsify" title="{% trans "Text answers" %}">
+                                                <span class="glyphicon glyphicon-comment"></span>
+                                                <span>{{ num_textanswers }}</span>
+                                            </p>
+                                        {% endif %}
                                     </td>
                                 {% else %}
                                     <p class="twipsify" title="{% trans "Voters" %}">
@@ -89,11 +96,11 @@
                             {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
                                 <a href="{% url "evap.fsr.views.course_preview" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                             {% endif %}
+                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+                                <a href="{% url "evap.fsr.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
+                            {% endif %}
                             {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
                                 <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
-                            {% endif %}
-                            {% if course.can_fsr_review %}
-                                <a href="{% url "evap.fsr.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-primary">{% trans "Review" %}</a>
                             {% endif %}
                             {% if course.can_fsr_delete %}
                                 <a href="{% url "evap.fsr.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
