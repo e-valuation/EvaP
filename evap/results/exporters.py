@@ -166,7 +166,7 @@ class ExcelExporter(object):
             else:
                 self.write_two_empty_cells_with_borders()
 
-        self.writen(_(u"Total Voters"), "bold")
+        self.writen(_(u"Total Voters/Total Participants"), "bold")
         for course, results in courses_with_results:
             self.writec(str(course.num_voters) + "/" + str(course.num_participants) + " ({:.0%})".format(float(course.num_voters)/float(course.num_participants)), "total_voters", cols=2)
 

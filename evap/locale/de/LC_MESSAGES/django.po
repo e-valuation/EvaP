@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-07 15:13+0200\n"
-"PO-Revision-Date: 2014-09-07 15:14+0100\n"
+"POT-Creation-Date: 2014-09-07 15:37+0200\n"
+"PO-Revision-Date: 2014-09-07 15:37+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1530,8 +1530,8 @@ msgid "Overall Median Grade"
 msgstr "Gesamtmediannote"
 
 #: results/exporters.py:169
-msgid "Total Voters"
-msgstr "Anzahl Teilnehmer"
+msgid "Total Voters/Total Participants"
+msgstr "Anzahl Abstimmende/Anzahl Teilnehmer"
 
 #: results/templates/results_course_detail.html:17
 msgid "This is a preview. The course is still in the process of evaluation."
