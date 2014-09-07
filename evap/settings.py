@@ -48,6 +48,9 @@ LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
 MIN_ANSWER_COUNT = 2
 MIN_ANSWER_PERCENTAGE = 0.2
 
+# a warning is shown next to results where less than this percentage of the median number of answers (for this question in this course) were given
+RESULTS_WARNING_PERCENTAGE = 0.5
+
 # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
 # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
 # final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses

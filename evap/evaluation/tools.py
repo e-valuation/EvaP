@@ -3,7 +3,7 @@ from django.core.cache import cache
 from django.db.models import Min, Count
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
+from evap.evaluation.models import Answer, LikertAnswer, TextAnswer, GradeAnswer
 
 
 from collections import namedtuple
@@ -47,10 +47,10 @@ STUDENT_STATES_ORDERED = SortedDict((
 ))
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total'))
-LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
+LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'texts'))
-GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show'))
+GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
 
 
 def avg(iterable):
@@ -84,6 +84,34 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
+def get_answers(course, contribution, question):
+    answers = None
+    
+    if question.is_likert_question():
+        answers = LikertAnswer.objects.filter(
+            contribution__course=course,
+            contribution__contributor=contribution.contributor,
+            question=question
+            ).values_list('answer', flat=True)
+    
+    elif question.is_grade_question():
+        answers = GradeAnswer.objects.filter(
+            contribution__course=course,
+            contribution__contributor=contribution.contributor,
+            question=question
+            ).values_list('answer', flat=True)
+    
+    elif question.is_text_question():
+        answers = TextAnswer.objects.filter(
+            contribution__course=course,
+            contribution__contributor=contribution.contributor,
+            question=question,
+            hidden=False
+            )
+
+    return answers
+
+
 def calculate_results(course, staff_member=False):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
@@ -103,17 +131,30 @@ def calculate_results(course, staff_member=False):
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
 
+    # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
+    questionnaire_med_answers = {}
+    questionnaire_max_answers = {}
+    for questionnaire, contribution in questionnaires_and_contributions(course):
+        if not questionnaire in questionnaire_med_answers:
+            questionnaire_med_answers[questionnaire] = []
+        max_answers = 0
+        for question in questionnaire.question_set.all():
+            # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
+            if not question.is_text_question():
+                answers = get_answers(course, contribution, question)
+                if len(answers) > max_answers:
+                    max_answers = len(answers)
+        questionnaire_max_answers[(questionnaire, contribution)] = max_answers
+        questionnaire_med_answers[questionnaire].append(max_answers)
+    for questionnaire in questionnaire_med_answers:
+        questionnaire_med_answers[questionnaire] = med(questionnaire_med_answers[questionnaire])
+
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
             if question.is_likert_question():
-                # gather all numeric answers as a simple list
-                answers = LikertAnswer.objects.filter(
-                    contribution__course=course,
-                    contribution__contributor=contribution.contributor,
-                    question=question
-                    ).values_list('answer', flat=True)
+                answers = get_answers(course, contribution, question)
 
                 # calculate average, median and distribution
                 if answers:
@@ -148,15 +189,11 @@ def calculate_results(course, staff_member=False):
                     median=median,
                     variance=variance,
                     distribution=distribution,
-                    show=show
+                    show=show,
+                    warning=len(answers)>0 and len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
                 ))
             elif question.is_grade_question():
-                # gather all numeric answers as a simple list
-                answers = GradeAnswer.objects.filter(
-                    contribution__course=course,
-                    contribution__contributor=contribution.contributor,
-                    question=question
-                    ).values_list('answer', flat=True)
+                answers = get_answers(course, contribution, question)
 
                 # calculate average, median and distribution
                 if answers:
@@ -191,16 +228,12 @@ def calculate_results(course, staff_member=False):
                     median=median,
                     variance=variance,
                     distribution=distribution,
-                    show=show
+                    show=show,
+                    warning=len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
                 ))
             elif question.is_text_question():
-                # gather text answers for this question
-                answers = TextAnswer.objects.filter(
-                    contribution__course=course,
-                    contribution__contributor=contribution.contributor,
-                    question=question,
-                    hidden=False
-                    )
+                answers = get_answers(course, contribution, question)
+
                 # only add to the results if answers exist at all
                 if answers:
                     results.append(TextResult(
@@ -232,11 +265,17 @@ def calculate_results(course, staff_member=False):
 
         average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
         median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
+
+        max_answers_this_questionnaire = questionnaire_max_answers[(questionnaire, contribution)]
+        med_answers_this_questionnaire_type = questionnaire_med_answers[questionnaire]
+        warning_threshold = settings.RESULTS_WARNING_PERCENTAGE * med_answers_this_questionnaire_type
+        section_warning = med_answers_this_questionnaire_type > 0 and max_answers_this_questionnaire < warning_threshold
         
         sections.append(ResultSection(questionnaire, contribution.contributor, results,
             average_likert, median_likert,
             average_grade, median_grade,
-            average_total, median_total))
+            average_total, median_total,
+            section_warning))
 
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
@@ -257,7 +296,7 @@ def calculate_average_and_medium_grades(course):
     med_generic_grade = []
     med_contribution_grade = []
 
-    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total in calculate_results(course):
+    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, warning in calculate_results(course):
         if average_likert:
             (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
         if median_likert:
