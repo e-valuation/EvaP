@@ -190,7 +190,7 @@ def calculate_results(course, staff_member=False):
                     variance=variance,
                     distribution=distribution,
                     show=show,
-                    warning=len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
+                    warning=len(answers)>0 and len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
                 ))
             elif question.is_grade_question():
                 answers = get_answers(course, contribution, question)
