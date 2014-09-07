@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-07 15:04+0200\n"
-"PO-Revision-Date: 2014-09-07 15:04+0100\n"
+"POT-Creation-Date: 2014-09-07 15:13+0200\n"
+"PO-Revision-Date: 2014-09-07 15:14+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -932,11 +932,18 @@ msgstr ""
 "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
 "'%(beginning)s', %(ncols)s Spalten"
 
-#: fsr/importers.py:163 fsr/importers.py:187
-msgid "A problem occured while writing the entries to the database. "
-msgstr "Beim Schreiben in die Datenbank trat ein Fehler auf."
+#: fsr/importers.py:163 fsr/importers.py:185
+#, python-format
+msgid ""
+"A problem occured while writing the entries to the database. The original "
+"data location was row %(row)d of sheet '%(sheet)s'. The error message has "
+"been: '%(error)s'"
+msgstr ""
+"Beim Schreiben in die Datenbank ist ein Fehler aufgetreten. Die "
+"Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
+"lautete: '%(error)s'"
 
-#: fsr/importers.py:167
+#: fsr/importers.py:165
 #, python-format
 msgid ""
 "Successfully created %(courses)d course(s), %(students)d student(s) and "
@@ -945,12 +952,12 @@ msgstr ""
 "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d "
 "Mitwirkende erfolgreich erstellt."
 
-#: fsr/importers.py:191
+#: fsr/importers.py:187
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
-#: fsr/importers.py:203 fsr/importers.py:216
+#: fsr/importers.py:199 fsr/importers.py:212
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
