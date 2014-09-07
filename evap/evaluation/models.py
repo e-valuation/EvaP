@@ -531,7 +531,7 @@ class UserProfile(models.Model):
 
     @property
     def can_fsr_delete(self):
-        return not self.is_contributor()
+        return not self.is_contributor
 
     @property
     def enrolled_in_courses(self):

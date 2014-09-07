@@ -194,3 +194,7 @@ class UsecaseTests(WebTest):
         with self.assertNumQueries(FuzzyInt(0, num_users-1)):
             page = self.app.get("/fsr/user/", user="fsr.user")
 
+    def test_users_are_deletable(self):
+        self.assertTrue(UserProfile.objects.all()[2].can_fsr_delete)
+        self.assertFalse(UserProfile.objects.all()[3].can_fsr_delete)
+
