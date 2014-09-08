@@ -253,6 +253,18 @@ LOGGING = {
     }
 }
 
+#django debug toolbar settings
+ENABLE_DEBUG_TOOLBAR = False
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    INSTALLED_APPS += ('debug_toolbar',)
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    def show_toolbar(request):
+        return True
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+    }
+
 # Create a localsettings.py if you want to override settings per machine
 # or user, e.g. for development or different settings in deployments using
 # multiple servers.
