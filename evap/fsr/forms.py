@@ -12,8 +12,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, TextAnswer, UserProfile, FaqSection, \
-                                   FaqQuestion
-from evap.fsr.models import EmailTemplate
+                                   FaqQuestion, EmailTemplate
 from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
 
 

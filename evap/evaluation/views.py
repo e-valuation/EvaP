@@ -5,8 +5,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile, FaqSection
-from evap.fsr.models import EmailTemplate
+from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate
 
 
 def index(request):
