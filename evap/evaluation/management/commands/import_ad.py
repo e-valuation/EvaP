@@ -4,10 +4,10 @@ import sys
 
 from django.core import exceptions
 from django.core.management.base import BaseCommand
-from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import User, UserProfile
+from evap.evaluation.models import UserProfile
+from django.contrib.auth.models import User
 
 
 class Command(BaseCommand):
