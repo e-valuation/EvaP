@@ -49,13 +49,13 @@ class ExcelExporter(object):
     @staticmethod
     def grade_to_style(grade):
         rounded_grade = round(grade, 1)
-        if grade < 1.5:
+        if rounded_grade < 1.5:
             return 'grade_0'
-        elif grade < 2.5:
+        elif rounded_grade < 2.5:
             return 'grade_1'
-        elif grade < 3.5:
+        elif rounded_grade < 3.5:
             return 'grade_2'
-        elif grade < 4.5:
+        elif rounded_grade < 4.5:
             return 'grade_3'
         else:
             return 'grade_4'
