@@ -181,56 +181,22 @@ def calculate_results(course, staff_member=False):
                     variance = None
                     distribution = None
 
+                warning = len(answers) > 0 and len(answers) < settings.RESULTS_WARNING_PERCENTAGE * questionnaire_med_answers[questionnaire]
                 # produce the result element
-                results.append(LikertResult(
-                    question=question,
-                    count=len(answers),
-                    average=average,
-                    median=median,
-                    variance=variance,
-                    distribution=distribution,
-                    show=show,
-                    warning=len(answers)>0 and len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
-                ))
-            elif question.is_grade_question():
-                answers = get_answers(course, contribution, question)
-
-                # calculate average, median and distribution
-                if answers:
-                    # average
-                    average = avg(answers)
-                    # median
-                    median = med(answers)
-                    # variance
-                    variance = avg((average - answer) ** 2 for answer in answers)
-                    # calculate relative distribution (histogram) of answers:
-                    # set up a sorted dictionary with a count of zero for each grade
-                    distribution = SortedDict()
-                    for i in range(1, 6):
-                        distribution[i] = 0
-                    # count the answers
-                    for answer in answers:
-                        distribution[answer] += 1
-                    # divide by the number of answers to get relative 0..1 values
-                    for k in distribution:
-                        distribution[k] = float(distribution[k]) / len(answers) * 100.0
+                kwargs = {
+                    'question': question,
+                    'count': len(answers),
+                    'average': average,
+                    'median': median,
+                    'variance': variance,
+                    'distribution': distribution,
+                    'show': show,
+                    'warning': warning
+                }
+                if question.is_likert_question():
+                    results.append(LikertResult(**kwargs))
                 else:
-                    average = None
-                    median = None
-                    variance = None
-                    distribution = None
-
-                # produce the result element
-                results.append(GradeResult(
-                    question=question,
-                    count=len(answers),
-                    average=average,
-                    median=median,
-                    variance=variance,
-                    distribution=distribution,
-                    show=show,
-                    warning=len(answers)<settings.RESULTS_WARNING_PERCENTAGE*questionnaire_med_answers[questionnaire]
-                ))
+                    results.append(GradeResult(**kwargs))
             elif question.is_text_question():
                 answers = get_answers(course, contribution, question)
 
