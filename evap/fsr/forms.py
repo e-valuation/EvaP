@@ -359,10 +359,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
-                                                                      initial=self.instance.user.represented_users.all() if self.instance.pk else (),
-                                                                      label=_("Represented Users"),
-                                                                      help_text="",
-                                                                      required=False)
+                                                                          initial=self.instance.user.represented_users.all() if self.instance.pk else (),
+                                                                          label=_("Represented Users"),
+                                                                          help_text="",
+                                                                          required=False)
         self.fields['represented_users'].help_text = ""
 
         # load user fields

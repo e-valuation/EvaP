@@ -57,12 +57,13 @@ class Command(BaseCommand):
     help = 'Creates a user'
 
     option_list = BaseCommand.option_list + (
-         make_option('-p',
-             action='store_true',
-             dest='has_password',
-             default=False,
-             help='The user to be created should have a password set in the DB (for development)'),
-         )
+        make_option(
+            '-p',
+            action='store_true',
+            dest='has_password',
+            default=False,
+            help='The user to be created should have a password set in the DB (for development)'),
+        )
 
     def handle(self, *args, **options):
         try:
@@ -80,7 +81,7 @@ class Command(BaseCommand):
 
             # create user
             user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
-            if not password is None:
+            if password is not None:
                 user.set_password(password)
                 user.save()
             profile = UserProfile.get_for_user(user)

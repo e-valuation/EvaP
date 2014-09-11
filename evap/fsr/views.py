@@ -656,7 +656,7 @@ def helper_create_grouped_course_selection_forms(courses, filter_func, request):
     grouped_courses = {}
     for course in courses:
         degree = course.degree
-        if not grouped_courses.has_key(degree):
+        if degree not in grouped_courses:
             grouped_courses[degree] = []
         grouped_courses[degree].append(course)
 

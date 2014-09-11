@@ -135,7 +135,7 @@ def calculate_results(course, staff_member=False):
     questionnaire_med_answers = {}
     questionnaire_max_answers = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        if not questionnaire in questionnaire_med_answers:
+        if questionnaire not in questionnaire_med_answers:
             questionnaire_med_answers[questionnaire] = []
         max_answers = 0
         for question in questionnaire.question_set.all():
@@ -153,7 +153,7 @@ def calculate_results(course, staff_member=False):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
-            if question.is_likert_question():
+            if question.is_likert_question() or question.is_grade_question():
                 answers = get_answers(course, contribution, question)
 
                 # calculate average, median and distribution
@@ -213,21 +213,13 @@ def calculate_results(course, staff_member=False):
 
         # compute average and median grades for all LikertResults in this
         # section, will return None if no LikertResults exist in this section
-        average_likert = avg([result.average for result
-                                            in results
-                                            if isinstance(result, LikertResult)])
-        median_likert = med([result.median for result
-                                            in results
-                                            if isinstance(result, LikertResult)])
+        average_likert = avg([result.average for result in results if isinstance(result, LikertResult)])
+        median_likert = med([result.median for result in results if isinstance(result, LikertResult)])
 
         # compute average and median grades for all GradeResults in this
         # section, will return None if no GradeResults exist in this section
-        average_grade = avg([result.average for result
-                                            in results
-                                            if isinstance(result, GradeResult)])
-        median_grade = med([result.median for result
-                                            in results
-                                            if isinstance(result, GradeResult)])
+        average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
+        median_grade = med([result.median for result in results if isinstance(result, GradeResult)])
 
         average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
         median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
@@ -237,7 +229,8 @@ def calculate_results(course, staff_member=False):
         warning_threshold = settings.RESULTS_WARNING_PERCENTAGE * med_answers_this_questionnaire_type
         section_warning = med_answers_this_questionnaire_type > 0 and max_answers_this_questionnaire < warning_threshold
         
-        sections.append(ResultSection(questionnaire, contribution.contributor, results,
+        sections.append(ResultSection(
+            questionnaire, contribution.contributor, results,
             average_likert, median_likert,
             average_grade, median_grade,
             average_total, median_total,
@@ -293,7 +286,7 @@ def questionnaires_and_contributions_by_contributor(course):
     result = {}
 
     for contribution in course.contributions.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_contributors", "questionnaires__index__min"):
-        if not contribution.contributor in result:
+        if contribution.contributor not in result:
             result[contribution.contributor] = []
         for questionnaire in contribution.questionnaires.all():
             result[contribution.contributor].append((questionnaire, contribution))

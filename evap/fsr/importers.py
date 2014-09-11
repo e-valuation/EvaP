@@ -162,8 +162,7 @@ class ExcelImporter(object):
                 except Exception, e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
-            messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") %
-                                            dict(courses=course_count, students=student_count, contributors=contributor_count))
+            messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") % dict(courses=course_count, students=student_count, contributors=contributor_count))
 
     def save_users_to_db(self):
         """Stores the read data in the database. Errors might still
@@ -184,8 +183,7 @@ class ExcelImporter(object):
                 except Exception, e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
-            messages.info(self.request, _("Successfully created %(users)d user(s).") %
-                                            dict(users=users_count))
+            messages.info(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
 
     @classmethod
     def process_enrollments(cls, request, excel_file, semester, vote_start_date, vote_end_date):

@@ -16,8 +16,7 @@ GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
 class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
     def render(self):
         """Outputs a <ul> for this set of radio fields."""
-        return mark_safe(u'\n'.join([u'<div>%s</div>'
-                % force_unicode(w) for w in self]))
+        return mark_safe(u'\n'.join([u'<div>{}</div>'.format(force_unicode(w)) for w in self]))
 
 
 class QuestionsForm(forms.Form):

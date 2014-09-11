@@ -52,7 +52,7 @@ def index(request):
     else:
         # check for redirect variable
         next = request.GET.get("next", None)
-        if not next is None:
+        if next is not None:
             if next.startswith("/fsr/"):
                 if request.user.is_staff:
                     return redirect(next)

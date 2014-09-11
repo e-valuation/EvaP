@@ -30,10 +30,10 @@ class ExcelExporter(object):
         'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
 
     grade_color_palette = [["custom_dark_green",  0x20, (136, 191, 74)],
-                               ["custom_light_green", 0x21, (187, 209, 84)],
-                               ["custom_yellow",      0x22, (239, 226, 88)],
-                               ["custom_orange",      0x23, (242, 158, 88)],
-                               ["custom_red",         0x24, (235,  89, 90)]]
+                           ["custom_light_green", 0x21, (187, 209, 84)],
+                           ["custom_yellow",      0x22, (239, 226, 88)],
+                           ["custom_orange",      0x23, (242, 158, 88)],
+                           ["custom_red",         0x24, (235,  89, 90)]]
 
     # Adding evaP colors to palette
     for index, c in enumerate(grade_color_palette):
@@ -148,7 +148,7 @@ class ExcelExporter(object):
                         self.write_two_empty_cells_with_borders()
             self.writen(None)
             for course, results in courses_with_results:
-                    self.write_two_empty_cells_with_borders()
+                self.write_two_empty_cells_with_borders()
 
         self.writen(_(u"Overall Average Grade"), "bold")
         for course, results in courses_with_results:

@@ -549,7 +549,7 @@ class UserProfile(models.Model):
 
     @property
     def is_responsible(self):
-        #in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
+        # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
         return any(contribution.responsible for contribution in self.user.contributions.all())
 
     @property

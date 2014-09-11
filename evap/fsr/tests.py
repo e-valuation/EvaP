@@ -11,7 +11,7 @@ import os.path
 def lastform(page):
     return page.forms[max(page.forms.keys())]
 
-#taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
+# taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
     def __new__(cls, lowest, highest):
         obj = super(FuzzyInt, cls).__new__(cls, highest)

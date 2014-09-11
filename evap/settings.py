@@ -215,10 +215,10 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'filters': {
-         'require_debug_false': {
-             '()': 'django.utils.log.RequireDebugFalse'
-         }
-     },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
@@ -251,7 +251,7 @@ if (ENABLE_KERBEROS):
     INSTALLED_APPS += ('django_auth_kerberos',)
     MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
 
-#django debug toolbar settings
+# django debug toolbar settings
 ENABLE_DEBUG_TOOLBAR = False
 if DEBUG and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False

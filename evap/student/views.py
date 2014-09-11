@@ -49,7 +49,7 @@ def vote(request, course_id):
             form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
             if form.contribution.contributor == request.user:
                 continue # users shall not vote about themselves
-            if not contributor in form_group:
+            if contributor not in form_group:
                 form_group[contributor] = SortedDict()
             form_group[contributor][(contribution, questionnaire)] = form
 

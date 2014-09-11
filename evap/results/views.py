@@ -73,8 +73,8 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course, request.user.is_staff)
 
-    if (request.user.is_staff == False): # if user is not a student representative
-    # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
+    if (request.user.is_staff == False):
+        # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
         for section in sections:
             if not user_can_see_textresults(request.user, course, section):
                 for index, result in list(enumerate(section.results))[::-1]:
