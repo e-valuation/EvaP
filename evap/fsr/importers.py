@@ -85,7 +85,7 @@ class ExcelImporter(object):
                     execute_per_row(sheet.row_values(row), sheet.name, row)
                         
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
-            except:
+            except Exception:
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
                 raise
         messages.info(self.request, _(u"Successfully read excel file."))
@@ -120,7 +120,7 @@ class ExcelImporter(object):
         already in the database."""
 
         for (sheet, row), (student_data, contributor_data, course_data) in self.associations.items():
-            if student_data.email == None or student_data.email == "":
+            if student_data.email is None or student_data.email == "":
                 student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
 
     def save_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
@@ -193,7 +193,7 @@ class ExcelImporter(object):
             importer.for_each_row_in_excel_file_do(excel_file, importer.read_one_enrollment)
             importer.validate_and_fix_enrollments()
             importer.save_enrollments_to_db(semester, vote_start_date, vote_end_date)
-        except Exception, e:
+        except Exception as e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
@@ -206,7 +206,7 @@ class ExcelImporter(object):
             importer = cls(request)
             importer.for_each_row_in_excel_file_do(excel_file, importer.read_one_user)
             importer.save_users_to_db()
-        except Exception, e:
+        except Exception as e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode

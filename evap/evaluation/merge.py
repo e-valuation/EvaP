@@ -2,6 +2,8 @@ from django.db import transaction
 from django.db.models import get_models, Model
 from django.contrib.contenttypes.generic import GenericForeignKey
 
+#based on https://djangosnippets.org/snippets/2283/
+
 @transaction.commit_on_success
 def merge_model_objects(primary_object, alias_objects, keep_old=False):
     """

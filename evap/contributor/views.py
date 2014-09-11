@@ -10,7 +10,7 @@ from evap.evaluation.models import Contribution, Course, Semester, UserProfile
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.contributor.forms import CourseForm, UserForm
-from evap.fsr.forms import AtLeastOneFormSet, ContributionForm, ContributorFormSet
+from evap.fsr.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
 
 @editor_or_delegate_required
@@ -109,7 +109,6 @@ def course_edit(request, course_id):
 
 @editor_or_delegate_required
 def course_preview(request, course_id):
-    user = request.user
     course = get_object_or_404(Course, id=course_id)
 
     # build forms

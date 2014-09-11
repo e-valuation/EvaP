@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Min, Count
+from django.db.models import Min
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import Answer, LikertAnswer, TextAnswer, GradeAnswer
+from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
 
 from collections import namedtuple
@@ -74,11 +74,11 @@ def med(iterable):
     return sorted_items[length / 2]
 
 def mix(a, b, alpha):
-    if a == None and b == None:
+    if a is None and b is None:
         return None
-    if a == None:
+    if a is None:
         return b
-    if b == None:
+    if b is None:
         return a
 
     return alpha * a + (1 - alpha) * b

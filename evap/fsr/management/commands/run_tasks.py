@@ -23,7 +23,7 @@ class Command(BaseCommand):
                     if course.is_fully_checked():
                         course.review_finished()
                     course.save()
-            except:
+            except Exception:
                 pass
 
     def check_reminders(self):

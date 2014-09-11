@@ -115,7 +115,7 @@ class ExcelExporter(object):
             for course, results in courses_with_results:
                 self.write_two_empty_cells_with_borders()
 
-            for question_index, question in enumerate(questionnaire.question_set.all()):
+            for question in questionnaire.question_set.all():
                 if question.is_text_question():
                     continue
 

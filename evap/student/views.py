@@ -13,8 +13,6 @@ from evap.evaluation.tools import questionnaires_and_contributions_by_contributo
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
-from datetime import datetime
-
 
 @login_required
 def index(request):
@@ -70,7 +68,7 @@ def vote(request, course_id):
                 course_forms.append(form)
 
             for contributor in form_group:
-                if contributor == None:
+                if contributor is None:
                     continue
                 user_profile = UserProfile.get_for_user(contributor)
                 contributor_questionnaires[user_profile] = form_group[contributor].values()

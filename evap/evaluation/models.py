@@ -14,7 +14,6 @@ from evap.evaluation.meta import LocalizeModelBase, Translate
 
 import datetime
 import random
-import sys
 
 # for converting state into student_state
 STUDENT_STATES_NAMES = {

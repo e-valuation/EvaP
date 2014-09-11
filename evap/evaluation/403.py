@@ -54,7 +54,7 @@ class Django403Middleware(object):
                 set(dir(response)) == set(dir(django.http.HttpResponseForbidden())):
             try:
                 return access_denied(request)
-            except django.template.TemplateDoesNotExist, e:
+            except django.template.TemplateDoesNotExist:
                 return fallback_403(request)
 
         return response

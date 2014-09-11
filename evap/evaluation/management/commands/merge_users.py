@@ -14,6 +14,6 @@ class Command(BaseCommand):
 
             print "Merging user '{1}' into user '{0}'".format(user1, user2)
             merge_model_objects(user1, user2)
-        except Exception as e:
+        except Exception:
             import traceback
             traceback.print_exc()

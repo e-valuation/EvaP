@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
@@ -41,7 +40,7 @@ def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     try:
         tab = int(request.GET.get('tab', '1'))
-    except:
+    except Exception:
         tab = 1
 
     courses = semester.course_set.all()
@@ -114,7 +113,7 @@ def semester_publish(request, semester_id):
 
         try:
             EmailTemplate.get_publish_template().send_to_users_in_courses(selected_courses, send_to_contributors=True, send_to_all_participants=True)
-        except:
+        except Exception:
             messages.add_message(request, messages.WARNING, _("Could not send emails to participants and contributors"))
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester_id)

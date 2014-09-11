@@ -1,5 +1,5 @@
-from django.test import TestCase, Client
-from django.contrib.auth.models import User, UserManager
+from django.test import TestCase
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from evap.evaluation.models import Course
 

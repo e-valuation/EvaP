@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-from evap.evaluation.models import Semester, Questionnaire
+from evap.evaluation.models import Semester
 
 import urllib
 

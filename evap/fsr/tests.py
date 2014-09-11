@@ -1,6 +1,5 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
-import webtest
 
 from django.contrib.auth.models import User
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
@@ -192,7 +191,7 @@ class UsecaseTests(WebTest):
             user = User.objects.get_or_create(id = 9000+i, username=i)
             UserProfile.objects.create(user=user[0])
         with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-            page = self.app.get("/fsr/user/", user="fsr.user")
+            self.app.get("/fsr/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
         self.assertTrue(UserProfile.objects.all()[2].can_fsr_delete)

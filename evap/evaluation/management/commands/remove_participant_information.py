@@ -1,8 +1,7 @@
-from django.core import exceptions
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Semester, LikertAnswer
+from evap.evaluation.models import Semester
 
 class Command(BaseCommand):
     args = '<semester id>'

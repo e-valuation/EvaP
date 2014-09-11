@@ -1,19 +1,16 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
-from django.forms.fields import Field, FileField
+from django.forms.fields import FileField
 from django.forms.models import BaseInlineFormSet
-from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, TextAnswer, UserProfile, FaqSection, \
-                                   FaqQuestion, EmailTemplate
-from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
+                                   Semester, UserProfile, FaqSection, FaqQuestion, \
+                                   EmailTemplate
+from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -226,7 +223,7 @@ class ContributorFormSet(AtLeastOneFormSet):
                 if form.cleaned_data:
                     contributor = form.cleaned_data.get('contributor')
                     delete = form.cleaned_data.get('DELETE')
-                    if contributor == None and not delete:
+                    if contributor is None and not delete:
                         raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
                     if contributor and contributor in found_contributor:
                         raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))

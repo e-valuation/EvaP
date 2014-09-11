@@ -1,4 +1,3 @@
-from django.core import exceptions
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
@@ -17,7 +16,7 @@ class Command(BaseCommand):
         ax = fig.add_subplot(111)
 
         # the histogram of the data
-        n, bins, patches = ax.hist([answer.answer for answer in answers], bins=[0.5,1.5,2.5,3.5,4.5])
+        ax.hist([answer.answer for answer in answers], bins=[0.5,1.5,2.5,3.5,4.5])
 
         ax.set_ylabel('Answers')
         ax.set_ylabel('Grade')
