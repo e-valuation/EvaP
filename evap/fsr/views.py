@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
@@ -18,7 +18,6 @@ from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswer
                            SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, \
                            FaqSectionForm, FaqQuestionForm, UserImportForm
 from evap.fsr.importers import ExcelImporter
-from evap.fsr.models import EmailTemplate
 from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
