@@ -187,7 +187,7 @@ class Course(models.Model):
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
         if send_mail:
-            EmailTemplate.get_review_template().send_courses([self], send_to_editors=True)
+            EmailTemplate.get_review_template().send_to_users_in_courses([self], send_to_editors=True)
 
     @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):
@@ -625,56 +625,49 @@ class EmailTemplate(models.Model):
 
     @classmethod
     def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
-        if send_to_all_participants:
-            for user in course.participants.all():
-                yield user
-        elif send_to_due_participants:
-            for user in course.due_participants:
-                yield user
+        recipients = []
 
         if send_to_contributors:
-            for contribution in course.contributions.exclude(contributor=None):
-                yield contribution.contributor
+            recipients += [c.contributor for c in course.contributions.exclude(contributor=None)]
         elif send_to_editors:
-            for contribution in course.contributions.exclude(contributor=None).filter(can_edit=True):
-                yield contribution.contributor
+            recipients += [c.contributor for c in course.contributions.exclude(contributor=None).filter(can_edit=True)]
+
+        if send_to_all_participants:
+            recipients += course.participants.all()
+        elif send_to_due_participants:
+            recipients += course.due_participants
+
+        return recipients
 
     @classmethod
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    def send_courses(self, courses, send_to_editors=False, send_to_contributors=False, send_to_due_participants=False, send_to_all_participants=False):
-        # pivot course-user relationship
+    def send_to_users_in_courses(self, courses, send_to_editors=False, send_to_contributors=False, send_to_due_participants=False, send_to_all_participants=False):
         user_course_map = {}
         for course in courses:
-            for user in [user for user in self.recipient_list_for_course(course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants) if user.email != ""]:
-                if user in user_course_map:
-                    user_course_map[user].append(course)
-                else:
-                    user_course_map[user] = [course]
+            responsible = UserProfile.get_for_user(course.responsible_contributor)
+            for user in self.recipient_list_for_course(course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
+                if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
+                    user_course_map.setdefault(user, []).append(course)
 
-        # send emails on a per user basis
         for user, courses in user_course_map.iteritems():
-            cc = []
-            for course in courses:
-                # if email will be sent to editors, also send to all their delegates in CC
-                if send_to_editors:
-                    if course.contributions.filter(can_edit=True, contributor=user).exists():
-                        cc.extend([p.email for p in UserProfile.get_for_user(user).delegates.all() if p.email])
-                        break
-                # send email to all cc users of the current user
-                cc.extend([p.email for p in UserProfile.get_for_user(user).cc_users.all() if p.email])
+            cc_users = []
+            if send_to_editors and any(course.contributions.filter(can_edit=True, contributor=user).exists() for course in courses):
+                cc_users += UserProfile.get_for_user(user).delegates.all()
+            cc_users += UserProfile.get_for_user(user).cc_users.all()
+            cc_addresses = [p.email for p in cc_users if p.email]
 
             mail = EmailMessage(
                 subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
                 body = self.render_string(self.body, {'user': user, 'courses': courses}),
                 to = [user.email],
-                cc = cc,
+                cc = cc_addresses,
                 bcc = [a[1] for a in settings.MANAGERS],
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
 
-    def send_user(self, user):
+    def send_to_user(self, user):
         if not user.email:
             return
 
