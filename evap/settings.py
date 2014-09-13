@@ -171,13 +171,9 @@ MIDDLEWARE_CLASSES = (
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
-#   'django_auth_kerberos.backends.KrbBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# kerberos realm and service
-#KRB5_REALM = 'EXAMPLE.COM'
-#KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
 
 # redirect url after login
 LOGIN_REDIRECT_URL = '/'
@@ -208,7 +204,6 @@ INSTALLED_APPS = (
     'evap.results',
     'evap.student',
     'evap.contributor',
-#   'django_auth_kerberos',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -247,6 +242,14 @@ LOGGING = {
         }
     }
 }
+
+# kerberos realm and service
+ENABLE_KERBEROS = False
+if (ENABLE_KERBEROS):
+    KRB5_REALM = 'EXAMPLE.COM'
+    KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
+    INSTALLED_APPS += ('django_auth_kerberos',)
+    MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
 
 #django debug toolbar settings
 ENABLE_DEBUG_TOOLBAR = False

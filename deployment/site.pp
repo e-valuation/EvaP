@@ -16,14 +16,6 @@ node default {
     package { ['python', 'python-dev', 'python-pip', 'libxml2-dev', 'libxslt-dev', 'python-lxml', 'gettext']:
         ensure => installed,
     } ->
-    # configure mysql
-    #class { '::mysql::server':
-    #    root_password  => '7FzSCogWAFCt'
-    #} -> mysql::db { 'evap':
-    #    user           => 'evap',
-    #    password       => 'evap',
-    #} -> package { 'python-mysqldb':
-    #    ensure         => latest,
     class { 'postgresql::server':
     } -> postgresql::server::role { 'evap':
         password_hash  => postgresql_password('evap', 'evap'),
@@ -40,7 +32,6 @@ node default {
         provider       => shell,
         command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements-dev.txt'
     } -> class { 'evap':
-        #db_connector   => 'mysql'
         db_connector   => 'postgresql_psycopg2'
     }
 
