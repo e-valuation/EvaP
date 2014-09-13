@@ -821,6 +821,10 @@ msgid "Send to all participants"
 msgstr "An alle Teilnehmer versenden"
 
 #: fsr/forms.py:114
+msgid "Send to the responsible person"
+msgstr "An den Verantwortlichen versenden"
+
+#: fsr/forms.py:114
 msgid "Send to editors"
 msgstr "An Mitwirkende mit Bearbeitungsrechten versenden"
 

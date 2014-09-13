@@ -288,6 +288,9 @@ class Course(models.Model):
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
 
+    def is_user_editor(self, user):
+        return self.contributions.filter(contributor=user, can_edit=True).exists()
+
     def warnings(self):
         result = []
         if self.state == 'new' and not self.has_enough_questionnaires():
@@ -627,6 +630,9 @@ class EmailTemplate(models.Model):
     def recipient_list_for_course(cls, course, send_to):
         recipients = []
 
+        if send_to["responsible"]:
+            recipients += [course.responsible_contributor]
+
         if send_to["contributors"]:
             recipients += [c.contributor for c in course.contributions.exclude(contributor=None)]
         elif send_to["editors"]:
@@ -653,7 +659,7 @@ class EmailTemplate(models.Model):
 
         for user, courses in user_course_map.iteritems():
             cc_users = []
-            if send_to["editors"] and any(course.contributions.filter(can_edit=True, contributor=user).exists() for course in courses):
+            if (send_to["responsible"] or send_to["editors"]) and any(course.is_user_editor(user) for course in courses):
                 cc_users += UserProfile.get_for_user(user).delegates.all()
             cc_users += UserProfile.get_for_user(user).cc_users.all()
             cc_addresses = [p.email for p in cc_users if p.email]

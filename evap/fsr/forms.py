@@ -110,6 +110,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 class CourseEmailForm(forms.Form, BootstrapMixin):
     sendToDueParticipants = forms.BooleanField(label=_("Send to participants who didn't vote yet"), required=False, initial=True)
     sendToAllParticipants = forms.BooleanField(label=_("Send to all participants"), required=False)
+    sendToResponsible = forms.BooleanField(label=_("Send to the responsible person"), required=False)
     sendToEditors = forms.BooleanField(label=_("Send to editors"), required=False)
     sendToContributors = forms.BooleanField(label=_("Send to all contributors (includes editors)"), required=False)
     subject = forms.CharField(label=_("Subject"))
@@ -125,9 +126,10 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         self.recipient_groups = {
             'all_participants': self.cleaned_data.get('sendToAllParticipants'),
             'due_participants': self.cleaned_data.get('sendToDueParticipants'),
+            'responsible': self.cleaned_data.get('sendToResponsible'),
             'editors': self.cleaned_data.get('sendToEditors'),
             'contributors': self.cleaned_data.get('sendToContributors') }
-            
+
         if len(self.recipient_groups) == 0:
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
 
