@@ -288,6 +288,9 @@ class Course(models.Model):
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
 
+    def is_user_editor(self, user):
+        return self.contributions.filter(contributor=user, can_edit=True).exists()
+
     def warnings(self):
         result = []
         if self.state == 'new' and not self.has_enough_questionnaires():
@@ -624,17 +627,20 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
 
     @classmethod
-    def recipient_list_for_course(cls, course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
+    def recipient_list_for_course(cls, course, send_to):
         recipients = []
 
-        if send_to_contributors:
+        if send_to["responsible"]:
+            recipients += [course.responsible_contributor]
+
+        if send_to["contributors"]:
             recipients += [c.contributor for c in course.contributions.exclude(contributor=None)]
-        elif send_to_editors:
+        elif send_to["editors"]:
             recipients += [c.contributor for c in course.contributions.exclude(contributor=None).filter(can_edit=True)]
 
-        if send_to_all_participants:
+        if send_to["all_participants"]:
             recipients += course.participants.all()
-        elif send_to_due_participants:
+        elif send_to["due_participants"]:
             recipients += course.due_participants
 
         return recipients
@@ -643,17 +649,17 @@ class EmailTemplate(models.Model):
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    def send_to_users_in_courses(self, courses, send_to_editors=False, send_to_contributors=False, send_to_due_participants=False, send_to_all_participants=False):
+    def send_to_users_in_courses(self, courses, send_to):
         user_course_map = {}
         for course in courses:
             responsible = UserProfile.get_for_user(course.responsible_contributor)
-            for user in self.recipient_list_for_course(course, send_to_editors, send_to_contributors, send_to_due_participants, send_to_all_participants):
+            for user in self.recipient_list_for_course(course, send_to):
                 if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.iteritems():
             cc_users = []
-            if send_to_editors and any(course.contributions.filter(can_edit=True, contributor=user).exists() for course in courses):
+            if (send_to["responsible"] or send_to["editors"]) and any(course.is_user_editor(user) for course in courses):
                 cc_users += UserProfile.get_for_user(user).delegates.all()
             cc_users += UserProfile.get_for_user(user).cc_users.all()
             cc_addresses = [p.email for p in cc_users if p.email]
