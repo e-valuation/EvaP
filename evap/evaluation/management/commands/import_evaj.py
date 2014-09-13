@@ -179,7 +179,7 @@ class Command(BaseCommand):
         # topic_template --> Questionnaire
         for topic_template in self.get('topic_template', questionnaire_template_id=evaluation.questionnaire_template_id):
             try:
-                with transaction.commit_on_success():
+                with transaction.atomic():
                     questionnaire = Questionnaire.objects.create(
                         # hack: make names unique by adding the original IDs
                         name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
@@ -212,7 +212,7 @@ class Command(BaseCommand):
         for xml_course in courses:
             logger.debug(u"Creating course %s (id=%d evaluation=%d)", unicode(xml_course.name), xml_course.id, xml_course.evaluation_id)
             try:
-                with transaction.commit_on_success():
+                with transaction.atomic():
                     course = Course.objects.create(
                         semester=semester,
                         name_de=unicode(xml_course.name),

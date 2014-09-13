@@ -86,7 +86,7 @@ def vote(request, course_id):
 
     # all forms are valid
     # begin vote operation
-    with transaction.commit_on_success():
+    with transaction.atomic():
         for contributor in form_group:
             for (contribution, questionnaire), form in form_group[contributor].items():
                 for question in questionnaire.question_set.all():

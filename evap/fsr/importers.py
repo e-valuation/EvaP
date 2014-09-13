@@ -128,7 +128,7 @@ class ExcelImporter(object):
         occur because the previous validation does check not for consistency with
         the data already in the database."""
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             course_count = 0
             student_count = 0
             contributor_count = 0
@@ -168,7 +168,7 @@ class ExcelImporter(object):
         """Stores the read data in the database. Errors might still
         occur because of the data already in the database."""
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:
