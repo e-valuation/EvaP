@@ -113,7 +113,7 @@ def semester_publish(request, semester_id):
                 selected_courses.append(course)
 
         try:
-            EmailTemplate.get_publish_template().send_courses(selected_courses, send_to_contributors=True, send_to_all_participants=True)
+            EmailTemplate.get_publish_template().send_to_users_in_courses(selected_courses, send_to_contributors=True, send_to_all_participants=True)
         except:
             messages.add_message(request, messages.WARNING, _("Could not send emails to participants and contributors"))
         messages.add_message(request, messages.INFO, _("Successfully published %d courses.") % (len(selected_courses)))
@@ -219,7 +219,7 @@ def semester_contributor_ready(request, semester_id):
                 course.save()
                 selected_courses.append(course)
 
-        EmailTemplate.get_review_template().send_courses(selected_courses, send_to_editors=True)
+        EmailTemplate.get_review_template().send_to_users_in_courses(selected_courses, send_to_editors=True)
 
         messages.add_message(request, messages.INFO, _("Successfully marked %d courses as ready for lecturer review.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester_id)

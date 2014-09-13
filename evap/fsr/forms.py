@@ -139,7 +139,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_courses([self.instance], send_to_editors=self.cleaned_data.get('sendToEditors'), send_to_contributors=self.cleaned_data.get('sendToContributors'), send_to_due_participants=self.cleaned_data.get('sendToDueParticipants'), send_to_all_participants=self.cleaned_data.get('sendToAllParticipants'))
+        self.template.send_to_users_in_courses([self.instance], send_to_editors=self.cleaned_data.get('sendToEditors'), send_to_contributors=self.cleaned_data.get('sendToContributors'), send_to_due_participants=self.cleaned_data.get('sendToDueParticipants'), send_to_all_participants=self.cleaned_data.get('sendToAllParticipants'))
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
