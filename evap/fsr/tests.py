@@ -10,6 +10,7 @@ import os.path
 def lastform(page):
     return page.forms[max(page.forms.keys())]
 
+
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
     def __new__(cls, lowest, highest):
@@ -24,13 +25,13 @@ class FuzzyInt(int):
     def __repr__(self):
         return "[%d..%d]" % (self.lowest, self.highest)
 
+
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_import(self):
         page = self.app.get(reverse("fsr_root"), user='fsr.user')
-
 
         # create a new semester
         page = page.click("[Cc]reate [Nn]ew [Ss]emester")
@@ -180,7 +181,6 @@ class UsecaseTests(WebTest):
 
         assert "No responsible contributor found" in page
 
-
     def test_num_queries_user_list(self):
         """ 
             ensures that the number of queries in the user list is constant
@@ -188,7 +188,7 @@ class UsecaseTests(WebTest):
         """
         num_users = 50
         for i in range(0, num_users):
-            user = User.objects.get_or_create(id = 9000+i, username=i)
+            user = User.objects.get_or_create(id=9000+i, username=i)
             UserProfile.objects.create(user=user[0])
         with self.assertNumQueries(FuzzyInt(0, num_users-1)):
             self.app.get("/fsr/user/", user="fsr.user")

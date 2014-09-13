@@ -100,7 +100,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         try:
             self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e :
+        except forms.ValidationError as e:
             self._update_errors(e)
 
 
@@ -118,14 +118,13 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         self.template = EmailTemplate()
         super(CourseEmailForm, self).__init__(*args, **kwargs)
 
-
     def clean(self):
         self.recipient_groups = {
             'all_participants': self.cleaned_data.get('sendToAllParticipants'),
             'due_participants': self.cleaned_data.get('sendToDueParticipants'),
             'responsible': self.cleaned_data.get('sendToResponsible'),
             'editors': self.cleaned_data.get('sendToEditors'),
-            'contributors': self.cleaned_data.get('sendToContributors') }
+            'contributors': self.cleaned_data.get('sendToContributors')}
 
         if len(self.recipient_groups) == 0:
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
@@ -145,6 +144,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
         self.template.send_to_users_in_courses([self.instance], self.recipient_groups)
+
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
@@ -306,7 +306,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
                 if hasattr(self, name2):
                     value = getattr(self, 'clean_%s' % name)()
                     self.cleaned_data[name] = value
-            except ValidationError, e:
+            except ValidationError as e:
                 self._errors[name] = self.error_class(e.messages)
                 if name in self.cleaned_data:
                     del self.cleaned_data[name]
@@ -414,7 +414,6 @@ class FaqSectionForm(forms.ModelForm, BootstrapMixin):
         self.fields["title_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["title_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
-
 
     class Meta:
         model = FaqSection

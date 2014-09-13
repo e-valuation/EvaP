@@ -61,6 +61,7 @@ def avg(iterable):
         return None
     return float(sum(items)) / len(items)
 
+
 def med(iterable):
     """Simple arithmetic median function. Returns `None` if the length of
     `iterable` is 0 or no items except None exist."""
@@ -72,6 +73,7 @@ def med(iterable):
     if not length % 2:
         return (sorted_items[length / 2] + sorted_items[length / 2 - 1]) / 2.0
     return sorted_items[length / 2]
+
 
 def mix(a, b, alpha):
     if a is None and b is None:
@@ -86,21 +88,21 @@ def mix(a, b, alpha):
 
 def get_answers(course, contribution, question):
     answers = None
-    
+
     if question.is_likert_question():
         answers = LikertAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
-    
+
     elif question.is_grade_question():
         answers = GradeAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
-    
+
     elif question.is_text_question():
         answers = TextAnswer.objects.filter(
             contribution__course=course,
@@ -228,7 +230,7 @@ def calculate_results(course, staff_member=False):
         med_answers_this_questionnaire_type = questionnaire_med_answers[questionnaire]
         warning_threshold = settings.RESULTS_WARNING_PERCENTAGE * med_answers_this_questionnaire_type
         section_warning = med_answers_this_questionnaire_type > 0 and max_answers_this_questionnaire < warning_threshold
-        
+
         sections.append(ResultSection(
             questionnaire, contribution.contributor, results,
             average_likert, median_likert,
@@ -277,7 +279,7 @@ def calculate_average_and_medium_grades(course):
 
     final_avg = mix(final_grade_avg, final_likert_avg, settings.GRADE_PERCENTAGE)
     final_med = mix(final_grade_med, final_likert_med, settings.GRADE_PERCENTAGE)
-    
+
     return final_avg, final_med
 
 

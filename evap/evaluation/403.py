@@ -6,6 +6,7 @@ import django.template.loader
 
 from django.utils.translation import ugettext as _
 
+
 def fallback_403(request):
     """
     Fallback 403 handler which prints out a hard-coded string patterned
@@ -25,6 +26,7 @@ def fallback_403(request):
         </body></html>
         """ % {'title': _(u"Forbidden"), 'text': _(u"You don't have permission to access %s on this server.") % request.path})
 
+
 def access_denied(request, template_name='403.html'):
     """
     Default 403 handler, which looks for the which prints out a hard-coded string patterned
@@ -35,11 +37,12 @@ def access_denied(request, template_name='403.html'):
     request
     The django request object
     """
-    t = django.template.loader.get_template(template_name)
+    template = django.template.loader.get_template(template_name)
     template_values = {}
     template_values['request'] = request
     return django.http.HttpResponseForbidden(
-        t.render(django.template.RequestContext(request, template_values)))
+        template.render(django.template.RequestContext(request, template_values)))
+
 
 class Django403Middleware(object):
     """

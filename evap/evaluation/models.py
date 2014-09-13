@@ -27,6 +27,7 @@ STUDENT_STATES_NAMES = {
     'published': 'published'
 }
 
+
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
 
@@ -330,8 +331,8 @@ class Contribution(models.Model):
     course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"), blank=True, related_name="contributions")
-    responsible = models.BooleanField(verbose_name = _(u"responsible"), default=False)
-    can_edit = models.BooleanField(verbose_name = _(u"can edit"), default=False)
+    responsible = models.BooleanField(verbose_name=_(u"responsible"), default=False)
+    can_edit = models.BooleanField(verbose_name=_(u"can edit"), default=False)
 
     class Meta:
         unique_together = (
@@ -591,7 +592,6 @@ class UserProfile(models.Model):
         """Creates a UserProfile object whenever a User is created."""
         if created:
             UserProfile.objects.create(user=instance)
-
 
 
 def validate_template(value):

@@ -5,6 +5,7 @@ from django.conf import settings
 
 from evap.evaluation.models import Course, EmailTemplate
 
+
 class Command(BaseCommand):
     args = '<kind of jobs>'
     help = 'Runs updates/tasks based on time events'

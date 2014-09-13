@@ -51,16 +51,16 @@ def index(request):
         return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
     else:
         # check for redirect variable
-        redirectTo = request.GET.get("next", None)
-        if redirectTo is not None:
-            if redirectTo.startswith("/fsr/"):
+        redirect_to = request.GET.get("next", None)
+        if redirect_to is not None:
+            if redirect_to.startswith("/fsr/"):
                 if request.user.is_staff:
-                    return redirect(redirectTo)
-            elif redirectTo.startswith("/contributor/"):
+                    return redirect(redirect_to)
+            elif redirect_to.startswith("/contributor/"):
                 if UserProfile.get_for_user(request.user).is_contributor:
-                    return redirect(redirectTo)
+                    return redirect(redirect_to)
             else:
-                return redirect(redirectTo)
+                return redirect(redirect_to)
 
         # redirect user to appropriate start page
         if request.user.is_staff:

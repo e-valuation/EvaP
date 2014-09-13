@@ -19,6 +19,7 @@ class QuestionnaireChoiceIterator(ModelChoiceIterator):
     def choice(self, obj):
         return (self.field.prepare_value(obj), self.field.label_from_instance(obj), obj.description)
 
+
 class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = []
@@ -41,10 +42,9 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
-            output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"',''), option_label))
+            output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))
-
 
 
 class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -295,14 +295,14 @@ class BootstrapMixin(object):
                 attrs['data-datepicker'] = "datepicker"
 
             field_hash = {
-                'class' : mark_safe(css_class),
-                'label' : mark_safe(bf.label or ''),
-                'help_text' :mark_safe(unicode(help_text)),
-                'field' : field_instance,
-                'bf' : mark_safe(unicode(bf.as_widget(attrs=attrs))),
-                'bf_raw' : bf,
-                'errors' : mark_safe(bf_errors),
-                'field_type' : mark_safe(field.__class__.__name__),
+                'class': mark_safe(css_class),
+                'label': mark_safe(bf.label or ''),
+                'help_text': mark_safe(unicode(help_text)),
+                'field': field_instance,
+                'bf': mark_safe(unicode(bf.as_widget(attrs=attrs))),
+                'bf_raw': bf,
+                'errors': mark_safe(bf_errors),
+                'field_type': mark_safe(field.__class__.__name__),
             }
 
             output = Template(self.__TEMPLATE).render(Context(field_hash))

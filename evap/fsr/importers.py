@@ -83,7 +83,7 @@ class ExcelImporter(object):
             try:
                 for row in range(1, sheet.nrows):
                     execute_per_row(sheet.row_values(row), sheet.name, row)
-                        
+
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
             except Exception:
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
@@ -159,7 +159,7 @@ class ExcelImporter(object):
                     # connect database objects
                     course.participants.add(student)
 
-                except Exception, e:
+                except Exception as e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
             messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") % dict(courses=course_count, students=student_count, contributors=contributor_count))
@@ -180,7 +180,7 @@ class ExcelImporter(object):
                         user = user_data.store_in_database()
                         users_count += 1
 
-                except Exception, e:
+                except Exception as e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
             messages.info(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))

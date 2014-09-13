@@ -3,6 +3,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Semester
 
+
 class Command(BaseCommand):
     args = '<semester id>'
     help = 'Removes all participant and voter information from the DB.'
@@ -13,13 +14,13 @@ class Command(BaseCommand):
 
         semester_id = args[0]
 
-        # get semester
+        semester = None
         try:
-            self.semester = Semester.objects.get(pk=semester_id)
+            semester = Semester.objects.get(pk=semester_id)
         except Semester.DoesNotExist:
             raise CommandError(_("Supplied semester does not exist."))
 
-        for course in self.semester.course_set.all():
+        for course in semester.course_set.all():
             if course.participants.exists():
                 course.participant_count = course.participants.count()
                 course.participants.clear()

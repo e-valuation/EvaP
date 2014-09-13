@@ -70,9 +70,7 @@ class RequestAuthUserBackend(ModelBackend):
                                               login_key_valid_until__gte=date.today())
             return profile.user
         except UserProfile.DoesNotExist:
-            pass
-
-        return None
+            return None
 
 
 def user_passes_test_without_redirect(test_func):
@@ -125,6 +123,7 @@ def editor_or_delegate_required(func):
             return False
         return UserProfile.get_for_user(user=user).is_editor_or_delegate
     return user_passes_test(check_user)(func)
+
 
 def editor_required(func):
     """

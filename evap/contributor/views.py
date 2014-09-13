@@ -13,6 +13,7 @@ from evap.contributor.forms import CourseForm, UserForm
 from evap.fsr.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
 
+
 @editor_or_delegate_required
 def index(request):
     user = request.user
@@ -38,7 +39,7 @@ def index(request):
 @editor_required
 def profile_edit(request):
     user = request.user
-    form = UserForm(request.POST or None, request.FILES or None, instance = UserProfile.objects.get_or_create(user=user)[0])
+    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.objects.get_or_create(user=user)[0])
 
     if form.is_valid():
         form.save()
@@ -47,6 +48,7 @@ def profile_edit(request):
         return redirect('evap.contributor.views.index')
     else:
         return render_to_response("contributor_profile.html", dict(form=form), context_instance=RequestContext(request))
+
 
 @editor_or_delegate_required
 def course_view(request, course_id):
@@ -77,7 +79,7 @@ def course_edit(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ('prepared')):
+    if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
     ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course',))

@@ -22,6 +22,7 @@ from evap.student.forms import QuestionsForm
 
 import random
 
+
 @fsr_required
 def index(request):
     semesters = Semester.objects.all()
@@ -57,10 +58,10 @@ def semester_create(request):
     form = SemesterForm(request.POST or None)
 
     if form.is_valid():
-        s = form.save()
+        semester = form.save()
 
         messages.info(request, _("Successfully created semester."))
-        return redirect('evap.fsr.views.semester_view', s.id)
+        return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_form.html", dict(form=form), context_instance=RequestContext(request))
 
@@ -71,10 +72,10 @@ def semester_edit(request, semester_id):
     form = SemesterForm(request.POST or None, instance=semester)
 
     if form.is_valid():
-        s = form.save()
+        semester = form.save()
 
         messages.info(request, _("Successfully updated semester."))
-        return redirect('evap.fsr.views.semester_view', s.id)
+        return redirect('evap.fsr.views.semester_view', semester.id)
     else:
         return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
 
@@ -353,7 +354,7 @@ def course_review(request, semester_id, course_id, offset=None):
             if form.instance.checked:
                 count = count + 1
 
-        if course.state=="evaluated" and course.is_fully_checked():
+        if course.state == "evaluated" and course.is_fully_checked():
             messages.info(request, _("Successfully reviewed {count} course answers for {name}. {name} is now fully reviewed.").format(count=count, course=course.name))
             course.review_finished()
             course.save()
@@ -429,6 +430,7 @@ def course_comments(request, semester_id, course_id):
         textanswers_by_question.append((get_object_or_404(Question, id=question_id), textanswers.filter(question=question_id)))
 
     return render_to_response("fsr_course_comments.html", dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question), context_instance=RequestContext(request))
+
 
 @fsr_required
 def course_preview(request, semester_id, course_id):
@@ -660,8 +662,8 @@ def helper_create_grouped_course_selection_forms(courses, filter_func, request):
         grouped_courses[degree].append(course)
 
     forms = []
-    for degree, degreeCourses in grouped_courses.items():
-        form = SelectCourseForm(degree, degreeCourses, filter_func, request.POST or None)
+    for degree, degree_courses in grouped_courses.items():
+        form = SelectCourseForm(degree, degree_courses, filter_func, request.POST or None)
         forms.append(form)
 
     return forms

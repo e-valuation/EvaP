@@ -96,7 +96,7 @@ def vote(request, course_id):
                     if type(value) in [str, unicode]:
                         value = value.strip()
 
-                    if value == 6: #no answer
+                    if value == 6: # no answer
                         value = None
 
                     # store the answer if one was given

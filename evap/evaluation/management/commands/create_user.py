@@ -35,22 +35,24 @@ def read_value(question, validator_func):
         value = raw_input(question)
         try:
             validator_func(value)
-        except exceptions.ValidationError, e:
+        except exceptions.ValidationError as e:
             sys.stderr.write(str(e.messages[0]) + '\n')
             continue
         else:
             return value
+
 
 def read_value_hidden(question, validator_func):
     while True:
         value = getpass.getpass(question)
         try:
             validator_func(value)
-        except exceptions.ValidationError, e:
+        except exceptions.ValidationError as e:
             sys.stderr.write(str(e.messages[0]))
             continue
         else:
             return value
+
 
 class Command(BaseCommand):
     args = ''
