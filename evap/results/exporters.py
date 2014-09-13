@@ -35,10 +35,11 @@ class ExcelExporter(object):
                            ["custom_orange",      0x23, (242, 158, 88)],
                            ["custom_red",         0x24, (235,  89, 90)]]
 
+    grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
     # Adding evaP colors to palette
     for index, c in enumerate(grade_color_palette):
         xlwt.add_palette_colour(c[0], c[1])
-        styles['grade_' + str(index)] = xlwt.easyxf('pattern: pattern solid, fore_colour '+c[0]+'; alignment: horiz centre; font: bold on; borders: left medium', num_format_str="0.0")
+        styles['grade_' + str(index)] = xlwt.easyxf(grade_base_style.format(c[0]), num_format_str="0.0")
 
 
     @classmethod
@@ -70,7 +71,7 @@ class ExcelExporter(object):
         else:
             return 'variance_high'
 
-    def export(self, response, all=False):
+    def export(self, response, ignore_not_enough_answers=False):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
             results = SortedDict()
@@ -136,7 +137,7 @@ class ExcelExporter(object):
                                         if not grade_result.show:
                                             enough_answers = False
                                     break
-                        if values and (enough_answers or all):
+                        if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
                             self.writec(avg, ExcelExporter.grade_to_style(avg));
 
@@ -168,7 +169,8 @@ class ExcelExporter(object):
 
         self.writen(_(u"Total Voters/Total Participants"), "bold")
         for course, results in courses_with_results:
-            self.writec(str(course.num_voters) + "/" + str(course.num_participants) + " ({:.0%})".format(float(course.num_voters)/float(course.num_participants)), "total_voters", cols=2)
+            percent_participants = float(course.num_voters)/float(course.num_participants)
+            self.writec("{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)
 

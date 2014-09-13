@@ -50,12 +50,7 @@ def semester_export(request, semester_id):
     response = HttpResponse(mimetype="application/vnd.ms-excel")
     response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
 
-    exporter = ExcelExporter(semester)
-
-    if 'all' in request.GET:
-        exporter.export(response, True)
-    else:
-        exporter.export(response)
+    ExcelExporter(semester).export(response, 'all' in request.GET)
 
     return response
 
