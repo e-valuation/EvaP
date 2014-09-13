@@ -145,9 +145,8 @@ EvaP is preconfigured for using Kerberos as an authentication backend. To enable
 
 - in ``settings.py``:
 
-  - in the list ``AUTHENTICATION_BACKEND``, enable ``django_auth_kerberos.backends.KrbBackend``
-  - uncomment the lines ``KRB5_REALM = 'EXAMPLE.COM'`` and ``KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'`` and define the actual values
-  - enable ``django_auth_kerberos`` in ``INSTALLED_APPS``
+  - set ``ENABLE_KERBEROS`` to ``True``
+  - set ``KRB5_REALM`` and ``KRB5_SERVICE`` according to your setup
 
 
 Productive Environment: Cron Configuration
