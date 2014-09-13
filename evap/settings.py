@@ -245,7 +245,7 @@ LOGGING = {
 
 # kerberos realm and service
 ENABLE_KERBEROS = False
-if (ENABLE_KERBEROS)
+if (ENABLE_KERBEROS):
     KRB5_REALM = 'EXAMPLE.COM'
     KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
     INSTALLED_APPS += ('django_auth_kerberos',)
