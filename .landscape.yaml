@@ -1,3 +1,5 @@
 uses: django
-strictness: low
+strictness: medium
 doc-warnings: no
+ignore-paths:
+    - docs

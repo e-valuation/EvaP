@@ -5,6 +5,7 @@ from django.conf import settings
 
 from evap.evaluation.models import Course, EmailTemplate
 
+
 class Command(BaseCommand):
     args = '<kind of jobs>'
     help = 'Runs updates/tasks based on time events'
@@ -23,7 +24,7 @@ class Command(BaseCommand):
                     if course.is_fully_checked():
                         course.review_finished()
                     course.save()
-            except:
+            except Exception:
                 pass
 
     def check_reminders(self):

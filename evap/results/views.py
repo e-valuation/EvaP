@@ -50,12 +50,7 @@ def semester_export(request, semester_id):
     response = HttpResponse(mimetype="application/vnd.ms-excel")
     response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
 
-    exporter = ExcelExporter(semester)
-
-    if 'all' in request.GET:
-        exporter.export(response, True)
-    else:
-        exporter.export(response)
+    ExcelExporter(semester).export(response, 'all' in request.GET)
 
     return response
 
@@ -63,7 +58,7 @@ def semester_export(request, semester_id):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    
+
     # staff can see preview of results even when course is not published
     if request.user.is_staff:
         course = get_object_or_404(semester.course_set.filter(state__in=['inEvaluation', 'evaluated', 'reviewed', 'published']), id=course_id)
@@ -73,13 +68,13 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course, request.user.is_staff)
 
-    if (request.user.is_staff == False): # if user is not a student representative
-    # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
+    if not request.user.is_staff:
+        # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
         for section in sections:
             if not user_can_see_textresults(request.user, course, section):
-                for index, result in list(enumerate(section.results))[::-1]:
-                    if isinstance(section.results[index], TextResult):
-                        del section.results[index]
+                for i, result in list(enumerate(section.results))[::-1]:
+                    if isinstance(result, TextResult):
+                        del section.results[i]
 
     # remove empty sections and group by contributor
     course_sections = []
@@ -87,7 +82,7 @@ def course_detail(request, semester_id, course_id):
     for section in sections:
         if not section.results:
             continue
-        if section.contributor == None:
+        if section.contributor is None:
             course_sections.append(section)
         else:
             if section.contributor not in contributor_sections:

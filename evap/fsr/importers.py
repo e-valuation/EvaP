@@ -83,9 +83,9 @@ class ExcelImporter(object):
             try:
                 for row in range(1, sheet.nrows):
                     execute_per_row(sheet.row_values(row), sheet.name, row)
-                        
+
                 messages.info(self.request, _(u"Successfully read sheet '%s'.") % sheet.name)
-            except:
+            except Exception:
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
                 raise
         messages.info(self.request, _(u"Successfully read excel file."))
@@ -120,7 +120,7 @@ class ExcelImporter(object):
         already in the database."""
 
         for (sheet, row), (student_data, contributor_data, course_data) in self.associations.items():
-            if student_data.email == None or student_data.email == "":
+            if student_data.email is None or student_data.email == "":
                 student_data.email = student_data.username + "@student.hpi.uni-potsdam.de"
 
     def save_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
@@ -159,11 +159,10 @@ class ExcelImporter(object):
                     # connect database objects
                     course.participants.add(student)
 
-                except Exception, e:
+                except Exception as e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
-            messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") %
-                                            dict(courses=course_count, students=student_count, contributors=contributor_count))
+            messages.info(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(contributors)d contributor(s).") % dict(courses=course_count, students=student_count, contributors=contributor_count))
 
     def save_users_to_db(self):
         """Stores the read data in the database. Errors might still
@@ -181,11 +180,10 @@ class ExcelImporter(object):
                         user = user_data.store_in_database()
                         users_count += 1
 
-                except Exception, e:
+                except Exception as e:
                     messages.warning(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
-            messages.info(self.request, _("Successfully created %(users)d user(s).") %
-                                            dict(users=users_count))
+            messages.info(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
 
     @classmethod
     def process_enrollments(cls, request, excel_file, semester, vote_start_date, vote_end_date):
@@ -195,7 +193,7 @@ class ExcelImporter(object):
             importer.for_each_row_in_excel_file_do(excel_file, importer.read_one_enrollment)
             importer.validate_and_fix_enrollments()
             importer.save_enrollments_to_db(semester, vote_start_date, vote_end_date)
-        except Exception, e:
+        except Exception as e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
@@ -208,7 +206,7 @@ class ExcelImporter(object):
             importer = cls(request)
             importer.for_each_row_in_excel_file_do(excel_file, importer.read_one_user)
             importer.save_users_to_db()
-        except Exception, e:
+        except Exception as e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode

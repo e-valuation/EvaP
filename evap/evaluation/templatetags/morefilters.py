@@ -21,6 +21,7 @@ def percentage(fraction, population):
 def likertname(grade):
     return LIKERT_NAMES.get(grade)
 
+
 @register.filter(name='gradename')
 def gradename(grade):
     return GRADE_NAMES.get(grade)
@@ -29,6 +30,7 @@ def gradename(grade):
 @register.filter(name='statename')
 def statename(state):
     return STATES_ORDERED.get(state)
+
 
 @register.filter(name='studentstatename')
 def studentstatename(state):
@@ -41,7 +43,7 @@ def value_from_settings(parser, token):
         # split_contents() knows not to split quoted strings.
         tag_name, var = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires a single argument" % token.contents.split()[0]
+        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
     return ValueFromSettings(var)
 
 

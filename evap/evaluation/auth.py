@@ -1,8 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import auth, messages
-from django.contrib.auth.backends import ModelBackend, RemoteUserBackend
+from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.models import User
 from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
@@ -71,9 +70,7 @@ class RequestAuthUserBackend(ModelBackend):
                                               login_key_valid_until__gte=date.today())
             return profile.user
         except UserProfile.DoesNotExist:
-            pass
-
-        return None
+            return None
 
 
 def user_passes_test_without_redirect(test_func):
@@ -126,6 +123,7 @@ def editor_or_delegate_required(func):
             return False
         return UserProfile.get_for_user(user=user).is_editor_or_delegate
     return user_passes_test(check_user)(func)
+
 
 def editor_required(func):
     """

@@ -13,8 +13,6 @@ from evap.evaluation.tools import questionnaires_and_contributions_by_contributo
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
-from datetime import datetime
-
 
 @login_required
 def index(request):
@@ -49,7 +47,7 @@ def vote(request, course_id):
             form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
             if form.contribution.contributor == request.user:
                 continue # users shall not vote about themselves
-            if not contributor in form_group:
+            if contributor not in form_group:
                 form_group[contributor] = SortedDict()
             form_group[contributor][(contribution, questionnaire)] = form
 
@@ -70,7 +68,7 @@ def vote(request, course_id):
                 course_forms.append(form)
 
             for contributor in form_group:
-                if contributor == None:
+                if contributor is None:
                     continue
                 user_profile = UserProfile.get_for_user(contributor)
                 contributor_questionnaires[user_profile] = form_group[contributor].values()
@@ -98,7 +96,7 @@ def vote(request, course_id):
                     if type(value) in [str, unicode]:
                         value = value.strip()
 
-                    if value == 6: #no answer
+                    if value == 6: # no answer
                         value = None
 
                     # store the answer if one was given
@@ -111,5 +109,5 @@ def vote(request, course_id):
         # remember that the user voted already
         course.voters.add(request.user)
 
-    messages.add_message(request, messages.INFO, _("Your vote was recorded."))
+    messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

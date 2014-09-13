@@ -71,7 +71,7 @@ class Command(BaseCommand):
 
     def user_from_db(self, username):
         u = unicode(username)[:30]
-        user, created = User.objects.get_or_create(username__iexact=u, defaults=dict(username=u))
+        user, _ = User.objects.get_or_create(username__iexact=u, defaults=dict(username=u))
         return user
 
     def get_lecture_types(self, course):
@@ -169,7 +169,7 @@ class Command(BaseCommand):
 
         # evaluation --> Semester
         evaluation = self.get_one('evaluation', id=semester_id)
-        logger.info(u"Processing semester '%s'..." % evaluation.semester)
+        logger.info(u"Processing semester '%s'...", evaluation.semester)
         semester = Semester.objects.create(name_de=unicode(evaluation.semester),
                                            name_en=unicode(evaluation.semester))
         # hack: use default start date to get the ordering right
@@ -202,9 +202,7 @@ class Command(BaseCommand):
                                 text_en=unicode(question_template.text_ge),
                                 kind=self.question_template_type_map[str(question_template.type)])
                             self.question_cache[int(question_template.id)] = question
-            except KeyboardInterrupt:
-                raise
-            except:
+            except Exception:
                 logger.exception(u"An exception occurred while trying to import questionnaire '%s'!", topic_template.name_ge)
 
         courses = self.get('course', evaluation_id=evaluation.id)
@@ -234,7 +232,7 @@ class Command(BaseCommand):
 
                     # contributor questionnaires
                     for contributor, questionnaire in self.get_contributors_with_questionnaires(xml_course):
-                        contribution, created = Contribution.objects.get_or_create(course=course, contributor=contributor)
+                        contribution, _ = Contribution.objects.get_or_create(course=course, contributor=contributor)
                         contribution.questionnaires.add(questionnaire)
 
                     # answer --> LikertAnswer/TextAnswer
@@ -288,8 +286,6 @@ class Command(BaseCommand):
                                     )
 
                 course_count += 1
-            except KeyboardInterrupt:
-                raise
             except Exception:
                 logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
 

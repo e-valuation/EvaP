@@ -1,19 +1,16 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
-from django.forms.fields import Field, FileField
+from django.forms.fields import FileField
 from django.forms.models import BaseInlineFormSet
-from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, TextAnswer, UserProfile, FaqSection, \
-                                   FaqQuestion, EmailTemplate
-from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
+                                   Semester, UserProfile, FaqSection, FaqQuestion, \
+                                   EmailTemplate
+from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -103,7 +100,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         try:
             self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e :
+        except forms.ValidationError as e:
             self._update_errors(e)
 
 
@@ -121,14 +118,13 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         self.template = EmailTemplate()
         super(CourseEmailForm, self).__init__(*args, **kwargs)
 
-
     def clean(self):
         self.recipient_groups = {
             'all_participants': self.cleaned_data.get('sendToAllParticipants'),
             'due_participants': self.cleaned_data.get('sendToDueParticipants'),
             'responsible': self.cleaned_data.get('sendToResponsible'),
             'editors': self.cleaned_data.get('sendToEditors'),
-            'contributors': self.cleaned_data.get('sendToContributors') }
+            'contributors': self.cleaned_data.get('sendToContributors')}
 
         if len(self.recipient_groups) == 0:
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
@@ -148,6 +144,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
         self.template.send_to_users_in_courses([self.instance], self.recipient_groups)
+
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
@@ -226,7 +223,7 @@ class ContributorFormSet(AtLeastOneFormSet):
                 if form.cleaned_data:
                     contributor = form.cleaned_data.get('contributor')
                     delete = form.cleaned_data.get('DELETE')
-                    if contributor == None and not delete:
+                    if contributor is None and not delete:
                         raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
                     if contributor and contributor in found_contributor:
                         raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
@@ -309,7 +306,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
                 if hasattr(self, name2):
                     value = getattr(self, 'clean_%s' % name)()
                     self.cleaned_data[name] = value
-            except ValidationError, e:
+            except ValidationError as e:
                 self._errors[name] = self.error_class(e.messages)
                 if name in self.cleaned_data:
                     del self.cleaned_data[name]
@@ -359,10 +356,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
-                                                                      initial=self.instance.user.represented_users.all() if self.instance.pk else (),
-                                                                      label=_("Represented Users"),
-                                                                      help_text="",
-                                                                      required=False)
+                                                                          initial=self.instance.user.represented_users.all() if self.instance.pk else (),
+                                                                          label=_("Represented Users"),
+                                                                          help_text="",
+                                                                          required=False)
         self.fields['represented_users'].help_text = ""
 
         # load user fields
@@ -417,7 +414,6 @@ class FaqSectionForm(forms.ModelForm, BootstrapMixin):
         self.fields["title_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["title_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
-
 
     class Meta:
         model = FaqSection
