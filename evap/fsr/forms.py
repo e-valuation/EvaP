@@ -119,12 +119,13 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         super(CourseEmailForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        self.recipient_groups = {
-            'all_participants': self.cleaned_data.get('sendToAllParticipants'),
-            'due_participants': self.cleaned_data.get('sendToDueParticipants'),
-            'responsible': self.cleaned_data.get('sendToResponsible'),
-            'editors': self.cleaned_data.get('sendToEditors'),
-            'contributors': self.cleaned_data.get('sendToContributors')}
+        self.recipient_groups = []
+
+        if self.cleaned_data.get('sendToAllParticipants'): self.recipient_groups += ['all_participants']
+        if self.cleaned_data.get('sendToDueParticipants'): self.recipient_groups += ['due_participants']
+        if self.cleaned_data.get('sendToResponsible'): self.recipient_groups += ['responsible']
+        if self.cleaned_data.get('sendToEditors'): self.recipient_groups += ['editors']
+        if self.cleaned_data.get('sendToContributors'): self.recipient_groups += ['contributors']
 
         if len(self.recipient_groups) == 0:
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))

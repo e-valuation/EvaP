@@ -187,7 +187,7 @@ class Course(models.Model):
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
         if send_mail:
-            EmailTemplate.get_review_template().send_to_users_in_courses([self], send_to_editors=True)
+            EmailTemplate.get_review_template().send_to_users_in_courses([self], ['editors'])
 
     @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):
@@ -626,20 +626,20 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
 
     @classmethod
-    def recipient_list_for_course(cls, course, send_to):
+    def recipient_list_for_course(cls, course, recipient_groups):
         recipients = []
 
-        if send_to["responsible"]:
+        if "responsible" in recipient_groups:
             recipients += [course.responsible_contributor]
 
-        if send_to["contributors"]:
+        if "contributors" in recipient_groups:
             recipients += [c.contributor for c in course.contributions.exclude(contributor=None)]
-        elif send_to["editors"]:
+        elif "editors" in recipient_groups:
             recipients += [c.contributor for c in course.contributions.exclude(contributor=None).filter(can_edit=True)]
 
-        if send_to["all_participants"]:
+        if "all_participants" in recipient_groups:
             recipients += course.participants.all()
-        elif send_to["due_participants"]:
+        elif "due_participants" in recipient_groups:
             recipients += course.due_participants
 
         return recipients
@@ -648,17 +648,17 @@ class EmailTemplate(models.Model):
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    def send_to_users_in_courses(self, courses, send_to):
+    def send_to_users_in_courses(self, courses, recipient_groups):
         user_course_map = {}
         for course in courses:
             responsible = UserProfile.get_for_user(course.responsible_contributor)
-            for user in self.recipient_list_for_course(course, send_to):
+            for user in self.recipient_list_for_course(course, recipient_groups):
                 if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.iteritems():
             cc_users = []
-            if (send_to["responsible"] or send_to["editors"]) and any(course.is_user_editor(user) for course in courses):
+            if (recipient_groups["responsible"] or recipient_groups["editors"]) and any(course.is_user_editor(user) for course in courses):
                 cc_users += UserProfile.get_for_user(user).delegates.all()
             cc_users += UserProfile.get_for_user(user).cc_users.all()
             cc_addresses = [p.email for p in cc_users if p.email]
