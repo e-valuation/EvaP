@@ -1029,16 +1029,16 @@ msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 #: fsr/views.py:359
 #, python-format
 msgid ""
-"Successfully reviewed %(number)d course answers for %(name)s. %(name)s is "
+"Successfully reviewed {count} course answers for {name}. {name} is "
 "now fully reviewed."
 msgstr ""
-"%(number)d Antworten für %(name)s erfolgreich überprüft. %(name)s ist jetzt "
+"{count} Antworten für {name} erfolgreich überprüft. {name} ist jetzt "
 "vollständig überprüft."
 
 #: fsr/views.py:364
 #, python-format
-msgid "Successfully reviewed %(number)d course answers for %(name)s."
-msgstr "%(number)d Antworten für %(name)s erfolgreich überprüft."
+msgid "Successfully reviewed {count} course answers for {course}."
+msgstr "{count} Antworten für {course} erfolgreich überprüft."
 
 #: fsr/views.py:385
 #, python-format
@@ -1048,11 +1048,11 @@ msgstr "Emails für '%s' wurden erfolgreich versendet."
 #: fsr/views.py:387
 #, python-format
 msgid ""
-"Successfully sent some emails for '%(course)s', but %(count)d could not be "
+"Successfully sent some emails for '{course}', but {count} could not be "
 "reached as they do not have an email address."
 msgstr ""
-"Einige E‑Mails für '%(course)s' wurden erfolgreich versendet, allerdings "
-"konnten %(count)d Personen nicht erreicht werden, da sie keine E‑Mail-"
+"Einige E‑Mails für '{course}' wurden erfolgreich versendet, allerdings "
+"konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-"
 "Adresse haben."
 
 #: fsr/views.py:411

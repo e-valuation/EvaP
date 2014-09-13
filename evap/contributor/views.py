@@ -43,7 +43,7 @@ def profile_edit(request):
     if form.is_valid():
         form.save()
 
-        messages.add_message(request, messages.INFO, _("Successfully updated your profile."))
+        messages.info(request, _("Successfully updated your profile."))
         return redirect('evap.contributor.views.index')
     else:
         return render_to_response("contributor_profile.html", dict(form=form), context_instance=RequestContext(request))
@@ -98,9 +98,9 @@ def course_edit(request, course_id):
             # approve course
             course.contributor_approve()
             course.save()
-            messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
+            messages.info(request, _("Successfully updated and approved course."))
         else:
-            messages.add_message(request, messages.INFO, _("Successfully updated course."))
+            messages.info(request, _("Successfully updated course."))
 
         return redirect('evap.contributor.views.index')
     else:

@@ -109,5 +109,5 @@ def vote(request, course_id):
         # remember that the user voted already
         course.voters.add(request.user)
 
-    messages.add_message(request, messages.INFO, _("Your vote was recorded."))
+    messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')
