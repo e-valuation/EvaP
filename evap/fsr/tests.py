@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
+from django.test import Client
 
 from django.contrib.auth.models import User
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
@@ -182,7 +183,7 @@ class UsecaseTests(WebTest):
         assert "No responsible contributor found" in page
 
     def test_num_queries_user_list(self):
-        """ 
+        """
             ensures that the number of queries in the user list is constant
             and not linear to the number of users
         """
@@ -196,3 +197,77 @@ class UsecaseTests(WebTest):
         self.assertTrue(UserProfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
         self.assertFalse(UserProfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
 
+
+
+class URLTests(WebTest):
+    fixtures = ['minimal_test_data']
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def get_assert_200(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def test_all_urls(self):
+        urls = [
+            ("test_index", "/", ""),
+            ("test_faq", "/faq", ""),
+            # student pages
+            ("test_student", "/student/", "student"),
+            ("test_student_vote_x", "/student/vote/5", "lazy.student"),
+            # fsr main page
+            ("test_fsr", "/fsr/", "evap"),
+            # fsr semester
+            ("test_fsr_semester_create", "/fsr/semester/create", "evap"),
+            ("test_fsr_semester_x", "/fsr/semester/1", "evap"),
+            ("test_fsr_semester_x_edit", "/fsr/semester/1/edit", "evap"),
+            ("test_fsr_semester_x_delete", "/fsr/semester/1/delete", "evap"),
+            ("test_fsr_semester_x_course_create", "/fsr/semester/1/course/create", "evap"),
+            ("test_fsr_semester_x_import", "/fsr/semester/1/import", "evap"),
+            ("test_fsr_semester_x_assign", "/fsr/semester/1/assign", "evap"),
+            ("test_fsr_semester_x_lottery", "/fsr/semester/1/lottery", "evap"),
+            ("test_fsr_semester_x_reset", "/fsr/semester/1/reset", "evap"),
+            ("test_fsr_semester_x_contributorready", "/fsr/semester/1/contributorready", "evap"),
+            ("test_fsr_semester_x_approve", "/fsr/semester/1/approve", "evap"),
+            ("test_fsr_semester_x_publish", "/fsr/semester/1/publish", "evap"),
+            # fsr semester course
+            ("test_fsr_semester_x_course_y_edit", "/fsr/semester/1/course/1/edit", "evap"),
+            ("test_fsr_semester_x_course_y_email", "/fsr/semester/1/course/1/email", "evap"),
+            ("test_fsr_semester_x_course_y_preview", "/fsr/semester/1/course/1/preview", "evap"),
+            ("test_fsr_semester_x_course_y_comments", "/fsr/semester/1/course/5/comments", "evap"),
+            ("test_fsr_semester_x_course_y_review", "/fsr/semester/1/course/5/review", "evap"),
+            ("test_fsr_semester_x_course_y_unpublish", "/fsr/semester/1/course/8/unpublish", "evap"),
+            ("test_fsr_semester_x_course_y_delete", "/fsr/semester/1/course/1/delete", "evap"),
+            # fsr questionnaires
+            ("test_fsr_questionnaire", "/fsr/questionnaire/", "evap"),
+            ("test_fsr_questionnaire_create", "/fsr/questionnaire/create", "evap"),
+            ("test_fsr_questionnaire_x_edit", "/fsr/questionnaire/2/edit", "evap"),
+            ("test_fsr_questionnaire_x", "/fsr/questionnaire/2", "evap"),
+            ("test_fsr_questionnaire_x_copy", "/fsr/questionnaire/2/copy", "evap"),
+            ("test_fsr_questionnaire_x_delete", "/fsr/questionnaire/3/delete", "evap"),
+            ("test_fsr_questionnaire_delete", "/fsr/questionnaire/create", "evap"),
+            # fsr user
+            ("test_fsr_user", "/fsr/user/", "evap"),
+            ("test_fsr_user_import", "/fsr/user/import", "evap"),
+            ("test_fsr_sample_xls", "/static/sample_user.xls", "evap"),
+            ("test_fsr_user_create", "/fsr/user/create", "evap"),
+            ("test_fsr_user_x_delete", "/fsr/user/4/delete", "evap"),
+            ("test_fsr_user_x_edit", "/fsr/user/4/edit", "evap"),
+            # fsr template
+            ("test_fsr_template_x", "/fsr/template/1", "evap"),
+            # faq
+            ("test_fsr_faq", "/fsr/faq/", "evap"),
+            ("test_fsr_faq_x", "/fsr/faq/1", "evap"),
+            # results
+            ("test_results", "/results/", "evap"),
+            ("test_results_semester_x", "/results/semester/1", "evap"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "evap"),
+            ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
+            # contributor
+            ("test_contributor", "/contributor/", "responsible"),
+            ("test_contributor_course_x", "/contributor/course/7", "responsible"),
+            ("test_contributor_course_x_preview", "/contributor/course/7/preview", "responsible"),
+            ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
+            ("test_contributor_profile", "/contributor/profile", "responsible")]
+        for test in urls:
+            self.get_assert_200(test[1], test[2])
