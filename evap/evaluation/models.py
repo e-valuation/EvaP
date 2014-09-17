@@ -658,7 +658,7 @@ class EmailTemplate(models.Model):
 
         for user, courses in user_course_map.iteritems():
             cc_users = []
-            if (recipient_groups["responsible"] or recipient_groups["editors"]) and any(course.is_user_editor(user) for course in courses):
+            if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
                 cc_users += UserProfile.get_for_user(user).delegates.all()
             cc_users += UserProfile.get_for_user(user).cc_users.all()
             cc_addresses = [p.email for p in cc_users if p.email]
