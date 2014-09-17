@@ -2,12 +2,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Course, UserProfile
 
 import xlrd
+from collections import OrderedDict
 
 
 class UserData(object):
@@ -72,7 +72,7 @@ class CourseData(object):
 
 class ExcelImporter(object):
     def __init__(self, request):
-        self.associations = SortedDict()
+        self.associations = OrderedDict()
         self.request = request
 
     def for_each_row_in_excel_file_do(self, excel_file, execute_per_row):
@@ -128,7 +128,7 @@ class ExcelImporter(object):
         occur because the previous validation does check not for consistency with
         the data already in the database."""
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             course_count = 0
             student_count = 0
             contributor_count = 0
@@ -168,7 +168,7 @@ class ExcelImporter(object):
         """Stores the read data in the database. Errors might still
         occur because of the data already in the database."""
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:

@@ -588,9 +588,9 @@ class UserProfile(models.Model):
 
     @staticmethod
     @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-    def create_user_profile(sender, instance, created, **kwargs):
+    def create_user_profile(sender, instance, created, raw, **kwargs):
         """Creates a UserProfile object whenever a User is created."""
-        if created:
+        if created and not raw:
             UserProfile.objects.create(user=instance)
 
 
@@ -684,14 +684,3 @@ class EmailTemplate(models.Model):
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})
         mail.send(False)
 
-
-# disable super user creation on syncdb
-from django.db.models import signals
-from django.contrib.auth.management import create_superuser
-from django.contrib.auth import models as auth_app
-
-
-signals.post_syncdb.disconnect(
-    create_superuser,
-    sender=auth_app,
-    dispatch_uid="django.contrib.auth.management.create_superuser")

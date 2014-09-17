@@ -189,7 +189,6 @@ class UsecaseTests(WebTest):
         num_users = 50
         for i in range(0, num_users):
             user = User.objects.get_or_create(id=9000+i, username=i)
-            UserProfile.objects.create(user=user[0])
         with self.assertNumQueries(FuzzyInt(0, num_users-1)):
             self.app.get("/fsr/user/", user="fsr.user")
 

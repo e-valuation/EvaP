@@ -263,6 +263,8 @@ if DEBUG and ENABLE_DEBUG_TOOLBAR:
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
     }
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 # Create a localsettings.py if you want to override settings per machine
 # or user, e.g. for development or different settings in deployments using
 # multiple servers.

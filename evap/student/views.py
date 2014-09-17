@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
@@ -13,6 +12,7 @@ from evap.evaluation.tools import questionnaires_and_contributions_by_contributo
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
+from collections import OrderedDict
 
 @login_required
 def index(request):
@@ -48,7 +48,7 @@ def vote(request, course_id):
             if form.contribution.contributor == request.user:
                 continue # users shall not vote about themselves
             if contributor not in form_group:
-                form_group[contributor] = SortedDict()
+                form_group[contributor] = OrderedDict()
             form_group[contributor][(contribution, questionnaire)] = form
 
     for contributor in form_group:
@@ -86,7 +86,7 @@ def vote(request, course_id):
 
     # all forms are valid
     # begin vote operation
-    with transaction.commit_on_success():
+    with transaction.atomic():
         for contributor in form_group:
             for (contribution, questionnaire), form in form_group[contributor].items():
                 for question in questionnaire.question_set.all():

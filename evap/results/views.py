@@ -47,7 +47,7 @@ def semester_export(request, semester_id):
 
     filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
 
-    response = HttpResponse(mimetype="application/vnd.ms-excel")
+    response = HttpResponse(content_type="application/vnd.ms-excel")
     response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
 
     ExcelExporter(semester).export(response, 'all' in request.GET)

@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Min
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
 
+from collections import OrderedDict
 from collections import namedtuple
 
 LIKERT_NAMES = {
@@ -27,7 +27,7 @@ GRADE_NAMES = {
 }
 
 # the names used for contributors and staff
-STATES_ORDERED = SortedDict((
+STATES_ORDERED = OrderedDict((
     ('new', _('new')),
     ('prepared', _('prepared')),
     ('lecturerApproved', _('lecturer approved')),
@@ -39,7 +39,7 @@ STATES_ORDERED = SortedDict((
 ))
 
 # the names used for students
-STUDENT_STATES_ORDERED = SortedDict((
+STUDENT_STATES_ORDERED = OrderedDict((
     ('inEvaluation', _('in evaluation')),
     ('upcoming', _('upcoming')),
     ('evaluationFinished', _('evaluation finished')),
@@ -168,7 +168,7 @@ def calculate_results(course, staff_member=False):
                     variance = avg((average - answer) ** 2 for answer in answers)
                     # calculate relative distribution (histogram) of answers:
                     # set up a sorted dictionary with a count of zero for each grade
-                    distribution = SortedDict()
+                    distribution = OrderedDict()
                     for i in range(1, 6):
                         distribution[i] = 0
                     # count the answers
