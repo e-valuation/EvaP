@@ -208,6 +208,16 @@ class URLTests(WebTest):
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 
+    def get_submit_assert_302(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+
+    def get_submit_assert_200(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+
     def test_all_urls(self):
         urls = [
             ("test_index", "/", ""),
@@ -271,3 +281,85 @@ class URLTests(WebTest):
             ("test_contributor_profile", "/contributor/profile", "responsible")]
         for test in urls:
             self.get_assert_200(test[1], test[2])
+
+
+    # tests of forms that fail without entering any data
+    def test_failing_forms(self):
+        forms = [
+            ("/student/vote/5", "lazy.student", "Vote"),
+            ("/fsr/semester/create", "evap", "Save"),
+            ("/fsr/semester/1/course/create", "evap"),
+            ("/fsr/semester/1/import", "evap"),
+            ("/fsr/semester/1/course/1/email", "evap"),
+            ("/fsr/questionnaire/2/copy", "evap"),
+            ("/fsr/questionnaire/create", "evap"),
+            # ("/fsr/user/create", "evap"), # disabled, see issue #403
+        ]
+        for form in forms:
+            self.get_submit_assert_200(form[0], form[1])
+
+
+    # tests of forms that succeed without entering any data
+    def test_fsr_semester_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/edit", "evap")
+
+    def test_fsr_semester_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/delete", "evap")
+
+    def test_fsr_semester_x_assign__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/assign", "evap")
+
+    def test_fsr_semester_x_lottery__nodata_success(self):
+        self.get_submit_assert_200("/fsr/semester/1/lottery", "evap")
+
+    def test_fsr_semester_x_reset__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/reset", "evap")
+
+    def test_fsr_semester_x_contributorready__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/contributorready", "evap")
+
+    def test_fsr_semester_x_approve__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/approve", "evap")
+
+    def test_fsr_semester_x_publish__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/publish", "evap")
+
+    def test_fsr_semester_x_course_y_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/1/edit", "evap")
+
+    def test_fsr_semester_x_course_y_review__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/5/review", "evap")
+
+    def test_fsr_semester_x_course_y_unpublish__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/8/unpublish", "evap"), # TODO: button should be lower
+
+    def test_fsr_semester_x_course_y_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/1/delete", "evap"),
+
+    def test_fsr_questionnaire_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/questionnaire/2/edit", "evap")
+
+    def test_fsr_questionnaire_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap"),
+
+    def test_fsr_user_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/user/4/delete", "evap"), # may fail
+
+    def test_fsr_user_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/user/4/edit", "evap")
+
+    def test_fsr_template_x__nodata_success(self):
+        self.get_submit_assert_200("/fsr/template/1", "evap")
+
+    def test_fsr_faq__nodata_success(self):
+        self.get_submit_assert_302("/fsr/faq/", "evap")
+
+    def test_fsr_faq_x__nodata_success(self):
+        self.get_submit_assert_302("/fsr/faq/1", "evap")
+
+    # disabled, crashes for unknown reasons
+    #def test_contributor_course_x_edit(self):
+    #    self.get_submit_assert_302("/contributor/course/2/edit", "responsible"),
+
+    def test_contributor_profile(self):
+        self.get_submit_assert_302("/contributor/profile", "responsible")
