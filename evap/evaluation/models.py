@@ -554,7 +554,7 @@ class UserProfile(models.Model):
 
     @property
     def is_delegate(self):
-        return self.delegates.exists()
+        return self.user.represented_users.exists()
 
     @property
     def is_editor_or_delegate(self):
