@@ -169,6 +169,13 @@ class Course(models.Model):
             and user in self.participants.all()
             and user not in self.voters.all())
 
+    def can_user_see_results(self, user):
+        if user.is_staff:
+            return True
+        if self.state == 'published':
+            return self.can_publish_grades() or self.is_user_contributor_or_delegate(user)
+        return False
+
     def can_fsr_edit(self):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
@@ -287,6 +294,17 @@ class Course(models.Model):
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
+
+    def is_user_contributor_or_delegate(self, user):
+        if self.is_user_contributor(user):
+            return True
+        else:
+            represented_userprofiles = user.represented_users.all()
+            represented_users = [profile.user for profile in represented_userprofiles]
+            if self.contributions.filter(contributor__in=represented_users).exists():
+                return True
+
+        return False
 
     def is_user_editor(self, user):
         return self.contributions.filter(contributor=user, can_edit=True).exists()

@@ -96,9 +96,9 @@ def course_detail(request, semester_id, course_id):
     sufficient_votes = course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     # results for a course might not be visible because there are not enough answers
-    # but it can still be "published" e.g. to show the comment results to lecturers
-    # the FSR can still see all results but gets a warning message
-    sufficient_votes_warning = (not sufficient_votes) and request.user.is_staff
+    # but it can still be "published" e.g. to show the comment results to lecturers.
+    # users who can open the results page see a warning message in this case
+    sufficient_votes_warning = not sufficient_votes
 
     course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 

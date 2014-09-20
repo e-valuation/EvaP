@@ -37,6 +37,11 @@ def studentstatename(state):
     return STUDENT_STATES_ORDERED.get(state)
 
 
+@register.filter(name='can_user_see_course')
+def can_user_see_course(course, user):
+    return course.can_user_see_results(user)
+
+
 @register.tag
 def value_from_settings(parser, token):
     try:
