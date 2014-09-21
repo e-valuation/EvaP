@@ -22,12 +22,15 @@
             <legend>{% trans "Contributors" %}</legend>
             {{ formset.non_form_errors }}
             <table id="contribution_table" class="table">
-                <tr>
-                    <th>{% trans "Contributor" %}</th>
-                    <th>{% trans "Questionnaires" %}</th>
-                    <th>{% trans "Can edit course" %}</th>
-                    <th>{% trans "Remove?" %}</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{% trans "Contributor" %}</th>
+                        <th>{% trans "Questionnaires" %}</th>
+                        <th>{% trans "Can edit course" %}</th>
+                        <th>{% trans "Remove?" %}</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {% for form_element in formset %}
                         {% if form_element.non_field_errors %}
@@ -38,6 +41,7 @@
                             {% for field in form_element.hidden_fields %}
                                 {{ field }}
                             {% endfor %}
+                            <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                             {{ form_element.responsible.as_hidden }}
                             <td>
                                 {{form_element.contributor.errors}}
@@ -111,10 +115,24 @@
                 prefix: 'contributions',
                 deleteText: '{% trans "remove" %}',
                 addText: '{% trans "add another" %}',
-                added: function() {
+                added: function(row) {
                     $('.twipsify').tooltip({
                         html: true,
                         placement: 'left'
+                    });
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                    row.find('a.btn-default').remove();
+                }
+            });
+
+            $('tbody').sortable({
+                items: 'tr',
+                handle: 'td:first',
+                update: function() {
+                    $(this).find('tr').each(function(i) {
+                        if ($(this).find('input[id$=-order]').val()) {
+                            $(this).find('input[id$=-order]').val(i);
+                        }
                     });
                 }
             });

@@ -93,6 +93,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['contributor'].queryset = User.objects.order_by('username')
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
+        self.fields['order'].widget = forms.HiddenInput()
 
     def validate_unique(self):
         exclude = self._get_validation_exclusions()

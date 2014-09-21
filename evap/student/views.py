@@ -71,7 +71,8 @@ def vote(request, course_id):
                 if contributor is None:
                     continue
                 user_profile = UserProfile.get_for_user(contributor)
-                contributor_questionnaires[user_profile] = form_group[contributor].values()
+                contribution = form_group[contributor].items()[0][0][0]
+                contributor_questionnaires[contribution.order] = (user_profile, form_group[contributor].values())
                 for form in form_group[contributor].values():
                     if form.errors:
                         errors.append(contributor.id)
