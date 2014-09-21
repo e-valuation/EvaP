@@ -88,6 +88,7 @@
             $('tbody').sortable({
                 items: 'tr',
                 handle: 'td:first',
+                tolerance: 'pointer',
                 update: function() {
                     $(this).find('tr').each(function(i) {
                         if ($(this).find('input[id$=-order]').val()) {
