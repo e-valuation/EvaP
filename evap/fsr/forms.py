@@ -1,20 +1,16 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
-from django.forms.fields import Field, FileField
+from django.forms.fields import FileField
 from django.forms.models import BaseInlineFormSet
-from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, TextAnswer, UserProfile, FaqSection, \
-                                   FaqQuestion
-from evap.fsr.models import EmailTemplate
-from evap.fsr.fields import UserModelMultipleChoiceField, ToolTipModelMultipleChoiceField
+                                   Semester, UserProfile, FaqSection, FaqQuestion, \
+                                   EmailTemplate
+from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -95,7 +91,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         super(ContributionForm, self).__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
-        self.fields['contributor'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['contributor'].queryset = User.objects.order_by('username')
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
 
     def validate_unique(self):
@@ -104,13 +100,14 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         try:
             self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e :
+        except forms.ValidationError as e:
             self._update_errors(e)
 
 
 class CourseEmailForm(forms.Form, BootstrapMixin):
     sendToDueParticipants = forms.BooleanField(label=_("Send to participants who didn't vote yet"), required=False, initial=True)
     sendToAllParticipants = forms.BooleanField(label=_("Send to all participants"), required=False)
+    sendToResponsible = forms.BooleanField(label=_("Send to the responsible person"), required=False)
     sendToEditors = forms.BooleanField(label=_("Send to editors"), required=False)
     sendToContributors = forms.BooleanField(label=_("Send to all contributors (includes editors)"), required=False)
     subject = forms.CharField(label=_("Subject"))
@@ -122,12 +119,18 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         super(CourseEmailForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        self.recipient_groups = []
 
-        if not (cleaned_data.get('sendToDueParticipants') or cleaned_data.get('sendToAllParticipants') or cleaned_data.get('sendToEditors') or cleaned_data.get('sendToContributors')):
+        if self.cleaned_data.get('sendToAllParticipants'): self.recipient_groups += ['all_participants']
+        if self.cleaned_data.get('sendToDueParticipants'): self.recipient_groups += ['due_participants']
+        if self.cleaned_data.get('sendToResponsible'): self.recipient_groups += ['responsible']
+        if self.cleaned_data.get('sendToEditors'): self.recipient_groups += ['editors']
+        if self.cleaned_data.get('sendToContributors'): self.recipient_groups += ['contributors']
+
+        if len(self.recipient_groups) == 0:
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
 
-        return cleaned_data
+        return self.cleaned_data
 
     # returns whether all recepients have an email address
     def all_recepients_reachable(self):
@@ -135,12 +138,14 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
-        return len([user for user in self.template.recipient_list_for_course(self.instance, self.cleaned_data.get('sendToEditors'), self.cleaned_data.get('sendToContributors'), self.cleaned_data.get('sendToDueParticipants'), self.cleaned_data.get('sendToAllParticipants')) if not user.email])
+        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
+        return len([user for user in recipients if not user.email]) > 0
 
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_courses([self.instance], send_to_editors=self.cleaned_data.get('sendToEditors'), send_to_contributors=self.cleaned_data.get('sendToContributors'), send_to_due_participants=self.cleaned_data.get('sendToDueParticipants'), send_to_all_participants=self.cleaned_data.get('sendToAllParticipants'))
+        self.template.send_to_users_in_courses([self.instance], self.recipient_groups)
+
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
@@ -219,7 +224,7 @@ class ContributorFormSet(AtLeastOneFormSet):
                 if form.cleaned_data:
                     contributor = form.cleaned_data.get('contributor')
                     delete = form.cleaned_data.get('DELETE')
-                    if contributor == None and not delete:
+                    if contributor is None and not delete:
                         raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
                     if contributor and contributor in found_contributor:
                         raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
@@ -302,7 +307,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
                 if hasattr(self, name2):
                     value = getattr(self, 'clean_%s' % name)()
                     self.cleaned_data[name] = value
-            except ValidationError, e:
+            except ValidationError as e:
                 self._errors[name] = self.error_class(e.messages)
                 if name in self.cleaned_data:
                     del self.cleaned_data[name]
@@ -344,18 +349,18 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['delegates'].queryset = User.objects.order_by('username')
         self.fields['delegates'].help_text = ""
         self.fields['cc_users'].required = False
-        self.fields['cc_users'].queryset = User.objects.extra(select={'lower_username': 'lower(username)'}).order_by('lower_username')
+        self.fields['cc_users'].queryset = User.objects.order_by('username')
         self.fields['cc_users'].help_text = ""
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
-                                                                      initial=self.instance.user.represented_users.all() if self.instance.pk else (),
-                                                                      label=_("Represented Users"),
-                                                                      help_text="",
-                                                                      required=False)
+                                                                          initial=self.instance.user.represented_users.all() if self.instance.pk else (),
+                                                                          label=_("Represented Users"),
+                                                                          help_text="",
+                                                                          required=False)
         self.fields['represented_users'].help_text = ""
 
         # load user fields
@@ -380,10 +385,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     def _post_clean(self, *args, **kw):
         # first save the user, so that the profile gets created for sure
-        self.instance.user.username = self.cleaned_data.get('username')
-        self.instance.user.first_name = self.cleaned_data.get('first_name')
-        self.instance.user.last_name = self.cleaned_data.get('last_name')
-        self.instance.user.email = self.cleaned_data.get('email')
+        self.instance.user.username = self.cleaned_data.get('username').strip().lower()
+        self.instance.user.first_name = self.cleaned_data.get('first_name').strip()
+        self.instance.user.last_name = self.cleaned_data.get('last_name').strip()
+        self.instance.user.email = self.cleaned_data.get('email').strip().lower()
         self.instance.user.is_staff = self.cleaned_data.get('is_staff')
         self.instance.user.is_superuser = self.cleaned_data.get('is_superuser')
         self.instance.user.save()
@@ -410,7 +415,6 @@ class FaqSectionForm(forms.ModelForm, BootstrapMixin):
         self.fields["title_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["title_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
-
 
     class Meta:
         model = FaqSection

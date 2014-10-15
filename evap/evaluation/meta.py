@@ -16,13 +16,13 @@ class LocalizeModelBase(ModelBase):
     an object will return the content of `text_de` when it is asked for the value
     of `text`.
     """
-    def __new__(metacls, classname, bases, classDict):
-        # find all classDict entries that point to `Translate`
-        for key in classDict.keys():
-            if classDict[key] is Translate:
+    def __new__(metacls, classname, bases, class_dict):
+        # find all class_dict entries that point to `Translate`
+        for key in class_dict.keys():
+            if class_dict[key] is Translate:
                 # replace them with a getter that uses the current language
-                classDict[key] = make_property(key)
-        return super(LocalizeModelBase, metacls).__new__(metacls, classname, bases, classDict)
+                class_dict[key] = make_property(key)
+        return super(LocalizeModelBase, metacls).__new__(metacls, classname, bases, class_dict)
 
 
 def make_property(k):

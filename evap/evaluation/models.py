@@ -1,20 +1,31 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.db import models
+from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-
+from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
 
-from evap.fsr.models import EmailTemplate
-
 import datetime
 import random
-import sys
+
+# for converting state into student_state
+STUDENT_STATES_NAMES = {
+    'new': 'upcoming',
+    'prepared': 'upcoming',
+    'lecturerApproved': 'upcoming',
+    'approved': 'upcoming',
+    'inEvaluation': 'inEvaluation',
+    'evaluated': 'evaluationFinished',
+    'reviewed': 'evaluationFinished',
+    'published': 'published'
+}
 
 
 class Semester(models.Model):
@@ -85,12 +96,11 @@ class Questionnaire(models.Model):
 
     @property
     def can_fsr_delete(self):
-        return not self.assigned_to.exists()
+        return not self.contributions.exists()
 
 
 class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
-
 
     __metaclass__ = LocalizeModelBase
 
@@ -138,7 +148,7 @@ class Course(models.Model):
 
     def clean(self):
         if self.vote_start_date and self.vote_end_date:
-            if not (self.vote_start_date < self.vote_end_date):
+            if self.vote_start_date >= self.vote_end_date:
                 raise ValidationError(_(u"The vote start date must be before the vote end date."))
 
     def save(self, *args, **kw):
@@ -150,23 +160,30 @@ class Course(models.Model):
 
     def is_fully_checked(self):
         """Shortcut for finding out whether all text answers to this course have been checked"""
-        return not self.textanswer_set.filter(checked=False).exists()
+        return not self.open_textanswer_set.exists()
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
-        if (not self.state == "inEvaluation") or (self.vote_end_date < datetime.date.today()):
-            return False
+        return (self.state == "inEvaluation"
+            and datetime.date.today() <= self.vote_end_date
+            and user in self.participants.all()
+            and user not in self.voters.all())
 
-        return user in self.participants.all() and user not in self.voters.all()
+    def can_user_see_results(self, user):
+        if user.is_staff:
+            return True
+        if self.state == 'published':
+            return self.can_publish_grades() or self.is_user_contributor_or_delegate(user)
+        return False
 
     def can_fsr_edit(self):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
     def can_fsr_delete(self):
-        return not (self.textanswer_set.exists() or self.likertanswer_set.exists() or self.gradeanswer_set.exists() or not self.can_fsr_edit())
+        return self.can_fsr_edit() and not self.voters.exists()
 
     def can_fsr_review(self):
-        return (not self.is_fully_checked()) and self.state in ['inEvaluation', 'evaluated']
+        return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
 
     def can_fsr_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
@@ -177,7 +194,7 @@ class Course(models.Model):
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
     def ready_for_contributors(self, send_mail=True):
         if send_mail:
-            EmailTemplate.get_review_template().send_courses([self], send_to_editors=True)
+            EmailTemplate.get_review_template().send_to_users_in_courses([self], ['editors'])
 
     @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):
@@ -212,6 +229,10 @@ class Course(models.Model):
         pass
 
     @property
+    def student_state(self):
+        return STUDENT_STATES_NAMES[self.state]
+
+    @property
     def general_contribution(self):
         try:
             return self.contributions.get(contributor=None)
@@ -220,29 +241,23 @@ class Course(models.Model):
 
     @property
     def num_participants(self):
-        if self.participants.exists():
-            return self.participants.count()
-        else:
-            return self.participant_count or 0
+        if self.participant_count:
+            return self.participant_count
+        return self.participants.count()
 
     @property
     def num_voters(self):
-        if self.voters.exists():
-            return self.voters.count()
-        else:
-            return self.voter_count or 0
+        if self.voter_count:
+            return self.voter_count
+        return self.voters.count()
 
     @property
     def due_participants(self):
-        for user in self.participants.all():
-            if not user in self.voters.all():
-                yield user
+        return self.participants.exclude(pk__in=self.voters.all())
 
     @property
     def responsible_contributor(self):
-        for contribution in self.contributions.all():
-            if contribution.responsible:
-                return contribution.contributor
+        return self.contributions.get(responsible=True).contributor
 
     @property
     def responsible_contributors_name(self):
@@ -253,7 +268,7 @@ class Course(models.Model):
         return self.responsible_contributor.username
 
     def has_enough_questionnaires(self):
-        return all(contribution.questionnaires.exists() for contribution in self.contributions.all()) and self.general_contribution
+        return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
@@ -278,14 +293,25 @@ class Course(models.Model):
         return False
 
     def is_user_contributor(self, user):
-        if self.contributions.filter(contributor=user).exists():
+        return self.contributions.filter(contributor=user).exists()
+
+    def is_user_contributor_or_delegate(self, user):
+        if self.is_user_contributor(user):
             return True
+        else:
+            represented_userprofiles = user.represented_users.all()
+            represented_users = [profile.user for profile in represented_userprofiles]
+            if self.contributions.filter(contributor__in=represented_users).exists():
+                return True
 
         return False
 
+    def is_user_editor(self, user):
+        return self.contributions.filter(contributor=user, can_edit=True).exists()
+
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires():
+        if self.state == 'new' and not self.has_enough_questionnaires():
             result.append(_(u"Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades():
             result.append(_(u"Not enough participants to publish results"))
@@ -299,12 +325,12 @@ class Course(models.Model):
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=False)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=False)
 
     @property
     def checked_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).filter(checked=True)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=True)
 
     @property
     def likertanswer_set(self):
@@ -321,11 +347,10 @@ class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
     course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributors')
-    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"),
-                                            blank=True, related_name="assigned_to")
-    responsible = models.BooleanField(verbose_name = _(u"responsible"), default=False)
-    can_edit = models.BooleanField(verbose_name = _(u"can edit"), default=False)
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributions')
+    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"), blank=True, related_name="contributions")
+    responsible = models.BooleanField(verbose_name=_(u"responsible"), default=False)
+    can_edit = models.BooleanField(verbose_name=_(u"can edit"), default=False)
 
     class Meta:
         unique_together = (
@@ -526,27 +551,28 @@ class UserProfile(models.Model):
 
     @property
     def can_fsr_delete(self):
-        return not Course.objects.filter(contributions__contributor=self.user).exists()
+        return not self.is_contributor
 
     @property
     def enrolled_in_courses(self):
-        return Course.objects.exclude(voters__pk=self.user.id).filter(participants__pk=self.user.id).exists()
+        return self.user.course_set.exists()
 
     @property
     def is_contributor(self):
-        return Course.objects.filter(contributions__contributor=self.user).exists()
+        return self.user.contributions.exists()
 
     @property
     def is_editor(self):
-        return Course.objects.filter(contributions__can_edit = True, contributions__contributor = self.user).exists()
+        return self.user.contributions.filter(can_edit=True).exists()
 
     @property
     def is_responsible(self):
-        return Course.objects.filter(contributions__responsible = True, contributions__contributor = self.user).exists()
+        # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
+        return any(contribution.responsible for contribution in self.user.contributions.all())
 
     @property
     def is_delegate(self):
-        return UserProfile.objects.filter(delegates=self.user).exists()
+        return self.user.represented_users.exists()
 
     @property
     def is_editor_or_delegate(self):
@@ -580,18 +606,99 @@ class UserProfile(models.Model):
 
     @staticmethod
     @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-    def create_user_profile(sender, instance, created, **kwargs):
+    def create_user_profile(sender, instance, created, raw, **kwargs):
         """Creates a UserProfile object whenever a User is created."""
-        if created:
+        if created and not raw:
             UserProfile.objects.create(user=instance)
 
-# disable super user creation on syncdb
-from django.db.models import signals
-from django.contrib.auth.management import create_superuser
-from django.contrib.auth import models as auth_app
+
+def validate_template(value):
+    """Field validator which ensures that the value can be compiled into a
+    Django Template."""
+    try:
+        Template(value)
+    except (TemplateSyntaxError, TemplateEncodingError) as e:
+        raise ValidationError(str(e))
 
 
-signals.post_syncdb.disconnect(
-    create_superuser,
-    sender=auth_app,
-    dispatch_uid="django.contrib.auth.management.create_superuser")
+class EmailTemplate(models.Model):
+    name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
+
+    subject = models.CharField(max_length=1024, verbose_name=_(u"Subject"), validators=[validate_template])
+    body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
+
+    @classmethod
+    def get_review_template(cls):
+        return cls.objects.get(name="Lecturer Review Notice")
+
+    @classmethod
+    def get_reminder_template(cls):
+        return cls.objects.get(name="Student Reminder")
+
+    @classmethod
+    def get_publish_template(cls):
+        return cls.objects.get(name="Publishing Notice")
+
+    @classmethod
+    def get_login_key_template(cls):
+        return cls.objects.get(name="Login Key Created")
+
+    @classmethod
+    def recipient_list_for_course(cls, course, recipient_groups):
+        recipients = []
+
+        if "responsible" in recipient_groups:
+            recipients += [course.responsible_contributor]
+
+        if "contributors" in recipient_groups:
+            recipients += [c.contributor for c in course.contributions.exclude(contributor=None)]
+        elif "editors" in recipient_groups:
+            recipients += [c.contributor for c in course.contributions.exclude(contributor=None).filter(can_edit=True)]
+
+        if "all_participants" in recipient_groups:
+            recipients += course.participants.all()
+        elif "due_participants" in recipient_groups:
+            recipients += course.due_participants
+
+        return recipients
+
+    @classmethod
+    def render_string(cls, text, dictionary):
+        return Template(text).render(Context(dictionary, autoescape=False))
+
+    def send_to_users_in_courses(self, courses, recipient_groups):
+        user_course_map = {}
+        for course in courses:
+            responsible = UserProfile.get_for_user(course.responsible_contributor)
+            for user in self.recipient_list_for_course(course, recipient_groups):
+                if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
+                    user_course_map.setdefault(user, []).append(course)
+
+        for user, courses in user_course_map.iteritems():
+            cc_users = []
+            if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
+                cc_users += UserProfile.get_for_user(user).delegates.all()
+            cc_users += UserProfile.get_for_user(user).cc_users.all()
+            cc_addresses = [p.email for p in cc_users if p.email]
+
+            mail = EmailMessage(
+                subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
+                body = self.render_string(self.body, {'user': user, 'courses': courses}),
+                to = [user.email],
+                cc = cc_addresses,
+                bcc = [a[1] for a in settings.MANAGERS],
+                headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+            mail.send(False)
+
+    def send_to_user(self, user):
+        if not user.email:
+            return
+
+        mail = EmailMessage(
+            subject = self.render_string(self.subject, {'user': user}),
+            body = self.render_string(self.body, {'user': user}),
+            to = [user.email],
+            bcc = [a[1] for a in settings.MANAGERS],
+            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.send(False)
+

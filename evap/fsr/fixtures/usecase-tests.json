@@ -39,6 +39,44 @@
         }
     },
     {
+        "pk":3,
+        "model":"auth.user",
+        "fields":{
+            "username":"participant_user",
+            "first_name":"Participant",
+            "last_name":"User",
+            "is_active":true,
+            "is_superuser":false,
+            "is_staff":false
+        }
+    },
+    {
+        "pk":3,
+            "model":"evaluation.userprofile",
+            "fields": {
+            "user":3
+        }
+    },
+    {
+        "pk":4,
+        "model":"auth.user",
+        "fields":{
+            "username":"contributor_user",
+            "first_name":"Contributor",
+            "last_name":"User",
+            "is_active":true,
+            "is_superuser":false,
+            "is_staff":false
+        }
+    },
+    {
+        "pk":4,
+            "model":"evaluation.userprofile",
+            "fields": {
+            "user":4
+        }
+    },
+    {
         "pk":1,
         "model":"evaluation.semester",
         "fields":{
@@ -76,7 +114,7 @@
             "kind":"Vorlesung",
             "state":"new",
 
-            "participants":[ 2 ],
+            "participants":[ 2, 3 ],
             "voters":[ ],
 
             "semester":1,
@@ -154,6 +192,16 @@
         "fields":{
             "course": 2,
             "contributor": null,
+            "responsible": false,
+            "can_edit": false
+        }
+    },
+    {
+        "pk": 5,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 2,
+            "contributor": 4,
             "responsible": false,
             "can_edit": false
         }

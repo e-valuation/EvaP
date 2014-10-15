@@ -7,9 +7,6 @@
 [submodule "puppetlabs-apache"]
     path = deployment/modules/apache
     url = https://github.com/puppetlabs/puppetlabs-apache.git
-[submodule "puppetlabs-mysql"]
-    path = deployment/modules/mysql
-    url = https://github.com/puppetlabs/puppetlabs-mysql.git
 [submodule "puppetlabs-postgresql"]
     path = deployment/modules/postgresql
     url = https://github.com/karyon/puppetlabs-postgresql.git

@@ -111,11 +111,11 @@ table.vertically-aligned * td {
     white-space: nowrap;
 }
 
-.vote-bg-1 { background: #78f159; }
-.vote-bg-2 { background: #bcf159; }
-.vote-bg-3 { background: #f1e259; }
-.vote-bg-4 { background: #f19e59; }
-.vote-bg-5 { background: #f15959; }
+.vote-bg-1 { background: #88bf4a; }
+.vote-bg-2 { background: #bbd154; }
+.vote-bg-3 { background: #efe258; }
+.vote-bg-4 { background: #f29e58; }
+.vote-bg-5 { background: #eb595a; }
 
 @media print {
     body {
@@ -144,11 +144,11 @@ td.vote-inputs > div > label {
     font-weight: normal;
 }
 
-td.vote-inputs > div:nth-child(1) > label { color: #26920c; }
-td.vote-inputs > div:nth-child(2) > label { color: #64930d; }
-td.vote-inputs > div:nth-child(3) > label { color: #93850d; }
-td.vote-inputs > div:nth-child(4) > label { color: #93490d; }
-td.vote-inputs > div:nth-child(5) > label { color: #9d0d0d; }
+td.vote-inputs > div:nth-child(1) > label { color: #5f8634; }
+td.vote-inputs > div:nth-child(2) > label { color: #83933b; }
+td.vote-inputs > div:nth-child(3) > label { color: #a89f3e; }
+td.vote-inputs > div:nth-child(4) > label { color: #aa6f3e; }
+td.vote-inputs > div:nth-child(5) > label { color: #a53e3f; }
 
 td.vote-inputs > textarea {
     width: 99%;
@@ -171,7 +171,7 @@ Side notes for calling out things
  
 /* Base styles (regardless of theme) */
 .bs-callout {
-    margin: 10px 0;
+    margin: 10px 0px 20px 0px;
     padding: 15px 30px 15px 15px;
     border-left: 5px solid #eee;
 }
@@ -198,4 +198,28 @@ Side notes for calling out things
 .bs-callout-info {
     background-color: #d9edf7;
     border-color: #31708f;
+}
+
+
+
+
+.participants-warning {
+    opacity: 0.3;
+}
+
+.glyphicon.participants-warning {
+    padding-left: 10px;
+}
+
+.questionnaire-warning p {
+    padding-left: 3px;
+}
+
+.inline-headers h4, .inline-headers p {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.questionnaire-warning {
+    margin-top:10px;
 }

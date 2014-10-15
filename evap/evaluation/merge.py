@@ -2,8 +2,11 @@ from django.db import transaction
 from django.db.models import get_models, Model
 from django.contrib.contenttypes.generic import GenericForeignKey
 
-@transaction.commit_on_success
-def merge_model_objects(primary_object, alias_objects=[], keep_old=False):
+# based on https://djangosnippets.org/snippets/2283/
+
+
+@transaction.atomic
+def merge_model_objects(primary_object, alias_objects, keep_old=False):
     """
     Use this function to merge model objects (i.e. Users, Organizations, Polls,
     etc.) and migrate all of the related fields from the alias objects to the

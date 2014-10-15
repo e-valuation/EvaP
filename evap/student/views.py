@@ -3,34 +3,32 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course, Semester, UserProfile
-from evap.evaluation.tools import questionnaires_and_contributions_by_contributor
+from evap.evaluation.tools import questionnaires_and_contributions_by_contributor, STUDENT_STATES_ORDERED
+
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
-from datetime import datetime
-
+from collections import OrderedDict
 
 @login_required
 def index(request):
-    # retrieve all courses, which the user can evaluate at some point
-    users_courses = Course.objects.filter(
-            participants=request.user
-        ).exclude(
-            voters=request.user
-        )
-    # split up into current and future courses
-    current_courses = users_courses.filter(state='inEvaluation')
-    future_courses = users_courses.filter(state='approved')
+    # retrieve all courses, where the user is a participant and that are not new
+    courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
+    voted_courses = list(set(Course.objects.filter(voters=request.user)))
+
+    sorter = lambda course: (STUDENT_STATES_ORDERED.keys().index(course.student_state), course.name)
+    courses.sort(key=sorter)
+
+    semesters = Semester.objects.all()
+    semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
     return render_to_response(
         "student_index.html",
-        dict(current_courses=current_courses,
-             future_courses=future_courses),
+        dict(semester_list=semester_list, voted_courses=voted_courses),
         context_instance=RequestContext(request))
 
 
@@ -49,8 +47,8 @@ def vote(request, course_id):
             form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
             if form.contribution.contributor == request.user:
                 continue # users shall not vote about themselves
-            if not contributor in form_group:
-                form_group[contributor] = SortedDict()
+            if contributor not in form_group:
+                form_group[contributor] = OrderedDict()
             form_group[contributor][(contribution, questionnaire)] = form
 
     for contributor in form_group:
@@ -70,7 +68,7 @@ def vote(request, course_id):
                 course_forms.append(form)
 
             for contributor in form_group:
-                if contributor == None:
+                if contributor is None:
                     continue
                 user_profile = UserProfile.get_for_user(contributor)
                 contributor_questionnaires[user_profile] = form_group[contributor].values()
@@ -88,7 +86,7 @@ def vote(request, course_id):
 
     # all forms are valid
     # begin vote operation
-    with transaction.commit_on_success():
+    with transaction.atomic():
         for contributor in form_group:
             for (contribution, questionnaire), form in form_group[contributor].items():
                 for question in questionnaire.question_set.all():
@@ -98,7 +96,7 @@ def vote(request, course_id):
                     if type(value) in [str, unicode]:
                         value = value.strip()
 
-                    if value == 6: #no answer
+                    if value == 6: # no answer
                         value = None
 
                     # store the answer if one was given
@@ -111,5 +109,5 @@ def vote(request, course_id):
         # remember that the user voted already
         course.voters.add(request.user)
 
-    messages.add_message(request, messages.INFO, _("Your vote was recorded."))
+    messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

@@ -3,8 +3,8 @@ import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from evap.evaluation.models import Course
-from evap.fsr.models import EmailTemplate
+from evap.evaluation.models import Course, EmailTemplate
+
 
 class Command(BaseCommand):
     args = '<kind of jobs>'
@@ -24,13 +24,13 @@ class Command(BaseCommand):
                     if course.is_fully_checked():
                         course.review_finished()
                     course.save()
-            except:
+            except Exception:
                 pass
 
     def check_reminders(self):
         check_date = datetime.date.today() + datetime.timedelta(days=settings.REMIND_X_DAYS_AHEAD_OF_END_DATE)
         found_courses = [course for course in Course.objects.all() if course.state == "inEvaluation" and course.vote_end_date == check_date]
-        EmailTemplate.get_reminder_template().send_courses(found_courses, send_to_due_participants=True)
+        EmailTemplate.get_reminder_template().send_to_users_in_courses(found_courses, ['dueParticipants'])
 
     def handle(self, *args, **options):
         if len(args) > 0 and args[0] == 'daily':

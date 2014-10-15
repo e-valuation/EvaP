@@ -1,6 +1,5 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
-import webtest
 
 from django.contrib.auth.models import User
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
@@ -12,13 +11,27 @@ def lastform(page):
     return page.forms[max(page.forms.keys())]
 
 
+# taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
+class FuzzyInt(int):
+    def __new__(cls, lowest, highest):
+        obj = super(FuzzyInt, cls).__new__(cls, highest)
+        obj.lowest = lowest
+        obj.highest = highest
+        return obj
+
+    def __eq__(self, other):
+        return other >= self.lowest and other <= self.highest
+
+    def __repr__(self):
+        return "[%d..%d]" % (self.lowest, self.highest)
+
+
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_import(self):
         page = self.app.get(reverse("fsr_root"), user='fsr.user')
-
 
         # create a new semester
         page = page.click("[Cc]reate [Nn]ew [Ss]emester")
@@ -55,12 +68,12 @@ class UsecaseTests(WebTest):
                 responsible_count += 1
         self.assertEqual(responsible_count, 1, "Wrong number of responsible contributors after Excel import.")
 
-        check_student = User.objects.get(username="Diam.Synephebos")
+        check_student = User.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
-        self.assertEqual(check_student.email, "Diam.Synephebos@student.hpi.uni-potsdam.de")
+        self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
 
-        check_contributor = User.objects.get(username="Sanctus.Aliquyam")
-        self.assertEqual(check_contributor.first_name, "Sanctus")
+        check_contributor = User.objects.get(username="sanctus.aliquyam")
+        self.assertEqual(check_contributor.first_name, "")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
         self.assertEqual(check_contributor.email, "567@web.de")
 
@@ -167,3 +180,19 @@ class UsecaseTests(WebTest):
         page = form.submit()
 
         assert "No responsible contributor found" in page
+
+    def test_num_queries_user_list(self):
+        """ 
+            ensures that the number of queries in the user list is constant
+            and not linear to the number of users
+        """
+        num_users = 50
+        for i in range(0, num_users):
+            user = User.objects.get_or_create(id=9000+i, username=i)
+        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+            self.app.get("/fsr/user/", user="fsr.user")
+
+    def test_users_are_deletable(self):
+        self.assertTrue(UserProfile.objects.all()[2].can_fsr_delete)
+        self.assertFalse(UserProfile.objects.all()[3].can_fsr_delete)
+

@@ -3,15 +3,16 @@ from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester, UserProfile
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.contributor.forms import CourseForm, UserForm
-from evap.fsr.forms import AtLeastOneFormSet, ContributionForm, ContributorFormSet
+from evap.fsr.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
+
+from collections import OrderedDict
 
 @editor_or_delegate_required
 def index(request):
@@ -38,15 +39,16 @@ def index(request):
 @editor_required
 def profile_edit(request):
     user = request.user
-    form = UserForm(request.POST or None, request.FILES or None, instance = UserProfile.objects.get_or_create(user=user)[0])
+    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.objects.get_or_create(user=user)[0])
 
     if form.is_valid():
         form.save()
 
-        messages.add_message(request, messages.INFO, _("Successfully updated your profile."))
+        messages.info(request, _("Successfully updated your profile."))
         return redirect('evap.contributor.views.index')
     else:
         return render_to_response("contributor_profile.html", dict(form=form), context_instance=RequestContext(request))
+
 
 @editor_or_delegate_required
 def course_view(request, course_id):
@@ -77,7 +79,7 @@ def course_edit(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ('prepared')):
+    if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
     ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course',))
@@ -98,9 +100,9 @@ def course_edit(request, course_id):
             # approve course
             course.contributor_approve()
             course.save()
-            messages.add_message(request, messages.INFO, _("Successfully updated and approved course."))
+            messages.info(request, _("Successfully updated and approved course."))
         else:
-            messages.add_message(request, messages.INFO, _("Successfully updated course."))
+            messages.info(request, _("Successfully updated course."))
 
         return redirect('evap.contributor.views.index')
     else:
@@ -109,11 +111,10 @@ def course_edit(request, course_id):
 
 @editor_or_delegate_required
 def course_preview(request, course_id):
-    user = request.user
     course = get_object_or_404(Course, id=course_id)
 
     # build forms
-    forms = SortedDict()
+    forms = OrderedDict()
     for questionnaire, contribution in questionnaires_and_contributions(course):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
         forms[(contribution, questionnaire)] = form

@@ -5,8 +5,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile, FaqSection
-from evap.fsr.models import EmailTemplate
+from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate
 
 
 def index(request):
@@ -30,7 +29,7 @@ def index(request):
             profile.generate_login_key()
             profile.save()
 
-            EmailTemplate.get_login_key_template().send_user(new_key_form.get_user())
+            EmailTemplate.get_login_key_template().send_to_user(new_key_form.get_user())
 
             messages.success(request, _(u"Successfully sent email with new login key."))
         elif login_key_form.is_valid():
@@ -52,16 +51,16 @@ def index(request):
         return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
     else:
         # check for redirect variable
-        next = request.GET.get("next", None)
-        if not next is None:
-            if next.startswith("/fsr/"):
+        redirect_to = request.GET.get("next", None)
+        if redirect_to is not None:
+            if redirect_to.startswith("/fsr/"):
                 if request.user.is_staff:
-                    return redirect(next)
-            elif next.startswith("/contributor/"):
+                    return redirect(redirect_to)
+            elif redirect_to.startswith("/contributor/"):
                 if UserProfile.get_for_user(request.user).is_contributor:
-                    return redirect(next)
+                    return redirect(redirect_to)
             else:
-                return redirect(next)
+                return redirect(redirect_to)
 
         # redirect user to appropriate start page
         if request.user.is_staff:

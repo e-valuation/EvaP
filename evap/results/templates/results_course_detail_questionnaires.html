@@ -2,7 +2,16 @@
 {% load i18n %}
 {% load static %}
 
-{% for questionnaire, contributor, results, grade in group.list %}
+{% for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, questionnaire_warning in group.list %}
+    <div class="inline-headers">
+        <h4>{{ group.grouper.public_name }}</h4>
+        {% if questionnaire_warning %}
+            <span class="pull-right participants-warning questionnaire-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                <p>{% trans "Only a few participants answered these questions." %}</p>
+            </span>
+        {% endif %}
+    </div>
     <table class="table table-striped">
         <tbody>
             {% for result in results %}
@@ -11,6 +20,11 @@
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
                         <span class="twipsify" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
+                        {% if result.show and result.count > 0 %}
+                            {% if not questionnaire_warning and result.warning %}
+                                <span class="glyphicon glyphicon-warning-sign participants-warning twipsify" title="{% trans "Only a few participants answered this question." %}"></span>
+                            {% endif %}
+                        {% endif %}
                     </td>
                     <td>
                         {% if result.show and result.count > 0 %}
@@ -19,7 +33,11 @@
                                 data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|likertname}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel|floatformat}}%</div></div>{% endfor %}</div>">
                                 {% spaceless %}
                                 {% for answer, rel in result.distribution.items %}
-                                    <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
+                                    {% if questionnaire_warning or result.warning %}
+                                        <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }} participants-warning">&nbsp;</div>
+                                    {% else %}
+                                        <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
+                                    {% endif %}
                                 {% endfor %}
                                 {% endspaceless %}
                             </div>
@@ -27,7 +45,11 @@
                     </td>
                     <td>
                         {% if result.show and result.count > 0 %}
-                            {{ result.average|floatformat:1 }}
+                            {% if questionnaire_warning or result.warning %}
+                                <span class="participants-warning">{{ result.average|floatformat:1 }}</span>
+                            {% else %}
+                                {{ result.average|floatformat:1 }}
+                            {% endif %}
                         {% else %}
                             <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
                         {% endif %}

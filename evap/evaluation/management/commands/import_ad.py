@@ -2,12 +2,9 @@ import getpass
 import ldap
 import sys
 
-from django.core import exceptions
 from django.core.management.base import BaseCommand
-from django.contrib.auth.management.commands.createsuperuser import RE_VALID_USERNAME, EMAIL_RE
-from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import User, UserProfile
+from django.contrib.auth.models import User
 
 
 class Command(BaseCommand):
@@ -24,7 +21,7 @@ class Command(BaseCommand):
 
             # find all users
             result = l.search_s("OU=INSTITUT,DC=hpi,DC=uni-potsdam,DC=de", ldap.SCOPE_SUBTREE, filterstr="(&(&(objectClass=user)(!(objectClass=computer)))(givenName=*)(sn=*)(mail=*))")
-            for dn, attrs in result:
+            for _, attrs in result:
                 try:
                     user = User.objects.get(username__iexact=attrs['sAMAccountName'][0])
                     user.first_name = attrs['givenName'][0]

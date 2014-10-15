@@ -48,6 +48,9 @@ LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
 MIN_ANSWER_COUNT = 2
 MIN_ANSWER_PERCENTAGE = 0.2
 
+# a warning is shown next to results where less than this percentage of the median number of answers (for this question in this course) were given
+RESULTS_WARNING_PERCENTAGE = 0.5
+
 # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
 # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
 # final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
@@ -89,11 +92,6 @@ USE_I18N = True
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
 USE_L10N = True
-
-# Additional locations of fixture files
-FIXTURE_DIRS = (
-    os.path.join(SITE_ROOT, "evaluation/fixtures"),
-)
 
 # Locale paths
 LOCALE_PATHS = (
@@ -173,13 +171,9 @@ MIDDLEWARE_CLASSES = (
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
-#   'django_auth_kerberos.backends.KrbBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# kerberos realm and service
-#KRB5_REALM = 'EXAMPLE.COM'
-#KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
 
 # redirect url after login
 LOGIN_REDIRECT_URL = '/'
@@ -210,16 +204,7 @@ INSTALLED_APPS = (
     'evap.results',
     'evap.student',
     'evap.contributor',
-#   'django_auth_kerberos',
 )
-if not DEBUG:
-    INSTALLED_APPS += (
-        'raven.contrib.django.raven_compat',
-    )
-
-RAVEN_CONFIG = {
-    'dsn': 'http://public:secret@example.com/1',
-}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -230,15 +215,11 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'filters': {
-         'require_debug_false': {
-             '()': 'django.utils.log.RequireDebugFalse'
-         }
-     },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
     'handlers': {
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.contrib.django.handlers.SentryHandler',
-        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -258,19 +239,31 @@ LOGGING = {
         'evap.evaluation.management.commands.import_evaj': {
             'handlers': ['console'],
             'level': 'INFO'
-        },
-        'raven': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
         }
     }
 }
+
+# kerberos realm and service
+ENABLE_KERBEROS = False
+if (ENABLE_KERBEROS):
+    KRB5_REALM = 'EXAMPLE.COM'
+    KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
+    INSTALLED_APPS += ('django_auth_kerberos',)
+    MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
+
+# django debug toolbar settings
+ENABLE_DEBUG_TOOLBAR = False
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    INSTALLED_APPS += ('debug_toolbar',)
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    def show_toolbar(request):
+        return True
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+    }
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Create a localsettings.py if you want to override settings per machine
 # or user, e.g. for development or different settings in deployments using

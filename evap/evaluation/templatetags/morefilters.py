@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template import Library
-from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED
+from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STUDENT_STATES_ORDERED
 
 register = Library()
 
@@ -21,6 +21,7 @@ def percentage(fraction, population):
 def likertname(grade):
     return LIKERT_NAMES.get(grade)
 
+
 @register.filter(name='gradename')
 def gradename(grade):
     return GRADE_NAMES.get(grade)
@@ -31,13 +32,23 @@ def statename(state):
     return STATES_ORDERED.get(state)
 
 
+@register.filter(name='studentstatename')
+def studentstatename(state):
+    return STUDENT_STATES_ORDERED.get(state)
+
+
+@register.filter(name='can_user_see_course')
+def can_user_see_course(course, user):
+    return course.can_user_see_results(user)
+
+
 @register.tag
 def value_from_settings(parser, token):
     try:
         # split_contents() knows not to split quoted strings.
         tag_name, var = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires a single argument" % token.contents.split()[0]
+        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
     return ValueFromSettings(var)
 
 

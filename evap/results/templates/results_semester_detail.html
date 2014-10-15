@@ -50,37 +50,41 @@
             {% for course in degree.list %}
                 <tr>
                     <td class="col-sm-4">
-                    {% if staff or course.can_publish_grades %}
+                    {% if course|can_user_see_course:request.user %}
                         <a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course.name }}</a>
                     {% else %}                       
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
                     {% endif %}
                     </td>
                     <td class="col-sm-1">{{ course.kind }}</td>
-                    <td class="col-sm-3" data-order="{{ course.responsible_contributor.last_name }}">{{ course.responsible_contributors_name }}</td>
-                    {% if staff or course.can_publish_grades %}
+                    {% with responsible=course.responsible_contributor %}
+                        <td class="col-sm-3" data-order="{{ responsible.last_name }}">{{ responsible.userprofile.full_name }}</td>
+                    {% endwith %}
+                    {% if course|can_user_see_course:request.user %}
                         <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>
                         <td class="col-sm-1">{{ course.med_grade|floatformat:1 }}</td>
                     {% else %}
                         <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                         <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                     {% endif %}
-                    {% if course.num_participants %}
-                    <td class="col-sm-2" data-order="{% widthratio course.num_voters course.num_participants 100 %}">
-                        {% spaceless %}
-                        <div style="background: #c9e1fa; display: inline-block; width: 70%;">
-                            <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
-                                <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ course.num_voters }}</div>
+                    {% with num_participants=course.num_participants num_voters=course.num_voters %}
+                        {% if num_participants %}
+                        <td class="col-sm-2" data-order="{% widthratio num_voters num_participants 100 %}">
+                            {% spaceless %}
+                            <div style="background: #c9e1fa; display: inline-block; width: 70%;">
+                                <div style="display: inline-block; width: {% widthratio num_voters num_participants 100 %}%; background: #126bc5; color:white;">
+                                    <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ num_voters }}</div>
+                                </div>
                             </div>
-                        </div>
-                        {% endspaceless %}
-                        <span style="font-size: 80%;">{{ course.num_participants }}</span>
-                    </td>
-                    {% else %}
-                    <td class="col-sm-2" data-order="0">
-                        &mdash;
-                    </td>
-                    {% endif %}
+                            {% endspaceless %}
+                            <span style="font-size: 80%;">{{ num_participants }}</span>
+                        </td>
+                        {% else %}
+                        <td class="col-sm-2" data-order="0">
+                            &mdash;
+                        </td>
+                        {% endif %}
+                    {% endwith %}
                 </tr>
             {% endfor %}
             </tbody>
