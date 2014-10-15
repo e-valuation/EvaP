@@ -34,7 +34,7 @@
                     {% if form_element.non_field_errors %}
                         <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                     {% endif %}
-                    <tr>
+                    <tr class="moveable">
                         {% for field in form_element.hidden_fields %}
                             {{ field }}
                         {% endfor %}
@@ -86,7 +86,7 @@
             });
 
             $('tbody').sortable({
-                items: 'tr',
+                items: 'tr.moveable',
                 handle: 'td:first',
                 tolerance: 'pointer',
                 update: function() {
