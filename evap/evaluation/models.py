@@ -352,10 +352,13 @@ class Contribution(models.Model):
     responsible = models.BooleanField(verbose_name=_(u"responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_(u"can edit"), default=False)
 
+    order = models.IntegerField(verbose_name=_("contribution order"), default=0)
+
     class Meta:
         unique_together = (
             ('course', 'contributor'),
         )
+        ordering = ['order', ]
 
     def clean(self):
         # responsible contributors can always edit

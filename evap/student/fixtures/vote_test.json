@@ -197,7 +197,8 @@
     "questionnaires": [
       3
     ], 
-    "can_edit": false
+    "can_edit": false,
+    "order": 0
   }
 },
 {
@@ -210,7 +211,8 @@
     "questionnaires": [
       2
     ], 
-    "can_edit": false
+    "can_edit": false,
+    "order": 1
   }
 },
 {
@@ -223,7 +225,8 @@
     "questionnaires": [
       1
     ], 
-    "can_edit": true
+    "can_edit": true,
+    "order": 2
   }
 },
 {
