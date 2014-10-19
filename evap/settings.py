@@ -2,10 +2,12 @@
 
 # automatically determine SITE_ROOT, used for absolute paths below
 import os.path
+import sys
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TESTING = 'test' in sys.argv
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -253,7 +255,7 @@ if (ENABLE_KERBEROS):
 
 # django debug toolbar settings
 ENABLE_DEBUG_TOOLBAR = False
-if DEBUG and ENABLE_DEBUG_TOOLBAR:
+if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ('debug_toolbar',)
     MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
