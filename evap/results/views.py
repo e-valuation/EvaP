@@ -10,6 +10,8 @@ from evap.evaluation.tools import calculate_results, calculate_average_and_mediu
 
 from evap.results.exporters import ExcelExporter
 
+from collections import OrderedDict
+
 
 @login_required
 def index(request):
@@ -78,7 +80,7 @@ def course_detail(request, semester_id, course_id):
 
     # remove empty sections and group by contributor
     course_sections = []
-    contributor_sections = {}
+    contributor_sections = OrderedDict()
     for section in sections:
         if not section.results:
             continue

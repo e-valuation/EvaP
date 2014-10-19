@@ -287,7 +287,7 @@ def questionnaires_and_contributions(course):
     """Yields tuples of (questionnaire, contribution) for the given course."""
     result = []
 
-    for contribution in course.contributions.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_contributors", "questionnaires__index__min"):
+    for contribution in course.contributions.all():
         for questionnaire in contribution.questionnaires.all():
             result.append((questionnaire, contribution))
 
