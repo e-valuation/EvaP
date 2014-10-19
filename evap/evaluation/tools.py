@@ -283,19 +283,6 @@ def calculate_average_and_medium_grades(course):
     return final_avg, final_med
 
 
-def questionnaires_and_contributions_by_contributor(course):
-    """Yields a dictionary of contributors with a list of tuples (questionnaire, contribution) for the given course."""
-    result = {}
-
-    for contribution in course.contributions.annotate(Min("questionnaires__index")).order_by("questionnaires__is_for_contributors", "questionnaires__index__min"):
-        if contribution.contributor not in result:
-            result[contribution.contributor] = []
-        for questionnaire in contribution.questionnaires.all():
-            result[contribution.contributor].append((questionnaire, contribution))
-
-    return result
-
-
 def questionnaires_and_contributions(course):
     """Yields tuples of (questionnaire, contribution) for the given course."""
     result = []

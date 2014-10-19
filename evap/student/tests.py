@@ -18,12 +18,12 @@ class VoteTests(TestCase):
         response = get_vote_page() 
         tutor_user = User.objects.get(username='tutor')
 
-        for contribution, _ in response.context['contributor_questionnaires'].values():
+        for contribution, _ in response.context['contributor_questionnaires']:
             self.assertNotEquals(contribution.user, tutor_user,
                                  "Contributor should not see the questionnaire about themselves")
         self.client.logout()
         if not self.client.login(username='student', password='student'):
             self.fail('Fixture error: student user could not log in')
         response = get_vote_page()
-        self.assertTrue(any(contribution.user == tutor_user for contribution, _ in response.context['contributor_questionnaires'].values()),
+        self.assertTrue(any(contribution.user == tutor_user for contribution, _ in response.context['contributor_questionnaires']),
             "Regular students should see the questionnaire about a contributor")
