@@ -232,7 +232,7 @@ class ContributorFormSet(AtLeastOneFormSet):
                     elif contributor:
                         found_contributor.append(contributor)
 
-                    if form.cleaned_data.get('responsible'):
+                    if form.cleaned_data.get('responsible') and not delete:
                         count_responsible += 1
 
             except AttributeError:
