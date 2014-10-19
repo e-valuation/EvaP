@@ -1,0 +1,47 @@
+{% extends "fsr_semester_reward_points_base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load morefilters %}
+
+{% block content %}
+    {{ block.super }}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="col-sm-3">{% trans "Name" %}</th>
+                <th class="col-sm-6">{% trans "Evaluated" %}</th>
+                <th class="col-sm-3 text-center">{% trans "Reward points earned" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user, number_of_courses_voted_for, number_of_courses, earned_reward_points in data %}                
+                <tr>
+                    <td>{{ user.userprofile.full_name }}</td>
+                    <td>
+                        {% spaceless %}
+                            <div style="background: #c9e1fa; display: inline-block; width: 95%;">
+                                <div style="display: inline-block; width: {% widthratio number_of_courses_voted_for number_of_courses 100 %}%; background: #126bc5; color:white;">
+                                    <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ number_of_courses_voted_for }}</div>
+                                </div>
+                            </div>
+                        {% endspaceless %}
+                        <span style="font-size: 80%;">{{ number_of_courses }}</span>
+                    </td>
+                    <td class="text-center">{% if earned_reward_points %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".twipsify").tooltip({container: 'body'});
+        });
+    </script>
+{% endblock %}

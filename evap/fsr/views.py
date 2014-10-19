@@ -19,6 +19,7 @@ from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswer
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
+from evap.rewards.models import RewardPointGranting
 
 import random
 
@@ -651,6 +652,26 @@ def faq_section(request, section_id):
         return custom_redirect('evap.fsr.views.index')
     else:
         return render_to_response("fsr_faq_section.html", dict(formset=formset, section=section, questions=questions), context_instance=RequestContext(request))
+
+
+@fsr_required
+def semester_reward_points(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    courses = Course.objects.filter(semester=semester)
+    participants = []
+    for course in courses:
+        for participant in course.participants.all():
+            participants.append(participant)
+    participants = sorted(set(participants), key=lambda participant: participant.last_name)
+
+    data = []
+    for participant in participants:
+        number_of_courses = len(Course.objects.filter(semester=semester, participants=participant))
+        number_of_courses_voted_for = len(Course.objects.filter(semester=semester, voters=participant))
+        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant.userprofile).exists()
+        data.append((participant, number_of_courses_voted_for, number_of_courses, earned_reward_points))
+
+    return render_to_response("fsr_semester_reward_points_view.html", dict(semester=semester, data=data, disable_breadcrumb_semester=False), context_instance=RequestContext(request))
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
