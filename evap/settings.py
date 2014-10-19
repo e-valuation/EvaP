@@ -3,11 +3,17 @@
 # automatically determine SITE_ROOT, used for absolute paths below
 import os.path
 import sys
+from django.contrib.messages import constants as messages
+
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TESTING = 'test' in sys.argv
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -59,6 +65,9 @@ RESULTS_WARNING_PERCENTAGE = 0.5
 # final = GP * final_grade + (1-GP) * final_likert
 GRADE_PERCENTAGE = 0.8
 CONTRIBUTION_PERCENTAGE = 0.5
+
+# number of reward points to be given to a student once all courses of a semester have been voted for
+REWARD_POINTS_PER_SEMESTER = 3
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
@@ -206,6 +215,7 @@ INSTALLED_APPS = (
     'evap.results',
     'evap.student',
     'evap.contributor',
+    'evap.rewards',
 )
 
 # A sample logging configuration. The only tangible logging

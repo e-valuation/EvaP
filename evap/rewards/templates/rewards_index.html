@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load morefilters %}
+
+{% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <small>
+        <div class="bs-callout bs-callout-info">
+            Infos
+        </div>
+    </small>
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Redeem points" %}</h3>
+        </div>
+        <div class="panel-body">
+            <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
+            {% if total_points_available > 0 %}
+                <form action="#" method="POST" class="form-horizontal multiselect-form">
+                    {% csrf_token %}
+                    
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-2">{% trans "Date" %}</th>
+                                <th class="col-sm-6">{% trans "Event" %}</th>
+                                <th class="col-sm-2">{% trans "Available until" %}</th>
+                                <th class="col-sm-2 text-right">{% trans "Redeem points" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td>{{ event.date }}</td>
+                                    <td>{{ event.name }}</td>
+                                    <td>{{ event.redeem_end_date }}</td>
+                                    <td class="text-right">
+                                        <select class="form-control pull-right" id="id_points-{{event.id}}" name="points-{{event.id}}" style="width:5em">
+                                            {% for p in point_selection %}
+                                                <option value="{{p}}">{{p}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!--{{form.as_div}}-->
+                    <input type="submit" class="btn btn-primary pull-right" value="Redeem" />
+                </form>
+            {% else %}
+                <p><i>You don't have any reward points that you could redeem.</i></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Reward points history" %}</h3>
+        </div>
+        <div class="panel-body">
+            {% if reward_point_actions %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-3">{% trans "Date" %}</th>
+                            <th class="col-sm-7">{% trans "Action" %}</th>
+                            <th class="col-sm-1 text-right">{% trans "Granted points" %}</th>
+                            <th class="col-sm-1 text-right">{% trans "Redeemed points" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for action in reward_point_actions %}
+                            <tr>
+                                <td>{{ action.0 }}</td>
+                                <td>{{ action.1 }}</td>
+                                <td class="text-right">{{ action.2 }}</td>
+                                <td class="text-right">{{ action.3 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p><i>No reward points earned yet.</i></p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".twipsify").tooltip({container: 'body'});
+            $('.dropdown-toggle').dropdown()
+        });
+    </script>
+{% endblock %}

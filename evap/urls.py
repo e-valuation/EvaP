@@ -17,6 +17,7 @@ urlpatterns = [
     url(r"^results/", include('evap.results.urls')),
     url(r"^student/", include('evap.student.urls')),
     url(r"^contributor/", include('evap.contributor.urls')),
+    url(r"^rewards/", include('evap.rewards.urls')),
 
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),

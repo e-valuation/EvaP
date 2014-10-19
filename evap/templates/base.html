@@ -56,6 +56,10 @@
                             <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
+                        {% if user.userprofile.enrolled_in_courses %}
+                            <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
+                        {% endif %}
+
                         {% if user.is_staff %}
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
