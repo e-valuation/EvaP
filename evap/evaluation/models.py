@@ -37,6 +37,7 @@ class Semester(models.Model):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (english)"))
+    grant_reward_points_after = models.DateField(verbose_name=_(u"grant reward points after"))
 
     name = Translate
 
