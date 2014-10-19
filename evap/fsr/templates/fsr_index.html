@@ -44,6 +44,10 @@
             <ul>
                 <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "All users" %}</a></li>
             </ul>
+            <h3>{% trans "Reward Points" %}</h3>
+            <ul>
+                <li><a href="{% url "evap.fsr.views.reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
+            </ul>
             <h3>{% trans "Templates" %}</h3>
             <ul>
                 {% for template in templates %}

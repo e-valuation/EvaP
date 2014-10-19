@@ -1,0 +1,79 @@
+{% extends "fsr_base.html" %}
+
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load static %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Reward Point Redemption Events" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Upcoming events" %}</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-sm-3">{% trans "Event date" %}</th>
+                        <th class="col-sm-3">{% trans "Event name" %}</th>
+                        <th class="col-sm-3">{% trans "Redeem end date" %}</th>
+                        <th class="col-sm-3">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in upcoming_events %}
+                        <tr>
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.name }}</td>
+                            <td>{{ event.redeem_end_date }}</td>
+                            <td><a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Past events" %}</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-sm-3">{% trans "Event date" %}</th>
+                        <th class="col-sm-3">{% trans "Event name" %}</th>
+                        <th class="col-sm-3">{% trans "Redeem end date" %}</th>
+                        <th class="col-sm-3">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in past_events %}
+                        <tr>
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.name }}</td>
+                            <td>{{ event.redeem_end_date }}</td>
+                            <td><a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".twipsify").tooltip({container: 'body'});
+        });
+    </script>
+{% endblock %}

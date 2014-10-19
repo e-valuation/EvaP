@@ -43,6 +43,9 @@ urlpatterns = [
     url(r"^user/(\d+)/edit$", user_edit),
     url(r"^user/(\d+)/delete$", user_delete),
 
+    url(r"^reward_point_redemption_events/$", reward_point_redemption_events),
+    url(r"^reward_point_redemption_event/(\d+)/edit$", reward_point_redemption_event_edit),
+
     url(r"^template/$", RedirectView.as_view(url='/fsr/')),
     url(r"^template/(\d+)$", template_edit),
 
