@@ -355,7 +355,7 @@ def course_review(request, semester_id, course_id, offset=None):
                 count = count + 1
 
         if course.state == "evaluated" and course.is_fully_checked():
-            messages.info(request, _("Successfully reviewed {count} course answers for {name}. {name} is now fully reviewed.").format(count=count, course=course.name))
+            messages.info(request, _("Successfully reviewed {count} course answers for {course}. {course} is now fully reviewed.").format(count=count, course=course.name))
             course.review_finished()
             course.save()
             return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
