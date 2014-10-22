@@ -26,40 +26,44 @@
         <div class="panel-body">
             <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
-                <form action="#" method="POST" class="form-horizontal multiselect-form">
-                    {% csrf_token %}
-                    
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th class="col-sm-2">{% trans "Date" %}</th>
-                                <th class="col-sm-6">{% trans "Event" %}</th>
-                                <th class="col-sm-2">{% trans "Available until" %}</th>
-                                <th class="col-sm-2 text-right">{% trans "Redeem points" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in events %}
+                {% if events %}
+                    <form action="#" method="POST" class="form-horizontal multiselect-form">
+                        {% csrf_token %}
+                        
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td>{{ event.date }}</td>
-                                    <td>{{ event.name }}</td>
-                                    <td>{{ event.redeem_end_date }}</td>
-                                    <td class="text-right">
-                                        <select class="form-control pull-right" id="id_points-{{event.id}}" name="points-{{event.id}}" style="width:5em">
-                                            {% for p in point_selection %}
-                                                <option value="{{p}}">{{p}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </td>
+                                    <th class="col-sm-2">{% trans "Date" %}</th>
+                                    <th class="col-sm-6">{% trans "Event" %}</th>
+                                    <th class="col-sm-2">{% trans "Available until" %}</th>
+                                    <th class="col-sm-2 text-right">{% trans "Redeem points" %}</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <!--{{form.as_div}}-->
-                    <input type="submit" class="btn btn-primary pull-right" value="Redeem" />
-                </form>
+                            </thead>
+                            <tbody>
+                                {% for event in events %}
+                                    <tr>
+                                        <td>{{ event.date }}</td>
+                                        <td>{{ event.name }}</td>
+                                        <td>{{ event.redeem_end_date }}</td>
+                                        <td class="text-right">
+                                            <select class="form-control pull-right" id="id_points-{{event.id}}" name="points-{{event.id}}" style="width:5em">
+                                                {% for p in point_selection %}
+                                                    <option value="{{p}}">{{p}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!--{{form.as_div}}-->
+                        <input type="submit" class="btn btn-primary pull-right" value="Redeem" />
+                    </form>
+                {% else %}
+                    <p><i>{% trans "Currently there are no events available for which you can redeem points. We'll send you a message when this changes." %}</i></p>
+                {% endif %}
             {% else %}
-                <p><i>You don't have any reward points that you could redeem.</i></p>
+                <p><i>{% trans "You don't have any reward points that you could redeem." %}</i></p>
             {% endif %}
         </div>
     </div>
@@ -91,7 +95,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p><i>No reward points earned yet.</i></p>
+                <p><i>{% trans "No reward points earned yet." %}</i></p>
             {% endif %}
         </div>
     </div>
