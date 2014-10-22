@@ -685,6 +685,19 @@ def reward_point_redemption_events(request):
 
 
 @fsr_required
+def reward_point_redemption_event_create(request):
+    event = RewardPointRedemptionEvent()
+    form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
+
+    if form.is_valid():
+        form.save()
+        messages.info(request, _("Successfully created event."))
+        return redirect('evap.fsr.views.reward_point_redemption_events')
+    else:
+        return render_to_response("fsr_reward_point_redemption_event_form.html", dict(form=form), context_instance=RequestContext(request))
+
+
+@fsr_required
 def reward_point_redemption_event_edit(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
     form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
@@ -696,6 +709,21 @@ def reward_point_redemption_event_edit(request, event_id):
         return redirect('evap.fsr.views.reward_point_redemption_events')
     else:
         return render_to_response("fsr_reward_point_redemption_event_form.html", dict(event=event, form=form), context_instance=RequestContext(request))
+
+
+@fsr_required
+def reward_point_redemption_event_delete(request, event_id):
+    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
+
+    if event.can_delete:
+        if request.method == 'POST':
+            event.delete()
+            return redirect('evap.fsr.views.reward_point_redemption_events')
+        else:
+            return render_to_response("fsr_reward_point_redemption_event_delete.html", dict(event=event), context_instance=RequestContext(request))
+    else:
+        messages.error(request, _("The event '%s' cannot be deleted, because some users already redeemed reward points for it.") % event.name)
+        return redirect('evap.fsr.views.reward_point_redemption_events')
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):

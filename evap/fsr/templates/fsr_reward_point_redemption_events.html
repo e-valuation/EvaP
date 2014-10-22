@@ -12,6 +12,9 @@
 {% block content %}
     {{ block.super }}
     
+    <p>
+        <a href="{% url "evap.fsr.views.reward_point_redemption_event_create" %}" class="btn btn-success btn-sm">{% trans "Create new event" %}</a>
+    </p>
     <div class="panel panel-info">
         <div class="panel-heading">
             <h3 class="panel-title">{% trans "Upcoming events" %}</h3>
@@ -32,7 +35,14 @@
                             <td>{{ event.date }}</td>
                             <td>{{ event.name }}</td>
                             <td>{{ event.redeem_end_date }}</td>
-                            <td><a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a></td>
+                            <td>
+                                <a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                {% if event.can_delete %}
+                                    <a href="{% url "evap.fsr.views.reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                {% else %}
+                                    <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This event cannot be deleted because some users already redeemed points for it" %}">{% trans "Delete" %}</a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -59,7 +69,14 @@
                             <td>{{ event.date }}</td>
                             <td>{{ event.name }}</td>
                             <td>{{ event.redeem_end_date }}</td>
-                            <td><a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a></td>
+                            <td>
+                                <a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                {% if event.can_delete %}
+                                    <a href="{% url "evap.fsr.views.reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                {% else %}
+                                    <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This event cannot be deleted because some users already redeemed points for it" %}">{% trans "Delete" %}</a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -72,7 +89,7 @@
     {{ block.super }}
 
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(function() {
             $(".twipsify").tooltip({container: 'body'});
         });
     </script>
