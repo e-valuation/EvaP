@@ -102,15 +102,16 @@ def vote(request, course_id):
         # remember that the user voted already
         course.voters.add(request.user)
 
-        # date reached after which reward points can be earned?
-        if course.semester.grant_reward_points_after <= date.today():
-            # does the user not participate in any more courses in this semester?
-            if not Course.objects.filter(participants=request.user).exclude(voters=request.user).exists():
-                # did the user not already get reward points for this semester?
-                if not RewardPointGranting.objects.filter(user_profile=request.user.userprofile, semester=course.semester):
-                    granting = RewardPointGranting(user_profile=request.user.userprofile, semester=course.semester, value=settings.REWARD_POINTS_PER_SEMESTER)
-                    granting.save()
-                    messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
+        if request.user.userprofile.can_use_reward_points:
+            # date reached after which reward points can be earned?
+            if course.semester.grant_reward_points_after <= date.today():
+                # does the user not participate in any more courses in this semester?
+                if not Course.objects.filter(participants=request.user).exclude(voters=request.user).exists():
+                    # did the user not already get reward points for this semester?
+                    if not RewardPointGranting.objects.filter(user_profile=request.user.userprofile, semester=course.semester):
+                        granting = RewardPointGranting(user_profile=request.user.userprofile, semester=course.semester, value=settings.REWARD_POINTS_PER_SEMESTER)
+                        granting.save()
+                        messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
 
     messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

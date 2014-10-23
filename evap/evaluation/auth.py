@@ -136,3 +136,16 @@ def editor_required(func):
             return False
         return UserProfile.get_for_user(user=user).is_editor
     return user_passes_test(check_user)(func)
+
+
+def reward_user_required(func):
+    """
+    Decorator for views that checks that the user is logged in and can use
+    reward points.
+    """
+
+    def check_user(user):
+        if not user.is_authenticated():
+            return False
+        return UserProfile.get_for_user(user=user).can_use_reward_points
+    return user_passes_test(check_user)(func)

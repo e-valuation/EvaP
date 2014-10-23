@@ -667,7 +667,8 @@ def semester_reward_points(request, semester_id):
     participants = []
     for course in courses:
         for participant in course.participants.all():
-            participants.append(participant)
+            if participant.userprofile.can_use_reward_points:
+                participants.append(participant)
     participants = sorted(set(participants), key=lambda participant: participant.last_name)
 
     data = []

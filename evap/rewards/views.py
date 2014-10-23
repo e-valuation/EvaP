@@ -6,12 +6,12 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from datetime import datetime
 
-from evap.evaluation.auth import login_required
+from evap.evaluation.auth import reward_user_required
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
 from evap.rewards.tools import save_redemptions
 
-@login_required
+@reward_user_required
 def index(request):
     if request.method == 'POST':
         redemptions = {}

@@ -37,6 +37,9 @@
                     {% if user.is_staff %}
                         <span class="label label-primary">{% trans "Student Representative" %}</span>
                     {% endif %}
+                    {% if user.userprofile.is_external %}
+                        <span class="label label-default">{% trans "External" %}</span>
+                    {% endif %}
                     {% if user.userprofile.is_contributor %}
                         <span class="label label-info">{% trans "Contributor" %}</span>
                     {% endif %}

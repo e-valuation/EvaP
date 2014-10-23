@@ -524,6 +524,8 @@ class UserProfile(models.Model):
     # picture of the user
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
 
+    is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
+
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
@@ -604,6 +606,10 @@ class UserProfile(models.Model):
             count -= redemption.value
 
         return count
+
+    @property
+    def can_use_reward_points(self):
+        return not self.is_external and self.enrolled_in_courses
 
     @classmethod
     def get_for_user(cls, user):
