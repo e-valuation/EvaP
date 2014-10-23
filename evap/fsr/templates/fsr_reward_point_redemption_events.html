@@ -23,9 +23,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th class="col-sm-3">{% trans "Event date" %}</th>
-                        <th class="col-sm-3">{% trans "Event name" %}</th>
-                        <th class="col-sm-3">{% trans "Redeem end date" %}</th>
+                        <th class="col-sm-2">{% trans "Event date" %}</th>
+                        <th class="col-sm-2">{% trans "Redemption end date" %}</th>
+                        <th class="col-sm-4">{% trans "Event name" %}</th>                        
+                        <th class="col-sm-1">{% trans "Redemptions" %}</th>
                         <th class="col-sm-3">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
@@ -33,9 +34,11 @@
                     {% for event in upcoming_events %}
                         <tr>
                             <td>{{ event.date }}</td>
-                            <td>{{ event.name }}</td>
                             <td>{{ event.redeem_end_date }}</td>
+                            <td>{{ event.name }}</td>
+                            <td><span class="glyphicon glyphicon-user"></span> {{ event.reward_point_redemptions.all|length }}
                             <td>
+                                <a href="{% url "evap.fsr.views.reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                                 {% if event.can_delete %}
                                     <a href="{% url "evap.fsr.views.reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
@@ -57,9 +60,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th class="col-sm-3">{% trans "Event date" %}</th>
-                        <th class="col-sm-3">{% trans "Event name" %}</th>
-                        <th class="col-sm-3">{% trans "Redeem end date" %}</th>
+                        <th class="col-sm-2">{% trans "Event date" %}</th>
+                        <th class="col-sm-2">{% trans "Redemption end date" %}</th>
+                        <th class="col-sm-4">{% trans "Event name" %}</th>                        
+                        <th class="col-sm-1">{% trans "Redemptions" %}</th>
                         <th class="col-sm-3">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
@@ -67,9 +71,11 @@
                     {% for event in past_events %}
                         <tr>
                             <td>{{ event.date }}</td>
-                            <td>{{ event.name }}</td>
                             <td>{{ event.redeem_end_date }}</td>
+                            <td>{{ event.name }}</td>
+                            <td><span class="glyphicon glyphicon-user"></span> {{ event.reward_point_redemptions.all|length }}
                             <td>
+                                <a href="{% url "evap.fsr.views.reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "evap.fsr.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                                 {% if event.can_delete %}
                                     <a href="{% url "evap.fsr.views.reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>

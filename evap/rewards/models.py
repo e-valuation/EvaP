@@ -4,7 +4,7 @@ from django.db import models
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_(u"event name"))
     date = models.DateField(verbose_name=_(u"event date"))
-    redeem_end_date = models.DateField(verbose_name=_(u"redeem end date"))
+    redeem_end_date = models.DateField(verbose_name=_(u"redemption end date"))
 
     @property
     def can_delete(self):

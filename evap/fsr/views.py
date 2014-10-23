@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
+from django.http import HttpResponse
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
@@ -21,6 +23,7 @@ from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 from evap.rewards.models import RewardPointGranting, RewardPointRedemptionEvent
 from evap.rewards.forms import RewardPointRedemptionEventForm
+from evap.rewards.exporters import ExcelExporter
 
 import random
 
@@ -724,6 +727,20 @@ def reward_point_redemption_event_delete(request, event_id):
     else:
         messages.error(request, _("The event '%s' cannot be deleted, because some users already redeemed reward points for it.") % event.name)
         return redirect('evap.fsr.views.reward_point_redemption_events')
+
+
+@fsr_required
+def reward_point_redemption_event_export(request, event_id):
+    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
+
+    filename = _("RewardPoints")+"-%s-%s-%s.xls" % (event.date, event.name, get_language())
+
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+
+    ExcelExporter(event).export(response)
+
+    return response
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
