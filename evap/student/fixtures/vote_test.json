@@ -5,7 +5,8 @@
   "fields": {
     "created_at": "2014-06-14", 
     "name_de": "Testsemester", 
-    "name_en": "test semester"
+    "name_en": "test semester",
+    "grant_reward_points_after": "2099-12-31"
   }
 },
 {

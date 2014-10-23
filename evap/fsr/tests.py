@@ -38,6 +38,7 @@ class UsecaseTests(WebTest):
         semester_form = lastform(page)
         semester_form['name_de'] = "Testsemester"
         semester_form['name_en'] = "test semester"
+        semester_form['grant_reward_points_after'] = "2099-12-31"
         page = semester_form.submit().follow()
 
         # retrieve new semester
