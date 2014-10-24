@@ -113,7 +113,7 @@ def semester_publish(request, semester_id):
                 selected_courses.append(course)
 
         try:
-            EmailTemplate.get_publish_template().send_to_users_in_courses(selected_courses, ['contributors', 'allParticipants'])
+            EmailTemplate.get_publish_template().send_to_users_in_courses(selected_courses, ['contributors', 'all_participants'])
         except Exception:
             messages.warning(request, _("Could not send emails to participants and contributors"))
         messages.info(request, _("Successfully published %d courses.") % (len(selected_courses)))
