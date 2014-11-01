@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course
+from django.dispatch import receiver
 
 from datetime import date
 
@@ -52,7 +53,10 @@ def reward_points_of_user(userprofile):
     return count
 
 
-def grant_reward_points(request, semester):
+@receiver(Course.course_evaluated)
+def grant_reward_points(sender, **kwargs):
+    request = kwargs['request']
+    semester = kwargs['semester']
     if can_user_use_reward_points(request.user.userprofile):
         # date reached after which reward points can be earned?
         if semester.grant_reward_points_after <= date.today():

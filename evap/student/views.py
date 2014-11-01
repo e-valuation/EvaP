@@ -13,8 +13,6 @@ from evap.evaluation.tools import STUDENT_STATES_ORDERED
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
-from evap.rewards.tools import grant_reward_points
-
 from collections import OrderedDict
 
 @login_required
@@ -100,7 +98,7 @@ def vote(request, course_id):
         # remember that the user voted already
         course.voters.add(request.user)
 
-        grant_reward_points(request, course.semester)
+        course.was_evaluated(request)
 
     messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

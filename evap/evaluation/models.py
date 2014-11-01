@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
+import django.dispatch
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -134,6 +135,8 @@ class Course(models.Model):
     # who last modified this course, shell be noted
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
+
+    course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
         ordering = ('semester', 'degree', 'name_de')
@@ -342,6 +345,9 @@ class Course(models.Model):
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
+
+    def was_evaluated(request):
+        self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
 
 
 class Contribution(models.Model):
