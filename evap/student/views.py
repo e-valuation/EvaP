@@ -13,9 +13,7 @@ from evap.evaluation.tools import STUDENT_STATES_ORDERED
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
-from evap.rewards.models import RewardPointGranting
-
-from datetime import date
+from evap.rewards.tools import grant_reward_points
 
 from collections import OrderedDict
 
@@ -102,16 +100,7 @@ def vote(request, course_id):
         # remember that the user voted already
         course.voters.add(request.user)
 
-        if request.user.userprofile.can_use_reward_points:
-            # date reached after which reward points can be earned?
-            if course.semester.grant_reward_points_after <= date.today():
-                # does the user not participate in any more courses in this semester?
-                if not Course.objects.filter(participants=request.user).exclude(voters=request.user).exists():
-                    # did the user not already get reward points for this semester?
-                    if not RewardPointGranting.objects.filter(user_profile=request.user.userprofile, semester=course.semester):
-                        granting = RewardPointGranting(user_profile=request.user.userprofile, semester=course.semester, value=settings.REWARD_POINTS_PER_SEMESTER)
-                        granting.save()
-                        messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
+        grant_reward_points(request, course.semester)
 
     messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -6,13 +7,16 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import login_required
+from evap.evaluation.models import Course
 
-from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEvent
+from datetime import date
+
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
 
 @login_required
 @transaction.atomic
 def save_redemptions(request, redemptions):
-    total_points_available = request.user.userprofile.reward_points
+    total_points_available = reward_points_of_user(request.user.userprofile)
     total = 0
     for event_id in redemptions:
         total += redemptions[event_id]
@@ -29,3 +33,33 @@ def save_redemptions(request, redemptions):
         return True
 
     return False
+
+
+def can_user_use_reward_points(userprofile):
+    return not userprofile.is_external and userprofile.enrolled_in_courses
+
+
+def reward_points_of_user(userprofile):
+    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=userprofile)
+    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=userprofile)
+    
+    count = 0
+    for granting in reward_point_grantings:
+        count += granting.value
+    for redemption in reward_point_redemptions:
+        count -= redemption.value
+
+    return count
+
+
+def grant_reward_points(request, semester):
+    if can_user_use_reward_points(request.user.userprofile):
+        # date reached after which reward points can be earned?
+        if semester.grant_reward_points_after <= date.today():
+            # does the user not participate in any more courses in this semester?
+            if not Course.objects.filter(participants=request.user, semester=semester).exclude(voters=request.user).exists():
+                # did the user not already get reward points for this semester?
+                if not RewardPointGranting.objects.filter(user_profile=request.user.userprofile, semester=semester):
+                    granting = RewardPointGranting(user_profile=request.user.userprofile, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
+                    granting.save()
+                    messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))

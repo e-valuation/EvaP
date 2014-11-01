@@ -56,7 +56,7 @@
                             <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
-                        {% if user.userprofile.can_use_reward_points %}
+                        {% if user.userprofile|can_user_use_reward_points %}
                             <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
                         {% endif %}
 

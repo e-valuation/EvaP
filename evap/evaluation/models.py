@@ -12,8 +12,6 @@ from django_fsm.db.fields import FSMField, transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-
 import datetime
 import random
 
@@ -593,23 +591,6 @@ class UserProfile(models.Model):
     @property
     def needs_login_key(self):
         return UserProfile.email_needs_login_key(self.user.email)
-
-    @property
-    def reward_points(self):
-        reward_point_grantings = RewardPointGranting.objects.filter(user_profile=self)
-        reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=self)
-        
-        count = 0
-        for granting in reward_point_grantings:
-            count += granting.value
-        for redemption in reward_point_redemptions:
-            count -= redemption.value
-
-        return count
-
-    @property
-    def can_use_reward_points(self):
-        return not self.is_external and self.enrolled_in_courses
 
     @classmethod
     def get_for_user(cls, user):

@@ -145,7 +145,8 @@ def reward_user_required(func):
     """
 
     def check_user(user):
+        from evap.rewards.tools import can_user_use_reward_points
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).can_use_reward_points
+        return can_user_use_reward_points(UserProfile.get_for_user(user=user))
     return user_passes_test(check_user)(func)

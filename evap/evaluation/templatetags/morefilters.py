@@ -2,6 +2,7 @@ from django import template
 from django.conf import settings
 from django.template import Library
 from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STUDENT_STATES_ORDERED
+from evap.rewards.tools import can_user_use_reward_points
 
 register = Library()
 
@@ -40,6 +41,11 @@ def studentstatename(state):
 @register.filter(name='can_user_see_course')
 def can_user_see_course(course, user):
     return course.can_user_see_results(user)
+
+
+@register.filter(name='can_user_use_reward_points')
+def can_use_reward_points(user):
+    return can_user_use_reward_points(user)
 
 
 @register.tag
