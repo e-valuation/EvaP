@@ -11,7 +11,9 @@ from datetime import datetime
 from evap.evaluation.auth import reward_user_required, fsr_required
 from evap.evaluation.models import Semester, Course
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
+from evap.fsr.views import semester_view
+
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import save_redemptions, reward_points_of_user, can_user_use_reward_points
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.exporters import ExcelExporter
@@ -136,3 +138,20 @@ def reward_point_redemption_event_export(request, event_id):
     ExcelExporter(event).export(response)
 
     return response
+
+
+@fsr_required
+def semester_activation(request, semester_id, active):
+    if active == '1':
+        active = True
+    else:
+        active = False
+
+    try:
+        activation = SemesterActivation.objects.filter(semester=Semester.objects.get(id=semester_id)).get()
+        activation.is_active = active
+    except SemesterActivation.DoesNotExist:
+        activation = SemesterActivation(semester=Semester.objects.get(id=semester_id), is_active=active)
+    activation.save()
+
+    return semester_view(request=request, semester_id=semester_id)

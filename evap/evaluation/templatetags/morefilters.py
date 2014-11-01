@@ -65,3 +65,8 @@ class ValueFromSettings(template.Node):
 
     def render(self, context):
         return settings.__getattr__(str(self.arg))
+
+
+@register.filter
+def is_false(arg): 
+    return arg is False

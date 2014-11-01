@@ -12,7 +12,7 @@ from django.dispatch import receiver
 
 from datetime import date
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
 
 @login_required
 @transaction.atomic
@@ -58,8 +58,13 @@ def grant_reward_points(sender, **kwargs):
     request = kwargs['request']
     semester = kwargs['semester']
     if can_user_use_reward_points(request.user.userprofile):
-        # date reached after which reward points can be earned?
-        if semester.grant_reward_points_after <= date.today():
+        # has the semester been activated for reward points?
+        try:
+            activation = SemesterActivation.objects.get(semester=semester)
+        except SemesterActivation.DoesNotExist:
+            return
+        
+        if activation.is_active:
             # does the user not participate in any more courses in this semester?
             if not Course.objects.filter(participants=request.user, semester=semester).exclude(voters=request.user).exists():
                 # did the user not already get reward points for this semester?

@@ -22,6 +22,8 @@ from evap.fsr.importers import ExcelImporter
 from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
+from evap.rewards.models import SemesterActivation
+
 import random
 
 from datetime import datetime
@@ -48,13 +50,15 @@ def semester_view(request, semester_id):
     except Exception:
         tab = 1
 
+    rewards_active = SemesterActivation.objects.filter(semester=Semester.objects.get(id=semester_id), is_active=True).exists()
+
     courses = semester.course_set.all()
     courses_by_state = []
     for state in STATES_ORDERED.keys():
         this_courses = [course for course in courses if course.state == state]
         courses_by_state.append((state, this_courses))
 
-    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab), context_instance=RequestContext(request))
+    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab, rewards_active=rewards_active), context_instance=RequestContext(request))
 
 
 @fsr_required

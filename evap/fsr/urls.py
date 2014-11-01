@@ -2,7 +2,6 @@ from django.conf.urls import url
 from django.views.generic import RedirectView
 
 from evap.fsr.views import *
-from evap.rewards.views import semester_reward_points
 
 urlpatterns = [
     url(r"^$", index, name="fsr_root"),
@@ -19,7 +18,6 @@ urlpatterns = [
     url(r"^semester/(\d+)/reset$", semester_revert_to_new),
     url(r"^semester/(\d+)/contributorready$", semester_contributor_ready),
     url(r"^semester/(\d+)/lottery$", semester_lottery),
-    url(r"^semester/(\d+)/reward_points$", semester_reward_points),
     url(r"^semester/(\d+)/course/create$", course_create),
     url(r"^semester/(\d+)/course/(\d+)/edit$", course_edit),
     url(r"^semester/(\d+)/course/(\d+)/delete$", course_delete),

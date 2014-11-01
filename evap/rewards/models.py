@@ -23,3 +23,7 @@ class RewardPointRedemption(models.Model):
     redemption_time = models.DateTimeField(verbose_name=_(u"redemption time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_(u"value"), default=0)
     event = models.ForeignKey(RewardPointRedemptionEvent, related_name="reward_point_redemptions")
+
+class SemesterActivation(models.Model):
+    semester = models.ForeignKey('evaluation.Semester', related_name='rewards_active', unique=True)
+    is_active = models.BooleanField(default=False)

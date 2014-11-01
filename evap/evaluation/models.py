@@ -36,7 +36,6 @@ class Semester(models.Model):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (english)"))
-    grant_reward_points_after = models.DateField(verbose_name=_(u"grant reward points after"))
 
     name = Translate
 
@@ -346,7 +345,7 @@ class Course(models.Model):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
 
-    def was_evaluated(request):
+    def was_evaluated(self, request):
         self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
 
 
