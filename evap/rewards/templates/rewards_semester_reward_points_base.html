@@ -1,0 +1,13 @@
+{% extends "fsr_semester_base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Reward Points" %}</li>
+{% endblock %}
+
+{% block title %}
+    {% trans "Reward Points" %} -
+    {{ block.super }}
+{% endblock %}

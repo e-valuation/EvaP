@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
+import django.dispatch
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -133,6 +134,8 @@ class Course(models.Model):
     # who last modified this course, shell be noted
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
+
+    course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
         ordering = ('semester', 'degree', 'name_de')
@@ -342,6 +345,9 @@ class Course(models.Model):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
 
+    def was_evaluated(self, request):
+        self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
+
 
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
@@ -521,6 +527,8 @@ class UserProfile(models.Model):
     # picture of the user
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
 
+    is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
+
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
@@ -583,7 +591,8 @@ class UserProfile(models.Model):
 
     @classmethod
     def email_needs_login_key(cls, email):
-        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+        from evap.evaluation.tools import is_external_email
+        return is_external_email(email)
 
     @property
     def needs_login_key(self):
@@ -704,4 +713,3 @@ class EmailTemplate(models.Model):
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})
         mail.send(False)
-

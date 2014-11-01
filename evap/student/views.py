@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -96,6 +97,8 @@ def vote(request, course_id):
 
         # remember that the user voted already
         course.voters.add(request.user)
+
+        course.was_evaluated(request)
 
     messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')
