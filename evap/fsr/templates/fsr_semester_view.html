@@ -20,7 +20,7 @@
         <a href="{% url "evap.fsr.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default">{% trans "Assign Questionnaires" %}</a>
         &nbsp;
         <a href="{% url "evap.fsr.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
-        <a href="{% url "evap.fsr.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
+        <a href="{% url "evap.rewards.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
     </p>
 
     {% if courses_by_state %}

@@ -21,9 +21,6 @@ from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswer
 from evap.fsr.importers import ExcelImporter
 from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
-from evap.rewards.models import RewardPointGranting, RewardPointRedemptionEvent
-from evap.rewards.forms import RewardPointRedemptionEventForm
-from evap.rewards.exporters import ExcelExporter
 
 import random
 
@@ -658,90 +655,6 @@ def faq_section(request, section_id):
         return custom_redirect('evap.fsr.views.index')
     else:
         return render_to_response("fsr_faq_section.html", dict(formset=formset, section=section, questions=questions), context_instance=RequestContext(request))
-
-
-@fsr_required
-def semester_reward_points(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    courses = Course.objects.filter(semester=semester)
-    participants = []
-    for course in courses:
-        for participant in course.participants.all():
-            if participant.userprofile.can_use_reward_points:
-                participants.append(participant)
-    participants = sorted(set(participants), key=lambda participant: participant.last_name)
-
-    data = []
-    for participant in participants:
-        number_of_courses = len(Course.objects.filter(semester=semester, participants=participant))
-        number_of_courses_voted_for = len(Course.objects.filter(semester=semester, voters=participant))
-        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant.userprofile).exists()
-        data.append((participant, number_of_courses_voted_for, number_of_courses, earned_reward_points))
-
-    return render_to_response("fsr_semester_reward_points_view.html", dict(semester=semester, data=data, disable_breadcrumb_semester=False), context_instance=RequestContext(request))
-
-
-@fsr_required
-def reward_point_redemption_events(request):
-    upcoming_events = sorted(RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()), key=lambda event: event.date)
-    past_events = sorted(RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()), key=lambda event: event.date, reverse=True)
-    return render_to_response("fsr_reward_point_redemption_events.html", dict(upcoming_events=upcoming_events, past_events=past_events), context_instance=RequestContext(request))
-
-
-@fsr_required
-def reward_point_redemption_event_create(request):
-    event = RewardPointRedemptionEvent()
-    form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
-
-    if form.is_valid():
-        form.save()
-        messages.info(request, _("Successfully created event."))
-        return redirect('evap.fsr.views.reward_point_redemption_events')
-    else:
-        return render_to_response("fsr_reward_point_redemption_event_form.html", dict(form=form), context_instance=RequestContext(request))
-
-
-@fsr_required
-def reward_point_redemption_event_edit(request, event_id):
-    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
-    form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
-
-    if form.is_valid():
-        event = form.save()
-
-        messages.info(request, _("Successfully updated event."))
-        return redirect('evap.fsr.views.reward_point_redemption_events')
-    else:
-        return render_to_response("fsr_reward_point_redemption_event_form.html", dict(event=event, form=form), context_instance=RequestContext(request))
-
-
-@fsr_required
-def reward_point_redemption_event_delete(request, event_id):
-    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
-
-    if event.can_delete:
-        if request.method == 'POST':
-            event.delete()
-            return redirect('evap.fsr.views.reward_point_redemption_events')
-        else:
-            return render_to_response("fsr_reward_point_redemption_event_delete.html", dict(event=event), context_instance=RequestContext(request))
-    else:
-        messages.error(request, _("The event '%s' cannot be deleted, because some users already redeemed reward points for it.") % event.name)
-        return redirect('evap.fsr.views.reward_point_redemption_events')
-
-
-@fsr_required
-def reward_point_redemption_event_export(request, event_id):
-    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
-
-    filename = _("RewardPoints")+"-%s-%s-%s.xls" % (event.date, event.name, get_language())
-
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
-
-    ExcelExporter(event).export(response)
-
-    return response
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):

@@ -2,6 +2,7 @@ from django.conf.urls import url
 from django.views.generic import RedirectView
 
 from evap.fsr.views import *
+from evap.rewards.views import semester_reward_points
 
 urlpatterns = [
     url(r"^$", index, name="fsr_root"),
@@ -42,12 +43,6 @@ urlpatterns = [
     url(r"^user/import$", user_import),
     url(r"^user/(\d+)/edit$", user_edit),
     url(r"^user/(\d+)/delete$", user_delete),
-
-    url(r"^reward_point_redemption_events/$", reward_point_redemption_events),
-    url(r"^reward_point_redemption_event/create$", reward_point_redemption_event_create),
-    url(r"^reward_point_redemption_event/(\d+)/edit$", reward_point_redemption_event_edit),
-    url(r"^reward_point_redemption_event/(\d+)/delete$", reward_point_redemption_event_delete),
-    url(r"^reward_point_redemption_event/(\d+)/export$", reward_point_redemption_event_export),
 
     url(r"^template/$", RedirectView.as_view(url='/fsr/')),
     url(r"^template/(\d+)$", template_edit),
