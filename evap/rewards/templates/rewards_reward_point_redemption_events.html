@@ -43,7 +43,7 @@
                                 {% if event.can_delete %}
                                     <a href="{% url "evap.rewards.views.reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                                 {% else %}
-                                    <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This event cannot be deleted because some users already redeemed points for it" %}">{% trans "Delete" %}</a>
+                                    <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}">{% trans "Delete" %}</a>
                                 {% endif %}
                             </td>
                         </tr>
@@ -80,7 +80,7 @@
                                 {% if event.can_delete %}
                                     <a href="{% url "evap.rewards.views.reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                                 {% else %}
-                                    <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This event cannot be deleted because some users already redeemed points for it" %}">{% trans "Delete" %}</a>
+                                    <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}">{% trans "Delete" %}</a>
                                 {% endif %}
                             </td>
                         </tr>

@@ -11,7 +11,7 @@ urlpatterns = [
     url(r"^reward_point_redemption_event/(\d+)/delete$", reward_point_redemption_event_delete),
     url(r"^reward_point_redemption_event/(\d+)/export$", reward_point_redemption_event_export),
 
-    url(r"^reward_semester_activation/(\d+)/(\d+)$", semester_activation),
+    url(r"^reward_semester_activation/(\d+)/(\w+)$", semester_activation),
 
     url(r"^semester/(\d+)/reward_points$", semester_reward_points),
 ]

@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.tools import is_external_email
 
 import xlrd
 from collections import OrderedDict
@@ -20,7 +21,7 @@ class UserData(object):
         self.title = title.strip()
         self.email = email.strip().lower()
         self.is_external = False
-        if not any([self.email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS]):
+        if is_external_email(self.email):
             self.is_external = True
             if self.username == '':
                 self.username = (self.first_name + '.' + self.last_name + '.ext').lower()

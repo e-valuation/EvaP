@@ -23,6 +23,7 @@ from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
 from evap.rewards.models import SemesterActivation
+from evap.rewards.tools import is_semester_activated
 
 import random
 
@@ -50,7 +51,7 @@ def semester_view(request, semester_id):
     except Exception:
         tab = 1
 
-    rewards_active = SemesterActivation.objects.filter(semester=Semester.objects.get(id=semester_id), is_active=True).exists()
+    rewards_active = is_semester_activated(semester)
 
     courses = semester.course_set.all()
     courses_by_state = []

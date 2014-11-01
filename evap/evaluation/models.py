@@ -591,7 +591,8 @@ class UserProfile(models.Model):
 
     @classmethod
     def email_needs_login_key(cls, email):
-        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+        from evap.evaluation.tools import is_external_email
+        return is_external_email(email)
 
     @property
     def needs_login_key(self):

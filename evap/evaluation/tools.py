@@ -295,3 +295,7 @@ def questionnaires_and_contributions(course):
     result.sort(key=lambda t: t[1].contributor is not None)
 
     return result
+
+
+def is_external_email(email):
+        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])

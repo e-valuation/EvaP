@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.http import HttpResponse
 from datetime import datetime
+from operator import attrgetter
 
 from evap.evaluation.auth import reward_user_required, fsr_required
 from evap.evaluation.models import Semester, Course
@@ -24,7 +25,8 @@ def index(request):
         redemptions = {}
         for key, value in request.POST.iteritems():
             if(key.startswith('points-')):
-                redemptions[int(key.rpartition('-')[2])] = int(value)
+                event_id = int(key.rpartition('-')[2])
+                redemptions[event_id] = int(value)
      
         if save_redemptions(request, redemptions):
             messages.success(request, _("You successfully redeemed your points."))
@@ -43,7 +45,7 @@ def index(request):
     for redemption in reward_point_redemptions:
         reward_point_actions.append((redemption.redemption_time, redemption.event.name, '', redemption.value))
 
-    reward_point_actions = sorted(reward_point_actions, key=lambda action: action[0], reverse=True)
+    reward_point_actions.sort(key=lambda action: action[0], reverse=True)
 
     return render_to_response(
         "rewards_index.html",
@@ -60,17 +62,17 @@ def index(request):
 def semester_reward_points(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     courses = Course.objects.filter(semester=semester)
-    participants = []
+    participants = set()
     for course in courses:
         for participant in course.participants.all():
             if can_user_use_reward_points(participant.userprofile):
-                participants.append(participant)
-    participants = sorted(set(participants), key=lambda participant: participant.last_name)
+                participants.add(participant)
+    participants = sorted(participants, key=attrgetter('last_name', 'first_name'))
 
     data = []
     for participant in participants:
-        number_of_courses = len(Course.objects.filter(semester=semester, participants=participant))
-        number_of_courses_voted_for = len(Course.objects.filter(semester=semester, voters=participant))
+        number_of_courses = Course.objects.filter(semester=semester, participants=participant).count()
+        number_of_courses_voted_for = Course.objects.filter(semester=semester, voters=participant).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant.userprofile).exists()
         data.append((participant, number_of_courses_voted_for, number_of_courses, earned_reward_points))
 
@@ -79,8 +81,8 @@ def semester_reward_points(request, semester_id):
 
 @fsr_required
 def reward_point_redemption_events(request):
-    upcoming_events = sorted(RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()), key=lambda event: event.date)
-    past_events = sorted(RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()), key=lambda event: event.date, reverse=True)
+    upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
+    past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by('-date')
     return render_to_response("rewards_reward_point_redemption_events.html", dict(upcoming_events=upcoming_events, past_events=past_events), context_instance=RequestContext(request))
 
 
@@ -122,7 +124,7 @@ def reward_point_redemption_event_delete(request, event_id):
         else:
             return render_to_response("rewards_reward_point_redemption_event_delete.html", dict(event=event), context_instance=RequestContext(request))
     else:
-        messages.error(request, _("The event '%s' cannot be deleted, because some users already redeemed reward points for it.") % event.name)
+        messages.error(request, _("This event cannot be deleted because some users already redeemed points for it."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
 
 
@@ -135,14 +137,14 @@ def reward_point_redemption_event_export(request, event_id):
     response = HttpResponse(content_type="application/vnd.ms-excel")
     response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
 
-    ExcelExporter(event).export(response)
+    ExcelExporter(event.reward_point_redemptions.all()).export(response)
 
     return response
 
 
 @fsr_required
 def semester_activation(request, semester_id, active):
-    if active == '1':
+    if active == 'on':
         active = True
     else:
         active = False

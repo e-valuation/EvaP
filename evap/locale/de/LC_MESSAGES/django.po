@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-01 18:28+0100\n"
-"PO-Revision-Date: 2014-11-01 18:28+0100\n"
+"POT-Creation-Date: 2014-11-01 23:40+0100\n"
+"PO-Revision-Date: 2014-11-01 23:40+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -30,7 +30,7 @@ msgstr "Profil erfolgreich aktualisiert."
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:105 fsr/views.py:302
+#: contributor/views.py:105 fsr/views.py:303
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -326,7 +326,7 @@ msgstr ""
 msgid "Login key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/forms.py:153 rewards/exporters.py:37
+#: evaluation/forms.py:153 rewards/exporters.py:38
 msgid "Email address"
 msgstr "E‑Mail-Adresse"
 
@@ -924,21 +924,21 @@ msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
-#: fsr/importers.py:93
+#: fsr/importers.py:94
 #, python-format
 msgid "Successfully read sheet '%s'."
 msgstr "Blatt '%s' erfolgreich gelesen."
 
-#: fsr/importers.py:95
+#: fsr/importers.py:96
 #, python-format
 msgid "A problem occured while reading sheet '%s'."
 msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 
-#: fsr/importers.py:97
+#: fsr/importers.py:98
 msgid "Successfully read excel file."
 msgstr "Exceldatei erfolgreich gelesen."
 
-#: fsr/importers.py:101 fsr/importers.py:114
+#: fsr/importers.py:102 fsr/importers.py:115
 #, python-format
 msgid ""
 "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', "
@@ -947,7 +947,7 @@ msgstr ""
 "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
 "'%(beginning)s', %(ncols)s Spalten"
 
-#: fsr/importers.py:169 fsr/importers.py:190
+#: fsr/importers.py:170 fsr/importers.py:191
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -958,7 +958,7 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: fsr/importers.py:171
+#: fsr/importers.py:172
 #, python-format
 msgid ""
 "Successfully created %(courses)d course(s), %(students)d student(s) and "
@@ -967,77 +967,77 @@ msgstr ""
 "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d "
 "Mitwirkende erfolgreich erstellt."
 
-#: fsr/importers.py:192
+#: fsr/importers.py:193
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
-#: fsr/importers.py:203 fsr/importers.py:216
+#: fsr/importers.py:204 fsr/importers.py:217
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: fsr/views.py:71
+#: fsr/views.py:72
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: fsr/views.py:85
+#: fsr/views.py:86
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: fsr/views.py:102
+#: fsr/views.py:103
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: fsr/views.py:126
+#: fsr/views.py:127
 msgid "Could not send emails to participants and contributors"
 msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 
-#: fsr/views.py:127
+#: fsr/views.py:128
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: fsr/views.py:162
+#: fsr/views.py:163
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: fsr/views.py:185
+#: fsr/views.py:186
 #, python-format
 msgid "Successfully reverted %d courses to New."
 msgstr "Erfolgreich %d Veranstaltungen auf Neu zurückgesetzt."
 
-#: fsr/views.py:207
+#: fsr/views.py:208
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen bestätigt."
 
-#: fsr/views.py:232
+#: fsr/views.py:233
 #, python-format
 msgid "Successfully marked %d courses as ready for lecturer review."
 msgstr "Erfolgreich %d Veranstaltungen als Bereit für die Dozenten markiert."
 
-#: fsr/views.py:278
+#: fsr/views.py:279
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: fsr/views.py:292
+#: fsr/views.py:293
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:315
+#: fsr/views.py:316
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:332
+#: fsr/views.py:333
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:366
+#: fsr/views.py:367
 msgid ""
 "Successfully reviewed {count} course answers for {course}. {course} is now "
 "fully reviewed."
@@ -1045,16 +1045,16 @@ msgstr ""
 "{count} Antworten für {name} erfolgreich überprüft. {name} ist jetzt "
 "vollständig überprüft."
 
-#: fsr/views.py:371
+#: fsr/views.py:372
 msgid "Successfully reviewed {count} course answers for {course}."
 msgstr "{count} Antworten für {course} erfolgreich überprüft."
 
-#: fsr/views.py:392
+#: fsr/views.py:393
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: fsr/views.py:394
+#: fsr/views.py:395
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
 "reached as they do not have an email address."
@@ -1063,54 +1063,54 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: fsr/views.py:418
+#: fsr/views.py:419
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr ""
 "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
 "Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:487 fsr/views.py:528
+#: fsr/views.py:488 fsr/views.py:529
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:502
+#: fsr/views.py:503
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:509
+#: fsr/views.py:510
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:553
+#: fsr/views.py:554
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:571
+#: fsr/views.py:572
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:596
+#: fsr/views.py:597
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:613
+#: fsr/views.py:614
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:625
+#: fsr/views.py:626
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: fsr/views.py:641
+#: fsr/views.py:642
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: fsr/views.py:658
+#: fsr/views.py:659
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -1658,21 +1658,21 @@ msgstr "Semester als Excel-Tabelle exportieren"
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: rewards/exporters.py:31
+#: rewards/exporters.py:32
 #: rewards/templates/rewards_reward_point_redemption_events.html:29
 #: rewards/templates/rewards_reward_point_redemption_events.html:66
 msgid "Redemptions"
 msgstr "Einlösungen"
 
-#: rewards/exporters.py:35
+#: rewards/exporters.py:36
 msgid "Last name"
 msgstr "Nachname"
 
-#: rewards/exporters.py:36
+#: rewards/exporters.py:37
 msgid "First name"
 msgstr "Vorname"
 
-#: rewards/exporters.py:38
+#: rewards/exporters.py:39
 msgid "Number of points"
 msgstr "Anzahl der Punkte"
 
@@ -1700,7 +1700,7 @@ msgstr "Wert"
 msgid "redemption time"
 msgstr "Einlösezeitpunkt"
 
-#: rewards/tools.py:74
+#: rewards/tools.py:72
 msgid ""
 "You just have earned reward points for this semester because you evaluated "
 "all your courses. Thank you very much!"
@@ -1708,36 +1708,37 @@ msgstr ""
 "Du hast soeben Belohnungspunkte für dieses Semester erhalten, weil du alle "
 "deine Veranstaltungen bewertet hast. Vielen Dank!"
 
-#: rewards/views.py:30
+#: rewards/views.py:32
 msgid "You successfully redeemed your points."
 msgstr "Punkte erfolgreich eingelöst."
 
-#: rewards/views.py:32
+#: rewards/views.py:34
 msgid "You don't have enough reward points."
 msgstr "Du hast nicht genügend Belohnungspunkte."
 
-#: rewards/views.py:42
+#: rewards/views.py:44
 msgid "Reward for"
 msgstr "Belohnung für"
 
-#: rewards/views.py:94
+#: rewards/views.py:96
 msgid "Successfully created event."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: rewards/views.py:108
+#: rewards/views.py:110
 msgid "Successfully updated event."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: rewards/views.py:125
-#, python-format
+#: rewards/views.py:127
+#: rewards/templates/rewards_reward_point_redemption_events.html:46
+#: rewards/templates/rewards_reward_point_redemption_events.html:83
 msgid ""
-"The event '%s' cannot be deleted, because some users already redeemed reward "
-"points for it."
+"This event cannot be deleted because some users already redeemed points for "
+"it."
 msgstr ""
-"Die Veranstaltung '%s' kann nicht gelöscht werden, weil schon Punkte dafür "
+"Diese Veranstaltung kann nicht gelöscht werden, weil schon Punkte dafür "
 "eingelöst wurden."
 
-#: rewards/views.py:133
+#: rewards/views.py:135
 msgid "RewardPoints"
 msgstr "Belohnungspunkte"
 
@@ -1875,15 +1876,6 @@ msgstr "Veranstaltungsname"
 #: rewards/templates/rewards_reward_point_redemption_events.html:78
 msgid "Export Redemptions"
 msgstr "Einlösungen exportieren"
-
-#: rewards/templates/rewards_reward_point_redemption_events.html:46
-#: rewards/templates/rewards_reward_point_redemption_events.html:83
-msgid ""
-"This event cannot be deleted because some users already redeemed points for "
-"it"
-msgstr ""
-"Diese Veranstaltung kann nicht gelöscht werden, weil schon Punkte dafür "
-"eingelöst wurden"
 
 #: rewards/templates/rewards_reward_point_redemption_events.html:57
 msgid "Past events"

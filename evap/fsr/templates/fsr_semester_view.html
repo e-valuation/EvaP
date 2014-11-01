@@ -25,8 +25,8 @@
         <div class="btn-group">
             <a href="{% url "evap.rewards.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
             <div class="btn-group btn-toggle">
-                <a href="{% url "evap.rewards.views.semester_activation" semester.id 1 %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}">{% trans "On" %}</a>
-                <a href="{% url "evap.rewards.views.semester_activation" semester.id 0 %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}">{% trans "Off" %}</a>
+                <a href="{% url "evap.rewards.views.semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}">{% trans "On" %}</a>
+                <a href="{% url "evap.rewards.views.semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}">{% trans "Off" %}</a>
             </div>
         </div>
     </div>

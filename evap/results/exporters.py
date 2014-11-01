@@ -99,20 +99,20 @@ class ExcelExporter(object):
         
         self.add_color_palette_to_workbook(self.workbook)
 
-        self.writec(_(u"Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), "headline")
+        writec(self, _(u"Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), "headline")
         for course, results in courses_with_results:
             if course.state == "published":
-                self.writec(course.name, "course", cols=2)
+                writec(self, course.name, "course", cols=2)
             else:
-                self.writec(course.name, "course_unfinished", cols=2)
+                writec(self, course.name, "course_unfinished", cols=2)
 
-        self.writen()
+        writen(self)
         for course, results in courses_with_results:
-            self.writec("Average", "avg")
-            self.writec("Variance", "border_top_bottom_right")
+            writec(self, "Average", "avg")
+            writec(self, "Variance", "border_top_bottom_right")
 
         for questionnaire in questionnaires:
-            self.writen(questionnaire.name, "bold")
+            writen(self, questionnaire.name, "bold")
             for course, results in courses_with_results:
                 self.write_two_empty_cells_with_borders()
 
@@ -120,7 +120,7 @@ class ExcelExporter(object):
                 if question.is_text_question():
                     continue
 
-                self.writen(question.text)
+                writen(self, question.text)
 
                 for course, results in courses_with_results:
                     qn_results = results.get(questionnaire.id, None)
@@ -139,60 +139,61 @@ class ExcelExporter(object):
                                     break
                         if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
-                            self.writec(avg, ExcelExporter.grade_to_style(avg));
+                            writec(self, avg, ExcelExporter.grade_to_style(avg));
 
                             var = sum(variances) / len(variances)
-                            self.writec(var, ExcelExporter.variance_to_style(var))
+                            writec(self, var, ExcelExporter.variance_to_style(var))
                         else:
                             self.write_two_empty_cells_with_borders()
                     else:
                         self.write_two_empty_cells_with_borders()
-            self.writen(None)
+            writen(self, None)
             for course, results in courses_with_results:
                 self.write_two_empty_cells_with_borders()
 
-        self.writen(_(u"Overall Average Grade"), "bold")
+        writen(self, _(u"Overall Average Grade"), "bold")
         for course, results in courses_with_results:
             avg, med = calculate_average_and_medium_grades(course)
             if avg:
-                self.writec(avg, ExcelExporter.grade_to_style(avg), cols=2)
+                writec(self, avg, ExcelExporter.grade_to_style(avg), cols=2)
             else:
                 self.write_two_empty_cells_with_borders()
 
-        self.writen(_(u"Overall Median Grade"), "bold")
+        writen(self, _(u"Overall Median Grade"), "bold")
         for course, results in courses_with_results:
             avg, med = calculate_average_and_medium_grades(course)
             if med:
-                self.writec(med, ExcelExporter.grade_to_style(med), cols=2)
+                writec(self, med, ExcelExporter.grade_to_style(med), cols=2)
             else:
                 self.write_two_empty_cells_with_borders()
 
-        self.writen(_(u"Total Voters/Total Participants"), "bold")
+        writen(self, _(u"Total Voters/Total Participants"), "bold")
         for course, results in courses_with_results:
             percent_participants = float(course.num_voters)/float(course.num_participants)
-            self.writec("{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
+            writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)
 
 
     def write_two_empty_cells_with_borders(self):
-        self.writec(None, "border_left")
-        self.writec(None, "border_right")
+        writec(self, None, "border_left")
+        writec(self, None, "border_right")
 
-    def writen(self, label="", style_name="default"):
-        """Write the cell at the beginning of the next row."""
-        self.col = 0
-        self.row += 1
-        self.writec(label, style_name)
 
-    def writec(self, label, style_name, rows=1, cols=1):
-        """Write the cell in the next column of the current line."""
-        self._write(label, ExcelExporter.styles[style_name], rows, cols )
-        self.col += 1
+def writen(exporter, label="", style_name="default"):
+    """Write the cell at the beginning of the next row."""
+    exporter.col = 0
+    exporter.row += 1
+    writec(exporter, label, style_name)
 
-    def _write(self, label, style, rows, cols):
-        if rows > 1 or cols > 1:
-            self.sheet.write_merge(self.row, self.row+rows-1, self.col, self.col+cols-1, label, style)
-            self.col += cols - 1
-        else:
-            self.sheet.write(self.row, self.col, label, style)
+def writec(exporter, label, style_name, rows=1, cols=1):
+    """Write the cell in the next column of the current line."""
+    _write(exporter, label, ExcelExporter.styles[style_name], rows, cols )
+    exporter.col += 1
+
+def _write(exporter, label, style, rows, cols):
+    if rows > 1 or cols > 1:
+        exporter.sheet.write_merge(exporter.row, exporter.row+rows-1, exporter.col, exporter.col+cols-1, label, style)
+        exporter.col += cols - 1
+    else:
+        exporter.sheet.write(exporter.row, exporter.col, label, style)
