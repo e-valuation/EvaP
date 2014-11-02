@@ -48,7 +48,7 @@ def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     try:
         tab = int(request.GET.get('tab', '1'))
-    except Exception:
+    except ValueError:
         tab = 1
 
     rewards_active = is_semester_activated(semester)
@@ -101,7 +101,7 @@ def semester_delete(request, semester_id):
             return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
     else:
         messages.error(request, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
-        return redirect('fsr_root')
+        return redirect('evap.fsr.views.semester_view', semester.id)
 
 
 @fsr_required
@@ -254,8 +254,7 @@ def semester_lottery(request, semester_id):
             if not courses.exclude(voters=user).exists():
                 eligible.append(user)
 
-        winners = random.sample(eligible,
-                                min([form.cleaned_data['number_of_winners'], len(eligible)]))
+        winners = random.sample(eligible, min([form.cleaned_data['number_of_winners'], len(eligible)]))
     else:
         eligible = None
         winners = None
@@ -425,7 +424,7 @@ def course_comments(request, semester_id, course_id):
 
     textanswers_by_question = []
     for question_id in textanswers.values_list("question", flat=True).distinct():
-        textanswers_by_question.append((get_object_or_404(Question, id=question_id), textanswers.filter(question=question_id)))
+        textanswers_by_question.append((Question.objects.get(id=question_id), textanswers.filter(question=question_id)))
 
     return render_to_response("fsr_course_comments.html", dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question), context_instance=RequestContext(request))
 

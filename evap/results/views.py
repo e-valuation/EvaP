@@ -63,10 +63,10 @@ def course_detail(request, semester_id, course_id):
 
     # staff can see preview of results even when course is not published
     if request.user.is_staff:
-        course = get_object_or_404(semester.course_set.filter(state__in=['inEvaluation', 'evaluated', 'reviewed', 'published']), id=course_id)
+        course = get_object_or_404(semester.course_set, state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'], id=course_id)
     # everyone else can only see published results
     else:
-        course = get_object_or_404(semester.course_set.filter(state="published"), id=course_id)
+        course = get_object_or_404(semester.course_set, state="published", id=course_id)
 
     sections = calculate_results(course, request.user.is_staff)
 

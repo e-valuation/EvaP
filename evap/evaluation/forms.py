@@ -191,6 +191,7 @@ class BootstrapFieldset(object):
         return u'<fieldset>%s%s</fieldset>' % (self.legend_html, form.render_fields(self.fields), )
 
 
+# taken from https://github.com/earle/django-bootstrap/blob/master/bootstrap/forms.py
 class BootstrapMixin(object):
     """"""
 

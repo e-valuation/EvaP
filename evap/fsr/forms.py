@@ -140,7 +140,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
         recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
-        return len([user for user in recipients if not user.email]) > 0
+        return len([user for user in recipients if not user.email])
 
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
@@ -284,6 +284,9 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         for kind in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
 
+    # overwritten because of https://code.djangoproject.com/ticket/12645
+    # users can specify the field name (it's a course type), and include e.g. umlauts there
+    # might be fixed in python 3
     def _clean_fields(self):
         for name, field in self.fields.items():
             # value_from_datadict() gets the data from the data dictionaries.
@@ -310,14 +313,14 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, degree, queryset, filter_func, *args, **kwargs):
+    def __init__(self, degree, courses, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
         self.degree = degree
-        self.queryset = queryset
+        self.courses = courses
         self.selected_courses = []
         self.filter_func = filter_func or (lambda x: True)
 
-        for course in self.queryset:
+        for course in self.courses:
             if self.filter_func(course):
                 label = course.name + " (" + course.kind + ")" + " (" + course.state + ")"
                 self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
