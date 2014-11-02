@@ -224,7 +224,7 @@ def semester_contributor_ready(request, semester_id):
         selected_courses = []
         for form in forms:
             for course in form.selected_courses:
-                course.ready_for_contributors(False)
+                course.ready_for_contributors()
                 course.save()
                 selected_courses.append(course)
 
@@ -396,17 +396,6 @@ def course_email(request, semester_id, course_id):
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, course=course, form=form), context_instance=RequestContext(request))
-
-
-@fsr_required
-def course_contributor_ready(request, semester_id, course_id):
-    get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-
-    course.ready_for_contributors()
-    course.save()
-
-    return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
 
 
 @fsr_required

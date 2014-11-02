@@ -278,16 +278,11 @@ class QuestionForm(forms.ModelForm):
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
-        extras = kwargs.pop('extras', ())
         super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
 
         # course kinds
         for kind in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-
-        # extra kinds
-        for extra in extras:
-            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
 
     def _clean_fields(self):
         for name, field in self.fields.items():
