@@ -84,12 +84,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for action in reward_point_actions %}
+                        {% for action_time, event_name, granting_value, redemption_value in reward_point_actions %}
                             <tr>
-                                <td>{{ action.0 }}</td>
-                                <td>{{ action.1 }}</td>
-                                <td class="text-right">{{ action.2 }}</td>
-                                <td class="text-right">{{ action.3 }}</td>
+                                <td>{{ action_time }}</td>
+                                <td>{{ event_name }}</td>
+                                <td class="text-right">{{ granting_value }}</td>
+                                <td class="text-right">{{ redemption_value }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
