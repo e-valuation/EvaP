@@ -1,9 +1,11 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
 from django.test import Client
+from django.forms.models import inlineformset_factory
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer
+from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, ContributorFormSet, ContributionForm
 
 import os.path
 
@@ -230,6 +232,7 @@ class URLTests(WebTest):
             # fsr semester
             ("test_fsr_semester_create", "/fsr/semester/create", "evap"),
             ("test_fsr_semester_x", "/fsr/semester/1", "evap"),
+            ("test_fsr_semester_x", "/fsr/semester/1?tab=asdf", "evap"),
             ("test_fsr_semester_x_edit", "/fsr/semester/1/edit", "evap"),
             ("test_fsr_semester_x_delete", "/fsr/semester/1/delete", "evap"),
             ("test_fsr_semester_x_course_create", "/fsr/semester/1/course/create", "evap"),
@@ -241,7 +244,7 @@ class URLTests(WebTest):
             ("test_fsr_semester_x_approve", "/fsr/semester/1/approve", "evap"),
             ("test_fsr_semester_x_publish", "/fsr/semester/1/publish", "evap"),
             # fsr semester course
-            ("test_fsr_semester_x_course_y_edit", "/fsr/semester/1/course/1/edit", "evap"),
+            ("test_fsr_semester_x_course_y_edit", "/fsr/semester/1/course/5/edit", "evap"),
             ("test_fsr_semester_x_course_y_email", "/fsr/semester/1/course/1/email", "evap"),
             ("test_fsr_semester_x_course_y_preview", "/fsr/semester/1/course/1/preview", "evap"),
             ("test_fsr_semester_x_course_y_comments", "/fsr/semester/1/course/5/comments", "evap"),
@@ -293,7 +296,7 @@ class URLTests(WebTest):
             ("/fsr/semester/1/course/1/email", "evap"),
             ("/fsr/questionnaire/2/copy", "evap"),
             ("/fsr/questionnaire/create", "evap"),
-            # ("/fsr/user/create", "evap"), # disabled, see issue #403
+            ("/fsr/user/create", "evap"),
         ]
         for form in forms:
             self.get_submit_assert_200(form[0], form[1])
@@ -363,3 +366,77 @@ class URLTests(WebTest):
 
     def test_contributor_profile(self):
         self.get_submit_assert_302("/contributor/profile", "responsible")
+
+    def test_course_email_form(self):
+        course = Course.objects.first()
+        data = {"body": "wat", "subject": "some subject", "sendToDueParticipants": True}
+        form = CourseEmailForm(instance=course, data=data)
+        self.assertTrue(form.is_valid())
+        form.all_recepients_reachable()
+        form.send()
+
+        data = {"body": "wat", "subject": "some subject"}
+        form = CourseEmailForm(instance=course, data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_user_form(self):
+        userprofile = UserProfile.objects.get(pk=1)
+        another_userprofile = UserProfile.objects.get(pk=2)
+        data = {"username": "mklqoep50x2", "email": "a@b.ce"}
+        form = UserForm(instance=userprofile, data=data)
+        self.assertTrue(form.is_valid())
+
+
+        data = {"username": another_userprofile.user.username, "email": "a@b.c"}
+        form = UserForm(instance=userprofile, data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_course_selection_form(self):
+        course1 = Course.objects.get(pk=1)
+        course2 = Course.objects.get(pk=2)
+        data = {"1": True, "2": False}
+        form = SelectCourseForm(course1.degree, [course1, course2], None, data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_review_text_answer_form(self):
+        textanswer = TextAnswer.objects.get(pk=1)
+        data = dict(edited_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
+        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
+        data = dict(edited_answer="edited answer", needs_further_review=False, hidden=False)
+        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
+        data = dict(edited_answer="edited answer", needs_further_review=True, hidden=True)
+        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
+
+    def test_contributor_form_set(self):
+        course = Course.objects.create(pk=9001, semester_id=1)
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        
+        data = {
+            'contributions-TOTAL_FORMS': 1,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': 9001,
+            #'contributions-0-id': "",
+            'contributions-0-questionnaires': [1],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            #'contributions-0-DELETE': "",
+            #'contributions-0-can_edit': "on",
+        } # no contributor and no responsible
+        self.assertFalse(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        # valid
+        data['contributions-0-contributor'] = 1
+        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        # duplicate contributor
+        data['contributions-TOTAL_FORMS'] = 2
+        data['contributions-1-contributor'] = 1
+        data['contributions-1-course'] = 9001
+        data['contributions-1-questionnaires'] = [1]
+        data['contributions-1-order'] = 1
+        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+        # two responsibles
+        data['contributions-1-contributor'] = 2
+        data['contributions-1-responsible'] = "on"
+        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+
