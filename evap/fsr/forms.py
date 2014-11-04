@@ -9,7 +9,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate
+                                   EmailTemplate, TextAnswer
 from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
 
@@ -161,6 +161,7 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         fields = ('edited_answer', 'needs_further_review')
+        model = TextAnswer
 
     def __init__(self, *args, **kwargs):
         super(ReviewTextAnswerForm, self).__init__(*args, **kwargs)
