@@ -385,6 +385,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
 
     def _post_clean(self, *args, **kw):
+        if self._errors:
+            return
+            
         # first save the user, so that the profile gets created for sure
         self.instance.user.username = self.cleaned_data.get('username').strip().lower()
         self.instance.user.first_name = self.cleaned_data.get('first_name').strip()
