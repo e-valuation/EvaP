@@ -52,7 +52,7 @@ class Semester(models.Model):
     @property
     def can_fsr_delete(self):
         for course in self.course_set.all():
-            if not course.can_fsr_delete:
+            if not course.can_fsr_delete():
                 return False
         return True
 
