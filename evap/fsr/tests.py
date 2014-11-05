@@ -234,7 +234,7 @@ class URLTests(WebTest):
             ("test_fsr_semester_x", "/fsr/semester/1", "evap"),
             ("test_fsr_semester_x", "/fsr/semester/1?tab=asdf", "evap"),
             ("test_fsr_semester_x_edit", "/fsr/semester/1/edit", "evap"),
-            ("test_fsr_semester_x_delete", "/fsr/semester/1/delete", "evap"),
+            ("test_fsr_semester_x_delete", "/fsr/semester/2/delete", "evap"),
             ("test_fsr_semester_x_course_create", "/fsr/semester/1/course/create", "evap"),
             ("test_fsr_semester_x_import", "/fsr/semester/1/import", "evap"),
             ("test_fsr_semester_x_assign", "/fsr/semester/1/assign", "evap"),
@@ -307,7 +307,7 @@ class URLTests(WebTest):
         self.get_submit_assert_302("/fsr/semester/1/edit", "evap")
 
     def test_fsr_semester_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/delete", "evap")
+        self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
 
     def test_fsr_semester_x_assign__nodata_success(self):
         self.get_submit_assert_302("/fsr/semester/1/assign", "evap")
@@ -417,13 +417,11 @@ class URLTests(WebTest):
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-course': 9001,
-            #'contributions-0-id': "",
             'contributions-0-questionnaires': [1],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
-            #'contributions-0-DELETE': "",
-            #'contributions-0-can_edit': "on",
-        } # no contributor and no responsible
+        } 
+        # no contributor and no responsible
         self.assertFalse(ContributionFormset(instance=course, data=data.copy()).is_valid())
         # valid
         data['contributions-0-contributor'] = 1
@@ -440,3 +438,13 @@ class URLTests(WebTest):
         data['contributions-1-responsible'] = "on"
         self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
 
+    def test_semester_deletion(self):
+        self.assertFalse(Semester.objects.get(pk=1).can_fsr_delete)
+        self.client.login(username='evap', password='evap')
+        response = self.client.get("/fsr/semester/1/delete", follow=True)
+        self.assertTrue("cannot be deleted" in list(response.context['messages'])[0].message)
+        self.assertTrue(Semester.objects.filter(pk=1).exists())
+
+        self.assertTrue(Semester.objects.get(pk=2).can_fsr_delete)
+        self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
+        self.assertFalse(Semester.objects.filter(pk=2).exists())
