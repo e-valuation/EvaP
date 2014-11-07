@@ -210,6 +210,11 @@ class URLTests(WebTest):
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 
+    def get_assert_302(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
     def get_submit_assert_302(self, url, user):
         response = self.get_assert_200(url, user)
         response = response.forms[2].submit("")
@@ -221,7 +226,7 @@ class URLTests(WebTest):
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
 
     def test_all_urls(self):
-        urls = [
+        tests = [
             ("test_index", "/", ""),
             ("test_faq", "/faq", ""),
             # student pages
@@ -282,8 +287,22 @@ class URLTests(WebTest):
             ("test_contributor_course_x_preview", "/contributor/course/7/preview", "responsible"),
             ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
             ("test_contributor_profile", "/contributor/profile", "responsible")]
-        for test in urls:
-            self.get_assert_200(test[1], test[2])
+        for _, url, user in tests:
+            self.get_assert_200(url, user)
+
+    def test_redirecting_urls(self):
+        tests = [
+            ("test_fsr_semester_x_course_y_edit_fail", "/fsr/semester/1/course/8/edit", "evap"), 
+            ("test_fsr_semester_x_course_y_delete_fail", "/fsr/semester/1/course/8/delete", "evap"), 
+            ("test_fsr_semester_x_course_y_review_fail", "/fsr/semester/1/course/8/review", "evap"), 
+            ("test_fsr_semester_x_course_y_unpublish_fail", "/fsr/semester/1/course/7/unpublish", "evap"), 
+            ("test_fsr_questionnaire_x_edit_fail", "/fsr/questionnaire/4/edit", "evap"),
+            ("test_fsr_user_x_delete_fail", "/fsr/user/2/delete", "evap"),
+            ("test_fsr_semester_x_delete_fail", "/fsr/semester/1/delete", "evap"),
+        ]
+
+        for _, url, user in tests:
+            self.get_assert_302(url, user)
 
 
     # tests of forms that fail without entering any data
@@ -448,3 +467,31 @@ class URLTests(WebTest):
         self.assertTrue(Semester.objects.get(pk=2).can_fsr_delete)
         self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
         self.assertFalse(Semester.objects.filter(pk=2).exists())
+
+    def test_semester_publish(self):
+        page = self.app.get("/fsr/semester/1/publish", user="evap")
+        form = lastform(page)
+        form["7"] = "on"
+        response = form.submit()
+        self.assertTrue("Successfully" in str(response))
+
+    def helper_semester_state_views(self, url, course_ids, old_states, new_state):
+        page = self.app.get(url, user="evap")
+        form = lastform(page)
+        for course_id in course_ids:
+            self.assertTrue(Course.objects.get(pk=course_id).state in old_states)
+            form[str(course_id)] = "on"
+        response = form.submit()
+        # TODO: form contains no other options. turn course_ids into a list?
+        self.assertTrue("Successfully" in str(response))
+        for course_id in course_ids:
+            self.assertTrue(Course.objects.get(pk=course_id).state == new_state)
+
+    def test_semester_reset(self):
+        self.helper_semester_state_views("/fsr/semester/1/reset", [2], ["prepared"], "new")
+
+    def test_semester_approve(self):
+        self.helper_semester_state_views("/fsr/semester/1/approve", [1,2,3], ["new", "prepared", "lecturerApproved"], "approved")
+
+    def test_semester_contributor_ready(self):
+        self.helper_semester_state_views("/fsr/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
