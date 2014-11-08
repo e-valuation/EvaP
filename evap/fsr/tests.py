@@ -217,6 +217,12 @@ class URLTests(WebTest):
         self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
     def get_submit_assert_302(self, url, user):
         response = self.get_assert_200(url, user)
         response = response.forms[2].submit("")
@@ -291,6 +297,12 @@ class URLTests(WebTest):
             ("test_contributor_profile", "/contributor/profile", "responsible")]
         for _, url, user in tests:
             self.get_assert_200(url, user)
+
+    def test_permission_denied(self):
+        self.get_assert_403("/contributor/course/7", "editor_of_course_1")
+        self.get_assert_403("/contributor/course/7/preview", "editor_of_course_1")
+        self.get_assert_403("/contributor/course/2/edit", "editor_of_course_1")
+        self.get_assert_403("/student/vote/5", "student")
 
     def test_redirecting_urls(self):
         tests = [

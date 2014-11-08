@@ -657,6 +657,24 @@
   }
 },
 {
+  "pk": 9, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "editor_of_course_1", 
+    "first_name": "can only edit course 1", 
+    "last_name": "user", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-09-16T23:01:00.878", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=", 
+    "email": "lazy.student@example.com", 
+    "date_joined": "2014-09-16T23:01:00.878"
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.userprofile", 
   "fields": {
@@ -761,6 +779,19 @@
     "delegates": [], 
     "login_key_valid_until": null, 
     "user": 8, 
+    "login_key": null
+  }
+},
+{
+  "pk": 9, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": null, 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": null, 
+    "user": 9, 
     "login_key": null
   }
 },
@@ -1178,6 +1209,19 @@
       1
     ], 
     "can_edit": false
+  }
+},
+{
+  "pk": 33, 
+  "model": "evaluation.contribution", 
+  "fields": {
+    "contributor": 9, 
+    "course": 1, 
+    "responsible": false, 
+    "questionnaires": [
+      1
+    ], 
+    "can_edit": true
   }
 },
 {
