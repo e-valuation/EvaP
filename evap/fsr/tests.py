@@ -2,10 +2,12 @@ from django.core.urlresolvers import reverse
 from django_webtest import WebTest
 from django.test import Client
 from django.forms.models import inlineformset_factory
+from django.core import mail
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer
-from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, ContributorFormSet, ContributionForm
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
+from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
+                            ContributorFormSet, ContributionForm, CourseForm
 
 import os.path
 
@@ -468,13 +470,6 @@ class URLTests(WebTest):
         self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
-    def test_semester_publish(self):
-        page = self.app.get("/fsr/semester/1/publish", user="evap")
-        form = lastform(page)
-        form["7"] = "on"
-        response = form.submit()
-        self.assertTrue("Successfully" in str(response))
-
     def helper_semester_state_views(self, url, course_ids, old_states, new_state):
         page = self.app.get(url, user="evap")
         form = lastform(page)
@@ -482,10 +477,12 @@ class URLTests(WebTest):
             self.assertTrue(Course.objects.get(pk=course_id).state in old_states)
             form[str(course_id)] = "on"
         response = form.submit()
-        # TODO: form contains no other options. turn course_ids into a list?
         self.assertTrue("Successfully" in str(response))
         for course_id in course_ids:
             self.assertTrue(Course.objects.get(pk=course_id).state == new_state)
+
+    def test_semester_publish(self):
+        self.helper_semester_state_views("/fsr/semester/1/publish", [7], ["reviewed"], "published")
 
     def test_semester_reset(self):
         self.helper_semester_state_views("/fsr/semester/1/reset", [2], ["prepared"], "new")
@@ -495,3 +492,111 @@ class URLTests(WebTest):
 
     def test_semester_contributor_ready(self):
         self.helper_semester_state_views("/fsr/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
+
+    def test_course_create(self):
+        #userprofile = UserProfile.objects.get(pk=1)
+        #another_userprofile = UserProfile.objects.get(pk=2)
+        data = dict(name_de="asdf", name_en="asdf", kind="asdf", degree="asd",
+                    vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
+        response = self.get_assert_200("/fsr/semester/1/course/create", "evap")
+        form = lastform(response)
+        form["name_de"] = "lfo9e7bmxp1xi"
+        form["name_en"] = "asdf"
+        form["kind"] = "a type"
+        form["degree"] = "a degree"
+        form["vote_start_date"] = "02/1/2099"
+        form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
+        form["general_questions"] = ["2"]
+
+        form['contributions-TOTAL_FORMS'] = 1
+        form['contributions-INITIAL_FORMS'] = 0
+        form['contributions-MAX_NUM_FORMS'] = 5
+        form['contributions-0-course'] = ''
+        form['contributions-0-contributor'] = 6
+        form['contributions-0-questionnaires'] = [1]
+        form['contributions-0-order'] = 0
+        form['contributions-0-responsible'] = "on"
+
+        form.submit()
+        self.assertFalse(Course.objects.order_by("pk").last().name_de == "lfo9e7bmxp1xi")
+
+        form["vote_start_date"] = "02/1/2014"
+        form["vote_end_date"] = "02/1/2099" # now do it right
+
+        form.submit()
+        self.assertTrue(Course.objects.order_by("pk").last().name_de == "lfo9e7bmxp1xi")
+
+    def test_course_review(self):
+        self.get_assert_302("/fsr/semester/1/course/4/review", user="evap")
+        self.assertTrue(Course.objects.get(pk=6).state == "evaluated")
+
+        page = self.get_assert_200("/fsr/semester/1/course/6/review", user="evap")
+        # enable this when buttons of the page are clarified
+        #form = lastform(page)
+        #form["form-0-needs_further_review"] = "on"
+        #form["form-1-needs_further_review"] = "on"
+        #page = form.submit(name="operation", value="save_and_next").follow()
+
+        form = lastform(page)
+        form["form-0-hidden"] = "on"
+        form["form-1-needs_further_review"] = "on"
+        # Actually this is not guaranteed, but i'll just guarantee it now for this test.
+        self.assertEqual(form["form-0-id"].value, "5")
+        self.assertEqual(form["form-1-id"].value, "8")
+        page = form.submit(name="operation", value="save_and_next").follow()
+
+        form = lastform(page)
+        form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
+        page = form.submit()
+
+        self.assertEqual(TextAnswer.objects.get(pk=5).hidden, True)
+        self.assertEqual(TextAnswer.objects.get(pk=5).reviewed_answer, "")
+        self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
+        self.assertTrue(Course.objects.get(pk=6).state == "reviewed")
+        
+        self.get_assert_302("/fsr/semester/1/course/6/review", user="evap")
+
+    def test_course_email(self):
+        page = self.get_assert_200("/fsr/semester/1/course/5/email", user="evap")
+        form = lastform(page)
+        form["subject"] = "asdf"
+        form["body"] = "asdf"
+        form.submit()
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_questionnaire_deletion(self):
+        self.assertFalse(Questionnaire.objects.get(pk=2).can_fsr_delete)
+        self.client.login(username='evap', password='evap')
+        page = self.client.get("/fsr/questionnaire/2/delete", follow=True)
+        self.assertTrue("cannot be deleted" in list(page.context['messages'])[0].message)
+        self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
+
+        self.assertTrue(Questionnaire.objects.get(pk=3).can_fsr_delete)
+        self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap")
+        self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
+
+    def test_create_user(self):
+        page = self.get_assert_200("/fsr/user/create", "evap")
+        form = lastform(page)
+        form["username"] = "mflkd862xmnbo5"
+        form["first_name"] = "asd"
+        form["last_name"] = "asd"
+        form["email"] = "a@b.de"
+
+        form.submit()
+
+        self.assertTrue(User.objects.order_by("pk").last().username == "mflkd862xmnbo5")
+
+    def test_emailtemplate(self):
+        page = self.get_assert_200("/fsr/template/1", "evap")
+        form = lastform(page)
+        form["subject"] = "subject: mflkd862xmnbo5"
+        form["body"] = "body: mflkd862xmnbo5"
+        response = form.submit()
+
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+        form["body"] = " invalid tag: {{}}"
+        response = form.submit()
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
