@@ -393,10 +393,6 @@ class URLTests(WebTest):
     def test_fsr_faq_x__nodata_success(self):
         self.get_submit_assert_302("/fsr/faq/1", "evap")
 
-    # disabled, crashes for unknown reasons
-    #def test_contributor_course_x_edit(self):
-    #    self.get_submit_assert_302("/contributor/course/2/edit", "responsible"),
-
     def test_contributor_profile(self):
         self.get_submit_assert_302("/contributor/profile", "responsible")
 
@@ -612,3 +608,29 @@ class URLTests(WebTest):
         form["body"] = " invalid tag: {{}}"
         response = form.submit()
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+    def test_contributor_course_edit(self):
+        page = self.get_assert_200("/contributor/course/2/edit", user="responsible")
+        form = lastform(page)
+
+        form.submit(name="operation", value="save")
+        self.assertEqual(Course.objects.get(pk=2).state, "prepared")
+
+        form.submit(name="operation", value="approve")
+        self.assertEqual(Course.objects.get(pk=2).state, "lecturerApproved")
+
+    def test_student_vote(self):
+        page = self.get_assert_200("/student/vote/5", user="lazy.student")
+        form = lastform(page)
+        form["question_17_2_3"] = "some text"
+        form["question_17_2_4"] = 1
+        form["question_17_2_5"] = 6
+        form["question_18_1_1"] = "some other text"
+        form["question_18_1_2"] = 1
+        form["question_19_1_1"] = "some more text"
+        form["question_19_1_2"] = 1
+        form["question_20_1_1"] = "and the last text"
+        form["question_20_1_2"] = 1
+        response = form.submit()
+
+        self.get_assert_403("/student/vote/5", user="lazy.student")
