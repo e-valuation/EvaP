@@ -155,36 +155,36 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
-    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
+    reviewed_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
     hidden = forms.BooleanField(label=_("Do not publish"), required=False)
 
     class Meta:
-        fields = ('edited_answer', 'needs_further_review')
+        fields = ('reviewed_answer', 'needs_further_review')
         model = TextAnswer
 
     def __init__(self, *args, **kwargs):
         super(ReviewTextAnswerForm, self).__init__(*args, **kwargs)
 
-        self.fields['edited_answer'].initial = self.instance.answer
+        self.fields['reviewed_answer'].initial = self.instance.answer
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        edited_answer = cleaned_data.get("edited_answer") or ""
+        reviewed_answer = cleaned_data.get("reviewed_answer") or ""
         needs_further_review = cleaned_data.get("needs_further_review")
         hidden = cleaned_data.get("hidden")
 
-        if not edited_answer.strip() or hidden:
+        if not reviewed_answer.strip() or hidden:
             # hidden
             self.instance.checked = True
             self.instance.hidden = True
-        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(edited_answer):
+        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(reviewed_answer):
             # simply approved
             self.instance.checked = True
         else:
             # reviewed
             self.instance.checked = True
-            self.instance.reviewed_answer = edited_answer
+            self.instance.reviewed_answer = reviewed_answer
 
         if needs_further_review:
             self.instance.checked = False

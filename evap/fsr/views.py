@@ -30,6 +30,10 @@ import random
 from datetime import datetime
 
 
+def get_tab(request):
+    return request.GET.get('tab', '1')
+
+
 @fsr_required
 def index(request):
     semesters = Semester.objects.all()
@@ -47,7 +51,7 @@ def index(request):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     try:
-        tab = int(request.GET.get('tab', '1'))
+        tab = int(get_tab(request))
     except ValueError:
         tab = 1
 
@@ -300,7 +304,7 @@ def course_edit(request, semester_id, course_id):
         formset.save()
 
         messages.info(request, _("Successfully updated course."))
-        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
         return render_to_response("fsr_course_form.html", dict(semester=semester, course=course, form=form, formset=formset), context_instance=RequestContext(request))
 
@@ -317,7 +321,7 @@ def course_delete(request, semester_id, course_id):
 
     if request.method == 'POST':
         course.delete()
-        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
         return render_to_response("fsr_course_delete.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
 
@@ -366,15 +370,15 @@ def course_review(request, semester_id, course_id, offset=None):
             messages.info(request, _("Successfully reviewed {count} course answers for {course}. {course} is now fully reviewed.").format(count=count, course=course.name))
             course.review_finished()
             course.save()
-            return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+            return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
         else:
             messages.info(request, _("Successfully reviewed {count} course answers for {course}.").format(count=count, course=course.name))
             operation = request.POST.get('operation')
 
             if operation == 'save_and_next' and not course.is_fully_checked():
-                return custom_redirect('evap.fsr.views.course_review', semester_id, course_id, tab=request.GET.get('tab', '1'))
+                return custom_redirect('evap.fsr.views.course_review', semester_id, course_id, tab=get_tab(request))
             else:
-                return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+                return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
         return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer), context_instance=RequestContext(request))
 
@@ -392,7 +396,7 @@ def course_email(request, semester_id, course_id):
             messages.info(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
             messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
-        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
         return render_to_response("fsr_course_email.html", dict(semester=semester, course=course, form=form), context_instance=RequestContext(request))
 
@@ -405,12 +409,12 @@ def course_unpublish(request, semester_id, course_id):
     # check course state
     if not course.state == "published":
         messages.error(request, _("The course '%s' cannot be unpublished, because it is not published.") % course.name)
-        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
 
     if request.method == 'POST':
         course.revoke()
         course.save()
-        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=request.GET.get('tab', '1'))
+        return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
         return render_to_response("fsr_course_unpublish.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
 
