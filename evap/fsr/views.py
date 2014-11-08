@@ -247,7 +247,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in User.objects.all():
-            courses = user.course_set.filter(semester=semester)
+            courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not enrolled in any course in this semester
                 continue
