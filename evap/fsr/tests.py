@@ -288,6 +288,8 @@ class URLTests(WebTest):
             ("test_results", "/results/", "evap"),
             ("test_results_semester_x", "/results/semester/1", "evap"),
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "evap"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "contributor"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "responsible"),
             ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
             # contributor
             ("test_contributor", "/contributor/", "responsible"),
@@ -298,11 +300,14 @@ class URLTests(WebTest):
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
+
     def test_permission_denied(self):
         self.get_assert_403("/contributor/course/7", "editor_of_course_1")
         self.get_assert_403("/contributor/course/7/preview", "editor_of_course_1")
         self.get_assert_403("/contributor/course/2/edit", "editor_of_course_1")
         self.get_assert_403("/student/vote/5", "student")
+        self.get_assert_403("/results/semester/1/course/8", "student"),
+        self.get_assert_403("/results/semester/1/course/7", "student"),
 
     def test_redirecting_urls(self):
         tests = [
