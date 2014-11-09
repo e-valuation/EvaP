@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.utils.translation import get_language
@@ -60,13 +61,10 @@ def semester_export(request, semester_id):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(semester.course_set, id=course_id)
 
-    # staff can see preview of results even when course is not published
-    if request.user.is_staff:
-        course = get_object_or_404(semester.course_set, state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'], id=course_id)
-    # everyone else can only see published results
-    else:
-        course = get_object_or_404(semester.course_set, state="published", id=course_id)
+    if not course.can_user_see_results(request.user):
+        raise PermissionDenied
 
     sections = calculate_results(course, request.user.is_staff)
 
