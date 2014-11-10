@@ -52,7 +52,7 @@ class Semester(models.Model):
     @property
     def can_fsr_delete(self):
         for course in self.course_set.all():
-            if not course.can_fsr_delete:
+            if not course.can_fsr_delete():
                 return False
         return True
 
@@ -195,9 +195,8 @@ class Course(models.Model):
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
-    def ready_for_contributors(self, send_mail=True):
-        if send_mail:
-            EmailTemplate.get_review_template().send_to_users_in_courses([self], ['editors'])
+    def ready_for_contributors(self):
+        pass
 
     @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):

@@ -93,7 +93,7 @@ def course_edit(request, course_id):
         if operation not in ('save', 'approve'):
             raise PermissionDenied
 
-        form.save(user=request.user)
+        form.save(user=user)
         formset.save()
 
         if operation == 'approve':
@@ -111,7 +111,12 @@ def course_edit(request, course_id):
 
 @editor_or_delegate_required
 def course_preview(request, course_id):
+    user = request.user
     course = get_object_or_404(Course, id=course_id)
+
+    # check rights
+    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
+        raise PermissionDenied
 
     # build forms
     forms = OrderedDict()

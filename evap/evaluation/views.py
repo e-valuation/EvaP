@@ -61,6 +61,9 @@ def index(request):
             elif redirect_to.startswith("/contributor/"):
                 if userprofile.is_contributor:
                     return redirect(redirect_to)
+            elif redirect_to.startswith("/student/"):
+                if userprofile.enrolled_in_courses:
+                    return redirect(redirect_to)
             else:
                 return redirect(redirect_to)
 
@@ -69,8 +72,10 @@ def index(request):
             return redirect('evap.fsr.views.index')
         elif userprofile.is_editor_or_delegate:
             return redirect('evap.contributor.views.index')
-        else:
+        elif userprofile.enrolled_in_courses:
             return redirect('evap.student.views.index')
+        else:
+            return redirect('evap.results.views.index')
 
 
 def faq(request):
