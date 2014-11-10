@@ -476,7 +476,7 @@ class URLTests(WebTest):
         self.assertFalse(Semester.objects.get(pk=1).can_fsr_delete)
         self.client.login(username='evap', password='evap')
         response = self.client.get("/fsr/semester/1/delete", follow=True)
-        self.assertTrue("cannot be deleted" in list(response.context['messages'])[0].message)
+        self.assertIn("cannot be deleted", list(response.context['messages'])[0].message)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
         self.assertTrue(Semester.objects.get(pk=2).can_fsr_delete)
@@ -487,12 +487,12 @@ class URLTests(WebTest):
         page = self.app.get(url, user="evap")
         form = lastform(page)
         for course_id in course_ids:
-            self.assertTrue(Course.objects.get(pk=course_id).state in old_states)
+            self.assertIn(Course.objects.get(pk=course_id).state, old_states)
             form[str(course_id)] = "on"
         response = form.submit()
-        self.assertTrue("Successfully" in str(response))
+        self.assertIn("Successfully", str(response))
         for course_id in course_ids:
-            self.assertTrue(Course.objects.get(pk=course_id).state == new_state)
+            self.assertEqual(Course.objects.get(pk=course_id).state,  new_state)
 
     def test_semester_publish(self):
         self.helper_semester_state_views("/fsr/semester/1/publish", [7], ["reviewed"], "published")
@@ -531,17 +531,17 @@ class URLTests(WebTest):
         form['contributions-0-responsible'] = "on"
 
         form.submit()
-        self.assertFalse(Course.objects.order_by("pk").last().name_de == "lfo9e7bmxp1xi")
+        self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
 
         form["vote_start_date"] = "02/1/2014"
         form["vote_end_date"] = "02/1/2099" # now do it right
 
         form.submit()
-        self.assertTrue(Course.objects.order_by("pk").last().name_de == "lfo9e7bmxp1xi")
+        self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
 
     def test_course_review(self):
         self.get_assert_302("/fsr/semester/1/course/4/review", user="evap")
-        self.assertTrue(Course.objects.get(pk=6).state == "evaluated")
+        self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
 
         page = self.get_assert_200("/fsr/semester/1/course/6/review", user="evap")
         # enable this when buttons of the page are clarified
@@ -565,7 +565,7 @@ class URLTests(WebTest):
         self.assertEqual(TextAnswer.objects.get(pk=5).hidden, True)
         self.assertEqual(TextAnswer.objects.get(pk=5).reviewed_answer, "")
         self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
-        self.assertTrue(Course.objects.get(pk=6).state == "reviewed")
+        self.assertEqual(Course.objects.get(pk=6).state, "reviewed")
         
         self.get_assert_302("/fsr/semester/1/course/6/review", user="evap")
 
@@ -582,7 +582,7 @@ class URLTests(WebTest):
         self.assertFalse(Questionnaire.objects.get(pk=2).can_fsr_delete)
         self.client.login(username='evap', password='evap')
         page = self.client.get("/fsr/questionnaire/2/delete", follow=True)
-        self.assertTrue("cannot be deleted" in list(page.context['messages'])[0].message)
+        self.assertIn("cannot be deleted", list(page.context['messages'])[0].message)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=3).can_fsr_delete)
@@ -599,7 +599,7 @@ class URLTests(WebTest):
 
         form.submit()
 
-        self.assertTrue(User.objects.order_by("pk").last().username == "mflkd862xmnbo5")
+        self.assertEqual(User.objects.order_by("pk").last().username, "mflkd862xmnbo5")
 
     def test_emailtemplate(self):
         page = self.get_assert_200("/fsr/template/1", "evap")
