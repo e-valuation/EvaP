@@ -100,6 +100,7 @@ def semester_delete(request, semester_id):
     if semester.can_fsr_delete:
         if request.method == 'POST':
             semester.delete()
+            messages.info(request, _("Successfully deleted semester."))
             return redirect('fsr_root')
         else:
             return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
@@ -321,6 +322,7 @@ def course_delete(request, semester_id, course_id):
 
     if request.method == 'POST':
         course.delete()
+        messages.info(request, _("Successfully deleted course."))
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
         return render_to_response("fsr_course_delete.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
@@ -539,6 +541,7 @@ def questionnaire_delete(request, questionnaire_id):
     if questionnaire.can_fsr_delete:
         if request.method == 'POST':
             questionnaire.delete()
+            messages.info(request, _("Successfully deleted questionnaire."))
             return redirect('evap.fsr.views.questionnaire_index')
         else:
             return render_to_response("fsr_questionnaire_delete.html", dict(questionnaire=questionnaire), context_instance=RequestContext(request))
@@ -599,6 +602,7 @@ def user_delete(request, user_id):
     if UserProfile.get_for_user(user).can_fsr_delete:
         if request.method == 'POST':
             user.delete()
+            messages.info(request, _("Successfully deleted user."))
             return redirect('evap.fsr.views.user_index')
         else:
             return render_to_response("fsr_user_delete.html", dict(user_to_delete=user), context_instance=RequestContext(request))
