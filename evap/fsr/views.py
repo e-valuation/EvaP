@@ -601,7 +601,7 @@ def user_delete(request, user_id):
             user.delete()
             return redirect('evap.fsr.views.user_index')
         else:
-            return render_to_response("fsr_user_delete.html", dict(user=user), context_instance=RequestContext(request))
+            return render_to_response("fsr_user_delete.html", dict(user_to_delete=user), context_instance=RequestContext(request))
     else:
         messages.error(request, _("The user '%s' cannot be deleted, because he lectures courses.") % UserProfile.get_for_user(user).full_name)
         return redirect('evap.fsr.views.user_index')
