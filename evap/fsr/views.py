@@ -636,7 +636,7 @@ def faq_index(request):
         formset.save()
 
         messages.info(request, _("Successfully updated the FAQ sections."))
-        return custom_redirect('evap.fsr.views.index')
+        return custom_redirect('evap.fsr.views.faq_index')
     else:
         return render_to_response("fsr_faq_index.html", dict(formset=formset, sections=sections), context_instance=RequestContext(request))
 
@@ -653,7 +653,7 @@ def faq_section(request, section_id):
         formset.save()
 
         messages.info(request, _("Successfully updated the FAQ questions."))
-        return custom_redirect('evap.fsr.views.index')
+        return custom_redirect('evap.fsr.views.faq_index')
     else:
         return render_to_response("fsr_faq_section.html", dict(formset=formset, section=section, questions=questions), context_instance=RequestContext(request))
 
