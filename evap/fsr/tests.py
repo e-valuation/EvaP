@@ -78,7 +78,7 @@ class UsecaseTests(WebTest):
 
         check_student = User.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
-        self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
+        self.assertEqual(check_student.email, "")
 
         check_contributor = User.objects.get(username="sanctus.aliquyam")
         self.assertEqual(check_contributor.first_name, "")
