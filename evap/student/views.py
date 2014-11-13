@@ -83,5 +83,5 @@ def vote(request, course_id):
 
         course.was_evaluated(request)
 
-    messages.info(request, _("Your vote was recorded."))
+    messages.success(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

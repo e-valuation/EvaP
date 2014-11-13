@@ -30,7 +30,7 @@ def index(request):
         if save_redemptions(request, redemptions):
             messages.success(request, _("You successfully redeemed your points."))
         else:
-            messages.error(request, _("You don't have enough reward points."))            
+            messages.warning(request, _("You don't have enough reward points."))            
 
     total_points_available = reward_points_of_user(request.user.userprofile)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user.userprofile)
@@ -92,7 +92,7 @@ def reward_point_redemption_event_create(request):
 
     if form.is_valid():
         form.save()
-        messages.info(request, _("Successfully created event."))
+        messages.success(request, _("Successfully created event."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
     else:
         return render_to_response("rewards_reward_point_redemption_event_form.html", dict(form=form), context_instance=RequestContext(request))
@@ -106,7 +106,7 @@ def reward_point_redemption_event_edit(request, event_id):
     if form.is_valid():
         event = form.save()
 
-        messages.info(request, _("Successfully updated event."))
+        messages.success(request, _("Successfully updated event."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
     else:
         return render_to_response("rewards_reward_point_redemption_event_form.html", dict(event=event, form=form), context_instance=RequestContext(request))
@@ -123,7 +123,7 @@ def reward_point_redemption_event_delete(request, event_id):
         else:
             return render_to_response("rewards_reward_point_redemption_event_delete.html", dict(event=event), context_instance=RequestContext(request))
     else:
-        messages.error(request, _("This event cannot be deleted because some users already redeemed points for it."))
+        messages.warning(request, _("This event cannot be deleted because some users already redeemed points for it."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
 
 
