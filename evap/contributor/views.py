@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester, UserProfile
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
+from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 from evap.contributor.forms import CourseForm, UserForm
 from evap.fsr.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
@@ -118,22 +118,9 @@ def course_preview(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    form_groups = OrderedDict()
-    for contribution in course.contributions.all():
-        form_groups[contribution] = OrderedDict()
-        for questionnaire in contribution.questionnaires.all():
-            form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-            form_groups[contribution][questionnaire] = form
-
-    course_forms = form_groups[course.general_contribution].values()
-    contributor_questionnaires = []
-
-    for contribution, form_group in form_groups.items():
-        contributor = contribution.contributor
-        if contributor is None:
-            continue
-        user_profile = UserProfile.get_for_user(contributor)
-        contributor_questionnaires.append((user_profile, form_group.values()));
+    form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
+    course_forms = form_groups[course.general_contribution].values()    
+    contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
 
     return render_to_response(
         "student_vote.html",

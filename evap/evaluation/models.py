@@ -370,6 +370,10 @@ class Contribution(models.Model):
         if self.responsible:
             self.can_edit = True
 
+    @property
+    def is_general(self):
+        return self.contributor == None
+
 
 class Question(models.Model):
     """A question including a type."""

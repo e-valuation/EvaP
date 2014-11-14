@@ -100,7 +100,7 @@
         <div class="form-group well">
             <div class="col-sm-offset-3 col-sm-6">
                 {% if preview %}
-                    <input value="{% trans "Back" %}" class="btn btn-default" onclick="submitFormOkay = true; goBack()"/>
+                    <a class="btn btn-default" onclick="submitFormOkay = true" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
                 {% else %}
                     <input type="submit" value="{% trans "Vote" %}" class="btn btn-success" onclick="submitFormOkay = true;"/>
                 {% endif %}
@@ -116,10 +116,6 @@
         function markNoAnswerFor(contributorId) {
             $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").prop('checked', true);
             $("#" + contributorId).collapse('hide');
-        }
-
-        function goBack(){
-            window.history.back()
         }
     </script>
 {% endblock %}
