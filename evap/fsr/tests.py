@@ -227,11 +227,13 @@ class URLTests(WebTest):
         response = self.get_assert_200(url, user)
         response = response.forms[2].submit("")
         self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
 
     def get_submit_assert_200(self, url, user):
         response = self.get_assert_200(url, user)
         response = response.forms[2].submit("")
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
 
     def test_all_urls(self):
         """ This tests visits all URLs of evap and verifies they return a 200 for the specified user. """
@@ -294,10 +296,15 @@ class URLTests(WebTest):
             ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
             # contributor
             ("test_contributor", "/contributor/", "responsible"),
+            ("test_contributor", "/contributor/", "editor"),
             ("test_contributor_course_x", "/contributor/course/7", "responsible"),
+            ("test_contributor_course_x", "/contributor/course/7", "editor"),
             ("test_contributor_course_x_preview", "/contributor/course/7/preview", "responsible"),
+            ("test_contributor_course_x_preview", "/contributor/course/7/preview", "editor"),
             ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
-            ("test_contributor_profile", "/contributor/profile", "responsible")]
+            ("test_contributor_course_x_edit", "/contributor/course/2/edit", "editor"),
+            ("test_contributor_profile", "/contributor/profile", "responsible"),
+            ("test_contributor_profile", "/contributor/profile", "editor")]
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
@@ -328,25 +335,31 @@ class URLTests(WebTest):
 
 
     def test_failing_forms(self):
-        """ Tests whether forms that fail when submitting them 
-            without entering any data actually do that. """
+        """ Tests whether forms that fail because of missing required fields 
+            when submitting them without entering any data actually do that. """
         forms = [
             ("/student/vote/5", "lazy.student", "Vote"),
             ("/fsr/semester/create", "evap", "Save"),
             ("/fsr/semester/1/course/create", "evap"),
             ("/fsr/semester/1/import", "evap"),
             ("/fsr/semester/1/course/1/email", "evap"),
-            ("/fsr/questionnaire/2/copy", "evap"),
             ("/fsr/questionnaire/create", "evap"),
             ("/fsr/user/create", "evap"),
         ]
         for form in forms:
-            self.get_submit_assert_200(form[0], form[1])
+            response = self.get_submit_assert_200(form[0], form[1])
+            self.assertIn("is required", response)
 
+    def test_failing_questionnaire_copy(self):
+        """ Tests whether copying and submitting a questionnaire form wihtout entering a new name fails. """
+        response = self.get_submit_assert_200("/fsr/questionnaire/2/copy", "evap")
+        self.assertIn("already exists", response)
 
-    """ The following tests test whether forms that succeed when 
-        submitting them without entering any data actually do that.
-        They are in individual methods because most of them change the database. """
+    """ 
+    The following tests test whether forms that succeed when 
+    submitting them without entering any data actually do that.
+    They are in individual methods because most of them change the database. 
+    """
 
     def test_fsr_semester_x_edit__nodata_success(self):
         self.get_submit_assert_302("/fsr/semester/1/edit", "evap")
