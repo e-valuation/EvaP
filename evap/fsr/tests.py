@@ -234,6 +234,7 @@ class URLTests(WebTest):
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
 
     def test_all_urls(self):
+        """ This tests visits all URLs of evap and verifies they return a 200 for the specified user. """
         tests = [
             ("test_index", "/", ""),
             ("test_faq", "/faq", ""),
@@ -300,8 +301,8 @@ class URLTests(WebTest):
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
-
     def test_permission_denied(self):
+        """ Tests whether all the 403s Evap can throw are correctly thrown. """
         self.get_assert_403("/contributor/course/7", "editor_of_course_1")
         self.get_assert_403("/contributor/course/7/preview", "editor_of_course_1")
         self.get_assert_403("/contributor/course/2/edit", "editor_of_course_1")
@@ -310,6 +311,8 @@ class URLTests(WebTest):
         self.get_assert_403("/results/semester/1/course/7", "student"),
 
     def test_redirecting_urls(self):
+        """ Tests whether some pages that cannot be accessed (e.g. for courses in certain states)
+            do not return 200 but redirect somewhere else. """
         tests = [
             ("test_fsr_semester_x_course_y_edit_fail", "/fsr/semester/1/course/8/edit", "evap"), 
             ("test_fsr_semester_x_course_y_delete_fail", "/fsr/semester/1/course/8/delete", "evap"), 
@@ -324,8 +327,9 @@ class URLTests(WebTest):
             self.get_assert_302(url, user)
 
 
-    # tests of forms that fail without entering any data
     def test_failing_forms(self):
+        """ Tests whether forms that fail when submitting them 
+            without entering any data actually do that. """
         forms = [
             ("/student/vote/5", "lazy.student", "Vote"),
             ("/fsr/semester/create", "evap", "Save"),
@@ -340,7 +344,10 @@ class URLTests(WebTest):
             self.get_submit_assert_200(form[0], form[1])
 
 
-    # tests of forms that succeed without entering any data
+    """ The following tests test whether forms that succeed when 
+        submitting them without entering any data actually do that.
+        They are in individual methods because most of them change the database. """
+
     def test_fsr_semester_x_edit__nodata_success(self):
         self.get_submit_assert_302("/fsr/semester/1/edit", "evap")
 
@@ -372,7 +379,7 @@ class URLTests(WebTest):
         self.get_submit_assert_302("/fsr/semester/1/course/5/review", "evap")
 
     def test_fsr_semester_x_course_y_unpublish__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/course/8/unpublish", "evap"), # TODO: button should be lower
+        self.get_submit_assert_302("/fsr/semester/1/course/8/unpublish", "evap"),
 
     def test_fsr_semester_x_course_y_delete__nodata_success(self):
         self.get_submit_assert_302("/fsr/semester/1/course/1/delete", "evap"),
@@ -384,7 +391,7 @@ class URLTests(WebTest):
         self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap"),
 
     def test_fsr_user_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/fsr/user/4/delete", "evap"), # may fail
+        self.get_submit_assert_302("/fsr/user/4/delete", "evap"),
 
     def test_fsr_user_x_edit__nodata_success(self):
         self.get_submit_assert_302("/fsr/user/4/edit", "evap")
@@ -402,6 +409,7 @@ class URLTests(WebTest):
         self.get_submit_assert_302("/contributor/profile", "responsible")
 
     def test_course_email_form(self):
+        """ Tests the CourseEmailForm with one valid and one invalid input dataset. """
         course = Course.objects.first()
         data = {"body": "wat", "subject": "some subject", "sendToDueParticipants": True}
         form = CourseEmailForm(instance=course, data=data)
@@ -414,18 +422,20 @@ class URLTests(WebTest):
         self.assertFalse(form.is_valid())
 
     def test_user_form(self):
+        """ Tests the UserForm with one valid and one invalid input dataset. """
         userprofile = UserProfile.objects.get(pk=1)
         another_userprofile = UserProfile.objects.get(pk=2)
         data = {"username": "mklqoep50x2", "email": "a@b.ce"}
         form = UserForm(instance=userprofile, data=data)
         self.assertTrue(form.is_valid())
 
-
         data = {"username": another_userprofile.user.username, "email": "a@b.c"}
         form = UserForm(instance=userprofile, data=data)
         self.assertFalse(form.is_valid())
 
     def test_course_selection_form(self):
+        """ Tests the SelectCourseForm with one valid input dataset
+            (one cannot make it invalid through the UI). """
         course1 = Course.objects.get(pk=1)
         course2 = Course.objects.get(pk=2)
         data = {"1": True, "2": False}
@@ -433,6 +443,8 @@ class URLTests(WebTest):
         self.assertTrue(form.is_valid())
 
     def test_review_text_answer_form(self):
+        """ Tests the ReviewTextAnswerForm with three valid input datasets
+            (one cannot make it invalid through the UI). """
         textanswer = TextAnswer.objects.get(pk=1)
         data = dict(edited_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
@@ -442,6 +454,7 @@ class URLTests(WebTest):
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
 
     def test_contributor_form_set(self):
+        """ Tests the ContributionFormset with various input data sets. """
         course = Course.objects.create(pk=9001, semester_id=1)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
@@ -473,6 +486,8 @@ class URLTests(WebTest):
         self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
 
     def test_semester_deletion(self):
+        """ Tries to delete two semesters via the respective view, 
+            only the second attempt should succeed. """
         self.assertFalse(Semester.objects.get(pk=1).can_fsr_delete)
         self.client.login(username='evap', password='evap')
         response = self.client.get("/fsr/semester/1/delete", follow=True)
@@ -494,6 +509,7 @@ class URLTests(WebTest):
         for course_id in course_ids:
             self.assertEqual(Course.objects.get(pk=course_id).state,  new_state)
 
+    """ The following four tests test the course state transitions triggerable via the UI. """
     def test_semester_publish(self):
         self.helper_semester_state_views("/fsr/semester/1/publish", [7], ["reviewed"], "published")
 
@@ -507,8 +523,7 @@ class URLTests(WebTest):
         self.helper_semester_state_views("/fsr/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
 
     def test_course_create(self):
-        #userprofile = UserProfile.objects.get(pk=1)
-        #another_userprofile = UserProfile.objects.get(pk=2)
+        """ Tests the course creation view with one valid and one invalid input dataset. """
         data = dict(name_de="asdf", name_en="asdf", kind="asdf", degree="asd",
                     vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/fsr/semester/1/course/create", "evap")
@@ -540,15 +555,11 @@ class URLTests(WebTest):
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
 
     def test_course_review(self):
+        """ Tests the course review view with various input datasets. """
         self.get_assert_302("/fsr/semester/1/course/4/review", user="evap")
         self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
 
         page = self.get_assert_200("/fsr/semester/1/course/6/review", user="evap")
-        # enable this when buttons of the page are clarified
-        #form = lastform(page)
-        #form["form-0-needs_further_review"] = "on"
-        #form["form-1-needs_further_review"] = "on"
-        #page = form.submit(name="operation", value="save_and_next").follow()
 
         form = lastform(page)
         form["form-0-hidden"] = "on"
@@ -570,6 +581,7 @@ class URLTests(WebTest):
         self.get_assert_302("/fsr/semester/1/course/6/review", user="evap")
 
     def test_course_email(self):
+        """ Tests whether the course email view actually sends emails. """
         page = self.get_assert_200("/fsr/semester/1/course/5/email", user="evap")
         form = lastform(page)
         form["subject"] = "asdf"
@@ -579,6 +591,8 @@ class URLTests(WebTest):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_questionnaire_deletion(self):
+        """ Tries to delete two questionnaires via the respective view, 
+            only the second attempt should succeed. """
         self.assertFalse(Questionnaire.objects.get(pk=2).can_fsr_delete)
         self.client.login(username='evap', password='evap')
         page = self.client.get("/fsr/questionnaire/2/delete", follow=True)
@@ -590,6 +604,7 @@ class URLTests(WebTest):
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 
     def test_create_user(self):
+        """ Tests whether the user creation view actually creates a user. """
         page = self.get_assert_200("/fsr/user/create", "evap")
         form = lastform(page)
         form["username"] = "mflkd862xmnbo5"
@@ -602,6 +617,7 @@ class URLTests(WebTest):
         self.assertEqual(User.objects.order_by("pk").last().username, "mflkd862xmnbo5")
 
     def test_emailtemplate(self):
+        """ Tests the emailtemplate view with one valid and one invalid input datasets. """
         page = self.get_assert_200("/fsr/template/1", "evap")
         form = lastform(page)
         form["subject"] = "subject: mflkd862xmnbo5"
@@ -615,6 +631,8 @@ class URLTests(WebTest):
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
 
     def test_contributor_course_edit(self):
+        """ Tests whether the "save" button in the contributor's course edit view does not
+            change the course's state, and that the "approve" button does that. """
         page = self.get_assert_200("/contributor/course/2/edit", user="responsible")
         form = lastform(page)
 
@@ -625,6 +643,8 @@ class URLTests(WebTest):
         self.assertEqual(Course.objects.get(pk=2).state, "lecturerApproved")
 
     def test_student_vote(self):
+        """ Submits a student vote for coverage and verifies that the 
+            student cannot vote on the course a second time. """
         page = self.get_assert_200("/student/vote/5", user="lazy.student")
         form = lastform(page)
         form["question_17_2_3"] = "some text"
