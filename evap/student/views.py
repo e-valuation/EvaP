@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import enrolment_required
 from evap.evaluation.models import Course, Semester, UserProfile
-from evap.evaluation.tools import STUDENT_STATES_ORDERED
+from evap.evaluation.tools import STUDENT_STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
@@ -40,30 +40,13 @@ def vote(request, course_id):
     if not course.can_user_vote(request.user):
         raise PermissionDenied
 
-    form_groups = OrderedDict()
-    for contribution in course.contributions.all():
-        if contribution.contributor == request.user:
-            continue # users shall not vote about themselves
-        form_groups[contribution] = OrderedDict()
-        for questionnaire in contribution.questionnaires.all():
-            form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-            form_groups[contribution][questionnaire] = form
+    form_groups = create_voting_form_groups(request, course.contributions.all())
 
     if not all(all(form.is_valid() for form in form_group.values()) for form_group in form_groups.values()):
-        contributor_questionnaires = []
-        errors = []
-
+        
         course_forms = form_groups[course.general_contribution].values()
 
-        for contribution, form_group in form_groups.items():
-            contributor = contribution.contributor
-            if contributor is None:
-                continue
-            user_profile = UserProfile.get_for_user(contributor)
-            contributor_questionnaires.append((user_profile, form_group.values()));
-
-            if any(form.errors for form in form_group.values()):
-                errors.append(contributor.id)
+        contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
 
         return render_to_response(
             "student_vote.html",

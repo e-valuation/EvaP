@@ -133,6 +133,10 @@ select[multiple='multiple'] {
     height: 200px;
 }
 
+td.vote-inputs {
+    width: 69%;
+}
+
 td.vote-inputs > div {
     display: inline-block;
     padding: 0px 3px;
@@ -152,6 +156,11 @@ td.vote-inputs > div:nth-child(5) > label { color: #a53e3f; }
 
 td.vote-inputs > textarea {
     width: 99%;
+    height: 100px;
+}
+
+td.preview > textarea {
+    height: 60px;
 }
 
 ul.errorlist li {

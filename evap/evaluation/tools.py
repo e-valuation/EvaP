@@ -2,8 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
-
+from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer, UserProfile
 
 from collections import OrderedDict
 from collections import namedtuple
@@ -298,4 +297,33 @@ def questionnaires_and_contributions(course):
 
 
 def is_external_email(email):
-        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+    return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+
+
+def create_voting_form_groups(request, contributions, include_self=False):
+    from evap.student.forms import QuestionsForm
+    form_groups = OrderedDict()
+    for contribution in contributions:
+        if not include_self and contribution.contributor == request.user:
+            continue # users shall not vote about themselves, for preview user is included
+        form_groups[contribution] = OrderedDict()
+        for questionnaire in contribution.questionnaires.all():
+            form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+            form_groups[contribution][questionnaire] = form
+    return form_groups
+
+
+def create_contributor_questionnaires(form_groups_items):
+    contributor_questionnaires = []
+    errors = []
+    for contribution, form_group in form_groups_items:
+        if contribution.is_general:
+            continue
+        contributor = contribution.contributor
+        user_profile = UserProfile.get_for_user(contributor)
+        contributor_questionnaires.append((user_profile, form_group.values()));
+
+        if any(form.errors for form in form_group.values()):
+                errors.append(contributor.id)
+
+    return contributor_questionnaires, errors
