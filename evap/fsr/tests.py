@@ -1,8 +1,13 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
+from django.test import Client
+from django.forms.models import inlineformset_factory
+from django.core import mail
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
+from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
+                            ContributorFormSet, ContributionForm, CourseForm
 
 import os.path
 
@@ -182,7 +187,7 @@ class UsecaseTests(WebTest):
         assert "No responsible contributor found" in page
 
     def test_num_queries_user_list(self):
-        """ 
+        """
             ensures that the number of queries in the user list is constant
             and not linear to the number of users
         """
@@ -196,3 +201,474 @@ class UsecaseTests(WebTest):
         self.assertTrue(UserProfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
         self.assertFalse(UserProfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
 
+
+
+class URLTests(WebTest):
+    fixtures = ['minimal_test_data']
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def get_assert_200(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_assert_302(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def get_submit_assert_302(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_submit_assert_200(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def test_all_urls(self):
+        """ This tests visits all URLs of evap and verifies they return a 200 for the specified user. """
+        tests = [
+            ("test_index", "/", ""),
+            ("test_faq", "/faq", ""),
+            # student pages
+            ("test_student", "/student/", "student"),
+            ("test_student_vote_x", "/student/vote/5", "lazy.student"),
+            # fsr main page
+            ("test_fsr", "/fsr/", "evap"),
+            # fsr semester
+            ("test_fsr_semester_create", "/fsr/semester/create", "evap"),
+            ("test_fsr_semester_x", "/fsr/semester/1", "evap"),
+            ("test_fsr_semester_x", "/fsr/semester/1?tab=asdf", "evap"),
+            ("test_fsr_semester_x_edit", "/fsr/semester/1/edit", "evap"),
+            ("test_fsr_semester_x_delete", "/fsr/semester/2/delete", "evap"),
+            ("test_fsr_semester_x_course_create", "/fsr/semester/1/course/create", "evap"),
+            ("test_fsr_semester_x_import", "/fsr/semester/1/import", "evap"),
+            ("test_fsr_semester_x_assign", "/fsr/semester/1/assign", "evap"),
+            ("test_fsr_semester_x_lottery", "/fsr/semester/1/lottery", "evap"),
+            ("test_fsr_semester_x_reset", "/fsr/semester/1/reset", "evap"),
+            ("test_fsr_semester_x_contributorready", "/fsr/semester/1/contributorready", "evap"),
+            ("test_fsr_semester_x_approve", "/fsr/semester/1/approve", "evap"),
+            ("test_fsr_semester_x_publish", "/fsr/semester/1/publish", "evap"),
+            # fsr semester course
+            ("test_fsr_semester_x_course_y_edit", "/fsr/semester/1/course/5/edit", "evap"),
+            ("test_fsr_semester_x_course_y_email", "/fsr/semester/1/course/1/email", "evap"),
+            ("test_fsr_semester_x_course_y_preview", "/fsr/semester/1/course/1/preview", "evap"),
+            ("test_fsr_semester_x_course_y_comments", "/fsr/semester/1/course/5/comments", "evap"),
+            ("test_fsr_semester_x_course_y_review", "/fsr/semester/1/course/5/review", "evap"),
+            ("test_fsr_semester_x_course_y_unpublish", "/fsr/semester/1/course/8/unpublish", "evap"),
+            ("test_fsr_semester_x_course_y_delete", "/fsr/semester/1/course/1/delete", "evap"),
+            # fsr questionnaires
+            ("test_fsr_questionnaire", "/fsr/questionnaire/", "evap"),
+            ("test_fsr_questionnaire_create", "/fsr/questionnaire/create", "evap"),
+            ("test_fsr_questionnaire_x_edit", "/fsr/questionnaire/2/edit", "evap"),
+            ("test_fsr_questionnaire_x", "/fsr/questionnaire/2", "evap"),
+            ("test_fsr_questionnaire_x_copy", "/fsr/questionnaire/2/copy", "evap"),
+            ("test_fsr_questionnaire_x_delete", "/fsr/questionnaire/3/delete", "evap"),
+            ("test_fsr_questionnaire_delete", "/fsr/questionnaire/create", "evap"),
+            # fsr user
+            ("test_fsr_user", "/fsr/user/", "evap"),
+            ("test_fsr_user_import", "/fsr/user/import", "evap"),
+            ("test_fsr_sample_xls", "/static/sample_user.xls", "evap"),
+            ("test_fsr_user_create", "/fsr/user/create", "evap"),
+            ("test_fsr_user_x_delete", "/fsr/user/4/delete", "evap"),
+            ("test_fsr_user_x_edit", "/fsr/user/4/edit", "evap"),
+            # fsr template
+            ("test_fsr_template_x", "/fsr/template/1", "evap"),
+            # faq
+            ("test_fsr_faq", "/fsr/faq/", "evap"),
+            ("test_fsr_faq_x", "/fsr/faq/1", "evap"),
+            # results
+            ("test_results", "/results/", "evap"),
+            ("test_results_semester_x", "/results/semester/1", "evap"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "evap"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "contributor"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "responsible"),
+            ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
+            # contributor
+            ("test_contributor", "/contributor/", "responsible"),
+            ("test_contributor", "/contributor/", "editor"),
+            ("test_contributor_course_x", "/contributor/course/7", "responsible"),
+            ("test_contributor_course_x", "/contributor/course/7", "editor"),
+            ("test_contributor_course_x_preview", "/contributor/course/7/preview", "responsible"),
+            ("test_contributor_course_x_preview", "/contributor/course/7/preview", "editor"),
+            ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
+            ("test_contributor_course_x_edit", "/contributor/course/2/edit", "editor"),
+            ("test_contributor_profile", "/contributor/profile", "responsible"),
+            ("test_contributor_profile", "/contributor/profile", "editor")]
+        for _, url, user in tests:
+            self.get_assert_200(url, user)
+
+    def test_permission_denied(self):
+        """ Tests whether all the 403s Evap can throw are correctly thrown. """
+        self.get_assert_403("/contributor/course/7", "editor_of_course_1")
+        self.get_assert_403("/contributor/course/7/preview", "editor_of_course_1")
+        self.get_assert_403("/contributor/course/2/edit", "editor_of_course_1")
+        self.get_assert_403("/student/vote/5", "student")
+        self.get_assert_403("/results/semester/1/course/8", "student"),
+        self.get_assert_403("/results/semester/1/course/7", "student"),
+
+    def test_redirecting_urls(self):
+        """ Tests whether some pages that cannot be accessed (e.g. for courses in certain states)
+            do not return 200 but redirect somewhere else. """
+        tests = [
+            ("test_fsr_semester_x_course_y_edit_fail", "/fsr/semester/1/course/8/edit", "evap"), 
+            ("test_fsr_semester_x_course_y_delete_fail", "/fsr/semester/1/course/8/delete", "evap"), 
+            ("test_fsr_semester_x_course_y_review_fail", "/fsr/semester/1/course/8/review", "evap"), 
+            ("test_fsr_semester_x_course_y_unpublish_fail", "/fsr/semester/1/course/7/unpublish", "evap"), 
+            ("test_fsr_questionnaire_x_edit_fail", "/fsr/questionnaire/4/edit", "evap"),
+            ("test_fsr_user_x_delete_fail", "/fsr/user/2/delete", "evap"),
+            ("test_fsr_semester_x_delete_fail", "/fsr/semester/1/delete", "evap"),
+        ]
+
+        for _, url, user in tests:
+            self.get_assert_302(url, user)
+
+
+    def test_failing_forms(self):
+        """ Tests whether forms that fail because of missing required fields 
+            when submitting them without entering any data actually do that. """
+        forms = [
+            ("/student/vote/5", "lazy.student", "Vote"),
+            ("/fsr/semester/create", "evap", "Save"),
+            ("/fsr/semester/1/course/create", "evap"),
+            ("/fsr/semester/1/import", "evap"),
+            ("/fsr/semester/1/course/1/email", "evap"),
+            ("/fsr/questionnaire/create", "evap"),
+            ("/fsr/user/create", "evap"),
+        ]
+        for form in forms:
+            response = self.get_submit_assert_200(form[0], form[1])
+            self.assertIn("is required", response)
+
+    def test_failing_questionnaire_copy(self):
+        """ Tests whether copying and submitting a questionnaire form wihtout entering a new name fails. """
+        response = self.get_submit_assert_200("/fsr/questionnaire/2/copy", "evap")
+        self.assertIn("already exists", response)
+
+    """ 
+    The following tests test whether forms that succeed when 
+    submitting them without entering any data actually do that.
+    They are in individual methods because most of them change the database. 
+    """
+
+    def test_fsr_semester_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/edit", "evap")
+
+    def test_fsr_semester_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
+
+    def test_fsr_semester_x_assign__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/assign", "evap")
+
+    def test_fsr_semester_x_lottery__nodata_success(self):
+        self.get_submit_assert_200("/fsr/semester/1/lottery", "evap")
+
+    def test_fsr_semester_x_reset__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/reset", "evap")
+
+    def test_fsr_semester_x_contributorready__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/contributorready", "evap")
+
+    def test_fsr_semester_x_approve__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/approve", "evap")
+
+    def test_fsr_semester_x_publish__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/publish", "evap")
+
+    def test_fsr_semester_x_course_y_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/1/edit", "evap")
+
+    def test_fsr_semester_x_course_y_review__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/5/review", "evap")
+
+    def test_fsr_semester_x_course_y_unpublish__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/8/unpublish", "evap"),
+
+    def test_fsr_semester_x_course_y_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/semester/1/course/1/delete", "evap"),
+
+    def test_fsr_questionnaire_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/questionnaire/2/edit", "evap")
+
+    def test_fsr_questionnaire_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap"),
+
+    def test_fsr_user_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/fsr/user/4/delete", "evap"),
+
+    def test_fsr_user_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/fsr/user/4/edit", "evap")
+
+    def test_fsr_template_x__nodata_success(self):
+        self.get_submit_assert_200("/fsr/template/1", "evap")
+
+    def test_fsr_faq__nodata_success(self):
+        self.get_submit_assert_302("/fsr/faq/", "evap")
+
+    def test_fsr_faq_x__nodata_success(self):
+        self.get_submit_assert_302("/fsr/faq/1", "evap")
+
+    def test_contributor_profile(self):
+        self.get_submit_assert_302("/contributor/profile", "responsible")
+
+    def test_course_email_form(self):
+        """ Tests the CourseEmailForm with one valid and one invalid input dataset. """
+        course = Course.objects.first()
+        data = {"body": "wat", "subject": "some subject", "sendToDueParticipants": True}
+        form = CourseEmailForm(instance=course, data=data)
+        self.assertTrue(form.is_valid())
+        form.all_recepients_reachable()
+        form.send()
+
+        data = {"body": "wat", "subject": "some subject"}
+        form = CourseEmailForm(instance=course, data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_user_form(self):
+        """ Tests the UserForm with one valid and one invalid input dataset. """
+        userprofile = UserProfile.objects.get(pk=1)
+        another_userprofile = UserProfile.objects.get(pk=2)
+        data = {"username": "mklqoep50x2", "email": "a@b.ce"}
+        form = UserForm(instance=userprofile, data=data)
+        self.assertTrue(form.is_valid())
+
+        data = {"username": another_userprofile.user.username, "email": "a@b.c"}
+        form = UserForm(instance=userprofile, data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_course_selection_form(self):
+        """ Tests the SelectCourseForm with one valid input dataset
+            (one cannot make it invalid through the UI). """
+        course1 = Course.objects.get(pk=1)
+        course2 = Course.objects.get(pk=2)
+        data = {"1": True, "2": False}
+        form = SelectCourseForm(course1.degree, [course1, course2], None, data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_review_text_answer_form(self):
+        """ Tests the ReviewTextAnswerForm with three valid input datasets
+            (one cannot make it invalid through the UI). """
+        textanswer = TextAnswer.objects.get(pk=1)
+        data = dict(edited_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
+        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
+        data = dict(edited_answer="edited answer", needs_further_review=False, hidden=False)
+        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
+        data = dict(edited_answer="edited answer", needs_further_review=True, hidden=True)
+        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
+
+    def test_contributor_form_set(self):
+        """ Tests the ContributionFormset with various input data sets. """
+        course = Course.objects.create(pk=9001, semester_id=1)
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        
+        data = {
+            'contributions-TOTAL_FORMS': 1,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [1],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+        } 
+        # no contributor and no responsible
+        self.assertFalse(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        # valid
+        data['contributions-0-contributor'] = 1
+        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        # duplicate contributor
+        data['contributions-TOTAL_FORMS'] = 2
+        data['contributions-1-contributor'] = 1
+        data['contributions-1-course'] = 9001
+        data['contributions-1-questionnaires'] = [1]
+        data['contributions-1-order'] = 1
+        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+        # two responsibles
+        data['contributions-1-contributor'] = 2
+        data['contributions-1-responsible'] = "on"
+        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+
+    def test_semester_deletion(self):
+        """ Tries to delete two semesters via the respective view, 
+            only the second attempt should succeed. """
+        self.assertFalse(Semester.objects.get(pk=1).can_fsr_delete)
+        self.client.login(username='evap', password='evap')
+        response = self.client.get("/fsr/semester/1/delete", follow=True)
+        self.assertIn("cannot be deleted", list(response.context['messages'])[0].message)
+        self.assertTrue(Semester.objects.filter(pk=1).exists())
+
+        self.assertTrue(Semester.objects.get(pk=2).can_fsr_delete)
+        self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
+        self.assertFalse(Semester.objects.filter(pk=2).exists())
+
+    def helper_semester_state_views(self, url, course_ids, old_states, new_state):
+        page = self.app.get(url, user="evap")
+        form = lastform(page)
+        for course_id in course_ids:
+            self.assertIn(Course.objects.get(pk=course_id).state, old_states)
+            form[str(course_id)] = "on"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+        for course_id in course_ids:
+            self.assertEqual(Course.objects.get(pk=course_id).state,  new_state)
+
+    """ The following four tests test the course state transitions triggerable via the UI. """
+    def test_semester_publish(self):
+        self.helper_semester_state_views("/fsr/semester/1/publish", [7], ["reviewed"], "published")
+
+    def test_semester_reset(self):
+        self.helper_semester_state_views("/fsr/semester/1/reset", [2], ["prepared"], "new")
+
+    def test_semester_approve(self):
+        self.helper_semester_state_views("/fsr/semester/1/approve", [1,2,3], ["new", "prepared", "lecturerApproved"], "approved")
+
+    def test_semester_contributor_ready(self):
+        self.helper_semester_state_views("/fsr/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
+
+    def test_course_create(self):
+        """ Tests the course creation view with one valid and one invalid input dataset. """
+        data = dict(name_de="asdf", name_en="asdf", kind="asdf", degree="asd",
+                    vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
+        response = self.get_assert_200("/fsr/semester/1/course/create", "evap")
+        form = lastform(response)
+        form["name_de"] = "lfo9e7bmxp1xi"
+        form["name_en"] = "asdf"
+        form["kind"] = "a type"
+        form["degree"] = "a degree"
+        form["vote_start_date"] = "02/1/2099"
+        form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
+        form["general_questions"] = ["2"]
+
+        form['contributions-TOTAL_FORMS'] = 1
+        form['contributions-INITIAL_FORMS'] = 0
+        form['contributions-MAX_NUM_FORMS'] = 5
+        form['contributions-0-course'] = ''
+        form['contributions-0-contributor'] = 6
+        form['contributions-0-questionnaires'] = [1]
+        form['contributions-0-order'] = 0
+        form['contributions-0-responsible'] = "on"
+
+        form.submit()
+        self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
+
+        form["vote_start_date"] = "02/1/2014"
+        form["vote_end_date"] = "02/1/2099" # now do it right
+
+        form.submit()
+        self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
+
+    def test_course_review(self):
+        """ Tests the course review view with various input datasets. """
+        self.get_assert_302("/fsr/semester/1/course/4/review", user="evap")
+        self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
+
+        page = self.get_assert_200("/fsr/semester/1/course/6/review", user="evap")
+
+        form = lastform(page)
+        form["form-0-hidden"] = "on"
+        form["form-1-needs_further_review"] = "on"
+        # Actually this is not guaranteed, but i'll just guarantee it now for this test.
+        self.assertEqual(form["form-0-id"].value, "5")
+        self.assertEqual(form["form-1-id"].value, "8")
+        page = form.submit(name="operation", value="save_and_next").follow()
+
+        form = lastform(page)
+        form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
+        page = form.submit()
+
+        self.assertEqual(TextAnswer.objects.get(pk=5).hidden, True)
+        self.assertEqual(TextAnswer.objects.get(pk=5).reviewed_answer, "")
+        self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
+        self.assertEqual(Course.objects.get(pk=6).state, "reviewed")
+        
+        self.get_assert_302("/fsr/semester/1/course/6/review", user="evap")
+
+    def test_course_email(self):
+        """ Tests whether the course email view actually sends emails. """
+        page = self.get_assert_200("/fsr/semester/1/course/5/email", user="evap")
+        form = lastform(page)
+        form["subject"] = "asdf"
+        form["body"] = "asdf"
+        form.submit()
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_questionnaire_deletion(self):
+        """ Tries to delete two questionnaires via the respective view, 
+            only the second attempt should succeed. """
+        self.assertFalse(Questionnaire.objects.get(pk=2).can_fsr_delete)
+        self.client.login(username='evap', password='evap')
+        page = self.client.get("/fsr/questionnaire/2/delete", follow=True)
+        self.assertIn("cannot be deleted", list(page.context['messages'])[0].message)
+        self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
+
+        self.assertTrue(Questionnaire.objects.get(pk=3).can_fsr_delete)
+        self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap")
+        self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
+
+    def test_create_user(self):
+        """ Tests whether the user creation view actually creates a user. """
+        page = self.get_assert_200("/fsr/user/create", "evap")
+        form = lastform(page)
+        form["username"] = "mflkd862xmnbo5"
+        form["first_name"] = "asd"
+        form["last_name"] = "asd"
+        form["email"] = "a@b.de"
+
+        form.submit()
+
+        self.assertEqual(User.objects.order_by("pk").last().username, "mflkd862xmnbo5")
+
+    def test_emailtemplate(self):
+        """ Tests the emailtemplate view with one valid and one invalid input datasets. """
+        page = self.get_assert_200("/fsr/template/1", "evap")
+        form = lastform(page)
+        form["subject"] = "subject: mflkd862xmnbo5"
+        form["body"] = "body: mflkd862xmnbo5"
+        response = form.submit()
+
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+        form["body"] = " invalid tag: {{}}"
+        response = form.submit()
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+    def test_contributor_course_edit(self):
+        """ Tests whether the "save" button in the contributor's course edit view does not
+            change the course's state, and that the "approve" button does that. """
+        page = self.get_assert_200("/contributor/course/2/edit", user="responsible")
+        form = lastform(page)
+
+        form.submit(name="operation", value="save")
+        self.assertEqual(Course.objects.get(pk=2).state, "prepared")
+
+        form.submit(name="operation", value="approve")
+        self.assertEqual(Course.objects.get(pk=2).state, "lecturerApproved")
+
+    def test_student_vote(self):
+        """ Submits a student vote for coverage and verifies that the 
+            student cannot vote on the course a second time. """
+        page = self.get_assert_200("/student/vote/5", user="lazy.student")
+        form = lastform(page)
+        form["question_17_2_3"] = "some text"
+        form["question_17_2_4"] = 1
+        form["question_17_2_5"] = 6
+        form["question_18_1_1"] = "some other text"
+        form["question_18_1_2"] = 1
+        form["question_19_1_1"] = "some more text"
+        form["question_19_1_2"] = 1
+        form["question_20_1_1"] = "and the last text"
+        form["question_20_1_2"] = 1
+        response = form.submit()
+
+        self.get_assert_403("/student/vote/5", user="lazy.student")

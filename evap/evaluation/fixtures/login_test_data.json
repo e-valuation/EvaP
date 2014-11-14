@@ -1,0 +1,104 @@
+[
+{
+  "pk": 1, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "password.user", 
+    "first_name": "password", 
+    "last_name": "user", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-09-16T22:50:49.207", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=", 
+    "email": "password.user@example.com", 
+    "date_joined": "2014-09-16T22:50:29.628"
+  }
+},
+{
+  "pk": 2, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "loginkey.user", 
+    "first_name": "loginkey", 
+    "last_name": "user", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-09-16T22:51:39.584", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "", 
+    "email": "loginkey.user@example.com", 
+    "date_joined": "2014-09-16T22:51:39.584"
+  }
+},
+{
+  "pk": 3, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "expiredloginkey.user", 
+    "first_name": "expiredloginkey", 
+    "last_name": "user", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2014-09-16T22:51:39.584", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "", 
+    "email": "expiredloginkey.user@example.com", 
+    "date_joined": "2014-09-16T22:51:39.584"
+  }
+},
+{
+  "pk": 1, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": "Prof. Dr.", 
+    "cc_users": [ ], 
+    "delegates": [ ], 
+    "login_key_valid_until": null, 
+    "user": 1, 
+    "login_key": null
+  }
+},
+{
+  "pk": 2, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": "", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2030-01-01", 
+    "user": 2, 
+    "login_key": 12345
+  }
+},
+{
+  "pk": 3, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "picture": "", 
+    "title": "", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2014-01-01", 
+    "user": 3, 
+    "login_key": 12346
+  }
+},
+{
+  "pk": 4, 
+  "model": "evaluation.emailtemplate", 
+  "fields": {
+    "body": "", 
+    "name": "Login Key Created", 
+    "subject": "[EvaP] A login key was created"
+  }
+}
+]
