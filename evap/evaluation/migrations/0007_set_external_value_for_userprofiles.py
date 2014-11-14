@@ -7,10 +7,10 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for userprofile in orm.UserProfile.objects.all():
-            if not ("@hpi." in userprofile.user.email or "@student.hpi." in userprofile.user.email):
-                userprofile.is_external = True
-                userprofile.save()
+        for user in orm['auth.User'].objects.all():
+            if not ("@hpi." in user.email or "@student.hpi." in user.email):
+                user.userprofile.is_external = True
+                user.userprofile.save()
 
     def backwards(self, orm):
         pass
