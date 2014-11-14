@@ -7,7 +7,7 @@
 {% block content %}
     {{ block.super }}
 
-    <p>
+    <div class="button-menu">
         <a href="{% url "evap.fsr.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
         {% if semester.can_fsr_delete %}
             <a href="{% url "evap.fsr.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger">{% trans "Delete Semester" %}</a>
@@ -20,7 +20,16 @@
         <a href="{% url "evap.fsr.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default">{% trans "Assign Questionnaires" %}</a>
         &nbsp;
         <a href="{% url "evap.fsr.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
-    </p>
+        &nbsp;
+        
+        <div class="btn-group">
+            <a href="{% url "evap.rewards.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
+            <div class="btn-group btn-toggle">
+                <a href="{% url "evap.rewards.views.semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}">{% trans "On" %}</a>
+                <a href="{% url "evap.rewards.views.semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}">{% trans "Off" %}</a>
+            </div>
+        </div>
+    </div>
 
     {% if courses_by_state %}
         <ul class="nav nav-tabs">
@@ -153,6 +162,15 @@
             });
 
             $(".twipsify").tooltip({container: 'body'});
+
+            $('.btn-toggle').click(function() {
+                $(this).find('.btn').toggleClass('active');  
+                
+                if ($(this).find('.btn-primary').size()>0) {
+                    $(this).find('.btn').toggleClass('btn-primary');
+                }            
+                $(this).find('.btn').toggleClass('btn-default');
+            });       
         });
     </script>
 {% endblock %}

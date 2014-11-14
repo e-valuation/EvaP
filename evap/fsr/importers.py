@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.tools import is_external_email
 
 import xlrd
 from collections import OrderedDict
@@ -19,6 +20,11 @@ class UserData(object):
         self.last_name = last_name.strip()
         self.title = title.strip()
         self.email = email.strip().lower()
+        self.is_external = False
+        if is_external_email(self.email):
+            self.is_external = True
+            if self.username == '':
+                self.username = (self.first_name + '.' + self.last_name + '.ext').lower()
 
     def store_in_database(self):
         user = User(username=self.username,
@@ -28,6 +34,7 @@ class UserData(object):
         user.save()
         profile = UserProfile.get_for_user(user=user)
         profile.title = self.title
+        profile.is_external = self.is_external
         profile.save()
         return user
 
@@ -96,7 +103,7 @@ class ExcelImporter(object):
             return False
         else:            
             student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4])
-            contributor_data = UserData(username=data[11], first_name=data[9], last_name=data[10], title=data[8], email=data[12])
+            contributor_data = UserData(username=data[11], first_name=data[10], last_name=data[9], title=data[8], email=data[12])
             course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
 
             # store data objects together with the data source location for problem tracking

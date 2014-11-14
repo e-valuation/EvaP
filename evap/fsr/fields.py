@@ -8,16 +8,6 @@ from django.utils.encoding import force_unicode
 from evap.evaluation.models import UserProfile
 
 
-class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-
-    def __init__(self, *args, **kwargs):
-        super(UserModelMultipleChoiceField, self).__init__(*args, **kwargs)
-        self.help_text = ""
-
-    def label_from_instance(self, obj):
-        return UserProfile.get_for_user(obj).full_name
-
-
 class ToolTipModelChoiceIterator(ModelChoiceIterator):
     def choice(self, obj):
         return (self.field.prepare_value(obj), self.field.label_from_instance(obj), self.field.title_from_instance(obj))

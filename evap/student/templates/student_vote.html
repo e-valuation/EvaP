@@ -52,7 +52,8 @@
                     <div class="bs-callout bs-callout-info">
                         {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
                     </div>
-                    {% for contributor,forms in contributor_questionnaires.items %}
+
+                    {% for contributor, forms in contributor_questionnaires %}               
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>

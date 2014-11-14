@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
+import django.dispatch
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -51,7 +52,7 @@ class Semester(models.Model):
     @property
     def can_fsr_delete(self):
         for course in self.course_set.all():
-            if not course.can_fsr_delete:
+            if not course.can_fsr_delete():
                 return False
         return True
 
@@ -134,6 +135,8 @@ class Course(models.Model):
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
+    course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
+
     class Meta:
         ordering = ('semester', 'degree', 'name_de')
         unique_together = (
@@ -192,9 +195,8 @@ class Course(models.Model):
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
-    def ready_for_contributors(self, send_mail=True):
-        if send_mail:
-            EmailTemplate.get_review_template().send_to_users_in_courses([self], ['editors'])
+    def ready_for_contributors(self):
+        pass
 
     @transition(field=state, source='prepared', target='lecturerApproved')
     def contributor_approve(self):
@@ -342,6 +344,9 @@ class Course(models.Model):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
 
+    def was_evaluated(self, request):
+        self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
+
 
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
@@ -352,10 +357,13 @@ class Contribution(models.Model):
     responsible = models.BooleanField(verbose_name=_(u"responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_(u"can edit"), default=False)
 
+    order = models.IntegerField(verbose_name=_("contribution order"), default=0)
+
     class Meta:
         unique_together = (
             ('course', 'contributor'),
         )
+        ordering = ['order', ]
 
     def clean(self):
         # responsible contributors can always edit
@@ -518,6 +526,8 @@ class UserProfile(models.Model):
     # picture of the user
     picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
 
+    is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
+
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
@@ -580,7 +590,8 @@ class UserProfile(models.Model):
 
     @classmethod
     def email_needs_login_key(cls, email):
-        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+        from evap.evaluation.tools import is_external_email
+        return is_external_email(email)
 
     @property
     def needs_login_key(self):
@@ -701,4 +712,3 @@ class EmailTemplate(models.Model):
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})
         mail.send(False)
-

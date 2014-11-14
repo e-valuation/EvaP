@@ -41,7 +41,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         try:
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:
-            self._update_errors(e.message_dict)
+            self._update_errors(e)
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):

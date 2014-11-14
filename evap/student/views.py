@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -5,16 +6,16 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.auth import login_required
+from evap.evaluation.auth import enrolment_required
 from evap.evaluation.models import Course, Semester, UserProfile
-from evap.evaluation.tools import questionnaires_and_contributions_by_contributor, STUDENT_STATES_ORDERED
+from evap.evaluation.tools import STUDENT_STATES_ORDERED
 
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
 from collections import OrderedDict
 
-@login_required
+@enrolment_required
 def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
@@ -32,63 +33,51 @@ def index(request):
         context_instance=RequestContext(request))
 
 
-@login_required
+@enrolment_required
 def vote(request, course_id):
     # retrieve course and make sure that the user is allowed to vote
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
         raise PermissionDenied
 
-    # build forms
-    form_group = {}
-    contributors_with_questionnaires = questionnaires_and_contributions_by_contributor(course)
-    for contributor in contributors_with_questionnaires:
-        for questionnaire, contribution in contributors_with_questionnaires[contributor]:
+    form_groups = OrderedDict()
+    for contribution in course.contributions.all():
+        if contribution.contributor == request.user:
+            continue # users shall not vote about themselves
+        form_groups[contribution] = OrderedDict()
+        for questionnaire in contribution.questionnaires.all():
             form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-            if form.contribution.contributor == request.user:
-                continue # users shall not vote about themselves
-            if contributor not in form_group:
-                form_group[contributor] = OrderedDict()
-            form_group[contributor][(contribution, questionnaire)] = form
+            form_groups[contribution][questionnaire] = form
 
-    for contributor in form_group:
-        for (contribution, questionnaire), form in form_group[contributor].items():
-            for question in questionnaire.question_set.all():
-                identifier = make_form_identifier(contribution, questionnaire, question)
+    if not all(all(form.is_valid() for form in form_group.values()) for form_group in form_groups.values()):
+        contributor_questionnaires = []
+        errors = []
 
-    for contributor in form_group:
-        for form in form_group[contributor].values():
-            if form.is_valid():
+        course_forms = form_groups[course.general_contribution].values()
+
+        for contribution, form_group in form_groups.items():
+            contributor = contribution.contributor
+            if contributor is None:
                 continue
-            course_forms = []
-            contributor_questionnaires = {}
-            errors = []
+            user_profile = UserProfile.get_for_user(contributor)
+            contributor_questionnaires.append((user_profile, form_group.values()));
 
-            for form in form_group[None].values():
-                course_forms.append(form)
+            if any(form.errors for form in form_group.values()):
+                errors.append(contributor.id)
 
-            for contributor in form_group:
-                if contributor is None:
-                    continue
-                user_profile = UserProfile.get_for_user(contributor)
-                contributor_questionnaires[user_profile] = form_group[contributor].values()
-                for form in form_group[contributor].values():
-                    if form.errors:
-                        errors.append(contributor.id)
-
-            return render_to_response(
-                "student_vote.html",
-                dict(course_forms=course_forms,
-                     contributor_questionnaires=contributor_questionnaires,
-                     errors=errors,
-                     course=course),
-                context_instance=RequestContext(request))
+        return render_to_response(
+            "student_vote.html",
+            dict(course_forms=course_forms,
+                 contributor_questionnaires=contributor_questionnaires,
+                 errors=errors,
+                 course=course),
+            context_instance=RequestContext(request))
 
     # all forms are valid
     # begin vote operation
     with transaction.atomic():
-        for contributor in form_group:
-            for (contribution, questionnaire), form in form_group[contributor].items():
+        for contribution, form_group in form_groups.items():
+            for questionnaire, form in form_group.items():
                 for question in questionnaire.question_set.all():
                     identifier = make_form_identifier(contribution, questionnaire, question)
                     value = form.cleaned_data.get(identifier)
@@ -108,6 +97,8 @@ def vote(request, course_id):
 
         # remember that the user voted already
         course.voters.add(request.user)
+
+        course.was_evaluated(request)
 
     messages.info(request, _("Your vote was recorded."))
     return redirect('evap.student.views.index')

@@ -9,7 +9,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate
+                                   EmailTemplate, TextAnswer
 from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
 
@@ -93,6 +93,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['contributor'].queryset = User.objects.order_by('username')
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
+        self.fields['order'].widget = forms.HiddenInput()
 
     def validate_unique(self):
         exclude = self._get_validation_exclusions()
@@ -139,7 +140,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
         recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
-        return len([user for user in recipients if not user.email]) > 0
+        return len([user for user in recipients if not user.email])
 
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
@@ -154,35 +155,36 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
-    edited_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
+    reviewed_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
     needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
     hidden = forms.BooleanField(label=_("Do not publish"), required=False)
 
     class Meta:
-        fields = ('edited_answer', 'needs_further_review')
+        fields = ('reviewed_answer', 'needs_further_review')
+        model = TextAnswer
 
     def __init__(self, *args, **kwargs):
         super(ReviewTextAnswerForm, self).__init__(*args, **kwargs)
 
-        self.fields['edited_answer'].initial = self.instance.answer
+        self.fields['reviewed_answer'].initial = self.instance.answer
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        edited_answer = cleaned_data.get("edited_answer") or ""
+        reviewed_answer = cleaned_data.get("reviewed_answer") or ""
         needs_further_review = cleaned_data.get("needs_further_review")
         hidden = cleaned_data.get("hidden")
 
-        if not edited_answer.strip() or hidden:
+        if not reviewed_answer.strip() or hidden:
             # hidden
             self.instance.checked = True
             self.instance.hidden = True
-        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(edited_answer):
+        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(reviewed_answer):
             # simply approved
             self.instance.checked = True
         else:
             # reviewed
             self.instance.checked = True
-            self.instance.reviewed_answer = edited_answer
+            self.instance.reviewed_answer = reviewed_answer
 
         if needs_further_review:
             self.instance.checked = False
@@ -231,7 +233,7 @@ class ContributorFormSet(AtLeastOneFormSet):
                     elif contributor:
                         found_contributor.append(contributor)
 
-                    if form.cleaned_data.get('responsible'):
+                    if form.cleaned_data.get('responsible') and not delete:
                         count_responsible += 1
 
             except AttributeError:
@@ -277,17 +279,15 @@ class QuestionForm(forms.ModelForm):
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
-        extras = kwargs.pop('extras', ())
         super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
 
         # course kinds
         for kind in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']).values_list('kind', flat=True).order_by().distinct():
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
 
-        # extra kinds
-        for extra in extras:
-            self.fields[extra] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-
+    # overwritten because of https://code.djangoproject.com/ticket/12645
+    # users can specify the field name (it's a course type), and include e.g. umlauts there
+    # might be fixed in python 3
     def _clean_fields(self):
         for name, field in self.fields.items():
             # value_from_datadict() gets the data from the data dictionaries.
@@ -314,14 +314,14 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, degree, queryset, filter_func, *args, **kwargs):
+    def __init__(self, degree, courses, filter_func, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
         self.degree = degree
-        self.queryset = queryset
+        self.courses = courses
         self.selected_courses = []
         self.filter_func = filter_func or (lambda x: True)
 
-        for course in self.queryset:
+        for course in self.courses:
             if self.filter_func(course):
                 label = course.name + " (" + course.kind + ")" + " (" + course.state + ")"
                 self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
@@ -342,7 +342,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'picture', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'is_external', 'picture', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -384,6 +384,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
 
     def _post_clean(self, *args, **kw):
+        if self._errors:
+            return
+            
         # first save the user, so that the profile gets created for sure
         self.instance.user.username = self.cleaned_data.get('username').strip().lower()
         self.instance.user.first_name = self.cleaned_data.get('first_name').strip()
