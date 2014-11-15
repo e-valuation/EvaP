@@ -67,16 +67,14 @@ class UsecaseTests(WebTest):
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
         page = upload_form.submit().follow()
 
-        self.assertEqual(semester.course_set.count(), 23, "Wrong number of courses after Excel import.")
-        self.assertEqual(User.objects.count(), original_user_count + 24, "Wrong number of users after Excel import.")
+        self.assertEqual(User.objects.count(), original_user_count + 24)
 
-        check_course = Course.objects.get(name_en="Shake")
-        check_contributions = Contribution.objects.filter(course=check_course)
-        responsible_count = 0
-        for contribution in check_contributions:
-            if contribution.responsible:
-                responsible_count += 1
-        self.assertEqual(responsible_count, 1, "Wrong number of responsible contributors after Excel import.")
+        courses = Course.objects.filter(semester=semester).all()
+        self.assertEqual(len(courses), 23)
+
+        for course in courses:
+            responsibles_count = Contribution.objects.filter(course=course, responsible=True).count()
+            self.assertEqual(responsibles_count, 1)
 
         check_student = User.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
