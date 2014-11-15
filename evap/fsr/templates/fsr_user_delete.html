@@ -6,10 +6,10 @@
     {{ block.super }}
     <form method="POST" style="display: inline;">
         {% csrf_token %}
-        <p>{% blocktrans with name=user.name %}Do you really want to delete the user <em>{{ name }}</em>?{% endblocktrans %}</p>
-        <input type="submit" value="{% trans "Yes" %}"/>
+        <p>{% blocktrans with name=user_to_delete.username %}Do you really want to delete the user <em>{{ name }}</em>?{% endblocktrans %}</p>
+        <input type="submit" value="{% trans "Yes" %}" class="btn btn-danger"/>
     </form>
     <form method="GET" action="{% url "evap.fsr.views.user_index" %}" style="display: inline;">
-        <input type="submit" value="{% trans "No" %}"/>
+        <input type="submit" value="{% trans "No" %}" class="btn btn-default"/>
     </form>
 {% endblock %}

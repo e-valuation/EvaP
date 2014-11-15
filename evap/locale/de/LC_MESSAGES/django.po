@@ -985,6 +985,10 @@ msgstr "Semester erfolgreich erstellt."
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
+#: fsr/views.py:102
+msgid "Successfully deleted semester."
+msgstr "Semester erfolgreich gelöscht."
+
 #: fsr/views.py:103
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
@@ -1026,6 +1030,10 @@ msgstr "Veranstaltung erfolgreich erstellt."
 #: fsr/views.py:293
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
+
+#: fsr/views.py:315
+msgid "Successfully deleted course."
+msgstr "Kurs erfolgreich gelöscht."
 
 #: fsr/views.py:316
 #, python-format
@@ -1082,6 +1090,10 @@ msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
+#: fsr/views.py:553
+msgid "Successfully deleted questionnaire."
+msgstr "Fragebogen erfolgreich gelöscht."
+
 #: fsr/views.py:554
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
@@ -1095,6 +1107,10 @@ msgstr "Benutzer erfolgreich erstellt."
 #: fsr/views.py:597
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
+
+#: fsr/views.py:102
+msgid "Successfully deleted user."
+msgstr "Nutzer erfolgreich gelöscht."
 
 #: fsr/views.py:614
 #, python-format
