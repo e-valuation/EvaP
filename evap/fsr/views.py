@@ -18,7 +18,7 @@ from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswer
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                            SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, \
                            FaqSectionForm, FaqQuestionForm, UserImportForm
-from evap.fsr.importers import ExcelImporter
+from evap.fsr.importers import EnrolmentImporter, UserImporter
 from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
@@ -148,7 +148,7 @@ def semester_import(request, semester_id):
         vote_end_date = form.cleaned_data['vote_end_date']
 
         # parse table
-        ExcelImporter.process_enrollments(request, excel_file, semester, vote_start_date, vote_end_date)
+        EnrolmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date)
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
@@ -576,7 +576,7 @@ def user_import(request):
 
     if form.is_valid():
         excel_file = form.cleaned_data['excel_file']
-        ExcelImporter.process_users(request, excel_file)
+        UserImporter.process(request, excel_file)
         return redirect('evap.fsr.views.user_index')       
     else:
         return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))

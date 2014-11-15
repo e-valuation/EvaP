@@ -68,7 +68,6 @@ class CourseData(object):
 class ExcelImporter(object):
     def __init__(self, request):
         self.associations = OrderedDict()
-        self.consolidated_data = None
         self.request = request
         self.book = None
         self.skip_first_n_rows = 1 # first line contains the header
@@ -95,15 +94,18 @@ class ExcelImporter(object):
                 raise
         messages.success(self.request, _(u"Successfully read excel file."))
 
+
+class EnrolmentImporter(ExcelImporter):
+    def __init__(self, request):
+        super(EnrolmentImporter, self).__init__(request)
+        self.consolidated_data = None
+
+
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='')
         responsible_data = UserData(username=data[11], first_name=data[10], last_name=data[9], title=data[8], email=data[12])
         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7], responsible_username=responsible_data.username)
         return (student_data, responsible_data, course_data)
-
-    def read_one_user(self, data, sheet_name, row_id):
-        user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
-        return (user_data)
 
     def check_user(self, user_data, sheet, row):
         # no empty fields
@@ -111,7 +113,6 @@ class ExcelImporter(object):
         # hpi-username < 20
         # EITHER an HPI-emailadress and a HPI-username OR no HPI-username and an external emailadress
         pass
-
 
     def check_course(self, user_course, sheet, row):
         # is there something to check?
@@ -162,9 +163,6 @@ class ExcelImporter(object):
     def check_enrolment_data_sanity(self):
         pass
 
-    def sanity_check_enrolment_data(self):
-        pass
-
     def write_enrolments_to_db(self, semester, vote_start_date, vote_end_date):
         students, responsibles, courses, enrolments, degrees = self.consolidated_data
         students_created = 0
@@ -191,6 +189,33 @@ class ExcelImporter(object):
 
             messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(courses), students=students_created, responsibles=responsibles_created))
 
+    @classmethod
+    def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):
+        """Entry point for the view."""
+        try:
+            importer = cls(request)
+            importer.read_book(excel_file)
+            importer.check_column_count(13)
+            importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
+            importer.consolidate_enrolment_data()
+            importer.check_enrolment_data_correctness()
+            importer.check_enrolment_data_sanity()
+            importer.write_enrolments_to_db(semester, vote_start_date, vote_end_date)
+        except Exception as e:
+            messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
+            if settings.DEBUG:
+                # re-raise error for further introspection if in debug mode
+                raise
+
+
+class UserImporter(ExcelImporter):
+    def __init__(self, request):
+        super(UserImporter, self).__init__(request)
+
+    def read_one_user(self, data, sheet_name, row_id):
+        user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
+        return (user_data)
+
     def save_users_to_db(self):
         """Stores the read data in the database. Errors might still
         occur because of the data already in the database."""
@@ -209,25 +234,7 @@ class ExcelImporter(object):
             messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
 
     @classmethod
-    def process_enrollments(cls, request, excel_file, semester, vote_start_date, vote_end_date):
-        """Entry point for the view."""
-        try:
-            importer = cls(request)
-            importer.read_book(excel_file)
-            importer.check_column_count(13)
-            importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
-            importer.consolidate_enrolment_data()
-            importer.check_enrolment_data_correctness()
-            importer.check_enrolment_data_sanity()
-            importer.write_enrolments_to_db(semester, vote_start_date, vote_end_date)
-        except Exception as e:
-            messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
-            if settings.DEBUG:
-                # re-raise error for further introspection if in debug mode
-                raise
-
-    @classmethod
-    def process_users(cls, request, excel_file):
+    def process(cls, request, excel_file):
         """Entry point for the view."""
         try:
             importer = cls(request)
