@@ -8,7 +8,7 @@ from evap.evaluation.models import Course, UserProfile
 from evap.evaluation.tools import is_external_email
 
 import xlrd
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 
 class UserData(object):
@@ -27,43 +27,30 @@ class UserData(object):
                 self.username = (self.first_name + '.' + self.last_name + '.ext').lower()
 
     def store_in_database(self):
-        user = User(username=self.username,
-                    first_name=self.first_name,
-                    last_name=self.last_name,
-                    email=self.email)
+        user, created = User.objects.get_or_create(username=self.username)
+        user.first_name = self.first_name
+        user.last_name = self.last_name
+        user.email = self.email
         user.save()
+
         profile = UserProfile.get_for_user(user=user)
         profile.title = self.title
         profile.is_external = self.is_external
-        profile.save()
-        return user
-
-    def update(self, user):
-        profile = UserProfile.get_for_user(user=user)
-
-        if not user.first_name:
-            user.first_name = self.first_name
-        if not user.last_name:
-            user.last_name = self.last_name
-        if not user.email:
-            user.email = self.email
-        if not profile.title:
-            profile.title = self.title
         if profile.needs_login_key:
             profile.refresh_login_key()
-
-        user.save()
         profile.save()
-
+        return created
+        
 
 class CourseData(object):
     """Holds information about a course, retrieved from the Excel file."""
 
-    def __init__(self, name_de, name_en, kind, degree):
+    def __init__(self, name_de, name_en, kind, degree, responsible_username):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
         self.kind = kind.strip()
         self.degree = degree.strip()
+        self.responsible_username = responsible_username
 
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
@@ -74,12 +61,14 @@ class CourseData(object):
                         semester=semester,
                         degree=self.degree)
         course.save()
-        return course
+        responsible_dbobj = User.objects.get(username=self.responsible_username)
+        course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True)
 
 
 class ExcelImporter(object):
     def __init__(self, request):
         self.associations = OrderedDict()
+        self.consolidated_data = None
         self.request = request
         self.book = None
         self.skip_first_n_rows = 1 # first line contains the header
@@ -109,53 +98,98 @@ class ExcelImporter(object):
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='')
         responsible_data = UserData(username=data[11], first_name=data[10], last_name=data[9], title=data[8], email=data[12])
-        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7])
+        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7], responsible_username=responsible_data.username)
         return (student_data, responsible_data, course_data)
 
     def read_one_user(self, data, sheet_name, row_id):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
         return (user_data)
 
-    def save_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
-        """Stores the read and validated data in the database. Errors might still
-        occur because the previous validation does check not for consistency with
-        the data already in the database."""
+    def check_user(self, user_data, sheet, row):
+        # no empty fields
+        # validate
+        # hpi-username < 20
+        # EITHER an HPI-emailadress and a HPI-username OR no HPI-username and an external emailadress
+        pass
+
+
+    def check_course(self, user_course, sheet, row):
+        # is there something to check?
+        pass
+
+    def compare_users(self, user_data1, user_data2, sheet, row):
+        pass # assert usernames are equal, print warnings if rest is different
+
+    def compare_courses(self, course_data1, course_data2, sheet, row):
+        pass # assert everything is equal
+
+    def process_user(self, dictionary, user_data, sheet, row):
+        curr_username = user_data.username
+        if curr_username not in dictionary:
+            self.check_user(user_data, sheet, row)
+            dictionary[curr_username] = user_data
+        else:
+            self.compare_users(user_data, dictionary[curr_username], sheet, row)
+
+
+    def process_course(self, dictionary, course_data, sheet, row):
+        course_id = (course_data.degree, course_data.name_en) 
+        if course_id not in dictionary:
+            self.check_course(course_data, sheet, row)
+            dictionary[course_id] = course_data
+        else:
+            self.compare_courses(course_data, dictionary[course_id], sheet, row)
+    
+    
+    def consolidate_enrolment_data(self):
+        # these are dictionaries to not let this become O(n^2)
+        students = {}
+        responsibles = {}
+        courses = {}
+        enrolments = []
+        degrees = set()
+        for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
+            self.process_user(students, student_data, sheet, row)
+            self.process_user(responsibles, responsible_data, sheet, row)
+            self.process_course(courses, course_data, sheet, row)
+            enrolments.append((course_data, student_data))
+            degrees.add(course_data.degree)
+        self.consolidated_data = (students, responsibles, courses, enrolments, degrees)
+
+    def check_enrolment_data_correctness(self):
+        pass
+
+    def check_enrolment_data_sanity(self):
+        pass
+
+    def sanity_check_enrolment_data(self):
+        pass
+
+    def write_enrolments_to_db(self, semester, vote_start_date, vote_end_date):
+        students, responsibles, courses, enrolments, degrees = self.consolidated_data
+        students_created = 0
+        responsibles_created = 0
 
         with transaction.atomic():
-            course_count = 0
-            student_count = 0
-            responsible_count = 0
-            for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
-                try:
-                    # create or retrieve database objects
-                    try:
-                        student = User.objects.get(username__iexact=student_data.username)
-                        student_data.update(student)
-                    except User.DoesNotExist:
-                        student = student_data.store_in_database()
-                        student_count += 1
+            for user_data in students.values():
+                created = user_data.store_in_database()
+                if created:
+                    students_created += 1
 
-                    try:
-                        responsible = User.objects.get(username__iexact=responsible_data.username)
-                        responsible_data.update(responsible)
-                    except User.DoesNotExist:
-                        responsible = responsible_data.store_in_database()
-                        responsible_count += 1
+            for user_data in responsibles.values():
+                created = user_data.store_in_database()
+                if created:
+                    responsibles_created += 1
 
-                    try:
-                        course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
-                    except Course.DoesNotExist:
-                        course = course_data.store_in_database(vote_start_date, vote_end_date, semester)
-                        course.contributions.create(contributor=responsible, course=course, responsible=True, can_edit=True)
-                        course_count += 1
+            for course_data in courses.values():
+                course_data.store_in_database(vote_start_date, vote_end_date, semester)
 
-                    # connect database objects
-                    course.participants.add(student)
+            for course_data, student_data in enrolments:
+                course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
+                student = User.objects.get(username=student_data.username)
+                course.participants.add(student)
 
-                except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
-                    raise
-            messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=course_count, students=student_count, responsibles=responsible_count))
+            messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(courses), students=students_created, responsibles=responsibles_created))
 
     def save_users_to_db(self):
         """Stores the read data in the database. Errors might still
@@ -165,12 +199,8 @@ class ExcelImporter(object):
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:
-                    # create or retrieve database objects
-                    try:
-                        user = User.objects.get(username__iexact=user_data.username)
-                        user_data.update(user)
-                    except User.DoesNotExist:
-                        user = user_data.store_in_database()
+                    created = user_data.store_in_database()
+                    if created:
                         users_count += 1
 
                 except Exception as e:
@@ -186,7 +216,10 @@ class ExcelImporter(object):
             importer.read_book(excel_file)
             importer.check_column_count(13)
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
-            importer.save_enrollments_to_db(semester, vote_start_date, vote_end_date)
+            importer.consolidate_enrolment_data()
+            importer.check_enrolment_data_correctness()
+            importer.check_enrolment_data_sanity()
+            importer.write_enrolments_to_db(semester, vote_start_date, vote_end_date)
         except Exception as e:
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
