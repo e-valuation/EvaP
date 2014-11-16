@@ -28,13 +28,10 @@ class UserData(CommonEqualityMixin):
         self.last_name = last_name.strip()
         self.title = title.strip()
         self.email = email.strip().lower()
-        self.is_external = False
-        if is_external_email(self.email):
-            self.is_external = True
-            if self.username == '':
-                self.username = (self.first_name + '.' + self.last_name + '.ext').lower()
 
     def store_in_database(self):
+        if self.username == '':
+            self.username = (self.first_name + '.' + self.last_name + '.ext').lower()
         user, created = User.objects.get_or_create(username=self.username)
         user.first_name = self.first_name
         user.last_name = self.last_name
@@ -43,7 +40,7 @@ class UserData(CommonEqualityMixin):
 
         profile = UserProfile.get_for_user(user=user)
         profile.title = self.title
-        profile.is_external = self.is_external
+        profile.is_external = is_external_email(self.email)
         if profile.needs_login_key:
             profile.refresh_login_key()
         profile.save()
@@ -79,6 +76,7 @@ class ExcelImporter(object):
         self.request = request
         self.book = None
         self.skip_first_n_rows = 1 # first line contains the header
+        self.errors = []
 
     def read_book(self, excel_file):
         self.book = xlrd.open_workbook(file_contents=excel_file.read())
@@ -86,7 +84,7 @@ class ExcelImporter(object):
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
             if (sheet.ncols != expected_column_count):
-                messages.warning(self.request, _(u"Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
+                self.errors.append(_(u"Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
 
     def for_each_row_in_excel_file_do(self, parse_row_function):
         for sheet in self.book.sheets():
@@ -101,6 +99,10 @@ class ExcelImporter(object):
                 messages.warning(self.request, _(u"A problem occured while reading sheet '%s'.") % sheet.name)
                 raise
         messages.success(self.request, _(u"Successfully read excel file."))
+
+    def show_errors(self):
+        for error in self.errors:
+            messages.error(self.request, error)
 
 
 class EnrolmentImporter(ExcelImporter):
@@ -121,7 +123,7 @@ class EnrolmentImporter(ExcelImporter):
             dictionary[curr_username] = user_data
         else:
             if not user_data == dictionary[curr_username]:
-                messages.warning(self.request, _(u'Sheet "{}", row {}: The users\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, user_data.username))
+                self.errors.append(_(u'Sheet "{}", row {}: The users\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, user_data.username))
 
     def process_course(self, dictionary, course_data, sheet, row):
         course_id = (course_data.degree, course_data.name_en) 
@@ -129,7 +131,7 @@ class EnrolmentImporter(ExcelImporter):
             dictionary[course_id] = course_data
         else:
             if not course_data == dictionary[course_id]:
-                messages.warning(self.request, _(u'Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, course_data.name_en))
+                self.errors.append(_(u'Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, course_data.name_en))
 
     def consolidate_enrolment_data(self):
         # these are dictionaries to not let this become O(n^2)
@@ -175,8 +177,8 @@ class EnrolmentImporter(ExcelImporter):
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                 student = User.objects.get(username=student_data.username)
                 course.participants.add(student)
-
-            messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(courses), students=students_created, responsibles=responsibles_created))
+                
+        messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(courses), students=students_created, responsibles=responsibles_created))
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):
@@ -185,12 +187,21 @@ class EnrolmentImporter(ExcelImporter):
             importer = cls(request)
             importer.read_book(excel_file)
             importer.check_column_count(13)
+            if importer.errors:
+                importer.show_errors()
+                messages.error(importer.request, _("The input data is malformed. No data was imported."))
+                return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrolment_data()
             importer.check_enrolment_data_correctness()
             importer.check_enrolment_data_sanity()
+            if importer.errors:
+                importer.show_errors()
+                messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
+                return
             importer.write_enrolments_to_db(semester, vote_start_date, vote_end_date)
         except Exception as e:
+            raise
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
@@ -220,7 +231,7 @@ class UserImporter(ExcelImporter):
                 except Exception as e:
                     messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
-            messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
+        messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
 
     @classmethod
     def process(cls, request, excel_file):
@@ -229,9 +240,14 @@ class UserImporter(ExcelImporter):
             importer = cls(request)
             importer.read_book(excel_file)
             importer.check_column_count(5)
+            if importer.errors:
+                importer.show_errors()
+                messages.error(importer.request, _("The input data is malformed. No data was imported."))
+                return
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.save_users_to_db()
         except Exception as e:
+            raise
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
