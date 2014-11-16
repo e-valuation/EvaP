@@ -104,7 +104,7 @@ class EnrolmentImporter(ExcelImporter):
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='')
         responsible_data = UserData(username=data[11], first_name=data[10], last_name=data[9], title=data[8], email=data[12])
-        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0][:-7], responsible_username=responsible_data.username)
+        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0], responsible_username=responsible_data.username)
         return (student_data, responsible_data, course_data)
 
     def check_user(self, user_data, sheet, row):
