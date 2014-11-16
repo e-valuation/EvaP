@@ -1,6 +1,10 @@
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
+from collections import defaultdict
+
+from operator import attrgetter
+
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_(u"event name"))
     date = models.DateField(verbose_name=_(u"event date"))
@@ -11,6 +15,14 @@ class RewardPointRedemptionEvent(models.Model):
         if RewardPointRedemption.objects.filter(event=self).exists():
             return False
         return True
+    
+    def redemptions_by_user(self):
+        redemptions = self.reward_point_redemptions.all()
+        redemptions = sorted(redemptions, key=attrgetter('user_profile.user.last_name', 'user_profile.user.first_name'))
+        redemptions_dict = defaultdict(list)
+        for redemption in redemptions:
+            redemptions_dict[redemption.user_profile].append(redemption)
+        return redemptions_dict
 
 class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey('evaluation.UserProfile', related_name="reward_point_grantings")
