@@ -15,10 +15,6 @@ class evap ($db_connector) {
         provider    => shell,
         command     => 'python manage.py collectstatic --noinput',
         cwd         => '/vagrant'
-    } -> exec { 'evap-flush-db':
-        provider    => shell,
-        command     => 'python manage.py flush --noinput --no-initial-data',
-        cwd         => '/vagrant'
     } -> exec { 'evap-load-testdata':
         provider    => shell,
         command     => 'python manage.py loaddata test_data.json',
