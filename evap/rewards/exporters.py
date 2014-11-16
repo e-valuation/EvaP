@@ -2,8 +2,6 @@ from evap.rewards.models import RewardPointRedemption, RewardPointRedemptionEven
 
 from django.utils.translation import ugettext as _
 
-from operator import attrgetter
-
 from collections import OrderedDict
 from collections import defaultdict
 import datetime
@@ -16,8 +14,8 @@ from evap.results.exporters import writen, writec
 
 class ExcelExporter(object):
 
-    def __init__(self, reward_point_redemptions):
-        self.reward_point_redemptions = reward_point_redemptions
+    def __init__(self, redemptions_by_user):
+        self.redemptions_by_user = redemptions_by_user
 
     styles = {
         'default':       xlwt.Style.default_style,
@@ -25,9 +23,8 @@ class ExcelExporter(object):
     }
 
     def export(self, response):
-        redemptions = self.reward_point_redemptions
-        redemptions = sorted(redemptions, key=attrgetter('user_profile.user.last_name', 'user_profile.user.first_name'))
-
+        redemptions_dict = self.redemptions_by_user
+        
         self.workbook = xlwt.Workbook()
         self.sheet = self.workbook.add_sheet(_(u"Redemptions"))
         self.row = 0
@@ -38,11 +35,10 @@ class ExcelExporter(object):
         writec(self, _("Email address"), "bold")
         writec(self, _("Number of points"), "bold")
 
-        for redemption in redemptions:
-            user = redemption.user_profile.user
-            writen(self, user.last_name, "default")
-            writec(self, user.first_name, "default")
-            writec(self, user.email, "default")
-            writec(self, redemption.value, "default")
+        for user_profile, value in redemptions_dict.items():
+            writen(self, user_profile.user.last_name, "default")
+            writec(self, user_profile.user.first_name, "default")
+            writec(self, user_profile.user.email, "default")
+            writec(self, value, "default")
 
         self.workbook.save(response)

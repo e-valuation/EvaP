@@ -136,7 +136,7 @@ def reward_point_redemption_event_export(request, event_id):
     response = HttpResponse(content_type="application/vnd.ms-excel")
     response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
 
-    ExcelExporter(event.reward_point_redemptions.all()).export(response)
+    ExcelExporter(event.redemptions_by_user()).export(response)
 
     return response
 
