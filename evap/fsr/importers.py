@@ -10,8 +10,16 @@ from evap.evaluation.tools import is_external_email
 import xlrd
 from collections import OrderedDict, defaultdict
 
+# taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
+class CommonEqualityMixin(object):
 
-class UserData(object):
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__)
+            and self.__dict__ == other.__dict__)
+
+
+
+class UserData(CommonEqualityMixin):
     """Holds information about a user, retrieved from the Excel file."""
 
     def __init__(self, username, first_name, last_name, title, email):
@@ -42,7 +50,7 @@ class UserData(object):
         return created
         
 
-class CourseData(object):
+class CourseData(CommonEqualityMixin):
     """Holds information about a course, retrieved from the Excel file."""
 
     def __init__(self, name_de, name_en, kind, degree, responsible_username):
@@ -107,41 +115,22 @@ class EnrolmentImporter(ExcelImporter):
         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0], responsible_username=responsible_data.username)
         return (student_data, responsible_data, course_data)
 
-    def check_user(self, user_data, sheet, row):
-        # no empty fields
-        # validate
-        # hpi-username < 20
-        # EITHER an HPI-emailadress and a HPI-username OR no HPI-username and an external emailadress
-        pass
-
-    def check_course(self, user_course, sheet, row):
-        # is there something to check?
-        pass
-
-    def compare_users(self, user_data1, user_data2, sheet, row):
-        pass # assert usernames are equal, print warnings if rest is different
-
-    def compare_courses(self, course_data1, course_data2, sheet, row):
-        pass # assert everything is equal
-
     def process_user(self, dictionary, user_data, sheet, row):
         curr_username = user_data.username
         if curr_username not in dictionary:
-            self.check_user(user_data, sheet, row)
             dictionary[curr_username] = user_data
         else:
-            self.compare_users(user_data, dictionary[curr_username], sheet, row)
-
+            if not user_data == dictionary[curr_username]:
+                messages.warning(self.request, _(u'Sheet "{}", row {}: The users\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, user_data.username))
 
     def process_course(self, dictionary, course_data, sheet, row):
         course_id = (course_data.degree, course_data.name_en) 
         if course_id not in dictionary:
-            self.check_course(course_data, sheet, row)
             dictionary[course_id] = course_data
         else:
-            self.compare_courses(course_data, dictionary[course_id], sheet, row)
-    
-    
+            if not course_data == dictionary[course_id]:
+                messages.warning(self.request, _(u'Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, course_data.name_en))
+
     def consolidate_enrolment_data(self):
         # these are dictionaries to not let this become O(n^2)
         students = {}
