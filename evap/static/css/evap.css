@@ -148,11 +148,11 @@ td.vote-inputs > div > label {
     font-weight: normal;
 }
 
-td.vote-inputs > div:nth-child(1) > label { color: #5f8634; }
-td.vote-inputs > div:nth-child(2) > label { color: #83933b; }
-td.vote-inputs > div:nth-child(3) > label { color: #a89f3e; }
-td.vote-inputs > div:nth-child(4) > label { color: #aa6f3e; }
-td.vote-inputs > div:nth-child(5) > label { color: #a53e3f; }
+td.vote-inputs > div:nth-of-type(1) > label { color: #5f8634; }
+td.vote-inputs > div:nth-of-type(2) > label { color: #83933b; }
+td.vote-inputs > div:nth-of-type(3) > label { color: #a89f3e; }
+td.vote-inputs > div:nth-of-type(4) > label { color: #aa6f3e; }
+td.vote-inputs > div:nth-of-type(5) > label { color: #a53e3f; }
 
 td.vote-inputs > textarea {
     width: 99%;
