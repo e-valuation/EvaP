@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
-from collections import defaultdict
+from collections import OrderedDict
 
 from operator import attrgetter
 
@@ -17,11 +17,12 @@ class RewardPointRedemptionEvent(models.Model):
         return True
     
     def redemptions_by_user(self):
-        redemptions = self.reward_point_redemptions.all()
-        redemptions = sorted(redemptions, key=attrgetter('user_profile.user.last_name', 'user_profile.user.first_name'))
-        redemptions_dict = defaultdict(list)
+        redemptions = self.reward_point_redemptions.order_by('user_profile__user__last_name', 'user_profile__user__first_name')
+        redemptions_dict = OrderedDict()
         for redemption in redemptions:
-            redemptions_dict[redemption.user_profile].append(redemption)
+            if not redemption.user_profile in redemptions_dict:
+                redemptions_dict[redemption.user_profile] = 0
+            redemptions_dict[redemption.user_profile] += redemption.value
         return redemptions_dict
 
 class RewardPointGranting(models.Model):

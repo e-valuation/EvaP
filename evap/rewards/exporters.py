@@ -35,13 +35,10 @@ class ExcelExporter(object):
         writec(self, _("Email address"), "bold")
         writec(self, _("Number of points"), "bold")
 
-        for user_profile in redemptions_dict:
+        for user_profile, value in redemptions_dict.items():
             writen(self, user_profile.user.last_name, "default")
             writec(self, user_profile.user.first_name, "default")
             writec(self, user_profile.user.email, "default")
-            value = 0
-            for redemption in redemptions_dict[user_profile]:
-                value += redemption.value
             writec(self, value, "default")
 
         self.workbook.save(response)
