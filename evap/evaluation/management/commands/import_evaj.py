@@ -150,8 +150,9 @@ class Command(BaseCommand):
             ids = [str(evaluation.id) for evaluation in self.get('evaluation')]
             raise CommandError("No evaluation IDs given. Valid IDs are: %s" % ", ".join(ids))
 
-        for arg in args[1:]:
-            self.process_semester(arg)
+        with transaction.atomic():
+            for arg in args[1:]:
+                self.process_semester(arg)
 
     def read_xml(self, filename):
         logger.info("Parsing XML file...")
@@ -178,32 +179,29 @@ class Command(BaseCommand):
 
         # topic_template --> Questionnaire
         for topic_template in self.get('topic_template', questionnaire_template_id=evaluation.questionnaire_template_id):
-            try:
-                with transaction.atomic():
-                    questionnaire = Questionnaire.objects.create(
-                        # hack: make names unique by adding the original IDs
-                        name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
-                        name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
-                        description=u"Imported from EvaJ, Semester %s" % evaluation.semester,
-                        obsolete=True)
+            questionnaire = Questionnaire.objects.create(
+                # hack: make names unique by adding the original IDs
+                name_de=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
+                name_en=u"{0:s} ({1:s})".format(topic_template.name_ge, topic_template.id),
+                description=u"Imported from EvaJ, Semester %s" % evaluation.semester,
+                obsolete=True,
+                index=0)
 
-                    self.questionnaire_cache[int(topic_template.id)] = questionnaire
+            self.questionnaire_cache[int(topic_template.id)] = questionnaire
 
-                    # question_template --> Question
-                    for question_template in sorted(self.get('question_template', topic_template_id=topic_template.id), key=lambda qt: int(qt.idx)):
-                        if str(question_template.type) == "21":
-                            questionnaire.teaser_de = unicode(question_template.text_ge)
-                            questionnaire.teaser_en = unicode(question_template.text_ge)
-                            questionnaire.save()
-                        else:
-                            question = Question.objects.create(
-                                questionnaire=questionnaire,
-                                text_de=unicode(question_template.text_ge),
-                                text_en=unicode(question_template.text_ge),
-                                kind=self.question_template_type_map[str(question_template.type)])
-                            self.question_cache[int(question_template.id)] = question
-            except Exception:
-                logger.exception(u"An exception occurred while trying to import questionnaire '%s'!", topic_template.name_ge)
+            # question_template --> Question
+            for question_template in sorted(self.get('question_template', topic_template_id=topic_template.id), key=lambda qt: int(qt.idx)):
+                if str(question_template.type) == "21":
+                    questionnaire.teaser_de = unicode(question_template.text_ge)
+                    questionnaire.teaser_en = unicode(question_template.text_ge)
+                    questionnaire.save()
+                else:
+                    question = Question.objects.create(
+                        questionnaire=questionnaire,
+                        text_de=unicode(question_template.text_ge),
+                        text_en=unicode(question_template.text_ge),
+                        kind=self.question_template_type_map[str(question_template.type)])
+                    self.question_cache[int(question_template.id)] = question
 
         courses = self.get('course', evaluation_id=evaluation.id)
         course_count = 0
@@ -211,82 +209,79 @@ class Command(BaseCommand):
         # course --> Course
         for xml_course in courses:
             logger.debug(u"Creating course %s (id=%d evaluation=%d)", unicode(xml_course.name), xml_course.id, xml_course.evaluation_id)
-            try:
-                with transaction.atomic():
-                    course = Course.objects.create(
-                        semester=semester,
-                        name_de=unicode(xml_course.name),
-                        name_en=unicode(xml_course.name),
-                        vote_start_date=parse_date(str(xml_course.survey_start_date)),
-                        vote_end_date=parse_date(str(xml_course.survey_start_date)),
-                        kind=u",".join(self.get_lecture_types(xml_course)),
-                        degree=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
-                        state='published')
+            course = Course.objects.create(
+                semester=semester,
+                name_de=unicode(xml_course.name),
+                name_en=unicode(xml_course.name),
+                vote_start_date=parse_date(str(xml_course.survey_start_date)),
+                vote_end_date=parse_date(str(xml_course.survey_start_date)),
+                kind=u",".join(self.get_lecture_types(xml_course)),
+                degree=u"Master" if int(xml_course.target_audience_id) == 1 else u"Bachelor",
+                state='published')
 
-                    course.participants = self.get_participants(xml_course)
-                    course.voters = self.get_voters(xml_course)
-                    course.save()
+            course.participants = self.get_participants(xml_course)
+            course.voters = self.get_voters(xml_course)
+            course.save()
 
-                    # general quesitonnaires
-                    Contribution.objects.get(course=course, contributor=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
+            # general quesitonnaires
+            Contribution.objects.get(course=course, contributor=None).questionnaires = self.get_questionnaires(xml_course, evaluation.id)
 
-                    # contributor questionnaires
-                    for contributor, questionnaire in self.get_contributors_with_questionnaires(xml_course):
-                        contribution, _ = Contribution.objects.get_or_create(course=course, contributor=contributor)
-                        contribution.questionnaires.add(questionnaire)
+            # contributor questionnaires
+            for contributor, questionnaire in self.get_contributors_with_questionnaires(xml_course):
+                contribution, _ = Contribution.objects.get_or_create(course=course, contributor=contributor)
+                contribution.questionnaires.add(questionnaire)
 
-                    # answer --> LikertAnswer/TextAnswer
-                    for assessment in self.get('assessment', course_id=xml_course.id):
-                        for answer in self.get('answer', assessment_id=assessment.id):
-                            staff_id = nint(getattr(answer, 'staff_id', None))
-                            contributor = self.staff_cache[staff_id] if staff_id is not None else None
-                            contribution = course.contributions.get(contributor=contributor)
+            # answer --> LikertAnswer/TextAnswer
+            for assessment in self.get('assessment', course_id=xml_course.id):
+                for answer in self.get('answer', assessment_id=assessment.id):
+                    staff_id = nint(getattr(answer, 'staff_id', None))
+                    contributor = self.staff_cache[staff_id] if staff_id is not None else None
+                    contribution = course.contributions.get(contributor=contributor)
 
-                            status = str(answer.revised_status)
-                            try:
-                                question = self.question_cache[int(answer.question_template_id)]
-                            except (AttributeError, KeyError):
-                                logger.warn("No question found for answer %r", answer.id)
-                                continue
+                    status = str(answer.revised_status)
+                    try:
+                        question = self.question_cache[int(answer.question_template_id)]
+                    except (AttributeError, KeyError):
+                        logger.warn("No question found for answer %r", answer.id)
+                        #raise
+                        continue
 
-                            if status == "61":
-                                LikertAnswer.objects.create(
-                                    contribution=contribution,
-                                    question=question,
-                                    answer=int(answer.response)
+                    if status == "61":
+                        LikertAnswer.objects.create(
+                            contribution=contribution,
+                            question=question,
+                            answer=int(answer.response)
+                        )
+                    else:
+                        comment = getattr(answer, 'comment', None)
+                        if comment is not None:
+                            comment = unicode(comment).strip()
+
+                        if comment:
+                            if status == "62":
+                                additional_fields = dict(
+                                    hidden=False
+                                )
+                            elif status == "63":
+                                additional_fields = dict(
+                                    reviewed_answer=unicode(answer.revised_comment),
+                                    hidden=False
+                                )
+                            elif status == "64":
+                                additional_fields = dict(
+                                    hidden=True
                                 )
                             else:
-                                comment = getattr(answer, 'comment', None)
-                                if comment is not None:
-                                    comment = unicode(comment).strip()
+                                raise Exception("Invalid XML-file")
 
-                                if comment:
-                                    if status == "62":
-                                        additional_fields = dict(
-                                            hidden=False
-                                        )
-                                    elif status == "63":
-                                        additional_fields = dict(
-                                            reviewed_answer=unicode(answer.revised_comment),
-                                            hidden=False
-                                        )
-                                    elif status == "64":
-                                        additional_fields = dict(
-                                            hidden=True
-                                        )
-                                    else:
-                                        raise Exception("Invalid XML-file")
+                            TextAnswer.objects.create(
+                                contribution=contribution,
+                                question=question,
+                                original_answer=comment,
+                                checked=True,
+                                **additional_fields
+                            )
 
-                                    TextAnswer.objects.create(
-                                        contribution=contribution,
-                                        question=question,
-                                        original_answer=comment,
-                                        checked=True,
-                                        **additional_fields
-                                    )
-
-                course_count += 1
-            except Exception:
-                logger.exception(u"An exception occurred while trying to import course '%s'!", xml_course.name)
+            course_count += 1
 
         logger.info("Done, %d of %d courses imported.", course_count, len(courses))
