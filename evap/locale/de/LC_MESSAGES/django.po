@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-01 23:40+0100\n"
+"POT-Creation-Date: 2014-11-16 15:43+0100\n"
 "PO-Revision-Date: 2014-11-01 23:40+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.6.5\n"
 
-#: contributor/forms.py:10 fsr/forms.py:34
+#: contributor/forms.py:10 fsr/forms.py:35
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
@@ -30,7 +30,7 @@ msgstr "Profil erfolgreich aktualisiert."
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:105 fsr/views.py:303
+#: contributor/views.py:105 fsr/views.py:307
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -51,7 +51,7 @@ msgstr "Mitwirkender"
 msgid "Contributors"
 msgstr "Mitwirkende"
 
-#: contributor/templates/contributor_course_form.html:29 fsr/forms.py:95
+#: contributor/templates/contributor_course_form.html:29 fsr/forms.py:96
 #: fsr/templates/fsr_index.html:25 fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11 templates/base.html:71
 msgid "Questionnaires"
@@ -67,7 +67,7 @@ msgid "Remove?"
 msgstr "Entfernen?"
 
 #: contributor/templates/contributor_course_form.html:49
-#: evaluation/models.py:358
+#: evaluation/models.py:357
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -119,7 +119,7 @@ msgstr "Entfernen"
 msgid "add another"
 msgstr "Weiteren hinzufügen"
 
-#: contributor/templates/contributor_index.html:21 evaluation/models.py:533
+#: contributor/templates/contributor_index.html:21 evaluation/models.py:536
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -203,7 +203,7 @@ msgstr ""
 msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
-#: contributor/templates/contributor_index.html:51 evaluation/models.py:636
+#: contributor/templates/contributor_index.html:51 evaluation/models.py:640
 #: fsr/templates/fsr_user_index.html:21
 #: rewards/templates/rewards_semester_reward_points_view.html:13
 #: student/templates/student_index.html:46
@@ -407,7 +407,7 @@ msgstr "obsolet"
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: evaluation/models.py:93 evaluation/models.py:357
+#: evaluation/models.py:93 evaluation/models.py:356
 msgid "questionnaires"
 msgstr "Fragebögen"
 
@@ -443,7 +443,7 @@ msgstr "Erster Abstimmungstag"
 msgid "last date to vote"
 msgstr "letzter Abstimmungstag"
 
-#: evaluation/models.py:146 evaluation/models.py:355
+#: evaluation/models.py:146 evaluation/models.py:354
 msgid "course"
 msgstr "Veranstaltung"
 
@@ -455,263 +455,263 @@ msgstr "Veranstaltungen"
 msgid "The vote start date must be before the vote end date."
 msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
 
-#: evaluation/models.py:318
+#: evaluation/models.py:317
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:320
+#: evaluation/models.py:319
 msgid "Not enough participants to publish results"
 msgstr "Zu wenig Teilnehmer für Veröffentlichung"
 
-#: evaluation/models.py:356
+#: evaluation/models.py:355
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:359
+#: evaluation/models.py:358
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:361
+#: evaluation/models.py:360
 msgid "contribution order"
 msgstr "Mitwirkungs-Reihenfolge"
 
-#: evaluation/models.py:381
+#: evaluation/models.py:384
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:382
+#: evaluation/models.py:385
 msgid "Likert Question"
 msgstr "Likert-Frage"
 
-#: evaluation/models.py:383
+#: evaluation/models.py:386
 msgid "Grade Question"
 msgstr "Bewertungsfrage"
 
-#: evaluation/models.py:387
+#: evaluation/models.py:390
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:388
+#: evaluation/models.py:391
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:390
+#: evaluation/models.py:393
 msgid "kind of question"
 msgstr "Frageart"
 
-#: evaluation/models.py:396 evaluation/models.py:517
+#: evaluation/models.py:399 evaluation/models.py:520
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:397 evaluation/models.py:518
+#: evaluation/models.py:400 evaluation/models.py:521
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:430 evaluation/models.py:438 evaluation/models.py:448
+#: evaluation/models.py:433 evaluation/models.py:441 evaluation/models.py:451
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:431
+#: evaluation/models.py:434
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:441
+#: evaluation/models.py:444
 msgid "Likert answer"
 msgstr "Likert-Antwort"
 
-#: evaluation/models.py:442
+#: evaluation/models.py:445
 msgid "Likert answers"
 msgstr "Likert-Antworten"
 
-#: evaluation/models.py:451
+#: evaluation/models.py:454
 msgid "grade answer"
 msgstr "Bewertungs-Antwort"
 
-#: evaluation/models.py:452
+#: evaluation/models.py:455
 msgid "grade answers"
 msgstr "Bewertungs-Antworten"
 
-#: evaluation/models.py:461
+#: evaluation/models.py:464
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:462
+#: evaluation/models.py:465
 msgid "original answer"
 msgstr "Original-Antwort"
 
-#: evaluation/models.py:464
+#: evaluation/models.py:467
 msgid "answer checked"
 msgstr "Antwort geprüft"
 
-#: evaluation/models.py:465
+#: evaluation/models.py:468
 msgid "hide answer"
 msgstr "Antwort ausblenden"
 
-#: evaluation/models.py:468
+#: evaluation/models.py:471
 msgid "text answer"
 msgstr "Text-Antwort"
 
-#: evaluation/models.py:469
+#: evaluation/models.py:472
 msgid "text answers"
 msgstr "Text-Antworten"
 
-#: evaluation/models.py:486
+#: evaluation/models.py:489
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:488
+#: evaluation/models.py:491
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evaluation/models.py:489
+#: evaluation/models.py:492
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evaluation/models.py:494
+#: evaluation/models.py:497
 msgid "section"
 msgstr "Abschnitt"
 
-#: evaluation/models.py:495
+#: evaluation/models.py:498
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evaluation/models.py:505
+#: evaluation/models.py:508
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:507
+#: evaluation/models.py:510
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:508
+#: evaluation/models.py:511
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:511 evaluation/models.py:512
+#: evaluation/models.py:514 evaluation/models.py:515
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evaluation/models.py:525
+#: evaluation/models.py:528
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:528
+#: evaluation/models.py:531
 msgid "Picture"
 msgstr "Foto"
 
-#: evaluation/models.py:530
+#: evaluation/models.py:533
 msgid "Is external"
 msgstr "Ist Externer"
 
-#: evaluation/models.py:536
+#: evaluation/models.py:539
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evaluation/models.py:541 fsr/templates/fsr_user_index.html:50
+#: evaluation/models.py:544 fsr/templates/fsr_user_index.html:50
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:542
+#: evaluation/models.py:545
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:545
+#: evaluation/models.py:548
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:546
+#: evaluation/models.py:549
 msgid "users"
 msgstr "Benutzer"
 
-#: evaluation/models.py:638 fsr/forms.py:114
+#: evaluation/models.py:642 fsr/forms.py:115
 msgid "Subject"
 msgstr "Betreff"
 
-#: evaluation/models.py:639 fsr/forms.py:115
+#: evaluation/models.py:643 fsr/forms.py:116
 msgid "Body"
 msgstr "Text"
 
-#: evaluation/tools.py:12
+#: evaluation/tools.py:11
 msgid "Strongly agree"
 msgstr "Stimme voll zu"
 
-#: evaluation/tools.py:13
+#: evaluation/tools.py:12
 msgid "Agree"
 msgstr "Stimme teils zu"
 
-#: evaluation/tools.py:14
+#: evaluation/tools.py:13
 msgid "Neither agree nor disagree"
 msgstr "teils teils"
 
-#: evaluation/tools.py:15
+#: evaluation/tools.py:14
 msgid "Disagree"
 msgstr "Stimme teils nicht zu"
 
-#: evaluation/tools.py:16
+#: evaluation/tools.py:15
 msgid "Strongly disagree"
 msgstr "Stimme nicht zu"
 
-#: evaluation/tools.py:17 evaluation/tools.py:26
+#: evaluation/tools.py:16 evaluation/tools.py:25
 msgid "no answer"
 msgstr "Keine Angabe"
 
-#: evaluation/tools.py:21
+#: evaluation/tools.py:20
 msgid "1"
 msgstr "1"
 
-#: evaluation/tools.py:22
+#: evaluation/tools.py:21
 msgid "2"
 msgstr "2"
 
-#: evaluation/tools.py:23
+#: evaluation/tools.py:22
 msgid "3"
 msgstr "3"
 
-#: evaluation/tools.py:24
+#: evaluation/tools.py:23
 msgid "4"
 msgstr "4"
 
-#: evaluation/tools.py:25
+#: evaluation/tools.py:24
 msgid "5"
 msgstr "5"
 
-#: evaluation/tools.py:31
+#: evaluation/tools.py:30
 msgid "new"
 msgstr "neu"
 
-#: evaluation/tools.py:32
+#: evaluation/tools.py:31
 msgid "prepared"
 msgstr "vorbereitet"
 
-#: evaluation/tools.py:33
+#: evaluation/tools.py:32
 msgid "lecturer approved"
 msgstr "von Dozent bestätigt"
 
-#: evaluation/tools.py:34
+#: evaluation/tools.py:33
 msgid "approved"
 msgstr "bestätigt"
 
-#: evaluation/tools.py:35 evaluation/tools.py:43
+#: evaluation/tools.py:34 evaluation/tools.py:42
 msgid "in evaluation"
 msgstr "in Evaluierung"
 
-#: evaluation/tools.py:36
+#: evaluation/tools.py:35
 msgid "evaluated"
 msgstr "evaluiert"
 
-#: evaluation/tools.py:37
+#: evaluation/tools.py:36
 msgid "reviewed"
 msgstr "überprüft"
 
-#: evaluation/tools.py:38 evaluation/tools.py:46
+#: evaluation/tools.py:37 evaluation/tools.py:45
 msgid "published"
 msgstr "veröffentlicht"
 
-#: evaluation/tools.py:44
+#: evaluation/tools.py:43
 msgid "upcoming"
 msgstr "in Vorbereitung"
 
-#: evaluation/tools.py:45
+#: evaluation/tools.py:44
 msgid "evaluation finished"
 msgstr "Evaluierung beendet"
 
@@ -811,69 +811,69 @@ msgstr ""
 msgid "Send Key"
 msgstr "Schlüssel zusenden"
 
-#: fsr/forms.py:17
+#: fsr/forms.py:18
 msgid "First date to vote"
 msgstr "Erster Abstimmungstag"
 
-#: fsr/forms.py:18
+#: fsr/forms.py:19
 msgid "Last date to vote"
 msgstr "Letzter Abstimmungstag"
 
-#: fsr/forms.py:20 fsr/forms.py:24
+#: fsr/forms.py:21 fsr/forms.py:25
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: fsr/forms.py:35
+#: fsr/forms.py:36
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: fsr/forms.py:36
+#: fsr/forms.py:37
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
-#: fsr/forms.py:109
+#: fsr/forms.py:110
 msgid "Send to participants who didn't vote yet"
 msgstr "An Teilnehmer versenden, die noch nicht abgestimmt haben"
 
-#: fsr/forms.py:110
+#: fsr/forms.py:111
 msgid "Send to all participants"
 msgstr "An alle Teilnehmer versenden"
 
-#: fsr/forms.py:111
+#: fsr/forms.py:112
 msgid "Send to the responsible person"
 msgstr "An den Verantwortlichen versenden"
 
-#: fsr/forms.py:112
+#: fsr/forms.py:113
 msgid "Send to editors"
 msgstr "An Mitwirkende mit Bearbeitungsrechten versenden"
 
-#: fsr/forms.py:113
+#: fsr/forms.py:114
 msgid "Send to all contributors (includes editors)"
 msgstr "An alle Mitwirkenden versenden"
 
-#: fsr/forms.py:132
+#: fsr/forms.py:133
 msgid "No recipient selected. Choose at least one group of recipients."
 msgstr ""
 "Kein Empfänger ausgewählt. Bitte wählen Sie wenigstens eine Empfängergruppe "
 "aus."
 
-#: fsr/forms.py:158
+#: fsr/forms.py:159
 msgid "Answer"
 msgstr "Antwort"
 
-#: fsr/forms.py:159
+#: fsr/forms.py:160
 msgid "Needs further review"
 msgstr "Benötigt weitere Begutachtung"
 
-#: fsr/forms.py:160
+#: fsr/forms.py:161
 msgid "Do not publish"
 msgstr "Nicht veröffentlichen"
 
-#: fsr/forms.py:214
+#: fsr/forms.py:216
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: fsr/forms.py:229
+#: fsr/forms.py:231
 msgid ""
 "Please select the name of each added contributor. Remove empty rows if "
 "necessary."
@@ -881,13 +881,13 @@ msgstr ""
 "Bitte wählen Sie die Namen aller hinzugefügten Mitwirkenden aus. Entfernen "
 "Sie leere Zeilen, falls notwendig."
 
-#: fsr/forms.py:231
+#: fsr/forms.py:233
 msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr ""
 "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben "
 "werden."
 
-#: fsr/forms.py:244
+#: fsr/forms.py:246
 msgid ""
 "No responsible contributor found. Each course must have exactly one "
 "responsible contributor."
@@ -895,7 +895,7 @@ msgstr ""
 "Kein Verantwortlicher gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
-#: fsr/forms.py:246
+#: fsr/forms.py:248
 msgid ""
 "Too many responsible contributors found. Each course must have exactly one "
 "responsible contributor."
@@ -920,7 +920,7 @@ msgstr "Stellvertreter für"
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: fsr/forms.py:403
+#: fsr/forms.py:406
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -938,7 +938,7 @@ msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 msgid "Successfully read excel file."
 msgstr "Exceldatei erfolgreich gelesen."
 
-#: fsr/importers.py:102 fsr/importers.py:115
+#: fsr/importers.py:102 fsr/importers.py:112
 #, python-format
 msgid ""
 "Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', "
@@ -947,7 +947,7 @@ msgstr ""
 "Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
 "'%(beginning)s', %(ncols)s Spalten"
 
-#: fsr/importers.py:170 fsr/importers.py:191
+#: fsr/importers.py:164 fsr/importers.py:185
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -958,7 +958,7 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: fsr/importers.py:172
+#: fsr/importers.py:166
 #, python-format
 msgid ""
 "Successfully created %(courses)d course(s), %(students)d student(s) and "
@@ -967,85 +967,85 @@ msgstr ""
 "%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d "
 "Mitwirkende erfolgreich erstellt."
 
-#: fsr/importers.py:193
+#: fsr/importers.py:187
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
-#: fsr/importers.py:204 fsr/importers.py:217
+#: fsr/importers.py:198 fsr/importers.py:211
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: fsr/views.py:72
+#: fsr/views.py:76
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: fsr/views.py:86
+#: fsr/views.py:90
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: fsr/views.py:102
+#: fsr/views.py:103
 msgid "Successfully deleted semester."
 msgstr "Semester erfolgreich gelöscht."
 
-#: fsr/views.py:103
+#: fsr/views.py:108
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: fsr/views.py:127
+#: fsr/views.py:132
 msgid "Could not send emails to participants and contributors"
 msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 
-#: fsr/views.py:128
+#: fsr/views.py:133
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: fsr/views.py:163
+#: fsr/views.py:168
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: fsr/views.py:186
+#: fsr/views.py:191
 #, python-format
 msgid "Successfully reverted %d courses to New."
 msgstr "Erfolgreich %d Veranstaltungen auf Neu zurückgesetzt."
 
-#: fsr/views.py:208
+#: fsr/views.py:213
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen bestätigt."
 
-#: fsr/views.py:233
+#: fsr/views.py:238
 #, python-format
 msgid "Successfully marked %d courses as ready for lecturer review."
 msgstr "Erfolgreich %d Veranstaltungen als Bereit für die Dozenten markiert."
 
-#: fsr/views.py:279
+#: fsr/views.py:283
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: fsr/views.py:293
+#: fsr/views.py:297
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:315
-msgid "Successfully deleted course."
-msgstr "Kurs erfolgreich gelöscht."
-
-#: fsr/views.py:316
+#: fsr/views.py:320
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:333
+#: fsr/views.py:325
+msgid "Successfully deleted course."
+msgstr "Kurs erfolgreich gelöscht."
+
+#: fsr/views.py:338
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:367
+#: fsr/views.py:372
 msgid ""
 "Successfully reviewed {count} course answers for {course}. {course} is now "
 "fully reviewed."
@@ -1053,16 +1053,16 @@ msgstr ""
 "{count} Antworten für {name} erfolgreich überprüft. {name} ist jetzt "
 "vollständig überprüft."
 
-#: fsr/views.py:372
+#: fsr/views.py:377
 msgid "Successfully reviewed {count} course answers for {course}."
 msgstr "{count} Antworten für {course} erfolgreich überprüft."
 
-#: fsr/views.py:393
+#: fsr/views.py:398
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: fsr/views.py:395
+#: fsr/views.py:400
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
 "reached as they do not have an email address."
@@ -1071,62 +1071,62 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: fsr/views.py:419
+#: fsr/views.py:413
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr ""
 "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
 "Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:488 fsr/views.py:529
+#: fsr/views.py:482 fsr/views.py:523
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:503
+#: fsr/views.py:497
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:510
+#: fsr/views.py:504
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:553
+#: fsr/views.py:544
 msgid "Successfully deleted questionnaire."
 msgstr "Fragebogen erfolgreich gelöscht."
 
-#: fsr/views.py:554
+#: fsr/views.py:549
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:572
+#: fsr/views.py:567
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:597
+#: fsr/views.py:592
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:102
+#: fsr/views.py:605
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: fsr/views.py:614
+#: fsr/views.py:610
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:626
+#: fsr/views.py:622
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: fsr/views.py:642
+#: fsr/views.py:638
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: fsr/views.py:659
+#: fsr/views.py:655
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -1280,6 +1280,10 @@ msgstr ""
 "erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für "
 "alle Kurse eingetragen."
 
+#: fsr/templates/fsr_import.html:16
+msgid "Import"
+msgstr "Importieren"
+
 #: fsr/templates/fsr_index.html:8 fsr/templates/fsr_semester_base.html:7
 #: fsr/templates/fsr_semester_base.html:21
 #: results/templates/results_index.html:8 templates/base.html:68
@@ -1403,6 +1407,15 @@ msgstr[1] "%(count)s-mal verwendet"
 msgid "Contributor questionnaires"
 msgstr "Personen-Fragebögen"
 
+#: fsr/templates/fsr_semester_approve.html:10
+msgid "Approve courses"
+msgstr "Veranstaltungen bestätigen"
+
+#: fsr/templates/fsr_semester_approve.html:10
+#: fsr/templates/fsr_semester_contributor_ready.html:10
+msgid "There are no courses ready to approve."
+msgstr "Es existieren noch keine Veranstaltungen, die bestätigt werden können."
+
 #: fsr/templates/fsr_semester_assign_questionnaires.html:9
 msgid ""
 "Select the questionnaires to assign each of these course and contributor "
@@ -1414,6 +1427,10 @@ msgstr ""
 #: fsr/templates/fsr_semester_assign_questionnaires.html:18
 msgid "Assign questionnaires"
 msgstr "Fragebögen zuordnen"
+
+#: fsr/templates/fsr_semester_contributor_ready.html:10
+msgid "Show courses to contributor"
+msgstr "Veranstaltungen den Mitwirkenden zeigen"
 
 #: fsr/templates/fsr_semester_delete.html:9
 #, python-format
@@ -1441,6 +1458,24 @@ msgstr ""
 #: fsr/templates/fsr_semester_lottery.html:35
 msgid "users were eligible for the lottery."
 msgstr "Nutzer nahmen an der Verlosung teil."
+
+#: fsr/templates/fsr_semester_publish.html:10
+msgid "Publish courses"
+msgstr "Veranstaltungen veröffentlichen"
+
+#: fsr/templates/fsr_semester_publish.html:10
+msgid "There are no courses ready to publish."
+msgstr ""
+"Es existieren noch keine Veranstaltungen, die veröffentlicht werden können."
+
+#: fsr/templates/fsr_semester_revert_to_new.html:10
+msgid "Revert courses to New"
+msgstr "Kurse auf Neu zurücksetzen"
+
+#: fsr/templates/fsr_semester_revert_to_new.html:10
+msgid "There are no courses to revert to New."
+msgstr ""
+"Es existieren keine Veranstaltungen, die auf Neu zurückgesetzt werden können."
 
 #: fsr/templates/fsr_semester_view.html:11
 msgid "Edit Semester"
@@ -1716,7 +1751,7 @@ msgstr "Wert"
 msgid "redemption time"
 msgstr "Einlösezeitpunkt"
 
-#: rewards/tools.py:72
+#: rewards/tools.py:71
 msgid ""
 "You just have earned reward points for this semester because you evaluated "
 "all your courses. Thank you very much!"
@@ -1724,27 +1759,27 @@ msgstr ""
 "Du hast soeben Belohnungspunkte für dieses Semester erhalten, weil du alle "
 "deine Veranstaltungen bewertet hast. Vielen Dank!"
 
-#: rewards/views.py:32
+#: rewards/views.py:31
 msgid "You successfully redeemed your points."
 msgstr "Punkte erfolgreich eingelöst."
 
-#: rewards/views.py:34
+#: rewards/views.py:33
 msgid "You don't have enough reward points."
 msgstr "Du hast nicht genügend Belohnungspunkte."
 
-#: rewards/views.py:44
+#: rewards/views.py:43
 msgid "Reward for"
 msgstr "Belohnung für"
 
-#: rewards/views.py:96
+#: rewards/views.py:95
 msgid "Successfully created event."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: rewards/views.py:110
+#: rewards/views.py:109
 msgid "Successfully updated event."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: rewards/views.py:127
+#: rewards/views.py:126
 #: rewards/templates/rewards_reward_point_redemption_events.html:46
 #: rewards/templates/rewards_reward_point_redemption_events.html:83
 msgid ""
@@ -1754,7 +1789,7 @@ msgstr ""
 "Diese Veranstaltung kann nicht gelöscht werden, weil schon Punkte dafür "
 "eingelöst wurden."
 
-#: rewards/views.py:135
+#: rewards/views.py:134
 msgid "RewardPoints"
 msgstr "Belohnungspunkte"
 
@@ -1762,8 +1797,8 @@ msgstr "Belohnungspunkte"
 #: student/templates/student_index.html:6
 #: student/templates/student_index.html:11
 #: student/templates/student_index.html:13
-#: student/templates/student_vote.html:6
-#: student/templates/student_vote.html:10
+#: student/templates/student_vote.html:7
+#: student/templates/student_vote.html:11
 msgid "Evaluation"
 msgstr "Bewertung"
 
@@ -1905,7 +1940,7 @@ msgstr "Evaluiert"
 msgid "Reward points earned"
 msgstr "Belohnungspunkte vergeben"
 
-#: student/views.py:103
+#: student/views.py:86
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -1979,7 +2014,7 @@ msgstr "Du hast diese Veranstaltung schon evaluiert"
 msgid "Evaluate"
 msgstr "Evaluieren"
 
-#: student/templates/student_vote.html:17
+#: student/templates/student_vote.html:18
 msgid ""
 "Please make sure to vote for all contributors or click on \"I can't give "
 "feedback\" to skip a person."
@@ -1987,15 +2022,15 @@ msgstr ""
 "Bitte bewerte alle Mitwirkenden oder klicke auf \"Ich kann diesen "
 "Mitwirkenden nicht bewerten\", um die Person zu überspringen."
 
-#: student/templates/student_vote.html:24
+#: student/templates/student_vote.html:26
 msgid "Questions about the course"
 msgstr "Fragen zur Lehrveranstaltung"
 
-#: student/templates/student_vote.html:49
+#: student/templates/student_vote.html:51
 msgid "Questions about the contributors"
 msgstr "Fragen zu den Mitwirkenden"
 
-#: student/templates/student_vote.html:53
+#: student/templates/student_vote.html:56
 msgid ""
 "Please vote for all contributors you worked with. Click on \"I can't give "
 "feedback\" to skip a person."
@@ -2003,11 +2038,15 @@ msgstr ""
 "Bitte bewerte alle Mitwirkenden oder klicke auf \"Ich kann diesen "
 "Mitwirkenden nicht bewerten\", um die Person zu überspringen."
 
-#: student/templates/student_vote.html:60
+#: student/templates/student_vote.html:67
 msgid "I can't give feedback about this contributor"
 msgstr "Ich kann diesen Mitwirkenden nicht bewerten"
 
-#: student/templates/student_vote.html:94
+#: student/templates/student_vote.html:103
+msgid "Back"
+msgstr "Zurück"
+
+#: student/templates/student_vote.html:105
 msgid "Vote"
 msgstr "Abstimmen"
 

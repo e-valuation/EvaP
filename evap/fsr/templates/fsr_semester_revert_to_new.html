@@ -7,6 +7,6 @@
     {{ block.super }}
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% course_list forms "Revert courses to New" "There are no courses to revert to New." %}
+        {% course_list forms _("Revert courses to New") _("There are no courses to revert to New.") %}
     </form>
 {% endblock %}

@@ -6,6 +6,7 @@ from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 
+from evap.evaluation.tools import STATES_ORDERED
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
@@ -323,7 +324,7 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
         for course in self.courses:
             if self.filter_func(course):
-                label = course.name + " (" + course.kind + ")" + " (" + course.state + ")"
+                label = '%s (%s) (%s)' % (course.name, course.kind, STATES_ORDERED[course.state])
                 self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
 
     def clean(self):
