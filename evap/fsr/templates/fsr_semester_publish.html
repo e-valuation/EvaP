@@ -7,6 +7,6 @@
     {{ block.super }}
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% course_list forms "Publish courses" "There are no courses ready to publish." %}
+        {% course_list forms _("Publish courses") _("There are no courses ready to publish.") %}
     </form>
 {% endblock %}
