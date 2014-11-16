@@ -67,7 +67,7 @@ class UsecaseTests(WebTest):
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
         page = upload_form.submit().follow()
 
-        self.assertEqual(User.objects.count(), original_user_count + 24)
+        self.assertEqual(User.objects.count(), original_user_count + 23)
 
         courses = Course.objects.filter(semester=semester).all()
         self.assertEqual(len(courses), 23)
@@ -80,7 +80,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(check_student.first_name, "Diam")
         self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
 
-        check_contributor = User.objects.get(username="sanctus.aliquyam")
+        check_contributor = User.objects.get(username="sanctus.aliquyam.ext")
         self.assertEqual(check_contributor.first_name, "Sanctus")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
         self.assertEqual(check_contributor.email, "567@web.de")
