@@ -1,0 +1,39 @@
+{
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": "..",
+            "folder_exclude_patterns":
+            [
+                "evap/staticfiles",
+                "evap/static/js",
+                "htmlcov",
+            ],
+            "file_exclude_patterns":
+            [
+                "coverage.xml",
+                ".coverage",
+            ]
+
+        }
+    ],
+    "build_systems":
+    [
+        {
+            "name": "Vagrant",
+            "cmd": [""],
+            "variants":
+            [
+                {
+                    "name": "vagrant up",
+                    "cmd": ["vagrant", "up"]
+                },
+                {
+                    "name": "vagrant test",
+                    "cmd": ["vagrant", "ssh", "-c", "\"cd /vagrant && python manage.py test\""]
+                }
+            ]
+        }
+    ]
+}
