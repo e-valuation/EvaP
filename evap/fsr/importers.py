@@ -113,13 +113,13 @@ class ExcelImporter(object):
             messages.error(self.request, error)
 
 
-class EnrolmentImporter(ExcelImporter):
+class EnrollmentImporter(ExcelImporter):
     def __init__(self, request):
-        super(EnrolmentImporter, self).__init__(request)
+        super(EnrollmentImporter, self).__init__(request)
         self.users = None
         self.courses = None
-        self.enrolments = None
-        self.maxEnrolments = 6
+        self.enrollments = None
+        self.maxEnrollments = 6
 
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -143,18 +143,18 @@ class EnrolmentImporter(ExcelImporter):
             if not course_data == dictionary[course_id]:
                 self.errors.append(_(u'Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, course_data.name_en))
 
-    def consolidate_enrolment_data(self):
+    def consolidate_enrollment_data(self):
         # these are dictionaries to not let this become O(n^2)
         self.users = {}
         self.courses = {}
-        self.enrolments = []
+        self.enrollments = []
         for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
             self.process_user(self.users, student_data, sheet, row)
             self.process_user(self.users, responsible_data, sheet, row)
             self.process_course(self.courses, course_data, sheet, row)
-            self.enrolments.append((course_data, student_data))
+            self.enrollments.append((course_data, student_data))
 
-    def check_enrolment_data_correctness(self, semester):
+    def check_enrollment_data_correctness(self, semester):
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
@@ -173,13 +173,13 @@ class EnrolmentImporter(ExcelImporter):
                 self.errors.append("Course {} in degree {} does already exist in this semester. ")
 
 
-    def check_enrolment_data_sanity(self):
-        enrolments_per_user = defaultdict(list)
-        for enrolment in self.enrolments:
-            enrolments_per_user[enrolment[1]].append(enrolment)
-        for user_data, enrolments in enrolments_per_user.items():
-            if len(enrolments) > self.maxEnrolments:
-                self.warnings.append("Warning: User {} has {} enrolments, which is a lot.".format(user_data.username, len(enrolments)))
+    def check_enrollment_data_sanity(self):
+        enrollments_per_user = defaultdict(list)
+        for enrollment in self.enrollments:
+            enrollments_per_user[enrollment[1]].append(enrollment)
+        for user_data, enrollments in enrollments_per_user.items():
+            if len(enrollments) > self.maxEnrollments:
+                self.warnings.append("Warning: User {} has {} enrollments, which is a lot.".format(user_data.username, len(enrollments)))
         
         degrees = set([course_data.degree for course_data in self.courses.values()])
         for degree in degrees:
@@ -200,7 +200,7 @@ class EnrolmentImporter(ExcelImporter):
                 # nothing to do here
                 pass
 
-    def write_enrolments_to_db(self, semester, vote_start_date, vote_end_date):
+    def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
         responsibles_created = 0
 
@@ -215,7 +215,7 @@ class EnrolmentImporter(ExcelImporter):
             for course_data in self.courses.values():
                 course_data.store_in_database(vote_start_date, vote_end_date, semester)
 
-            for course_data, student_data in self.enrolments:
+            for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                 student = User.objects.get(email=student_data.email)
                 course.participants.add(student)
@@ -234,15 +234,15 @@ class EnrolmentImporter(ExcelImporter):
                 messages.error(importer.request, _("The input data is malformed. No data was imported."))
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
-            importer.consolidate_enrolment_data()
+            importer.consolidate_enrollment_data()
             importer.generate_external_usernames_if_external(importer.users.values())
-            importer.check_enrolment_data_correctness(semester)
-            importer.check_enrolment_data_sanity()
+            importer.check_enrollment_data_correctness(semester)
+            importer.check_enrollment_data_sanity()
             if importer.errors:
                 importer.show_errors()
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
                 return
-            importer.write_enrolments_to_db(semester, vote_start_date, vote_end_date)
+            importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
         except Exception as e:
             raise
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
