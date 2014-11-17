@@ -76,6 +76,7 @@ class ExcelImporter(object):
         self.book = None
         self.skip_first_n_rows = 1 # first line contains the header
         self.errors = []
+        self.warnings = []
 
     def read_book(self, excel_file):
         self.book = xlrd.open_workbook(file_contents=excel_file.read())
@@ -115,7 +116,10 @@ class ExcelImporter(object):
 class EnrolmentImporter(ExcelImporter):
     def __init__(self, request):
         super(EnrolmentImporter, self).__init__(request)
-        self.consolidated_data = None
+        self.users = None
+        self.courses = None
+        self.enrolments = None
+        self.maxEnrolments = 6
 
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -141,22 +145,17 @@ class EnrolmentImporter(ExcelImporter):
 
     def consolidate_enrolment_data(self):
         # these are dictionaries to not let this become O(n^2)
-        users = {}
-        courses = {}
-        enrolments = []
-        degrees = set()
+        self.users = {}
+        self.courses = {}
+        self.enrolments = []
         for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
-            self.process_user(users, student_data, sheet, row)
-            self.process_user(users, responsible_data, sheet, row)
-            self.process_course(courses, course_data, sheet, row)
-            enrolments.append((course_data, student_data))
-            degrees.add(course_data.degree)
-        self.consolidated_data = (users, courses, enrolments, degrees)
+            self.process_user(self.users, student_data, sheet, row)
+            self.process_user(self.users, responsible_data, sheet, row)
+            self.process_course(self.courses, course_data, sheet, row)
+            self.enrolments.append((course_data, student_data))
 
-    def check_enrolment_data_correctness(self):
-        users, courses, enrolments, degrees = self.consolidated_data
-
-        for user_data in users.values():
+    def check_enrolment_data_correctness(self, semester):
+        for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
             if not is_external_email(user_data.email) and len(user_data.username) > 20 :
@@ -168,31 +167,60 @@ class EnrolmentImporter(ExcelImporter):
             if user_data.email == "":
                 self.errors.append(_('User {}: Email address is missing.').format(user_data.email))
 
+        for course_data in self.courses.values():
+            already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de, degree=course_data.degree).exists()
+            if already_exists:
+                self.errors.append("Course {} in degree {} does already exist in this semester. ")
+
+
     def check_enrolment_data_sanity(self):
-        pass
+        enrolments_per_user = defaultdict(list)
+        for enrolment in self.enrolments:
+            enrolments_per_user[enrolment[1]].append(enrolment)
+        for user_data, enrolments in enrolments_per_user.items():
+            if len(enrolments) > self.maxEnrolments:
+                self.warnings.append("Warning: User {} has {} enrolments, which is a lot.".format(user_data.username, len(enrolments)))
+        
+        degrees = set([course_data.degree for course_data in self.courses.values()])
+        for degree in degrees:
+            if not Course.objects.filter(degree=degree).exists():
+                self.warnings.append("Warning: The degree \"{}\" does not exist yet and would be newly created.")
+
+        for user_data in self.users.values():
+            try:
+                user = User.objects.get(username=user_data.username)
+                if (user.email != user_data.email 
+                        or user.title != user_data.title
+                        or user.first_name != user_data.first_name
+                        or user.last_name != user_data.last_name):
+                    self.warnings.append("Warning: The existing user {} ({} {} {}, {})".format(user.username, user.title, user.first_name, user.last_name, user.email) +
+                        "would be overwritten with the following data: " +
+                        "{} {} {}, {}".format(user_data.username, user_data.first_name, user_data.last_name, user_data.email))
+            except User.DoesNotExist:
+                # nothing to do here
+                pass
 
     def write_enrolments_to_db(self, semester, vote_start_date, vote_end_date):
-        users, courses, enrolments, degrees = self.consolidated_data
         students_created = 0
         responsibles_created = 0
 
         with transaction.atomic():
-            for user_data in users.values():
+            for user_data in self.users.values():
                 created = user_data.store_in_database()
                 if created:
                     if user_data.is_responsible:
                         responsibles_created += 1
                     else:
                         students_created += 1
-            for course_data in courses.values():
+            for course_data in self.courses.values():
                 course_data.store_in_database(vote_start_date, vote_end_date, semester)
 
-            for course_data, student_data in enrolments:
+            for course_data, student_data in self.enrolments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                 student = User.objects.get(email=student_data.email)
                 course.participants.add(student)
                 
-        messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(courses), students=students_created, responsibles=responsibles_created))
+        messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(self.courses), students=students_created, responsibles=responsibles_created))
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):
@@ -207,8 +235,8 @@ class EnrolmentImporter(ExcelImporter):
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrolment_data()
-            importer.generate_external_usernames_if_external(importer.consolidated_data[0].values())
-            importer.check_enrolment_data_correctness()
+            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.check_enrolment_data_correctness(semester)
             importer.check_enrolment_data_sanity()
             if importer.errors:
                 importer.show_errors()
