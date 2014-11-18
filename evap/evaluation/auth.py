@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import UserProhfile
 
 from datetime import date
 from functools import wraps
@@ -66,10 +66,10 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            profile = UserProfile.objects.get(login_key=key,
+            profile = UserProhfile.objects.get(login_key=key,
                                               login_key_valid_until__gte=date.today())
             return profile.user
-        except UserProfile.DoesNotExist:
+        except UserProhfile.DoesNotExist:
             return None
 
 def login_required(func):
@@ -103,7 +103,7 @@ def editor_or_delegate_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_editor_or_delegate
+        return user.is_editor_or_delegate
     return user_passes_test(check_user)(func)
 
 
@@ -116,7 +116,7 @@ def editor_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_editor
+        return user.is_editor
     return user_passes_test(check_user)(func)
 
 def enrollment_required(func):
@@ -128,7 +128,7 @@ def enrollment_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return (UserProfile.get_for_user(user=user).enrolled_in_courses)
+        return user.enrolled_in_courses
     return user_passes_test(check_user)(func)
 
 def reward_user_required(func):
@@ -141,5 +141,5 @@ def reward_user_required(func):
         from evap.rewards.tools import can_user_use_reward_points
         if not user.is_authenticated():
             return False
-        return can_user_use_reward_points(UserProfile.get_for_user(user=user))
+        return can_user_use_reward_points(user)
     return user_passes_test(check_user)(func)

@@ -4,7 +4,6 @@ from django.utils.safestring import mark_safe
 
 
 from evap.student.tools import make_form_identifier
-from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES
 
 
@@ -58,6 +57,3 @@ class QuestionsForm(forms.Form):
 
     def teaser(self):
         return self.questionnaire.teaser
-
-    def image(self):
-        return UserProfile.get_for_user(self.contribution.contributor).picture if self.contribution.contributor else None

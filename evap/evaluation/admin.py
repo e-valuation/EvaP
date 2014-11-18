@@ -1,4 +1,4 @@
-from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, Questionnaire, Semester, TextAnswer, UserProfile, UserProhfile, GradeAnswer
+from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, Questionnaire, Semester, TextAnswer, UserProhfile, GradeAnswer
 from django.conf import settings
 from django.contrib import admin
 from django import forms
@@ -33,10 +33,11 @@ class QuestionnaireAdmin(admin.ModelAdmin):
     list_filter = ('obsolete',)
 
 
-class UserProfileAdmin(admin.ModelAdmin):
-    model = UserProfile
-    list_display = ('full_name', 'user')
-    ordering = ('user__username',)
+#class UserProfileAdmin(admin.ModelAdmin):
+#    model = UserProfile
+#    list_display = ('full_name', 'user')
+#    ordering = ('user__username',)
+
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required fields, plus a repeated password."""
@@ -112,7 +113,7 @@ admin.site.register(Course, CourseAdmin)
 
 admin.site.register(Questionnaire, QuestionnaireAdmin)
 
-admin.site.register(UserProfile, UserProfileAdmin)
+#admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserProhfile, UserProhfileAdmin)
 
 if settings.DEBUG:

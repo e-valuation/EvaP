@@ -43,20 +43,20 @@
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
                 <ul class="nav navbar-nav">
                     {% if user.is_authenticated %}
-                        {% if user.userprofile.enrolled_in_courses and user.userprofile.is_editor_or_delegate %}
+                        {% if user.enrolled_in_courses and user.is_editor_or_delegate %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
-                        {% elif user.userprofile.enrolled_in_courses %}
+                        {% elif user.enrolled_in_courses %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses" %}</a></li>
-                        {% elif user.userprofile.is_editor_or_delegate %}
+                        {% elif user.is_editor_or_delegate %}
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
-                        {% if user.userprofile.is_editor %}
+                        {% if user.is_editor %}
                             <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
-                        {% if user.userprofile|can_user_use_reward_points %}
+                        {% if user|can_user_use_reward_points %}
                             <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
                         {% endif %}
 
@@ -142,7 +142,7 @@
                 <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
                 {% if request.user.is_authenticated %}
-                    {% trans "Logged in as" %} {{ request.user.userprofile.full_name }}
+                    {% trans "Logged in as" %} {{ request.user.full_name }}
                 {% else %}
                     {% trans "Not logged in" %}
                 {% endif %}

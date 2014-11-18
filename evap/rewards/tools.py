@@ -16,14 +16,14 @@ from evap.rewards.models import RewardPointGranting, RewardPointRedemption, Rewa
 @login_required
 @transaction.atomic
 def save_redemptions(request, redemptions):
-    total_points_available = reward_points_of_user(request.user.userprofile)
+    total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
 
     if total_points_redeemed > 0 and total_points_redeemed <= total_points_available:
         for event_id in redemptions:
             if redemptions[event_id] > 0:
                 redemption = RewardPointRedemption(
-                    user_profile=request.user.userprofile,
+                    user_profile=request.user,
                     value=redemptions[event_id],
                     event=RewardPointRedemptionEvent.objects.get(id=event_id)
                 )
@@ -65,8 +65,8 @@ def grant_reward_points(sender, **kwargs):
     if Course.objects.filter(participants=request.user, semester=semester).exclude(voters=request.user).exists():
         return
     # did the user not already get reward points for this semester?
-    if not RewardPointGranting.objects.filter(user_profile=request.user.userprofile, semester=semester):
-        granting = RewardPointGranting(user_profile=request.user.userprofile, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
+    if not RewardPointGranting.objects.filter(user_profile=request.user, semester=semester):
+        granting = RewardPointGranting(user_profile=request.user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
         granting.save()
         messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
 

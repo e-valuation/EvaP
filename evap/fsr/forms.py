@@ -9,7 +9,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.tools import STATES_ORDERED
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, UserProfile, FaqSection, FaqQuestion, \
+                                   Semester, UserProhfile, FaqSection, FaqQuestion, \
                                    EmailTemplate, TextAnswer
 from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
@@ -59,7 +59,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
         if self.instance.last_modified_user:
-            self.fields['last_modified_user_2'].initial = UserProfile.get_for_user(self.instance.last_modified_user).full_name
+            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
         self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
 
         if self.instance.state == "inEvaluation":
@@ -342,8 +342,8 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser')))
 
     class Meta:
-        model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'is_external', 'picture', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
+        model = UserProhfile
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -357,7 +357,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['cc_users'].help_text = ""
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
-        self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
+        self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProhfile.objects.all(),
                                                                           initial=self.instance.user.represented_users.all() if self.instance.pk else (),
                                                                           label=_("Represented Users"),
                                                                           help_text="",
@@ -397,7 +397,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.user.is_superuser = self.cleaned_data.get('is_superuser')
         self.instance.user.save()
         self.instance.user.represented_users = self.cleaned_data.get('represented_users')
-        self.instance = UserProfile.get_for_user(self.instance.user)
+        self.instance = self.instance.user
 
         super(UserForm, self)._post_clean(*args, **kw)
 

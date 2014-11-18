@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
+from evap.evaluation.models import Semester, Questionnaire, UserProhfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributorFormSet, ContributionForm, CourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
@@ -92,11 +92,10 @@ class UsecaseTests(WebTest):
         self.app.extra_environ = environ
 
         user = User.objects.all()[0]
-        userprofile = UserProfile.get_for_user(user)
-        userprofile.generate_login_key()
-        userprofile.save()
+        user.generate_login_key()
+        user.save()
 
-        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.login_key
+        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % user.login_key
         self.app.get(url_with_key)
 
     def test_create_questionnaire(self):
@@ -201,8 +200,8 @@ class UsecaseTests(WebTest):
             self.app.get("/fsr/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
-        self.assertTrue(UserProfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
-        self.assertFalse(UserProfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
+        self.assertTrue(UserProhfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
+        self.assertFalse(UserProhfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
 
 
 
@@ -463,8 +462,8 @@ class URLTests(WebTest):
         """
             Tests the UserForm with one valid and one invalid input dataset.
         """
-        userprofile = UserProfile.objects.get(pk=1)
-        another_userprofile = UserProfile.objects.get(pk=2)
+        userprofile = UserProhfile.objects.get(pk=1)
+        another_userprofile = UserProhfile.objects.get(pk=2)
         data = {"username": "mklqoep50x2", "email": "a@b.ce"}
         form = UserForm(instance=userprofile, data=data)
         self.assertTrue(form.is_valid())

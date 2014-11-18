@@ -5,8 +5,6 @@ from django.forms.models import ModelChoiceIterator
 from django.utils.html import escape, conditional_escape
 from django.utils.encoding import force_unicode
 
-from evap.evaluation.models import UserProfile
-
 
 class ToolTipModelChoiceIterator(ModelChoiceIterator):
     def choice(self, obj):

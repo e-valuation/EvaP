@@ -1,8 +1,7 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import Course, UserProfile, Questionnaire
+from evap.evaluation.models import Course, UserProhfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 
 
@@ -45,12 +44,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    # steal form field definitions for the User model
-    locals().update(forms.fields_for_model(User, fields=('first_name', 'last_name', 'email')))
-
     class Meta:
-        model = UserProfile
-        fields = ('title', 'first_name', 'last_name', 'email', 'picture', 'delegates')
+        model = UserProhfile
+        fields = ('title', 'first_name', 'last_name', 'email', 'delegates')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -66,11 +62,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['email'].initial = self.instance.user.email
 
     def save(self, *args, **kw):
-        # first save the user, so that the profile gets created for sure
-        self.instance.user.first_name = self.cleaned_data.get('first_name')
-        self.instance.user.last_name = self.cleaned_data.get('last_name')
-        self.instance.user.email = self.cleaned_data.get('email')
-        self.instance.user.save()
-        self.instance = UserProfile.get_for_user(self.instance.user)
+        self.instance.first_name = self.cleaned_data.get('first_name')
+        self.instance.last_name = self.cleaned_data.get('last_name')
+        self.instance.email = self.cleaned_data.get('email')
+        self.instance.save()
 
         super(UserForm, self).save(*args, **kw)

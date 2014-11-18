@@ -28,7 +28,7 @@
         {% for user in users %}
             <tr>
                 <td class="minimize-with-padding">
-                    {{ user.userprofile.full_name }}
+                    {{ user.full_name }}
                 </td>
                 <td class="maximize">
                     {{ user.username }}
@@ -37,16 +37,16 @@
                     {% if user.is_staff %}
                         <span class="label label-primary">{% trans "Student Representative" %}</span>
                     {% endif %}
-                    {% if user.userprofile.is_external %}
+                    {% if user.is_external %}
                         <span class="label label-default">{% trans "External" %}</span>
                     {% endif %}
-                    {% if user.userprofile.is_contributor %}
+                    {% if user.is_contributor %}
                         <span class="label label-info">{% trans "Contributor" %}</span>
                     {% endif %}
-                    {% if user.userprofile.is_responsible %}
+                    {% if user.is_responsible %}
                         <span class="label label-info">{% trans "Responsible" %}</span>
                     {% endif %}
-                    {% if user.userprofile.login_key %}
+                    {% if user.login_key %}
                         <span class="label label-info">{% trans "Login Key" %}</span>
                     {% endif %}
                     {% if not user.email %}
@@ -55,7 +55,7 @@
                 </td>
                 <td class="minimize-with-padding">
                     <a href="{% url "evap.fsr.views.user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
-                    {% if user.userprofile.can_fsr_delete %}
+                    {% if user.can_fsr_delete %}
                         <a href="{% url "evap.fsr.views.user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
                         <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>

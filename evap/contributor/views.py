@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Contribution, Course, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 from evap.contributor.forms import CourseForm, UserForm
@@ -39,7 +39,7 @@ def index(request):
 @editor_required
 def profile_edit(request):
     user = request.user
-    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.objects.get_or_create(user=user)[0])
+    form = UserForm(request.POST or None, request.FILES or None, instance=user[0])
 
     if form.is_valid():
         form.save()

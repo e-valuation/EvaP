@@ -26,13 +26,13 @@ class RewardPointRedemptionEvent(models.Model):
         return redemptions_dict
 
 class RewardPointGranting(models.Model):
-    user_profile = models.ForeignKey('evaluation.UserProfile', related_name="reward_point_grantings")
+    user_profile = models.ForeignKey('evaluation.UserProhfile', related_name="reward_point_grantings")
     semester = models.ForeignKey('evaluation.Semester', related_name="reward_point_grantings", blank=True, null=True)
     granting_time = models.DateTimeField(verbose_name=_(u"granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_(u"value"), default=0)
 
 class RewardPointRedemption(models.Model):
-    user_profile = models.ForeignKey('evaluation.UserProfile', related_name="reward_point_redemptions")
+    user_profile = models.ForeignKey('evaluation.UserProhfile', related_name="reward_point_redemptions")
     redemption_time = models.DateTimeField(verbose_name=_(u"redemption time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_(u"value"), default=0)
     event = models.ForeignKey(RewardPointRedemptionEvent, related_name="reward_point_redemptions")

@@ -6,8 +6,7 @@ from django.core import exceptions
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import UserProfile
-from django.contrib.auth.models import User
+from evap.evaluation.models import UserProhfile
 
 
 def is_valid_email(value):
@@ -82,12 +81,10 @@ class Command(BaseCommand):
             is_fsr = True if read_value("Is student representative (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
 
             # create user
-            user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
+            user = UserProhfile.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
             if password is not None:
                 user.set_password(password)
                 user.save()
-            profile = UserProfile.get_for_user(user)
-            profile.save()
 
         except KeyboardInterrupt:
             sys.stderr.write("\nOperation cancelled.\n")

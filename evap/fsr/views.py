@@ -12,7 +12,7 @@ from django.http import HttpResponse
 
 from evap.evaluation.auth import fsr_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
+                                   TextAnswer, UserProhfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
 from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
@@ -568,8 +568,7 @@ def user_index(request):
 
 @fsr_required
 def user_create(request):
-    profile = UserProfile(user=User())
-    form = UserForm(request.POST or None, instance=profile)
+    form = UserForm(request.POST or None, instance=UserProhfile())
 
     if form.is_valid():
         form.save()
@@ -601,7 +600,7 @@ def user_import(request):
 @fsr_required
 def user_edit(request, user_id):
     user = get_object_or_404(User, id=user_id)
-    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.get_for_user(user))
+    form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
     if form.is_valid():
         form.save()
@@ -615,7 +614,7 @@ def user_edit(request, user_id):
 def user_delete(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
-    if UserProfile.get_for_user(user).can_fsr_delete:
+    if user.can_fsr_delete:
         if request.method == 'POST':
             user.delete()
             messages.success(request, _("Successfully deleted user."))
@@ -623,7 +622,7 @@ def user_delete(request, user_id):
         else:
             return render_to_response("fsr_user_delete.html", dict(user_to_delete=user), context_instance=RequestContext(request))
     else:
-        messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % UserProfile.get_for_user(user).full_name)
+        messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % user.full_name)
         return redirect('evap.fsr.views.user_index')
 
 

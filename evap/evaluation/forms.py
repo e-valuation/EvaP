@@ -2,7 +2,6 @@ from itertools import chain
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from django.forms import widgets
 from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
@@ -12,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import UserProhfile
 
 
 class QuestionnaireChoiceIterator(ModelChoiceIterator):
@@ -150,30 +149,25 @@ class NewKeyForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
-        self.profile_cache = None
 
         super(NewKeyForm, self).__init__(*args, **kwargs)
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
 
-        if not UserProfile.email_needs_login_key(email):
+        if not UserProhfile.email_needs_login_key(email):
             raise forms.ValidationError(_(u"HPI users cannot request login keys. Please login using your domain credentials."))
 
         try:
-            user = User.objects.get(email__iexact=email)
+            user = UserProhfile.objects.get(email__iexact=email)
             self.user_cache = user
-            self.profile_cache = UserProfile.get_for_user(user)
-        except User.DoesNotExist:
+        except UserProhfile.DoesNotExist:
             raise forms.ValidationError(_(u"No user with this email address was found. Please make sure to enter the email address already known to the university office."))
 
         return email
 
     def get_user(self):
         return self.user_cache
-
-    def get_profile(self):
-        return self.profile_cache
 
 
 class BootstrapFieldset(object):

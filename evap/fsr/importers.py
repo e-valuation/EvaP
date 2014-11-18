@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.models import Course
 from evap.evaluation.tools import is_external_email
 
 import xlrd
@@ -37,14 +37,10 @@ class UserData(CommonEqualityMixin):
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
+        user.title = self.title
+        if user.needs_login_key:
+            user.refresh_login_key()
         user.save()
-
-        profile = UserProfile.get_for_user(user=user)
-        profile.title = self.title
-        profile.is_external = is_external_email(self.email)
-        if profile.needs_login_key:
-            profile.refresh_login_key()
-        profile.save()
         return created
 
     def validate(self):
