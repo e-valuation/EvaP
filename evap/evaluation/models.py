@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
 import django.dispatch
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -519,6 +520,160 @@ class FaqQuestion(models.Model):
         ordering = ['order', ]
         verbose_name = _(u"question")
         verbose_name_plural = _(u"questions")
+
+class UserProhfileManager(BaseUserManager):
+    def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
+        if not username:
+            raise ValueError(_('Users must have a username'))
+
+        user = self.model(
+            username=username,
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name
+        )
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, username, password, email=None, first_name=None, last_name=None):
+        user = self.create_user(
+            username=username,
+            password=password, 
+            email=email, 
+            first_name=first_name, 
+            last_name=last_name
+        )
+        user.is_superuser = True
+        user.save()
+        return user
+
+
+class UserProhfile(AbstractBaseUser):
+    username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
+    email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_('email address'))
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(u"Title"))
+    first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
+
+    # delegates of the user, which can also manage their courses
+    delegates = models.ManyToManyField("UserProhfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
+
+    # users to which all emails should be sent in cc without giving them delegate rights
+    cc_users = models.ManyToManyField("UserProhfile", verbose_name=_(u"CC Users"), blank=True)
+
+    # key for url based login of this user
+    MAX_LOGIN_KEY = 2**31-1
+
+    login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
+    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
+
+    class Meta:
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
+
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    objects = UserProhfileManager()
+
+    @property
+    def full_name(self):
+        if self.last_name:
+            name = self.last_name
+            if self.first_name:
+                name = self.first_name + " " + name
+            if self.title:
+                name = self.title + " " + name
+            return name
+        else:
+            return self.username
+
+    def get_full_name(self):
+        return self.full_name
+
+    def get_short_name(self):
+        if self.first_name:
+            return self.first_name
+        return self.username
+
+    def __unicode__(self):
+        return self.get_full_name();
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_superuser(self):
+        return self.is_admin
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        return True
+
+
+
+    @property
+    def can_fsr_delete(self):
+        return not self.is_contributor
+
+    @property
+    def enrolled_in_courses(self):
+        return self.course_set.exists()
+
+    @property
+    def is_contributor(self):
+        return self.contributions.exists()
+
+    @property
+    def is_editor(self):
+        return self.contributions.filter(can_edit=True).exists()
+
+    @property
+    def is_responsible(self):
+        # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
+        return any(contribution.responsible for contribution in self.contributions.all())
+
+    @property
+    def is_delegate(self):
+        return self.represented_users.exists()
+
+    @property
+    def is_editor_or_delegate(self):
+        return self.is_editor or self.is_delegate
+
+    @classmethod
+    def email_needs_login_key(cls, email):
+        from evap.evaluation.tools import is_external_email
+        return is_external_email(email)
+
+    @property
+    def needs_login_key(self):
+        return UserProhfile.email_needs_login_key(self.email)
+
+    def generate_login_key(self):
+        while True:
+            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+            if not UserProhfile.objects.filter(login_key=key).exists():
+                # key not yet used
+                self.login_key = key
+                break
+
+        self.refresh_login_key()
+
+    def refresh_login_key(self):
+        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+
 
 
 class UserProfile(models.Model):

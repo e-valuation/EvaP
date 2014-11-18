@@ -11,6 +11,8 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TESTING = 'test' in sys.argv
 
+#AUTH_USER_MODEL = 'auth.User'
+
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
