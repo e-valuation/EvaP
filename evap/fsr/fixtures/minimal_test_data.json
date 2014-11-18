@@ -18,6 +18,15 @@
   }
 },
 {
+    "pk": 3,
+    "model": "evaluation.semester",
+    "fields": {
+        "created_at": "2014-11-16",
+        "name_de": "Test2",
+        "name_en": "Test2"
+    }
+},
+{
   "pk": 1, 
   "model": "evaluation.questionnaire", 
   "fields": {
@@ -778,7 +787,8 @@
     "cc_users": [], 
     "delegates": [], 
     "login_key_valid_until": null, 
-    "user": 8, 
+    "user": 8,
+    "is_external": true,
     "login_key": null
   }
 },
@@ -1225,6 +1235,32 @@
   }
 },
 {
+  "pk": 34,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 9,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 35,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 9,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.course", 
   "fields": {
@@ -1417,6 +1453,26 @@
   }
 },
 {
+    "pk": 9,
+    "model": "evaluation.course",
+    "fields": {
+        "name_de": "dasdadsadas",
+        "participant_count": null,
+        "degree": "Bachelor",
+        "voters": [],
+        "semester": 3,
+        "last_modified_time": "2014-11-16T17:28:28.457",
+        "voter_count": null,
+        "state": "inEvaluation",
+        "last_modified_user": 1,
+        "participants": [5],
+        "vote_end_date": "2099-11-20",
+        "name_en": "dadas",
+        "kind": "Masterprojekt",
+        "vote_start_date": "2014-11-07"
+    }
+},
+{
   "pk": 1, 
   "model": "evaluation.faqsection", 
   "fields": {
@@ -1436,5 +1492,60 @@
     "answer_de": "testanswer", 
     "answer_en": "testanswer"
   }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointredemptionevent",
+    "fields": {
+        "date": "2099-12-19",
+        "redeem_end_date": "2099-12-10",
+        "name": "TestEvent"
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointgranting",
+    "fields": {
+        "user_profile": 5,
+        "semester": 1,
+        "granting_time": "2014-11-15",
+        "value": 5
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.RewardPointRedemptionEvent",
+    "fields": {
+        "name": "TestEvent",
+        "date": "2015-01-01",
+        "redeem_end_date": "2014-12-10"
+    }
+},
+    {
+    "pk": 2,
+    "model": "rewards.RewardPointRedemptionEvent",
+    "fields": {
+        "name": "TestEvent_canDelete",
+        "date": "2015-01-01",
+        "redeem_end_date": "2014-12-10"
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointredemption",
+    "fields": {
+        "user_profile": 5,
+        "redemption_time": "2014-11-16",
+        "value": 2,
+        "event": 1
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.semesteractivation",
+    "fields": {
+        "semester": 3,
+        "is_active": false
+    }
 }
 ]
