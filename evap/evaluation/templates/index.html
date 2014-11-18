@@ -16,30 +16,53 @@
 
 {% block content %}
     {{ block.super }}
-    {% if request.user.is_active %}
-        <p style="min-height:400px;">
-            {% blocktrans with name=request.user.userprofile.full_name %}
-            You are currently logged in as {{ name }}.
-            {% endblocktrans %}
-        </p>
-    {% else %}
-        <h2>{% trans "Welcome to the evaluation platform!" %}</h2>
+    <h2>{% trans "Welcome to the evaluation platform!" %}</h2>
 
-        <p>{% trans "You are currently not logged in." %}</p>
+    <p>{% trans "You are currently not logged in." %}</p>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h2>{% trans "HPI student or lecturer" %}</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h2>{% trans "HPI student or lecturer" %}</h2>
 
-                <div class="well well-sm">
-                    <p style="padding: 5px 5px;">{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
-                    <form class="form-horizontal" role="form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="submit_type" value="login_username" />
+            <div class="well well-sm">
+                <p style="padding: 5px 5px;">{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+                <form class="form-horizontal" role="form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="login_username" />
 
-                        {% for field in login_username_form %}
-                            <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                    {% for field in login_username_form %}
+                        <div class="form-group{% if field.errors %} has-error{% endif %}">
+                            <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                            <div class="col-sm-6">
+                                {{ field|add_class:"form-control" }}
+                                {% if field.errors %}
+                                    <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-6">
+                            <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h2>{% trans "External student or lecturer" %}</h2>
+            <div class="well well-sm">
+                <p style="padding: 5px 5px;">{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
+
+                <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="login_key" />
+
+                    <fieldset>
+                        {% for field in login_key_form %}
+                             <div class="form-group{% if field.errors %} has-error{% endif %}">
+                                <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
                                 <div class="col-sm-6">
                                     {{ field|add_class:"form-control" }}
                                     {% if field.errors %}
@@ -48,71 +71,40 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-6">
-                                <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
-                            </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-6">
+                            <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
-
-            <div class="col-md-6">
-                <h2>{% trans "External student or lecturer" %}</h2>
-                <div class="well well-sm">
-                    <p style="padding: 5px 5px;">{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
-
-                    <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="submit_type" value="login_key" />
-
-                        <fieldset>
-                            {% for field in login_key_form %}
-                                 <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                    <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                    <div class="col-sm-6">
-                                        {{ field|add_class:"form-control" }}
-                                        {% if field.errors %}
-                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
-                                        {% endif %}
-                                    </div>
+            <div class="well well-sm">
+                <h4 style="padding-left: 5px;">{% trans "Don't have a key or lost it?" %}</h4>
+                <p style="padding: 5px 5px;">{% trans "Please enter your email address to get a new login key." %}</p>
+                <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="new_key" />
+                    <fieldset>
+                        {% for field in new_key_form %}
+                            <div class="form-group{% if field.errors %} has-error{% endif %}">
+                                <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                <div class="col-sm-6">
+                                    {{ field|add_class:"form-control" }}
+                                    {% if field.errors %}
+                                        <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
+                                    {% endif %}
                                 </div>
-                            {% endfor %}
-                        </fieldset>
-                        <div class="form-group">
-                            <div class="col-sm-offset-4 col-sm-6">
-                                <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
                             </div>
+                        {% endfor %}
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-6">
+                            <input class="btn btn-success" type="submit" value="{% trans "Send Key" %}">
                         </div>
-                    </form>
-                </div>
-                <div class="well well-sm">
-                    <h4 style="padding-left: 5px;">{% trans "Don't have a key or lost it?" %}</h4>
-                    <p style="padding: 5px 5px;">{% trans "Please enter your email address to get a new login key." %}</p>
-                    <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="submit_type" value="new_key" />
-                        <fieldset>
-                            {% for field in new_key_form %}
-                                <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                    <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                    <div class="col-sm-6">
-                                        {{ field|add_class:"form-control" }}
-                                        {% if field.errors %}
-                                            <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </fieldset>
-                        <div class="form-group">
-                            <div class="col-sm-offset-4 col-sm-6">
-                                <input class="btn btn-success" type="submit" value="{% trans "Send Key" %}">
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
-    {% endif %}
+    </div>
 {% endblock %}

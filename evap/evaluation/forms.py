@@ -98,8 +98,6 @@ class LoginUsernameForm(forms.Form):
             self.user_cache = authenticate(username=username, password=password)
             if self.user_cache is None:
                 raise forms.ValidationError(_("Please enter a correct username and password."))
-            elif not self.user_cache.is_active:
-                raise forms.ValidationError(_("This account is inactive."))
         self.check_for_test_cookie()
         return password
 
@@ -136,8 +134,6 @@ class LoginKeyForm(forms.Form):
             self.user_cache = authenticate(key=login_key)
             if self.user_cache is None:
                 raise forms.ValidationError(LoginKeyForm.INVALID_CODE_MESSAGE)
-            elif not self.user_cache.is_active:
-                raise forms.ValidationError(_("This account is inactive."))
         return login_key
 
     def get_user_id(self):

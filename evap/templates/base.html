@@ -42,7 +42,7 @@
 
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
                 <ul class="nav navbar-nav">
-                    {% if user.is_active %}
+                    {% if user.is_authenticated %}
                         {% if user.userprofile.enrolled_in_courses and user.userprofile.is_editor_or_delegate %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
@@ -93,7 +93,7 @@
                             <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
                         </ul>
                     </li>
-                    {% if user.is_active %}
+                    {% if user.is_authenticated %}
                         <li><a href="{% url "django.contrib.auth.views.logout" %}">{% trans "Logout" %}</a></li>
                     {% endif %}
                 </ul>
@@ -141,7 +141,7 @@
                 &nbsp;&middot;&nbsp;
                 <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
-                {% if request.user.is_active %}
+                {% if request.user.is_authenticated %}
                     {% trans "Logged in as" %} {{ request.user.userprofile.full_name }}
                 {% else %}
                     {% trans "Not logged in" %}

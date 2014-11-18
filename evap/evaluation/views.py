@@ -44,7 +44,7 @@ def index(request):
                 request.session.delete_test_cookie()
 
     # if not logged in by now, render form
-    if not request.user.is_active:
+    if not request.user.is_authenticated():
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
