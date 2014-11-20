@@ -521,7 +521,7 @@ class FaqQuestion(models.Model):
         verbose_name = _(u"question")
         verbose_name_plural = _(u"questions")
 
-class UserProhfileManager(BaseUserManager):
+class UserProfileManager(BaseUserManager):
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
@@ -549,7 +549,7 @@ class UserProhfileManager(BaseUserManager):
         return user
 
 
-class UserProhfile(AbstractBaseUser):
+class UserProfile(AbstractBaseUser):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
     email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_('email address'))
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(u"Title"))
@@ -557,10 +557,10 @@ class UserProhfile(AbstractBaseUser):
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
 
     # delegates of the user, which can also manage their courses
-    delegates = models.ManyToManyField("UserProhfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
+    delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProhfile", verbose_name=_(u"CC Users"), blank=True)
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), blank=True)
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
@@ -576,7 +576,7 @@ class UserProhfile(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
-    objects = UserProhfileManager()
+    objects = UserProfileManager()
 
     @property
     def full_name(self):
@@ -654,7 +654,8 @@ class UserProhfile(AbstractBaseUser):
 
     @property
     def is_external(self):
-        return UserProhfile.is_external_email(self.email)
+        from evap.evaluation.tools import is_external_email
+        return is_external_email(self.email)
 
     @classmethod
     def email_needs_login_key(cls, email):
@@ -663,12 +664,12 @@ class UserProhfile(AbstractBaseUser):
 
     @property
     def needs_login_key(self):
-        return UserProhfile.email_needs_login_key(self.email)
+        return UserProfile.email_needs_login_key(self.email)
 
     def generate_login_key(self):
         while True:
-            key = random.randrange(0, UserProhfile.MAX_LOGIN_KEY)
-            if not UserProhfile.objects.filter(login_key=key).exists():
+            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+            if not UserProfile.objects.filter(login_key=key).exists():
                 # key not yet used
                 self.login_key = key
                 break
@@ -680,110 +681,110 @@ class UserProhfile(AbstractBaseUser):
 
 
 
-class UserProfile(models.Model):
-   user = models.OneToOneField(settings.AUTH_USER_MODEL)
+# class UserProfile(models.Model):
+#    user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
-   # extending first_name and last_name from the user
-   title = models.CharField(verbose_name=_(u"Title"), max_length=1024, blank=True, null=True)
+#    # extending first_name and last_name from the user
+#    title = models.CharField(verbose_name=_(u"Title"), max_length=1024, blank=True, null=True)
 
-   # picture of the user
-   picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
+#    # picture of the user
+#    picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
 
-   is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
+#    is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
 
-   # delegates of the user, which can also manage their courses
-   delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
+#    # delegates of the user, which can also manage their courses
+#    delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
-   # users to which all emails should be sent in cc without giving them delegate rights
-   cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="cc_users2", blank=True)
+#    # users to which all emails should be sent in cc without giving them delegate rights
+#    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="cc_users2", blank=True)
 
-   # key for url based login of this user
-   MAX_LOGIN_KEY = 2**31-1
+#    # key for url based login of this user
+#    MAX_LOGIN_KEY = 2**31-1
 
-   login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
-   login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
+#    login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
+#    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
 
-   class Meta:
-       verbose_name = _('user')
-       verbose_name_plural = _('users')
+#    class Meta:
+#        verbose_name = _('user')
+#        verbose_name_plural = _('users')
 
-   def __unicode__(self):
-       return unicode(self.user)
+#    def __unicode__(self):
+#        return unicode(self.user)
 
-   @property
-   def full_name(self):
-       if self.user.last_name:
-           name = self.user.last_name
-           if self.user.first_name:
-               name = self.user.first_name + " " + name
-           if self.title:
-               name = self.title + " " + name
-           return name
-       else:
-           return self.user.username
+#    @property
+#    def full_name(self):
+#        if self.user.last_name:
+#            name = self.user.last_name
+#            if self.user.first_name:
+#                name = self.user.first_name + " " + name
+#            if self.title:
+#                name = self.title + " " + name
+#            return name
+#        else:
+#            return self.user.username
 
-   @property
-   def can_fsr_delete(self):
-       return not self.is_contributor
+#    @property
+#    def can_fsr_delete(self):
+#        return not self.is_contributor
 
-   @property
-   def enrolled_in_courses(self):
-       return self.user.course_set.exists()
+#    @property
+#    def enrolled_in_courses(self):
+#        return self.user.course_set.exists()
 
-   @property
-   def is_contributor(self):
-       return self.user.contributions.exists()
+#    @property
+#    def is_contributor(self):
+#        return self.user.contributions.exists()
 
-   @property
-   def is_editor(self):
-       return self.user.contributions.filter(can_edit=True).exists()
+#    @property
+#    def is_editor(self):
+#        return self.user.contributions.filter(can_edit=True).exists()
 
-   @property
-   def is_responsible(self):
-       # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
-       return any(contribution.responsible for contribution in self.user.contributions.all())
+#    @property
+#    def is_responsible(self):
+#        # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
+#        return any(contribution.responsible for contribution in self.user.contributions.all())
 
-   @property
-   def is_delegate(self):
-       return self.user.represented_users.exists()
+#    @property
+#    def is_delegate(self):
+#        return self.user.represented_users.exists()
 
-   @property
-   def is_editor_or_delegate(self):
-       return self.is_editor or self.is_delegate
+#    @property
+#    def is_editor_or_delegate(self):
+#        return self.is_editor or self.is_delegate
 
-   @classmethod
-   def email_needs_login_key(cls, email):
-       from evap.evaluation.tools import is_external_email
-       return is_external_email(email)
+#    @classmethod
+#    def email_needs_login_key(cls, email):
+#        from evap.evaluation.tools import is_external_email
+#        return is_external_email(email)
 
-   @property
-   def needs_login_key(self):
-       return UserProfile.email_needs_login_key(self.user.email)
+#    @property
+#    def needs_login_key(self):
+#        return UserProfile.email_needs_login_key(self.user.email)
 
-   @classmethod
-   def get_for_user(cls, user):
-       obj, _ = cls.objects.get_or_create(user=user)
-       return obj
+#    @classmethod
+#    def get_for_user(cls, user):
+#        obj, _ = cls.objects.get_or_create(user=user)
+#        return obj
 
-   def generate_login_key(self):
-       while True:
-           key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
-           if not UserProfile.objects.filter(login_key=key).exists():
-               # key not yet used
-               self.login_key = key
-               break
+#    def generate_login_key(self):
+#        while True:
+#            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+#            if not UserProfile.objects.filter(login_key=key).exists():
+#                # key not yet used
+#                self.login_key = key
+#                break
 
-       self.refresh_login_key()
+#        self.refresh_login_key()
 
-   def refresh_login_key(self):
-       self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+#    def refresh_login_key(self):
+#        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
 
-   @staticmethod
-   @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-   def create_user_profile(sender, instance, created, raw, **kwargs):
-       """Creates a UserProfile object whenever a User is created."""
-       if created and not raw:
-           UserProfile.objects.create(user=instance)
+#    @staticmethod
+#    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+#    def create_user_profile(sender, instance, created, raw, **kwargs):
+#        """Creates a UserProfile object whenever a User is created."""
+#        if created and not raw:
+#            UserProfile.objects.create(user=instance)
 
 
 def validate_template(value):
@@ -852,7 +853,7 @@ class EmailTemplate(models.Model):
             cc_users = []
             if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
                 cc_users += user.delegates.all()
-            cc_users += UserProfile.get_for_user(user).cc_users.all()
+            cc_users += user.cc_users.all()
             cc_addresses = [p.email for p in cc_users if p.email]
 
             mail = EmailMessage(

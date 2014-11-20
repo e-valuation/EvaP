@@ -11,7 +11,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TESTING = 'test' in sys.argv
 
-AUTH_USER_MODEL = 'evaluation.UserProhfile'
+AUTH_USER_MODEL = 'evaluation.UserProfile'
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',

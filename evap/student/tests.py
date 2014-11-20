@@ -16,7 +16,7 @@ class VoteTests(TestCase):
             return self.client.get(reverse('evap.student.views.vote', kwargs={'course_id': course.id}))
 
         response = get_vote_page() 
-        tutor_user = User.objects.get(username='tutor')
+        tutor_user = UserProfile.objects.get(username='tutor')
 
         for contribution, _ in response.context['contributor_questionnaires']:
             self.assertNotEquals(contribution.user, tutor_user,

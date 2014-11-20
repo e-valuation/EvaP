@@ -6,19 +6,19 @@ from django.core import exceptions
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import UserProhfile
+from evap.evaluation.models import UserProfile
 
 
 def is_valid_email(value):
-    User._meta.get_field('email').clean(value, None)
+    UserProfile._meta.get_field('email').clean(value, None)
 
 
 def is_valid_username(username):
-    User._meta.get_field('username').clean(username, None)
+    UserProfile._meta.get_field('username').clean(username, None)
 
     try:
-        User.objects.get(username__iexact=username)
-    except User.DoesNotExist:
+        UserProfile.objects.get(username__iexact=username)
+    except UserProfile.DoesNotExist:
         pass
     else:
         raise exceptions.ValidationError(_("Error: That username is already taken.\n"))

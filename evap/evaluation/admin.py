@@ -1,4 +1,4 @@
-from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, Questionnaire, Semester, TextAnswer, UserProhfile, GradeAnswer
+from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, Questionnaire, Semester, TextAnswer, UserProfile, GradeAnswer
 from django.conf import settings
 from django.contrib import admin
 from django import forms
@@ -45,7 +45,7 @@ class UserCreationForm(forms.ModelForm):
     password2 = forms.CharField(label=_('Password confirmation'), widget=forms.PasswordInput)
 
     class Meta:
-        model = UserProhfile
+        model = UserProfile
         fields = ('username', 'email', 'first_name', 'last_name')
 
     def clean_password2(self):
@@ -70,7 +70,7 @@ class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     class Meta:
-        model = UserProhfile
+        model = UserProfile
         fields = ('username', 'password', 'email', 'first_name', 'last_name')
 
     def clean_password(self):
@@ -80,7 +80,7 @@ class UserChangeForm(forms.ModelForm):
         return self.initial["password"]
 
 
-class UserProhfileAdmin(UserAdmin):
+class UserProfileAdmin(UserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm
@@ -114,7 +114,7 @@ admin.site.register(Course, CourseAdmin)
 admin.site.register(Questionnaire, QuestionnaireAdmin)
 
 #admin.site.register(UserProfile, UserProfileAdmin)
-admin.site.register(UserProhfile, UserProhfileAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
 
 if settings.DEBUG:
     admin.site.register(TextAnswer)

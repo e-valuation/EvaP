@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import Course, UserProhfile, Questionnaire
+from evap.evaluation.models import Course, UserProfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 
 
@@ -45,7 +45,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
 class UserForm(forms.ModelForm, BootstrapMixin):
     class Meta:
-        model = UserProhfile
+        model = UserProfile
         fields = ('title', 'first_name', 'last_name', 'email', 'delegates')
 
     def __init__(self, *args, **kwargs):
@@ -53,7 +53,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.order_by('username')
+        self.fields['delegates'].queryset = UserProfile.objects.order_by('username')
         self.fields['delegates'].help_text = ""
 
         # load user fields

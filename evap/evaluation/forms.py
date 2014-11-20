@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
-from evap.evaluation.models import UserProhfile
+from evap.evaluation.models import UserProfile
 
 
 class QuestionnaireChoiceIterator(ModelChoiceIterator):
@@ -155,13 +155,13 @@ class NewKeyForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data.get('email')
 
-        if not UserProhfile.email_needs_login_key(email):
+        if not UserProfile.email_needs_login_key(email):
             raise forms.ValidationError(_(u"HPI users cannot request login keys. Please login using your domain credentials."))
 
         try:
-            user = UserProhfile.objects.get(email__iexact=email)
+            user = UserProfile.objects.get(email__iexact=email)
             self.user_cache = user
-        except UserProhfile.DoesNotExist:
+        except UserProfile.DoesNotExist:
             raise forms.ValidationError(_(u"No user with this email address was found. Please make sure to enter the email address already known to the university office."))
 
         return email

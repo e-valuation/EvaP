@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import UserProhfile
+from evap.evaluation.models import UserProfile
 
 from datetime import date
 from functools import wraps
@@ -66,10 +66,10 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            profile = UserProhfile.objects.get(login_key=key,
+            profile = UserProfile.objects.get(login_key=key,
                                               login_key_valid_until__gte=date.today())
             return profile.user
-        except UserProhfile.DoesNotExist:
+        except UserProfile.DoesNotExist:
             return None
 
 def login_required(func):

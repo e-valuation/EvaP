@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from django.contrib.auth.models import User
-from evap.evaluation.models import Semester, Questionnaire, UserProhfile, Course, Contribution, TextAnswer, EmailTemplate
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributorFormSet, ContributionForm, CourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
@@ -57,7 +57,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
 
         # safe original user count
-        original_user_count = User.objects.all().count()
+        original_user_count = UserProfile.objects.all().count()
 
         # import excel file
         page = page.click("[Ii]mport")
@@ -67,7 +67,7 @@ class UsecaseTests(WebTest):
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
         page = upload_form.submit(name="operation", value="import").follow()
 
-        self.assertEqual(User.objects.count(), original_user_count + 23)
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
         courses = Course.objects.filter(semester=semester).all()
         self.assertEqual(len(courses), 23)
@@ -76,11 +76,11 @@ class UsecaseTests(WebTest):
             responsibles_count = Contribution.objects.filter(course=course, responsible=True).count()
             self.assertEqual(responsibles_count, 1)
 
-        check_student = User.objects.get(username="diam.synephebos")
+        check_student = UserProfile.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
         self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
 
-        check_contributor = User.objects.get(username="sanctus.aliquyam.ext")
+        check_contributor = UserProfile.objects.get(username="sanctus.aliquyam.ext")
         self.assertEqual(check_contributor.first_name, "Sanctus")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
         self.assertEqual(check_contributor.email, "567@web.de")
@@ -91,7 +91,7 @@ class UsecaseTests(WebTest):
         self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
         self.app.extra_environ = environ
 
-        user = User.objects.all()[0]
+        user = UserProfile.objects.all()[0]
         user.generate_login_key()
         user.save()
 
@@ -195,13 +195,13 @@ class UsecaseTests(WebTest):
         """
         num_users = 50
         for i in range(0, num_users):
-            user = User.objects.get_or_create(id=9000+i, username=i)
+            user = UserProfile.objects.get_or_create(id=9000+i, username=i)
         with self.assertNumQueries(FuzzyInt(0, num_users-1)):
             self.app.get("/fsr/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
-        self.assertTrue(UserProhfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
-        self.assertFalse(UserProhfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
+        self.assertTrue(UserProfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
+        self.assertFalse(UserProfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
 
 
 
@@ -462,8 +462,8 @@ class URLTests(WebTest):
         """
             Tests the UserForm with one valid and one invalid input dataset.
         """
-        userprofile = UserProhfile.objects.get(pk=1)
-        another_userprofile = UserProhfile.objects.get(pk=2)
+        userprofile = UserProfile.objects.get(pk=1)
+        another_userprofile = UserProfile.objects.get(pk=2)
         data = {"username": "mklqoep50x2", "email": "a@b.ce"}
         form = UserForm(instance=userprofile, data=data)
         self.assertTrue(form.is_valid())
@@ -673,7 +673,7 @@ class URLTests(WebTest):
 
         form.submit()
 
-        self.assertEqual(User.objects.order_by("pk").last().username, "mflkd862xmnbo5")
+        self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
 
     def test_emailtemplate(self):
         """

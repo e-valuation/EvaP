@@ -9,7 +9,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.tools import STATES_ORDERED
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, UserProhfile, FaqSection, FaqQuestion, \
+                                   Semester, UserProfile, FaqSection, FaqQuestion, \
                                    EmailTemplate, TextAnswer
 from evap.fsr.fields import ToolTipModelMultipleChoiceField
 
@@ -50,7 +50,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_end_date'].localize = True
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
-        self.fields['participants'].queryset = User.objects.order_by("last_name", "first_name", "username")
+        self.fields['participants'].queryset = UserProfile.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
 
         if self.instance.general_contribution:
@@ -92,7 +92,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         super(ContributionForm, self).__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
-        self.fields['contributor'].queryset = User.objects.order_by('username')
+        self.fields['contributor'].queryset = UserProfile.objects.order_by('username')
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
         self.fields['order'].widget = forms.HiddenInput()
 
@@ -342,7 +342,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser')))
 
     class Meta:
-        model = UserProhfile
+        model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
 
     def __init__(self, *args, **kwargs):
@@ -350,14 +350,14 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.order_by('username')
+        self.fields['delegates'].queryset = UserProfile.objects.order_by('username')
         self.fields['delegates'].help_text = ""
         self.fields['cc_users'].required = False
-        self.fields['cc_users'].queryset = User.objects.order_by('username')
+        self.fields['cc_users'].queryset = UserProfile.objects.order_by('username')
         self.fields['cc_users'].help_text = ""
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
-        self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProhfile.objects.all(),
+        self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
                                                                           initial=self.instance.user.represented_users.all() if self.instance.pk else (),
                                                                           label=_("Represented Users"),
                                                                           help_text="",
@@ -373,7 +373,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_superuser'].initial = self.instance.user.is_superuser
 
     def clean_username(self):
-        conflicting_user = User.objects.filter(username__iexact=self.cleaned_data.get('username'))
+        conflicting_user = UserProfile.objects.filter(username__iexact=self.cleaned_data.get('username'))
         if not conflicting_user.exists():
             return self.cleaned_data.get('username')
 

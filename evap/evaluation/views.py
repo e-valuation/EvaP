@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProhfile, FaqSection, EmailTemplate
+from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate
 
 
 def index(request):
@@ -50,7 +50,7 @@ def index(request):
 
         return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
     else:
-        userprofile, created = UserProhfile.objects.get_or_create(username=request.user.username)
+        userprofile, created = UserProfile.objects.get_or_create(username=request.user.username)
 
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
