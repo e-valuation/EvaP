@@ -652,6 +652,8 @@ class UserProfile(AbstractBaseUser):
     @property
     def is_external(self):
         from evap.evaluation.tools import is_external_email
+        if not self.email:
+            return True
         return is_external_email(self.email)
 
     @classmethod
