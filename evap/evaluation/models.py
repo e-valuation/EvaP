@@ -277,8 +277,7 @@ class Course(models.Model):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
         else:
-            represented_userprofiles = user.represented_users.all()
-            represented_users = [profile.user for profile in represented_userprofiles]
+            represented_users = user.represented_users.all()
             if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
                 return True
 
@@ -288,8 +287,7 @@ class Course(models.Model):
         if self.contributions.filter(responsible=True, contributor=user).exists():
             return True
         else:
-            represented_userprofiles = user.represented_users.all()
-            represented_users = [profile.user for profile in represented_userprofiles]
+            represented_users = user.represented_users.all()
             if self.contributions.filter(responsible=True, contributor__in=represented_users).exists():
                 return True
 
@@ -302,8 +300,7 @@ class Course(models.Model):
         if self.is_user_contributor(user):
             return True
         else:
-            represented_userprofiles = user.represented_users.all()
-            represented_users = [profile.user for profile in represented_userprofiles]
+            represented_users = user.represented_users.all()
             if self.contributions.filter(contributor__in=represented_users).exists():
                 return True
 

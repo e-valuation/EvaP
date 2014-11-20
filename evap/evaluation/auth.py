@@ -66,9 +66,7 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            profile = UserProfile.objects.get(login_key=key,
-                                              login_key_valid_until__gte=date.today())
-            return profile.user
+            return UserProfile.objects.get(login_key=key, login_key_valid_until__gte=date.today())
         except UserProfile.DoesNotExist:
             return None
 

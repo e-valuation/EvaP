@@ -560,7 +560,7 @@ def questionnaire_delete(request, questionnaire_id):
 
 @fsr_required
 def user_index(request):
-    users = UserProfile.objects.order_by("last_name", "first_name", "username").select_related('userprofile').prefetch_related('contributions')
+    users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups')
 
     return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 

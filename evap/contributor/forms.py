@@ -57,9 +57,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['delegates'].help_text = ""
 
         # load user fields
-        self.fields['first_name'].initial = self.instance.user.first_name
-        self.fields['last_name'].initial = self.instance.user.last_name
-        self.fields['email'].initial = self.instance.user.email
+        self.fields['first_name'].initial = self.instance.first_name
+        self.fields['last_name'].initial = self.instance.last_name
+        self.fields['email'].initial = self.instance.email
 
     def save(self, *args, **kw):
         self.instance.first_name = self.cleaned_data.get('first_name')

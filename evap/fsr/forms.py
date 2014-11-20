@@ -358,27 +358,27 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['is_staff'].label = _(u"Student representative")
         self.fields['is_superuser'].label = _(u"EvaP Administrator")
         self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
-                                                                          initial=self.instance.user.represented_users.all() if self.instance.pk else (),
+                                                                          initial=self.instance.represented_users.all() if self.instance.pk else (),
                                                                           label=_("Represented Users"),
                                                                           help_text="",
                                                                           required=False)
         self.fields['represented_users'].help_text = ""
 
         # load user fields
-        self.fields['username'].initial = self.instance.user.username
-        self.fields['first_name'].initial = self.instance.user.first_name
-        self.fields['last_name'].initial = self.instance.user.last_name
-        self.fields['email'].initial = self.instance.user.email
-        self.fields['is_staff'].initial = self.instance.user.is_staff
-        self.fields['is_superuser'].initial = self.instance.user.is_superuser
+        self.fields['username'].initial = self.instance.username
+        self.fields['first_name'].initial = self.instance.first_name
+        self.fields['last_name'].initial = self.instance.last_name
+        self.fields['email'].initial = self.instance.email
+        self.fields['is_staff'].initial = self.instance.is_staff
+        self.fields['is_superuser'].initial = self.instance.is_superuser
 
     def clean_username(self):
         conflicting_user = UserProfile.objects.filter(username__iexact=self.cleaned_data.get('username'))
         if not conflicting_user.exists():
             return self.cleaned_data.get('username')
 
-        if self.instance.user and self.instance.user.pk:
-            if conflicting_user[0] == self.instance.user:
+        if self.instance and self.instance.pk:
+            if conflicting_user[0] == self.instance:
                 # there is a user with this name but that's me
                 return self.cleaned_data.get('username')
 
@@ -388,16 +388,14 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         if self._errors:
             return
             
-        # first save the user, so that the profile gets created for sure
-        self.instance.user.username = self.cleaned_data.get('username').strip().lower()
-        self.instance.user.first_name = self.cleaned_data.get('first_name').strip()
-        self.instance.user.last_name = self.cleaned_data.get('last_name').strip()
-        self.instance.user.email = self.cleaned_data.get('email').strip().lower()
-        self.instance.user.is_staff = self.cleaned_data.get('is_staff')
-        self.instance.user.is_superuser = self.cleaned_data.get('is_superuser')
-        self.instance.user.save()
-        self.instance.user.represented_users = self.cleaned_data.get('represented_users')
-        self.instance = self.instance.user
+        self.instance.username = self.cleaned_data.get('username').strip().lower()
+        self.instance.first_name = self.cleaned_data.get('first_name').strip()
+        self.instance.last_name = self.cleaned_data.get('last_name').strip()
+        self.instance.email = self.cleaned_data.get('email').strip().lower()
+        self.instance.is_staff = self.cleaned_data.get('is_staff')
+        self.instance.is_superuser = self.cleaned_data.get('is_superuser')
+        self.instance.represented_users = self.cleaned_data.get('represented_users')
+        self.instance.save()
 
         super(UserForm, self)._post_clean(*args, **kw)
 

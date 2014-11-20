@@ -121,9 +121,7 @@ def user_can_see_textresults(user, course, section):
     if course.is_user_responsible_or_delegate(user):
         return True
 
-    represented_userprofiles = user.represented_users.all()
-    represented_users = [profile.user for profile in represented_userprofiles]
-    if section.contributor in represented_users:
+    if section.contributor in user.represented_users.all():
         return True
 
     return False

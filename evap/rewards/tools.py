@@ -33,13 +33,13 @@ def save_redemptions(request, redemptions):
     return False
 
 
-def can_user_use_reward_points(userprofile):
-    return not userprofile.is_external and userprofile.enrolled_in_courses
+def can_user_use_reward_points(user):
+    return not user.is_external and user.enrolled_in_courses
 
 
-def reward_points_of_user(userprofile):
-    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=userprofile)
-    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=userprofile)
+def reward_points_of_user(user):
+    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=user)
+    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=user)
     
     count = 0
     for granting in reward_point_grantings:
@@ -56,7 +56,7 @@ def grant_reward_points(sender, **kwargs):
 
     request = kwargs['request']
     semester = kwargs['semester']
-    if not can_user_use_reward_points(request.user.userprofile):
+    if not can_user_use_reward_points(request.user):
         return
     # has the semester been activated for reward points?
     if not is_semester_activated(semester):

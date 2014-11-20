@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Course
+from evap.evaluation.models import Course, UserProfile
 from evap.evaluation.tools import is_external_email
 
 import xlrd

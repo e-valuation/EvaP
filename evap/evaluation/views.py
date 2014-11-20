@@ -50,7 +50,7 @@ def index(request):
 
         return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
     else:
-        userprofile, created = UserProfile.objects.get_or_create(username=request.user.username)
+        user, created = UserProfile.objects.get_or_create(username=request.user.username)
 
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
@@ -59,10 +59,10 @@ def index(request):
                 if request.user.is_staff:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/contributor/"):
-                if userprofile.is_contributor:
+                if user.is_contributor:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/student/"):
-                if userprofile.enrolled_in_courses:
+                if user.enrolled_in_courses:
                     return redirect(redirect_to)
             else:
                 return redirect(redirect_to)
@@ -70,9 +70,9 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('evap.fsr.views.index')
-        elif userprofile.is_editor_or_delegate:
+        elif user.is_editor_or_delegate:
             return redirect('evap.contributor.views.index')
-        elif userprofile.enrolled_in_courses:
+        elif user.enrolled_in_courses:
             return redirect('evap.student.views.index')
         else:
             return redirect('evap.results.views.index')
