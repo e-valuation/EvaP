@@ -394,6 +394,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.email = self.cleaned_data.get('email').strip().lower()
         self.instance.is_staff = self.cleaned_data.get('is_staff')
         self.instance.is_superuser = self.cleaned_data.get('is_superuser')
+        # we need to do a save before represented_users is set 
+        # because the user needs to have an id there
+        self.instance.save()
         self.instance.represented_users = self.cleaned_data.get('represented_users')
         self.instance.save()
 

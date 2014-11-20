@@ -23,6 +23,10 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# This is needed to make the tests work as long as auth.user appears in the migrations
+SOUTH_TESTS_MIGRATE = False
+SKIP_SOUTH_TESTS = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.

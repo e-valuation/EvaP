@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
+from webtest import AppError
 from django.test import Client
 from django.forms.models import inlineformset_factory
 from django.core import mail
@@ -200,8 +201,8 @@ class UsecaseTests(WebTest):
             self.app.get("/fsr/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
-        self.assertTrue(UserProfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
-        self.assertFalse(UserProfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
+        self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_fsr_delete)
+        self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_fsr_delete)
 
 
 
@@ -209,6 +210,9 @@ class URLTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def setUp(self):
+        settings.INSTITUTION_EMAIL_DOMAINS.append("example.com")
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -462,14 +466,14 @@ class URLTests(WebTest):
         """
             Tests the UserForm with one valid and one invalid input dataset.
         """
-        userprofile = UserProfile.objects.get(pk=1)
-        another_userprofile = UserProfile.objects.get(pk=2)
+        user = UserProfile.objects.get(pk=1)
+        another_user = UserProfile.objects.get(pk=2)
         data = {"username": "mklqoep50x2", "email": "a@b.ce"}
-        form = UserForm(instance=userprofile, data=data)
+        form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
-        data = {"username": another_userprofile.user.username, "email": "a@b.c"}
-        form = UserForm(instance=userprofile, data=data)
+        data = {"username": another_user.username, "email": "a@b.c"}
+        form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
 
     def test_course_selection_form(self):
@@ -760,13 +764,13 @@ class URLTests(WebTest):
         response = self.app.get(reverse("evap.rewards.views.index"), user="student")
         self.assertEqual(response.status_code, 200)
 
-        user_profile = UserProfile.objects.get(pk=5)
+        user = UserProfile.objects.get(pk=5)
         form = lastform(response)
-        form.set("points-1", reward_points_of_user(user_profile))
+        form.set("points-1", reward_points_of_user(user))
         response = form.submit()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You successfully redeemed your points.")
-        self.assertEqual(0, reward_points_of_user(user_profile))
+        self.assertEqual(0, reward_points_of_user(user))
 
         form.set("points-1", 1)
         form.set("points-2", 3)
@@ -807,8 +811,8 @@ class URLTests(WebTest):
             submits several requests that trigger the reward point granting and checks that the reward point
             granting works as expected for the different requests.
         """
-        user_profile = UserProfile.objects.get(pk=5)
-        reward_points_before_end = reward_points_of_user(user_profile)
+        user = UserProfile.objects.get(pk=5)
+        reward_points_before_end = reward_points_of_user(user)
         response = self.app.get(reverse("evap.student.views.vote", args=[9]), user="student")
 
         form = lastform(response)
@@ -820,7 +824,7 @@ class URLTests(WebTest):
         self.assertRedirects(response, reverse('evap.student.views.index'))
 
         # semester is not activated --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
 
         # reset course for another try
         course = Course.objects.get(pk=9)
@@ -832,27 +836,27 @@ class URLTests(WebTest):
         # create a new course
         new_course = Course(semester=course.semester, name_de="bhabda", name_en="dsdsfds")
         new_course.save()
-        new_course.participants.add(user_profile.user)
+        new_course.participants.add(user)
         new_course.save()
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
 
         # user also has other courses this semester --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
 
         course.voters = []
         course.save()
-        new_course.participants.remove(user_profile.user)
+        new_course.participants.remove(user)
         new_course.save()
 
         # last course of user so he may get reward points
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
 
         # test behaviour if user already got reward points
         course.voters = []
         course.save()
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
