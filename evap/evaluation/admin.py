@@ -33,12 +33,6 @@ class QuestionnaireAdmin(admin.ModelAdmin):
     list_filter = ('obsolete',)
 
 
-#class UserProfileAdmin(admin.ModelAdmin):
-#    model = UserProfile
-#    list_display = ('full_name', 'user')
-#    ordering = ('user__username',)
-
-
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required fields, plus a repeated password."""
     password1 = forms.CharField(label=_('Password'), widget=forms.PasswordInput)
@@ -113,7 +107,6 @@ admin.site.register(Course, CourseAdmin)
 
 admin.site.register(Questionnaire, QuestionnaireAdmin)
 
-#admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 
 if settings.DEBUG:

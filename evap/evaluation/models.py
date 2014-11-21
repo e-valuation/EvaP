@@ -651,6 +651,7 @@ class UserProfile(AbstractBaseUser):
 
     @property
     def is_external(self):
+        # do the import here to prevent a circular import
         from evap.evaluation.tools import is_external_email
         if not self.email:
             return True
@@ -658,6 +659,7 @@ class UserProfile(AbstractBaseUser):
 
     @classmethod
     def email_needs_login_key(cls, email):
+        # do the import here to prevent a circular import
         from evap.evaluation.tools import is_external_email
         return is_external_email(email)
 
@@ -672,119 +674,10 @@ class UserProfile(AbstractBaseUser):
                 # key not yet used
                 self.login_key = key
                 break
-
         self.refresh_login_key()
 
     def refresh_login_key(self):
         self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
-
-
-
-# class UserProfile(models.Model):
-#    user = models.OneToOneField(settings.AUTH_USER_MODEL)
-
-#    # extending first_name and last_name from the user
-#    title = models.CharField(verbose_name=_(u"Title"), max_length=1024, blank=True, null=True)
-
-#    # picture of the user
-#    picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
-
-#    is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
-
-#    # delegates of the user, which can also manage their courses
-#    delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
-
-#    # users to which all emails should be sent in cc without giving them delegate rights
-#    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="cc_users2", blank=True)
-
-#    # key for url based login of this user
-#    MAX_LOGIN_KEY = 2**31-1
-
-#    login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
-#    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
-
-#    class Meta:
-#        verbose_name = _('user')
-#        verbose_name_plural = _('users')
-
-#    def __unicode__(self):
-#        return unicode(self.user)
-
-#    @property
-#    def full_name(self):
-#        if self.user.last_name:
-#            name = self.user.last_name
-#            if self.user.first_name:
-#                name = self.user.first_name + " " + name
-#            if self.title:
-#                name = self.title + " " + name
-#            return name
-#        else:
-#            return self.user.username
-
-#    @property
-#    def can_fsr_delete(self):
-#        return not self.is_contributor
-
-#    @property
-#    def enrolled_in_courses(self):
-#        return self.user.course_set.exists()
-
-#    @property
-#    def is_contributor(self):
-#        return self.user.contributions.exists()
-
-#    @property
-#    def is_editor(self):
-#        return self.user.contributions.filter(can_edit=True).exists()
-
-#    @property
-#    def is_responsible(self):
-#        # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
-#        return any(contribution.responsible for contribution in self.user.contributions.all())
-
-#    @property
-#    def is_delegate(self):
-#        return self.user.represented_users.exists()
-
-#    @property
-#    def is_editor_or_delegate(self):
-#        return self.is_editor or self.is_delegate
-
-#    @classmethod
-#    def email_needs_login_key(cls, email):
-#        from evap.evaluation.tools import is_external_email
-#        return is_external_email(email)
-
-#    @property
-#    def needs_login_key(self):
-#        return UserProfile.email_needs_login_key(self.user.email)
-
-#    @classmethod
-#    def get_for_user(cls, user):
-#        obj, _ = cls.objects.get_or_create(user=user)
-#        return obj
-
-#    def generate_login_key(self):
-#        while True:
-#            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
-#            if not UserProfile.objects.filter(login_key=key).exists():
-#                # key not yet used
-#                self.login_key = key
-#                break
-
-#        self.refresh_login_key()
-
-#    def refresh_login_key(self):
-#        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
-
-#    @staticmethod
-#    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-#    def create_user_profile(sender, instance, created, raw, **kwargs):
-#        """Creates a UserProfile object whenever a User is created."""
-#        if created and not raw:
-#            UserProfile.objects.create(user=instance)
-
 
 def validate_template(value):
     """Field validator which ensures that the value can be compiled into a
