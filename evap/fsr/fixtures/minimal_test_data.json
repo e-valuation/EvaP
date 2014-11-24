@@ -539,7 +539,8 @@
       3
     ], 
     "login_key_valid_until": null, 
-    "login_key": null
+    "login_key": null,
+    "groups": [1]
   }
 },
 {
@@ -1364,6 +1365,13 @@
     "question_en": "testquestion", 
     "answer_de": "testanswer", 
     "answer_en": "testanswer"
+  }
+},
+{
+  "pk": 1,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Staff"
   }
 },
 {

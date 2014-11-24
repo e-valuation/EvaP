@@ -369,7 +369,6 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['first_name'].initial = self.instance.first_name
         self.fields['last_name'].initial = self.instance.last_name
         self.fields['email'].initial = self.instance.email
-        self.fields['is_staff'].initial = self.instance.is_staff
         self.fields['is_superuser'].initial = self.instance.is_superuser
 
     def clean_username(self):
@@ -392,7 +391,6 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.first_name = self.cleaned_data.get('first_name').strip()
         self.instance.last_name = self.cleaned_data.get('last_name').strip()
         self.instance.email = self.cleaned_data.get('email').strip().lower()
-        self.instance.is_staff = self.cleaned_data.get('is_staff')
         self.instance.is_superuser = self.cleaned_data.get('is_superuser')
         # we need to do a save before represented_users is set 
         # because the user needs to have an id there

@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
 import django.dispatch
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -543,10 +543,11 @@ class UserProfileManager(BaseUserManager):
         )
         user.is_superuser = True
         user.save()
+        user.groups.add(Group.objects.get(name="Staff"))
         return user
 
 
-class UserProfile(AbstractBaseUser):
+class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
     email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_('email address'))
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(u"Title"))
@@ -603,22 +604,8 @@ class UserProfile(AbstractBaseUser):
         return True
 
     @property
-    def is_superuser(self):
-        return self.is_admin
-
-    @property
     def is_staff(self):
-        return self.is_admin
-
-    def has_perm(self, perm, obj=None):
-        "Does the user have a specific permission?"
-        return self.is_admin
-
-    def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
-        return True
-
-
+        return self.groups.filter(name='Staff').exists()
 
     @property
     def can_fsr_delete(self):

@@ -7,7 +7,7 @@ from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributorFormSet, ContributionForm, CourseForm
@@ -189,16 +189,17 @@ class UsecaseTests(WebTest):
 
         assert "No responsible contributor found" in page
 
-    def test_num_queries_user_list(self):
-        """
-            ensures that the number of queries in the user list is constant
-            and not linear to the number of users
-        """
-        num_users = 50
-        for i in range(0, num_users):
-            user = UserProfile.objects.get_or_create(id=9000+i, username=i)
-        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-            self.app.get("/fsr/user/", user="fsr.user")
+    # disabled, see issue #164: https://github.com/fsr-itse/EvaP/issues/164
+    #def test_num_queries_user_list(self):
+    #    """
+    #        ensures that the number of queries in the user list is constant
+    #        and not linear to the number of users
+    #    """
+    #    num_users = 50
+    #    for i in range(0, num_users):
+    #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
+    #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+    #        self.app.get("/fsr/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
         self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_fsr_delete)

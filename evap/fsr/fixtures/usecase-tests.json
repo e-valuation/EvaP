@@ -6,7 +6,8 @@
             "username":"fsr.user",
             "first_name":"Fsr",
             "last_name":"User",
-            "login_key":1313
+            "login_key":1313,
+            "groups": [1]
         }
     },
     {
@@ -164,6 +165,13 @@
             "contributor": 4,
             "responsible": false,
             "can_edit": false
+        }
+    },
+    {
+        "pk": 1,
+        "model": "auth.Group",
+        "fields": {
+            "name": "Staff"
         }
     }
 ]
