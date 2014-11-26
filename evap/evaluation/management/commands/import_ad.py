@@ -4,7 +4,7 @@ import sys
 
 from django.core.management.base import BaseCommand
 
-from django.contrib.auth.models import User
+from evap.evaluation.models import UserProfile
 
 
 class Command(BaseCommand):

@@ -7,7 +7,6 @@ from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
-from django.contrib.auth.models import User, Group
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributorFormSet, ContributionForm, CourseForm
