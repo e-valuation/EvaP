@@ -1,6 +1,5 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
 from django.forms.fields import FileField
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
@@ -338,38 +337,27 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 class UserForm(forms.ModelForm, BootstrapMixin):
     represented_users = forms.IntegerField()
 
-    # steal form field definitions for the User model
-    locals().update(forms.fields_for_model(User, fields=('username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser')))
-
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'represented_users', 'cc_users', 'is_staff', 'is_superuser')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'represented_users', 'cc_users')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
 
+        all_users = UserProfile.objects.order_by('username')
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = UserProfile.objects.order_by('username')
+        self.fields['delegates'].queryset = all_users
         self.fields['delegates'].help_text = ""
         self.fields['cc_users'].required = False
-        self.fields['cc_users'].queryset = UserProfile.objects.order_by('username')
+        self.fields['cc_users'].queryset = all_users
         self.fields['cc_users'].help_text = ""
-        self.fields['is_staff'].label = _(u"Student representative")
-        self.fields['is_superuser'].label = _(u"EvaP Administrator")
-        self.fields['represented_users'] = forms.ModelMultipleChoiceField(UserProfile.objects.all(),
+        self.fields['represented_users'] = forms.ModelMultipleChoiceField(all_users,
                                                                           initial=self.instance.represented_users.all() if self.instance.pk else (),
                                                                           label=_("Represented Users"),
                                                                           help_text="",
                                                                           required=False)
         self.fields['represented_users'].help_text = ""
-
-        # load user fields
-        self.fields['username'].initial = self.instance.username
-        self.fields['first_name'].initial = self.instance.first_name
-        self.fields['last_name'].initial = self.instance.last_name
-        self.fields['email'].initial = self.instance.email
-        self.fields['is_superuser'].initial = self.instance.is_superuser
 
     def clean_username(self):
         conflicting_user = UserProfile.objects.filter(username__iexact=self.cleaned_data.get('username'))
@@ -386,17 +374,16 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def _post_clean(self, *args, **kw):
         if self._errors:
             return
-            
+        
         self.instance.username = self.cleaned_data.get('username').strip().lower()
+        self.instance.title = self.cleaned_data.get('title').strip()
         self.instance.first_name = self.cleaned_data.get('first_name').strip()
         self.instance.last_name = self.cleaned_data.get('last_name').strip()
         self.instance.email = self.cleaned_data.get('email').strip().lower()
-        self.instance.is_superuser = self.cleaned_data.get('is_superuser')
         # we need to do a save before represented_users is set 
         # because the user needs to have an id there
         self.instance.save()
         self.instance.represented_users = self.cleaned_data.get('represented_users')
-        self.instance.save()
 
         super(UserForm, self)._post_clean(*args, **kw)
 

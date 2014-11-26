@@ -564,7 +564,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     MAX_LOGIN_KEY = 2**31-1
 
     login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
-    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
+    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), blank=True, null=True)
 
     class Meta:
         verbose_name = _('user')
