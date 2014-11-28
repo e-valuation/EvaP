@@ -108,9 +108,11 @@ class ExcelImporter(object):
                     self.errors.append(_('User {}: Username must be empty for external users.').format(user_data.username))
                 user_data.username = (user_data.first_name + '.' + user_data.last_name + '.ext').lower()
 
-    def show_errors(self):
+    def show_errors_and_warnings(self):
         for error in self.errors:
             messages.error(self.request, error)
+        for warning in self.warnings:
+            messages.warning(self.request, warning)
 
 
 class EnrollmentImporter(ExcelImporter):
@@ -223,14 +225,14 @@ class EnrollmentImporter(ExcelImporter):
         messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(self.courses), students=students_created, responsibles=responsibles_created))
 
     @classmethod
-    def process(cls, request, excel_file, semester, vote_start_date, vote_end_date):
+    def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
         """Entry point for the view."""
         try:
             importer = cls(request)
             importer.read_book(excel_file)
             importer.check_column_count(13)
             if importer.errors:
-                importer.show_errors()
+                importer.show_errors_and_warnings()
                 messages.error(importer.request, _("The input data is malformed. No data was imported."))
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
@@ -239,10 +241,11 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_enrollment_data_correctness(semester)
             importer.check_enrollment_data_sanity()
             if importer.errors:
-                importer.show_errors()
+                importer.show_errors_and_warnings()
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
                 return
-            importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+            if not importer.errors and not test_run:
+                importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
         except Exception as e:
             raise
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))
@@ -277,23 +280,24 @@ class UserImporter(ExcelImporter):
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
 
     @classmethod
-    def process(cls, request, excel_file):
+    def process(cls, request, excel_file, test_run):
         """Entry point for the view."""
         try:
             importer = cls(request)
             importer.read_book(excel_file)
             importer.check_column_count(5)
             if importer.errors:
-                importer.show_errors()
+                importer.show_errors_and_warnings()
                 messages.error(importer.request, _("The input data is malformed. No data was imported."))
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.generate_external_usernames_if_external(self.associations.values())
             if importer.errors:
-                importer.show_errors()
+                importer.show_errors_and_warnings()
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
                 return
-            importer.save_users_to_db()
+            if not importer.errors and not test_run:
+                importer.save_users_to_db()
         except Exception as e:
             raise
             messages.error(request, _(u"Import finally aborted after exception: '%s'" % e))

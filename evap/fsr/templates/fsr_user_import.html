@@ -13,7 +13,8 @@
        {{ form.as_div }}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
-                <input type="submit" value="Import" class="btn btn-primary"/>
+                <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>
+                <button name="operation" value="import" type="submit" class="btn btn-default">{% trans "Import" %}</button>
             </div>
         </div>
     </form>
