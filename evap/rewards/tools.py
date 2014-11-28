@@ -1,15 +1,10 @@
 from django.conf import settings
-from django.contrib import messages
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django.dispatch import receiver
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course
-from django.dispatch import receiver
-
-from datetime import date
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
 

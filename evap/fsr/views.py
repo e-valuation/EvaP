@@ -2,8 +2,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, redirect, render
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
@@ -36,15 +35,12 @@ def get_tab(request):
 
 @fsr_required
 def index(request):
-    semesters = Semester.objects.all()
-    questionnaires = Questionnaire.objects.filter(obsolete=False)
-    templates = EmailTemplate.objects.all()
-    sections = FaqSection.objects.all()
-    return render_to_response("fsr_index.html", dict(semesters=semesters,
-                                                     questionnaires=questionnaires,
-                                                     templates=templates,
-                                                     sections=sections,
-                                                     disable_breadcrumb_fsr=True), context_instance=RequestContext(request))
+    template_data = dict(semesters=Semester.objects.all(),
+                         questionnaires=Questionnaire.objects.filter(obsolete=False),
+                         templates=EmailTemplate.objects.all(),
+                         sections=FaqSection.objects.all(),
+                         disable_breadcrumb_fsr=True)
+    return render(request, "fsr_index.html", template_data)
 
 
 @fsr_required
@@ -63,7 +59,8 @@ def semester_view(request, semester_id):
         this_courses = [course for course in courses if course.state == state]
         courses_by_state.append((state, this_courses))
 
-    return render_to_response("fsr_semester_view.html", dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab, rewards_active=rewards_active), context_instance=RequestContext(request))
+    template_data = dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab, rewards_active=rewards_active)
+    return render(request, "fsr_semester_view.html", template_data)
 
 
 @fsr_required
@@ -76,7 +73,7 @@ def semester_create(request):
         messages.success(request, _("Successfully created semester."))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_form.html", dict(form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_form.html", dict(form=form))
 
 
 @fsr_required
@@ -90,7 +87,7 @@ def semester_edit(request, semester_id):
         messages.success(request, _("Successfully updated semester."))
         return redirect('evap.fsr.views.semester_view', semester.id)
     else:
-        return render_to_response("fsr_semester_form.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_form.html", dict(semester=semester, form=form))
 
 
 @fsr_required
@@ -103,7 +100,7 @@ def semester_delete(request, semester_id):
             messages.success(request, _("Successfully deleted semester."))
             return redirect('fsr_root')
         else:
-            return render_to_response("fsr_semester_delete.html", dict(semester=semester), context_instance=RequestContext(request))
+            return render(request, "fsr_semester_delete.html", dict(semester=semester))
     else:
         messages.warning(request, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
         return redirect('evap.fsr.views.semester_view', semester.id)
@@ -133,7 +130,7 @@ def semester_publish(request, semester_id):
         messages.success(request, _("Successfully published %d courses.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_publish.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_publish.html", dict(semester=semester, forms=forms))
 
 
 @fsr_required
@@ -156,10 +153,10 @@ def semester_import(request, semester_id):
         # parse table
         EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
         if test_run:
-            return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+            return render(request, "fsr_import.html", dict(semester=semester, form=form))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_import.html", dict(semester=semester, form=form))
 
 
 @fsr_required
@@ -176,7 +173,7 @@ def semester_assign_questionnaires(request, semester_id):
         messages.success(request, _("Successfully assigned questionnaires."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_assign_questionnaires.html", dict(semester=semester, form=form))
 
 
 @fsr_required
@@ -199,7 +196,7 @@ def semester_revert_to_new(request, semester_id):
         messages.success(request, _("Successfully reverted %d courses to New.") % (count))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_revert_to_new.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_revert_to_new.html", dict(semester=semester, forms=forms))
 
 
 @fsr_required
@@ -221,7 +218,7 @@ def semester_approve(request, semester_id):
         messages.success(request, _("Successfully approved %d courses.") % (count))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_approve.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_approve.html", dict(semester=semester, forms=forms))
 
 
 @fsr_required
@@ -246,7 +243,7 @@ def semester_contributor_ready(request, semester_id):
         messages.success(request, _("Successfully marked %d courses as ready for lecturer review.") % (len(selected_courses)))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_semester_contributor_ready.html", dict(semester=semester, forms=forms), context_instance=RequestContext(request))
+        return render(request, "fsr_semester_contributor_ready.html", dict(semester=semester, forms=forms))
 
 
 @fsr_required
@@ -272,7 +269,8 @@ def semester_lottery(request, semester_id):
         eligible = None
         winners = None
 
-    return render_to_response("fsr_semester_lottery.html", dict(semester=semester, form=form, eligible=eligible, winners=winners), context_instance=RequestContext(request))
+    template_data =dict(semester=semester, form=form, eligible=eligible, winners=winners)
+    return render(request, "fsr_semester_lottery.html", template_data)
 
 
 @fsr_required
@@ -291,7 +289,7 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
-        return render_to_response("fsr_course_form.html", dict(semester=semester, form=form, formset=formset), context_instance=RequestContext(request))
+        return render(request, "fsr_course_form.html", dict(semester=semester, form=form, formset=formset))
 
 
 @fsr_required
@@ -315,7 +313,8 @@ def course_edit(request, semester_id, course_id):
         messages.success(request, _("Successfully updated course."))
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        return render_to_response("fsr_course_form.html", dict(semester=semester, course=course, form=form, formset=formset), context_instance=RequestContext(request))
+        template_data = dict(semester=semester, course=course, form=form, formset=formset)
+        return render(request, "fsr_course_form.html", template_data)
 
 
 @fsr_required
@@ -333,7 +332,7 @@ def course_delete(request, semester_id, course_id):
         messages.success(request, _("Successfully deleted course."))
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        return render_to_response("fsr_course_delete.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
+        return render(request, "fsr_course_delete.html", dict(semester=semester, course=course))
 
 
 @fsr_required
@@ -390,7 +389,8 @@ def course_review(request, semester_id, course_id, offset=None):
             else:
                 return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        return render_to_response("fsr_course_review.html", dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer), context_instance=RequestContext(request))
+        template_data = dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer)
+        return render(request, "fsr_course_review.html", template_data)
 
 
 @fsr_required
@@ -408,7 +408,7 @@ def course_email(request, semester_id, course_id):
             messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        return render_to_response("fsr_course_email.html", dict(semester=semester, course=course, form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_course_email.html", dict(semester=semester, course=course, form=form))
 
 
 @fsr_required
@@ -426,7 +426,7 @@ def course_unpublish(request, semester_id, course_id):
         course.save()
         return custom_redirect('evap.fsr.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        return render_to_response("fsr_course_unpublish.html", dict(semester=semester, course=course), context_instance=RequestContext(request))
+        return render(request, "fsr_course_unpublish.html", dict(semester=semester, course=course))
 
 
 @fsr_required
@@ -440,7 +440,8 @@ def course_comments(request, semester_id, course_id):
     for question_id in textanswers.values_list("question", flat=True).distinct():
         textanswers_by_question.append((Question.objects.get(id=question_id), textanswers.filter(question=question_id)))
 
-    return render_to_response("fsr_course_comments.html", dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question), context_instance=RequestContext(request))
+    template_data = dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question)
+    return render(request, "fsr_course_comments.html", template_data)
 
 
 @fsr_required
@@ -453,7 +454,9 @@ def course_preview(request, semester_id, course_id):
     for questionnaire, contribution in questionnaires_and_contributions(course):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
         forms[(contribution, questionnaire)] = form
-    return render_to_response("fsr_course_preview.html", dict(forms=forms.values(), course=course, semester=semester), context_instance=RequestContext(request))
+        
+    template_data = dict(forms=forms.values(), course=course, semester=semester)
+    return render(request, "fsr_course_preview.html", template_data)
 
 
 @fsr_required
@@ -461,7 +464,8 @@ def questionnaire_index(request):
     questionnaires = Questionnaire.objects.all()
     course_questionnaires = questionnaires.filter(is_for_contributors=False)
     contributor_questionnaires = questionnaires.filter(is_for_contributors=True)
-    return render_to_response("fsr_questionnaire_index.html", dict(course_questionnaires=course_questionnaires, contributor_questionnaires=contributor_questionnaires), context_instance=RequestContext(request))
+    template_data = dict(course_questionnaires=course_questionnaires, contributor_questionnaires=contributor_questionnaires)
+    return render(request, "fsr_questionnaire_index.html", template_data)
 
 
 @fsr_required
@@ -472,7 +476,7 @@ def questionnaire_view(request, questionnaire_id):
     contribution = Contribution(contributor=request.user)
     form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
-    return render_to_response("fsr_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire), context_instance=RequestContext(request))
+    return render(request, "fsr_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire))
 
 
 @fsr_required
@@ -490,7 +494,7 @@ def questionnaire_create(request):
         messages.success(request, _("Successfully created questionnaire."))
         return redirect('evap.fsr.views.questionnaire_index')
     else:
-        return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+        return render(request, "fsr_questionnaire_form.html", dict(form=form, formset=formset))
 
 
 @fsr_required
@@ -512,7 +516,8 @@ def questionnaire_edit(request, questionnaire_id):
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect('evap.fsr.views.questionnaire_index')
     else:
-        return render_to_response("fsr_questionnaire_form.html", dict(questionnaire=questionnaire, form=form, formset=formset), context_instance=RequestContext(request))
+        template_data = dict(questionnaire=questionnaire, form=form, formset=formset)
+        return render(request, "fsr_questionnaire_form.html", template_data)
 
 
 @fsr_required
@@ -531,7 +536,7 @@ def questionnaire_copy(request, questionnaire_id):
             messages.success(request, _("Successfully created questionnaire."))
             return redirect('evap.fsr.views.questionnaire_index')
         else:
-            return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+            return render(request, "fsr_questionnaire_form.html", dict(form=form, formset=formset))
     else:
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
         QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
@@ -539,7 +544,7 @@ def questionnaire_copy(request, questionnaire_id):
         form = QuestionnaireForm(instance=questionnaire)
         formset = QuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())
 
-        return render_to_response("fsr_questionnaire_form.html", dict(form=form, formset=formset), context_instance=RequestContext(request))
+        return render(request, "fsr_questionnaire_form.html", dict(form=form, formset=formset))
 
 
 @fsr_required
@@ -552,7 +557,7 @@ def questionnaire_delete(request, questionnaire_id):
             messages.success(request, _("Successfully deleted questionnaire."))
             return redirect('evap.fsr.views.questionnaire_index')
         else:
-            return render_to_response("fsr_questionnaire_delete.html", dict(questionnaire=questionnaire), context_instance=RequestContext(request))
+            return render(request, "fsr_questionnaire_delete.html", dict(questionnaire=questionnaire))
     else:
         messages.warning(request, _("The questionnaire '%s' cannot be deleted, because it is still in use.") % questionnaire.name)
         return redirect('evap.fsr.views.questionnaire_index')
@@ -562,7 +567,7 @@ def questionnaire_delete(request, questionnaire_id):
 def user_index(request):
     users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups')
 
-    return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
+    return render(request, "fsr_user_index.html", dict(users=users))
 
 
 @fsr_required
@@ -574,7 +579,7 @@ def user_create(request):
         messages.success(request, _("Successfully created user."))
         return redirect('evap.fsr.views.user_index')
     else:
-        return render_to_response("fsr_user_form.html", dict(form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_user_form.html", dict(form=form))
 
 
 @fsr_required
@@ -590,10 +595,10 @@ def user_import(request):
         excel_file = form.cleaned_data['excel_file']
         UserImporter.process(request, excel_file, test_run)
         if test_run:
-            return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
+            return render(request, "fsr_user_import.html", dict(form=form))
         return redirect('evap.fsr.views.user_index')       
     else:
-        return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
+        return render(request, "fsr_user_import.html", dict(form=form))
 
 
 @fsr_required
@@ -606,7 +611,7 @@ def user_edit(request, user_id):
         messages.success(request, _("Successfully updated user."))
         return redirect('evap.fsr.views.user_index')
     else:
-        return render_to_response("fsr_user_form.html", dict(form=form, object=user), context_instance=RequestContext(request))
+        return render(request, "fsr_user_form.html", dict(form=form, object=user))
 
 
 @fsr_required
@@ -619,7 +624,7 @@ def user_delete(request, user_id):
             messages.success(request, _("Successfully deleted user."))
             return redirect('evap.fsr.views.user_index')
         else:
-            return render_to_response("fsr_user_delete.html", dict(user_to_delete=user), context_instance=RequestContext(request))
+            return render(request, "fsr_user_delete.html", dict(user_to_delete=user))
     else:
         messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % user.full_name)
         return redirect('evap.fsr.views.user_index')
@@ -636,7 +641,7 @@ def template_edit(request, template_id):
         messages.success(request, _("Successfully updated template."))
         return redirect('fsr_root')
     else:
-        return render_to_response("fsr_template_form.html", dict(form=form, template=template), context_instance=RequestContext(request))
+        return render(request, "fsr_template_form.html", dict(form=form, template=template))
 
 
 @fsr_required
@@ -652,7 +657,7 @@ def faq_index(request):
         messages.success(request, _("Successfully updated the FAQ sections."))
         return custom_redirect('evap.fsr.views.faq_index')
     else:
-        return render_to_response("fsr_faq_index.html", dict(formset=formset, sections=sections), context_instance=RequestContext(request))
+        return render(request, "fsr_faq_index.html", dict(formset=formset, sections=sections))
 
 
 @fsr_required
@@ -669,7 +674,8 @@ def faq_section(request, section_id):
         messages.success(request, _("Successfully updated the FAQ questions."))
         return custom_redirect('evap.fsr.views.faq_index')
     else:
-        return render_to_response("fsr_faq_section.html", dict(formset=formset, section=section, questions=questions), context_instance=RequestContext(request))
+        template_data = dict(formset=formset, section=section, questions=questions)
+        return render(request, "fsr_faq_section.html", template_data)
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):

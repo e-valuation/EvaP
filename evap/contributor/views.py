@@ -1,8 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester
@@ -32,7 +31,8 @@ def index(request):
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
 
-    return render_to_response("contributor_index.html", dict(semester_list=semester_list, delegated_courses=delegated_courses), context_instance=RequestContext(request))
+    template_data = dict(semester_list=semester_list, delegated_courses=delegated_courses)
+    return render(request, "contributor_index.html", template_data)
 
 
 @editor_required
@@ -46,7 +46,7 @@ def profile_edit(request):
         messages.success(request, _("Successfully updated your profile."))
         return redirect('evap.contributor.views.index')
     else:
-        return render_to_response("contributor_profile.html", dict(form=form), context_instance=RequestContext(request))
+        return render(request, "contributor_profile.html", dict(form=form))
 
 
 @editor_or_delegate_required
@@ -69,8 +69,8 @@ def course_view(request, course_id):
             field.widget.attrs['readonly'] = True
             field.widget.attrs['disabled'] = True
 
-    return render_to_response("contributor_course_form.html", dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username), context_instance=RequestContext(request))
-
+    template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username)
+    return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required
 def course_edit(request, course_id):
@@ -105,8 +105,8 @@ def course_edit(request, course_id):
 
         return redirect('evap.contributor.views.index')
     else:
-        return render_to_response("contributor_course_form.html", dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username), context_instance=RequestContext(request))
-
+        template_data = dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
+        return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required
 def course_preview(request, course_id):
@@ -121,10 +121,9 @@ def course_preview(request, course_id):
     course_forms = form_groups[course.general_contribution].values()    
     contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
 
-    return render_to_response(
-        "student_vote.html",
-        dict(course_forms=course_forms,
+    template_data = dict(
+            course_forms=course_forms,
             contributor_questionnaires=contributor_questionnaires,
             course=course,
-            preview=True),
-        context_instance=RequestContext(request))
+            preview=True)
+    return render(request, "student_vote.html", template_data)
