@@ -83,6 +83,8 @@ class ExcelImporter(object):
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
+            if sheet.nrows <= self.skip_first_n_rows:
+                continue
             if (sheet.ncols != expected_column_count):
                 self.errors.append(_(u"Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
 
@@ -110,6 +112,21 @@ class ExcelImporter(object):
                 last_name = user_data.last_name.replace(' ', '').lower()
                 username = (first_name + '.' + last_name)[:26] + '.ext'
                 user_data.username = username
+
+    def check_user_data_sanity(self):
+        for user_data in self.users.values():
+            try:
+                user = User.objects.get(username=user_data.username)
+                if (user.email != user_data.email 
+                        or user.userprofile.title != user_data.title
+                        or user.first_name != user_data.first_name
+                        or user.last_name != user_data.last_name):
+                    self.warnings.append("Warning: The existing user {} ({} {} {}, {})".format(user.username, user.userprofile.title, user.first_name, user.last_name, user.email) +
+                        " would be overwritten with the following data: " +
+                        "{} ({} {} {}, {})".format(user_data.username, user_data.title, user_data.first_name, user_data.last_name, user_data.email))
+            except User.DoesNotExist:
+                # nothing to do here
+                pass
 
     def show_errors_and_warnings(self):
         for error in self.errors:
@@ -177,7 +194,6 @@ class EnrollmentImporter(ExcelImporter):
             if already_exists:
                 self.errors.append("Course {} in degree {} does already exist in this semester. ")
 
-
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
@@ -190,20 +206,6 @@ class EnrollmentImporter(ExcelImporter):
         for degree in degrees:
             if not Course.objects.filter(degree=degree).exists():
                 self.warnings.append("Warning: The degree \"{}\" does not exist yet and would be newly created.".format(degree))
-
-        for user_data in self.users.values():
-            try:
-                user = User.objects.get(username=user_data.username)
-                if (user.email != user_data.email 
-                        or user.title != user_data.title
-                        or user.first_name != user_data.first_name
-                        or user.last_name != user_data.last_name):
-                    self.warnings.append("Warning: The existing user {} ({} {} {}, {})".format(user.username, user.title, user.first_name, user.last_name, user.email) +
-                        "would be overwritten with the following data: " +
-                        "{} {} {}, {}".format(user_data.username, user_data.first_name, user_data.last_name, user_data.email))
-            except User.DoesNotExist:
-                # nothing to do here
-                pass
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
@@ -243,11 +245,15 @@ class EnrollmentImporter(ExcelImporter):
             importer.generate_external_usernames_if_external(importer.users.values())
             importer.check_enrollment_data_correctness(semester)
             importer.check_enrollment_data_sanity()
+            importer.check_user_data_sanity()
+            
+            importer.show_errors_and_warnings()
             if importer.errors:
-                importer.show_errors_and_warnings()
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
                 return
-            if not importer.errors and not test_run:
+            if test_run:
+                messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
+            else:
                 importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
         except Exception as e:
             raise
@@ -264,6 +270,20 @@ class UserImporter(ExcelImporter):
     def read_one_user(self, data, sheet_name, row_id):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
         return (user_data)
+
+    def process_user(self, dictionary, user_data, sheet, row):
+        curr_email = user_data.email
+        if curr_email not in dictionary:
+            dictionary[curr_email] = user_data
+        else:
+            if not user_data == dictionary[curr_email]:
+                self.errors.append(_(u'Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
+
+    def consolidate_user_data(self):
+        # these are dictionaries to not let this become O(n^2)
+        self.users = {}
+        for (sheet, row), (user_data) in self.associations.items():
+            self.process_user(self.users, user_data, sheet, row)
 
     def save_users_to_db(self):
         """Stores the read data in the database. Errors might still
@@ -294,12 +314,17 @@ class UserImporter(ExcelImporter):
                 messages.error(importer.request, _("The input data is malformed. No data was imported."))
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
-            importer.generate_external_usernames_if_external(self.associations.values())
+            importer.consolidate_user_data()
+            importer.check_user_data_sanity()
+            importer.generate_external_usernames_if_external(importer.users.values())
+
+            importer.show_errors_and_warnings()
             if importer.errors:
-                importer.show_errors_and_warnings()
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
                 return
-            if not importer.errors and not test_run:
+            if test_run:
+                messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
+            else:
                 importer.save_users_to_db()
         except Exception as e:
             raise
