@@ -17,16 +17,14 @@ from collections import OrderedDict
 def index(request):
     user = request.user
 
-    sorter = lambda course: STATES_ORDERED.keys().index(course.state)
-
-    own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published'])))
+    contributor_visible_states = ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published']
+    own_courses = Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=contributor_visible_states)
 
     represented_users = user.represented_users.all()
+    delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
 
-    delegated_courses = list(set(Course.objects.exclude(id__in=Course.objects.filter(contributions__can_edit=True, contributions__contributor=user)).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published'])))
-
-    all_courses = own_courses + delegated_courses
-    all_courses.sort(key=sorter)
+    all_courses = list(own_courses) + list(delegated_courses)
+    all_courses.sort(key=lambda course: STATES_ORDERED.keys().index(course.state))
 
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
