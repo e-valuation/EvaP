@@ -106,7 +106,10 @@ class ExcelImporter(object):
             if is_external_email(user_data.email):
                 if user_data.username != "":
                     self.errors.append(_('User {}: Username must be empty for external users.').format(user_data.username))
-                user_data.username = (user_data.first_name + '.' + user_data.last_name + '.ext').lower()
+                first_name = user_data.first_name.replace(' ', '').lower()
+                last_name = user_data.last_name.replace(' ', '').lower()
+                username = (first_name + '.' + last_name)[:26] + '.ext'
+                user_data.username = username
 
     def show_errors_and_warnings(self):
         for error in self.errors:
@@ -186,7 +189,7 @@ class EnrollmentImporter(ExcelImporter):
         degrees = set([course_data.degree for course_data in self.courses.values()])
         for degree in degrees:
             if not Course.objects.filter(degree=degree).exists():
-                self.warnings.append("Warning: The degree \"{}\" does not exist yet and would be newly created.")
+                self.warnings.append("Warning: The degree \"{}\" does not exist yet and would be newly created.".format(degree))
 
         for user_data in self.users.values():
             try:
@@ -259,7 +262,7 @@ class UserImporter(ExcelImporter):
         super(UserImporter, self).__init__(request)
 
     def read_one_user(self, data, sheet_name, row_id):
-        user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4])
+        user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
         return (user_data)
 
     def save_users_to_db(self):
