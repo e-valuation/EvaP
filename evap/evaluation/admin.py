@@ -85,8 +85,9 @@ class UserProfileAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_superuser')
     list_filter = ()
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
-        ('Personal info', {'fields': ('first_name','last_name')}),
+        (None, {'fields': ('username', 'email', 'password', 'login_key', 'login_key_valid_until')}),
+        ('Personal info', {'fields': ('first_name','last_name', 'title')}),
+        ('Delegates and cc-users', {'fields': ('delegates','cc_users')}),
         ('Permissions', {'fields': ('is_superuser', 'groups', 'user_permissions',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
