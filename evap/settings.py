@@ -76,6 +76,9 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
 # figure out who can login with username and password and who needs a login key
 INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de", "hpi.de", "student.hpi.de"]
 
+# maximum length of usernames of internal users
+INTERNAL_USERNAMES_MAX_LENGTH = 20
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.

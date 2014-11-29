@@ -21,8 +21,9 @@ class CommonEqualityMixin(object):
 
 
 class UserData(CommonEqualityMixin):
-    """Holds information about a user, retrieved from the Excel file."""
-
+    """
+        Holds information about a user, retrieved from the Excel file.
+    """
     def __init__(self, username, first_name, last_name, title, email, is_responsible):
         self.username = username.strip().lower()
         self.first_name = first_name.strip()
@@ -57,8 +58,9 @@ class UserData(CommonEqualityMixin):
         
 
 class CourseData(CommonEqualityMixin):
-    """Holds information about a course, retrieved from the Excel file."""
-
+    """
+        Holds information about a course, retrieved from the Excel file.
+    """
     def __init__(self, name_de, name_en, kind, degree, responsible_email):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
@@ -87,7 +89,8 @@ class ExcelImporter(object):
         self.skip_first_n_rows = 1 # first line contains the header
         self.errors = []
         self.warnings = []
-        self.users = None
+        # this is a dictionariy to not let this become O(n^2)
+        self.users = {}
 
     def read_book(self, excel_file):
         self.book = xlrd.open_workbook(file_contents=excel_file.read())
@@ -113,15 +116,15 @@ class ExcelImporter(object):
                 raise
         messages.success(self.request, _(u"Successfully read excel file."))
 
-    def process_user(self, dictionary, user_data, sheet, row):
+    def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
         if curr_email == "":
             self.errors.append(_(u'Sheet "{}", row {}: Email address is missing.').format(sheet, row))
             return
-        if curr_email not in dictionary:
-            dictionary[curr_email] = user_data
+        if curr_email not in self.users:
+            self.users[curr_email] = user_data
         else:
-            if not user_data == dictionary[curr_email]:
+            if not user_data == self.users[curr_email]:
                 self.errors.append(_(u'Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
 
     def generate_external_usernames_if_external(self, user_data_list):
@@ -144,8 +147,8 @@ class ExcelImporter(object):
                 user_data.validate()
             except ValidationError as e:
                 self.errors.append(_("User {}: Error when validating: {}").format(user_data.email, e))
-            if not is_external_email(user_data.email) and len(user_data.username) > 20 :
-                self.errors.append(_('User {}: Username cannot be longer than 20 characters for non-external users.').format(user_data.email))
+            if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH :
+                self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
@@ -176,8 +179,9 @@ class ExcelImporter(object):
 class EnrollmentImporter(ExcelImporter):
     def __init__(self, request):
         super(EnrollmentImporter, self).__init__(request)
-        self.courses = None
-        self.enrollments = None
+        # this is a dictionary to not let this become O(n^2)
+        self.courses = {}
+        self.enrollments = []
         self.maxEnrollments = 6
 
     def read_one_enrollment(self, data, sheet_name, row_id):
@@ -186,23 +190,19 @@ class EnrollmentImporter(ExcelImporter):
         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, course_data)
 
-    def process_course(self, dictionary, course_data, sheet, row):
+    def process_course(self, course_data, sheet, row):
         course_id = (course_data.degree, course_data.name_en) 
-        if course_id not in dictionary:
-            dictionary[course_id] = course_data
+        if course_id not in self.courses:
+            self.courses[course_id] = course_data
         else:
-            if not course_data == dictionary[course_id]:
+            if not course_data == self.courses[course_id]:
                 self.errors.append(_(u'Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, course_data.name_en))
 
     def consolidate_enrollment_data(self):
-        # these are dictionaries to not let this become O(n^2)
-        self.users = {}
-        self.courses = {}
-        self.enrollments = []
         for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
-            self.process_user(self.users, student_data, sheet, row)
-            self.process_user(self.users, responsible_data, sheet, row)
-            self.process_course(self.courses, course_data, sheet, row)
+            self.process_user(student_data, sheet, row)
+            self.process_user(responsible_data, sheet, row)
+            self.process_course(course_data, sheet, row)
             self.enrollments.append((course_data, student_data))
 
     def check_course_data_correctness(self, semester):
@@ -248,7 +248,9 @@ class EnrollmentImporter(ExcelImporter):
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
-        """Entry point for the view."""
+        """
+            Entry point for the view.
+        """
         try:
             importer = cls(request)
             importer.read_book(excel_file)
@@ -290,15 +292,14 @@ class UserImporter(ExcelImporter):
         return (user_data)
 
     def consolidate_user_data(self):
-        # these are dictionaries to not let this become O(n^2)
-        self.users = {}
         for (sheet, row), (user_data) in self.associations.items():
-            self.process_user(self.users, user_data, sheet, row)
+            self.process_user(user_data, sheet, row)
 
     def save_users_to_db(self):
-        """Stores the read data in the database. Errors might still
-        occur because of the data already in the database."""
-
+        """
+            Stores the read data in the database. Errors might still
+            occur because of the data already in the database.
+        """
         with transaction.atomic():
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
@@ -314,7 +315,9 @@ class UserImporter(ExcelImporter):
 
     @classmethod
     def process(cls, request, excel_file, test_run):
-        """Entry point for the view."""
+        """
+            Entry point for the view.
+        """
         try:
             importer = cls(request)
             importer.read_book(excel_file)
