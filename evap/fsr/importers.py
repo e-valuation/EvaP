@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Course, UserProfile
 from evap.evaluation.tools import is_external_email
@@ -44,6 +45,15 @@ class UserData(CommonEqualityMixin):
             profile.refresh_login_key()
         profile.save()
         return created
+
+    def validate(self):
+        user = User()
+        user.username = self.username
+        user.first_name = self.first_name
+        user.last_name = self.last_name
+        user.email = self.email
+        user.password = "asdf" # clean_fields needs that...
+        user.clean_fields()
         
 
 class CourseData(CommonEqualityMixin):
@@ -105,6 +115,9 @@ class ExcelImporter(object):
 
     def process_user(self, dictionary, user_data, sheet, row):
         curr_email = user_data.email
+        if curr_email == "":
+            self.errors.append(_(u'Sheet "{}", row {}: Email address is missing.').format(sheet, row))
+            return
         if curr_email not in dictionary:
             dictionary[curr_email] = user_data
         else:
@@ -126,14 +139,17 @@ class ExcelImporter(object):
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
+                return # to avoid duplicate errors with validate
+            try:
+                user_data.validate()
+            except ValidationError as e:
+                self.errors.append(_("User {}: Error when validating: {}").format(user_data.email, e))
             if not is_external_email(user_data.email) and len(user_data.username) > 20 :
                 self.errors.append(_('User {}: Username cannot be longer than 20 characters for non-external users.').format(user_data.email))
             if user_data.first_name == "":
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
-            if user_data.email == "":
-                self.errors.append(_('User {}: Email address is missing.').format(user_data.email))
 
     def check_user_data_sanity(self):
         for user_data in self.users.values():
@@ -193,7 +209,7 @@ class EnrollmentImporter(ExcelImporter):
         for course_data in self.courses.values():
             already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de, degree=course_data.degree).exists()
             if already_exists:
-                self.errors.append("Course {} in degree {} does already exist in this semester. ")
+                self.errors.append("Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree)
 
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
@@ -309,6 +325,7 @@ class UserImporter(ExcelImporter):
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.consolidate_user_data()
+            importer.check_user_data_correctness()
             importer.check_user_data_sanity()
             importer.generate_external_usernames_if_external(importer.users.values())
 
