@@ -77,6 +77,7 @@ class ExcelImporter(object):
         self.skip_first_n_rows = 1 # first line contains the header
         self.errors = []
         self.warnings = []
+        self.users = None
 
     def read_book(self, excel_file):
         self.book = xlrd.open_workbook(file_contents=excel_file.read())
@@ -102,16 +103,37 @@ class ExcelImporter(object):
                 raise
         messages.success(self.request, _(u"Successfully read excel file."))
 
+    def process_user(self, dictionary, user_data, sheet, row):
+        curr_email = user_data.email
+        if curr_email not in dictionary:
+            dictionary[curr_email] = user_data
+        else:
+            if not user_data == dictionary[curr_email]:
+                self.errors.append(_(u'Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
 
     def generate_external_usernames_if_external(self, user_data_list):
         for user_data in user_data_list:
             if is_external_email(user_data.email):
                 if user_data.username != "":
                     self.errors.append(_('User {}: Username must be empty for external users.').format(user_data.username))
-                first_name = user_data.first_name.replace(' ', '').lower()
-                last_name = user_data.last_name.replace(' ', '').lower()
-                username = (first_name + '.' + last_name)[:26] + '.ext'
+                # remove whitespace for e.g. second names
+                first_name = user_data.first_name.replace(' ', '')
+                last_name = user_data.last_name.replace(' ', '')
+                username = (first_name + '.' + last_name + '.ext').lower()
                 user_data.username = username
+
+    def check_user_data_correctness(self):
+        for user_data in self.users.values():
+            if not is_external_email(user_data.email) and user_data.username == "":
+                self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
+            if not is_external_email(user_data.email) and len(user_data.username) > 20 :
+                self.errors.append(_('User {}: Username cannot be longer than 20 characters for non-external users.').format(user_data.email))
+            if user_data.first_name == "":
+                self.errors.append(_('User {}: First name is missing.').format(user_data.email))
+            if user_data.last_name == "":
+                self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
+            if user_data.email == "":
+                self.errors.append(_('User {}: Email address is missing.').format(user_data.email))
 
     def check_user_data_sanity(self):
         for user_data in self.users.values():
@@ -138,7 +160,6 @@ class ExcelImporter(object):
 class EnrollmentImporter(ExcelImporter):
     def __init__(self, request):
         super(EnrollmentImporter, self).__init__(request)
-        self.users = None
         self.courses = None
         self.enrollments = None
         self.maxEnrollments = 6
@@ -148,14 +169,6 @@ class EnrollmentImporter(ExcelImporter):
         responsible_data = UserData(username=data[11], first_name=data[10], last_name=data[9], title=data[8], email=data[12], is_responsible=True)
         course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, course_data)
-
-    def process_user(self, dictionary, user_data, sheet, row):
-        curr_email = user_data.email
-        if curr_email not in dictionary:
-            dictionary[curr_email] = user_data
-        else:
-            if not user_data == dictionary[curr_email]:
-                self.errors.append(_(u'Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
 
     def process_course(self, dictionary, course_data, sheet, row):
         course_id = (course_data.degree, course_data.name_en) 
@@ -176,19 +189,7 @@ class EnrollmentImporter(ExcelImporter):
             self.process_course(self.courses, course_data, sheet, row)
             self.enrollments.append((course_data, student_data))
 
-    def check_enrollment_data_correctness(self, semester):
-        for user_data in self.users.values():
-            if not is_external_email(user_data.email) and user_data.username == "":
-                self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
-            if not is_external_email(user_data.email) and len(user_data.username) > 20 :
-                self.errors.append(_('User {}: Username cannot be longer than 20 characters for non-external users.').format(user_data.email))
-            if user_data.first_name == "":
-                self.errors.append(_('User {}: First name is missing.').format(user_data.email))
-            if user_data.last_name == "":
-                self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
-            if user_data.email == "":
-                self.errors.append(_('User {}: Email address is missing.').format(user_data.email))
-
+    def check_course_data_correctness(self, semester):
         for course_data in self.courses.values():
             already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de, degree=course_data.degree).exists()
             if already_exists:
@@ -243,7 +244,8 @@ class EnrollmentImporter(ExcelImporter):
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
             importer.generate_external_usernames_if_external(importer.users.values())
-            importer.check_enrollment_data_correctness(semester)
+            importer.check_user_data_correctness()
+            importer.check_course_data_correctness(semester)
             importer.check_enrollment_data_sanity()
             importer.check_user_data_sanity()
             
@@ -270,14 +272,6 @@ class UserImporter(ExcelImporter):
     def read_one_user(self, data, sheet_name, row_id):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
         return (user_data)
-
-    def process_user(self, dictionary, user_data, sheet, row):
-        curr_email = user_data.email
-        if curr_email not in dictionary:
-            dictionary[curr_email] = user_data
-        else:
-            if not user_data == dictionary[curr_email]:
-                self.errors.append(_(u'Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
 
     def consolidate_user_data(self):
         # these are dictionaries to not let this become O(n^2)
