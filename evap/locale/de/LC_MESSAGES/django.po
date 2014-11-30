@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-16 15:43+0100\n"
-"PO-Revision-Date: 2014-11-01 23:40+0100\n"
-"Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
+"POT-Creation-Date: 2014-11-30 10:59+0100\n"
+"PO-Revision-Date: 2014-11-30 11:02+0100\n"
+"Last-Translator: Johannes Linke <johannes.linke@gmx.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.6.5\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: contributor/forms.py:10 fsr/forms.py:35
 msgid "General questions"
@@ -30,7 +30,7 @@ msgstr "Profil erfolgreich aktualisiert."
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:105 fsr/views.py:307
+#: contributor/views.py:105 fsr/views.py:316
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -40,42 +40,42 @@ msgstr "Mein EvaP"
 
 #: contributor/templates/contributor_base.html:11
 #: contributor/templates/contributor_base.html:13
-#: contributor/templates/contributor_course_form.html:28
+#: contributor/templates/contributor_course_form.html:29
 #: fsr/templates/fsr_user_index.html:44
 msgid "Contributor"
 msgstr "Mitwirkender"
 
-#: contributor/templates/contributor_course_form.html:22
+#: contributor/templates/contributor_course_form.html:23
 #: fsr/templates/fsr_course_form.html:16
 #: results/templates/results_course_detail.html:92
 msgid "Contributors"
 msgstr "Mitwirkende"
 
-#: contributor/templates/contributor_course_form.html:29 fsr/forms.py:96
+#: contributor/templates/contributor_course_form.html:30 fsr/forms.py:96
 #: fsr/templates/fsr_index.html:25 fsr/templates/fsr_questionnaire_base.html:8
 #: fsr/templates/fsr_questionnaire_base.html:11 templates/base.html:71
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
-#: contributor/templates/contributor_course_form.html:30
+#: contributor/templates/contributor_course_form.html:31
 msgid "Can edit course"
 msgstr "Kann Veranstaltung bearbeiten"
 
-#: contributor/templates/contributor_course_form.html:31
+#: contributor/templates/contributor_course_form.html:32
 #: fsr/templates/fsr_course_form.html:29
 msgid "Remove?"
 msgstr "Entfernen?"
 
-#: contributor/templates/contributor_course_form.html:49
+#: contributor/templates/contributor_course_form.html:50
 #: evaluation/models.py:357
 msgid "responsible"
 msgstr "verantwortlich"
 
-#: contributor/templates/contributor_course_form.html:75
+#: contributor/templates/contributor_course_form.html:76
 msgid "Students"
 msgstr "Studenten"
 
-#: contributor/templates/contributor_course_form.html:76
+#: contributor/templates/contributor_course_form.html:77
 msgid ""
 "These students should be participating in your course. If this data is not "
 "correct, e.g. when students are missing from the list, please contact the "
@@ -85,19 +85,24 @@ msgstr ""
 "nicht korrekt sind, bspw. wenn Studierende fehlen, benachrichtigen Sie bitte "
 "den Fachschaftsrat."
 
-#: contributor/templates/contributor_course_form.html:86
+#: contributor/templates/contributor_course_form.html:87
 msgid "Save"
 msgstr "Speichern"
 
-#: contributor/templates/contributor_course_form.html:87
+#: contributor/templates/contributor_course_form.html:88
 msgid "Save and approve"
 msgstr "Speichern und bestätigen"
 
-#: contributor/templates/contributor_course_form.html:89
+#: contributor/templates/contributor_course_form.html:90
+#: student/templates/student_vote.html:103
+msgid "Back"
+msgstr "Zurück"
+
+#: contributor/templates/contributor_course_form.html:90
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: contributor/templates/contributor_course_form.html:90
+#: contributor/templates/contributor_course_form.html:91
 #: contributor/templates/contributor_index.html:84
 #: fsr/templates/fsr_questionnaire_index.html:40
 #: fsr/templates/fsr_questionnaire_index.html:83
@@ -105,14 +110,14 @@ msgstr "Abbrechen"
 msgid "Preview"
 msgstr "Vorschau"
 
-#: contributor/templates/contributor_course_form.html:116
+#: contributor/templates/contributor_course_form.html:117
 #: fsr/templates/fsr_course_form.html:102 fsr/templates/fsr_faq_index.html:23
 #: fsr/templates/fsr_faq_section.html:24
 #: fsr/templates/fsr_questionnaire_form.html:21
 msgid "remove"
 msgstr "Entfernen"
 
-#: contributor/templates/contributor_course_form.html:117
+#: contributor/templates/contributor_course_form.html:118
 #: fsr/templates/fsr_course_form.html:103 fsr/templates/fsr_faq_index.html:24
 #: fsr/templates/fsr_faq_section.html:25
 #: fsr/templates/fsr_questionnaire_form.html:22
@@ -326,7 +331,7 @@ msgstr ""
 msgid "Login key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/forms.py:153 rewards/exporters.py:38
+#: evaluation/forms.py:153 rewards/exporters.py:35
 msgid "Email address"
 msgstr "E‑Mail-Adresse"
 
@@ -924,30 +929,123 @@ msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
-#: fsr/importers.py:94
+#: fsr/importers.py:103
+msgid "Wrong number of columns in sheet '{}'. Expected: {}, actual: {}"
+msgstr ""
+"Falsche Anzahl von Spalten in Blatt '{}'. Erwartet: {}, tatsächlich: {}"
+
+#: fsr/importers.py:113
 #, python-format
 msgid "Successfully read sheet '%s'."
 msgstr "Blatt '%s' erfolgreich gelesen."
 
-#: fsr/importers.py:96
+#: fsr/importers.py:115
 #, python-format
 msgid "A problem occured while reading sheet '%s'."
 msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 
-#: fsr/importers.py:98
+#: fsr/importers.py:117
 msgid "Successfully read excel file."
 msgstr "Exceldatei erfolgreich gelesen."
 
-#: fsr/importers.py:102 fsr/importers.py:112
-#, python-format
-msgid ""
-"Invalid line %(row)s in sheet '%(sheet)s', beginning with '%(beginning)s', "
-"number of columns: %(ncols)s"
-msgstr ""
-"Ungültige Zeile %(row)s in Arbeitsblatt '%(sheet)s', beginnend mit "
-"'%(beginning)s', %(ncols)s Spalten"
+#: fsr/importers.py:122
+msgid "Sheet \"{}\", row {}: Email address is missing."
+msgstr "Blatt \"{}\", Reihe {}: E‑Mail-Adresse fehlt."
 
-#: fsr/importers.py:164 fsr/importers.py:185
+#: fsr/importers.py:128
+msgid ""
+"Sheet \"{}\", row {}: The users's data (email: {}) differs from it's data in "
+"a previous row."
+msgstr ""
+"Blatt \"{}\", Reihe {}: Die Daten des Nutzers (E-Mail: {}) unterscheiden "
+"sich von den Daten in einer vorherigen Zeile."
+
+#: fsr/importers.py:134
+msgid "User {}: Username must be empty for external users."
+msgstr "Nutzer {}: Bei externen Nutzern muss der Nutzername leer sein."
+
+#: fsr/importers.py:144
+msgid "Emailaddress {}: Username cannot be empty for non-external users."
+msgstr ""
+"E-Mail-Adresse {}: Bei nicht-externen Nutzern darf der Nutzername nicht leer "
+"sein."
+
+#: fsr/importers.py:149
+msgid "User {}: Error when validating: {}"
+msgstr "Nutzer {}: Fehler beim Validieren: {}"
+
+#: fsr/importers.py:151
+msgid ""
+"User {}: Username cannot be longer than {} characters for non-external users."
+msgstr ""
+"Nutzer {}: Bei nicht-externen Nutzern darf der Nutzername nicht länger als "
+"{} Zeichen sein."
+
+#: fsr/importers.py:153
+msgid "User {}: First name is missing."
+msgstr "Nutzer {}: Vorname fehlt."
+
+#: fsr/importers.py:155
+msgid "User {}: Last name is missing."
+msgstr "Nutzer {}: Nachname fehlt."
+
+#: fsr/importers.py:165
+msgid "Warning: The existing user"
+msgstr "Warnung: Der bereits existierende Nutzer"
+
+#: fsr/importers.py:167
+msgid "would be overwritten with the following data:"
+msgstr "würde mit den folgenden Daten überschrieben warden:"
+
+#: fsr/importers.py:200
+msgid ""
+"Sheet \"{}\", row {}: The course's \"{}\" data differs from it's data in a "
+"previous row."
+msgstr ""
+"Blatt \"{}\", Reihe {}: Die Daten des Kurses \"{}\" unterscheiden sich von "
+"den Daten in einer vorherigen Zeile."
+
+#: fsr/importers.py:213
+msgid "Course {} in degree {} does already exist in this semester."
+msgstr "Kurs {} in Studiengang {} existiert bereits in diesem Semester."
+
+#: fsr/importers.py:221
+msgid "Warning: User {} has {} enrollments, which is a lot."
+msgstr "Warnung: Nutzer {} hat ungewöhnlich viele Belegungen ({})."
+
+#: fsr/importers.py:226
+msgid ""
+"Warning: The degree \"{}\" does not exist yet and would be newly created."
+msgstr ""
+"Warnung: Der Studiengang \"{}\" existiert noch nicht und würde neu erstellt "
+"warden."
+
+#: fsr/importers.py:248
+msgid "Successfully created {} course(s), {} student(s) and {} contributor(s)."
+msgstr "{} Kurs(e), {} Studierende und {} Mitwirkende erfolgreich erstellt."
+
+#: fsr/importers.py:261 fsr/importers.py:328
+msgid "The input data is malformed. No data was imported."
+msgstr ""
+"Die Eingabedaten haben ein falsches Format. Es wurden keine Daten importiert."
+
+#: fsr/importers.py:273 fsr/importers.py:338
+msgid "Errors occurred while parsing the input data. No data was imported."
+msgstr ""
+"Beim Verarbeiten der Eingabedaten trat ein Fehler auf. Es wurden keine Daten "
+"importiert."
+
+#: fsr/importers.py:276 fsr/importers.py:341
+msgid "The test run showed no errors. No data was imported yet."
+msgstr ""
+"Der Testlauf ergab keine Fehler. Es wurden noch keine Daten importiert."
+
+#: fsr/importers.py:281 fsr/importers.py:346
+#, python-format
+msgid "Import finally aborted after exception: '%s'"
+msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
+
+#: fsr/importers.py:313
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -958,94 +1056,80 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: fsr/importers.py:166
-#, python-format
-msgid ""
-"Successfully created %(courses)d course(s), %(students)d student(s) and "
-"%(contributors)d contributor(s)."
-msgstr ""
-"%(courses)d Kurs(e), %(students)d Studierende und %(contributors)d "
-"Mitwirkende erfolgreich erstellt."
-
-#: fsr/importers.py:187
+#: fsr/importers.py:315
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
-#: fsr/importers.py:198 fsr/importers.py:211
-#, python-format
-msgid "Import finally aborted after exception: '%s'"
-msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
-
-#: fsr/views.py:76
+#: fsr/views.py:77
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: fsr/views.py:90
+#: fsr/views.py:91
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: fsr/views.py:103
+#: fsr/views.py:104
 msgid "Successfully deleted semester."
 msgstr "Semester erfolgreich gelöscht."
 
-#: fsr/views.py:108
+#: fsr/views.py:109
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: fsr/views.py:132
+#: fsr/views.py:133
 msgid "Could not send emails to participants and contributors"
 msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 
-#: fsr/views.py:133
+#: fsr/views.py:134
 #, python-format
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: fsr/views.py:168
+#: fsr/views.py:177
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: fsr/views.py:191
+#: fsr/views.py:200
 #, python-format
 msgid "Successfully reverted %d courses to New."
 msgstr "Erfolgreich %d Veranstaltungen auf Neu zurückgesetzt."
 
-#: fsr/views.py:213
+#: fsr/views.py:222
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen bestätigt."
 
-#: fsr/views.py:238
+#: fsr/views.py:247
 #, python-format
 msgid "Successfully marked %d courses as ready for lecturer review."
 msgstr "Erfolgreich %d Veranstaltungen als Bereit für die Dozenten markiert."
 
-#: fsr/views.py:283
+#: fsr/views.py:292
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: fsr/views.py:297
+#: fsr/views.py:306
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:320
+#: fsr/views.py:329
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:325
+#: fsr/views.py:334
 msgid "Successfully deleted course."
 msgstr "Kurs erfolgreich gelöscht."
 
-#: fsr/views.py:338
+#: fsr/views.py:347
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: fsr/views.py:372
+#: fsr/views.py:381
 msgid ""
 "Successfully reviewed {count} course answers for {course}. {course} is now "
 "fully reviewed."
@@ -1053,16 +1137,16 @@ msgstr ""
 "{count} Antworten für {name} erfolgreich überprüft. {name} ist jetzt "
 "vollständig überprüft."
 
-#: fsr/views.py:377
+#: fsr/views.py:386
 msgid "Successfully reviewed {count} course answers for {course}."
 msgstr "{count} Antworten für {course} erfolgreich überprüft."
 
-#: fsr/views.py:398
+#: fsr/views.py:407
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: fsr/views.py:400
+#: fsr/views.py:409
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
 "reached as they do not have an email address."
@@ -1071,62 +1155,62 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: fsr/views.py:413
+#: fsr/views.py:422
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr ""
 "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
 "Kurs noch nicht veröffentlicht wurde."
 
-#: fsr/views.py:482 fsr/views.py:523
+#: fsr/views.py:491 fsr/views.py:532
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: fsr/views.py:497
+#: fsr/views.py:506
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: fsr/views.py:504
+#: fsr/views.py:513
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: fsr/views.py:544
+#: fsr/views.py:553
 msgid "Successfully deleted questionnaire."
 msgstr "Fragebogen erfolgreich gelöscht."
 
-#: fsr/views.py:549
+#: fsr/views.py:558
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: fsr/views.py:567
+#: fsr/views.py:576
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: fsr/views.py:592
+#: fsr/views.py:608
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: fsr/views.py:605
+#: fsr/views.py:621
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: fsr/views.py:610
+#: fsr/views.py:626
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: fsr/views.py:622
+#: fsr/views.py:638
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: fsr/views.py:638
+#: fsr/views.py:654
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: fsr/views.py:655
+#: fsr/views.py:671
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -1280,7 +1364,11 @@ msgstr ""
 "erstellt und verbunden. Außerdem werden die angegebenen Standardwerte für "
 "alle Kurse eingetragen."
 
-#: fsr/templates/fsr_import.html:16
+#: fsr/templates/fsr_import.html:16 fsr/templates/fsr_user_import.html:16
+msgid "Test"
+msgstr "Testen"
+
+#: fsr/templates/fsr_import.html:17 fsr/templates/fsr_user_import.html:17
 msgid "Import"
 msgstr "Importieren"
 
@@ -1709,45 +1797,45 @@ msgstr "Semester als Excel-Tabelle exportieren"
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
-#: rewards/exporters.py:32
+#: rewards/exporters.py:29
 #: rewards/templates/rewards_reward_point_redemption_events.html:29
 #: rewards/templates/rewards_reward_point_redemption_events.html:66
 msgid "Redemptions"
 msgstr "Einlösungen"
 
-#: rewards/exporters.py:36
+#: rewards/exporters.py:33
 msgid "Last name"
 msgstr "Nachname"
 
-#: rewards/exporters.py:37
+#: rewards/exporters.py:34
 msgid "First name"
 msgstr "Vorname"
 
-#: rewards/exporters.py:39
+#: rewards/exporters.py:36
 msgid "Number of points"
 msgstr "Anzahl der Punkte"
 
-#: rewards/models.py:5
+#: rewards/models.py:9
 msgid "event name"
 msgstr "Veranstaltungsname"
 
-#: rewards/models.py:6
+#: rewards/models.py:10
 msgid "event date"
 msgstr "Veranstaltungsdatum"
 
-#: rewards/models.py:7
+#: rewards/models.py:11
 msgid "redemption end date"
 msgstr "Ende des Einlösezeitraums"
 
-#: rewards/models.py:18
+#: rewards/models.py:31
 msgid "granting time"
 msgstr "Vergabezeitpunkt"
 
-#: rewards/models.py:19 rewards/models.py:24
+#: rewards/models.py:32 rewards/models.py:37
 msgid "value"
 msgstr "Wert"
 
-#: rewards/models.py:23
+#: rewards/models.py:36
 msgid "redemption time"
 msgstr "Einlösezeitpunkt"
 
@@ -2041,10 +2129,6 @@ msgstr ""
 #: student/templates/student_vote.html:67
 msgid "I can't give feedback about this contributor"
 msgstr "Ich kann diesen Mitwirkenden nicht bewerten"
-
-#: student/templates/student_vote.html:103
-msgid "Back"
-msgstr "Zurück"
 
 #: student/templates/student_vote.html:105
 msgid "Vote"

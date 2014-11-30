@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.auth import enrolment_required
+from evap.evaluation.auth import enrollment_required
 from evap.evaluation.models import Course, Semester, UserProfile
 from evap.evaluation.tools import STUDENT_STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 
@@ -15,7 +15,7 @@ from evap.student.tools import make_form_identifier
 
 from collections import OrderedDict
 
-@enrolment_required
+@enrollment_required
 def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
@@ -33,7 +33,7 @@ def index(request):
         context_instance=RequestContext(request))
 
 
-@enrolment_required
+@enrollment_required
 def vote(request, course_id):
     # retrieve course and make sure that the user is allowed to vote
     course = get_object_or_404(Course, id=course_id)

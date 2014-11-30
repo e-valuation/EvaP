@@ -119,7 +119,7 @@ def editor_required(func):
         return UserProfile.get_for_user(user=user).is_editor
     return user_passes_test(check_user)(func)
 
-def enrolment_required(func):
+def enrollment_required(func):
     """
     Decorator for views that checks that the user is logged in and is
     enrolled in at least one course.

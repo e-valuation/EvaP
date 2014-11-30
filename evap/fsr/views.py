@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -18,7 +19,7 @@ from evap.fsr.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswer
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                            SelectCourseForm, SemesterForm, UserForm, ContributorFormSet, \
                            FaqSectionForm, FaqQuestionForm, UserImportForm
-from evap.fsr.importers import ExcelImporter
+from evap.fsr.importers import EnrollmentImporter, UserImporter
 from evap.fsr.tools import custom_redirect
 from evap.student.forms import QuestionsForm
 
@@ -140,15 +141,23 @@ def semester_publish(request, semester_id):
 def semester_import(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     form = ImportForm(request.POST or None, request.FILES or None)
+    operation = request.POST.get('operation')
 
     if form.is_valid():
+        if operation not in ('test', 'import'):
+            raise PermissionDenied
+
         # extract data from form
         excel_file = form.cleaned_data['excel_file']
         vote_start_date = form.cleaned_data['vote_start_date']
         vote_end_date = form.cleaned_data['vote_end_date']
 
+        test_run = operation == 'test'
+
         # parse table
-        ExcelImporter.process_enrollments(request, excel_file, semester, vote_start_date, vote_end_date)
+        EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
+        if test_run:
+            return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
         return redirect('evap.fsr.views.semester_view', semester_id)
     else:
         return render_to_response("fsr_import.html", dict(semester=semester, form=form), context_instance=RequestContext(request))
@@ -573,10 +582,17 @@ def user_create(request):
 @fsr_required
 def user_import(request):
     form = UserImportForm(request.POST or None, request.FILES or None)
+    operation = request.POST.get('operation')
 
     if form.is_valid():
+        if operation not in ('test', 'import'):
+            raise PermissionDenied
+
+        test_run = operation == 'test'
         excel_file = form.cleaned_data['excel_file']
-        ExcelImporter.process_users(request, excel_file)
+        UserImporter.process(request, excel_file, test_run)
+        if test_run:
+            return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
         return redirect('evap.fsr.views.user_index')       
     else:
         return render_to_response("fsr_user_import.html", dict(form=form), context_instance=RequestContext(request))
