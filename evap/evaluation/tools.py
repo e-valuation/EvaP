@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer, UserProfile
+from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
 from collections import OrderedDict
 from collections import namedtuple
@@ -320,8 +320,7 @@ def create_contributor_questionnaires(form_groups_items):
         if contribution.is_general:
             continue
         contributor = contribution.contributor
-        user_profile = UserProfile.get_for_user(contributor)
-        contributor_questionnaires.append((user_profile, form_group.values()));
+        contributor_questionnaires.append((contributor, form_group.values()));
 
         if any(form.errors for form in form_group.values()):
                 errors.append(contributor.id)

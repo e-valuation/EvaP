@@ -94,74 +94,68 @@
 },
 {
   "pk": 1, 
-  "model": "auth.user", 
+  "model": "evaluation.userprofile", 
   "fields": {
     "username": "evap", 
     "first_name": "", 
     "last_name": "", 
-    "is_active": true, 
-    "is_superuser": true, 
-    "is_staff": true, 
-    "last_login": "2014-06-14T17:31:13.386", 
-    "groups": [], 
-    "user_permissions": [], 
     "password": "pbkdf2_sha256$12000$BCofhRK399OP$HNQZoTWsF/KItaZH9UnX63smbb+MJzZuFaGc3VH8b8E=", 
     "email": "evap@evap.de", 
-    "date_joined": "2014-06-14T16:28:01.487"
+    "title": null, 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": null, 
+    "login_key": null
   }
 },
 {
   "pk": 2, 
-  "model": "auth.user", 
+  "model": "evaluation.userprofile", 
   "fields": {
     "username": "tutor", 
     "first_name": "", 
     "last_name": "", 
-    "is_active": true, 
-    "is_superuser": false, 
-    "is_staff": false, 
-    "last_login": "2014-06-14T17:05:07.164", 
-    "groups": [], 
-    "user_permissions": [], 
     "password": "pbkdf2_sha256$12000$0pXoDTCLeyk0$Vw93Fh6vE0O8rZfpXnoRa6gB13Gt0+loDFmnxDT/67g=", 
     "email": "tutor@evap.de", 
-    "date_joined": "2014-06-14T16:28:36.233"
+    "title": "Tutor", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2999-12-31", 
+    "login_key": 1234
   }
 },
 {
   "pk": 3, 
-  "model": "auth.user", 
+  "model": "evaluation.userprofile", 
   "fields": {
     "username": "lecturer", 
     "first_name": "", 
     "last_name": "", 
-    "is_active": true, 
-    "is_superuser": false, 
-    "is_staff": false, 
     "last_login": "2014-06-14T16:29:10.883", 
-    "groups": [], 
-    "user_permissions": [], 
     "password": "pbkdf2_sha256$12000$qggReihKjiB1$rFu5leVe2buOtVBtg2PtwIqN2TnCDoRUSTYp36xVmEQ=", 
     "email": "lecturer@evap.de", 
-    "date_joined": "2014-06-14T16:29:10.883"
+    "title": "Lecturer", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2014-06-14", 
+    "login_key": null
   }
 },
 {
   "pk": 4, 
-  "model": "auth.user", 
+  "model": "evaluation.userprofile", 
   "fields": {
     "username": "student", 
     "first_name": "", 
     "last_name": "", 
-    "is_active": true, 
-    "is_superuser": false, 
-    "is_staff": false, 
     "last_login": "2014-06-14T17:04:57.872", 
-    "groups": [], 
-    "user_permissions": [], 
     "password": "pbkdf2_sha256$12000$rTwFGpAsID1Z$eQKdZdh4Fs4x/H3P6cafFxDlGuK2bVafD1M2hs35WP8=", 
     "email": "student@evap.de", 
-    "date_joined": "2014-06-14T16:36:05.823"
+    "title": "Student", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": "2999-12-31", 
+    "login_key": 123
   }
 },
 {
@@ -227,58 +221,6 @@
     ], 
     "can_edit": true,
     "order": 2
-  }
-},
-{
-  "pk": 1, 
-  "model": "evaluation.userprofile", 
-  "fields": {
-    "picture": "", 
-    "title": "Tutor", 
-    "cc_users": [], 
-    "delegates": [], 
-    "login_key_valid_until": "2999-12-31", 
-    "user": 2, 
-    "login_key": 1234
-  }
-},
-{
-  "pk": 2, 
-  "model": "evaluation.userprofile", 
-  "fields": {
-    "picture": "", 
-    "title": "Lecturer", 
-    "cc_users": [], 
-    "delegates": [], 
-    "login_key_valid_until": "2014-06-14", 
-    "user": 3, 
-    "login_key": null
-  }
-},
-{
-  "pk": 3, 
-  "model": "evaluation.userprofile", 
-  "fields": {
-    "picture": "", 
-    "title": null, 
-    "cc_users": [], 
-    "delegates": [], 
-    "login_key_valid_until": null, 
-    "user": 1, 
-    "login_key": null
-  }
-},
-{
-  "pk": 4, 
-  "model": "evaluation.userprofile", 
-  "fields": {
-    "picture": "", 
-    "title": "Student", 
-    "cc_users": [], 
-    "delegates": [], 
-    "login_key_valid_until": "2999-12-31", 
-    "user": 4, 
-    "login_key": 123
   }
 }
 ]

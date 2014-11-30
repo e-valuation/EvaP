@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
 from django_fsm.db.fields import FSMField, transition
 import django.dispatch
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -263,7 +264,7 @@ class Course(models.Model):
 
     @property
     def responsible_contributors_name(self):
-        return self.responsible_contributor.userprofile.full_name
+        return self.responsible_contributor.full_name
 
     @property
     def responsible_contributors_username(self):
@@ -276,8 +277,7 @@ class Course(models.Model):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
         else:
-            represented_userprofiles = user.represented_users.all()
-            represented_users = [profile.user for profile in represented_userprofiles]
+            represented_users = user.represented_users.all()
             if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
                 return True
 
@@ -287,8 +287,7 @@ class Course(models.Model):
         if self.contributions.filter(responsible=True, contributor=user).exists():
             return True
         else:
-            represented_userprofiles = user.represented_users.all()
-            represented_users = [profile.user for profile in represented_userprofiles]
+            represented_users = user.represented_users.all()
             if self.contributions.filter(responsible=True, contributor__in=represented_users).exists():
                 return True
 
@@ -301,8 +300,7 @@ class Course(models.Model):
         if self.is_user_contributor(user):
             return True
         else:
-            represented_userprofiles = user.represented_users.all()
-            represented_users = [profile.user for profile in represented_userprofiles]
+            represented_users = user.represented_users.all()
             if self.contributions.filter(contributor__in=represented_users).exists():
                 return True
 
@@ -520,48 +518,94 @@ class FaqQuestion(models.Model):
         verbose_name = _(u"question")
         verbose_name_plural = _(u"questions")
 
+class UserProfileManager(BaseUserManager):
+    def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
+        if not username:
+            raise ValueError(_('Users must have a username'))
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+        user = self.model(
+            username=username,
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name
+        )
+        user.set_password(password)
+        user.save()
+        return user
 
-    # extending first_name and last_name from the user
-    title = models.CharField(verbose_name=_(u"Title"), max_length=1024, blank=True, null=True)
+    def create_superuser(self, username, password, email=None, first_name=None, last_name=None):
+        user = self.create_user(
+            username=username,
+            password=password, 
+            email=email, 
+            first_name=first_name, 
+            last_name=last_name
+        )
+        user.is_superuser = True
+        user.save()
+        user.groups.add(Group.objects.get(name="Staff"))
+        return user
 
-    # picture of the user
-    picture = models.ImageField(verbose_name=_(u"Picture"), upload_to="pictures", blank=True, null=True)
 
-    is_external = models.BooleanField(verbose_name=_(u"Is external"), default=False)
+class UserProfile(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
+    email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_('email address'))
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(u"Title"))
+    first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
 
     # delegates of the user, which can also manage their courses
-    delegates = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
+    delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"CC Users"), related_name="cc_users", blank=True)
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), blank=True)
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
 
     login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
-    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), null=True)
+    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), blank=True, null=True)
 
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
-    def __unicode__(self):
-        return unicode(self.user)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    objects = UserProfileManager()
 
     @property
     def full_name(self):
-        if self.user.last_name:
-            name = self.user.last_name
-            if self.user.first_name:
-                name = self.user.first_name + " " + name
+        if self.last_name:
+            name = self.last_name
+            if self.first_name:
+                name = self.first_name + " " + name
             if self.title:
                 name = self.title + " " + name
             return name
         else:
-            return self.user.username
+            return self.username
+
+    def get_full_name(self):
+        return self.full_name
+
+    def get_short_name(self):
+        if self.first_name:
+            return self.first_name
+        return self.username
+
+    def __unicode__(self):
+        return self.get_full_name();
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_staff(self):
+        return self.groups.filter(name='Staff').exists()
 
     @property
     def can_fsr_delete(self):
@@ -569,42 +613,46 @@ class UserProfile(models.Model):
 
     @property
     def enrolled_in_courses(self):
-        return self.user.course_set.exists()
+        return self.course_set.exists()
 
     @property
     def is_contributor(self):
-        return self.user.contributions.exists()
+        return self.contributions.exists()
 
     @property
     def is_editor(self):
-        return self.user.contributions.filter(can_edit=True).exists()
+        return self.contributions.filter(can_edit=True).exists()
 
     @property
     def is_responsible(self):
         # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
-        return any(contribution.responsible for contribution in self.user.contributions.all())
+        return any(contribution.responsible for contribution in self.contributions.all())
 
     @property
     def is_delegate(self):
-        return self.user.represented_users.exists()
+        return self.represented_users.exists()
 
     @property
     def is_editor_or_delegate(self):
         return self.is_editor or self.is_delegate
 
+    @property
+    def is_external(self):
+        # do the import here to prevent a circular import
+        from evap.evaluation.tools import is_external_email
+        if not self.email:
+            return True
+        return is_external_email(self.email)
+
     @classmethod
     def email_needs_login_key(cls, email):
+        # do the import here to prevent a circular import
         from evap.evaluation.tools import is_external_email
         return is_external_email(email)
 
     @property
     def needs_login_key(self):
-        return UserProfile.email_needs_login_key(self.user.email)
-
-    @classmethod
-    def get_for_user(cls, user):
-        obj, _ = cls.objects.get_or_create(user=user)
-        return obj
+        return UserProfile.email_needs_login_key(self.email)
 
     def generate_login_key(self):
         while True:
@@ -613,19 +661,10 @@ class UserProfile(models.Model):
                 # key not yet used
                 self.login_key = key
                 break
-
         self.refresh_login_key()
 
     def refresh_login_key(self):
         self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
-
-    @staticmethod
-    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-    def create_user_profile(sender, instance, created, raw, **kwargs):
-        """Creates a UserProfile object whenever a User is created."""
-        if created and not raw:
-            UserProfile.objects.create(user=instance)
-
 
 def validate_template(value):
     """Field validator which ensures that the value can be compiled into a
@@ -684,7 +723,7 @@ class EmailTemplate(models.Model):
     def send_to_users_in_courses(self, courses, recipient_groups):
         user_course_map = {}
         for course in courses:
-            responsible = UserProfile.get_for_user(course.responsible_contributor)
+            responsible = course.responsible_contributor
             for user in self.recipient_list_for_course(course, recipient_groups):
                 if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
@@ -692,8 +731,8 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.iteritems():
             cc_users = []
             if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
-                cc_users += UserProfile.get_for_user(user).delegates.all()
-            cc_users += UserProfile.get_for_user(user).cc_users.all()
+                cc_users += user.delegates.all()
+            cc_users += user.cc_users.all()
             cc_addresses = [p.email for p in cc_users if p.email]
 
             mail = EmailMessage(

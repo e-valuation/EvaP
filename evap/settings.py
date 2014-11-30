@@ -11,6 +11,8 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TESTING = 'test' in sys.argv
 
+AUTH_USER_MODEL = 'evaluation.UserProfile'
+
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
@@ -20,6 +22,10 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# This is needed to make the tests work as long as auth.user appears in the migrations
+SOUTH_TESTS_MIGRATE = False
+SKIP_SOUTH_TESTS = True
 
 DATABASES = {
     'default': {

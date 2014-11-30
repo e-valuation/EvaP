@@ -34,5 +34,12 @@
       "subject": "[EvaP] A login key was created",
       "body": ""
     }
+  },
+  {
+    "pk": 1,
+    "model": "auth.Group",
+    "fields": {
+      "name": "Staff"
+    }
   }
 ]

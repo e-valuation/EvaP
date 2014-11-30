@@ -1,12 +1,12 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
+from webtest import AppError
 from django.test import Client
 from django.forms.models import inlineformset_factory
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
-from django.contrib.auth.models import User
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributorFormSet, ContributionForm, CourseForm
@@ -57,7 +57,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
 
         # safe original user count
-        original_user_count = User.objects.all().count()
+        original_user_count = UserProfile.objects.all().count()
 
         # import excel file
         page = page.click("[Ii]mport")
@@ -67,7 +67,7 @@ class UsecaseTests(WebTest):
         upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
         page = upload_form.submit(name="operation", value="import").follow()
 
-        self.assertEqual(User.objects.count(), original_user_count + 23)
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
         courses = Course.objects.filter(semester=semester).all()
         self.assertEqual(len(courses), 23)
@@ -76,11 +76,11 @@ class UsecaseTests(WebTest):
             responsibles_count = Contribution.objects.filter(course=course, responsible=True).count()
             self.assertEqual(responsibles_count, 1)
 
-        check_student = User.objects.get(username="diam.synephebos")
+        check_student = UserProfile.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
         self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
 
-        check_contributor = User.objects.get(username="sanctus.aliquyam.ext")
+        check_contributor = UserProfile.objects.get(username="sanctus.aliquyam.ext")
         self.assertEqual(check_contributor.first_name, "Sanctus")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
         self.assertEqual(check_contributor.email, "567@web.de")
@@ -91,12 +91,11 @@ class UsecaseTests(WebTest):
         self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
         self.app.extra_environ = environ
 
-        user = User.objects.all()[0]
-        userprofile = UserProfile.get_for_user(user)
-        userprofile.generate_login_key()
-        userprofile.save()
+        user = UserProfile.objects.all()[0]
+        user.generate_login_key()
+        user.save()
 
-        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % userprofile.login_key
+        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % user.login_key
         self.app.get(url_with_key)
 
     def test_create_questionnaire(self):
@@ -189,20 +188,21 @@ class UsecaseTests(WebTest):
 
         assert "No responsible contributor found" in page
 
-    def test_num_queries_user_list(self):
-        """
-            ensures that the number of queries in the user list is constant
-            and not linear to the number of users
-        """
-        num_users = 50
-        for i in range(0, num_users):
-            user = User.objects.get_or_create(id=9000+i, username=i)
-        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-            self.app.get("/fsr/user/", user="fsr.user")
+    # disabled, see issue #164: https://github.com/fsr-itse/EvaP/issues/164
+    #def test_num_queries_user_list(self):
+    #    """
+    #        ensures that the number of queries in the user list is constant
+    #        and not linear to the number of users
+    #    """
+    #    num_users = 50
+    #    for i in range(0, num_users):
+    #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
+    #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+    #        self.app.get("/fsr/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
-        self.assertTrue(UserProfile.objects.filter(user__username="participant_user").get().can_fsr_delete)
-        self.assertFalse(UserProfile.objects.filter(user__username="contributor_user").get().can_fsr_delete)
+        self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_fsr_delete)
+        self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_fsr_delete)
 
 
 
@@ -210,6 +210,9 @@ class URLTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def setUp(self):
+        settings.INSTITUTION_EMAIL_DOMAINS.append("example.com")
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -463,14 +466,14 @@ class URLTests(WebTest):
         """
             Tests the UserForm with one valid and one invalid input dataset.
         """
-        userprofile = UserProfile.objects.get(pk=1)
-        another_userprofile = UserProfile.objects.get(pk=2)
+        user = UserProfile.objects.get(pk=1)
+        another_user = UserProfile.objects.get(pk=2)
         data = {"username": "mklqoep50x2", "email": "a@b.ce"}
-        form = UserForm(instance=userprofile, data=data)
+        form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
-        data = {"username": another_userprofile.user.username, "email": "a@b.c"}
-        form = UserForm(instance=userprofile, data=data)
+        data = {"username": another_user.username, "email": "a@b.c"}
+        form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
 
     def test_course_selection_form(self):
@@ -674,7 +677,7 @@ class URLTests(WebTest):
 
         form.submit()
 
-        self.assertEqual(User.objects.order_by("pk").last().username, "mflkd862xmnbo5")
+        self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
 
     def test_emailtemplate(self):
         """
@@ -761,13 +764,13 @@ class URLTests(WebTest):
         response = self.app.get(reverse("evap.rewards.views.index"), user="student")
         self.assertEqual(response.status_code, 200)
 
-        user_profile = UserProfile.objects.get(pk=5)
+        user = UserProfile.objects.get(pk=5)
         form = lastform(response)
-        form.set("points-1", reward_points_of_user(user_profile))
+        form.set("points-1", reward_points_of_user(user))
         response = form.submit()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You successfully redeemed your points.")
-        self.assertEqual(0, reward_points_of_user(user_profile))
+        self.assertEqual(0, reward_points_of_user(user))
 
         form.set("points-1", 1)
         form.set("points-2", 3)
@@ -808,8 +811,8 @@ class URLTests(WebTest):
             submits several requests that trigger the reward point granting and checks that the reward point
             granting works as expected for the different requests.
         """
-        user_profile = UserProfile.objects.get(pk=5)
-        reward_points_before_end = reward_points_of_user(user_profile)
+        user = UserProfile.objects.get(pk=5)
+        reward_points_before_end = reward_points_of_user(user)
         response = self.app.get(reverse("evap.student.views.vote", args=[9]), user="student")
 
         form = lastform(response)
@@ -821,7 +824,7 @@ class URLTests(WebTest):
         self.assertRedirects(response, reverse('evap.student.views.index'))
 
         # semester is not activated --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
 
         # reset course for another try
         course = Course.objects.get(pk=9)
@@ -833,27 +836,27 @@ class URLTests(WebTest):
         # create a new course
         new_course = Course(semester=course.semester, name_de="bhabda", name_en="dsdsfds")
         new_course.save()
-        new_course.participants.add(user_profile.user)
+        new_course.participants.add(user)
         new_course.save()
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
 
         # user also has other courses this semester --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
 
         course.voters = []
         course.save()
-        new_course.participants.remove(user_profile.user)
+        new_course.participants.remove(user)
         new_course.save()
 
         # last course of user so he may get reward points
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
 
         # test behaviour if user already got reward points
         course.voters = []
         course.save()
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user_profile))
+        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))

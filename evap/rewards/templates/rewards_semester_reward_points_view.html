@@ -18,7 +18,7 @@
         <tbody>
             {% for user, number_of_courses_voted_for, number_of_courses, earned_reward_points in data %}                
                 <tr>
-                    <td>{{ user.userprofile.full_name }}</td>
+                    <td>{{ user.full_name }}</td>
                     <td>
                         {% spaceless %}
                             <div style="background: #c9e1fa; display: inline-block; width: 95%;">

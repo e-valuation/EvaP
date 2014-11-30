@@ -19,7 +19,7 @@
     <fieldset>
         <legend>{% trans "People for which you are a delegate" %}</legend>
         <ul>
-            {% for puser in form.instance.user.represented_users.all %}
+            {% for puser in form.instance.represented_users.all %}
                 <li>{{ puser.full_name }}</li>
             {% endfor %}
         </ul>

@@ -13,9 +13,9 @@ def merge_model_objects(primary_object, alias_objects, keep_old=False):
     primary object.
 
     Usage:
-    from django.contrib.auth.models import User
-    primary_user = User.objects.get(email='good_email@example.com')
-    duplicate_user = User.objects.get(email='good_email+duplicate@example.com')
+    from evap.evaluation.models import UserProfile
+    primary_user = UserProfile.objects.get(email='good_email@example.com')
+    duplicate_user = UserProfile.objects.get(email='good_email+duplicate@example.com')
     merge_model_objects(primary_user, duplicate_user)
     """
     if not isinstance(alias_objects, list):

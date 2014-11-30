@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory, modelformset_factory
@@ -260,7 +259,7 @@ def semester_lottery(request, semester_id):
         eligible = []
 
         # find all users who have voted on all of their courses
-        for user in User.objects.all():
+        for user in UserProfile.objects.all():
             courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not enrolled in any course in this semester
@@ -561,15 +560,14 @@ def questionnaire_delete(request, questionnaire_id):
 
 @fsr_required
 def user_index(request):
-    users = User.objects.order_by("last_name", "first_name", "username").select_related('userprofile').prefetch_related('contributions')
+    users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups')
 
     return render_to_response("fsr_user_index.html", dict(users=users), context_instance=RequestContext(request))
 
 
 @fsr_required
 def user_create(request):
-    profile = UserProfile(user=User())
-    form = UserForm(request.POST or None, instance=profile)
+    form = UserForm(request.POST or None, instance=UserProfile())
 
     if form.is_valid():
         form.save()
@@ -600,8 +598,8 @@ def user_import(request):
 
 @fsr_required
 def user_edit(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.get_for_user(user))
+    user = get_object_or_404(UserProfile, id=user_id)
+    form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
     if form.is_valid():
         form.save()
@@ -613,9 +611,9 @@ def user_edit(request, user_id):
 
 @fsr_required
 def user_delete(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+    user = get_object_or_404(UserProfile, id=user_id)
 
-    if UserProfile.get_for_user(user).can_fsr_delete:
+    if user.can_fsr_delete:
         if request.method == 'POST':
             user.delete()
             messages.success(request, _("Successfully deleted user."))
@@ -623,7 +621,7 @@ def user_delete(request, user_id):
         else:
             return render_to_response("fsr_user_delete.html", dict(user_to_delete=user), context_instance=RequestContext(request))
     else:
-        messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % UserProfile.get_for_user(user).full_name)
+        messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % user.full_name)
         return redirect('evap.fsr.views.user_index')
 
 

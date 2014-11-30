@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
@@ -33,22 +32,18 @@ class UserData(CommonEqualityMixin):
         self.is_responsible = is_responsible
 
     def store_in_database(self):
-        user, created = User.objects.get_or_create(username=self.username)
+        user, created = UserProfile.objects.get_or_create(username=self.username)
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
+        user.title = self.title
+        if user.needs_login_key:
+            user.refresh_login_key()
         user.save()
-
-        profile = UserProfile.get_for_user(user=user)
-        profile.title = self.title
-        profile.is_external = is_external_email(self.email)
-        if profile.needs_login_key:
-            profile.refresh_login_key()
-        profile.save()
         return created
 
     def validate(self):
-        user = User()
+        user = UserProfile()
         user.username = self.username
         user.first_name = self.first_name
         user.last_name = self.last_name
@@ -77,7 +72,7 @@ class CourseData(CommonEqualityMixin):
                         semester=semester,
                         degree=self.degree)
         course.save()
-        responsible_dbobj = User.objects.get(email=self.responsible_email)
+        responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True)
 
 
@@ -157,7 +152,7 @@ class ExcelImporter(object):
     def check_user_data_sanity(self):
         for user_data in self.users.values():
             try:
-                user = User.objects.get(username=user_data.username)
+                user = UserProfile.objects.get(username=user_data.username)
                 if (user.email != user_data.email 
                         or user.userprofile.title != user_data.title
                         or user.first_name != user_data.first_name
@@ -166,7 +161,7 @@ class ExcelImporter(object):
                         " {} ({} {} {}, {}) ".format(user.username, user.userprofile.title, user.first_name, user.last_name, user.email) +
                         _("would be overwritten with the following data:") +
                         " {} ({} {} {}, {})".format(user_data.username, user_data.title, user_data.first_name, user_data.last_name, user_data.email))
-            except User.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 # nothing to do here
                 pass
 
@@ -242,7 +237,7 @@ class EnrollmentImporter(ExcelImporter):
 
             for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
-                student = User.objects.get(email=student_data.email)
+                student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
                 
         messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))

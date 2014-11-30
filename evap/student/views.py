@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import enrollment_required
-from evap.evaluation.models import Course, Semester, UserProfile
+from evap.evaluation.models import Course, Semester
 from evap.evaluation.tools import STUDENT_STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 
 from evap.student.forms import QuestionsForm

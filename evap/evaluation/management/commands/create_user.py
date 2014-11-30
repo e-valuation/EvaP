@@ -7,19 +7,18 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import UserProfile
-from django.contrib.auth.models import User
 
 
 def is_valid_email(value):
-    User._meta.get_field('email').clean(value, None)
+    UserProfile._meta.get_field('email').clean(value, None)
 
 
 def is_valid_username(username):
-    User._meta.get_field('username').clean(username, None)
+    UserProfile._meta.get_field('username').clean(username, None)
 
     try:
-        User.objects.get(username__iexact=username)
-    except User.DoesNotExist:
+        UserProfile.objects.get(username__iexact=username)
+    except UserProfile.DoesNotExist:
         pass
     else:
         raise exceptions.ValidationError(_("Error: That username is already taken.\n"))
@@ -82,12 +81,10 @@ class Command(BaseCommand):
             is_fsr = True if read_value("Is student representative (yes/no): ", is_valid_bool_answer) in ['Yes', 'yes'] else False
 
             # create user
-            user = User.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
+            user = UserProhfile.objects.create(username=username, email=email, is_staff=is_fsr, is_superuser=is_fsr)
             if password is not None:
                 user.set_password(password)
                 user.save()
-            profile = UserProfile.get_for_user(user)
-            profile.save()
 
         except KeyboardInterrupt:
             sys.stderr.write("\nOperation cancelled.\n")

@@ -1,79 +1,40 @@
 [
     {
         "pk":1,
-        "model":"auth.user",
+        "model":"evaluation.userprofile",
         "fields":{
             "username":"fsr.user",
             "first_name":"Fsr",
             "last_name":"User",
-            "is_active":true,
-            "is_superuser":false,
-            "is_staff":true
-        }
-    },
-    {
-        "pk":1,
-        "model":"evaluation.userprofile",
-        "fields": {
-            "user":1,
-            "login_key":1313
+            "login_key":1313,
+            "groups": [1]
         }
     },
     {
         "pk":2,
-        "model":"auth.user",
+        "model":"evaluation.userprofile",
         "fields":{
             "username":"external.user",
             "first_name":"External",
-            "last_name":"User",
-            "is_active":true,
-            "is_superuser":false,
-            "is_staff":false
-        }
-    },
-    {
-        "pk":2,
-            "model":"evaluation.userprofile",
-            "fields": {
-            "user":2
+            "last_name":"User"
         }
     },
     {
         "pk":3,
-        "model":"auth.user",
+        "model":"evaluation.userprofile",
         "fields":{
             "username":"participant_user",
             "first_name":"Participant",
-            "last_name":"User",
-            "is_active":true,
-            "is_superuser":false,
-            "is_staff":false
-        }
-    },
-    {
-        "pk":3,
-            "model":"evaluation.userprofile",
-            "fields": {
-            "user":3
+            "last_name":"User"
         }
     },
     {
         "pk":4,
-        "model":"auth.user",
+        "model":"evaluation.userprofile",
         "fields":{
             "username":"contributor_user",
             "first_name":"Contributor",
-            "last_name":"User",
-            "is_active":true,
-            "is_superuser":false,
-            "is_staff":false
-        }
-    },
-    {
-        "pk":4,
-            "model":"evaluation.userprofile",
-            "fields": {
-            "user":4
+            "last_name":"User"
         }
     },
     {
@@ -204,6 +165,13 @@
             "contributor": 4,
             "responsible": false,
             "can_edit": false
+        }
+    },
+    {
+        "pk": 1,
+        "model": "auth.Group",
+        "fields": {
+            "name": "Staff"
         }
     }
 ]

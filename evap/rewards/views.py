@@ -32,9 +32,9 @@ def index(request):
         else:
             messages.warning(request, _("You don't have enough reward points."))            
 
-    total_points_available = reward_points_of_user(request.user.userprofile)
-    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user.userprofile)
-    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user.userprofile)
+    total_points_available = reward_points_of_user(request.user)
+    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
+    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
     events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now())
     events = sorted(events, key=lambda event: event.date)
 
@@ -64,7 +64,7 @@ def semester_reward_points(request, semester_id):
     participants = set()
     for course in courses:
         for participant in course.participants.all():
-            if can_user_use_reward_points(participant.userprofile):
+            if can_user_use_reward_points(participant):
                 participants.add(participant)
     participants = sorted(participants, key=attrgetter('last_name', 'first_name'))
 
@@ -72,7 +72,7 @@ def semester_reward_points(request, semester_id):
     for participant in participants:
         number_of_courses = Course.objects.filter(semester=semester, participants=participant).count()
         number_of_courses_voted_for = Course.objects.filter(semester=semester, voters=participant).count()
-        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant.userprofile).exists()
+        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
         data.append((participant, number_of_courses_voted_for, number_of_courses, earned_reward_points))
 
     return render_to_response("rewards_semester_reward_points_view.html", dict(semester=semester, data=data, disable_breadcrumb_semester=False), context_instance=RequestContext(request))
