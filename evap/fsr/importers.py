@@ -162,9 +162,10 @@ class ExcelImporter(object):
                         or user.userprofile.title != user_data.title
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append("Warning: The existing user {} ({} {} {}, {})".format(user.username, user.userprofile.title, user.first_name, user.last_name, user.email) +
-                        " would be overwritten with the following data: " +
-                        "{} ({} {} {}, {})".format(user_data.username, user_data.title, user_data.first_name, user_data.last_name, user_data.email))
+                    self.warnings.append(_("Warning: The existing user") + 
+                        " {} ({} {} {}, {}) ".format(user.username, user.userprofile.title, user.first_name, user.last_name, user.email) +
+                        _("would be overwritten with the following data:") +
+                        " {} ({} {} {}, {})".format(user_data.username, user_data.title, user_data.first_name, user_data.last_name, user_data.email))
             except User.DoesNotExist:
                 # nothing to do here
                 pass
@@ -209,7 +210,7 @@ class EnrollmentImporter(ExcelImporter):
         for course_data in self.courses.values():
             already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de, degree=course_data.degree).exists()
             if already_exists:
-                self.errors.append("Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree)
+                self.errors.append(_("Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree))
 
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
@@ -217,12 +218,12 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[enrollment[1]].append(enrollment)
         for user_data, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
-                self.warnings.append("Warning: User {} has {} enrollments, which is a lot.".format(user_data.username, len(enrollments)))
+                self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
         
         degrees = set([course_data.degree for course_data in self.courses.values()])
         for degree in degrees:
             if not Course.objects.filter(degree=degree).exists():
-                self.warnings.append("Warning: The degree \"{}\" does not exist yet and would be newly created.".format(degree))
+                self.warnings.append(_("Warning: The degree \"{}\" does not exist yet and would be newly created.").format(degree))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
@@ -244,7 +245,7 @@ class EnrollmentImporter(ExcelImporter):
                 student = User.objects.get(email=student_data.email)
                 course.participants.add(student)
                 
-        messages.success(self.request, _("Successfully created %(courses)d course(s), %(students)d student(s) and %(responsibles)d contributor(s).") % dict(courses=len(self.courses), students=students_created, responsibles=responsibles_created))
+        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
