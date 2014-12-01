@@ -547,9 +547,20 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
+# taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
+class EmailNullField(models.EmailField): #subclass the CharField
+    description = "EmailField that stores NULL but returns ''"
+    __metaclass__ = models.SubfieldBase # this ensures to_python will be called
+    def to_python(self, value):  # this is the value right out of the db, or an instance
+       return value or ""
+
+    def get_prep_value(self, value):  # catches value right before sending to db
+       return value or None
+
+
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
-    email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_('email address'))
+    email = EmailNullField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(u"Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
@@ -563,7 +574,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
 
-    login_key = models.IntegerField(verbose_name=_(u"Login Key"), blank=True, null=True)
+    login_key = models.IntegerField(verbose_name=_(u"Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), blank=True, null=True)
 
     class Meta:
