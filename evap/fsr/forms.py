@@ -56,14 +56,14 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
-        self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
+        self.fields['last_modified_time_2'].widget.attrs['readonly'] = "True"
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
-        self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
+        self.fields['last_modified_user_2'].widget.attrs['readonly'] = "True"
 
         if self.instance.state == "inEvaluation":
-            self.fields['vote_start_date'].widget.attrs['readonly'] = True
-            self.fields['vote_end_date'].widget.attrs['readonly'] = True
+            self.fields['vote_start_date'].widget.attrs['readonly'] = "True"
+            self.fields['vote_end_date'].widget.attrs['readonly'] = "True"
 
     def save(self, *args, **kw):
         user = kw.pop("user")
