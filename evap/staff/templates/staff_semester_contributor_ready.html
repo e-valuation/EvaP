@@ -1,0 +1,12 @@
+{% extends "staff_semester_base.html" %}
+
+{% load i18n %}
+{% load course_list %}
+
+{% block content %}
+    {{ block.super }}
+    <form method="POST" class="form-horizontal">
+        {% csrf_token %}
+        {% course_list forms _("Show courses to contributor") _("There are no courses ready to approve.") %}
+    </form>
+{% endblock %}

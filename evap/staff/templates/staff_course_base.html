@@ -4,10 +4,14 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li>{% trans "Reward Points" %}</li>
+    {% if course %}
+        <li>{{ course.name }}</li>
+    {% endif %}
 {% endblock %}
 
 {% block title %}
-    {% trans "Reward Points" %} -
+    {% if course %}
+        {{ course.name }} -
+    {% endif %}
     {{ block.super }}
 {% endblock %}
