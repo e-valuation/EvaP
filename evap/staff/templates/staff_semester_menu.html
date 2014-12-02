@@ -1,0 +1,5 @@
+{% load i18n %}
+
+{% for semester in semesters %}
+    <li><a style="padding-left: 30px;" href="{% url "evap.staff.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
+{% endfor %}

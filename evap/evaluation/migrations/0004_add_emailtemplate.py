@@ -7,9 +7,9 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    depends_on = (
-        ('fsr', '0001_initial.py'),
-    )
+    #depends_on = (
+    #    ('fsr', '0001_initial.py'),
+    #)
 
     def forwards(self, orm):
         db.rename_table('fsr_emailtemplate', 'evaluation_emailtemplate') 

@@ -7,10 +7,10 @@ from django.http import HttpResponse
 from datetime import datetime
 from operator import attrgetter
 
-from evap.evaluation.auth import reward_user_required, fsr_required
+from evap.evaluation.auth import reward_user_required, staff_required
 from evap.evaluation.models import Semester, Course
 
-from evap.fsr.views import semester_view
+from evap.staff.views import semester_view
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import save_redemptions, reward_points_of_user, can_user_use_reward_points
@@ -53,7 +53,7 @@ def index(request):
     return render(request, "rewards_index.html", template_data)
 
 
-@fsr_required
+@staff_required
 def semester_reward_points(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     courses = Course.objects.filter(semester=semester)
@@ -75,7 +75,7 @@ def semester_reward_points(request, semester_id):
     return render(request, "rewards_semester_reward_points_view.html", template_data)
 
 
-@fsr_required
+@staff_required
 def reward_point_redemption_events(request):
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by('-date')
@@ -83,7 +83,7 @@ def reward_point_redemption_events(request):
     return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
 
-@fsr_required
+@staff_required
 def reward_point_redemption_event_create(request):
     event = RewardPointRedemptionEvent()
     form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
@@ -96,7 +96,7 @@ def reward_point_redemption_event_create(request):
         return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
 
 
-@fsr_required
+@staff_required
 def reward_point_redemption_event_edit(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
     form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
@@ -110,7 +110,7 @@ def reward_point_redemption_event_edit(request, event_id):
         return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
 
 
-@fsr_required
+@staff_required
 def reward_point_redemption_event_delete(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
@@ -125,7 +125,7 @@ def reward_point_redemption_event_delete(request, event_id):
         return redirect('evap.rewards.views.reward_point_redemption_events')
 
 
-@fsr_required
+@staff_required
 def reward_point_redemption_event_export(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
@@ -139,7 +139,7 @@ def reward_point_redemption_event_export(request, event_id):
     return response
 
 
-@fsr_required
+@staff_required
 def semester_activation(request, semester_id, active):
     if active == 'on':
         active = True

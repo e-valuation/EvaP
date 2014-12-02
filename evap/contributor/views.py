@@ -8,7 +8,7 @@ from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 from evap.contributor.forms import CourseForm, UserForm
-from evap.fsr.forms import ContributionForm, ContributorFormSet
+from evap.staff.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
 
 from collections import OrderedDict

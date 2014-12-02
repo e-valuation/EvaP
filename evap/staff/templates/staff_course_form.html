@@ -1,0 +1,156 @@
+{% extends "staff_course_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+    <form method="POST" class="form-horizontal multiselect-form">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{% trans "General Options" %}</legend>
+            {{ form.as_div }}
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Contributors" %}</legend>
+            {{ formset.management_form }}
+        </fieldset>
+
+        {{ formset.non_form_errors }}
+
+        <table id="contribution_table" class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for field in formset.form.visible_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                    <th>{% trans "Remove?" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form_element in formset %}
+                    {% if form_element.non_field_errors %}
+                        <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                    {% endif %}
+                    <tr class="moveable">
+                        {% for field in form_element.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
+                        {% for field in form_element.visible_fields %}
+                            <td>{{ field.errors }} {{ field }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                {% if form.instance.state == "inEvaluation" %}
+                    <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
+                {% endif %}
+                <input type="submit" value="{% trans "Save course" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function makeClickHandler(i, contributorCount) {
+                return function () {
+                    // if the responsible checkbox is selected
+                    if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                        // uncheck and enable all
+                        for(var j = 0; j < contributorCount; j++){
+                            $("#id_contributions-" + j + "-responsible").prop('checked', false);
+                            $("#id_contributions-" + j + "-can_edit").prop('disabled', false);
+                        }
+
+                        // check self
+                        $("#id_contributions-" + i + "-responsible").prop('checked', true);
+
+                        // check and disable can-edit
+                        $("#id_contributions-" + i + "-can_edit").prop('checked', true);
+                        $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+                    }
+                    // if the responsible checkbox is deselected
+                    else {
+                        // enable can-edit
+                        $("#id_contributions-" + i + "-can_edit").prop('disabled', false);
+                    }
+                };
+            }
+
+
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
+            $(".multiselect-form select[multiple='multiple']").multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+
+            $('#contribution_table tbody tr').formset({
+                prefix: 'contributions',
+                deleteText: '{% trans "remove" %}',
+                addText: '{% trans "add another" %}',
+                added: function(row) {
+                    $('.twipsify').tooltip({
+                        html: true,
+                        placement: 'left'
+                    });
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                    row.find('a.btn-default').remove();
+                    var contributorCount = $("#contribution_table select").length;
+                    for(var i = 0; i < contributorCount; i++){
+                        $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
+                    }
+                }
+            });
+
+            $('tbody').sortable({
+                items: 'tr.moveable',
+                handle: 'td:first',
+                tolerance: 'pointer',
+                update: function() {
+                    $(this).find('tr').each(function(i) {
+                        if ($(this).find('input[id$=-order]').val()) {
+                            $(this).find('input[id$=-order]').val(i);
+                        }
+                    });
+                }
+            });
+
+            $('#id_degree').combobox();
+            $('#id_kind').combobox();
+
+            $('.twipsify').tooltip({
+                html: true,
+                placement: 'left'
+            });
+
+
+            // the number of contributor select fields in the contribution table
+            var contributorCount = $("#contribution_table select").length;
+            for(var i = 0; i < contributorCount; i++){
+                $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
+
+                // apply initial settings
+                if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                    $("#id_contributions-" + i + "-can_edit").prop('checked', true);
+                    $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+                }
+            }
+        });
+    </script>
+
+    <!-- prevent from accendential closing -->
+    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+{% endblock %}

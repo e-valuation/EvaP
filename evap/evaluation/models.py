@@ -51,9 +51,9 @@ class Semester(models.Model):
         return self.name
 
     @property
-    def can_fsr_delete(self):
+    def can_staff_delete(self):
         for course in self.course_set.all():
-            if not course.can_fsr_delete():
+            if not course.can_staff_delete():
                 return False
         return True
 
@@ -97,7 +97,7 @@ class Questionnaire(models.Model):
         return self.name
 
     @property
-    def can_fsr_delete(self):
+    def can_staff_delete(self):
         return not self.contributions.exists()
 
 
@@ -180,16 +180,16 @@ class Course(models.Model):
             return self.can_publish_grades() or self.is_user_contributor_or_delegate(user)
         return False
 
-    def can_fsr_edit(self):
+    def can_staff_edit(self):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
-    def can_fsr_delete(self):
-        return self.can_fsr_edit() and not self.voters.exists()
+    def can_staff_delete(self):
+        return self.can_staff_edit() and not self.voters.exists()
 
-    def can_fsr_review(self):
+    def can_staff_review(self):
         return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
 
-    def can_fsr_approve(self):
+    def can_staff_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
 
     def can_publish_grades(self):
@@ -204,7 +204,7 @@ class Course(models.Model):
         pass
 
     @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved')
-    def fsr_approve(self):
+    def staff_approve(self):
         pass
 
     @transition(field=state, source='prepared', target='new')
@@ -619,7 +619,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.groups.filter(name='Staff').exists()
 
     @property
-    def can_fsr_delete(self):
+    def can_staff_delete(self):
         return not self.is_contributor
 
     @property

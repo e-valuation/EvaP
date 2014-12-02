@@ -55,7 +55,7 @@ def index(request):
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
         if redirect_to is not None:
-            if redirect_to.startswith("/fsr/"):
+            if redirect_to.startswith("/staff/"):
                 if request.user.is_staff:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/contributor/"):
@@ -69,7 +69,7 @@ def index(request):
 
         # redirect user to appropriate start page
         if request.user.is_staff:
-            return redirect('evap.fsr.views.index')
+            return redirect('evap.staff.views.index')
         elif user.is_editor_or_delegate:
             return redirect('evap.contributor.views.index')
         elif user.enrolled_in_courses:

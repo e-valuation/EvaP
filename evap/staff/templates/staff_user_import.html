@@ -1,0 +1,32 @@
+{% extends "staff_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        {% trans "Upload user data from excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
+    </p>
+    <form enctype="multipart/form-data" method="POST" class="form-horizontal">
+       {% csrf_token %}
+       {{ form.as_div }}
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>
+                <button name="operation" value="import" type="submit" class="btn btn-default">{% trans "Import" %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+    $(function() {
+        if ($.fn.button.noConflict != undefined) {
+            $.fn.button.noConflict();
+        }
+    });
+    </script>
+{% endblock %}

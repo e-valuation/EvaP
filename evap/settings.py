@@ -220,7 +220,7 @@ INSTALLED_APPS = (
     'south',
     'widget_tweaks',
     'evap.evaluation',
-    'evap.fsr',
+    'evap.staff',
     'evap.results',
     'evap.student',
     'evap.contributor',

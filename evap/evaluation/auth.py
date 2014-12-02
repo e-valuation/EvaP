@@ -79,10 +79,9 @@ def login_required(func):
     return user_passes_test(check_user)(func)
 
 
-def fsr_required(func):
+def staff_required(func):
     """
-    Decorator for views that checks that the user is logged in and member
-    of the student representatives
+    Decorator for views that checks that the user is logged in and a staff member
     """
 
     def check_user(user):
