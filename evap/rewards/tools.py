@@ -1,15 +1,11 @@
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django.dispatch import receiver
 
 from evap.evaluation.auth import login_required
 from evap.evaluation.models import Course
-from django.dispatch import receiver
-
-from datetime import date
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
 
@@ -19,18 +15,18 @@ def save_redemptions(request, redemptions):
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
 
-    if total_points_redeemed > 0 and total_points_redeemed <= total_points_available:
-        for event_id in redemptions:
-            if redemptions[event_id] > 0:
-                redemption = RewardPointRedemption(
-                    user_profile=request.user,
-                    value=redemptions[event_id],
-                    event=RewardPointRedemptionEvent.objects.get(id=event_id)
-                )
-                redemption.save()
-        return True
+    if total_points_redeemed == 0 or total_points_redeemed > total_points_available:
+        return False
 
-    return False
+    for event_id in redemptions:
+        if redemptions[event_id] > 0:
+            redemption = RewardPointRedemption(
+                user_profile=request.user,
+                value=redemptions[event_id],
+                event=RewardPointRedemptionEvent.objects.get(id=event_id)
+            )
+            redemption.save()
+    return True
 
 
 def can_user_use_reward_points(user):

@@ -2,8 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import enrollment_required
@@ -27,10 +26,7 @@ def index(request):
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
-    return render_to_response(
-        "student_index.html",
-        dict(semester_list=semester_list, voted_courses=voted_courses),
-        context_instance=RequestContext(request))
+    return render(request, "student_index.html", dict(semester_list=semester_list, voted_courses=voted_courses))
 
 
 @enrollment_required
@@ -48,13 +44,12 @@ def vote(request, course_id):
 
         contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
 
-        return render_to_response(
-            "student_vote.html",
-            dict(course_forms=course_forms,
-                 contributor_questionnaires=contributor_questionnaires,
-                 errors=errors,
-                 course=course),
-            context_instance=RequestContext(request))
+        template_data = dict(
+                course_forms=course_forms,
+                contributor_questionnaires=contributor_questionnaires,
+                errors=errors,
+                course=course)
+        return render(request, "student_vote.html", template_data)
 
     # all forms are valid
     # begin vote operation

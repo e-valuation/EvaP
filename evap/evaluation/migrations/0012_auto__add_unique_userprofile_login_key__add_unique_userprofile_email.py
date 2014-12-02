@@ -8,103 +8,19 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding unique constraint on 'UserProfile', fields ['login_key']
+        db.create_unique(u'evaluation_userprofile', ['login_key'])
 
-
-        staff_group = orm["auth.Group"].objects.create(name="Staff")
-        # do not use orm here. we want the new userprofile.
-
-        for user in orm["auth.User"].objects.all():
-            if user.is_staff:
-                user.groups.add(staff_group)
-
-
-        # rename old userprofile table and create new one
-        db.rename_table("evaluation_userprofile", "evaluation_olduserprofile")
-        db.create_table(u'evaluation_userprofile', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('password', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('last_login', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('username', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('email', self.gf('django.db.models.fields.EmailField')(max_length=255, null=True, blank=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('login_key', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('login_key_valid_until', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('is_superuser', self.gf('django.db.models.fields.BooleanField')()),
-        ))
-        db.send_create_signal(u'evaluation', ['UserProfile'])
-
-        # populate new userprofile table
-        userprofiletable_sql = ("INSERT INTO evaluation_userprofile "
-            "(SELECT u.id, password, last_login, username, email, title, first_name, last_name, login_key, login_key_valid_until, is_superuser "
-            "FROM auth_user as u INNER JOIN evaluation_olduserprofile as p ON u.id = p.user_id)")
-        db.execute(userprofiletable_sql)
-
-        # adjust userprofile primary key sequence
-        db.execute("SELECT setval('evaluation_userprofile_id_seq', ( SELECT MAX(id) FROM evaluation_userprofile)+1)")
-
-
-        def rename_column_update_ids(table, old_name, new_name):
-            db.drop_foreign_key(table, old_name)
-            db.execute("UPDATE {0} as d SET {1} = (SELECT user_id FROM evaluation_olduserprofile WHERE id=d.{1})"
-                .format(table, old_name))
-            db.rename_column(table, old_name, new_name)
-            db.alter_column(table, new_name, models.ForeignKey(to=orm['evaluation.Userprofile']))
-
-        # update Userprofile delegates
-        rename_column_update_ids('evaluation_userprofile_delegates', 'userprofile_id', 'from_userprofile_id')
-        db.rename_column('evaluation_userprofile_delegates', 'user_id', 'to_userprofile_id')
-
-        # update Userprofile cc users
-        rename_column_update_ids('evaluation_userprofile_cc_users', 'userprofile_id', 'from_userprofile_id')
-        db.rename_column('evaluation_userprofile_cc_users', 'user_id', 'to_userprofile_id')
-        
-
-        def rename_column(table_name, old_column_name, new_column_name):
-            db.drop_foreign_key(table_name, old_column_name)
-            db.rename_column(table_name, old_column_name, new_column_name)
-            db.alter_column(table_name, new_column_name, models.ForeignKey(to=orm['evaluation.Userprofile']))
-
-        rename_column('evaluation_course_participants', 'user_id', 'userprofile_id')
-        
-        rename_column('evaluation_course_voters', 'user_id', 'userprofile_id')
-
-
-
-        # Changing field 'Contribution.contributor'
-        #db.drop_foreign_key("evaluation_contribution", "contributor_id")
-        db.alter_column(u'evaluation_contribution', 'contributor_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['evaluation.UserProfile']))
-        #db.alter_column("evaluation_contribution", "contributor_id", models.ForeignKey(to=orm['evaluation.Userprofile'], null=True))
-
-        # Changing field 'UserProfile.user'
-        #db.alter_column(u'evaluation_userprofile', 'user_id', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['evaluation.UserProhfile'], unique=True))
-
-        # Changing field 'Course.last_modified_user'
-        #db.drop_foreign_key("evaluation_course", "last_modified_user_id")
-        db.alter_column(u'evaluation_course', 'last_modified_user_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['evaluation.UserProfile']))
-        #db.alter_column("evaluation_course", "last_modified_user_id", models.ForeignKey(to=orm['evaluation.Userprofile'], null=True))
-
-
-        def rename_table_and_column(old_table_name, new_table_name, old_column_name, new_column_name):
-            #db.drop_foreign_key(old_table_name, old_column_name)
-            db.rename_column(old_table_name, old_column_name, new_column_name)
-            db.rename_table(old_table_name, new_table_name)
-            #db.alter_column(new_table_name, new_column_name, models.ForeignKey(to=orm['evaluation.Userprofile']))
-
-        rename_table_and_column("auth_user_groups", "evaluation_userprofile_groups", "user_id", "userprofile_id")
-        rename_table_and_column("auth_user_user_permissions", "evaluation_userprofile_user_permissions", "user_id", "userprofile_id")
-
-        # this is necessary, otherwise the table deletions throw errors
-        db.commit_transaction()
-        db.start_transaction()
-
-        db.delete_table("evaluation_olduserprofile")
-        db.delete_table("auth_user")
+        # Adding unique constraint on 'UserProfile', fields ['email']
+        db.create_unique(u'evaluation_userprofile', ['email'])
 
 
     def backwards(self, orm):
-        raise NotImplementedError()
+        # Removing unique constraint on 'UserProfile', fields ['email']
+        db.delete_unique(u'evaluation_userprofile', ['email'])
+
+        # Removing unique constraint on 'UserProfile', fields ['login_key']
+        db.delete_unique(u'evaluation_userprofile', ['login_key'])
 
 
     models = {
@@ -120,22 +36,6 @@ class Migration(SchemaMigration):
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
@@ -255,14 +155,14 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'UserProfile'},
             'cc_users': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['evaluation.UserProfile']", 'symmetrical': 'False', 'blank': 'True'}),
             'delegates': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'represented_users'", 'blank': 'True', 'to': u"orm['evaluation.UserProfile']"}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'login_key': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'login_key': ('django.db.models.fields.IntegerField', [], {'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'login_key_valid_until': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),

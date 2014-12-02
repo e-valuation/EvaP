@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
-from django.shortcuts import redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
@@ -48,7 +47,8 @@ def index(request):
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
-        return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
+        template_data = dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form)
+        return render(request, "index.html", template_data)
     else:
         user, created = UserProfile.objects.get_or_create(username=request.user.username)
 
@@ -79,4 +79,4 @@ def index(request):
 
 
 def faq(request):
-    return render_to_response("faq.html", dict(sections=FaqSection.objects.all()), context_instance=RequestContext(request))
+    return render(request, "faq.html", dict(sections=FaqSection.objects.all()))

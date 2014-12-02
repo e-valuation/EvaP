@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.http import HttpResponse
@@ -46,15 +45,12 @@ def index(request):
 
     reward_point_actions.sort(key=lambda action: action[0], reverse=True)
 
-    return render_to_response(
-        "rewards_index.html",
-        dict(
+    template_data = dict(
             reward_point_actions=reward_point_actions,
             total_points_available=total_points_available,
             events=events,
-            point_selection=[x for x in range(0,total_points_available+1)]
-        ),
-        context_instance=RequestContext(request))
+            point_selection=[x for x in range(0,total_points_available+1)])
+    return render(request, "rewards_index.html", template_data)
 
 
 @fsr_required
@@ -75,14 +71,16 @@ def semester_reward_points(request, semester_id):
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
         data.append((participant, number_of_courses_voted_for, number_of_courses, earned_reward_points))
 
-    return render_to_response("rewards_semester_reward_points_view.html", dict(semester=semester, data=data, disable_breadcrumb_semester=False), context_instance=RequestContext(request))
+    template_data = dict(semester=semester, data=data, disable_breadcrumb_semester=False)
+    return render(request, "rewards_semester_reward_points_view.html", template_data)
 
 
 @fsr_required
 def reward_point_redemption_events(request):
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by('-date')
-    return render_to_response("rewards_reward_point_redemption_events.html", dict(upcoming_events=upcoming_events, past_events=past_events), context_instance=RequestContext(request))
+    template_data = dict(upcoming_events=upcoming_events, past_events=past_events)
+    return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
 
 @fsr_required
@@ -95,7 +93,7 @@ def reward_point_redemption_event_create(request):
         messages.success(request, _("Successfully created event."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
     else:
-        return render_to_response("rewards_reward_point_redemption_event_form.html", dict(form=form), context_instance=RequestContext(request))
+        return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
 
 
 @fsr_required
@@ -109,7 +107,7 @@ def reward_point_redemption_event_edit(request, event_id):
         messages.success(request, _("Successfully updated event."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
     else:
-        return render_to_response("rewards_reward_point_redemption_event_form.html", dict(event=event, form=form), context_instance=RequestContext(request))
+        return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
 
 
 @fsr_required
@@ -121,7 +119,7 @@ def reward_point_redemption_event_delete(request, event_id):
             event.delete()
             return redirect('evap.rewards.views.reward_point_redemption_events')
         else:
-            return render_to_response("rewards_reward_point_redemption_event_delete.html", dict(event=event), context_instance=RequestContext(request))
+            return render(request, "rewards_reward_point_redemption_event_delete.html", dict(event=event))
     else:
         messages.warning(request, _("This event cannot be deleted because some users already redeemed points for it."))
         return redirect('evap.rewards.views.reward_point_redemption_events')
