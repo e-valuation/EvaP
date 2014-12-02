@@ -4,13 +4,13 @@
 {% load showfrom %}
 {% load static %}
 
-{% block title %}{% trans "Student Representatives" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Manage" %} - {{ block.super }}{% endblock %}
 
 {% block subtitle %}
     {{ block.super }}
     {% if disable_breadcrumb_staff %}
-        <li>{% trans "Student Representatives" %}</li>
+        <li>{% trans "Manage" %}</li>
     {% else %}
-        <li><a href="{% url "staff_root" %}">{% trans "Student Representatives" %}</a></li>
+        <li><a href="{% url "staff_root" %}">{% trans "Manage" %}</a></li>
     {% endif %}
 {% endblock %}

@@ -81,8 +81,7 @@ def login_required(func):
 
 def staff_required(func):
     """
-    Decorator for views that checks that the user is logged in and member
-    of the student representatives
+    Decorator for views that checks that the user is logged in and a staff member
     """
 
     def check_user(user):

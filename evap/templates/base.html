@@ -62,7 +62,7 @@
 
                         {% if user.is_staff %}
                             <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.staff.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.staff.views.index" %}">{% trans "Manage" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "evap.staff.views.index" %}">{% trans "Overview" %}</a></li>
                                     <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a>

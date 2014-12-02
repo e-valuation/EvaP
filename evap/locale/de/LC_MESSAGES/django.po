@@ -908,10 +908,6 @@ msgstr ""
 "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
-#: staff/forms.py:358
-msgid "Student representative"
-msgstr "FSR-Mitglied"
-
 #: staff/forms.py:359
 msgid "EvaP Administrator"
 msgstr "EvaP-Administrator"
@@ -1216,8 +1212,8 @@ msgstr "FAQ-Fragen erfolgreich geändert."
 
 #: staff/templates/staff_base.html:7 staff/templates/staff_base.html.py:12
 #: staff/templates/staff_base.html:14 templates/base.html:65
-msgid "Student Representatives"
-msgstr "Fachschaftsrat"
+msgid "Manage"
+msgstr "Verwaltung"
 
 #: staff/templates/staff_course_comments.html:7
 msgid "Comments for Course "
@@ -1683,8 +1679,8 @@ msgid "Information"
 msgstr "Information"
 
 #: staff/templates/staff_user_index.html:38
-msgid "Student Representative"
-msgstr "FSR-Mitglied"
+msgid "Staff"
+msgstr "Verwalter"
 
 #: staff/templates/staff_user_index.html:41
 msgid "External"
