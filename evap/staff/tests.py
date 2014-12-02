@@ -41,7 +41,7 @@ class UsecaseTests(WebTest):
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_import(self):
-        page = self.app.get(reverse("fsr_root"), user='fsr.user')
+        page = self.app.get(reverse("staff_root"), user='staff.user')
 
         # create a new semester
         page = page.click("[Cc]reate [Nn]ew [Ss]emester")
@@ -99,7 +99,7 @@ class UsecaseTests(WebTest):
         self.app.get(url_with_key)
 
     def test_create_questionnaire(self):
-        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("staff_root"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
@@ -119,7 +119,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(questionnaire.question_set.count(), 1, "New questionnaire is empty.")
 
     def test_create_empty_questionnaire(self):
-        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("staff_root"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
@@ -138,7 +138,7 @@ class UsecaseTests(WebTest):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
 
     def test_copy_questionnaire(self):
-        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("staff_root"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("Seminar")
@@ -155,7 +155,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(questionnaire.question_set.count(), 2, "New questionnaire is empty.")
 
     def test_assign_questionnaires(self):
-        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("staff_root"), user="staff.user")
 
         # assign questionnaire to courses
         page = page.click("Semester 1 \(en\)", index=0)
@@ -173,7 +173,7 @@ class UsecaseTests(WebTest):
             self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
 
     def test_remove_responsibility(self):
-        page = self.app.get(reverse("fsr_root"), user="fsr.user")
+        page = self.app.get(reverse("staff_root"), user="staff.user")
 
         # remove responsibility in lecturer's checkbox
         page = page.click("Semester 1 \(en\)", index=0)
@@ -198,11 +198,11 @@ class UsecaseTests(WebTest):
     #    for i in range(0, num_users):
     #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
     #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-    #        self.app.get("/staff/user/", user="fsr.user")
+    #        self.app.get("/staff/user/", user="staff.user")
 
     def test_users_are_deletable(self):
-        self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_fsr_delete)
-        self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_fsr_delete)
+        self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_staff_delete)
+        self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_staff_delete)
 
 
 
@@ -539,13 +539,13 @@ class URLTests(WebTest):
             Tries to delete two semesters via the respective view,
             only the second attempt should succeed.
         """
-        self.assertFalse(Semester.objects.get(pk=1).can_fsr_delete)
+        self.assertFalse(Semester.objects.get(pk=1).can_staff_delete)
         self.client.login(username='evap', password='evap')
         response = self.client.get("/staff/semester/1/delete", follow=True)
         self.assertIn("cannot be deleted", list(response.context['messages'])[0].message)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
-        self.assertTrue(Semester.objects.get(pk=2).can_fsr_delete)
+        self.assertTrue(Semester.objects.get(pk=2).can_staff_delete)
         self.get_submit_assert_302("/staff/semester/2/delete", "evap")
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
@@ -654,13 +654,13 @@ class URLTests(WebTest):
             Tries to delete two questionnaires via the respective view,
             only the second attempt should succeed.
         """
-        self.assertFalse(Questionnaire.objects.get(pk=2).can_fsr_delete)
+        self.assertFalse(Questionnaire.objects.get(pk=2).can_staff_delete)
         self.client.login(username='evap', password='evap')
         page = self.client.get("/staff/questionnaire/2/delete", follow=True)
         self.assertIn("cannot be deleted", list(page.context['messages'])[0].message)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
-        self.assertTrue(Questionnaire.objects.get(pk=3).can_fsr_delete)
+        self.assertTrue(Questionnaire.objects.get(pk=3).can_staff_delete)
         self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap")
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 

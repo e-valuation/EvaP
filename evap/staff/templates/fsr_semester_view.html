@@ -9,7 +9,7 @@
 
     <div class="button-menu">
         <a href="{% url "evap.staff.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
-        {% if semester.can_fsr_delete %}
+        {% if semester.can_staff_delete %}
             <a href="{% url "evap.staff.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger">{% trans "Delete Semester" %}</a>
         {% else %}
             <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete Semester" %}</a>
@@ -47,7 +47,7 @@
                     <tr>
                         <td class="maximize">
                             <div>
-                            {% if course.can_fsr_edit %}
+                            {% if course.can_staff_edit %}
                                 <a href="{% url "evap.staff.views.course_edit" semester.id course.id %}?tab={{ forloop.parentloop.counter }}">{{ course.name }}</a>
                             {% else %}
                                 {{ course.name }}
@@ -72,7 +72,7 @@
                                             <span>{{ num_voters }}/{{ num_participants }}</span>
                                             <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
                                         </p>
-                                        {% if course.can_fsr_review %}
+                                        {% if course.can_staff_review %}
                                             <a href="{% url "evap.staff.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="twipsify" title="{% trans "Click to review text answers" %}">
                                                 <span class="glyphicon glyphicon-comment"></span>
                                                 <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
@@ -111,7 +111,7 @@
                             {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
                                 <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
                             {% endif %}
-                            {% if course.can_fsr_delete %}
+                            {% if course.can_staff_delete %}
                                 <a href="{% url "evap.staff.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if state == 'published' %}

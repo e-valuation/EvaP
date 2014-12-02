@@ -55,7 +55,7 @@
                 </td>
                 <td class="minimize-with-padding">
                     <a href="{% url "evap.staff.views.user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
-                    {% if user.can_fsr_delete %}
+                    {% if user.can_staff_delete %}
                         <a href="{% url "evap.staff.views.user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
                         <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>

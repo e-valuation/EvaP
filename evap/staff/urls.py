@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 from evap.staff.views import *
 
 urlpatterns = [
-    url(r"^$", index, name="fsr_root"),
+    url(r"^$", index, name="staff_root"),
 
     url(r"^semester/$", RedirectView.as_view(url='/staff/')),
     url(r"^semester/create$", semester_create),

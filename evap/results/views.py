@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import get_language
 
-from evap.evaluation.auth import login_required, fsr_required
+from evap.evaluation.auth import login_required, staff_required
 from evap.evaluation.models import Semester
 from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
 
@@ -34,7 +34,7 @@ def semester_detail(request, semester_id):
     return render(request, "results_semester_detail.html", template_data)
 
 
-@fsr_required
+@staff_required
 def semester_export(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
