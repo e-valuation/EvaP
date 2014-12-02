@@ -8,6 +8,6 @@
         {% csrf_token %}
         <p>{% blocktrans with name=course.name %}Do you really want to unpublish the course <em>{{ name }}</em>?{% endblocktrans %}</p>
         <input type="submit" value="{% trans "Yes" %}" class="btn btn-primary"/>
-        <a href="{% url "evap.fsr.views.semester_view" semester.id %}" class="btn btn-default">{% trans "No" %}</a>
+        <a href="{% url "evap.staff.views.semester_view" semester.id %}" class="btn btn-default">{% trans "No" %}</a>
     </form>
 {% endblock %}

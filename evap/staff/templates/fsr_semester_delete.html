@@ -6,8 +6,8 @@
     {{ block.super }}
     <form method="POST" style="display: inline;">
         {% csrf_token %}
-        <p>{% blocktrans with name=course.name %}Do you really want to delete the course <em>{{ name }}</em>?{% endblocktrans %}</p>
+        <p>{% blocktrans with name=semester.name %}Do you really want to delete the semester <em>{{ name }}</em>?{% endblocktrans %}</p>
         <input type="submit" value="{% trans "Yes" %}" class="btn btn-danger"/>
-        <a href="{% url "evap.fsr.views.semester_view" semester.id %}" class="btn btn-default">{% trans "No" %}</a>
+        <a href="{% url "evap.staff.views.semester_view" semester.id %}" class="btn btn-default">{% trans "No" %}</a>
     </form>
 {% endblock %}

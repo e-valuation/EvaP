@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
-from evap.fsr.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
+from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributorFormSet, ContributionForm, CourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
@@ -198,7 +198,7 @@ class UsecaseTests(WebTest):
     #    for i in range(0, num_users):
     #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
     #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-    #        self.app.get("/fsr/user/", user="fsr.user")
+    #        self.app.get("/staff/user/", user="fsr.user")
 
     def test_users_are_deletable(self):
         self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_fsr_delete)
@@ -252,50 +252,50 @@ class URLTests(WebTest):
             # student pages
             ("test_student", "/student/", "student"),
             ("test_student_vote_x", "/student/vote/5", "lazy.student"),
-            # fsr main page
-            ("test_fsr", "/fsr/", "evap"),
-            # fsr semester
-            ("test_fsr_semester_create", "/fsr/semester/create", "evap"),
-            ("test_fsr_semester_x", "/fsr/semester/1", "evap"),
-            ("test_fsr_semester_x", "/fsr/semester/1?tab=asdf", "evap"),
-            ("test_fsr_semester_x_edit", "/fsr/semester/1/edit", "evap"),
-            ("test_fsr_semester_x_delete", "/fsr/semester/2/delete", "evap"),
-            ("test_fsr_semester_x_course_create", "/fsr/semester/1/course/create", "evap"),
-            ("test_fsr_semester_x_import", "/fsr/semester/1/import", "evap"),
-            ("test_fsr_semester_x_assign", "/fsr/semester/1/assign", "evap"),
-            ("test_fsr_semester_x_lottery", "/fsr/semester/1/lottery", "evap"),
-            ("test_fsr_semester_x_reset", "/fsr/semester/1/reset", "evap"),
-            ("test_fsr_semester_x_contributorready", "/fsr/semester/1/contributorready", "evap"),
-            ("test_fsr_semester_x_approve", "/fsr/semester/1/approve", "evap"),
-            ("test_fsr_semester_x_publish", "/fsr/semester/1/publish", "evap"),
-            # fsr semester course
-            ("test_fsr_semester_x_course_y_edit", "/fsr/semester/1/course/5/edit", "evap"),
-            ("test_fsr_semester_x_course_y_email", "/fsr/semester/1/course/1/email", "evap"),
-            ("test_fsr_semester_x_course_y_preview", "/fsr/semester/1/course/1/preview", "evap"),
-            ("test_fsr_semester_x_course_y_comments", "/fsr/semester/1/course/5/comments", "evap"),
-            ("test_fsr_semester_x_course_y_review", "/fsr/semester/1/course/5/review", "evap"),
-            ("test_fsr_semester_x_course_y_unpublish", "/fsr/semester/1/course/8/unpublish", "evap"),
-            ("test_fsr_semester_x_course_y_delete", "/fsr/semester/1/course/1/delete", "evap"),
-            # fsr questionnaires
-            ("test_fsr_questionnaire", "/fsr/questionnaire/", "evap"),
-            ("test_fsr_questionnaire_create", "/fsr/questionnaire/create", "evap"),
-            ("test_fsr_questionnaire_x_edit", "/fsr/questionnaire/2/edit", "evap"),
-            ("test_fsr_questionnaire_x", "/fsr/questionnaire/2", "evap"),
-            ("test_fsr_questionnaire_x_copy", "/fsr/questionnaire/2/copy", "evap"),
-            ("test_fsr_questionnaire_x_delete", "/fsr/questionnaire/3/delete", "evap"),
-            ("test_fsr_questionnaire_delete", "/fsr/questionnaire/create", "evap"),
-            # fsr user
-            ("test_fsr_user", "/fsr/user/", "evap"),
-            ("test_fsr_user_import", "/fsr/user/import", "evap"),
-            ("test_fsr_sample_xls", "/static/sample_user.xls", "evap"),
-            ("test_fsr_user_create", "/fsr/user/create", "evap"),
-            ("test_fsr_user_x_delete", "/fsr/user/4/delete", "evap"),
-            ("test_fsr_user_x_edit", "/fsr/user/4/edit", "evap"),
-            # fsr template
-            ("test_fsr_template_x", "/fsr/template/1", "evap"),
+            # staff main page
+            ("test_staff", "/staff/", "evap"),
+            # staff semester
+            ("test_staff_semester_create", "/staff/semester/create", "evap"),
+            ("test_staff_semester_x", "/staff/semester/1", "evap"),
+            ("test_staff_semester_x", "/staff/semester/1?tab=asdf", "evap"),
+            ("test_staff_semester_x_edit", "/staff/semester/1/edit", "evap"),
+            ("test_staff_semester_x_delete", "/staff/semester/2/delete", "evap"),
+            ("test_staff_semester_x_course_create", "/staff/semester/1/course/create", "evap"),
+            ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
+            ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
+            ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
+            ("test_staff_semester_x_reset", "/staff/semester/1/reset", "evap"),
+            ("test_staff_semester_x_contributorready", "/staff/semester/1/contributorready", "evap"),
+            ("test_staff_semester_x_approve", "/staff/semester/1/approve", "evap"),
+            ("test_staff_semester_x_publish", "/staff/semester/1/publish", "evap"),
+            # staff semester course
+            ("test_staff_semester_x_course_y_edit", "/staff/semester/1/course/5/edit", "evap"),
+            ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
+            ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
+            ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
+            ("test_staff_semester_x_course_y_review", "/staff/semester/1/course/5/review", "evap"),
+            ("test_staff_semester_x_course_y_unpublish", "/staff/semester/1/course/8/unpublish", "evap"),
+            ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
+            # staff questionnaires
+            ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
+            ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
+            ("test_staff_questionnaire_x_edit", "/staff/questionnaire/2/edit", "evap"),
+            ("test_staff_questionnaire_x", "/staff/questionnaire/2", "evap"),
+            ("test_staff_questionnaire_x_copy", "/staff/questionnaire/2/copy", "evap"),
+            ("test_staff_questionnaire_x_delete", "/staff/questionnaire/3/delete", "evap"),
+            ("test_staff_questionnaire_delete", "/staff/questionnaire/create", "evap"),
+            # staff user
+            ("test_staff_user", "/staff/user/", "evap"),
+            ("test_staff_user_import", "/staff/user/import", "evap"),
+            ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
+            ("test_staff_user_create", "/staff/user/create", "evap"),
+            ("test_staff_user_x_delete", "/staff/user/4/delete", "evap"),
+            ("test_staff_user_x_edit", "/staff/user/4/edit", "evap"),
+            # staff template
+            ("test_staff_template_x", "/staff/template/1", "evap"),
             # faq
-            ("test_fsr_faq", "/fsr/faq/", "evap"),
-            ("test_fsr_faq_x", "/fsr/faq/1", "evap"),
+            ("test_staff_faq", "/staff/faq/", "evap"),
+            ("test_staff_faq_x", "/staff/faq/1", "evap"),
             # results
             ("test_results", "/results/", "evap"),
             ("test_results_semester_x", "/results/semester/1", "evap"),
@@ -343,13 +343,13 @@ class URLTests(WebTest):
             do not return 200 but redirect somewhere else.
         """
         tests = [
-            ("test_fsr_semester_x_course_y_edit_fail", "/fsr/semester/1/course/8/edit", "evap"),
-            ("test_fsr_semester_x_course_y_delete_fail", "/fsr/semester/1/course/8/delete", "evap"),
-            ("test_fsr_semester_x_course_y_review_fail", "/fsr/semester/1/course/8/review", "evap"),
-            ("test_fsr_semester_x_course_y_unpublish_fail", "/fsr/semester/1/course/7/unpublish", "evap"),
-            ("test_fsr_questionnaire_x_edit_fail", "/fsr/questionnaire/4/edit", "evap"),
-            ("test_fsr_user_x_delete_fail", "/fsr/user/2/delete", "evap"),
-            ("test_fsr_semester_x_delete_fail", "/fsr/semester/1/delete", "evap"),
+            ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
+            ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
+            ("test_staff_semester_x_course_y_review_fail", "/staff/semester/1/course/8/review", "evap"),
+            ("test_staff_semester_x_course_y_unpublish_fail", "/staff/semester/1/course/7/unpublish", "evap"),
+            ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/4/edit", "evap"),
+            ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
+            ("test_staff_semester_x_delete_fail", "/staff/semester/1/delete", "evap"),
         ]
 
         for _, url, user in tests:
@@ -363,12 +363,12 @@ class URLTests(WebTest):
         """
         forms = [
             ("/student/vote/5", "lazy.student", "Vote"),
-            ("/fsr/semester/create", "evap", "Save"),
-            ("/fsr/semester/1/course/create", "evap"),
-            ("/fsr/semester/1/import", "evap"),
-            ("/fsr/semester/1/course/1/email", "evap"),
-            ("/fsr/questionnaire/create", "evap"),
-            ("/fsr/user/create", "evap"),
+            ("/staff/semester/create", "evap", "Save"),
+            ("/staff/semester/1/course/create", "evap"),
+            ("/staff/semester/1/import", "evap"),
+            ("/staff/semester/1/course/1/email", "evap"),
+            ("/staff/questionnaire/create", "evap"),
+            ("/staff/user/create", "evap"),
         ]
         for form in forms:
             response = self.get_submit_assert_200(form[0], form[1])
@@ -378,7 +378,7 @@ class URLTests(WebTest):
         """
             Tests whether copying and submitting a questionnaire form wihtout entering a new name fails.
         """
-        response = self.get_submit_assert_200("/fsr/questionnaire/2/copy", "evap")
+        response = self.get_submit_assert_200("/staff/questionnaire/2/copy", "evap")
         self.assertIn("already exists", response)
 
     """
@@ -387,62 +387,62 @@ class URLTests(WebTest):
         They are in individual methods because most of them change the database.
     """
 
-    def test_fsr_semester_x_edit__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/edit", "evap")
+    def test_staff_semester_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/edit", "evap")
 
-    def test_fsr_semester_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
+    def test_staff_semester_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/2/delete", "evap")
 
-    def test_fsr_semester_x_assign__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/assign", "evap")
+    def test_staff_semester_x_assign__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/assign", "evap")
 
-    def test_fsr_semester_x_lottery__nodata_success(self):
-        self.get_submit_assert_200("/fsr/semester/1/lottery", "evap")
+    def test_staff_semester_x_lottery__nodata_success(self):
+        self.get_submit_assert_200("/staff/semester/1/lottery", "evap")
 
-    def test_fsr_semester_x_reset__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/reset", "evap")
+    def test_staff_semester_x_reset__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/reset", "evap")
 
-    def test_fsr_semester_x_contributorready__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/contributorready", "evap")
+    def test_staff_semester_x_contributorready__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/contributorready", "evap")
 
-    def test_fsr_semester_x_approve__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/approve", "evap")
+    def test_staff_semester_x_approve__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/approve", "evap")
 
-    def test_fsr_semester_x_publish__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/publish", "evap")
+    def test_staff_semester_x_publish__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/publish", "evap")
 
-    def test_fsr_semester_x_course_y_edit__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/course/1/edit", "evap")
+    def test_staff_semester_x_course_y_edit__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
 
-    def test_fsr_semester_x_course_y_review__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/course/5/review", "evap")
+    def test_staff_semester_x_course_y_review__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/course/5/review", "evap")
 
-    def test_fsr_semester_x_course_y_unpublish__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/course/8/unpublish", "evap"),
+    def test_staff_semester_x_course_y_unpublish__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/course/8/unpublish", "evap"),
 
-    def test_fsr_semester_x_course_y_delete__nodata_success(self):
-        self.get_submit_assert_302("/fsr/semester/1/course/1/delete", "evap"),
+    def test_staff_semester_x_course_y_delete__nodata_success(self):
+        self.get_submit_assert_302("/staff/semester/1/course/1/delete", "evap"),
 
-    def test_fsr_questionnaire_x_edit__nodata_success(self):
-        self.get_submit_assert_302("/fsr/questionnaire/2/edit", "evap")
+    def test_staff_questionnaire_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/staff/questionnaire/2/edit", "evap")
 
-    def test_fsr_questionnaire_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap"),
+    def test_staff_questionnaire_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap"),
 
-    def test_fsr_user_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/fsr/user/4/delete", "evap"),
+    def test_staff_user_x_delete__nodata_success(self):
+        self.get_submit_assert_302("/staff/user/4/delete", "evap"),
 
-    def test_fsr_user_x_edit__nodata_success(self):
-        self.get_submit_assert_302("/fsr/user/4/edit", "evap")
+    def test_staff_user_x_edit__nodata_success(self):
+        self.get_submit_assert_302("/staff/user/4/edit", "evap")
 
-    def test_fsr_template_x__nodata_success(self):
-        self.get_submit_assert_200("/fsr/template/1", "evap")
+    def test_staff_template_x__nodata_success(self):
+        self.get_submit_assert_200("/staff/template/1", "evap")
 
-    def test_fsr_faq__nodata_success(self):
-        self.get_submit_assert_302("/fsr/faq/", "evap")
+    def test_staff_faq__nodata_success(self):
+        self.get_submit_assert_302("/staff/faq/", "evap")
 
-    def test_fsr_faq_x__nodata_success(self):
-        self.get_submit_assert_302("/fsr/faq/1", "evap")
+    def test_staff_faq_x__nodata_success(self):
+        self.get_submit_assert_302("/staff/faq/1", "evap")
 
     def test_contributor_profile(self):
         self.get_submit_assert_302("/contributor/profile", "responsible")
@@ -541,12 +541,12 @@ class URLTests(WebTest):
         """
         self.assertFalse(Semester.objects.get(pk=1).can_fsr_delete)
         self.client.login(username='evap', password='evap')
-        response = self.client.get("/fsr/semester/1/delete", follow=True)
+        response = self.client.get("/staff/semester/1/delete", follow=True)
         self.assertIn("cannot be deleted", list(response.context['messages'])[0].message)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
         self.assertTrue(Semester.objects.get(pk=2).can_fsr_delete)
-        self.get_submit_assert_302("/fsr/semester/2/delete", "evap")
+        self.get_submit_assert_302("/staff/semester/2/delete", "evap")
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
     def helper_semester_state_views(self, url, course_ids, old_states, new_state):
@@ -564,16 +564,16 @@ class URLTests(WebTest):
         The following four tests test the course state transitions triggerable via the UI.
     """
     def test_semester_publish(self):
-        self.helper_semester_state_views("/fsr/semester/1/publish", [7], ["reviewed"], "published")
+        self.helper_semester_state_views("/staff/semester/1/publish", [7], ["reviewed"], "published")
 
     def test_semester_reset(self):
-        self.helper_semester_state_views("/fsr/semester/1/reset", [2], ["prepared"], "new")
+        self.helper_semester_state_views("/staff/semester/1/reset", [2], ["prepared"], "new")
 
     def test_semester_approve(self):
-        self.helper_semester_state_views("/fsr/semester/1/approve", [1,2,3], ["new", "prepared", "lecturerApproved"], "approved")
+        self.helper_semester_state_views("/staff/semester/1/approve", [1,2,3], ["new", "prepared", "lecturerApproved"], "approved")
 
     def test_semester_contributor_ready(self):
-        self.helper_semester_state_views("/fsr/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
+        self.helper_semester_state_views("/staff/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
 
     def test_course_create(self):
         """
@@ -581,7 +581,7 @@ class URLTests(WebTest):
         """
         data = dict(name_de="asdf", name_en="asdf", kind="asdf", degree="asd",
                     vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
-        response = self.get_assert_200("/fsr/semester/1/course/create", "evap")
+        response = self.get_assert_200("/staff/semester/1/course/create", "evap")
         form = lastform(response)
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
@@ -613,10 +613,10 @@ class URLTests(WebTest):
         """
             Tests the course review view with various input datasets.
         """
-        self.get_assert_302("/fsr/semester/1/course/4/review", user="evap")
+        self.get_assert_302("/staff/semester/1/course/4/review", user="evap")
         self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
 
-        page = self.get_assert_200("/fsr/semester/1/course/6/review", user="evap")
+        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
 
         form = lastform(page)
         form["form-0-hidden"] = "on"
@@ -635,13 +635,13 @@ class URLTests(WebTest):
         self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
         self.assertEqual(Course.objects.get(pk=6).state, "reviewed")
 
-        self.get_assert_302("/fsr/semester/1/course/6/review", user="evap")
+        self.get_assert_302("/staff/semester/1/course/6/review", user="evap")
 
     def test_course_email(self):
         """
             Tests whether the course email view actually sends emails.
         """
-        page = self.get_assert_200("/fsr/semester/1/course/5/email", user="evap")
+        page = self.get_assert_200("/staff/semester/1/course/5/email", user="evap")
         form = lastform(page)
         form["subject"] = "asdf"
         form["body"] = "asdf"
@@ -656,19 +656,19 @@ class URLTests(WebTest):
         """
         self.assertFalse(Questionnaire.objects.get(pk=2).can_fsr_delete)
         self.client.login(username='evap', password='evap')
-        page = self.client.get("/fsr/questionnaire/2/delete", follow=True)
+        page = self.client.get("/staff/questionnaire/2/delete", follow=True)
         self.assertIn("cannot be deleted", list(page.context['messages'])[0].message)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=3).can_fsr_delete)
-        self.get_submit_assert_302("/fsr/questionnaire/3/delete", "evap")
+        self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap")
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 
     def test_create_user(self):
         """
             Tests whether the user creation view actually creates a user.
         """
-        page = self.get_assert_200("/fsr/user/create", "evap")
+        page = self.get_assert_200("/staff/user/create", "evap")
         form = lastform(page)
         form["username"] = "mflkd862xmnbo5"
         form["first_name"] = "asd"
@@ -683,7 +683,7 @@ class URLTests(WebTest):
         """
             Tests the emailtemplate view with one valid and one invalid input datasets.
         """
-        page = self.get_assert_200("/fsr/template/1", "evap")
+        page = self.get_assert_200("/staff/template/1", "evap")
         form = lastform(page)
         form["subject"] = "subject: mflkd862xmnbo5"
         form["body"] = "body: mflkd862xmnbo5"

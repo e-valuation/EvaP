@@ -121,7 +121,7 @@ def calculate_results(course, staff_member=False):
     `LikertResult`, `TextResult` or `GradeResult` instances."""
 
     # return cached results if available
-    cache_key = str.format('evap.fsr.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
+    cache_key = str.format('evap.staff.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
     prior_results = cache.get(cache_key)
     if prior_results:
         return prior_results

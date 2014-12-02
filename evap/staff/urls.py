@@ -1,12 +1,12 @@
 from django.conf.urls import url
 from django.views.generic import RedirectView
 
-from evap.fsr.views import *
+from evap.staff.views import *
 
 urlpatterns = [
     url(r"^$", index, name="fsr_root"),
 
-    url(r"^semester/$", RedirectView.as_view(url='/fsr/')),
+    url(r"^semester/$", RedirectView.as_view(url='/staff/')),
     url(r"^semester/create$", semester_create),
     url(r"^semester/(\d+)$", semester_view),
     url(r"^semester/(\d+)/edit$", semester_edit),
@@ -41,7 +41,7 @@ urlpatterns = [
     url(r"^user/(\d+)/edit$", user_edit),
     url(r"^user/(\d+)/delete$", user_delete),
 
-    url(r"^template/$", RedirectView.as_view(url='/fsr/')),
+    url(r"^template/$", RedirectView.as_view(url='/staff/')),
     url(r"^template/(\d+)$", template_edit),
 
     url(r"faq/$", faq_index),

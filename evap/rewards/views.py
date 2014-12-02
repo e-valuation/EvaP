@@ -10,7 +10,7 @@ from operator import attrgetter
 from evap.evaluation.auth import reward_user_required, fsr_required
 from evap.evaluation.models import Semester, Course
 
-from evap.fsr.views import semester_view
+from evap.staff.views import semester_view
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import save_redemptions, reward_points_of_user, can_user_use_reward_points

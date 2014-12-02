@@ -12,8 +12,8 @@
 {% block content %}
     {{ block.super }}
     <div>
-        <a href="{% url "evap.fsr.views.user_import" %}" class="btn btn-sm btn-default">{% trans "Import Users" %}</a>
-        <a href="{% url "evap.fsr.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
+        <a href="{% url "evap.staff.views.user_import" %}" class="btn btn-sm btn-default">{% trans "Import Users" %}</a>
+        <a href="{% url "evap.staff.views.user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
     </div>
     <table class="table table-striped user-table">
         <thead>
@@ -54,9 +54,9 @@
                     {% endif %}
                 </td>
                 <td class="minimize-with-padding">
-                    <a href="{% url "evap.fsr.views.user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
+                    <a href="{% url "evap.staff.views.user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.can_fsr_delete %}
-                        <a href="{% url "evap.fsr.views.user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                        <a href="{% url "evap.staff.views.user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
                         <a class="btn btn-sm btn-danger twipsify" disabled="disabled" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}">{% trans "Delete" %}</a>
                     {% endif %}

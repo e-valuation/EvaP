@@ -10,7 +10,7 @@ from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceFie
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
                                    EmailTemplate, TextAnswer
-from evap.fsr.fields import ToolTipModelMultipleChoiceField
+from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 
 class ImportForm(forms.Form, BootstrapMixin):

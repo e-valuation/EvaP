@@ -13,7 +13,7 @@ urlpatterns = [
     url(r"^faq$", evap.evaluation.views.faq),
     url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}),
 
-    url(r"^fsr/", include('evap.fsr.urls')),
+    url(r"^staff/", include('evap.staff.urls')),
     url(r"^results/", include('evap.results.urls')),
     url(r"^student/", include('evap.student.urls')),
     url(r"^contributor/", include('evap.contributor.urls')),
