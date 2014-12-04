@@ -1,6 +1,4 @@
-django>=1.6,<1.7
-south>=0.7.3
-pillow>=2.0.0
+django>=1.7,<1.8
 xlrd>=0.7.1
 xlwt>=0.7.2
 lxml>=2.3

@@ -3,13 +3,9 @@ class evap ($db_connector) {
     file { 'evap-localsettings':
         name    => '/vagrant/evap/localsettings.py',
         content  => template('evap/localsettings.py.erb')
-    } -> exec { 'django-syncdb':
-        provider    => shell,
-        command     => 'python manage.py syncdb --noinput --no-initial-data',
-        cwd         => '/vagrant'
     } -> exec { 'django-migrate':
         provider    => shell,
-        command     => 'python manage.py migrate --noinput --no-initial-data',
+        command     => 'python manage.py migrate --noinput',
         cwd         => '/vagrant'
     } -> exec { 'django-collectstatic':
         provider    => shell,
