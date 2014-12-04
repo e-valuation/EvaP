@@ -991,7 +991,7 @@ msgstr "Warnung: Der bereits existierende Nutzer"
 
 #: staff/importers.py:167
 msgid "would be overwritten with the following data:"
-msgstr "würde mit den folgenden Daten überschrieben warden:"
+msgstr "würde mit den folgenden Daten überschrieben werden:"
 
 #: staff/importers.py:200
 msgid ""
@@ -1014,7 +1014,7 @@ msgid ""
 "Warning: The degree \"{}\" does not exist yet and would be newly created."
 msgstr ""
 "Warnung: Der Studiengang \"{}\" existiert noch nicht und würde neu erstellt "
-"warden."
+"werden."
 
 #: staff/importers.py:248
 msgid "Successfully created {} course(s), {} student(s) and {} contributor(s)."
