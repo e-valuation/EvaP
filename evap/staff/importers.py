@@ -126,7 +126,7 @@ class ExcelImporter(object):
         for user_data in user_data_list:
             if is_external_email(user_data.email):
                 if user_data.username != "":
-                    self.errors.append(_('User {}: Username must be empty for external users.').format(user_data.username))
+                    self.errors.append(_(u'User {}: Username must be empty for external users.').format(user_data.username))
                 # remove whitespace for e.g. second names
                 first_name = user_data.first_name.replace(' ', '')
                 last_name = user_data.last_name.replace(' ', '')
@@ -136,31 +136,31 @@ class ExcelImporter(object):
     def check_user_data_correctness(self):
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
-                self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
+                self.errors.append(_(u'Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
                 return # to avoid duplicate errors with validate
             try:
                 user_data.validate()
             except ValidationError as e:
-                self.errors.append(_("User {}: Error when validating: {}").format(user_data.email, e))
+                self.errors.append(_(u"User {}: Error when validating: {}").format(user_data.email, e))
             if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH :
-                self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
+                self.errors.append(_(u'User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
-                self.errors.append(_('User {}: First name is missing.').format(user_data.email))
+                self.errors.append(_(u'User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
-                self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
+                self.errors.append(_(u'User {}: Last name is missing.').format(user_data.email))
 
     def check_user_data_sanity(self):
         for user_data in self.users.values():
             try:
                 user = UserProfile.objects.get(username=user_data.username)
                 if (user.email != user_data.email 
-                        or user.userprofile.title != user_data.title
+                        or (user.title != None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append(_("Warning: The existing user") + 
-                        " {} ({} {} {}, {}) ".format(user.username, user.userprofile.title, user.first_name, user.last_name, user.email) +
-                        _("would be overwritten with the following data:") +
-                        " {} ({} {} {}, {})".format(user_data.username, user_data.title, user_data.first_name, user_data.last_name, user_data.email))
+                    self.warnings.append(_(u"Warning: The existing user") + 
+                        u" {} ({} {} {}, {}) ".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
+                        _(u"would be overwritten with the following data:") +
+                        u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
             except UserProfile.DoesNotExist:
                 # nothing to do here
                 pass
@@ -205,7 +205,7 @@ class EnrollmentImporter(ExcelImporter):
         for course_data in self.courses.values():
             already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de, degree=course_data.degree).exists()
             if already_exists:
-                self.errors.append(_("Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree))
+                self.errors.append(_(u"Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree))
 
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
@@ -213,12 +213,12 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[enrollment[1]].append(enrollment)
         for user_data, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
-                self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
+                self.warnings.append(_(u"Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
         
         degrees = set([course_data.degree for course_data in self.courses.values()])
         for degree in degrees:
             if not Course.objects.filter(degree=degree).exists():
-                self.warnings.append(_("Warning: The degree \"{}\" does not exist yet and would be newly created.").format(degree))
+                self.warnings.append(_(u"Warning: The degree \"{}\" does not exist yet and would be newly created.").format(degree))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
@@ -240,7 +240,7 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
                 
-        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))
+        messages.success(self.request, _(u"Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
@@ -305,7 +305,7 @@ class UserImporter(ExcelImporter):
                         users_count += 1
 
                 except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
+                    messages.error(self.request, _(u"A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
 
