@@ -4,7 +4,6 @@ from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
-
 from collections import OrderedDict
 from collections import namedtuple
 
@@ -122,7 +121,7 @@ def calculate_results(course, staff_member=False):
     `LikertResult`, `TextResult` or `GradeResult` instances."""
 
     # return cached results if available
-    cache_key = str.format('evap.fsr.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
+    cache_key = str.format('evap.staff.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
     prior_results = cache.get(cache_key)
     if prior_results:
         return prior_results
@@ -298,4 +297,32 @@ def questionnaires_and_contributions(course):
 
 
 def is_external_email(email):
-        return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+    return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+
+
+def create_voting_form_groups(request, contributions, include_self=False):
+    from evap.student.forms import QuestionsForm
+    form_groups = OrderedDict()
+    for contribution in contributions:
+        if not include_self and contribution.contributor == request.user:
+            continue # users shall not vote about themselves, for preview user is included
+        form_groups[contribution] = OrderedDict()
+        for questionnaire in contribution.questionnaires.all():
+            form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+            form_groups[contribution][questionnaire] = form
+    return form_groups
+
+
+def create_contributor_questionnaires(form_groups_items):
+    contributor_questionnaires = []
+    errors = []
+    for contribution, form_group in form_groups_items:
+        if contribution.is_general:
+            continue
+        contributor = contribution.contributor
+        contributor_questionnaires.append((contributor, form_group.values()));
+
+        if any(form.errors for form in form_group.values()):
+                errors.append(contributor.id)
+
+    return contributor_questionnaires, errors

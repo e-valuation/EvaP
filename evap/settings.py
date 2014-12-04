@@ -11,6 +11,8 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TESTING = 'test' in sys.argv
 
+AUTH_USER_MODEL = 'evaluation.UserProfile'
+
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
@@ -75,6 +77,9 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
 # email domains for the internal users of the hosting institution used to
 # figure out who can login with username and password and who needs a login key
 INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de", "hpi.de", "student.hpi.de"]
+
+# maximum length of usernames of internal users
+INTERNAL_USERNAMES_MAX_LENGTH = 20
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -208,10 +213,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'south',
     'widget_tweaks',
     'evap.evaluation',
-    'evap.fsr',
+    'evap.staff',
     'evap.results',
     'evap.student',
     'evap.contributor',

@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import get_language
 
-from evap.evaluation.auth import login_required, fsr_required
+from evap.evaluation.auth import login_required, staff_required
 from evap.evaluation.models import Semester
 from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
 
@@ -18,10 +17,7 @@ from collections import OrderedDict
 def index(request):
     semesters = Semester.get_all_with_published_courses()
 
-    return render_to_response(
-        "results_index.html",
-        dict(semesters=semesters),
-        context_instance=RequestContext(request))
+    return render(request, "results_index.html", dict(semesters=semesters))
 
 
 @login_required
@@ -34,17 +30,11 @@ def semester_detail(request, semester_id):
         # first, make sure that there are no preexisting grade attributes
         course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 
-    return render_to_response(
-        "results_semester_detail.html",
-        dict(
-            semester=semester,
-            courses=courses,
-            staff=request.user.is_staff
-        ),
-        context_instance=RequestContext(request))
+    template_data = dict(semester=semester, courses=courses, staff=request.user.is_staff)
+    return render(request, "results_semester_detail.html", template_data)
 
 
-@fsr_required
+@staff_required
 def semester_export(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -102,17 +92,14 @@ def course_detail(request, semester_id, course_id):
 
     course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 
-    return render_to_response(
-        "results_course_detail.html",
-        dict(
+    template_data = dict(
             course=course,
             course_sections=course_sections,
             contributor_sections=contributor_sections,
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
-            staff=request.user.is_staff
-        ),
-        context_instance=RequestContext(request))
+            staff=request.user.is_staff)
+    return render(request, "results_course_detail.html", template_data)
 
 
 def user_can_see_textresults(user, course, section):
@@ -121,9 +108,7 @@ def user_can_see_textresults(user, course, section):
     if course.is_user_responsible_or_delegate(user):
         return True
 
-    represented_userprofiles = user.represented_users.all()
-    represented_users = [profile.user for profile in represented_userprofiles]
-    if section.contributor in represented_users:
+    if section.contributor in user.represented_users.all():
         return True
 
     return False

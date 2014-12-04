@@ -58,7 +58,7 @@
                     </td>
                     <td class="col-sm-1">{{ course.kind }}</td>
                     {% with responsible=course.responsible_contributor %}
-                        <td class="col-sm-3" data-order="{{ responsible.last_name }}">{{ responsible.userprofile.full_name }}</td>
+                        <td class="col-sm-3" data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                     {% endwith %}
                     {% if course|can_user_see_course:request.user %}
                         <td class="col-sm-1">{{ course.avg_grade|floatformat:1 }}</td>

@@ -66,9 +66,7 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            profile = UserProfile.objects.get(login_key=key,
-                                              login_key_valid_until__gte=date.today())
-            return profile.user
+            return UserProfile.objects.get(login_key=key, login_key_valid_until__gte=date.today())
         except UserProfile.DoesNotExist:
             return None
 
@@ -81,10 +79,9 @@ def login_required(func):
     return user_passes_test(check_user)(func)
 
 
-def fsr_required(func):
+def staff_required(func):
     """
-    Decorator for views that checks that the user is logged in and member
-    of the student representatives
+    Decorator for views that checks that the user is logged in and a staff member
     """
 
     def check_user(user):
@@ -103,7 +100,7 @@ def editor_or_delegate_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_editor_or_delegate
+        return user.is_editor_or_delegate
     return user_passes_test(check_user)(func)
 
 
@@ -116,10 +113,10 @@ def editor_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return UserProfile.get_for_user(user=user).is_editor
+        return user.is_editor
     return user_passes_test(check_user)(func)
 
-def enrolment_required(func):
+def enrollment_required(func):
     """
     Decorator for views that checks that the user is logged in and is
     enrolled in at least one course.
@@ -128,7 +125,7 @@ def enrolment_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return (UserProfile.get_for_user(user=user).enrolled_in_courses)
+        return user.enrolled_in_courses
     return user_passes_test(check_user)(func)
 
 def reward_user_required(func):
@@ -141,5 +138,5 @@ def reward_user_required(func):
         from evap.rewards.tools import can_user_use_reward_points
         if not user.is_authenticated():
             return False
-        return can_user_use_reward_points(UserProfile.get_for_user(user=user))
+        return can_user_use_reward_points(user)
     return user_passes_test(check_user)(func)

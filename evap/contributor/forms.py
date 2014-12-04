@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire
@@ -19,7 +18,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
         self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
-        self.fields['degree'].widget.attrs['readonly'] = True
+        self.fields['degree'].widget.attrs['readonly'] = "True"
 
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
@@ -45,32 +44,27 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    # steal form field definitions for the User model
-    locals().update(forms.fields_for_model(User, fields=('first_name', 'last_name', 'email')))
-
     class Meta:
         model = UserProfile
-        fields = ('title', 'first_name', 'last_name', 'email', 'picture', 'delegates')
+        fields = ('title', 'first_name', 'last_name', 'email', 'delegates')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = User.objects.order_by('username')
+        self.fields['delegates'].queryset = UserProfile.objects.order_by('username')
         self.fields['delegates'].help_text = ""
 
         # load user fields
-        self.fields['first_name'].initial = self.instance.user.first_name
-        self.fields['last_name'].initial = self.instance.user.last_name
-        self.fields['email'].initial = self.instance.user.email
+        self.fields['first_name'].initial = self.instance.first_name
+        self.fields['last_name'].initial = self.instance.last_name
+        self.fields['email'].initial = self.instance.email
 
     def save(self, *args, **kw):
-        # first save the user, so that the profile gets created for sure
-        self.instance.user.first_name = self.cleaned_data.get('first_name')
-        self.instance.user.last_name = self.cleaned_data.get('last_name')
-        self.instance.user.email = self.cleaned_data.get('email')
-        self.instance.user.save()
-        self.instance = UserProfile.get_for_user(self.instance.user)
+        self.instance.first_name = self.cleaned_data.get('first_name')
+        self.instance.last_name = self.cleaned_data.get('last_name')
+        self.instance.email = self.cleaned_data.get('email')
+        self.instance.save()
 
         super(UserForm, self).save(*args, **kw)

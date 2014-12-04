@@ -2,7 +2,6 @@ from itertools import chain
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from django.forms import widgets
 from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
@@ -98,8 +97,6 @@ class LoginUsernameForm(forms.Form):
             self.user_cache = authenticate(username=username, password=password)
             if self.user_cache is None:
                 raise forms.ValidationError(_("Please enter a correct username and password."))
-            elif not self.user_cache.is_active:
-                raise forms.ValidationError(_("This account is inactive."))
         self.check_for_test_cookie()
         return password
 
@@ -136,8 +133,6 @@ class LoginKeyForm(forms.Form):
             self.user_cache = authenticate(key=login_key)
             if self.user_cache is None:
                 raise forms.ValidationError(LoginKeyForm.INVALID_CODE_MESSAGE)
-            elif not self.user_cache.is_active:
-                raise forms.ValidationError(_("This account is inactive."))
         return login_key
 
     def get_user_id(self):
@@ -154,7 +149,6 @@ class NewKeyForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
-        self.profile_cache = None
 
         super(NewKeyForm, self).__init__(*args, **kwargs)
 
@@ -165,19 +159,15 @@ class NewKeyForm(forms.Form):
             raise forms.ValidationError(_(u"HPI users cannot request login keys. Please login using your domain credentials."))
 
         try:
-            user = User.objects.get(email__iexact=email)
+            user = UserProfile.objects.get(email__iexact=email)
             self.user_cache = user
-            self.profile_cache = UserProfile.get_for_user(user)
-        except User.DoesNotExist:
+        except UserProfile.DoesNotExist:
             raise forms.ValidationError(_(u"No user with this email address was found. Please make sure to enter the email address already known to the university office."))
 
         return email
 
     def get_user(self):
         return self.user_cache
-
-    def get_profile(self):
-        return self.profile_cache
 
 
 class BootstrapFieldset(object):

@@ -1,4 +1,4 @@
-{% extends "fsr_base.html" %}
+{% extends "staff_base.html" %}
 
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
@@ -36,7 +36,7 @@
                             <td>{{ event.date }}</td>
                             <td>{{ event.redeem_end_date }}</td>
                             <td>{{ event.name }}</td>
-                            <td><span class="glyphicon glyphicon-user"></span> {{ event.reward_point_redemptions.all|length }}
+                            <td><span class="glyphicon glyphicon-user"></span> {{ event.redemptions_by_user|length }}
                             <td>
                                 <a href="{% url "evap.rewards.views.reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "evap.rewards.views.reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>

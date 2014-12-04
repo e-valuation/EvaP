@@ -20,7 +20,7 @@
         <div class="bs-callout bs-callout-info">
             <b>{% trans "Delegates" %}</b><br />
             {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
-            {% if user.userprofile.is_editor %}
+            {% if user.is_editor %}
                 {% blocktrans %}You can assign your own delegates in your profile.{% endblocktrans %} <a href="{% url "evap.contributor.views.profile_edit" %}" class="btn btn-xs btn-default">{% trans "Edit profile" %}</a><br />
             {% endif %}
             {% if delegated_courses %}

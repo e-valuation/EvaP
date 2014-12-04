@@ -9,6 +9,6 @@ install:
   - pip install -r requirements.txt
   - pip install coveralls
 script:
-  - coverage run manage.py test evap.evaluation evap.fsr evap.contributor evap.results evap.student
+  - coverage run manage.py test evap.evaluation evap.staff evap.contributor evap.results evap.student evap.rewards
 after_success:
   - coveralls

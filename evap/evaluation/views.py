@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
-from django.shortcuts import redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
@@ -25,7 +24,7 @@ def index(request):
     if request.method == 'POST':
         if new_key_form.is_valid():
             # user wants a new login key
-            profile = new_key_form.get_profile()
+            profile = new_key_form.get_user()
             profile.generate_login_key()
             profile.save()
 
@@ -44,39 +43,40 @@ def index(request):
                 request.session.delete_test_cookie()
 
     # if not logged in by now, render form
-    if not request.user.is_active:
+    if not request.user.is_authenticated():
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
-        return render_to_response("index.html", dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form), context_instance=RequestContext(request))
+        template_data = dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form)
+        return render(request, "index.html", template_data)
     else:
-        userprofile, created = UserProfile.objects.get_or_create(user=request.user)
+        user, created = UserProfile.objects.get_or_create(username=request.user.username)
 
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
         if redirect_to is not None:
-            if redirect_to.startswith("/fsr/"):
+            if redirect_to.startswith("/staff/"):
                 if request.user.is_staff:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/contributor/"):
-                if userprofile.is_contributor:
+                if user.is_contributor:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/student/"):
-                if userprofile.enrolled_in_courses:
+                if user.enrolled_in_courses:
                     return redirect(redirect_to)
             else:
                 return redirect(redirect_to)
 
         # redirect user to appropriate start page
         if request.user.is_staff:
-            return redirect('evap.fsr.views.index')
-        elif userprofile.is_editor_or_delegate:
+            return redirect('evap.staff.views.index')
+        elif user.is_editor_or_delegate:
             return redirect('evap.contributor.views.index')
-        elif userprofile.enrolled_in_courses:
+        elif user.enrolled_in_courses:
             return redirect('evap.student.views.index')
         else:
             return redirect('evap.results.views.index')
 
 
 def faq(request):
-    return render_to_response("faq.html", dict(sections=FaqSection.objects.all()), context_instance=RequestContext(request))
+    return render(request, "faq.html", dict(sections=FaqSection.objects.all()))

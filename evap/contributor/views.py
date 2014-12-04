@@ -1,15 +1,14 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory
-from django.shortcuts import get_object_or_404, redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 
-from evap.evaluation.models import Contribution, Course, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
+from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 from evap.contributor.forms import CourseForm, UserForm
-from evap.fsr.forms import ContributionForm, ContributorFormSet
+from evap.staff.forms import ContributionForm, ContributorFormSet
 from evap.student.forms import QuestionsForm
 
 from collections import OrderedDict
@@ -18,36 +17,34 @@ from collections import OrderedDict
 def index(request):
     user = request.user
 
-    sorter = lambda course: STATES_ORDERED.keys().index(course.state)
+    contributor_visible_states = ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published']
+    own_courses = Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=contributor_visible_states)
 
-    own_courses = list(set(Course.objects.filter(contributions__can_edit=True, contributions__contributor=user, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published'])))
+    represented_users = user.represented_users.all()
+    delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
 
-    represented_userprofiles = user.represented_users.all()
-    represented_users = [profile.user for profile in represented_userprofiles]
-
-    delegated_courses = list(set(Course.objects.exclude(id__in=Course.objects.filter(contributions__can_edit=True, contributions__contributor=user)).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published'])))
-
-    all_courses = own_courses + delegated_courses
-    all_courses.sort(key=sorter)
+    all_courses = list(own_courses) + list(delegated_courses)
+    all_courses.sort(key=lambda course: STATES_ORDERED.keys().index(course.state))
 
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
 
-    return render_to_response("contributor_index.html", dict(semester_list=semester_list, delegated_courses=delegated_courses), context_instance=RequestContext(request))
+    template_data = dict(semester_list=semester_list, delegated_courses=delegated_courses)
+    return render(request, "contributor_index.html", template_data)
 
 
 @editor_required
 def profile_edit(request):
     user = request.user
-    form = UserForm(request.POST or None, request.FILES or None, instance=UserProfile.objects.get_or_create(user=user)[0])
+    form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
     if form.is_valid():
         form.save()
 
-        messages.info(request, _("Successfully updated your profile."))
+        messages.success(request, _("Successfully updated your profile."))
         return redirect('evap.contributor.views.index')
     else:
-        return render_to_response("contributor_profile.html", dict(form=form), context_instance=RequestContext(request))
+        return render(request, "contributor_profile.html", dict(form=form))
 
 
 @editor_or_delegate_required
@@ -67,11 +64,11 @@ def course_view(request, course_id):
     # make everything read-only
     for cform in formset.forms + [form]:
         for name, field in cform.fields.iteritems():
-            field.widget.attrs['readonly'] = True
-            field.widget.attrs['disabled'] = True
+            field.widget.attrs['readonly'] = "True"
+            field.widget.attrs['disabled'] = "True"
 
-    return render_to_response("contributor_course_form.html", dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username), context_instance=RequestContext(request))
-
+    template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username)
+    return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required
 def course_edit(request, course_id):
@@ -100,14 +97,14 @@ def course_edit(request, course_id):
             # approve course
             course.contributor_approve()
             course.save()
-            messages.info(request, _("Successfully updated and approved course."))
+            messages.success(request, _("Successfully updated and approved course."))
         else:
-            messages.info(request, _("Successfully updated course."))
+            messages.success(request, _("Successfully updated course."))
 
         return redirect('evap.contributor.views.index')
     else:
-        return render_to_response("contributor_course_form.html", dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username), context_instance=RequestContext(request))
-
+        template_data = dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
+        return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required
 def course_preview(request, course_id):
@@ -118,10 +115,13 @@ def course_preview(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    # build forms
-    forms = OrderedDict()
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-        forms[(contribution, questionnaire)] = form
+    form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
+    course_forms = form_groups[course.general_contribution].values()    
+    contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
 
-    return render_to_response("contributor_course_preview.html", dict(forms=forms.values(), course=course), context_instance=RequestContext(request))
+    template_data = dict(
+            course_forms=course_forms,
+            contributor_questionnaires=contributor_questionnaires,
+            course=course,
+            preview=True)
+    return render(request, "student_vote.html", template_data)

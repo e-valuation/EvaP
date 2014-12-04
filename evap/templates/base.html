@@ -42,37 +42,37 @@
 
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
                 <ul class="nav navbar-nav">
-                    {% if user.is_active %}
-                        {% if user.userprofile.enrolled_in_courses and user.userprofile.is_editor_or_delegate %}
+                    {% if user.is_authenticated %}
+                        {% if user.enrolled_in_courses and user.is_editor_or_delegate %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
-                        {% elif user.userprofile.enrolled_in_courses %}
+                        {% elif user.enrolled_in_courses %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses" %}</a></li>
-                        {% elif user.userprofile.is_editor_or_delegate %}
+                        {% elif user.is_editor_or_delegate %}
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
-                        {% if user.userprofile.is_editor %}
+                        {% if user.is_editor %}
                             <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
-                        {% if user.userprofile|can_user_use_reward_points %}
+                        {% if user|can_user_use_reward_points %}
                             <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
                         {% endif %}
 
                         {% if user.is_staff %}
                             <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.fsr.views.index" %}">{% trans "Student Representatives" %} <b class="caret"></b></a>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.staff.views.index" %}">{% trans "Manage" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url "evap.fsr.views.index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "fsr_root" %}">{% trans "Semesters" %}</a>
-                                        {% show_from 'evap.fsr.tools.menu_semesters' "fsr_semester_menu.html" %}
+                                    <li><a href="{% url "evap.staff.views.index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a>
+                                        {% show_from 'evap.staff.tools.menu_semesters' "staff_semester_menu.html" %}
                                     </li>
-                                    <li><a href="{% url "evap.fsr.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
-                                    <li><a href="{% url "evap.fsr.views.user_index" %}">{% trans "Users" %}</a></li>
+                                    <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+                                    <li><a href="{% url "evap.staff.views.user_index" %}">{% trans "Users" %}</a></li>
                                     <li><a href="{% url "evap.rewards.views.reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
-                                    <li><a href="{% url "fsr_root" %}">{% trans "Templates" %}</a></li>
-                                    <li><a href="{% url "evap.fsr.views.faq_index" %}">{% trans "FAQ" %}</a></li>
+                                    <li><a href="{% url "staff_root" %}">{% trans "Templates" %}</a></li>
+                                    <li><a href="{% url "evap.staff.views.faq_index" %}">{% trans "FAQ" %}</a></li>
                                 </ul>
                             </li>
                         {% endif %}
@@ -93,7 +93,7 @@
                             <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
                         </ul>
                     </li>
-                    {% if user.is_active %}
+                    {% if user.is_authenticated %}
                         <li><a href="{% url "django.contrib.auth.views.logout" %}">{% trans "Logout" %}</a></li>
                     {% endif %}
                 </ul>
@@ -141,8 +141,8 @@
                 &nbsp;&middot;&nbsp;
                 <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
-                {% if request.user.is_active %}
-                    {% trans "Logged in as" %} {{ request.user.userprofile.full_name }}
+                {% if request.user.is_authenticated %}
+                    {% trans "Logged in as" %} {{ request.user.full_name }}
                 {% else %}
                     {% trans "Not logged in" %}
                 {% endif %}

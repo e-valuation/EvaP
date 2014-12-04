@@ -8,6 +8,8 @@ TAGS
 *.kpf
 *.komodoproject
 
+*.sublime-workspace
+
 # python files
 *.py[cod]
 
