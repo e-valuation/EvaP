@@ -278,33 +278,6 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
-    # overwritten because of https://code.djangoproject.com/ticket/12645
-    # users can specify the field name (it's a course type), and include e.g. umlauts there
-    # might be fixed in python 3
-    def _clean_fields(self):
-        for name, field in self.fields.items():
-            # value_from_datadict() gets the data from the data dictionaries.
-            # Each widget type knows how to retrieve its own data, because some
-            # widgets split data over several HTML fields.
-            value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-            try:
-                if isinstance(field, FileField):
-                    initial = self.initial.get(name, field.initial)
-                    value = field.clean(value, initial)
-                else:
-                    value = field.clean(value)
-                self.cleaned_data[name] = value
-
-                name2 = 'clean_%s' % name
-                name2 = name2.encode('iso-8859-1')
-                if hasattr(self, name2):
-                    value = getattr(self, 'clean_%s' % name)()
-                    self.cleaned_data[name] = value
-            except ValidationError as e:
-                self._errors[name] = self.error_class(e.messages)
-                if name in self.cleaned_data:
-                    del self.cleaned_data[name]
-
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
     def __init__(self, courses, *args, **kwargs):
