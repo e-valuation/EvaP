@@ -49,7 +49,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -112,7 +112,7 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -171,7 +171,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         verbose_name = _("course")
         verbose_name_plural = _("courses")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def clean(self):
@@ -648,7 +648,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         else:
             return self.username
 
-    def __unicode__(self):
+    def __str__(self):
         return self.full_name;
 
     @property
