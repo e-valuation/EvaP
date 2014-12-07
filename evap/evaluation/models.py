@@ -180,7 +180,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 raise ValidationError(_("The vote start date must be before the vote end date."))
 
     def save(self, *args, **kw):
-        super(Course, self).save(*args, **kw)
+        super().save(*args, **kw)
 
         # make sure there is a general contribution
         if not self.general_contribution:

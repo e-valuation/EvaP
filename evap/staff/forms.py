@@ -44,7 +44,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
                   'last_modified_time_2', 'last_modified_user_2')
 
     def __init__(self, *args, **kwargs):
-        super(CourseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -68,7 +68,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kw):
         user = kw.pop("user")
-        super(CourseForm, self).save(*args, **kw)
+        super().save(*args, **kw)
         self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
@@ -89,7 +89,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        super(ContributionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
         self.fields['contributor'].queryset = UserProfile.objects.order_by('username')
@@ -114,7 +114,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
         self.template = EmailTemplate()
-        super(CourseEmailForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         self.recipient_groups = self.cleaned_data.get('recipients')
@@ -159,7 +159,7 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
         model = TextAnswer
 
     def __init__(self, *args, **kwargs):
-        super(ReviewTextAnswerForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # since setting the initial value on fields corresponding to a model field has no effect,
         # we'll set the initial value on the form, which works.
         self.initial['reviewed_answer'] = self.instance.answer
@@ -262,7 +262,7 @@ class QuestionForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        super(QuestionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
         self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
         self.fields['kind'].widget.attrs['class'] = 'form-control'
@@ -272,7 +272,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester')
         kinds = kwargs.pop('kinds')
-        super(QuestionnairesAssignForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for kind in kinds:
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
@@ -281,7 +281,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
     def __init__(self, courses, *args, **kwargs):
-        super(SelectCourseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.selected_courses = []
 
         for course in courses:
@@ -303,7 +303,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         all_users = UserProfile.objects.order_by('username')
         # fix generated form
@@ -347,7 +347,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
         self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester)) + list(self.cleaned_data.get('courses_participating_in'))
 
-        super(UserForm, self)._post_clean(*args, **kw)
+        super()._post_clean(*args, **kw)
 
 
 class LotteryForm(forms.Form, BootstrapMixin):
@@ -362,7 +362,7 @@ class EmailTemplateForm(forms.ModelForm, BootstrapMixin):
 
 class FaqSectionForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
-        super(FaqSectionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["title_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["title_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
@@ -375,7 +375,7 @@ class FaqSectionForm(forms.ModelForm, BootstrapMixin):
 
 class FaqQuestionForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
-        super(FaqQuestionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["question_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["question_en"].widget = forms.TextInput(attrs={'class': 'form-control'})

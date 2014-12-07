@@ -202,7 +202,7 @@ class ExcelImporter(object):
 
 class EnrollmentImporter(ExcelImporter):
     def __init__(self, request):
-        super(EnrollmentImporter, self).__init__(request)
+        super().__init__(request)
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
@@ -320,7 +320,7 @@ class EnrollmentImporter(ExcelImporter):
 
 class UserImporter(ExcelImporter):
     def __init__(self, request):
-        super(UserImporter, self).__init__(request)
+        super().__init__(request)
 
     def read_one_user(self, data, sheet_name, row_id):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)

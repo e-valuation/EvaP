@@ -50,7 +50,7 @@ class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = QuestionnaireSelectMultiple
 
     def __init__(self, *args, **kwargs):
-        super(QuestionnaireMultipleChoiceField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.help_text = ""
 
     def _get_choices(self):
@@ -86,7 +86,7 @@ class LoginUsernameForm(forms.Form):
         """
         self.request = request
         self.user_cache = None
-        super(LoginUsernameForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @sensitive_variables('password')
     def clean_password(self):
@@ -124,7 +124,7 @@ class LoginKeyForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
-        super(LoginKeyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_login_key(self):
         login_key = self.cleaned_data.get('login_key')
@@ -150,7 +150,7 @@ class NewKeyForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.user_cache = None
 
-        super(NewKeyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

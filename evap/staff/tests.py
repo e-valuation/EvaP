@@ -29,7 +29,7 @@ def lastform(page):
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
     def __new__(cls, lowest, highest):
-        obj = super(FuzzyInt, cls).__new__(cls, highest)
+        obj = super().__new__(cls, highest)
         obj.lowest = lowest
         obj.highest = highest
         return obj

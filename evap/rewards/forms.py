@@ -10,6 +10,6 @@ class RewardPointRedemptionEventForm(forms.ModelForm, BootstrapMixin):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        super(RewardPointRedemptionEventForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['date'].localize = True
         self.fields['redeem_end_date'].localize = True

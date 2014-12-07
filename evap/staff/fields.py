@@ -32,7 +32,7 @@ class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     widget = ToolTipSelectMultiple
 
     def __init__(self, *args, **kwargs):
-        super(ToolTipModelMultipleChoiceField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.help_text = ""
 
     def title_from_instance(self, obj):

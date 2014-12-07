@@ -20,7 +20,7 @@ class QuestionsForm(forms.Form):
         self.contribution = kwargs.pop('contribution')
         self.questionnaire = kwargs.pop('questionnaire')
 
-        super(QuestionsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for question in self.questionnaire.question_set.all():
             # generic arguments for all kinds of fields
