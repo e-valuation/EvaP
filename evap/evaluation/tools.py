@@ -69,9 +69,10 @@ def med(iterable):
     if length == 0:
         return None
     sorted_items = sorted(items)
-    if not length % 2:
-        return (sorted_items[length / 2] + sorted_items[length / 2 - 1]) / 2.0
-    return sorted_items[length / 2]
+    index = int(length / 2)
+    if length % 2 == 0:
+        return (sorted_items[index] + sorted_items[index]) / 2.0
+    return sorted_items[index]
 
 
 def mix(a, b, alpha):

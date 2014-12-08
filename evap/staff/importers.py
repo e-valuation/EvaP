@@ -210,8 +210,8 @@ class EnrollmentImporter(ExcelImporter):
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            enrollments_per_user[enrollment[1]].append(enrollment)
-        for user_data, enrollments in enrollments_per_user.items():
+            enrollments_per_user[enrollment[1].username].append(enrollment)
+        for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
                 self.warnings.append(_(u"Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
         

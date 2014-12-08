@@ -775,7 +775,7 @@ class URLTests(WebTest):
         form.set("points-1", 1)
         form.set("points-2", 3)
         response = form.submit()
-        self.assertIn("have enough reward points.", response.body)
+        self.assertIn(b"have enough reward points.", response.body)
 
     def test_create_redemption_event(self):
         """

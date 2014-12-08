@@ -13,7 +13,7 @@ class Command(BaseCommand):
             user1 = UserProfile.objects.get(pk=int(args[0]))
             user2 = UserProfile.objects.get(pk=int(args[1]))
 
-            print "Merging user '{1}' into user '{0}'".format(user1, user2)
+            print("Merging user '{1}' into user '{0}'".format(user1, user2))
             merge_model_objects(user1, user2)
         except Exception:
             import traceback

@@ -29,11 +29,11 @@ class Command(BaseCommand):
                     user.email = attrs['mail'][0]
                     user.save()
 
-                    print "Successfully updated: '{0}'".format(user.username)
+                    print("Successfully updated: '{0}'".format(user.username))
                 except UserProfile.DoesNotExist:
                     pass
                 except Exception as e:
-                    print e
+                    print(e)
 
             l.unbind_s()
 

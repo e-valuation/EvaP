@@ -37,7 +37,7 @@ def merge_model_objects(primary_object, alias_objects, keep_old=False):
     # method to the ForeignKey field for accessing the generic related fields.
     generic_fields = []
     for model in get_models():
-        for field_name, field in filter(lambda x: isinstance(x[1], GenericForeignKey), model.__dict__.iteritems()):
+        for field_name, field in [x for x in iter(model.__dict__.items()) if isinstance(x[1], GenericForeignKey)]:
             generic_fields.append(field)
 
     blank_local_fields = set([field.attname for field in primary_object._meta.local_fields if getattr(primary_object, field.attname) in [None, '']])
