@@ -329,7 +329,7 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        for id, selected in cleaned_data.iteritems():
+        for id, selected in cleaned_data.items():
             if selected:
                 self.selected_courses.append(Course.objects.get(pk=id))
         return cleaned_data

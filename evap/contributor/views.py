@@ -24,7 +24,7 @@ def index(request):
     delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
 
     all_courses = list(own_courses) + list(delegated_courses)
-    all_courses.sort(key=lambda course: STATES_ORDERED.keys().index(course.state))
+    all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
@@ -63,7 +63,7 @@ def course_view(request, course_id):
 
     # make everything read-only
     for cform in formset.forms + [form]:
-        for name, field in cform.fields.iteritems():
+        for name, field in cform.fields.items():
             field.widget.attrs['readonly'] = "True"
             field.widget.attrs['disabled'] = "True"
 
@@ -116,8 +116,8 @@ def course_preview(request, course_id):
         raise PermissionDenied
 
     form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
-    course_forms = form_groups[course.general_contribution].values()    
-    contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
+    course_forms = list(form_groups[course.general_contribution].values())    
+    contributor_questionnaires, errors = create_contributor_questionnaires(list(form_groups.items()))
 
     template_data = dict(
             course_forms=course_forms,

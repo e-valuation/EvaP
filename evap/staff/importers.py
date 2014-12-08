@@ -257,7 +257,7 @@ class EnrollmentImporter(ExcelImporter):
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
-            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.generate_external_usernames_if_external(list(importer.users.values()))
             importer.check_user_data_correctness()
             importer.check_course_data_correctness(semester)
             importer.check_enrollment_data_sanity()
@@ -326,7 +326,7 @@ class UserImporter(ExcelImporter):
             importer.consolidate_user_data()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity()
-            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.generate_external_usernames_if_external(list(importer.users.values()))
 
             importer.show_errors_and_warnings()
             if importer.errors:

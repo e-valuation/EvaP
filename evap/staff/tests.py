@@ -816,7 +816,7 @@ class URLTests(WebTest):
         response = self.app.get(reverse("evap.student.views.vote", args=[9]), user="student")
 
         form = lastform(response)
-        for key, value in form.fields.iteritems():
+        for key, value in form.fields.items():
             if key is not None and "question" in key:
                 form.set(key, 6)
 

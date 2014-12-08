@@ -40,9 +40,9 @@ def vote(request, course_id):
 
     if not all(all(form.is_valid() for form in form_group.values()) for form_group in form_groups.values()):
         
-        course_forms = form_groups[course.general_contribution].values()
+        course_forms = list(form_groups[course.general_contribution].values())
 
-        contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
+        contributor_questionnaires, errors = create_contributor_questionnaires(list(form_groups.items()))
 
         template_data = dict(
                 course_forms=course_forms,

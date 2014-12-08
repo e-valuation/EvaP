@@ -321,7 +321,7 @@ def create_contributor_questionnaires(form_groups_items):
         if contribution.is_general:
             continue
         contributor = contribution.contributor
-        contributor_questionnaires.append((contributor, form_group.values()));
+        contributor_questionnaires.append((contributor, list(form_group.values())));
 
         if any(form.errors for form in form_group.values()):
                 errors.append(contributor.id)

@@ -213,7 +213,7 @@ class BootstrapMixin(object):
         try:
             return self.__layout_store
         except AttributeError:
-            self.__layout_store = self.fields.keys()
+            self.__layout_store = list(self.fields.keys())
             return self.__layout_store
 
     @property
