@@ -1694,14 +1694,13 @@ msgstr "Es existieren noch keine Veranstaltungen, die bestätigt werden können.
 #: staff/templates/staff_semester_assign_questionnaires.html:9
 msgid ""
 "Select the questionnaires which shall be assigned each of these course types "
-"and the responsible contributor. This will only change courses in the states "
-"'new' and 'prepared'. If you do select nothing, the currently applied "
-"questionnaires for the corresponding course type or contributor will not be "
-"changed."
+"and the responsible contributor. This will only change courses in the state "
+"'new'. If you do select nothing, the currently applied questionnaires for "
+"the corresponding course type or contributor will not be changed."
 msgstr ""
 "Wähle die Fragebögen aus, die den untenstehenden Veranstaltungstypen und dem "
 "verantwortlichen Mitwirkenden zugewiesen werden sollen. Die Fragebögen "
-"werden nur Kursen in den Zuständen 'neu' und 'vorbereitet' zugewiesen. Wenn "
+"werden nur Kursen in dem Zustand 'neu' und zugewiesen. Wenn "
 "nichts ausgewählt wird, bleibt die aktuelle Zuweisung unverändert."
 
 #: staff/templates/staff_semester_assign_questionnaires.html:18
