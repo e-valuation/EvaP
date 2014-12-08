@@ -6,7 +6,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        {% trans "Select the questionnaires to assign each of these course and contributor types. If you do select nothing, this kind will not be changed." %}
+        {% trans "Select the questionnaires which shall be assigned each of these course types and the responsible contributor. This will only change courses in the state 'new'. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed." %}
     </p>
     <form method="POST" class="form-horizontal multiselect-form">
     {% csrf_token %}

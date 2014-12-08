@@ -162,12 +162,16 @@ def semester_import(request, semester_id):
 @staff_required
 def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    form = QuestionnairesAssignForm(request.POST or None, semester=semester)
+    courses = semester.course_set.filter(state='new')
+    kinds = courses.values_list('kind', flat=True).order_by().distinct()
+    form = QuestionnairesAssignForm(request.POST or None, semester=semester, kinds=kinds)
 
     if form.is_valid():
-        for course in semester.course_set.filter(state__in=['prepared', 'lecturerApproved', 'new', 'approved']):
+        for course in courses:
             if form.cleaned_data[course.kind]:
                 course.general_contribution.questionnaires = form.cleaned_data[course.kind]
+            if form.cleaned_data['Responsible contributor']:
+                course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
