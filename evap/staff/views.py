@@ -459,7 +459,7 @@ def course_preview(request, semester_id, course_id):
         form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
         forms[(contribution, questionnaire)] = form
         
-    template_data = dict(forms=forms.values(), course=course, semester=semester)
+    template_data = dict(forms=list(forms.values()), course=course, semester=semester)
     return render(request, "staff_course_preview.html", template_data)
 
 

@@ -69,9 +69,10 @@ def med(iterable):
     if length == 0:
         return None
     sorted_items = sorted(items)
-    if not length % 2:
-        return (sorted_items[length / 2] + sorted_items[length / 2 - 1]) / 2.0
-    return sorted_items[length / 2]
+    index = int(length / 2)
+    if length % 2 == 0:
+        return (sorted_items[index] + sorted_items[index]) / 2.0
+    return sorted_items[index]
 
 
 def mix(a, b, alpha):
@@ -320,7 +321,7 @@ def create_contributor_questionnaires(form_groups_items):
         if contribution.is_general:
             continue
         contributor = contribution.contributor
-        contributor_questionnaires.append((contributor, form_group.values()));
+        contributor_questionnaires.append((contributor, list(form_group.values())));
 
         if any(form.errors for form in form_group.values()):
                 errors.append(contributor.id)

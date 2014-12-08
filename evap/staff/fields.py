@@ -3,7 +3,7 @@ from itertools import chain
 from django import forms
 from django.forms.models import ModelChoiceIterator
 from django.utils.html import escape, conditional_escape
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 
 
 class ToolTipModelChoiceIterator(ModelChoiceIterator):
@@ -13,15 +13,15 @@ class ToolTipModelChoiceIterator(ModelChoiceIterator):
 
 class ToolTipSelectMultiple(forms.SelectMultiple):
     def render_option(self, selected_choices, option_value, option_label, option_title):
-        option_value = force_unicode(option_value)
+        option_value = force_text(option_value)
         selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
         return u'<option value="%s" title="%s" %s>%s</option>' % (
             escape(option_value), escape(option_title), selected_html,
-            conditional_escape(force_unicode(option_label)))
+            conditional_escape(force_text(option_label)))
 
     def render_options(self, choices, selected_choices):
         # Normalize to strings.
-        selected_choices = set([force_unicode(v) for v in selected_choices])
+        selected_choices = set([force_text(v) for v in selected_choices])
         output = []
         for option_value, option_label, option_title in chain(self.choices, choices):
             output.append(self.render_option(selected_choices, option_value, option_label, option_title))

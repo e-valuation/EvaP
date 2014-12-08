@@ -493,11 +493,11 @@ class URLTests(WebTest):
             (one cannot make it invalid through the UI).
         """
         textanswer = TextAnswer.objects.get(pk=1)
-        data = dict(edited_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
+        data = dict(reviewed_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(edited_answer="edited answer", needs_further_review=False, hidden=False)
+        data = dict(reviewed_answer="edited answer", needs_further_review=False, hidden=False)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(edited_answer="edited answer", needs_further_review=True, hidden=True)
+        data = dict(reviewed_answer="edited answer", needs_further_review=True, hidden=True)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
 
     def test_contributor_form_set(self):
@@ -627,6 +627,7 @@ class URLTests(WebTest):
         page = form.submit(name="operation", value="save_and_next").follow()
 
         form = lastform(page)
+        self.assertEqual(form["form-0-reviewed_answer"].value, "mfj49s1my.45j")
         form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
         page = form.submit()
 
@@ -775,7 +776,7 @@ class URLTests(WebTest):
         form.set("points-1", 1)
         form.set("points-2", 3)
         response = form.submit()
-        self.assertIn("have enough reward points.", response.body)
+        self.assertIn(b"have enough reward points.", response.body)
 
     def test_create_redemption_event(self):
         """
@@ -816,7 +817,7 @@ class URLTests(WebTest):
         response = self.app.get(reverse("evap.student.views.vote", args=[9]), user="student")
 
         form = lastform(response)
-        for key, value in form.fields.iteritems():
+        for key, value in form.fields.items():
             if key is not None and "question" in key:
                 form.set(key, 6)
 

@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.forms import widgets
 from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -27,7 +27,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
         output = [u'<ul class="inputs-list">']
 
         # Normalize to strings
-        str_values = set([force_unicode(v) for v in value])
+        str_values = set([force_text(v) for v in value])
         for i, (option_value, option_label, option_text) in enumerate(chain(self.choices, choices)):
             # If an ID attribute was given, add a numeric index as a suffix,
             # so that the checkboxes don't all have the same ID attribute.
@@ -38,9 +38,9 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
                 label_for = ''
 
             cb = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
-            option_value = force_unicode(option_value)
+            option_value = force_text(option_value)
             rendered_cb = cb.render(name, option_value)
-            option_label = conditional_escape(force_unicode(option_label))
+            option_label = conditional_escape(force_text(option_label))
             output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))
@@ -213,7 +213,7 @@ class BootstrapMixin(object):
         try:
             return self.__layout_store
         except AttributeError:
-            self.__layout_store = self.fields.keys()
+            self.__layout_store = list(self.fields.keys())
             return self.__layout_store
 
     @property

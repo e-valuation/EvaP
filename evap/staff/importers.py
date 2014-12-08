@@ -210,8 +210,8 @@ class EnrollmentImporter(ExcelImporter):
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            enrollments_per_user[enrollment[1]].append(enrollment)
-        for user_data, enrollments in enrollments_per_user.items():
+            enrollments_per_user[enrollment[1].username].append(enrollment)
+        for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
                 self.warnings.append(_(u"Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
         
@@ -257,7 +257,7 @@ class EnrollmentImporter(ExcelImporter):
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
-            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.generate_external_usernames_if_external(list(importer.users.values()))
             importer.check_user_data_correctness()
             importer.check_course_data_correctness(semester)
             importer.check_enrollment_data_sanity()
@@ -326,7 +326,7 @@ class UserImporter(ExcelImporter):
             importer.consolidate_user_data()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity()
-            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.generate_external_usernames_if_external(list(importer.users.values()))
 
             importer.show_errors_and_warnings()
             if importer.errors:

@@ -160,39 +160,29 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
     hidden = forms.BooleanField(label=_("Do not publish"), required=False)
 
     class Meta:
-        fields = ('reviewed_answer', 'needs_further_review')
+        fields = ('reviewed_answer', 'needs_further_review', 'hidden')
         model = TextAnswer
 
     def __init__(self, *args, **kwargs):
         super(ReviewTextAnswerForm, self).__init__(*args, **kwargs)
-
-        self.fields['reviewed_answer'].initial = self.instance.answer
+        # since setting the initial value on fields corresponding to a model field has no effect,
+        # we'll set the initial value on the form, which works.
+        self.initial['reviewed_answer'] = self.instance.answer
 
     def clean(self):
-        cleaned_data = self.cleaned_data
-        reviewed_answer = cleaned_data.get("reviewed_answer") or ""
-        needs_further_review = cleaned_data.get("needs_further_review")
-        hidden = cleaned_data.get("hidden")
+        reviewed_answer = self.cleaned_data.get("reviewed_answer") or ""
+        needs_further_review = self.cleaned_data.get("needs_further_review")
 
-        if not reviewed_answer.strip() or hidden:
-            # hidden
-            self.instance.checked = True
-            self.instance.hidden = True
-        elif normalize_newlines(self.instance.original_answer) == normalize_newlines(reviewed_answer):
-            # simply approved
-            self.instance.checked = True
-        else:
-            # reviewed
-            self.instance.checked = True
-            self.instance.reviewed_answer = reviewed_answer
+        # if the answer was not edited, don't store the original answer again.
+        if normalize_newlines(self.instance.original_answer) == normalize_newlines(reviewed_answer):
+            self.cleaned_data["reviewed_answer"] = ""
 
-        if needs_further_review:
-            self.instance.checked = False
-            self.instance.hidden = False
-        else:
-            self.checked = True
+        if not reviewed_answer.strip():
+            self.cleaned_data["hidden"] = True
+            
+        self.instance.checked = not needs_further_review
 
-        return cleaned_data
+        return self.cleaned_data
 
 
 class AtLeastOneFormSet(BaseInlineFormSet):
@@ -329,7 +319,7 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        for id, selected in cleaned_data.iteritems():
+        for id, selected in cleaned_data.items():
             if selected:
                 self.selected_courses.append(Course.objects.get(pk=id))
         return cleaned_data

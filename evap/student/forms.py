@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 
@@ -14,7 +14,7 @@ GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
 class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
     def render(self):
         """Outputs a <ul> for this set of radio fields."""
-        return mark_safe(u'\n'.join([u'<div>{}</div>'.format(force_unicode(w)) for w in self]))
+        return mark_safe(u'\n'.join([u'<div>{}</div>'.format(force_text(w)) for w in self]))
 
 
 class QuestionsForm(forms.Form):

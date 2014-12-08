@@ -286,5 +286,5 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # multiple servers.
 _LOCAL_SETTINGS_FILENAME = os.path.join(SITE_ROOT, "localsettings.py")
 if os.path.exists(_LOCAL_SETTINGS_FILENAME):
-    execfile(_LOCAL_SETTINGS_FILENAME)
+    exec(compile(open(_LOCAL_SETTINGS_FILENAME).read(), _LOCAL_SETTINGS_FILENAME, 'exec'))
 del _LOCAL_SETTINGS_FILENAME

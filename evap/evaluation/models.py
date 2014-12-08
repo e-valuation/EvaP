@@ -739,7 +739,7 @@ class EmailTemplate(models.Model):
                 if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
 
-        for user, courses in user_course_map.iteritems():
+        for user, courses in user_course_map.items():
             cc_users = []
             if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
                 cc_users += user.delegates.all()
