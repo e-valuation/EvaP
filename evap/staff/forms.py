@@ -284,7 +284,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
         for kind in kinds:
             self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
+        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
     # overwritten because of https://code.djangoproject.com/ticket/12645
     # users can specify the field name (it's a course type), and include e.g. umlauts there

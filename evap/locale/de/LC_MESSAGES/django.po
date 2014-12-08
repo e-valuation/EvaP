@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-07 19:41+0100\n"
-"PO-Revision-Date: 2014-12-07 19:45+0100\n"
+"POT-Creation-Date: 2014-12-08 21:39+0100\n"
+"PO-Revision-Date: 2014-12-08 21:39+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -280,7 +280,7 @@ msgstr "Profil erfolgreich aktualisiert."
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:102 staff/views.py:315
+#: contributor/views.py:102 staff/views.py:317
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -622,12 +622,10 @@ msgid "Users must have a username"
 msgstr "Benutzer müssen einen Benutzernamen haben"
 
 #: evaluation/models.py:562
-#| msgid "Username"
 msgid "username"
 msgstr "Benutzername"
 
 #: evaluation/models.py:563
-#| msgid "Email address"
 msgid "email address"
 msgstr "E‑Mail-Adresse"
 
@@ -636,12 +634,10 @@ msgid "Title"
 msgstr "Titel"
 
 #: evaluation/models.py:565
-#| msgid "First name"
 msgid "first name"
 msgstr "Vorname"
 
 #: evaluation/models.py:566
-#| msgid "Last name"
 msgid "last name"
 msgstr "Nachname"
 
@@ -1306,6 +1302,11 @@ msgstr ""
 "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
+#: staff/forms.py:287
+#| msgid "Questions about the contributors"
+msgid "Responsible contributor"
+msgstr "Verantwortlicher Dozent"
+
 #: staff/forms.py:358
 msgid "Represented Users"
 msgstr "Stellvertreter für"
@@ -1700,8 +1701,8 @@ msgid ""
 msgstr ""
 "Wähle die Fragebögen aus, die den untenstehenden Veranstaltungstypen und dem "
 "verantwortlichen Mitwirkenden zugewiesen werden sollen. Die Fragebögen "
-"werden nur Kursen in dem Zustand 'neu' und zugewiesen. Wenn "
-"nichts ausgewählt wird, bleibt die aktuelle Zuweisung unverändert."
+"werden nur Kursen in dem Zustand 'neu' zugewiesen. Wenn nichts ausgewählt "
+"wird, bleibt die aktuelle Zuweisung unverändert."
 
 #: staff/templates/staff_semester_assign_questionnaires.html:18
 msgid "Assign questionnaires"
@@ -1909,48 +1910,48 @@ msgstr "Konnte keine E‑Mail an Teilnehmer und Mitwirkende senden"
 msgid "Successfully published %d courses."
 msgstr "Erfolgreich %d Veranstaltungen veröffentlicht."
 
-#: staff/views.py:175
+#: staff/views.py:177
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: staff/views.py:198
+#: staff/views.py:200
 #, python-format
 msgid "Successfully reverted %d courses to New."
 msgstr "Erfolgreich %d Veranstaltungen auf Neu zurückgesetzt."
 
-#: staff/views.py:220
+#: staff/views.py:222
 #, python-format
 msgid "Successfully approved %d courses."
 msgstr "Erfolgreich %d Veranstaltungen bestätigt."
 
-#: staff/views.py:245
+#: staff/views.py:247
 #, python-format
 msgid "Successfully marked %d courses as ready for lecturer review."
 msgstr "Erfolgreich %d Veranstaltungen als Bereit für die Dozenten markiert."
 
-#: staff/views.py:291
+#: staff/views.py:293
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: staff/views.py:305
+#: staff/views.py:307
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: staff/views.py:329
+#: staff/views.py:331
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Kurs '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: staff/views.py:334
+#: staff/views.py:336
 msgid "Successfully deleted course."
 msgstr "Kurs erfolgreich gelöscht."
 
-#: staff/views.py:347
+#: staff/views.py:349
 msgid "Reviewing not possible in current state."
 msgstr "Überprüfung ist im aktuellen Zustand nicht möglich."
 
-#: staff/views.py:381
+#: staff/views.py:383
 msgid ""
 "Successfully reviewed {count} course answers for {course}. {course} is now "
 "fully reviewed."
@@ -1958,16 +1959,16 @@ msgstr ""
 "{count} Antworten für {name} erfolgreich überprüft. {name} ist jetzt "
 "vollständig überprüft."
 
-#: staff/views.py:386
+#: staff/views.py:388
 msgid "Successfully reviewed {count} course answers for {course}."
 msgstr "{count} Antworten für {course} erfolgreich überprüft."
 
-#: staff/views.py:408
+#: staff/views.py:410
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: staff/views.py:410
+#: staff/views.py:412
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
 "reached as they do not have an email address."
@@ -1976,62 +1977,62 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: staff/views.py:423
+#: staff/views.py:425
 #, python-format
 msgid "The course '%s' cannot be unpublished, because it is not published."
 msgstr ""
 "Die Veröffentlichung von Kurs '%s' konnte nicht zurückgezogen werden, da der "
 "Kurs noch nicht veröffentlicht wurde."
 
-#: staff/views.py:496 staff/views.py:538
+#: staff/views.py:498 staff/views.py:540
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: staff/views.py:511
+#: staff/views.py:513
 msgid "Obsolete questionnaires cannot be edited."
 msgstr "Obsolete Fragebögen können nicht bearbeitet werden."
 
-#: staff/views.py:518
+#: staff/views.py:520
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: staff/views.py:559
+#: staff/views.py:561
 msgid "Successfully deleted questionnaire."
 msgstr "Fragebogen erfolgreich gelöscht."
 
-#: staff/views.py:564
+#: staff/views.py:566
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: staff/views.py:581
+#: staff/views.py:583
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: staff/views.py:613
+#: staff/views.py:615
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: staff/views.py:626
+#: staff/views.py:628
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: staff/views.py:631
+#: staff/views.py:633
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: staff/views.py:643
+#: staff/views.py:645
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: staff/views.py:659
+#: staff/views.py:661
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: staff/views.py:676
+#: staff/views.py:678
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
