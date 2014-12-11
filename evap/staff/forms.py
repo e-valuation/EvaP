@@ -326,11 +326,11 @@ class SelectCourseForm(forms.Form, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    represented_users = forms.IntegerField()
+    courses_participating_in = forms.IntegerField()
 
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'represented_users', 'cc_users')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -343,12 +343,13 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['cc_users'].required = False
         self.fields['cc_users'].queryset = all_users
         self.fields['cc_users'].help_text = ""
-        self.fields['represented_users'] = forms.ModelMultipleChoiceField(all_users,
-                                                                          initial=self.instance.represented_users.all() if self.instance.pk else (),
-                                                                          label=_("Represented Users"),
+        courses_of_current_semester = Course.objects.filter(semester=Semester.active_semester())
+        self.fields['courses_participating_in'] = forms.ModelMultipleChoiceField(courses_of_current_semester,
+                                                                          initial=courses_of_current_semester.filter(participants=self.instance) if self.instance.pk else (),
+                                                                          label=_("Courses participating in (active semester)"),
                                                                           help_text="",
                                                                           required=False)
-        self.fields['represented_users'].help_text = ""
+        self.fields['courses_participating_in'].help_text = ""
 
     def clean_username(self):
         conflicting_user = UserProfile.objects.filter(username__iexact=self.cleaned_data.get('username'))
@@ -371,10 +372,10 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.first_name = self.cleaned_data.get('first_name').strip()
         self.instance.last_name = self.cleaned_data.get('last_name').strip()
         self.instance.email = self.cleaned_data.get('email').strip().lower()
-        # we need to do a save before represented_users is set 
-        # because the user needs to have an id there
+        
+        # we need to do a save before course_set is set because the user needs to have an id there
         self.instance.save()
-        self.instance.represented_users = self.cleaned_data.get('represented_users')
+        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester)) + list(self.cleaned_data.get('courses_participating_in'))
 
         super(UserForm, self)._post_clean(*args, **kw)
 

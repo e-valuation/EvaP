@@ -610,12 +610,14 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
+    courses_contributing_to = Course.objects.filter(semester=Semester.active_semester, contributions__contributor=user)
+
     if form.is_valid():
         form.save()
         messages.success(request, _("Successfully updated user."))
         return redirect('evap.staff.views.user_index')
     else:
-        return render(request, "staff_user_form.html", dict(form=form, object=user))
+        return render(request, "staff_user_form.html", dict(form=form, object=user, courses_contributing_to=courses_contributing_to))
 
 
 @staff_required

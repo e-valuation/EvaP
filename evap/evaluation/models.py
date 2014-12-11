@@ -60,6 +60,10 @@ class Semester(models.Model):
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()
+    
+    @classmethod
+    def active_semester(cls):
+        return cls.objects.latest("created_at")
 
 
 class Questionnaire(models.Model):
@@ -132,7 +136,7 @@ class Course(models.Model):
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
 
-    # who last modified this course, shell be noted
+    # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
@@ -569,7 +573,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), blank=True)
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="ccing_users", blank=True)
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
