@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load staff_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -35,6 +36,12 @@
 
 {% block content %}
     {{ block.super }}
+    <div>
+        <div class="col-sm-offset-2" style="margin-bottom:15px">
+            {% include_staff_user_labels object %}
+        </div>
+    </div>
+
     <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_div }}

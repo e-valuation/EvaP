@@ -16,3 +16,7 @@ def include_staff_course_selection_list(course_forms, btn_label, empty_msg):
         'btn_label':    btn_label,
         'empty_msg':    empty_msg
     }
+
+@register.inclusion_tag('staff_user_labels.html')
+def include_staff_user_labels(user):
+    return dict(user=user)
