@@ -263,7 +263,7 @@ def semester_lottery(request, semester_id):
         for user in UserProfile.objects.all():
             courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
-                # user was not enrolled in any course in this semester
+                # user was not participating in any course in this semester
                 continue
             if not courses.exclude(voters=user).exists():
                 eligible.append(user)

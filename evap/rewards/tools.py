@@ -30,7 +30,7 @@ def save_redemptions(request, redemptions):
 
 
 def can_user_use_reward_points(user):
-    return not user.is_external and user.enrolled_in_courses
+    return not user.is_external and user.is_participant
 
 
 def reward_points_of_user(user):

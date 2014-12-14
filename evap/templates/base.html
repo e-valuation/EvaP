@@ -44,10 +44,10 @@
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
                 <ul class="nav navbar-nav">
                     {% if user.is_authenticated %}
-                        {% if user.enrolled_in_courses and user.is_editor_or_delegate %}
+                        {% if user.is_participant and user.is_editor_or_delegate %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
-                        {% elif user.enrolled_in_courses %}
+                        {% elif user.is_participant %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses" %}</a></li>
                         {% elif user.is_editor_or_delegate %}
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>

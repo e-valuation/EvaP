@@ -627,7 +627,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return not self.is_contributor
 
     @property
-    def enrolled_in_courses(self):
+    def is_participant(self):
         return self.course_set.exists()
 
     @property
