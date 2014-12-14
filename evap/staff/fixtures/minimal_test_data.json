@@ -1399,7 +1399,7 @@
     "fields": {
         "name": "TestEvent",
         "date": "2015-01-01",
-        "redeem_end_date": "2014-12-10"
+        "redeem_end_date": "2099-12-10"
     }
 },
     {
@@ -1408,7 +1408,7 @@
     "fields": {
         "name": "TestEvent_canDelete",
         "date": "2015-01-01",
-        "redeem_end_date": "2014-12-10"
+        "redeem_end_date": "2099-12-10"
     }
 },
 {
