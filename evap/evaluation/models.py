@@ -124,6 +124,9 @@ class Course(models.Model):
     # bachelor, master, d-school course
     degree = models.CharField(max_length=1024, verbose_name=_(u"degree"))
 
+    # default is True as that's the more restrictive option
+    is_graded = models.BooleanField(verbose_name=_(u"is graded"), default=True)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
     participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)

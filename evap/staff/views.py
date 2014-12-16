@@ -115,6 +115,11 @@ def semester_publish(request, semester_id):
 
     valid = helper_are_course_selection_forms_valid(forms)
 
+    for form in forms:
+        for course_id, field in form.fields.items():
+            course = Course.objects.get(pk=course_id)
+            field.label += " (graded)" if course.is_graded else " (not graded)" 
+
     if valid:
         selected_courses = []
         for form in forms:

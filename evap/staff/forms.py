@@ -37,7 +37,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'degree',
+        fields = ('name_de', 'name_en', 'kind', 'degree', 'is_graded',
                   'vote_start_date', 'vote_end_date', 'participants',
                   'general_questions',
                   'last_modified_time_2', 'last_modified_user_2')
