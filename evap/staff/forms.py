@@ -305,24 +305,19 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, degree, courses, filter_func, *args, **kwargs):
+    def __init__(self, courses, *args, **kwargs):
         super(SelectCourseForm, self).__init__(*args, **kwargs)
-        self.degree = degree
-        self.courses = courses
         self.selected_courses = []
-        self.filter_func = filter_func or (lambda x: True)
 
-        for course in self.courses:
-            if self.filter_func(course):
-                label = '%s (%s) (%s)' % (course.name, course.kind, STATES_ORDERED[course.state])
-                self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
+        for course in courses:
+            label = '%s (%s) (%s)' % (course.name, course.kind, STATES_ORDERED[course.state])
+            self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
 
     def clean(self):
-        cleaned_data = self.cleaned_data
-        for id, selected in cleaned_data.items():
+        for course_id, selected in self.cleaned_data.items():
             if selected:
-                self.selected_courses.append(Course.objects.get(pk=id))
-        return cleaned_data
+                self.selected_courses.append(Course.objects.get(pk=course_id))
+        return self.cleaned_data
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):

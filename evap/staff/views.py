@@ -690,6 +690,8 @@ def faq_section(request, section_id):
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
+    if filter_func:
+        courses = filter(filter_func, courses)
     grouped_courses = {}
     for course in courses:
         degree = course.degree
@@ -699,7 +701,7 @@ def helper_create_grouped_course_selection_forms(courses, filter_func, request):
 
     forms = []
     for degree, degree_courses in grouped_courses.items():
-        form = SelectCourseForm(degree, degree_courses, filter_func, request.POST or None)
+        form = SelectCourseForm(degree_courses, request.POST or None)
         forms.append(form)
 
     return forms

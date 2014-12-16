@@ -484,7 +484,7 @@ class URLTests(WebTest):
         course1 = Course.objects.get(pk=1)
         course2 = Course.objects.get(pk=2)
         data = {"1": True, "2": False}
-        form = SelectCourseForm(course1.degree, [course1, course2], None, data=data)
+        form = SelectCourseForm([course1, course2], data=data)
         self.assertTrue(form.is_valid())
 
     def test_review_text_answer_form(self):
