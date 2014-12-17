@@ -57,6 +57,10 @@ class Semester(models.Model):
                 return False
         return True
 
+    def archive(self):
+        for course in self.course_set.all():
+            course.archive()
+
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()
@@ -199,7 +203,7 @@ class Course(models.Model):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
     def can_staff_delete(self):
-        return self.can_staff_edit() and not self.voters.exists()
+        return self.can_staff_edit() and not self.num_voters > 0
 
     def can_staff_review(self):
         return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
@@ -259,13 +263,13 @@ class Course(models.Model):
 
     @property
     def num_participants(self):
-        if self.participant_count:
+        if self.participant_count is not None:
             return self.participant_count
         return self.participants.count()
 
     @property
     def num_voters(self):
-        if self.voter_count:
+        if self.voter_count is not None:
             return self.voter_count
         return self.voters.count()
 
@@ -322,7 +326,6 @@ class Course(models.Model):
             represented_users = user.represented_users.all()
             if self.contributions.filter(contributor__in=represented_users).exists():
                 return True
-
         return False
 
     def is_user_editor(self, user):
@@ -360,6 +363,11 @@ class Course(models.Model):
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
+
+    def archive(self):
+        self.participant_count = self.participants.count()
+        self.voter_count = self.voters.count()
+        self.save()
 
     def was_evaluated(self, request):
         self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)

@@ -20,13 +20,4 @@ class Command(BaseCommand):
         except Semester.DoesNotExist:
             raise CommandError(_("Supplied semester does not exist."))
 
-        for course in semester.course_set.all():
-            if course.participants.exists():
-                course.participant_count = course.participants.count()
-                course.participants.clear()
-
-            if course.voters.exists():
-                course.voter_count = course.voters.count()
-                course.voters.clear()
-
-            course.save()
+        semester.archive()
