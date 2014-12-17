@@ -149,7 +149,7 @@ class Course(models.Model):
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True, on_delete=models.SET_NULL)
 
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
