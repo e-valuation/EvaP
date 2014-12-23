@@ -19,7 +19,7 @@
             }
 
             $('#question_table tbody tr').formset({
-                prefix: 'form',
+                prefix: 'questions',
                 additionalDeleteCssClass: 'btn btn-danger btn-sm',
                 deleteText: '{% trans "remove" %}',
                 addText: '{% trans "add another" %}',
@@ -87,7 +87,7 @@
 
         <div class="form-group well">
             <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary"/>
+                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
             </div>
         </div>
     </form>
