@@ -214,6 +214,8 @@ class ContributorFormSet(AtLeastOneFormSet):
         for form in self.forms:
             try:
                 if form.cleaned_data:
+                    if form.cleaned_data.get('DELETE', False) is True:
+                        continue
                     contributor = form.cleaned_data.get('contributor')
                     delete = form.cleaned_data.get('DELETE')
                     if contributor is None and not delete:

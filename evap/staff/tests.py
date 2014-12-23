@@ -861,3 +861,38 @@ class URLTests(WebTest):
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
         self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
+
+
+class ContributorFormTests(WebTest):
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def test_dont_validate_deleted_contributions(self):
+        """
+            Tests whether contributions marked for deleting are validated.
+            Regression test for #415
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user = UserProfile.objects.create(pk=9001)
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        data = {
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+            'contributions-0-DELETE': 'on',
+            'contributions-1-course': 9001,
+            'contributions-1-questionnaires': [9001],
+            'contributions-1-order': 0,
+            'contributions-1-responsible': "on",
+            'contributions-1-contributor': 9001,
+        }
+
+        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
