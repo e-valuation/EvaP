@@ -586,7 +586,7 @@ def questionnaire_update_indices(request):
 
 @staff_required
 def user_index(request):
-    users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups')
+    users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups', 'course_set')
 
     return render(request, "staff_user_index.html", dict(users=users))
 

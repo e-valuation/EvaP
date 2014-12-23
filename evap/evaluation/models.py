@@ -369,6 +369,11 @@ class Course(models.Model):
         self.voter_count = self.voters.count()
         self.save()
 
+    @property
+    def is_archived(self):
+        assert((self.participant_count is None) == (self.voter_count is None))
+        return self.participant_count is not None
+
     def was_evaluated(self, request):
         self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
 
@@ -647,6 +652,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_staff_delete(self):
+        states_with_votes = ["inEvaluation", "reviewed", "evaluated", "published"]
+        if any(course.state in states_with_votes and not course.is_archived for course in self.course_set.all()):
+            return False
         return not self.is_contributor
 
     @property
