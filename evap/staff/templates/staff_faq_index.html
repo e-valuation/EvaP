@@ -19,7 +19,7 @@
 
             $('#section_table tbody tr').formset({
                 prefix: 'form',
-                additionalDeleteCssClass: 'btn btn-danger btn-sm',
+                deleteCssClass: 'btn btn-danger btn-sm',
                 deleteText: '{% trans "remove" %}',
                 addText: '{% trans "add another" %}',
                 added: function(row) {
