@@ -277,6 +277,10 @@ class Course(models.Model):
     def responsible_contributors_username(self):
         return self.responsible_contributor.username
 
+    @property
+    def days_left_for_evaluation(self):
+        return (self.vote_end_date - datetime.date.today()).days
+
     def has_enough_questionnaires(self):
         return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
 
