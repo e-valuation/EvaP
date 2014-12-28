@@ -60,6 +60,10 @@ class Semester(models.Model):
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()
+    
+    @classmethod
+    def active_semester(cls):
+        return cls.objects.latest("created_at")
 
 
 class Questionnaire(models.Model):
@@ -120,6 +124,9 @@ class Course(models.Model):
     # bachelor, master, d-school course
     degree = models.CharField(max_length=1024, verbose_name=_(u"degree"))
 
+    # default is True as that's the more restrictive option
+    is_graded = models.BooleanField(verbose_name=_(u"is graded"), default=True)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
     participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
@@ -132,7 +139,7 @@ class Course(models.Model):
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
 
-    # who last modified this course, shell be noted
+    # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
@@ -569,7 +576,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), blank=True)
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="ccing_users", blank=True)
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
@@ -623,7 +630,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return not self.is_contributor
 
     @property
-    def enrolled_in_courses(self):
+    def is_participant(self):
         return self.course_set.exists()
 
     @property

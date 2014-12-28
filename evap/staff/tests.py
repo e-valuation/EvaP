@@ -64,7 +64,7 @@ class UsecaseTests(WebTest):
         upload_form = lastform(page)
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
-        upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
+        upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "test_enrolment_data.xls"),)
         page = upload_form.submit(name="operation", value="import").follow()
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
@@ -484,7 +484,7 @@ class URLTests(WebTest):
         course1 = Course.objects.get(pk=1)
         course2 = Course.objects.get(pk=2)
         data = {"1": True, "2": False}
-        form = SelectCourseForm(course1.degree, [course1, course2], None, data=data)
+        form = SelectCourseForm([course1, course2], data=data)
         self.assertTrue(form.is_valid())
 
     def test_review_text_answer_form(self):
@@ -861,3 +861,38 @@ class URLTests(WebTest):
         response = form.submit()
         self.assertRedirects(response, reverse('evap.student.views.index'))
         self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
+
+
+class ContributorFormTests(WebTest):
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def test_dont_validate_deleted_contributions(self):
+        """
+            Tests whether contributions marked for deleting are validated.
+            Regression test for #415
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user = UserProfile.objects.create(pk=9001)
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        data = {
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+            'contributions-0-DELETE': 'on',
+            'contributions-1-course': 9001,
+            'contributions-1-questionnaires': [9001],
+            'contributions-1-order': 0,
+            'contributions-1-responsible': "on",
+            'contributions-1-contributor': 9001,
+        }
+
+        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())

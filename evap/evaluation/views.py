@@ -62,7 +62,7 @@ def index(request):
                 if user.is_contributor:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/student/"):
-                if user.enrolled_in_courses:
+                if user.is_participant:
                     return redirect(redirect_to)
             else:
                 return redirect(redirect_to)
@@ -72,7 +72,7 @@ def index(request):
             return redirect('evap.staff.views.index')
         elif user.is_editor_or_delegate:
             return redirect('evap.contributor.views.index')
-        elif user.enrolled_in_courses:
+        elif user.is_participant:
             return redirect('evap.student.views.index')
         else:
             return redirect('evap.results.views.index')

@@ -1307,10 +1307,6 @@ msgstr ""
 msgid "Responsible contributor"
 msgstr "Verantwortlicher Dozent"
 
-#: staff/forms.py:358
-msgid "Represented Users"
-msgstr "Stellvertreter für"
-
 #: staff/forms.py:373
 #, python-format
 msgid "A user with the username '%s' already exists"
@@ -1842,6 +1838,14 @@ msgstr "Vorlage speichern"
 #, python-format
 msgid "Do you really want to delete the user <em>%(name)s</em>?"
 msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
+
+#: staff/templates/staff_user_form.html:53
+msgid "Represented Users"
+msgstr "Stellvertreter für"
+
+#: staff/templates/staff_user_form.html:53
+msgid "CC-User for"
+msgstr "CC-Benutzer für"
 
 #: staff/templates/staff_user_form.html:43
 msgid "Save user"

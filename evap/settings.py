@@ -81,6 +81,9 @@ INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de",
 # maximum length of usernames of internal users
 INTERNAL_USERNAMES_MAX_LENGTH = 20
 
+IMPORTER_GRADED_YES = "yes"
+IMPORTER_GRADED_NO = "no"
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.

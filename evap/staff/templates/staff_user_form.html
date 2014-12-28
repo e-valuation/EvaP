@@ -2,6 +2,8 @@
 
 {% load i18n %}
 {% load static %}
+{% load staff_templatetags %}
+{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -35,9 +37,42 @@
 
 {% block content %}
     {{ block.super }}
+    <div>
+        <div class="col-sm-offset-2" style="margin-bottom:15px">
+            {% include_staff_user_labels object %}
+        </div>
+    </div>
+
     <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_div }}
+
+    {% if object.pk %}
+        <fieldset>
+            <legend>{% trans "Represented Users" %}</legend>
+            <ul>
+                {% include_user_list_with_links form.instance.represented_users.all %}
+            </ul>
+        </fieldset>
+        <fieldset>
+            <legend>{% trans "CC-User for" %}</legend>
+            <ul>
+                {% include_user_list_with_links form.instance.ccing_users.all %}
+            </ul>
+        </fieldset>
+        <fieldset>
+            <legend>{% trans "Courses contributing to (Active Semester)" %}</legend>
+            <ul>
+                {% if courses_contributing_to %}
+                    {% for course in courses_contributing_to %}
+                        <li>{{ course.name }}</li>
+                    {% endfor %}
+                {% else %}
+                    <i>{% trans "None" %}</i>
+                {% endif %}
+            </ul>
+        </fieldset>
+    {% endif %}
     <div class="form-group well">
         <div class="col-sm-offset-2 col-sm-6">
             <input type="submit" value="{% trans "Save user" %}" class="btn btn-primary"/>

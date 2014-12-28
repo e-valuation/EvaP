@@ -115,6 +115,11 @@ def semester_publish(request, semester_id):
 
     valid = helper_are_course_selection_forms_valid(forms)
 
+    for form in forms:
+        for course_id, field in form.fields.items():
+            course = Course.objects.get(pk=course_id)
+            field.label += " (graded)" if course.is_graded else " (not graded)" 
+
     if valid:
         selected_courses = []
         for form in forms:
@@ -263,7 +268,7 @@ def semester_lottery(request, semester_id):
         for user in UserProfile.objects.all():
             courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
-                # user was not enrolled in any course in this semester
+                # user was not participating in any course in this semester
                 continue
             if not courses.exclude(voters=user).exists():
                 eligible.append(user)
@@ -610,12 +615,14 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
+    courses_contributing_to = Course.objects.filter(semester=Semester.active_semester, contributions__contributor=user)
+
     if form.is_valid():
         form.save()
         messages.success(request, _("Successfully updated user."))
         return redirect('evap.staff.views.user_index')
     else:
-        return render(request, "staff_user_form.html", dict(form=form, object=user))
+        return render(request, "staff_user_form.html", dict(form=form, object=user, courses_contributing_to=courses_contributing_to))
 
 
 @staff_required
@@ -669,8 +676,8 @@ def faq_section(request, section_id):
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
 
-    questionFS = modelformset_factory(FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=0)
-    formset = questionFS(request.POST or None, queryset=questions)
+    questionFS = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=0, exclude=('section',))
+    formset = questionFS(request.POST or None, queryset=questions, instance=section)
 
     if formset.is_valid():
         formset.save()
@@ -683,6 +690,8 @@ def faq_section(request, section_id):
 
 
 def helper_create_grouped_course_selection_forms(courses, filter_func, request):
+    if filter_func:
+        courses = filter(filter_func, courses)
     grouped_courses = {}
     for course in courses:
         degree = course.degree
@@ -692,7 +701,7 @@ def helper_create_grouped_course_selection_forms(courses, filter_func, request):
 
     forms = []
     for degree, degree_courses in grouped_courses.items():
-        form = SelectCourseForm(degree, degree_courses, filter_func, request.POST or None)
+        form = SelectCourseForm(degree_courses, request.POST or None)
         forms.append(form)
 
     return forms

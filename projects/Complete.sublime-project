@@ -9,6 +9,11 @@
                 "evap/staticfiles",
                 "evap/static/js",
                 "htmlcov",
+                "deployment/modules/apache",
+                "deployment/modules/apt",
+                "deployment/modules/concat",
+                "deployment/modules/postgresql",
+                "deployment/modules/stdlib",
             ],
             "file_exclude_patterns":
             [
