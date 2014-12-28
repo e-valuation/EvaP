@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED
+from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, user_publish_notifications
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
@@ -127,12 +127,14 @@ def semester_publish(request, semester_id):
                 course.publish()
                 course.save()
                 selected_courses.append(course)
-
-        try:
-            EmailTemplate.get_publish_template().send_to_users_in_courses(selected_courses, ['contributors', 'all_participants'])
-        except Exception:
-            messages.error(request, _("Could not send emails to participants and contributors"))
         messages.success(request, _("Successfully published %d courses.") % (len(selected_courses)))
+
+        for user, courses in user_publish_notifications(selected_courses).iteritems():
+            try:
+                EmailTemplate.get_publish_template().send_to_user(user, courses=list(courses))
+            except Exception:
+                messages.error(request, _("Could not send notification email to ") + user.username)
+        
         return redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_semester_publish.html", dict(semester=semester, forms=forms))
