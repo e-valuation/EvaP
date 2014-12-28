@@ -19,7 +19,7 @@ def insert_emailtemplates(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0002_initial_data'),
+        ('evaluation', '0003_auto_add_course_is_graded'),
     ]
 
     operations = [

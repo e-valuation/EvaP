@@ -766,12 +766,14 @@ class EmailTemplate(models.Model):
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
 
-    def send_reminder_to_user(self, user, due_in_number_of_days, due_courses):
+    @classmethod
+    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
         if not user.email:
             return
 
-        subject = self.render_string(self.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
-        body = self.render_string(self.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
+        template = cls.get_reminder_template()        
+        subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
+        body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
 
         mail = EmailMessage(
             subject = subject,
