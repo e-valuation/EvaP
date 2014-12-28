@@ -755,20 +755,23 @@ class EmailTemplate(models.Model):
                     user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.items():
-            cc_users = []
-            if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
-                cc_users += user.delegates.all()
-            cc_users += user.cc_users.all()
-            cc_addresses = [p.email for p in cc_users if p.email]
+            self.send_to_user(user, courses)
 
-            mail = EmailMessage(
-                subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
-                body = self.render_string(self.body, {'user': user, 'courses': courses}),
-                to = [user.email],
-                cc = cc_addresses,
-                bcc = [a[1] for a in settings.MANAGERS],
-                headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-            mail.send(False)
+    def send_to_user(self, user, courses=None):
+        if not user.email:
+            return
+
+        cc_users = set(user.delegates.all() | user.cc_users.all())
+        cc_addresses = [p.email for p in cc_users if p.email]
+
+        mail = EmailMessage(
+            subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
+            body = self.render_string(self.body, {'user': user, 'courses': courses}),
+            to = [user.email],
+            cc = cc_addresses,
+            bcc = [a[1] for a in settings.MANAGERS],
+            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.send(False)
 
     @classmethod
     def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
@@ -782,18 +785,6 @@ class EmailTemplate(models.Model):
         mail = EmailMessage(
             subject = subject,
             body = body,
-            to = [user.email],
-            bcc = [a[1] for a in settings.MANAGERS],
-            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.send(False)
-
-    def send_to_user(self, user):
-        if not user.email:
-            return
-
-        mail = EmailMessage(
-            subject = self.render_string(self.subject, {'user': user}),
-            body = self.render_string(self.body, {'user': user}),
             to = [user.email],
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})

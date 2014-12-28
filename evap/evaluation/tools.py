@@ -4,7 +4,7 @@ from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from collections import namedtuple
 
 LIKERT_NAMES = {
@@ -327,3 +327,23 @@ def create_contributor_questionnaires(form_groups_items):
                 errors.append(contributor.id)
 
     return contributor_questionnaires, errors
+
+
+def user_publish_notifications(courses):
+    user_notifications = defaultdict(set)
+    for course in courses:
+        # for published courses all contributors and participants get a notification
+        if course.can_publish_grades():
+            for participant in course.participants.all():
+                user_notifications[participant].add(course)
+            for contribution in course.contributions.all():
+                if contribution.contributor:
+                    user_notifications[contribution.contributor].add(course)
+        # if a course was not published notifications are only sent for contributors who can see comments
+        elif len(course.textanswer_set) > 0:
+            for textanswer in course.textanswer_set:
+                if textanswer.contribution.contributor:
+                    user_notifications[textanswer.contribution.contributor].add(course)
+            user_notifications[course.responsible_contributor].add(course)
+
+    return user_notifications
