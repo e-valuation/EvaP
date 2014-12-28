@@ -6,10 +6,7 @@ from django.db import models, migrations
 
 def insert_emailtemplates(apps, schema_editor):
     emailtemplates = [
-        ("Lecturer Review Notice", "[EvaP] New Course ready for approval"),
-        ("Student Reminder", "[EvaP] Evaluation period is ending"),
-        ("Publishing Notice", "[EvaP] A course has been published"),
-        ("Login Key Created", "[EvaP] A login key was created"),
+        ("Evaluation Started", "[EvaP] A course is available for evaluation"),
     ]
 
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
@@ -22,7 +19,7 @@ def insert_emailtemplates(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0001_initial'),
+        ('evaluation', '0003_auto_add_course_is_graded'),
     ]
 
     operations = [

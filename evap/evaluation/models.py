@@ -716,6 +716,10 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
 
     @classmethod
+    def get_evaluation_started_template(cls):
+        return cls.objects.get(name="Evaluation Started")
+
+    @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
         recipients = []
 
@@ -761,6 +765,23 @@ class EmailTemplate(models.Model):
                 bcc = [a[1] for a in settings.MANAGERS],
                 headers = {'Reply-To': settings.REPLY_TO_EMAIL})
             mail.send(False)
+
+    @classmethod
+    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
+        if not user.email:
+            return
+
+        template = cls.get_reminder_template()        
+        subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
+        body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
+
+        mail = EmailMessage(
+            subject = subject,
+            body = body,
+            to = [user.email],
+            bcc = [a[1] for a in settings.MANAGERS],
+            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.send(False)
 
     def send_to_user(self, user):
         if not user.email:

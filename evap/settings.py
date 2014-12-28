@@ -72,7 +72,7 @@ CONTRIBUTION_PERCENTAGE = 0.5
 REWARD_POINTS_PER_SEMESTER = 3
 
 # days before end date to send reminder
-REMIND_X_DAYS_AHEAD_OF_END_DATE = 2
+REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who can login with username and password and who needs a login key

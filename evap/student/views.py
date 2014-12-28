@@ -20,7 +20,7 @@ def index(request):
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
 
-    sorter = lambda course: (STUDENT_STATES_ORDERED.keys().index(course.student_state), course.name)
+    sorter = lambda course: (STUDENT_STATES_ORDERED.keys().index(course.student_state), course.vote_end_date, course.name)
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
