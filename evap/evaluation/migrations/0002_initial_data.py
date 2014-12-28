@@ -7,7 +7,7 @@ from django.db import models, migrations
 def insert_emailtemplates(apps, schema_editor):
     emailtemplates = [
         ("Lecturer Review Notice", "[EvaP] New Course ready for approval"),
-        ("Student Reminder", "[EvaP] Only 2 days left to evaluate"),
+        ("Student Reminder", "[EvaP] Evaluation period is ending"),
         ("Publishing Notice", "[EvaP] A course has been published"),
         ("Login Key Created", "[EvaP] A login key was created"),
     ]
