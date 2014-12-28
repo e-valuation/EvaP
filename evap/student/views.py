@@ -19,6 +19,7 @@ def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
+    due_courses = list(set(Course.objects.filter(participants=request.user, state='inEvaluation').exclude(voters=request.user)))
 
     sorter = lambda course: (STUDENT_STATES_ORDERED.keys().index(course.student_state), course.vote_end_date, course.name)
     courses.sort(key=sorter)
@@ -26,7 +27,7 @@ def index(request):
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
-    return render(request, "student_index.html", dict(semester_list=semester_list, voted_courses=voted_courses))
+    return render(request, "student_index.html", dict(semester_list=semester_list, voted_courses=voted_courses, due_courses=due_courses))
 
 
 @participant_required

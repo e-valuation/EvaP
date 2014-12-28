@@ -101,7 +101,7 @@ td.right, th.right {
 td.center, th.center {
     text-align: center;
 }
-table.vertically-aligned * td {
+table.vertically-aligned tr td {
     vertical-align: middle;
 }
 
