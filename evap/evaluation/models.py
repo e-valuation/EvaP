@@ -716,6 +716,10 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
 
     @classmethod
+    def get_evaluation_started_template(cls):
+        return cls.objects.get(name="Evaluation Started")
+
+    @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
         recipients = []
 
