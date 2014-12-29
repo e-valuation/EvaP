@@ -661,7 +661,7 @@ def template_edit(request, template_id):
 def faq_index(request):
     sections = FaqSection.objects.all()
 
-    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_order=False, can_delete=True, extra=0)
+    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_order=False, can_delete=True, extra=1)
     formset = sectionFS(request.POST or None, queryset=sections)
 
     if formset.is_valid():
@@ -678,7 +678,7 @@ def faq_section(request, section_id):
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
 
-    questionFS = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=0, exclude=('section',))
+    questionFS = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=1, exclude=('section',))
     formset = questionFS(request.POST or None, queryset=questions, instance=section)
 
     if formset.is_valid():

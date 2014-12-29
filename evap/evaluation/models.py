@@ -495,7 +495,7 @@ class FaqSection(models.Model):
 
     __metaclass__ = LocalizeModelBase
 
-    order = models.IntegerField(verbose_name=_("section order"))
+    order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
     title_de = models.TextField(verbose_name=_(u"section title (german)"))
     title_en = models.TextField(verbose_name=_(u"section title (english)"))
@@ -514,7 +514,7 @@ class FaqQuestion(models.Model):
 
     section = models.ForeignKey(FaqSection, related_name="questions")
 
-    order = models.IntegerField(verbose_name=_("question order"))
+    order = models.IntegerField(verbose_name=_("question order"), default=-1)
 
     question_de = models.TextField(verbose_name=_("question (german)"))
     question_en = models.TextField(verbose_name=_("question (english)"))
