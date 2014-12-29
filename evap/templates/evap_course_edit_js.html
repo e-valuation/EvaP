@@ -70,10 +70,6 @@
                     for(var i = 0; i < contributorCount; i++){
                         $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
                     }
-                },
-                removed: function(row) {
-                    // select one questionnaire to prevent error
-                    row.find('input[id$=-questionnaires_0]')[0].checked="checked";
                 }
             });
 

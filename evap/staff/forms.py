@@ -186,9 +186,6 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
 
 
 class AtLeastOneFormSet(BaseInlineFormSet):
-    def is_valid(self):
-        return super(AtLeastOneFormSet, self).is_valid() and not any([bool(e) for e in self.errors])
-
     def clean(self):
         # get forms that actually have valid data
         count = 0

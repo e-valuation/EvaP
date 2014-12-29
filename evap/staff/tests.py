@@ -870,16 +870,19 @@ class ContributorFormTests(WebTest):
     def test_dont_validate_deleted_contributions(self):
         """
             Tests whether contributions marked for deleting are validated.
-            Regression test for #415
+            Regression test for #415 and #244
         """
         course = Course.objects.create(pk=9001, semester_id=1)
         user = UserProfile.objects.create(pk=9001)
+        user = UserProfile.objects.create(pk=9002, username="1")
+        user = UserProfile.objects.create(pk=9003, username="2")
         questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
+        # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
         data = {
-            'contributions-TOTAL_FORMS': 2,
+            'contributions-TOTAL_FORMS': 3,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-course': 9001,
@@ -892,7 +895,13 @@ class ContributorFormTests(WebTest):
             'contributions-1-questionnaires': [9001],
             'contributions-1-order': 0,
             'contributions-1-responsible': "on",
-            'contributions-1-contributor': 9001,
+            'contributions-1-contributor': 9002,
+            'contributions-2-course': 9001,
+            'contributions-2-questionnaires': [],
+            'contributions-2-order': 1,
+            'contributions-2-contributor': 9003,
+            'contributions-2-DELETE': 'on',
         }
 
-        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        formset = ContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
