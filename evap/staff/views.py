@@ -324,7 +324,7 @@ def course_edit(request, semester_id, course_id):
         messages.success(request, _("Successfully updated course."))
         return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        template_data = dict(semester=semester, course=course, form=form, formset=formset)
+        template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
         return render(request, "staff_course_form.html", template_data)
 
 
