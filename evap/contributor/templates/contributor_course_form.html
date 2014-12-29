@@ -97,6 +97,22 @@
 {% block scripts %}
     {{ block.super }}
     <script>
+        // set the order fields to the position the rows currently have on the page
+        function reorder() {
+            $(document).find('tr').each(function(i) {
+                name = $($(this).find('select[id$=-contributor]')).find(':selected').text();
+                id = $(this).find('input[id$=-id]').val();
+                if (id || (name && name != '---------')) {
+                    $(this).find('input[id$=-order]').val(i);
+                }
+                else {
+                    // if the row is empty (has no contribution id and no name selected) set the order to -1 (default),
+                    // so that the one extra row doesn't change its initial value
+                    $(this).find('input[id$=-order]').val(-1);
+                }
+            });
+        }
+
         $(function() {
             if ($.fn.button.noConflict != undefined) {
                 $.fn.button.noConflict();
@@ -123,20 +139,22 @@
                     });
                     row.find('input[id$=-order]').val(row.parent().children().length);
                     row.find('a.btn-default').remove();
+                },
+                removed: function(row) {
+                    // select one questionnaire to prevent error
+                    row.find('input[id$=-questionnaires_0]')[0].checked="checked";
                 }
             });
 
             $('tbody').sortable({
                 items: 'tr.moveable',
                 handle: 'td:first',
-                tolerance: 'pointer',
-                update: function() {
-                    $(this).find('tr').each(function(i) {
-                        if ($(this).find('input[id$=-order]').val()) {
-                            $(this).find('input[id$=-order]').val(i);
-                        }
-                    });
-                }
+                tolerance: 'pointer'
+            });
+
+            $('#form').submit(function() {
+                reorder();
+                return true;
             });
 
             $('#id_kind').combobox();
