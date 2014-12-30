@@ -35,10 +35,7 @@
                     <table class="table table-striped">
                         <tbody>
                             {% for field in form %}
-                                <tr class="vote-row">
-                                    <td>{{ field.label }}</td>
-                                    <td class="vote-inputs {% if preview %}preview{% endif %}">{{ field.errors }}{{ field }}</td>
-                                </tr>
+                                {% include "student_vote_row.html" %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -82,10 +79,7 @@
                                         <table class="table table-striped">
                                             <tbody>
                                                 {% for field in form %}
-                                                    <tr class="vote-row">
-                                                        <td>{{ field.label }}</td>
-                                                        <td class="vote-inputs {% if preview %}preview{% endif %}">{{ field.errors }}{{ field }}</td>
-                                                    </tr>
+                                                    {% include "student_vote_row.html" %}
                                                 {% endfor %}
                                             </tbody>
                                         </table>
@@ -114,8 +108,16 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
     <script type="text/javascript">
         function markNoAnswerFor(contributorId) {
+            // uncheck all other options and deactivate buttons
+            $("#" + contributorId + " td.vote-inputs [type=radio][value!=6]").removeAttr("checked");
+            $("#" + contributorId + " td.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+
+            // check "no answer" and activate the button
             $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").prop('checked', true);
-            $("#" + contributorId).collapse('hide');
+            $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").parent().addClass("active");
+            
+            // hide questionnaire for contributor
+            $("#" + contributorId).collapse("hide");
         }
     </script>
 {% endblock %}

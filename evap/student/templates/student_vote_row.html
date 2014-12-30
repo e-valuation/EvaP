@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load morefilters %}
+
+<tr class="vote-row">
+    <td class="vote-question" {% if field|is_choice_field %}id="vertically-aligned"{% endif %}>{{ field.label }}</td>
+    {% if field|is_choice_field %}
+        <td class="vote-inputs {% if preview %}preview{% endif %} btn-group" data-toggle="buttons">
+            {{ field.errors }}
+            {% for choice in field %}
+                <label class="btn btn-sm btn-default {% if field.value == choice.choice_value %}active{% endif %}">
+                    <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if field.value == choice.choice_value %}checked="checked"{% endif %} />
+                    {{ choice.choice_label }} {{ choice.id }}
+                </label>
+            {% endfor %}
+        </td>
+    {% else %}
+        <td class="vote-inputs {% if preview %}preview{% endif %}">{{ field.errors }}{{ field }}</td>
+    {% endif %}
+</tr>
