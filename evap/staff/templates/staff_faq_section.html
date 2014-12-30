@@ -9,43 +9,6 @@
     <li>{{ section.title }}</li>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-
-            $('#question_table tbody tr').formset({
-                prefix: 'questions',
-                deleteCssClass: 'btn btn-danger btn-sm',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                }
-            });
-
-            $('tbody').sortable({
-                items: 'tr',
-                handle: 'td:first',
-                update: function() {
-                    $(this).find('tr').each(function(i) {
-                        if ($(this).find('input[id$=-order]').val()) {
-                            $(this).find('input[id$=-order]').val(i);
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-
-    <!-- prevent from accendential closing -->
-        <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
 
@@ -72,11 +35,15 @@
 
                     <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                     <td>
+                        {{ form.question_de.errors }}
                         {{ form.question_de }}
+                        {{ form.answer_de.errors }}
                         {{ form.answer_de }}
                     </td>
                     <td>
+                        {{ form.question_en.errors }}
                         {{ form.question_en }}
+                        {{ form.answer_en.errors }}
                         {{ form.answer_en }}
                     </td>
                     <td>{{ form.DELETE }}</td>
@@ -91,4 +58,55 @@
             </div>
         </div>
     </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        function apply_ordering() {
+            $(document).find('tr').each(function(i) {
+                console.log("hi");
+                q_de = $($(this).find('input[id$=-question_de]')).val();
+                q_en = $($(this).find('input[id$=-question_en]')).val();
+                if (q_de || q_en) {
+                    $(this).find('input[id$=-order]').val(i);
+                }
+                else {
+                    // if the row is empty (has no text in the input fields) set the order to -1 (default),
+                    // so that the one extra row doesn't change its initial value
+                    $(this).find('input[id$=-order]').val(-1);
+                }
+            });
+        }
+        
+        $(document).ready(function() {
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            $('#question_table tbody tr').formset({
+                prefix: 'questions',
+                deleteCssClass: 'btn btn-danger btn-sm',
+                deleteText: '{% trans "remove" %}',
+                addText: '{% trans "add another" %}',
+                added: function(row) {
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                }
+            });
+
+            $('tbody').sortable({
+                items: 'tr',
+                handle: 'td:first'
+            });
+
+            $('form').submit(function() {
+                apply_ordering();
+                return true;
+            });
+        });
+    </script>
+
+    <!-- prevent from accendential closing -->
+        <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

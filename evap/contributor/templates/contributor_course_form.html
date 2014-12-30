@@ -96,56 +96,6 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script>
-        $(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
 
-            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
-
-            $(".multiselect-form select[multiple='multiple']").each(function(i, e) {
-                $(e).width($(e).width());
-                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
-            });
-
-            $('a.add-row').addClass("btn btn-sm btn-default");
-
-            {% if edit %}
-            $('#contribution_table tbody tr').formset({
-                prefix: 'contributions',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    $('.twipsify').tooltip({
-                        html: true,
-                        placement: 'left'
-                    });
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                    row.find('a.btn-default').remove();
-                }
-            });
-
-            $('tbody').sortable({
-                items: 'tr.moveable',
-                handle: 'td:first',
-                tolerance: 'pointer',
-                update: function() {
-                    $(this).find('tr').each(function(i) {
-                        if ($(this).find('input[id$=-order]').val()) {
-                            $(this).find('input[id$=-order]').val(i);
-                        }
-                    });
-                }
-            });
-
-            $('#id_kind').combobox();
-            {% endif %}
-
-            $('.twipsify').tooltip({
-                html: true,
-                placement: 'left'
-            });
-        });
-    </script>
+    {% include "evap_course_edit_js.html" %}
 {% endblock %}

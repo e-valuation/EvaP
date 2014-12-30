@@ -9,7 +9,7 @@ from django.conf import settings
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributorFormSet, ContributionForm, CourseForm
+                            ContributionFormSet, ContributionForm, CourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -506,7 +506,7 @@ class URLTests(WebTest):
         """
         course = Course.objects.create(pk=9001, semester_id=1)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
         data = {
             'contributions-TOTAL_FORMS': 1,
@@ -740,19 +740,63 @@ class ContributorFormTests(WebTest):
 
     def test_dont_validate_deleted_contributions(self):
         """
-            Tests whether contributions marked for deleting are validated.
-            Regression test for #415
+            Tests whether contributions marked for deletion are validated.
+            Regression test for #415 and #244
         """
         course = Course.objects.create(pk=9001, semester_id=1)
         user = UserProfile.objects.create(pk=9001)
+        user = UserProfile.objects.create(pk=9002, username="1")
+        user = UserProfile.objects.create(pk=9003, username="2")
         questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
+        data = {
+            'contributions-TOTAL_FORMS': 3,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+            'contributions-0-DELETE': 'on',
+            'contributions-1-course': 9001,
+            'contributions-1-questionnaires': [9001],
+            'contributions-1-order': 0,
+            'contributions-1-responsible': "on",
+            'contributions-1-contributor': 9002,
+            'contributions-2-course': 9001,
+            'contributions-2-questionnaires': [],
+            'contributions-2-order': 1,
+            'contributions-2-contributor': 9003,
+            'contributions-2-DELETE': 'on',
+        }
+
+        formset = ContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+
+    def test_take_deleted_contributions_into_account(self):
+        """
+            Tests whether contributions marked for deletion are properly taken into account 
+            when the same contributor got added again in the same formset.
+            Regression test for #415
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user1 = UserProfile.objects.create(pk=9001)
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+        contribution1.questionnaires = [questionnaire]
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
         data = {
             'contributions-TOTAL_FORMS': 2,
-            'contributions-INITIAL_FORMS': 0,
+            'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': 9001,
             'contributions-0-course': 9001,
             'contributions-0-questionnaires': [9001],
             'contributions-0-order': 0,
@@ -766,4 +810,5 @@ class ContributorFormTests(WebTest):
             'contributions-1-contributor': 9001,
         }
 
-        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        formset = ContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
