@@ -151,6 +151,8 @@ TEMPLATE_DIRS = (
 
 ROOT_URLCONF = 'evap.urls'
 
+WSGI_APPLICATION = 'evap.wsgi.application'
+
 # Redirect url after login
 LOGIN_REDIRECT_URL = '/'
 
