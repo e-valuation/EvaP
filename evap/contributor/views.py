@@ -8,7 +8,7 @@ from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
 from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 from evap.contributor.forms import CourseForm, UserForm
-from evap.staff.forms import ContributionForm, ContributorFormSet
+from evap.staff.forms import ContributionForm, ContributionFormSet
 from evap.student.forms import QuestionsForm
 
 from collections import OrderedDict
@@ -56,7 +56,7 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
@@ -79,7 +79,7 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))

@@ -9,7 +9,7 @@ from django.conf import settings
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributorFormSet, ContributionForm, CourseForm
+                            ContributionFormSet, ContributionForm, CourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -506,7 +506,7 @@ class URLTests(WebTest):
         """
         course = Course.objects.create(pk=9001, semester_id=1)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
         data = {
             'contributions-TOTAL_FORMS': 1,
@@ -878,7 +878,7 @@ class ContributorFormTests(WebTest):
         user = UserProfile.objects.create(pk=9003, username="2")
         questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
         # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
         data = {

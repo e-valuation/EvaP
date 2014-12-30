@@ -187,48 +187,34 @@ class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
 
 class AtLeastOneFormSet(BaseInlineFormSet):
     def clean(self):
-        # get forms that actually have valid data
         count = 0
         for form in self.forms:
-            try:
-                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
-                    count += 1
-            except AttributeError:
-                # annoyingly, if a subform is invalid Django explicity raises
-                # an AttributeError for cleaned_data
-                pass
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                count += 1
 
         if count < 1:
             raise forms.ValidationError(_(u'You must have at least one of these.'))
 
 
-class ContributorFormSet(AtLeastOneFormSet):
+class ContributionFormSet(AtLeastOneFormSet):
     def clean(self):
-        super(ContributorFormSet, self).clean()
+        super(ContributionFormSet, self).clean()
 
-        found_contributor = []
+        found_contributor = set()
         count_responsible = 0
         for form in self.forms:
-            try:
-                if form.cleaned_data:
-                    if form.cleaned_data.get('DELETE', False) is True:
-                        continue
-                    contributor = form.cleaned_data.get('contributor')
-                    delete = form.cleaned_data.get('DELETE')
-                    if contributor is None and not delete:
-                        raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
-                    if contributor and contributor in found_contributor:
-                        raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
-                    elif contributor:
-                        found_contributor.append(contributor)
+            if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+                continue
+            contributor = form.cleaned_data.get('contributor')
+            if contributor is None:
+                raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
+            if contributor and contributor in found_contributor:
+                raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
+            elif contributor:
+                found_contributor.add(contributor)
 
-                    if form.cleaned_data.get('responsible') and not delete:
-                        count_responsible += 1
-
-            except AttributeError:
-                # annoyingly, if a subform is invalid Django explicity raises
-                # an AttributeError for cleaned_data
-                pass
+            if form.cleaned_data.get('responsible'):
+                count_responsible += 1
 
         if count_responsible < 1:
             raise forms.ValidationError(_(u'No responsible contributor found. Each course must have exactly one responsible contributor.'))
