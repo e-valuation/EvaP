@@ -869,7 +869,7 @@ class ContributorFormTests(WebTest):
 
     def test_dont_validate_deleted_contributions(self):
         """
-            Tests whether contributions marked for deleting are validated.
+            Tests whether contributions marked for deletion are validated.
             Regression test for #415 and #244
         """
         course = Course.objects.create(pk=9001, semester_id=1)
@@ -901,6 +901,42 @@ class ContributorFormTests(WebTest):
             'contributions-2-order': 1,
             'contributions-2-contributor': 9003,
             'contributions-2-DELETE': 'on',
+        }
+
+        formset = ContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+
+    def test_take_deleted_contributions_into_account(self):
+        """
+            Tests whether contributions marked for deletion are properly taken into account 
+            when the same contributor got added again in the same formset.
+            Regression test for #415
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user1 = UserProfile.objects.create(pk=9001)
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+        contribution1.questionnaires = [questionnaire]
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        data = {
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 1,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': 9001,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+            'contributions-0-DELETE': 'on',
+            'contributions-1-course': 9001,
+            'contributions-1-questionnaires': [9001],
+            'contributions-1-order': 0,
+            'contributions-1-responsible': "on",
+            'contributions-1-contributor': 9001,
         }
 
         formset = ContributionFormset(instance=course, data=data.copy())

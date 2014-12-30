@@ -197,7 +197,29 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
+    def handle_deleted_and_added_contributions(self):
+        """
+            If a contributor got removed and added in the same formset, django would usually complain
+            when validating the added form, as it does not check whether the existing contribution was deleted.
+            This method works around that.
+        """
+        for form_with_errors in self.forms:
+            if not form_with_errors.errors:
+                continue
+            for deleted_form in self.forms:
+                if not deleted_form.cleaned_data or not deleted_form.cleaned_data.get('DELETE'):
+                    continue
+                if not deleted_form.cleaned_data['contributor'] == form_with_errors.cleaned_data['contributor']:
+                    continue
+                form_with_errors.cleaned_data['id'] = deleted_form.cleaned_data['id']
+                form_with_errors.instance = deleted_form.instance
+                # we modified the form, so we have to force re-validation
+                form_with_errors.full_clean()
+
+
     def clean(self):
+        self.handle_deleted_and_added_contributions()
+
         super(ContributionFormSet, self).clean()
 
         found_contributor = set()
