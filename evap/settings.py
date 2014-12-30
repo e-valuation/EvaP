@@ -1,44 +1,32 @@
-import os.path
+"""
+Django settings for EvaP project.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.7/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.7/ref/settings/
+"""
+
+import os
 import sys
 from django.contrib.messages import constants as messages
 
-SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+### Debugging
 
 DEBUG = True
+
 TEMPLATE_DEBUG = DEBUG
-TESTING = 'test' in sys.argv
 
-AUTH_USER_MODEL = 'evaluation.UserProfile'
+# Very helpful but eats a lot of performance on sql-heavy pages.
+# Works only with DEBUG = True.
+ENABLE_DEBUG_TOOLBAR = False
 
-MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
-}
 
-# People who get emails on errors.
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(SITE_ROOT, 'database.sqlite3'), # Or path to database file if using sqlite3.
-        'USER': '',                             # Not used with sqlite3.
-        'PASSWORD': '',                         # Not used with sqlite3.
-        'HOST': '',                             # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                             # Set to empty string for default. Not used with sqlite3.
-    }
-}
-
-# config for feedback links
-FEEDBACK_EMAIL = "webmaster@localhost"
-TRACKER_URL = "https://github.com/fsr-itse/EvaP"
-
-# config for mail system
-DEFAULT_FROM_EMAIL = "webmaster@localhost"
-REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+### EvaP logic
 
 # key authentication settings
 LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
@@ -70,107 +58,65 @@ INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de",
 # maximum length of usernames of internal users
 INTERNAL_USERNAMES_MAX_LENGTH = 20
 
+# the importer accepts only these two strings in the 'graded' column
 IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
 
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
-TIME_ZONE = 'Europe/Berlin'
 
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en'
+### Installation specific settings
 
-LANGUAGES = (
-    ('en', "English"),
-    ('de', "Deutsch"),
+# People who get emails on errors.
+ADMINS = (
+    # ('Your Name', 'your_email@example.com'),
 )
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = True
-
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
-USE_L10N = True
-
-# Locale paths
-LOCALE_PATHS = (
-    os.path.join(SITE_ROOT, "locale"),
-)
-
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(SITE_ROOT, "upload")
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = '/media/'
-
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(SITE_ROOT, "staticfiles")
-
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
-
-# Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, "static"),
-)
+ALLOWED_HOSTS = []
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'evap.evaluation.auth.RequestAuthMiddleware',
-    'evap.evaluation.403.Django403Middleware',
-)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': os.path.join(BASE_DIR, 'database.sqlite3'), # Or path to database file if using sqlite3.
+        'USER': '',                             # Not used with sqlite3.
+        'PASSWORD': '',                         # Not used with sqlite3.
+        'HOST': '',                             # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                             # Set to empty string for default. Not used with sqlite3.
+    }
+}
 
-AUTHENTICATION_BACKENDS = (
-    'evap.evaluation.auth.RequestAuthUserBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
+# Config for feedback links
+FEEDBACK_EMAIL = "webmaster@localhost"
+TRACKER_URL = "https://github.com/fsr-itse/EvaP"
 
-# redirect url after login
-LOGIN_REDIRECT_URL = '/'
+# Config for mail system
+DEFAULT_FROM_EMAIL = "webmaster@localhost"
+REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-LOGIN_URL = "/"
 
-ROOT_URLCONF = 'evap.urls'
+# Kerberos realm and service
+ENABLE_KERBEROS = False
+if (ENABLE_KERBEROS):
+    KRB5_REALM = 'EXAMPLE.COM'
+    KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
+    INSTALLED_APPS += ('django_auth_kerberos',)
+    MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, "templates"),
-)
+
+### Application definition
+
+AUTH_USER_MODEL = 'evaluation.UserProfile'
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
     'django.contrib.sites', # unused. left here to not break the test data.
     'widget_tweaks',
     'evap.evaluation',
@@ -181,16 +127,90 @@ INSTALLED_APPS = (
     'evap.rewards',
 )
 
-# kerberos realm and service
-ENABLE_KERBEROS = False
-if (ENABLE_KERBEROS):
-    KRB5_REALM = 'EXAMPLE.COM'
-    KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
-    INSTALLED_APPS += ('django_auth_kerberos',)
-    MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'evap.evaluation.auth.RequestAuthMiddleware',
+    'evap.evaluation.403.Django403Middleware',
+)
 
-# django debug toolbar settings
-ENABLE_DEBUG_TOOLBAR = False
+AUTHENTICATION_BACKENDS = (
+    'evap.evaluation.auth.RequestAuthUserBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Additional locations of templates
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, "templates"),
+)
+
+ROOT_URLCONF = 'evap.urls'
+
+# Redirect url after login
+LOGIN_REDIRECT_URL = '/'
+
+LOGIN_URL = "/"
+
+
+### Internationalization
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'Europe/Berlin'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = False
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, "locale"),
+)
+
+LANGUAGES = (
+    ('en', "English"),
+    ('de', "Deutsch"),
+)
+
+
+### Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.7/howto/static-files/
+
+STATIC_URL = '/static/'
+
+# Additional locations of static files
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
+
+# Absolute path to the directory static files should be collected to.
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+
+### User-uploaded files
+
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
+
+# URL that handles the media served from MEDIA_ROOT.
+MEDIA_URL = '/media/'
+
+
+### Other
+
+# Apply the correct bootstrap css class to django's error messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
+
+# Django debug toolbar settings
+TESTING = 'test' in sys.argv
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ('debug_toolbar',)
@@ -201,10 +221,10 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
     }
 
-# Create a localsettings.py if you want to override settings per machine
-# or user, e.g. for development or different settings in deployments using
-# multiple servers.
-_LOCAL_SETTINGS_FILENAME = os.path.join(SITE_ROOT, "localsettings.py")
+
+# Create a localsettings.py if you want to locally override settings
+# and don't want the changes to appear in 'git status'.
+_LOCAL_SETTINGS_FILENAME = os.path.join(BASE_DIR, "localsettings.py")
 if os.path.exists(_LOCAL_SETTINGS_FILENAME):
     exec(compile(open(_LOCAL_SETTINGS_FILENAME).read(), _LOCAL_SETTINGS_FILENAME, 'exec'))
 del _LOCAL_SETTINGS_FILENAME
