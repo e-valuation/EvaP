@@ -1,6 +1,3 @@
-# Django settings for evap project.
-
-# automatically determine SITE_ROOT, used for absolute paths below
 import os.path
 import sys
 from django.contrib.messages import constants as messages
@@ -17,11 +14,10 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
+# People who get emails on errors.
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
-
-MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -31,13 +27,6 @@ DATABASES = {
         'PASSWORD': '',                         # Not used with sqlite3.
         'HOST': '',                             # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                             # Set to empty string for default. Not used with sqlite3.
-    }
-}
-
-CACHES = {
-    'default': {
-    #    'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
 
@@ -136,11 +125,6 @@ STATIC_ROOT = os.path.join(SITE_ROOT, "staticfiles")
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
-# URL prefix for admin static files -- CSS, JavaScript and images.
-# Make sure to use a trailing slash.
-# Examples: "http://foo.com/static/admin/", "/static/admin/".
-ADMIN_MEDIA_PREFIX = '/static/admin/'
-
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
@@ -149,23 +133,9 @@ STATICFILES_DIRS = (
     os.path.join(SITE_ROOT, "static"),
 )
 
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -192,7 +162,6 @@ AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
-
 
 # redirect url after login
 LOGIN_REDIRECT_URL = '/'
@@ -225,43 +194,6 @@ INSTALLED_APPS = (
     'evap.rewards',
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'evap.evaluation.management.commands.import_evaj': {
-            'handlers': ['console'],
-            'level': 'INFO'
-        }
-    }
-}
-
 # kerberos realm and service
 ENABLE_KERBEROS = False
 if (ENABLE_KERBEROS):
@@ -281,8 +213,6 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
     }
-
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Create a localsettings.py if you want to override settings per machine
 # or user, e.g. for development or different settings in deployments using
