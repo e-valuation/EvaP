@@ -46,6 +46,7 @@ def vote(request, course_id):
         contributor_questionnaires, errors = create_contributor_questionnaires(list(form_groups.items()))
 
         template_data = dict(
+                is_bound=course_forms[0].is_bound, # is_bound states whether the form already contains user data
                 course_forms=course_forms,
                 contributor_questionnaires=contributor_questionnaires,
                 errors=errors,

@@ -145,8 +145,17 @@ td.vote-question {
     width: 40%;
 }
 
+td.vote-question.choice-error {
+    font-weight: bold;
+    color: #a53e3f;
+}
+
 td.vote-inputs {
     width: 100%;
+}
+
+td.vote-inputs label.choice-error {
+    box-shadow: 0px 0px 8px #eb595a;
 }
 
 td.vote-inputs > label:nth-of-type(1) { color: #5f8634; }
@@ -172,6 +181,10 @@ td.preview > textarea {
 
 ul.errorlist li {
     color: #B94A48;
+}
+
+.vote-btn {
+    min-width: 50px;
 }
 
 .nobottompadding {

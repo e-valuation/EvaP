@@ -14,8 +14,8 @@
 
 {% block content %}
     {{ block.super }}
-    {% if errors %}
-        <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all contributors or click on "I can't give feedback" to skip a person.{% endblocktrans %}</div>
+    {% if is_bound %}
+        <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
     <form method="POST" class="form-horizontal">
@@ -118,6 +118,10 @@
             
             // hide questionnaire for contributor
             $("#" + contributorId).collapse("hide");
+        }
+        function selectedAnswer(fieldName) {
+            // remove error highlighting when an answer was selected
+            $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
     </script>
 {% endblock %}
