@@ -24,7 +24,6 @@
 {% block additional_javascript %}
     <script type="text/javascript">
         $(function() {
-            $(".twipsify").tooltip({container: 'body'});
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
         });
     </script>

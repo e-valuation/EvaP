@@ -64,7 +64,6 @@
     <script type="text/javascript">
         function apply_ordering() {
             $(document).find('tr').each(function(i) {
-                console.log("hi");
                 q_de = $($(this).find('input[id$=-question_de]')).val();
                 q_en = $($(this).find('input[id$=-question_en]')).val();
                 if (q_de || q_en) {

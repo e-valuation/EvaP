@@ -59,16 +59,6 @@
             if ($.fn.button.noConflict != undefined) {
                 $.fn.button.noConflict();
             }
-
-            $("select[multiple='multiple']").each(function(i,e) {
-                //$(e).width($(e).width());
-                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
-            });
-
-            $("#id_is_staff").click(function() {
-                if($("#id_is_staff").is(":checked"))
-                    $("#id_is_superuser").prop('checked', true);
-            });
         });
     </script>
 

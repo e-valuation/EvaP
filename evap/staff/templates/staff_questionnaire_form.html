@@ -56,11 +56,6 @@
             $.fn.button.noConflict();
         }
 
-        $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-            $(e).width($(e).width());
-            $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}"});
-        });
-
         $('#question_table tbody tr').formset({
             prefix: 'question_set',
             deleteText: '{% trans "remove" %}',
