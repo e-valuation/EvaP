@@ -78,10 +78,6 @@
         }
         
         $(document).ready(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-
             $('#question_table tbody tr').formset({
                 prefix: 'questions',
                 deleteCssClass: 'btn btn-danger btn-sm',

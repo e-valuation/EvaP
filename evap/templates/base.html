@@ -183,6 +183,19 @@
             {% block activate_twipsify %}
                 $(".twipsify").tooltip({container: 'body'});
             {% endblock %}
+
+            // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            // run the jquery multiselect plugin
+            $("select[multiple='multiple']").each(function(i,e) {
+                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+            });
+
+            // run the jquery datepicker plugin
+            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
         });
     </script>
     {% block additional_javascript %} {% endblock %}

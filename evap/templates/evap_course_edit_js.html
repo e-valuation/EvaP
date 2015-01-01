@@ -43,17 +43,6 @@
             };
         }
 
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
-        }
-
-        $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
-
-        $(".multiselect-form select[multiple='multiple']").each(function(i, e) {
-            $(e).width($(e).width());
-            $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
-        });
-
         {% if edit or staff %}
             $('#contribution_table tbody tr').formset({
                 prefix: 'contributions',

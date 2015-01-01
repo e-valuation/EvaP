@@ -78,10 +78,6 @@
         }
 
         $(document).ready(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-
             $('#section_table tbody tr').formset({
                 prefix: 'form',
                 deleteCssClass: 'btn btn-danger btn-sm',

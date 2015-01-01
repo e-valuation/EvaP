@@ -52,15 +52,6 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-        });
-    </script>
-
-
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
     <script type="text/javascript">

@@ -51,11 +51,6 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-    $(document).ready(function() {
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
-        }
-
         $('#question_table tbody tr').formset({
             prefix: 'question_set',
             deleteText: '{% trans "remove" %}',
