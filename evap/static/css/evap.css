@@ -187,6 +187,14 @@ ul.errorlist li {
     min-width: 50px;
 }
 
+.questionnaire-submit {
+    margin-top: 20px;
+}
+
+.questionnaire-submit input, .questionnaire-submit a {
+    min-width: 250px;
+}
+
 .nobottompadding {
     padding-bottom: 0px;
 }
