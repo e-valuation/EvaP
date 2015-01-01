@@ -1,6 +1,7 @@
 {% extends "staff_questionnaire_base.html" %}
 
 {% load i18n %}
+{% load staff_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -9,92 +10,8 @@
     </p>
     <p>
     {% if course_questionnaires or contributor_questionnaires %}
-        {% if course_questionnaires %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "Course questionnaires" %}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{% trans "Questionnaire" %}</th>
-                                <th>{% trans "Actions" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for questionnaire in course_questionnaires %}
-                            <tr>
-                                <td>
-                                    <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">{% trans "obsolete" %}</span>{% endif %}
-                                    <br>
-                                    {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question {% plural %} {{ count }} questions{% endblocktrans %},
-                                    {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
-                                </td>
-                                <td class="right">
-                                    {% if not questionnaire.obsolete %}
-                                        <a href="{% url "evap.staff.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
-                                    {% else %}
-                                        <a href="#" class="btn btn-sm btn-default" disabled="disabled">{% trans "Edit" %}</a>
-                                    {% endif %}
-                                    <a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                                    <a href="{% url "evap.staff.views.questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
-                                    {% if questionnaire.can_staff_delete %}
-                                        <a href="{% url "evap.staff.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
-                                    {% else %}
-                                        <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete" %}</a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-        {% if contributor_questionnaires %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "Contributor questionnaires" %}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{% trans "Questionnaire" %}</th>
-                                <th>{% trans "Actions" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for questionnaire in contributor_questionnaires %}
-                            <tr>
-                                <td>
-                                    <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">{% trans "obsolete" %}</span>{% endif %}
-                                    <br>
-                                    {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question {% plural %} {{ count }} questions{% endblocktrans %},
-                                    {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
-                                </td>
-                                <td class="right">
-                                    {% if not questionnaire.obsolete %}
-                                        <a href="{% url "evap.staff.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
-                                    {% else %}
-                                        <a href="#" class="btn btn-sm btn-default" disabled="disabled">{% trans "Edit" %}</a>
-                                    {% endif %}
-                                    <a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                                    <a href="{% url "evap.staff.views.questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
-                                    {% if questionnaire.can_staff_delete %}
-                                        <a href="{% url "evap.staff.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
-                                    {% else %}
-                                        <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete" %}</a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
+        {% include_staff_questionnaire_index_list course_questionnaires "Course questionnaires" %}
+        {% include_staff_questionnaire_index_list contributor_questionnaires "Contributor questionnaires" %}
     {% else %}
         {% trans "There are no questionnaires yet." %}
     {% endif %}
