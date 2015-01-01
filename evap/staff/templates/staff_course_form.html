@@ -58,11 +58,7 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
+{% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
-
-    <!-- prevent from accendential closing -->
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

@@ -22,8 +22,6 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <!-- prevent from accendential closing -->
+{% block additional_javascript %}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

@@ -60,9 +60,7 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
+{% block additional_javascript %}
     <script type="text/javascript">
         function apply_ordering() {
             $(document).find('tr').each(function(i) {

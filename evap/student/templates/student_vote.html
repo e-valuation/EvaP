@@ -72,8 +72,7 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
+{% block additional_javascript %}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
     <script type="text/javascript">
         function markNoAnswerFor(contributorId) {

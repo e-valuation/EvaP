@@ -81,8 +81,7 @@
     {% endif %}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
+{% block additional_javascript %}
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
     <script type="text/javascript">

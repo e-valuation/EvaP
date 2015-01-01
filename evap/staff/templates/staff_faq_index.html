@@ -59,9 +59,7 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
+{% block additional_javascript %}
     <script type="text/javascript">
         // set the order fields to the position the rows currently have on the page
         function apply_ordering() {

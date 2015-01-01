@@ -49,8 +49,7 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
+{% block additional_javascript %}
     <script type="text/javascript">
     $(document).ready(function() {
         if ($.fn.button.noConflict != undefined) {

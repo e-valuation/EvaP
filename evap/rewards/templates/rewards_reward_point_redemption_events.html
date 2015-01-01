@@ -91,9 +91,7 @@
     </div>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
+{% block additional_javascript %}
     <script type="text/javascript">
         $(function() {
             $(".twipsify").tooltip({container: 'body'});
