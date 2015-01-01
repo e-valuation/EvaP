@@ -102,10 +102,6 @@
 {% endblock %}
 
 
-{% block additional_javascript %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.dropdown-toggle').dropdown()
-        });
-    </script>
+{% block on_document_ready %}
+    $('.dropdown-toggle').dropdown()
 {% endblock %}

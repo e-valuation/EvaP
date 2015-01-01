@@ -100,10 +100,6 @@
     </div>
 {% endblock %}
 
-{% block additional_javascript %}
-    <script type="text/javascript">
-        $(function() {
-            $("#id_username").focus();
-        });
-    </script>
+{% block on_document_ready %}
+    $("#id_username").focus();
 {% endblock %}

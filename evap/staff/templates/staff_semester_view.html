@@ -153,21 +153,17 @@
     {% endif %}
 {% endblock %}
 
-{% block additional_javascript %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {
-                history.pushState(null, null, "?tab=" + $(this).data("tab"));
-            });
+{% block on_document_ready %}
+    $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {
+        history.pushState(null, null, "?tab=" + $(this).data("tab"));
+    });
 
-            $('.btn-toggle').click(function() {
-                $(this).find('.btn').toggleClass('active');  
-                
-                if ($(this).find('.btn-primary').size()>0) {
-                    $(this).find('.btn').toggleClass('btn-primary');
-                }            
-                $(this).find('.btn').toggleClass('btn-default');
-            });       
-        });
-    </script>
+    $('.btn-toggle').click(function() {
+        $(this).find('.btn').toggleClass('active');  
+        
+        if ($(this).find('.btn-primary').size()>0) {
+            $(this).find('.btn').toggleClass('btn-primary');
+        }            
+        $(this).find('.btn').toggleClass('btn-default');
+    });
 {% endblock %}

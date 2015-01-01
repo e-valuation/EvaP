@@ -196,6 +196,8 @@
 
             // run the jquery datepicker plugin
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
+            {% block on_document_ready %} {% endblock %}
         });
     </script>
     {% block additional_javascript %} {% endblock %}
