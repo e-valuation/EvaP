@@ -3,31 +3,6 @@
 {% load i18n %}
 {% load static %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-    $(document).ready(function() {
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
-        }
-
-        $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
-            $(e).width($(e).width());
-            $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}"});
-        });
-
-        $('#question_table tbody tr').formset({
-            prefix: 'question_set',
-            deleteText: '{% trans "remove" %}',
-            addText: '{% trans "add another" %}'
-        });
-    });
-    </script>
-
-    <!-- prevent from accendential closing -->
-        <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
     <form method="POST" class="form-horizontal">
@@ -72,4 +47,28 @@
             </div>
         </div>
     </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+    $(document).ready(function() {
+        if ($.fn.button.noConflict != undefined) {
+            $.fn.button.noConflict();
+        }
+
+        $(".multiselect-form select[multiple='multiple']").each(function(i,e) {
+            $(e).width($(e).width());
+            $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}"});
+        });
+
+        $('#question_table tbody tr').formset({
+            prefix: 'question_set',
+            deleteText: '{% trans "remove" %}',
+            addText: '{% trans "add another" %}'
+        });
+    });
+    </script>
+
+    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

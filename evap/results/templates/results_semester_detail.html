@@ -10,24 +10,6 @@
     <li>{{ semester.name }}</li>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.course-table').dataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                }
-            });
-        });
-    </script>
-{% endblock %}
-
 {{% block content %}
     {{ block.super }}
 
@@ -97,4 +79,22 @@
         <a href="{% url "evap.results.views.semester_export" semester.id %}?all" class="btn btn-sm btn-default">{% trans "Export semester as Excel table (GF)" %}</a>
     </p>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.course-table').dataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                }
+            });
+        });
+    </script>
 {% endblock %}
