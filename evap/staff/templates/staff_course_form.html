@@ -58,6 +58,9 @@
     </form>
 {% endblock %}
 
+{# deactivate the default twipsification. this is handled in evap_course_edit_js.html. #}
+{% block activate_twipsify %} {% endblock %}
+
 {% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
     <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>

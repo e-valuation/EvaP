@@ -109,12 +109,10 @@
     </div>
 {% endblock %}
 
-{% block additional_javascript %}
-    <script type="text/javascript">
-        $('.twipsify').tooltip({
-            html: true,
-            placement: 'left',
-            title: 'data-twipsy'
-        });
-    </script>
+{% block activate_twipsify %}
+    $('.twipsify').tooltip({
+        html: true,
+        placement: 'left',
+        title: 'data-twipsy'
+    });
 {% endblock %}

@@ -178,6 +178,11 @@
 
             // activate topbar
             $('#topbar').dropdown();
+
+            // run twipsify
+            {% block activate_twipsify %}
+                $(".twipsify").tooltip({container: 'body'});
+            {% endblock %}
         });
     </script>
     {% block additional_javascript %} {% endblock %}
