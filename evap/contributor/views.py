@@ -6,12 +6,11 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
+from evap.evaluation.tools import STATES_ORDERED
 from evap.contributor.forms import CourseForm, UserForm
 from evap.staff.forms import ContributionForm, ContributionFormSet
-from evap.student.forms import QuestionsForm
+from evap.student.views import vote_preview
 
-from collections import OrderedDict
 
 @editor_or_delegate_required
 def index(request):
@@ -115,13 +114,4 @@ def course_preview(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
-    course_questionnaires = list(form_groups[course.general_contribution].values())    
-    contributor_questionnaires, errors = create_contributor_questionnaires(list(form_groups.items()))
-
-    template_data = dict(
-            course_questionnaires=course_questionnaires,
-            contributor_questionnaires=contributor_questionnaires,
-            course=course,
-            preview=True)
-    return render(request, "student_vote.html", template_data)
+    return vote_preview(request, course)

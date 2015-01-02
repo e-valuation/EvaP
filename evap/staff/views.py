@@ -19,14 +19,13 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnsw
                            FaqSectionForm, FaqQuestionForm, UserImportForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
+from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
 from evap.rewards.models import SemesterActivation
 from evap.rewards.tools import is_semester_activated
 
 import random
-
-from datetime import datetime
 
 
 def get_tab(request):
@@ -460,14 +459,7 @@ def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
 
-    # build forms
-    forms = OrderedDict()
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-        forms[(contribution, questionnaire)] = form
-        
-    template_data = dict(forms=list(forms.values()), course=course, semester=semester)
-    return render(request, "staff_course_preview.html", template_data)
+    return vote_preview(request, course)
 
 
 @staff_required

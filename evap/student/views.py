@@ -9,7 +9,6 @@ from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Course, Semester
 from evap.evaluation.tools import STUDENT_STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
 
-from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
 from collections import OrderedDict
@@ -28,6 +27,23 @@ def index(request):
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
     return render(request, "student_index.html", dict(semester_list=semester_list, voted_courses=voted_courses, due_courses=due_courses))
+
+
+def vote_preview(request, course):
+    """
+        Renders a preview of the voting page for the given course.
+        Not used by the student app itself, but by staff and contributor.
+    """
+    form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
+    course_questionnaires = list(form_groups[course.general_contribution].values())    
+    contributor_questionnaires, errors = create_contributor_questionnaires(list(form_groups.items()))
+
+    template_data = dict(
+            course_questionnaires=course_questionnaires,
+            contributor_questionnaires=contributor_questionnaires,
+            course=course,
+            preview=True)
+    return render(request, "student_vote.html", template_data)
 
 
 @participant_required
