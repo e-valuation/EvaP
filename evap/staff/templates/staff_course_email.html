@@ -15,7 +15,7 @@
             <div class="email-form">
                 {% for field in form %}
                     <div class="form-row">
-                        {% if field|is_multiple_choice_field %}
+                        {% if field.name == "recipients" %}
                             <div class="form-label vertically-aligned {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
                             <div class="form-field btn-group" data-toggle="buttons">
                                 {% for choice in field %}
@@ -25,10 +25,10 @@
                                     </label>
                                 {% endfor %}
                             </div>
-                        {% elif field|is_textfield %}
+                        {% elif field.name == "subject" %}
                             <div class="form-label {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
                             <div class="form-field"><input class="form-control {% if field.errors %}error{% endif %}" id="{{ field.id_for_label }}" name="{{ field.name }}" type="text" oninput="changedFieldValue('{{ field.name }}');"/></div>
-                        {% elif field|is_textarea %}
+                        {% elif field.name == "body" %}
                             <div class="form-label {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
                             <div class="form-field"><textarea class="form-control {% if field.errors %}error{% endif %}" cols="40" rows="10" id="{{ field.id_for_label }}" name="{{ field.name }}" oninput="changedFieldValue('{{ field.name }}');"></textarea></div>      
                         {% endif %}

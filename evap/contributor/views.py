@@ -116,11 +116,11 @@ def course_preview(request, course_id):
         raise PermissionDenied
 
     form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
-    course_forms = list(form_groups[course.general_contribution].values())    
+    course_questionnaires = list(form_groups[course.general_contribution].values())    
     contributor_questionnaires, errors = create_contributor_questionnaires(list(form_groups.items()))
 
     template_data = dict(
-            course_forms=course_forms,
+            course_questionnaires=course_questionnaires,
             contributor_questionnaires=contributor_questionnaires,
             course=course,
             preview=True)

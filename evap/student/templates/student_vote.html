@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load static %}
 {% load morefilters %}
+{% load student_templatetags %}
 
 {% block title %}{{ course.name }} - {% trans "Evaluation" %} - {{ block.super }}{% endblock %}
 
@@ -26,7 +27,7 @@
                 <h3 class="panel-title">{% trans "Questions about the course" %}</h3>
             </div>
             <div class="panel-body">
-                {% for form in course_forms %}
+                {% for form in course_questionnaires %}
                     <h4>{{ form.caption }}</h4>
                     {% if form.teaser %}
                         <p>{{ form.teaser }}</p>
@@ -35,7 +36,7 @@
                     <table class="table table-striped">
                         <tbody>
                             {% for field in form %}
-                                {% include "student_vote_row.html" %}
+                                {% student_vote_row field %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -64,10 +65,10 @@
                                     <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                                 {% endif %}
                             </div>
-                            {% if contributor.id in errors %}
-                                <div id="{{ contributor.id }}" class="panel-collapse collapse in">
+                            {% if errors and contributor.id|not_in:errors %}
+                                <div id="{{ contributor.id }}" class="panel-collapse collapse">
                             {% else %}
-                                <div id="{{ contributor.id }}" class="panel-collapse collapse in">
+                                <div id="{{ contributor.id }}" class="panel-collapse in">
                             {% endif %}
                                 <div class="panel-body">
                                     {% for form in forms %}
@@ -79,7 +80,7 @@
                                         <table class="table table-striped">
                                             <tbody>
                                                 {% for field in form %}
-                                                    {% include "student_vote_row.html" %}
+                                                    {% student_vote_row field %}
                                                 {% endfor %}
                                             </tbody>
                                         </table>
