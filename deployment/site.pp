@@ -51,4 +51,9 @@ node default {
         wsgi_process_group          => 'wsgi',
         wsgi_script_aliases         => { '/' => '/vagrant/evap/wsgi.py' }
     }
+
+    exec { 'auto_cd_vagrant':
+        provider    => shell,
+        command     => 'echo "\ncd /vagrant" >> /home/vagrant/.bashrc'
+    }
 }
