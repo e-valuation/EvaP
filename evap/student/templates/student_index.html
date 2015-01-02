@@ -72,7 +72,7 @@
                                 </td>
                                 <td>
                                     {% if course.state == 'inEvaluation' and course in due_courses %}
-                                        {% if course.days_left_for_evaluation == 0 %}
+                                        {% if course.days_left_for_evaluation <= 0 %}
                                             <span class="label label-danger">{% trans "ends today" %}</span>
                                         {% elif course.days_left_for_evaluation == 1 %}
                                             <span class="label label-danger">{% trans "ends tomorrow" %}</span>
@@ -90,7 +90,7 @@
                                         {% endif %}
                                     {% elif course.state == 'inEvaluation' %}
                                         {% if course in voted_courses %}
-                                            <a class="btn btn-sm btn-primary twipsify" disabled="disabled" title="{% trans "You already evaluated this course" %}">{% trans "Evaluate" %}</a>
+                                            <a class="btn btn-sm btn-default twipsify" disabled="disabled" title="{% trans "You already evaluated this course" %}">{% trans "Evaluate" %}</a>
                                         {% else %}
                                             <a href="{% url "evap.student.views.vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
                                         {% endif %}
