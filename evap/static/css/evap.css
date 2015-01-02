@@ -187,11 +187,11 @@ ul.errorlist li {
     min-width: 50px;
 }
 
-.questionnaire-submit {
+.submit-area {
     margin-top: 20px;
 }
 
-.questionnaire-submit input, .questionnaire-submit a {
+.submit-area input, .submit-area a {
     min-width: 250px;
 }
 
@@ -263,4 +263,31 @@ Side notes for calling out things
 
 .button-menu {
     margin-bottom: 15px;
+}
+
+.email-form .form-row {
+    clear:both;
+    padding: 15px 0;
+}
+
+.email-form .form-label {
+    float:left;
+    width: 15%;
+    padding-top: 7px;
+    padding-right: 15px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.email-form .form-field {
+    float:left;
+    width:85%;
+}
+
+.form-label.error {
+    color: #a53e3f;
+}
+
+.form-field > .error {
+    box-shadow: 0px 0px 8px #eb595a;
 }

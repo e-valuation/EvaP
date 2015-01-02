@@ -11,6 +11,7 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
                                    EmailTemplate, TextAnswer
 from evap.staff.fields import ToolTipModelMultipleChoiceField
+from evap.staff.tools import EMAIL_RECIPIENTS
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -106,13 +107,9 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseEmailForm(forms.Form, BootstrapMixin):
-    sendToDueParticipants = forms.BooleanField(label=_("Send to participants who didn't vote yet"), required=False, initial=True)
-    sendToAllParticipants = forms.BooleanField(label=_("Send to all participants"), required=False)
-    sendToResponsible = forms.BooleanField(label=_("Send to the responsible person"), required=False)
-    sendToEditors = forms.BooleanField(label=_("Send to editors"), required=False)
-    sendToContributors = forms.BooleanField(label=_("Send to all contributors (includes editors)"), required=False)
+    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EMAIL_RECIPIENTS, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
-    body = forms.CharField(widget=forms.Textarea(), label=_("Body"))
+    body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
@@ -120,15 +117,9 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         super(CourseEmailForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        self.recipient_groups = []
+        self.recipient_groups = self.cleaned_data.get('recipients')
 
-        if self.cleaned_data.get('sendToAllParticipants'): self.recipient_groups += ['all_participants']
-        if self.cleaned_data.get('sendToDueParticipants'): self.recipient_groups += ['due_participants']
-        if self.cleaned_data.get('sendToResponsible'): self.recipient_groups += ['responsible']
-        if self.cleaned_data.get('sendToEditors'): self.recipient_groups += ['editors']
-        if self.cleaned_data.get('sendToContributors'): self.recipient_groups += ['contributors']
-
-        if len(self.recipient_groups) == 0:
+        if not self.recipient_groups:
             raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
 
         return self.cleaned_data

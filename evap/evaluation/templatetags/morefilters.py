@@ -74,3 +74,15 @@ def is_false(arg):
 @register.filter
 def is_choice_field(field):
     return field.field.__class__.__name__ == "TypedChoiceField"
+
+@register.filter
+def is_multiple_choice_field(field):
+    return field.field.__class__.__name__ == "MultipleChoiceField"
+
+@register.filter
+def is_textfield(field):
+    return field.field.widget.__class__.__name__ == "TextInput"
+
+@register.filter
+def is_textarea(field):
+    return field.field.widget.__class__.__name__ == "Textarea"
