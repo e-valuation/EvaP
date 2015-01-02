@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load morefilters %}
+
+<div class="panel-body">
+    {% for form in questionnaire_group %}
+        <h4>{{ form.caption }}</h4>
+        {% if form.teaser %}
+            <p>{{ form.teaser }}</p>
+        {% endif %}
+        {{ form.non_field_errors }}
+        <table class="table table-striped">
+            <tbody>
+                {% for field in form %}
+                    <tr class="vote-row">
+                        {% if field|is_choice_field %}
+                            <td class="vote-question {% if field.errors %}choice-error{% endif %}" id="vertically-aligned" name="{{ field.name }}">
+                        {% else %}
+                            <td class="vote-question">
+                        {% endif %}
+                        {{ field.label }}</td>
+                        {% if field|is_choice_field %}
+                            <td class="vote-inputs {% if preview %}preview{% endif %} btn-group" data-toggle="buttons">
+                                {% for choice in field %}
+                                    <label class="btn btn-sm btn-default vote-btn {% if field.value == choice.choice_value %}active{% endif %} {% if field.errors %}choice-error{% endif %}" name="{{ choice.name }}" onclick="selectedAnswer('{{ choice.name }}');">
+                                        <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if field.value == choice.choice_value %}checked="checked"{% endif %}/>
+                                        {{ choice.choice_label }} {{ choice.id }}
+                                    </label>
+                                {% endfor %}
+                            </td>
+                        {% else %}
+                            <td class="vote-inputs {% if preview %}preview{% endif %}">{{ field.errors }}{{ field }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</div>

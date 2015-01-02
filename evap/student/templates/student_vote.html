@@ -26,22 +26,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title">{% trans "Questions about the course" %}</h3>
             </div>
-            <div class="panel-body">
-                {% for form in course_questionnaires %}
-                    <h4>{{ form.caption }}</h4>
-                    {% if form.teaser %}
-                        <p>{{ form.teaser }}</p>
-                    {% endif %}
-                    {{ form.non_field_errors }}
-                    <table class="table table-striped">
-                        <tbody>
-                            {% for field in form %}
-                                {% student_vote_row field %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endfor %}
-            </div>
+            {% include_student_vote_questionnaire_group course_questionnaires %}
         </div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-info">
@@ -70,23 +55,8 @@
                             {% else %}
                                 <div id="{{ contributor.id }}" class="panel-collapse in">
                             {% endif %}
-                                <div class="panel-body">
-                                    {% for form in forms %}
-                                        <h4>{{ form.caption }}</h4>
-                                        {% if form.teaser %}
-                                            <p>{{ form.teaser }}</p>
-                                        {% endif %}
-                                        {{ form.non_field_errors }}
-                                        <table class="table table-striped">
-                                            <tbody>
-                                                {% for field in form %}
-                                                    {% student_vote_row field %}
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    {% endfor %}
+                                {% include_student_vote_questionnaire_group forms %}
                                 </div>
-                            </div>
                         </div>
                     {% endfor %}
                 </div>
