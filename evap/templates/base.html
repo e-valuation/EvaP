@@ -165,7 +165,8 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
 
     <script type="text/javascript">
-        $(function(){
+        
+        $(document).ready(function(){
             // show browser information
             $.reject({
                 imagePath: '{% get_static_prefix %}images/browsers/',
@@ -200,6 +201,17 @@
             {% block on_document_ready %} {% endblock %}
         });
     </script>
+
+    <script type="text/javascript">
+        // If activated, make the user confirm he wants to leave the page by displaying a popup.
+        var preventAccidentalClosing = false;
+        $(window).bind('beforeunload', function(){
+            if (preventAccidentalClosing) {
+                return "{% trans "Are you sure you want to leave?" %}";
+            }
+        });
+    </script>
+
     {% block additional_javascript %} {% endblock %}
 </body>
 </html>

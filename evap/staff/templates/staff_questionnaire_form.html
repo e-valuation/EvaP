@@ -43,7 +43,7 @@
         </fieldset>
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
-                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="submitFormOkay = true;" class="btn btn-primary"/>
+                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="preventAccidentalClosing = false;" class="btn btn-primary"/>
             </div>
         </div>
     </form>
@@ -58,5 +58,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+    <script type="text/javascript"> preventAccidentalClosing = true; </script>
 {% endblock %}

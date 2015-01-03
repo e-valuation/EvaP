@@ -54,7 +54,7 @@
 
         <div class="form-group well">
             <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
+                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary" onclick="preventAccidentalClosing = false;"/>
             </div>
         </div>
     </form>
@@ -97,9 +97,8 @@
                 apply_ordering();
                 return true;
             });
+            preventAccidentalClosing = true;
         });
     </script>
 
-    <!-- prevent from accendential closing -->
-        <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}
