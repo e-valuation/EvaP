@@ -291,42 +291,14 @@ def questionnaires_and_contributions(course):
         for questionnaire in contribution.questionnaires.all():
             result.append((questionnaire, contribution))
 
-    # sort questionnaires without contributors first
-    result.sort(key=lambda t: t[1].contributor is not None)
+    # sort questionnaires for general contributions first
+    result.sort(key=lambda t: not t[1].is_general)
 
     return result
 
 
 def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
-
-
-def create_voting_form_groups(request, contributions, include_self=False):
-    from evap.student.forms import QuestionsForm
-    form_groups = OrderedDict()
-    for contribution in contributions:
-        if not include_self and contribution.contributor == request.user:
-            continue # users shall not vote about themselves, for preview user is included
-        form_groups[contribution] = OrderedDict()
-        for questionnaire in contribution.questionnaires.all():
-            form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-            form_groups[contribution][questionnaire] = form
-    return form_groups
-
-
-def create_contributor_questionnaires(form_groups_items):
-    contributor_questionnaires = []
-    errors = []
-    for contribution, form_group in form_groups_items:
-        if contribution.is_general:
-            continue
-        contributor = contribution.contributor
-        contributor_questionnaires.append((contributor, list(form_group.values())));
-
-        if any(form.errors for form in form_group.values()):
-                errors.append(contributor.id)
-
-    return contributor_questionnaires, errors
 
 
 def user_publish_notifications(courses):

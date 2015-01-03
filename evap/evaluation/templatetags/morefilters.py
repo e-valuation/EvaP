@@ -74,7 +74,3 @@ def is_false(arg):
 @register.filter
 def is_choice_field(field):
     return field.field.__class__.__name__ == "TypedChoiceField"
-
-@register.filter
-def not_in(an_element, a_list):
-    return an_element not in a_list
