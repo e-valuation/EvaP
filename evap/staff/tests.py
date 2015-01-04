@@ -355,24 +355,29 @@ class URLTests(WebTest):
         for _, url, user in tests:
             self.get_assert_302(url, user)
 
-
     def test_failing_forms(self):
         """
             Tests whether forms that fail because of missing required fields
             when submitting them without entering any data actually do that.
         """
         forms = [
-            ("/student/vote/5", "lazy.student", "Vote"),
-            ("/staff/semester/create", "evap", "Save"),
+            ("/staff/semester/create", "evap"),
             ("/staff/semester/1/course/create", "evap"),
             ("/staff/semester/1/import", "evap"),
-            ("/staff/semester/1/course/1/email", "evap"),
             ("/staff/questionnaire/create", "evap"),
             ("/staff/user/create", "evap"),
         ]
         for form in forms:
             response = self.get_submit_assert_200(form[0], form[1])
             self.assertIn("is required", response)
+
+        forms = [
+            ("/student/vote/5", "lazy.student"),
+            ("/staff/semester/1/course/1/email", "evap"),
+        ]
+        for form in forms:
+            response = self.get_submit_assert_200(form[0], form[1])
+            self.assertIn("alert-danger", response)
 
     def test_failing_questionnaire_copy(self):
         """
@@ -452,7 +457,7 @@ class URLTests(WebTest):
             Tests the CourseEmailForm with one valid and one invalid input dataset.
         """
         course = Course.objects.get(pk="1")
-        data = {"body": "wat", "subject": "some subject", "sendToDueParticipants": True}
+        data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
         form.all_recepients_reachable()
@@ -644,11 +649,12 @@ class URLTests(WebTest):
         """
         page = self.get_assert_200("/staff/semester/1/course/5/email", user="evap")
         form = lastform(page)
+        form.get("recipients", index=0).checked = True # send to all participants
         form["subject"] = "asdf"
         form["body"] = "asdf"
         form.submit()
 
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_questionnaire_deletion(self):
         """
