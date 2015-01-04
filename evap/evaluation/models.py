@@ -60,6 +60,10 @@ class Semester(models.Model):
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()
+    
+    @classmethod
+    def active_semester(cls):
+        return cls.objects.latest("created_at")
 
 
 class Questionnaire(models.Model):
@@ -120,6 +124,9 @@ class Course(models.Model):
     # bachelor, master, d-school course
     degree = models.CharField(max_length=1024, verbose_name=_(u"degree"))
 
+    # default is True as that's the more restrictive option
+    is_graded = models.BooleanField(verbose_name=_(u"is graded"), default=True)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
     participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
@@ -132,7 +139,7 @@ class Course(models.Model):
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
     vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
 
-    # who last modified this course, shell be noted
+    # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True)
 
@@ -270,6 +277,10 @@ class Course(models.Model):
     def responsible_contributors_username(self):
         return self.responsible_contributor.username
 
+    @property
+    def days_left_for_evaluation(self):
+        return (self.vote_end_date - datetime.date.today()).days
+
     def has_enough_questionnaires(self):
         return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
 
@@ -355,7 +366,7 @@ class Contribution(models.Model):
     responsible = models.BooleanField(verbose_name=_(u"responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_(u"can edit"), default=False)
 
-    order = models.IntegerField(verbose_name=_("contribution order"), default=0)
+    order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
     class Meta:
         unique_together = (
@@ -484,7 +495,7 @@ class FaqSection(models.Model):
 
     __metaclass__ = LocalizeModelBase
 
-    order = models.IntegerField(verbose_name=_("section order"))
+    order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
     title_de = models.TextField(verbose_name=_(u"section title (german)"))
     title_en = models.TextField(verbose_name=_(u"section title (english)"))
@@ -503,7 +514,7 @@ class FaqQuestion(models.Model):
 
     section = models.ForeignKey(FaqSection, related_name="questions")
 
-    order = models.IntegerField(verbose_name=_("question order"))
+    order = models.IntegerField(verbose_name=_("question order"), default=-1)
 
     question_de = models.TextField(verbose_name=_("question (german)"))
     question_en = models.TextField(verbose_name=_("question (english)"))
@@ -569,7 +580,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), blank=True)
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="ccing_users", blank=True)
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
@@ -623,7 +634,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return not self.is_contributor
 
     @property
-    def enrolled_in_courses(self):
+    def is_participant(self):
         return self.course_set.exists()
 
     @property
@@ -709,6 +720,10 @@ class EmailTemplate(models.Model):
         return cls.objects.get(name="Login Key Created")
 
     @classmethod
+    def get_evaluation_started_template(cls):
+        return cls.objects.get(name="Evaluation Started")
+
+    @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
         recipients = []
 
@@ -739,29 +754,37 @@ class EmailTemplate(models.Model):
                 if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
 
-        for user, courses in user_course_map.iteritems():
-            cc_users = []
-            if ("responsible" in recipient_groups or "editors" in recipient_groups) and any(course.is_user_editor(user) for course in courses):
-                cc_users += user.delegates.all()
-            cc_users += user.cc_users.all()
-            cc_addresses = [p.email for p in cc_users if p.email]
+        for user, courses in user_course_map.items():
+            self.send_to_user(user, courses)
 
-            mail = EmailMessage(
-                subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
-                body = self.render_string(self.body, {'user': user, 'courses': courses}),
-                to = [user.email],
-                cc = cc_addresses,
-                bcc = [a[1] for a in settings.MANAGERS],
-                headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-            mail.send(False)
-
-    def send_to_user(self, user):
+    def send_to_user(self, user, courses=None):
         if not user.email:
             return
 
+        cc_users = set(user.delegates.all() | user.cc_users.all())
+        cc_addresses = [p.email for p in cc_users if p.email]
+
         mail = EmailMessage(
-            subject = self.render_string(self.subject, {'user': user}),
-            body = self.render_string(self.body, {'user': user}),
+            subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
+            body = self.render_string(self.body, {'user': user, 'courses': courses}),
+            to = [user.email],
+            cc = cc_addresses,
+            bcc = [a[1] for a in settings.MANAGERS],
+            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.send(False)
+
+    @classmethod
+    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
+        if not user.email:
+            return
+
+        template = cls.get_reminder_template()        
+        subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
+        body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
+
+        mail = EmailMessage(
+            subject = subject,
+            body = body,
             to = [user.email],
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})

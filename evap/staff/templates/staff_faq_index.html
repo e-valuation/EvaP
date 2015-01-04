@@ -8,41 +8,6 @@
     <li>{% trans "FAQ Sections" %}</li>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-
-            $('#section_table tbody tr').formset({
-                prefix: 'form',
-                additionalDeleteCssClass: 'btn btn-danger btn-sm',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                    row.find('a.btn-default').remove();
-                }
-            });
-
-            $('tbody').sortable({
-                items: 'tr',
-                handle: 'td:first',
-                update: function() {
-                    $(this).find('tr').each(function(i) {
-                        if ($(this).find('input[id$=-order]').val()) {
-                            $(this).find('input[id$=-order]').val(i);
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
 
@@ -74,9 +39,10 @@
                     <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                     {% for field in form.visible_fields %}
                         <td>
-                            {% if forloop.last %}
+                            {% if forloop.last and form.instance.id %}
                                 <a href="{% url "evap.staff.views.faq_section" form.instance.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                             {% endif %}
+                            {{ field.errors }}
                             {{ field }}
                         </td>
                     {% endfor %}
@@ -91,4 +57,53 @@
             </div>
         </div>
     </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        // set the order fields to the position the rows currently have on the page
+        function apply_ordering() {
+            $(document).find('tr').each(function(i) {
+                name_de = $($(this).find('input[id$=-title_de]')).val();
+                name_en = $($(this).find('input[id$=-title_en]')).val();
+                if (name_de || name_en) {
+                    $(this).find('input[id$=-order]').val(i);
+                }
+                else {
+                    // if the row is empty (has no text in the input fields) set the order to -1 (default),
+                    // so that the one extra row doesn't change its initial value
+                    $(this).find('input[id$=-order]').val(-1);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            $('#section_table tbody tr').formset({
+                prefix: 'form',
+                deleteCssClass: 'btn btn-danger btn-sm',
+                deleteText: '{% trans "remove" %}',
+                addText: '{% trans "add another" %}',
+                added: function(row) {
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                    row.find('a.btn-default').remove();
+                }
+            });
+
+            $('tbody').sortable({
+                items: 'tr',
+                handle: 'td:first'
+            });
+
+            $('form').submit(function() {
+                apply_ordering();
+                return true;
+            });
+        });
+    </script>
 {% endblock %}

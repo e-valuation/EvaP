@@ -9,7 +9,7 @@ from django.conf import settings
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributorFormSet, ContributionForm, CourseForm
+                            ContributionFormSet, ContributionForm, CourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -64,7 +64,7 @@ class UsecaseTests(WebTest):
         upload_form = lastform(page)
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
-        upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "samples.xls"),)
+        upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "test_enrolment_data.xls"),)
         page = upload_form.submit(name="operation", value="import").follow()
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
@@ -355,24 +355,29 @@ class URLTests(WebTest):
         for _, url, user in tests:
             self.get_assert_302(url, user)
 
-
     def test_failing_forms(self):
         """
             Tests whether forms that fail because of missing required fields
             when submitting them without entering any data actually do that.
         """
         forms = [
-            ("/student/vote/5", "lazy.student", "Vote"),
-            ("/staff/semester/create", "evap", "Save"),
+            ("/staff/semester/create", "evap"),
             ("/staff/semester/1/course/create", "evap"),
             ("/staff/semester/1/import", "evap"),
-            ("/staff/semester/1/course/1/email", "evap"),
             ("/staff/questionnaire/create", "evap"),
             ("/staff/user/create", "evap"),
         ]
         for form in forms:
             response = self.get_submit_assert_200(form[0], form[1])
             self.assertIn("is required", response)
+
+        forms = [
+            ("/student/vote/5", "lazy.student"),
+            ("/staff/semester/1/course/1/email", "evap"),
+        ]
+        for form in forms:
+            response = self.get_submit_assert_200(form[0], form[1])
+            self.assertIn("alert-danger", response)
 
     def test_failing_questionnaire_copy(self):
         """
@@ -452,7 +457,7 @@ class URLTests(WebTest):
             Tests the CourseEmailForm with one valid and one invalid input dataset.
         """
         course = Course.objects.get(pk="1")
-        data = {"body": "wat", "subject": "some subject", "sendToDueParticipants": True}
+        data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
         form.all_recepients_reachable()
@@ -484,7 +489,7 @@ class URLTests(WebTest):
         course1 = Course.objects.get(pk=1)
         course2 = Course.objects.get(pk=2)
         data = {"1": True, "2": False}
-        form = SelectCourseForm(course1.degree, [course1, course2], None, data=data)
+        form = SelectCourseForm([course1, course2], data=data)
         self.assertTrue(form.is_valid())
 
     def test_review_text_answer_form(self):
@@ -493,11 +498,11 @@ class URLTests(WebTest):
             (one cannot make it invalid through the UI).
         """
         textanswer = TextAnswer.objects.get(pk=1)
-        data = dict(edited_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
+        data = dict(reviewed_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(edited_answer="edited answer", needs_further_review=False, hidden=False)
+        data = dict(reviewed_answer="edited answer", needs_further_review=False, hidden=False)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(edited_answer="edited answer", needs_further_review=True, hidden=True)
+        data = dict(reviewed_answer="edited answer", needs_further_review=True, hidden=True)
         self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
 
     def test_contributor_form_set(self):
@@ -506,7 +511,7 @@ class URLTests(WebTest):
         """
         course = Course.objects.create(pk=9001, semester_id=1)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
         data = {
             'contributions-TOTAL_FORMS': 1,
@@ -627,6 +632,7 @@ class URLTests(WebTest):
         page = form.submit(name="operation", value="save_and_next").follow()
 
         form = lastform(page)
+        self.assertEqual(form["form-0-reviewed_answer"].value, "mfj49s1my.45j")
         form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
         page = form.submit()
 
@@ -643,11 +649,12 @@ class URLTests(WebTest):
         """
         page = self.get_assert_200("/staff/semester/1/course/5/email", user="evap")
         form = lastform(page)
+        form.get("recipients", index=0).checked = True # send to all participants
         form["subject"] = "asdf"
         form["body"] = "asdf"
         form.submit()
 
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_questionnaire_deletion(self):
         """
@@ -733,130 +740,81 @@ class URLTests(WebTest):
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
-    def test_delete_redemption_events(self):
+class ContributorFormTests(WebTest):
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def test_dont_validate_deleted_contributions(self):
         """
-            Submits a request that tries to delete an event where users already redeemed points -> should not work.
-            Secondly it issues a GET Request and asserts that the page for deleting events is returned.
-            Last it submits a request that should delete the event.
+            Tests whether contributions marked for deletion are validated.
+            Regression test for #415 and #244
         """
-        # try to delete event that can not be deleted, because people already redeemed points
-        response = self.app.post(reverse("evap.rewards.views.reward_point_redemption_event_delete", args=[1]), user="evap")
-        self.assertRedirects(response, reverse('evap.rewards.views.reward_point_redemption_events'))
-        response = response.follow()
-        self.assertContains(response, "cannot be deleted")
-        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user = UserProfile.objects.create(pk=9001)
+        user = UserProfile.objects.create(pk=9002, username="1")
+        user = UserProfile.objects.create(pk=9003, username="2")
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
 
-        # make sure that a GET Request does not delete an event
-        response = self.app.get(reverse("evap.rewards.views.reward_point_redemption_event_delete", args=[2]), user="evap")
-        self.assertTemplateUsed(response, "rewards_reward_point_redemption_event_delete.html")
-        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
-        # now delete for real
-        response = self.app.post(reverse("evap.rewards.views.reward_point_redemption_event_delete", args=[2]), user="evap")
-        self.assertRedirects(response, reverse('evap.rewards.views.reward_point_redemption_events'))
-        self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
+        # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
+        data = {
+            'contributions-TOTAL_FORMS': 3,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+            'contributions-0-DELETE': 'on',
+            'contributions-1-course': 9001,
+            'contributions-1-questionnaires': [9001],
+            'contributions-1-order': 0,
+            'contributions-1-responsible': "on",
+            'contributions-1-contributor': 9002,
+            'contributions-2-course': 9001,
+            'contributions-2-questionnaires': [],
+            'contributions-2-order': 1,
+            'contributions-2-contributor': 9003,
+            'contributions-2-DELETE': 'on',
+        }
 
-    def test_redeem_reward_points(self):
+        formset = ContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+
+    def test_take_deleted_contributions_into_account(self):
         """
-            Submits a request that redeems all available reward points and checks that this works.
-            Also checks that it is not possible to redeem more points than the user actually has.
+            Tests whether contributions marked for deletion are properly taken into account 
+            when the same contributor got added again in the same formset.
+            Regression test for #415
         """
-        response = self.app.get(reverse("evap.rewards.views.index"), user="student")
-        self.assertEqual(response.status_code, 200)
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user1 = UserProfile.objects.create(pk=9001)
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
 
-        user = UserProfile.objects.get(pk=5)
-        form = lastform(response)
-        form.set("points-1", reward_points_of_user(user))
-        response = form.submit()
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "You successfully redeemed your points.")
-        self.assertEqual(0, reward_points_of_user(user))
+        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+        contribution1.questionnaires = [questionnaire]
 
-        form.set("points-1", 1)
-        form.set("points-2", 3)
-        response = form.submit()
-        self.assertIn("have enough reward points.", response.body)
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
-    def test_create_redemption_event(self):
-        """
-            submits a newly created redemption event and checks that the event has been created
-        """
-        response = self.app.get(reverse("evap.rewards.views.reward_point_redemption_event_create"), user="evap")
+        data = {
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 1,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': 9001,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 0,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+            'contributions-0-DELETE': 'on',
+            'contributions-1-course': 9001,
+            'contributions-1-questionnaires': [9001],
+            'contributions-1-order': 0,
+            'contributions-1-responsible': "on",
+            'contributions-1-contributor': 9001,
+        }
 
-        form = lastform(response)
-        form.set('name', 'Test3Event')
-        form.set('date', '2014-12-10')
-        form.set('redeem_end_date', '2014-11-20')
-
-        response = form.submit()
-        self.assertRedirects(response, reverse('evap.rewards.views.reward_point_redemption_events'))
-        self.assertEqual(RewardPointRedemptionEvent.objects.count(), 3)
-
-    def test_edit_redemption_event(self):
-        """
-            submits a changed redemption event and tests whether it actually has changed
-        """
-        response = self.app.get(reverse("evap.rewards.views.reward_point_redemption_event_edit", args=[2]), user="evap")
-
-        form = lastform(response)
-        name = form.get('name').value
-        form.set('name', 'new name')
-
-        response = form.submit()
-        self.assertRedirects(response, reverse('evap.rewards.views.reward_point_redemption_events'))
-        self.assertNotEqual(RewardPointRedemptionEvent.objects.get(pk=2).name, name)
-
-    def test_grant_reward_points(self):
-        """
-            submits several requests that trigger the reward point granting and checks that the reward point
-            granting works as expected for the different requests.
-        """
-        user = UserProfile.objects.get(pk=5)
-        reward_points_before_end = reward_points_of_user(user)
-        response = self.app.get(reverse("evap.student.views.vote", args=[9]), user="student")
-
-        form = lastform(response)
-        for key, value in form.fields.iteritems():
-            if key is not None and "question" in key:
-                form.set(key, 6)
-
-        response = form.submit()
-        self.assertRedirects(response, reverse('evap.student.views.index'))
-
-        # semester is not activated --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
-
-        # reset course for another try
-        course = Course.objects.get(pk=9)
-        course.voters = []
-        # activate semester
-        activation = SemesterActivation.objects.get(semester=course.semester)
-        activation.is_active = True
-        activation.save()
-        # create a new course
-        new_course = Course(semester=course.semester, name_de="bhabda", name_en="dsdsfds")
-        new_course.save()
-        new_course.participants.add(user)
-        new_course.save()
-        response = form.submit()
-        self.assertRedirects(response, reverse('evap.student.views.index'))
-
-        # user also has other courses this semester --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
-
-        course.voters = []
-        course.save()
-        new_course.participants.remove(user)
-        new_course.save()
-
-        # last course of user so he may get reward points
-        response = form.submit()
-        self.assertRedirects(response, reverse('evap.student.views.index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
-
-        # test behaviour if user already got reward points
-        course.voters = []
-        course.save()
-        response = form.submit()
-        self.assertRedirects(response, reverse('evap.student.views.index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
+        formset = ContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())

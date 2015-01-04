@@ -101,7 +101,11 @@ td.right, th.right {
 td.center, th.center {
     text-align: center;
 }
-table.vertically-aligned * td {
+table.vertically-aligned tr td {
+    vertical-align: middle;
+}
+
+td#vertically-aligned {
     vertical-align: middle;
 }
 
@@ -133,26 +137,38 @@ select[multiple='multiple'] {
     height: 200px;
 }
 
+td.vote-row {
+    width: 100%;
+}
+
+td.vote-question {
+    width: 40%;
+}
+
+td.vote-question.choice-error {
+    font-weight: bold;
+    color: #a53e3f;
+}
+
 td.vote-inputs {
-    width: 69%;
+    width: 100%;
 }
 
-td.vote-inputs > div {
-    display: inline-block;
-    padding: 0px 3px;
-    text-align: center;
+td.vote-inputs label.choice-error {
+    box-shadow: 0px 0px 8px #eb595a;
 }
 
-td.vote-inputs > div > label {
-    float: none;
-    font-weight: normal;
-}
+td.vote-inputs > label:nth-of-type(1) { color: #5f8634; }
+td.vote-inputs > label:nth-of-type(2) { color: #83933b; }
+td.vote-inputs > label:nth-of-type(3) { color: #a89f3e; }
+td.vote-inputs > label:nth-of-type(4) { color: #aa6f3e; }
+td.vote-inputs > label:nth-of-type(5) { color: #a53e3f; }
 
-td.vote-inputs > div:nth-of-type(1) > label { color: #5f8634; }
-td.vote-inputs > div:nth-of-type(2) > label { color: #83933b; }
-td.vote-inputs > div:nth-of-type(3) > label { color: #a89f3e; }
-td.vote-inputs > div:nth-of-type(4) > label { color: #aa6f3e; }
-td.vote-inputs > div:nth-of-type(5) > label { color: #a53e3f; }
+td.vote-inputs > label:nth-of-type(1).active { color: #000000; background-color: #88bf4a; }
+td.vote-inputs > label:nth-of-type(2).active { color: #000000; background-color: #bbd154; }
+td.vote-inputs > label:nth-of-type(3).active { color: #000000; background-color: #efe258; }
+td.vote-inputs > label:nth-of-type(4).active { color: #000000; background-color: #f29e58; }
+td.vote-inputs > label:nth-of-type(5).active { color: #000000; background-color: #eb595a; }
 
 td.vote-inputs > textarea {
     width: 99%;
@@ -165,6 +181,18 @@ td.preview > textarea {
 
 ul.errorlist li {
     color: #B94A48;
+}
+
+.vote-btn {
+    min-width: 50px;
+}
+
+.submit-area {
+    margin-top: 20px;
+}
+
+.submit-area input, .submit-area a {
+    min-width: 250px;
 }
 
 .nobottompadding {
@@ -235,4 +263,31 @@ Side notes for calling out things
 
 .button-menu {
     margin-bottom: 15px;
+}
+
+.email-form .form-row {
+    clear:both;
+    padding: 15px 0;
+}
+
+.email-form .form-label {
+    float:left;
+    width: 15%;
+    padding-top: 7px;
+    padding-right: 15px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.email-form .form-field {
+    float:left;
+    width:85%;
+}
+
+.form-label.error {
+    color: #a53e3f;
+}
+
+.form-field > .error {
+    box-shadow: 0px 0px 8px #eb595a;
 }

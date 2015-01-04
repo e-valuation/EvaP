@@ -4,7 +4,7 @@ from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from collections import namedtuple
 
 LIKERT_NAMES = {
@@ -69,9 +69,10 @@ def med(iterable):
     if length == 0:
         return None
     sorted_items = sorted(items)
-    if not length % 2:
-        return (sorted_items[length / 2] + sorted_items[length / 2 - 1]) / 2.0
-    return sorted_items[length / 2]
+    index = int(length / 2)
+    if length % 2 == 0:
+        return (sorted_items[index] + sorted_items[index]) / 2.0
+    return sorted_items[index]
 
 
 def mix(a, b, alpha):
@@ -290,8 +291,8 @@ def questionnaires_and_contributions(course):
         for questionnaire in contribution.questionnaires.all():
             result.append((questionnaire, contribution))
 
-    # sort questionnaires without contributors first
-    result.sort(key=lambda t: t[1].contributor is not None)
+    # sort questionnaires for general contributions first
+    result.sort(key=lambda t: not t[1].is_general)
 
     return result
 
@@ -300,29 +301,21 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def create_voting_form_groups(request, contributions, include_self=False):
-    from evap.student.forms import QuestionsForm
-    form_groups = OrderedDict()
-    for contribution in contributions:
-        if not include_self and contribution.contributor == request.user:
-            continue # users shall not vote about themselves, for preview user is included
-        form_groups[contribution] = OrderedDict()
-        for questionnaire in contribution.questionnaires.all():
-            form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
-            form_groups[contribution][questionnaire] = form
-    return form_groups
+def user_publish_notifications(courses):
+    user_notifications = defaultdict(set)
+    for course in courses:
+        # for published courses all contributors and participants get a notification
+        if course.can_publish_grades():
+            for participant in course.participants.all():
+                user_notifications[participant].add(course)
+            for contribution in course.contributions.all():
+                if contribution.contributor:
+                    user_notifications[contribution.contributor].add(course)
+        # if a course was not published notifications are only sent for contributors who can see comments
+        elif len(course.textanswer_set) > 0:
+            for textanswer in course.textanswer_set:
+                if textanswer.contribution.contributor:
+                    user_notifications[textanswer.contribution.contributor].add(course)
+            user_notifications[course.responsible_contributor].add(course)
 
-
-def create_contributor_questionnaires(form_groups_items):
-    contributor_questionnaires = []
-    errors = []
-    for contribution, form_group in form_groups_items:
-        if contribution.is_general:
-            continue
-        contributor = contribution.contributor
-        contributor_questionnaires.append((contributor, form_group.values()));
-
-        if any(form.errors for form in form_group.values()):
-                errors.append(contributor.id)
-
-    return contributor_questionnaires, errors
+    return user_notifications

@@ -86,7 +86,7 @@ class ExcelExporter(object):
             for questionnaire, results in results.items():
                 qn_frequencies[questionnaire] += 1
 
-        qn_relevant = qn_frequencies.items()
+        qn_relevant = list(qn_frequencies.items())
         qn_relevant.sort(key=lambda t: -t[1])
 
         questionnaires = [Questionnaire.objects.get(id=t[0]) for t in qn_relevant]

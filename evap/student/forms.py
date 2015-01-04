@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 
@@ -9,13 +9,6 @@ from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES
 
 LIKERT_CHOICES = [(unicode(k), v) for k, v in LIKERT_NAMES.items()]
 GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
-
-
-class RadioFieldTableRenderer(forms.widgets.RadioFieldRenderer):
-    def render(self):
-        """Outputs a <ul> for this set of radio fields."""
-        return mark_safe(u'\n'.join([u'<div>{}</div>'.format(force_unicode(w)) for w in self]))
-
 
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
@@ -37,12 +30,12 @@ class QuestionsForm(forms.Form):
                 field = forms.CharField(required=False, widget=forms.Textarea(),
                                         **field_args)
             elif question.is_likert_question():
-                field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
+                field = forms.TypedChoiceField(widget=forms.RadioSelect(),
                                                choices=LIKERT_CHOICES,
                                                coerce=int,
                                                **field_args)
             elif question.is_grade_question():
-                field = forms.TypedChoiceField(widget=forms.RadioSelect(renderer=RadioFieldTableRenderer),
+                field = forms.TypedChoiceField(widget=forms.RadioSelect(),
                                                choices=GRADE_CHOICES,
                                                coerce=int,
                                                **field_args)

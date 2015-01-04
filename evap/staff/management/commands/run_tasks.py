@@ -14,11 +14,14 @@ class Command(BaseCommand):
         """ Updates courses state, when evaluation time begins/ends."""
         today = datetime.date.today()
 
+        courses_new_in_evaluation = []
+
         for course in Course.objects.all():
             try:
                 if course.state == "approved" and course.vote_start_date <= today:
                     course.evaluation_begin()
                     course.save()
+                    courses_new_in_evaluation.append(course)
                 elif course.state == "inEvaluation" and course.vote_end_date < today:
                     course.evaluation_end()
                     if course.is_fully_checked():
@@ -27,10 +30,23 @@ class Command(BaseCommand):
             except Exception:
                 pass
 
+        if courses_new_in_evaluation:
+            EmailTemplate.get_evaluation_started_template().send_to_users_in_courses(courses_new_in_evaluation, ['all_participants'])
+
     def check_reminders(self):
-        check_date = datetime.date.today() + datetime.timedelta(days=settings.REMIND_X_DAYS_AHEAD_OF_END_DATE)
-        found_courses = [course for course in Course.objects.all() if course.state == "inEvaluation" and course.vote_end_date == check_date]
-        EmailTemplate.get_reminder_template().send_to_users_in_courses(found_courses, ['due_participants'])
+        check_dates = []
+        for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE:
+            check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
+        
+        recipients = set()
+        for course in Course.objects.filter(state='inEvaluation', vote_end_date__in=check_dates):
+            recipients.update(course.due_participants)
+
+        for recipient in recipients:
+            due_courses = list(set(Course.objects.filter(participants=recipient, state='inEvaluation').exclude(voters=recipient)))
+            due_in_number_of_days = min((course.vote_end_date - datetime.date.today()).days for course in due_courses)
+        
+            EmailTemplate.send_reminder_to_user(recipient, due_in_number_of_days=due_in_number_of_days, due_courses=due_courses)
 
     def handle(self, *args, **options):
         if len(args) > 0 and args[0] == 'daily':

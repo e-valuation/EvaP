@@ -6,12 +6,11 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, create_voting_form_groups, create_contributor_questionnaires
+from evap.evaluation.tools import STATES_ORDERED
 from evap.contributor.forms import CourseForm, UserForm
-from evap.staff.forms import ContributionForm, ContributorFormSet
-from evap.student.forms import QuestionsForm
+from evap.staff.forms import ContributionForm, ContributionFormSet
+from evap.student.views import vote_preview
 
-from collections import OrderedDict
 
 @editor_or_delegate_required
 def index(request):
@@ -24,7 +23,7 @@ def index(request):
     delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
 
     all_courses = list(own_courses) + list(delegated_courses)
-    all_courses.sort(key=lambda course: STATES_ORDERED.keys().index(course.state))
+    all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
@@ -56,14 +55,14 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
 
     # make everything read-only
     for cform in formset.forms + [form]:
-        for name, field in cform.fields.iteritems():
+        for name, field in cform.fields.items():
             field.widget.attrs['readonly'] = "True"
             field.widget.attrs['disabled'] = "True"
 
@@ -79,7 +78,7 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributorFormSet, form=ContributionForm, extra=0, exclude=('course',))
+    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
@@ -115,13 +114,4 @@ def course_preview(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    form_groups = create_voting_form_groups(request, course.contributions.all(), include_self=True)
-    course_forms = form_groups[course.general_contribution].values()    
-    contributor_questionnaires, errors = create_contributor_questionnaires(form_groups.items())
-
-    template_data = dict(
-            course_forms=course_forms,
-            contributor_questionnaires=contributor_questionnaires,
-            course=course,
-            preview=True)
-    return render(request, "student_vote.html", template_data)
+    return vote_preview(request, course)

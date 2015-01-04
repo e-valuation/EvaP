@@ -49,6 +49,11 @@ node default {
         wsgi_daemon_process         => 'wsgi',
         wsgi_daemon_process_options => { processes => '2', threads => '15', display-name => '%{GROUP}' },
         wsgi_process_group          => 'wsgi',
-        wsgi_script_aliases         => { '/' => '/vagrant/handler.wsgi' }
+        wsgi_script_aliases         => { '/' => '/vagrant/evap/wsgi.py' }
+    }
+
+    exec { 'auto_cd_vagrant':
+        provider    => shell,
+        command     => 'echo "\ncd /vagrant" >> /home/vagrant/.bashrc'
     }
 }

@@ -56,17 +56,19 @@ class CourseData(CommonEqualityMixin):
     """
         Holds information about a course, retrieved from the Excel file.
     """
-    def __init__(self, name_de, name_en, kind, degree, responsible_email):
+    def __init__(self, name_de, name_en, kind, degree, is_graded, responsible_email):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
         self.kind = kind.strip()
         self.degree = degree.strip()
+        self.is_graded = is_graded.strip()
         self.responsible_email = responsible_email
 
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
                         name_en=self.name_en,
                         kind=self.kind,
+                        is_graded=self.is_graded,
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
                         semester=semester,
@@ -84,7 +86,7 @@ class ExcelImporter(object):
         self.skip_first_n_rows = 1 # first line contains the header
         self.errors = []
         self.warnings = []
-        # this is a dictionariy to not let this become O(n^2)
+        # this is a dictionary to not let this become O(n^2)
         self.users = {}
 
     def read_book(self, excel_file):
@@ -122,8 +124,8 @@ class ExcelImporter(object):
             if not user_data == self.users[curr_email]:
                 self.errors.append(_(u'Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
 
-    def generate_external_usernames_if_external(self, user_data_list):
-        for user_data in user_data_list:
+    def generate_external_usernames_if_external(self):
+        for user_data in self.users.values():
             if is_external_email(user_data.email):
                 if user_data.username != "":
                     self.errors.append(_(u'User {}: Username must be empty for external users.').format(user_data.username))
@@ -182,8 +184,8 @@ class EnrollmentImporter(ExcelImporter):
 
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
-        responsible_data = UserData(username=data[11], first_name=data[10], last_name=data[9], title=data[8], email=data[12], is_responsible=True)
-        course_data = CourseData(name_de=data[6], name_en=data[7], kind=data[5], degree=data[0], responsible_email=responsible_data.email)
+        responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
+        course_data = CourseData(name_de=data[7], name_en=data[8], kind=data[5], is_graded=data[6], degree=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, course_data)
 
     def process_course(self, course_data, sheet, row):
@@ -207,11 +209,21 @@ class EnrollmentImporter(ExcelImporter):
             if already_exists:
                 self.errors.append(_(u"Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree))
 
+    def process_graded_column(self):
+        for course_data in self.courses.values():
+            if course_data.is_graded == settings.IMPORTER_GRADED_YES:
+                course_data.is_graded = True
+            elif course_data.is_graded == settings.IMPORTER_GRADED_NO:
+                course_data.is_graded = False
+            else:
+                course_data.is_graded = True
+                self.errors.append(_(u'"is_graded" of course {} in degree {} is {}, but must be {} or {}').format(course_data.name_en, course_data.degree, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
+
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            enrollments_per_user[enrollment[1]].append(enrollment)
-        for user_data, enrollments in enrollments_per_user.items():
+            enrollments_per_user[enrollment[1].username].append(enrollment)
+        for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
                 self.warnings.append(_(u"Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
         
@@ -250,14 +262,15 @@ class EnrollmentImporter(ExcelImporter):
         try:
             importer = cls(request)
             importer.read_book(excel_file)
-            importer.check_column_count(13)
+            importer.check_column_count(14)
             if importer.errors:
                 importer.show_errors_and_warnings()
                 messages.error(importer.request, _("The input data is malformed. No data was imported."))
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
-            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.generate_external_usernames_if_external()
+            importer.process_graded_column()
             importer.check_user_data_correctness()
             importer.check_course_data_correctness(semester)
             importer.check_enrollment_data_sanity()
@@ -326,7 +339,7 @@ class UserImporter(ExcelImporter):
             importer.consolidate_user_data()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity()
-            importer.generate_external_usernames_if_external(importer.users.values())
+            importer.generate_external_usernames_if_external()
 
             importer.show_errors_and_warnings()
             if importer.errors:

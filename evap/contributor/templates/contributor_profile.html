@@ -16,24 +16,32 @@
         <legend>{% trans "Profile" %}</legend>
         {{ form.as_div }}
     </fieldset>
-    <fieldset>
-        <legend>{% trans "People for which you are a delegate" %}</legend>
-        <ul>
-            {% for puser in form.instance.represented_users.all %}
-                <li>{{ puser.full_name }}</li>
-            {% endfor %}
-        </ul>
-    </fieldset>
+    {% if form.instance.represented_users.all %}
+        <fieldset>
+            <legend>{% trans "People for whom you are a delegate" %}</legend>
+            <ul>
+                {% for puser in form.instance.represented_users.all %}
+                    <li>{{ puser.full_name }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+    {% endif %}
+    {% if form.instance.ccing_users.all %}
+        <fieldset>
+            <legend>{% trans "People for whom you are a CC-User" %}</legend>
+            <ul>
+                {% for puser in form.instance.ccing_users.all %}
+                    <li>{{ puser.full_name }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+    {% endif %}
     <div class="form-group well">
         <div class="col-sm-offset-2 col-sm-6">
            <input type="submit" value="{% trans "Save your profile" %}" class="btn btn-primary"/>
         </div>
     </div>
     </form>
-
-    <div>
-        <img src="{{ object.thumbnail.url }}" />
-    </div>
 {% endblock %}
 
 {% block scripts %}

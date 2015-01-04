@@ -116,16 +116,16 @@ def editor_required(func):
         return user.is_editor
     return user_passes_test(check_user)(func)
 
-def enrollment_required(func):
+def participant_required(func):
     """
-    Decorator for views that checks that the user is logged in and is
-    enrolled in at least one course.
+    Decorator for views that checks that the user is logged in and
+    participates in at least one course.
     """
 
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return user.enrolled_in_courses
+        return user.is_participant
     return user_passes_test(check_user)(func)
 
 def reward_user_required(func):
