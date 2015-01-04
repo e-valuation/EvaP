@@ -5,5 +5,5 @@
 	    <li><a href="{% url "evap.staff.views.user_edit" user.id %}">{{ user.full_name }}</a></li>
 	{% endfor %}
 {% else %}
-	<i>{% trans "None" %}</i>
+	<i>{% trans "Nobody" %}</i>
 {% endif %}

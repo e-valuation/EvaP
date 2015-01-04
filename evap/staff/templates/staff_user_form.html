@@ -61,14 +61,14 @@
             </ul>
         </fieldset>
         <fieldset>
-            <legend>{% trans "Courses contributing to (Active Semester)" %}</legend>
+            <legend>{% trans "Courses contributing to (active semester)" %}</legend>
             <ul>
                 {% if courses_contributing_to %}
                     {% for course in courses_contributing_to %}
                         <li>{{ course.name }}</li>
                     {% endfor %}
                 {% else %}
-                    <i>{% trans "None" %}</i>
+                    <i>{% trans "No courses" %}</i>
                 {% endif %}
             </ul>
         </fieldset>

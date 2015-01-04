@@ -58,7 +58,7 @@
                             </div>
                             <span class="label label-default">{{ course.degree }}</span>
                             <span class="label label-default">{{ course.kind }}</span>
-                            <span class="label label-default">{% if course.is_graded %}Graded{% else %}Not Graded{% endif %}</span>
+                            <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
                             {% for warning in course.warnings %}
                                 <span class="label label-warning">{{ warning }}</span>
                             {% endfor %}
