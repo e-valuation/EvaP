@@ -757,12 +757,15 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             self.send_to_user(user, courses)
 
-    def send_to_user(self, user, courses=None):
+    def send_to_user(self, user, courses=None, cc=True):
         if not user.email:
             return
 
-        cc_users = set(user.delegates.all() | user.cc_users.all())
-        cc_addresses = [p.email for p in cc_users if p.email]
+        if cc:
+            cc_users = set(user.delegates.all() | user.cc_users.all())
+            cc_addresses = [p.email for p in cc_users if p.email]
+        else:
+            cc_addresses = []
 
         mail = EmailMessage(
             subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
