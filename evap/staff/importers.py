@@ -225,7 +225,7 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[enrollment[1].username].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
-                self.warnings.append(_(u"Warning: User {} has {} enrollments, which is a lot.").format(user_data.username, len(enrollments)))
+                self.warnings.append(_(u"Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
         
         degrees = set([course_data.degree for course_data in self.courses.values()])
         for degree in degrees:
