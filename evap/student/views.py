@@ -38,7 +38,6 @@ def vote_preview(request, course):
     form_groups = helper_create_voting_form_groups(request, course.contributions.all())
     course_form_group = form_groups.pop(course.general_contribution)
     contributor_form_groups = list((contribution.contributor, form_group, False) for contribution, form_group in form_groups.items())
-    print contributor_form_groups
 
     template_data = dict(
             errors_exist=False,
