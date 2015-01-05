@@ -129,10 +129,9 @@ class ExcelImporter(object):
             if is_external_email(user_data.email):
                 if user_data.username != "":
                     self.errors.append(_(u'User {}: Username must be empty for external users.').format(user_data.username))
-                # remove whitespace for e.g. second names
-                first_name = user_data.first_name.replace(' ', '')
-                last_name = user_data.last_name.replace(' ', '')
-                username = (first_name + '.' + last_name + '.ext').lower()
+                username = (user_data.first_name + '.' + user_data.last_name + '.ext').lower()
+                for old, new in settings.USERNAME_REPLACEMENTS:
+                    username = username.replace(old, new)
                 user_data.username = username
 
     def check_user_data_correctness(self):
