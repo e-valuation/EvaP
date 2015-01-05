@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for EvaP project.
 
@@ -189,6 +190,14 @@ LANGUAGES = (
     ('en', "English"),
     ('de', "Deutsch"),
 )
+
+USERNAME_REPLACEMENTS = [
+    (' ', ''),
+    (u'ä', 'ae'),
+    (u'ö', 'oe'),
+    (u'ü', 'ue'),
+    (u'ß', 'ss'),
+]
 
 
 ### Static files (CSS, JavaScript, Images)
