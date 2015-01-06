@@ -69,13 +69,9 @@
             name_en = $(row.find('input[id$=-title_en]')).val();
             return name_de || name_en
         };
-        table_id = "section_table"
-        prefix = "form";
-        tolerance = "";
         row_added = function(row) {
             row.find('a.btn-default').remove();
         };
-        remove_as_button = true;
-        make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button);
+        make_form_sortable("section_table", "form", row_changed, row_added, "", true);
     </script>
 {% endblock %}

@@ -8,42 +8,50 @@
                 if($("#id_contributions-" + i + "-responsible").is(":checked")) {
                     // uncheck and enable all
                     for(var j = 0; j < contributorCount; j++){
-                        $("#id_contributions-" + j + "-responsible").prop('checked', false);
-                        $("#id_contributions-" + j + "-can_edit").prop('disabled', false);
+                        $("#id_contributions-" + j + "-responsible").prop("checked", false);
+                        $("#id_contributions-" + j + "-can_edit").prop("disabled", false);
                     }
 
                     // check self
-                    $("#id_contributions-" + i + "-responsible").prop('checked', true);
+                    $("#id_contributions-" + i + "-responsible").prop("checked", true);
 
                     // check and disable can-edit
-                    $("#id_contributions-" + i + "-can_edit").prop('checked', true);
-                    $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+                    $("#id_contributions-" + i + "-can_edit").prop("checked", true);
+                    $("#id_contributions-" + i + "-can_edit").prop("disabled", true);
                 }
                 // if the responsible checkbox is deselected
                 else {
                     // enable can-edit
-                    $("#id_contributions-" + i + "-can_edit").prop('disabled', false);
+                    $("#id_contributions-" + i + "-can_edit").prop("disabled", false);
                 }
             };
         }
 
+        function twipsify() {
+            $(".twipsify").tooltip({
+                html: true,
+                placement: "left"
+            });
+        }
+
+        function getContributorCount() { 
+            return $("#contribution_table select").length;
+        }
+
+        function assignClickHandlers() {
+            for(var i = 0; i < getContributorCount(); i++)
+                $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, getContributorCount()));
+        }
+
     $(document).ready(function() {
+        twipsify();
+        assignClickHandlers()
 
-
-        $('.twipsify').tooltip({
-            html: true,
-            placement: 'left'
-        });
-
-        // the number of contributor select fields in the contribution table
-        var contributorCount = $("#contribution_table select").length;
-        for(var i = 0; i < contributorCount; i++){
-            $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
-
-            // apply initial settings
+        // apply initial settings
+        for(var i = 0; i < getContributorCount(); i++){
             if($("#id_contributions-" + i + "-responsible").is(":checked")) {
-                $("#id_contributions-" + i + "-can_edit").prop('checked', true);
-                $("#id_contributions-" + i + "-can_edit").prop('disabled', true);
+                $("#id_contributions-" + i + "-can_edit").prop("checked", true);
+                $("#id_contributions-" + i + "-can_edit").prop("disabled", true);
             }
         }
     });
@@ -54,31 +62,20 @@
     {% include_sortable_form_js %}
     <script type="text/javascript">
         row_changed = function(row) {
-            name = $(row.find('select[id$=-contributor]')).find(':selected').text();
-            id = row.find('input[id$=-id]').val();
-            return id || (name && name != '---------');
+            name = $(row.find("select[id$=-contributor]")).find(":selected").text();
+            id = row.find("input[id$=-id]").val();
+            return id || (name && name != "---------");
         };
-
-        table_id = "contribution_table"
-        prefix = "contributions";
-        tolerance = "pointer";
         row_added = function(row) {
-            $('.twipsify').tooltip({
-                html: true,
-                placement: 'left'
-            });
-            row.find('a.btn-default').remove();
-            var contributorCount = $("#contribution_table select").length;
-            for(var i = 0; i < contributorCount; i++){
-                $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
-            }
+            twipsify();
+            assignClickHandlers()
         }
-        remove_as_button = false;
+        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false);
 
-        make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button);
         {% if staff %}
-            $('#id_degree').combobox();
+            $("#id_degree").combobox();
         {% endif %}
-        $('#id_kind').combobox();
+        $("#id_kind").combobox();
+
     </script>
 {% endif %}

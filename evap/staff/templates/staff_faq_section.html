@@ -69,16 +69,12 @@
     {% include_sortable_form_js %}
 
     <script type="text/javascript">
-        table_id = "question_table"
-        prefix = "questions";
         row_changed = function(row) {
             q_de = $(row.find('input[id$=-question_de]')).val();
             q_en = $(row.find('input[id$=-question_en]')).val();
             return q_de || q_en
         };
         row_added = function(row) { };
-        tolerance = "";
-        remove_as_button = true;
-        make_form_sortable(table_id, prefix, row_changed, row_added, remove_as_button);
+        make_form_sortable("question_table", "questions", row_changed, row_added, "", true);
     </script>
 {% endblock %}
