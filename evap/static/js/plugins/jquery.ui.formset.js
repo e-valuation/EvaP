@@ -116,12 +116,15 @@
                 $('label[for="' + del.attr('id') + '"]').hide();
                 del.remove();
 
-                if (hasChildElements(row)) {
-                    row.addClass(options.formCssClass);
-                    if (row.is(':visible')) {
-                        insertDeleteLink(row);
-                        applyExtraClasses(row, i);
-                    }
+                if (hasChildElements(row) && row.is(':visible')) {
+                    insertDeleteLink(row);
+                }
+            }
+
+            if (hasChildElements(row)) {
+                row.addClass(options.formCssClass);
+                if (row.is(':visible')) {
+                    applyExtraClasses(row, i);
                 }
             }
         });
