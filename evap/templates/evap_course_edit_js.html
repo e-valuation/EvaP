@@ -1,24 +1,8 @@
 {% load i18n %}
+{% load evaluation_templatetags %}
 
 <script type="text/javascript">
-    // set the order fields to the position the rows currently have on the page
-    function apply_ordering() {
-        $(document).find('tr').each(function(i) {
-            name = $($(this).find('select[id$=-contributor]')).find(':selected').text();
-            id = $(this).find('input[id$=-id]').val();
-            if (id || (name && name != '---------')) {
-                $(this).find('input[id$=-order]').val(i);
-            }
-            else {
-                // if the row is empty (has no contribution id and no name selected) set the order to -1 (default),
-                // so that the one extra row doesn't change its initial value
-                $(this).find('input[id$=-order]').val(-1);
-            }
-        });
-    }
-
-    $(document).ready(function() {
-        function makeClickHandler(i, contributorCount) {
+         function makeClickHandler(i, contributorCount) {
             return function () {
                 // if the responsible checkbox is selected
                 if($("#id_contributions-" + i + "-responsible").is(":checked")) {
@@ -43,41 +27,8 @@
             };
         }
 
-        {% if edit or staff %}
-            $('#contribution_table tbody tr').formset({
-                prefix: 'contributions',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    $('.twipsify').tooltip({
-                        html: true,
-                        placement: 'left'
-                    });
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                    row.find('a.btn-default').remove();
-                    var contributorCount = $("#contribution_table select").length;
-                    for(var i = 0; i < contributorCount; i++){
-                        $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
-                    }
-                }
-            });
+    $(document).ready(function() {
 
-            $('tbody').sortable({
-                items: 'tr.moveable',
-                handle: 'td:first',
-                tolerance: 'pointer'
-            });
-
-            $('form').submit(function() {
-                apply_ordering();
-                return true;
-            });
-
-            {% if staff %}
-                $('#id_degree').combobox();
-            {% endif %}
-            $('#id_kind').combobox();
-        {% endif %}
 
         $('.twipsify').tooltip({
             html: true,
@@ -97,3 +48,37 @@
         }
     });
 </script>
+
+
+{% if edit or staff %}
+    {% include_sortable_form_js %}
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name = $(row.find('select[id$=-contributor]')).find(':selected').text();
+            id = row.find('input[id$=-id]').val();
+            return id || (name && name != '---------');
+        };
+
+        table_id = "contribution_table"
+        prefix = "contributions";
+        tolerance = "pointer";
+        row_added = function(row) {
+            $('.twipsify').tooltip({
+                html: true,
+                placement: 'left'
+            });
+            row.find('a.btn-default').remove();
+            var contributorCount = $("#contribution_table select").length;
+            for(var i = 0; i < contributorCount; i++){
+                $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, contributorCount));
+            }
+        }
+        remove_as_button = false;
+
+        make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button);
+        {% if staff %}
+            $('#id_degree').combobox();
+        {% endif %}
+        $('#id_kind').combobox();
+    </script>
+{% endif %}

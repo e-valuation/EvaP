@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -60,45 +61,24 @@
     </form>
 {% endblock %}
 
+{% block on_document_ready %}
+    preventAccidentalClosing = true;
+{% endblock %}
+
 {% block additional_javascript %}
+    {% include_sortable_form_js %}
+
     <script type="text/javascript">
-        function apply_ordering() {
-            $(document).find('tr').each(function(i) {
-                q_de = $($(this).find('input[id$=-question_de]')).val();
-                q_en = $($(this).find('input[id$=-question_en]')).val();
-                if (q_de || q_en) {
-                    $(this).find('input[id$=-order]').val(i);
-                }
-                else {
-                    // if the row is empty (has no text in the input fields) set the order to -1 (default),
-                    // so that the one extra row doesn't change its initial value
-                    $(this).find('input[id$=-order]').val(-1);
-                }
-            });
-        }
-        
-        $(document).ready(function() {
-            $('#question_table tbody tr').formset({
-                prefix: 'questions',
-                deleteCssClass: 'btn btn-danger btn-sm',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                }
-            });
-
-            $('tbody').sortable({
-                items: 'tr',
-                handle: 'td:first'
-            });
-
-            $('form').submit(function() {
-                apply_ordering();
-                return true;
-            });
-            preventAccidentalClosing = true;
-        });
+        table_id = "question_table"
+        prefix = "questions";
+        row_changed = function(row) {
+            q_de = $(row.find('input[id$=-question_de]')).val();
+            q_en = $(row.find('input[id$=-question_en]')).val();
+            return q_de || q_en
+        };
+        row_added = function(row) { };
+        tolerance = "";
+        remove_as_button = true;
+        make_form_sortable(table_id, prefix, row_changed, row_added, remove_as_button);
     </script>
-
 {% endblock %}
