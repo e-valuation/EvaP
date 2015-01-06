@@ -5,8 +5,8 @@ from evap.evaluation.merge import merge_model_objects
 
 
 class Command(BaseCommand):
-    args = '<user ID 1> <user ID 2>'
-    help = 'Merge two users'
+    args = '<primary user ID> <duplicate user ID>'
+    help = 'Merges duplicate user into primary user'
 
     def handle(self, *args, **options):
         try:
