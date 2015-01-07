@@ -5,15 +5,6 @@
 
 {% block breadcrumbs %}{% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $(function() {
-            $("#id_username").focus();
-        });
-    </script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
     <h2>{% trans "Welcome to the evaluation platform!" %}</h2>
@@ -107,4 +98,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block on_document_ready %}
+    $("#id_username").focus();
 {% endblock %}

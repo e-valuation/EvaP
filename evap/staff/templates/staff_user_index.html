@@ -51,30 +51,7 @@
     </table>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $(".twipsify").tooltip({container: 'body'});
-
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-
-            $("select[multiple='multiple']").each(function(i,e) {
-                //$(e).width($(e).width());
-                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
-            });
-
-            $("#id_is_staff").click(function() {
-                if($("#id_is_staff").is(":checked"))
-                    $("#id_is_superuser").prop('checked', true);
-            });
-        });
-    </script>
-
-
+{% block additional_javascript %}
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
     <script type="text/javascript">

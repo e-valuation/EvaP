@@ -9,36 +9,6 @@
     <li><a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ" %}</a></li>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-        var anchor = "";
-
-        function endsWith(str, suffix) {
-            return str.indexOf(suffix, str.length - suffix.length) !== -1;
-        }
-
-        $(document).ready(function() {
-            anchor = window.location.hash.replace("#", "");
-            anchor = anchor.split('-');
-            id = anchor[0];
-            type = 'q';
-            if(anchor.length > 1)
-                type = anchor[1];
-
-            if(type == "q" && id != ""){
-                $("#" + id).collapse('show');
-                window.history.pushState('', id, '/faq#' + id + '-q');
-            }
-
-            setTimeout(function() {
-                console.log("timeout");
-                window.scrollBy(0,-65);
-            }, 100);
-        });
-    </script>
-{% endblock %}
-
 {% block content %}
     <h2>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h2>
 
@@ -68,4 +38,21 @@
     </div>
 
     <br />
+{% endblock %}
+
+{% block on_document_ready %}
+    var anchor = window.location.hash.replace("#", "").split('-');
+    id = anchor[0];
+    type = 'q';
+    if(anchor.length > 1)
+        type = anchor[1];
+
+    if(type == "q" && id != ""){
+        $("#" + id).collapse('show');
+        window.history.pushState('', id, '/faq#' + id + '-q');
+    }
+
+    setTimeout(function() {
+        window.scrollBy(0,-65);
+    }, 100);
 {% endblock %}

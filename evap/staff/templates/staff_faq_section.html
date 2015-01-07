@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -54,59 +55,26 @@
 
         <div class="form-group well">
             <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
+                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary" onclick="preventAccidentalClosing = false;"/>
             </div>
         </div>
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
+{% block on_document_ready %}
+    preventAccidentalClosing = true;
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include_sortable_form_js %}
 
     <script type="text/javascript">
-        function apply_ordering() {
-            $(document).find('tr').each(function(i) {
-                console.log("hi");
-                q_de = $($(this).find('input[id$=-question_de]')).val();
-                q_en = $($(this).find('input[id$=-question_en]')).val();
-                if (q_de || q_en) {
-                    $(this).find('input[id$=-order]').val(i);
-                }
-                else {
-                    // if the row is empty (has no text in the input fields) set the order to -1 (default),
-                    // so that the one extra row doesn't change its initial value
-                    $(this).find('input[id$=-order]').val(-1);
-                }
-            });
-        }
-        
-        $(document).ready(function() {
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
-
-            $('#question_table tbody tr').formset({
-                prefix: 'questions',
-                deleteCssClass: 'btn btn-danger btn-sm',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                }
-            });
-
-            $('tbody').sortable({
-                items: 'tr',
-                handle: 'td:first'
-            });
-
-            $('form').submit(function() {
-                apply_ordering();
-                return true;
-            });
-        });
+        row_changed = function(row) {
+            q_de = $(row.find('input[id$=-question_de]')).val();
+            q_en = $(row.find('input[id$=-question_en]')).val();
+            return q_de || q_en
+        };
+        row_added = function(row) { };
+        make_form_sortable("question_table", "questions", row_changed, row_added, "", true);
     </script>
-
-    <!-- prevent from accendential closing -->
-        <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
 {% endblock %}

@@ -35,13 +35,3 @@
         </tbody>
     </table>
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $(".twipsify").tooltip({container: 'body'});
-        });
-    </script>
-{% endblock %}

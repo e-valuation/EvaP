@@ -19,16 +19,3 @@
         </div>
     </form>
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-    $(function() {
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
-        }
-
-        $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
-    });
-    </script>
-{% endblock %}

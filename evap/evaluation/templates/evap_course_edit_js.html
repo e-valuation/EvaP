@@ -1,0 +1,81 @@
+{% load i18n %}
+{% load evaluation_templatetags %}
+
+<script type="text/javascript">
+         function makeClickHandler(i, contributorCount) {
+            return function () {
+                // if the responsible checkbox is selected
+                if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                    // uncheck and enable all
+                    for(var j = 0; j < contributorCount; j++){
+                        $("#id_contributions-" + j + "-responsible").prop("checked", false);
+                        $("#id_contributions-" + j + "-can_edit").prop("disabled", false);
+                    }
+
+                    // check self
+                    $("#id_contributions-" + i + "-responsible").prop("checked", true);
+
+                    // check and disable can-edit
+                    $("#id_contributions-" + i + "-can_edit").prop("checked", true);
+                    $("#id_contributions-" + i + "-can_edit").prop("disabled", true);
+                }
+                // if the responsible checkbox is deselected
+                else {
+                    // enable can-edit
+                    $("#id_contributions-" + i + "-can_edit").prop("disabled", false);
+                }
+            };
+        }
+
+        function twipsify() {
+            $(".twipsify").tooltip({
+                html: true,
+                placement: "left"
+            });
+        }
+
+        function getContributorCount() { 
+            return $("#contribution_table select").length;
+        }
+
+        function assignClickHandlers() {
+            for(var i = 0; i < getContributorCount(); i++)
+                $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, getContributorCount()));
+        }
+
+    $(document).ready(function() {
+        twipsify();
+        assignClickHandlers()
+
+        // apply initial settings
+        for(var i = 0; i < getContributorCount(); i++){
+            if($("#id_contributions-" + i + "-responsible").is(":checked")) {
+                $("#id_contributions-" + i + "-can_edit").prop("checked", true);
+                $("#id_contributions-" + i + "-can_edit").prop("disabled", true);
+            }
+        }
+    });
+</script>
+
+
+{% if edit or staff %}
+    {% include_sortable_form_js %}
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name = $(row.find("select[id$=-contributor]")).find(":selected").text();
+            id = row.find("input[id$=-id]").val();
+            return id || (name && name != "---------");
+        };
+        row_added = function(row) {
+            twipsify();
+            assignClickHandlers()
+        }
+        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false);
+
+        {% if staff %}
+            $("#id_degree").combobox();
+        {% endif %}
+        $("#id_kind").combobox();
+
+    </script>
+{% endif %}

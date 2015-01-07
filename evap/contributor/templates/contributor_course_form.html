@@ -93,8 +93,9 @@
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
+{# deactivate the default twipsification. this is handled in evap_course_edit_js.html. #}
+{% block activate_twipsify %} {% endblock %}
 
+{% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
 {% endblock %}

@@ -64,17 +64,15 @@
         </div>
         <div class="well submit-area text-center">
             {% if preview %}
-                <a class="btn btn-default" onclick="submitFormOkay = true" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
             {% else %}
-                <input type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="submitFormOkay = true;"/>
+                <input type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
             {% endif %}
         </div>
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+{% block additional_javascript %}
     <script type="text/javascript">
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
@@ -92,5 +90,6 @@
             // remove error highlighting when an answer was selected
             $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
+        preventAccidentalClosing = true;
     </script>
 {% endblock %}

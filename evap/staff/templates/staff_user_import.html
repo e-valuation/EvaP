@@ -19,14 +19,3 @@
         </div>
     </form>
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-    $(function() {
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
-        }
-    });
-    </script>
-{% endblock %}

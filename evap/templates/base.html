@@ -150,7 +150,6 @@
             </p>
         </div>
     </div>
-    {% block scripts %}
     <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.10.3.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_de.js"></script>
@@ -166,7 +165,8 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
 
     <script type="text/javascript">
-        $(function(){
+        
+        $(document).ready(function(){
             // show browser information
             $.reject({
                 imagePath: '{% get_static_prefix %}images/browsers/',
@@ -179,8 +179,39 @@
 
             // activate topbar
             $('#topbar').dropdown();
+
+            // run twipsify
+            {% block activate_twipsify %}
+                $(".twipsify").tooltip({container: 'body'});
+            {% endblock %}
+
+            // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            // run the jquery multiselect plugin
+            $("select[multiple='multiple']").each(function(i,e) {
+                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+            });
+
+            // run the jquery datepicker plugin
+            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
+            {% block on_document_ready %} {% endblock %}
         });
     </script>
-    {% endblock %}
+
+    <script type="text/javascript">
+        // If activated, make the user confirm he wants to leave the page by displaying a popup.
+        var preventAccidentalClosing = false;
+        $(window).bind('beforeunload', function(){
+            if (preventAccidentalClosing) {
+                return "{% trans "Are you sure you want to leave?" %}";
+            }
+        });
+    </script>
+
+    {% block additional_javascript %} {% endblock %}
 </body>
 </html>
