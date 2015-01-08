@@ -44,8 +44,8 @@
     "password": "", 
     "email": "expiredloginkey.user@example.com", 
     "title": "", 
-    "cc_users": [], 
-    "delegates": [], 
+    "cc_users": [1], 
+    "delegates": [2], 
     "login_key_valid_until": "2014-01-01", 
     "login_key": 12346
   }
