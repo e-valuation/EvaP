@@ -149,7 +149,16 @@ class ExcelImporter(object):
             try:
                 user_data.validate()
             except ValidationError as e:
-                self.errors.append(_(u"User {}: Error when validating: {}").format(user_data.email, e))
+                self.errors.append(_(u'User {}: Error when validating: {}').format(user_data.email, e))
+
+            try:
+                duplicate_email_user = UserProfile.objects.get(email=user_data.email)
+                if duplicate_email_user.username != user_data.username:
+                    self.errors.append(_('User {}, username {}: Another user with the same email address and a '
+                        'different username ({}) already exists.').format(user_data.email, user_data.username, duplicate_email_user.username))
+            except UserProfile.DoesNotExist:
+                pass
+
             if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH :
                 self.errors.append(_(u'User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
