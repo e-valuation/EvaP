@@ -14,7 +14,7 @@ these elements still apply and are not touched by the software license.
 ::
 
   EvaP - Evaluation Platform
-  Copyright (C) 2011-2014 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf
+  Copyright (C) 2011-2015 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
