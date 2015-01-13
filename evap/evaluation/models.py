@@ -29,6 +29,10 @@ STUDENT_STATES_NAMES = {
     'published': 'published'
 }
 
+class NotArchiveable(Exception):
+    """An attempt has been made to archive something that is not archiveable."""
+    pass
+
 
 class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
@@ -52,12 +56,15 @@ class Semester(models.Model):
 
     @property
     def can_staff_delete(self):
-        for course in self.course_set.all():
-            if not course.can_staff_delete():
-                return False
-        return True
+        return all(course.can_staff_delete() for course in self.course_set.all())
+
+    @property
+    def is_archiveable(self):
+        return all(course.is_archiveable for course in self.course_set.all())
 
     def archive(self):
+        if not self.is_archiveable:
+            raise NotArchiveable()
         for course in self.course_set.all():
             course.archive()
 
@@ -365,6 +372,8 @@ class Course(models.Model):
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
 
     def archive(self):
+        if not self.is_archiveable:
+            raise NotArchiveable()
         self.participant_count = self.participants.count()
         self.voter_count = self.voters.count()
         self.save()
@@ -373,6 +382,10 @@ class Course(models.Model):
     def is_archived(self):
         assert((self.participant_count is None) == (self.voter_count is None))
         return self.participant_count is not None
+
+    @property
+    def is_archiveable(self):
+        return not self.is_archived and self.state in ["new", "published"]
 
     def was_evaluated(self, request):
         self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
