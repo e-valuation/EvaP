@@ -66,7 +66,7 @@ class Semester(models.Model):
         if not self.is_archiveable:
             raise NotArchiveable()
         for course in self.course_set.all():
-            course.archive()
+            course._archive()
 
     @classmethod
     def get_all_with_published_courses(cls):
@@ -144,11 +144,11 @@ class Course(models.Model):
 
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
-    participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
+    _participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
 
     # students that already voted
     voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"voters"), blank=True, related_name='+')
-    voter_count = models.IntegerField(verbose_name=_(u"voter count"), blank=True, null=True, default=None)
+    _voter_count = models.IntegerField(verbose_name=_(u"voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
     vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
@@ -275,14 +275,14 @@ class Course(models.Model):
 
     @property
     def num_participants(self):
-        if self.participant_count is not None:
-            return self.participant_count
+        if self._participant_count is not None:
+            return self._participant_count
         return self.participants.count()
 
     @property
     def num_voters(self):
-        if self.voter_count is not None:
-            return self.voter_count
+        if self._voter_count is not None:
+            return self._voter_count
         return self.voters.count()
 
     @property
@@ -377,17 +377,18 @@ class Course(models.Model):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
 
-    def archive(self):
+    def _archive(self):
+        """Should be called only via Semester.archive"""
         if not self.is_archiveable:
             raise NotArchiveable()
-        self.participant_count = self.participants.count()
-        self.voter_count = self.voters.count()
+        self._participant_count = self.participants.count()
+        self._voter_count = self.voters.count()
         self.save()
 
     @property
     def is_archived(self):
-        assert((self.participant_count is None) == (self.voter_count is None))
-        return self.participant_count is not None
+        assert((self._participant_count is None) == (self._voter_count is None))
+        return self._participant_count is not None
 
     @property
     def is_archiveable(self):
