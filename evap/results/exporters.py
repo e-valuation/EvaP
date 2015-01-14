@@ -108,7 +108,7 @@ class ExcelExporter(object):
                 self.write_two_empty_cells_with_borders()
 
             for question in questionnaire.question_set.all():
-                if question.is_text_question():
+                if question.is_text_question:
                     continue
 
                 writen(self, question.text)

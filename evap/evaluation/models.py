@@ -56,7 +56,7 @@ class Semester(models.Model):
 
     @property
     def can_staff_delete(self):
-        return all(course.can_staff_delete() for course in self.course_set.all())
+        return all(course.can_staff_delete for course in self.course_set.all())
 
     @property
     def is_archiveable(self):
@@ -203,21 +203,26 @@ class Course(models.Model):
         if user.is_staff:
             return True
         if self.state == 'published':
-            return self.can_publish_grades() or self.is_user_contributor_or_delegate(user)
+            return self.can_publish_grades or self.is_user_contributor_or_delegate(user)
         return False
 
+    @property
     def can_staff_edit(self):
         return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
+    @property
     def can_staff_delete(self):
-        return self.can_staff_edit() and not self.num_voters > 0
+        return self.can_staff_edit and not self.num_voters > 0
 
+    @property
     def can_staff_review(self):
         return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
 
+    @property
     def can_staff_approve(self):
         return self.state in ['new', 'prepared', 'lecturerApproved']
 
+    @property
     def can_publish_grades(self):
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
@@ -300,6 +305,7 @@ class Course(models.Model):
     def days_left_for_evaluation(self):
         return (self.vote_end_date - datetime.date.today()).days
 
+    @property
     def has_enough_questionnaires(self):
         return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
 
@@ -340,9 +346,9 @@ class Course(models.Model):
 
     def warnings(self):
         result = []
-        if self.state == 'new' and not self.has_enough_questionnaires():
+        if self.state == 'new' and not self.has_enough_questionnaires:
             result.append(_(u"Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades():
+        if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades:
             result.append(_(u"Not enough participants to publish results"))
         return result
 
@@ -453,12 +459,15 @@ class Question(models.Model):
         else:
             raise Exception("Unknown answer kind: %r" % self.kind)
 
+    @property
     def is_likert_question(self):
         return self.answer_class == LikertAnswer
 
+    @property
     def is_text_question(self):
         return self.answer_class == TextAnswer
 
+    @property
     def is_grade_question(self):
         return self.answer_class == GradeAnswer
 
@@ -514,14 +523,13 @@ class TextAnswer(Answer):
         verbose_name = _(u"text answer")
         verbose_name_plural = _(u"text answers")
 
-    def _answer_get(self):
+    @property
+    def answer(self):
         return self.reviewed_answer or self.original_answer
-
-    def _answer_set(self, value):
+    @answer.setter
+    def answer(self, value):
         self.original_answer = value
         self.reviewed_answer = None
-
-    answer = property(_answer_get, _answer_set)
 
 
 class FaqSection(models.Model):
@@ -644,16 +652,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         else:
             return self.username
 
-    def get_full_name(self):
-        return self.full_name
-
-    def get_short_name(self):
-        if self.first_name:
-            return self.first_name
-        return self.username
-
     def __unicode__(self):
-        return self.get_full_name();
+        return self.full_name;
 
     @property
     def is_active(self):

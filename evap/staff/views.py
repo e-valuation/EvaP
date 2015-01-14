@@ -317,7 +317,7 @@ def course_edit(request, semester_id, course_id):
     ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     # check course state
-    if not course.can_staff_edit():
+    if not course.can_staff_edit:
         messages.warning(request, _("Editing not possible in current state."))
         return redirect('evap.staff.views.semester_view', semester_id)
 
@@ -341,7 +341,7 @@ def course_delete(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check course state
-    if not course.can_staff_delete():
+    if not course.can_staff_delete:
         messages.warning(request, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
         return redirect('evap.staff.views.semester_view', semester_id)
 
@@ -359,7 +359,7 @@ def course_review(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check course state
-    if not course.can_staff_review():
+    if not course.can_staff_review:
         messages.warning(request, _("Reviewing not possible in current state."))
         return redirect('evap.staff.views.semester_view', semester_id)
 
