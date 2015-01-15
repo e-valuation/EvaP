@@ -23,11 +23,25 @@
         </div>
         <div class="col-md-3">
             <h3>{% trans "Questionnaires" %}</h3>
+            <h4>{% trans "Courses" %}</h4>
             <p>
-            {% if questionnaires %}
+            {% if questionnaires_courses %}
                 <ul>
                     <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "All questionnaires" %}</a></li>
-                {% for questionnaire in questionnaires %}
+                {% for questionnaire in questionnaires_courses %}
+                    <li><a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                {% trans "There are no questionnaires yet." %}
+            {% endif %}
+            </p>
+            <h4>{% trans "Contributors" %}</h4>
+            <p>
+            {% if questionnaire_contributors %}
+                <ul>
+                    <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "All questionnaires" %}</a></li>
+                {% for questionnaire in questionnaire_contributors %}
                     <li><a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
                 {% endfor %}
                 </ul>
