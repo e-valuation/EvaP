@@ -43,8 +43,8 @@
                         <td class="col-sm-3" data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                     {% endwith %}
                     {% if course|can_user_see_course:request.user %}
-                        <td class="col-sm-1"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
-                        <td class="col-sm-1"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
+                        <td class="col-sm-1"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
+                        <td class="col-sm-1"><div class="grade-bg" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
                     {% else %}
                         <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                         <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
