@@ -165,6 +165,13 @@ class ExcelImporter(object):
             except UserProfile.DoesNotExist:
                 # nothing to do here
                 pass
+                
+            try:
+                user_same_name = UserProfile.objects.get(first_name=user_data.first_name, last_name=user_data.last_name)
+                self.warnings.append(u"Warning: The user {} {} already exists.".format(user_same_name.first_name, user_same_name.last_name))
+            except UserProfile.DoesNotExist:
+                # nothing to do here
+                pass
 
     def show_errors_and_warnings(self):
         for error in self.errors:
