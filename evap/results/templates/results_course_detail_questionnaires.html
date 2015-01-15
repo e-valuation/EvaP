@@ -36,7 +36,9 @@
                                     {% if questionnaire_warning or result.warning %}
                                         <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }} participants-warning">&nbsp;</div>
                                     {% else %}
-                                        <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
+                                        {% if rel != 0  %}
+                                            <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                                 {% endspaceless %}
