@@ -3,8 +3,9 @@ from django.core.exceptions import PermissionDenied
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
-from evap.evaluation.models import Contribution, Course, Semester
+from evap.evaluation.models import Contribution, Course, Semester, UserProfile
 from evap.evaluation.auth import editor_required, editor_or_delegate_required
 from evap.evaluation.tools import STATES_ORDERED
 from evap.contributor.forms import CourseForm, UserForm
@@ -66,7 +67,8 @@ def course_view(request, course_id):
             field.widget.attrs['readonly'] = "True"
             field.widget.attrs['disabled'] = "True"
 
-    template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username)
+    template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username,
+                            contributors=UserProfile.objects.all())
     return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required
@@ -102,7 +104,8 @@ def course_edit(request, course_id):
 
         return redirect('evap.contributor.views.index')
     else:
-        template_data = dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
+        template_data = dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username, 
+                                contributors=UserProfile.objects.all())
         return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required

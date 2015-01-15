@@ -34,6 +34,7 @@
                 </thead>
                 <tbody>
                     {% for form_element in formset %}
+
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
@@ -46,11 +47,17 @@
                             {{ form_element.responsible.as_hidden }}
                             <td>
                                 {{form_element.contributor.errors}}
+                                
                                 {% if form_element.responsible.value == True %}
-                                    <select class="form-control" disabled="True"><option selected="selected">{{ responsible }} ({% trans "responsible" %})</option></select>
+                                    <input value='{{ responsible }} ({% trans "responsible" %})' disabled='True'/>
                                     {{ form_element.contributor.as_hidden }}
                                 {% else %}
-                                    {{ form_element.contributor }}
+                                    <input list="contributor_list" style="width:80%"/>
+                                    <datalist id='contributor_list'>
+                                    {% for contributor in contributors %}
+                                        <option>{{ contributor }}</option>
+                                    {% endfor %}
+                                    </datalist>
                                 {% endif %}
                             </td>
                             <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
