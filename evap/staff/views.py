@@ -35,7 +35,8 @@ def get_tab(request):
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
-                         questionnaires=Questionnaire.objects.filter(obsolete=False),
+                         questionnaires_courses=Questionnaire.objects.filter(obsolete=False,is_for_contributors=False),
+                         questionnaire_contributors=Questionnaire.objects.filter(obsolete=False,is_for_contributors=True),
                          templates=EmailTemplate.objects.all(),
                          sections=FaqSection.objects.all(),
                          disable_breadcrumb_staff=True)
