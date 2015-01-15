@@ -29,7 +29,7 @@ import random
 
 
 def get_tab(request):
-    return request.GET.get('tab', '1')
+    return request.GET.get('tab', '1') if request.GET else request.POST.get('tab', '1')
 
 
 @staff_required
@@ -408,7 +408,7 @@ def course_review(request, semester_id, course_id, offset=None):
                 return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
     else:
         hidden_answers = ';'.join(str(x) for x in hidden_answer_ids)
-        template_data = dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer, hidden_answers=hidden_answers)
+        template_data = dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer, hidden_answers=hidden_answers, tab=get_tab(request))
         return render(request, "staff_course_review.html", template_data)
 
 
