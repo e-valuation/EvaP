@@ -359,3 +359,11 @@ Side notes for calling out things
     padding: 0px 3px;
     width: 100%;
 }
+
+.deactivate {
+    background-color:#d3d3d3;
+}
+
+.panel-info .panel-heading {
+    color: #000000;
+}

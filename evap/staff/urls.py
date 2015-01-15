@@ -17,6 +17,7 @@ urlpatterns = [
     url(r"^semester/(\d+)/approve$", semester_approve),
     url(r"^semester/(\d+)/reset$", semester_revert_to_new),
     url(r"^semester/(\d+)/contributorready$", semester_contributor_ready),
+    url(r"^semester/(\d+)/todo", semester_todo),
     url(r"^semester/(\d+)/lottery$", semester_lottery),
     url(r"^semester/(\d+)/course/create$", course_create),
     url(r"^semester/(\d+)/course/(\d+)/edit$", course_edit),
