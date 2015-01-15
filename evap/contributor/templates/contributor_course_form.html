@@ -34,7 +34,6 @@
                 </thead>
                 <tbody>
                     {% for form_element in formset %}
-
                         {% if form_element.non_field_errors %}
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
