@@ -17,9 +17,18 @@
     </div>
     <div class="form-group well">
         <div class="col-sm-offset-2 col-sm-6">
+            <a onclick="selectAllCourses();" class="btn btn-default">{% trans "Select all" %}<a/>
             <input type="submit" value="{% trans btn_label %}" class="btn btn-primary"/>
         </div>
     </div>
 {% else %}
     {% trans empty_msg %}
 {% endif %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function selectAllCourses() {
+            $( ".list-group-item" ).find("input").prop('checked', true);
+        }
+    </script>
+{% endblock %}
