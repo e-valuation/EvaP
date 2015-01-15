@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
+from django.db.models import Max
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from collections import OrderedDict
@@ -492,7 +493,12 @@ def questionnaire_create(request):
     formset = QuestionFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
-        form.save()
+        newQuestionnaire = form.save(commit=False)
+        # set index according to existing questionnaires
+        newQuestionnaire.index = Questionnaire.objects.all().aggregate(Max('index'))['index__max'] + 1
+        newQuestionnaire.save()
+        form.save_m2m()
+
         formset.save()
 
         messages.success(request, _("Successfully created questionnaire."))

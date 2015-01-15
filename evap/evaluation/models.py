@@ -10,6 +10,7 @@ from django.template import Context, Template, TemplateSyntaxError, TemplateEnco
 from django_fsm.db.fields import FSMField, transition
 import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django import forms
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
@@ -87,7 +88,7 @@ class Questionnaire(models.Model):
     teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
     teaser = Translate
 
-    index = models.IntegerField(verbose_name=_(u"ordering index"))
+    index = models.IntegerField(verbose_name=_(u"ordering index"), default=0, blank=True)
 
     is_for_contributors = models.BooleanField(verbose_name=_(u"is for contributors"), default=False)
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
