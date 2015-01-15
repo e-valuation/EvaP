@@ -158,10 +158,11 @@ class ExcelImporter(object):
                         or (user.title != None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append(_(u"Warning: The existing user") + 
-                        u" {} ({} {} {}, {}) ".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
-                        _(u"would be overwritten with the following data:") +
-                        u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
+                    self.warnings.append(_(u"The existing user would be overwritten with the following data:") +
+                        u"\n - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
+                        _(u" (existing)") +
+                        u"\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
+                        _(u" (new)"))
             except UserProfile.DoesNotExist:
                 # nothing to do here
                 pass
