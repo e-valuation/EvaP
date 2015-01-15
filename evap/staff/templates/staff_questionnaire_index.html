@@ -25,7 +25,7 @@
                 handle: 'td:first',
                 tolerance: 'pointer',
                 update: function( event, ui ) {
-                    // update indices questionnaires in the table
+                    // update indices of all questionnaires in the table
                     var questionnaires = ui.item.parent().children();
                     var updatedIndices = {};
                     for (var i = 0; i < questionnaires.length; i++) {
