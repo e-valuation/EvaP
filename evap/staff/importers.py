@@ -140,6 +140,10 @@ class ExcelImporter(object):
                 self.errors.append(_(u'Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
                 return # to avoid duplicate errors with validate
             try:
+                user = UserProfile.objects.get(email=user_data.email)
+            except Exception as e:
+                self.errors.append(_(u"User with email {} does not exist.").format(user_data.email))
+            try:
                 user_data.validate()
             except ValidationError as e:
                 self.errors.append(_(u"User {}: Error when validating: {}").format(user_data.email, e))
@@ -165,7 +169,7 @@ class ExcelImporter(object):
             except UserProfile.DoesNotExist:
                 # nothing to do here
                 pass
-                
+
             try:
                 user_same_name = UserProfile.objects.get(first_name=user_data.first_name, last_name=user_data.last_name)
                 self.warnings.append(u"Warning: The user {} {} already exists.".format(user_same_name.first_name, user_same_name.last_name))
