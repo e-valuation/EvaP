@@ -317,6 +317,9 @@ def course_edit(request, semester_id, course_id):
     formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
 
     if form.is_valid() and formset.is_valid():
+        if course.state == "evaluated":
+            course.evaluation_begin()
+        
         form.save(user=request.user)
         formset.save()
 

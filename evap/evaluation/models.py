@@ -188,7 +188,7 @@ class Course(models.Model):
         return False
 
     def can_staff_edit(self):
-        return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
+        return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated']
 
     def can_staff_delete(self):
         return self.can_staff_edit() and not self.voters.exists()
@@ -218,7 +218,7 @@ class Course(models.Model):
     def revert_to_new(self):
         pass
 
-    @transition(field=state, source='approved', target='inEvaluation')
+    @transition(field=state, source=['approved', 'evaluated'], target='inEvaluation')
     def evaluation_begin(self):
         pass
 
