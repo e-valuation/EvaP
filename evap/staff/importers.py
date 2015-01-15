@@ -164,7 +164,16 @@ class ExcelImporter(object):
                         u"\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
                         _(u" (new)"))
             except UserProfile.DoesNotExist:
-                # nothing to do here
+                pass
+                
+            try:
+                user_same_name = UserProfile.objects.get(first_name=user_data.first_name, last_name=user_data.last_name)
+                if user_same_name.username != user_data.username:
+                    self.warnings.append(_(u"Warning: The existing user") + 
+                            u" {} ({} {} {}, {}) ".format(user_same_name.username, user_same_name.title or "", user_same_name.first_name, user_same_name.last_name, user_same_name.email) +
+                            _(u"has the same first and last name like ") +
+                            u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
+            except UserProfile.DoesNotExist:
                 pass
 
     def show_errors_and_warnings(self):
