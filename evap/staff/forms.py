@@ -140,12 +140,13 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super(QuestionnaireForm, self).__init__(*args, **kwargs)
+        self.fields["index"].widget = forms.HiddenInput()
+
     class Meta:
         model = Questionnaire
-        fields = "__all__"
-        widgets = {
-            'index': forms.HiddenInput(),
-        }
+        exclude = ()
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
