@@ -373,9 +373,14 @@ def course_review(request, semester_id, course_id, offset=None):
     else:
         offset = int(offset)
 
+    hidden_answers = request.POST.get("hidden_answers", "") if request.POST else request.GET.get("hidden_answers", "")
+    hidden_answer_ids = [int(x) for x in hidden_answers.split(';')] if hidden_answers else []
+
     # compute form queryset
     length = min(TextAnswer.elements_per_page, len(base_queryset))
-    form_queryset = course.textanswer_set.filter(pk__in=[base_queryset[(offset + i) % len(base_queryset)] for i in range(0, length)])
+    form_queryset = course.textanswer_set \
+        .exclude(pk__in=hidden_answer_ids) \
+        .filter(pk__in=[base_queryset[(offset + i) % len(base_queryset)] for i in range(0, length)])
 
     # create formset from sliced queryset
     formset = reviewFS(request.POST or None, queryset=form_queryset)
@@ -386,6 +391,8 @@ def course_review(request, semester_id, course_id, offset=None):
             form.instance.save()
             if form.instance.checked:
                 count = count + 1
+            else:
+                hidden_answer_ids.append(form.instance.id)
 
         if course.state == "evaluated" and course.is_fully_checked():
             messages.success(request, _("Successfully reviewed {count} course answers for {course}. {course} is now fully reviewed.").format(count=count, course=course.name))
@@ -396,12 +403,14 @@ def course_review(request, semester_id, course_id, offset=None):
             messages.success(request, _("Successfully reviewed {count} course answers for {course}.").format(count=count, course=course.name))
             operation = request.POST.get('operation')
 
-            if operation == 'save_and_next' and not course.is_fully_checked():
-                return custom_redirect('evap.staff.views.course_review', semester_id, course_id, tab=get_tab(request))
+            if operation == 'save_and_next' and not course.is_fully_checked_except(hidden_answer_ids):
+                hidden_answers = ';'.join(str(x) for x in hidden_answer_ids)
+                return custom_redirect('evap.staff.views.course_review', semester_id, course_id, tab=get_tab(request), hidden_answers=hidden_answers)
             else:
                 return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
     else:
-        template_data = dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer)
+        hidden_answers = ';'.join(str(x) for x in hidden_answer_ids)
+        template_data = dict(semester=semester, course=course, formset=formset, offset=offset, TextAnswer=TextAnswer, hidden_answers=hidden_answers)
         return render(request, "staff_course_review.html", template_data)
 
 

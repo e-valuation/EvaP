@@ -625,16 +625,19 @@ class URLTests(WebTest):
         self.get_assert_302("/staff/semester/1/course/4/review", user="evap")
         self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
 
-        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
-
+        page = self.get_assert_200("/staff/semester/1/course/6/review?tab=6", user="evap")
+        # two answers should be displayed - hide one (5) and mark the other (8) for further review
         form = lastform(page)
         form["form-0-hidden"] = "on"
         form["form-1-needs_further_review"] = "on"
         # Actually this is not guaranteed, but i'll just guarantee it now for this test.
         self.assertEqual(form["form-0-id"].value, "5")
         self.assertEqual(form["form-1-id"].value, "8")
-        page = form.submit(name="operation", value="save_and_next").follow()
+        page = form.submit(name="operation", value="save_and_next")
+        self.assertRedirects(page, "/staff/semester/1?tab=6")
 
+        # visit the review page again to finally accept the remaining answer
+        page = self.get_assert_200("/staff/semester/1/course/6/review?tab=6", user="evap")
         form = lastform(page)
         self.assertEqual(form["form-0-reviewed_answer"].value, "mfj49s1my.45j")
         form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
