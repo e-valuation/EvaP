@@ -115,7 +115,7 @@ td#vertically-aligned {
     white-space: nowrap;
 }
 
-.distribution-bar:last-child { width: 99.9%; !important; }
+.distribution-bar div:last-child { width: 100% !important; }
 
 .vote-bg-1 { background: #88bf4a; }
 .vote-bg-2 { background: #bbd154; }
