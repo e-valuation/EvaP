@@ -173,6 +173,10 @@ class Course(models.Model):
         """Shortcut for finding out whether all text answers to this course have been checked"""
         return not self.open_textanswer_set.exists()
 
+    def is_fully_checked_except(self, ignored_answers):
+        """Shortcut for finding out if all text answers to this course have been checked except for specified answers"""
+        return not self.open_textanswer_set.exclude(pk__in=ignored_answers).exists()
+
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return (self.state == "inEvaluation"
