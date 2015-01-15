@@ -568,6 +568,16 @@ def questionnaire_delete(request, questionnaire_id):
 
 
 @staff_required
+def questionnaire_update_indices(request):
+    updated_indices = request.POST
+    for id, new_index in updated_indices.items():
+        questionnaire = Questionnaire.objects.get(pk=id)
+        questionnaire.index = new_index
+        questionnaire.save()
+    return HttpResponse()
+
+
+@staff_required
 def user_index(request):
     users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups')
 
