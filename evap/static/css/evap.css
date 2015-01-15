@@ -291,3 +291,11 @@ Side notes for calling out things
 .form-field > .error {
     box-shadow: 0px 0px 8px #eb595a;
 }
+
+.deactivate {
+    background-color:#d3d3d3;
+}
+
+.panel-info .panel-heading {
+    color: #000000;
+}
