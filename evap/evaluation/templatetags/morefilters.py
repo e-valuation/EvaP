@@ -7,6 +7,10 @@ from evap.rewards.tools import can_user_use_reward_points
 register = Library()
 
 
+@register.filter(name='gradecolor')
+def gradecolor(grade):
+    return '#000000'
+
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/
 @register.filter(name='percentage')
 def percentage(fraction, population):
