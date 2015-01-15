@@ -299,7 +299,7 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         return redirect('evap.staff.views.semester_view', semester_id)
     else:
-        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset))
+        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True))
 
 
 @staff_required
