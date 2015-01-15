@@ -90,8 +90,8 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Language" %} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();">{% trans "Deutsch" %}</a></li>
-                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
+                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();" href="#">{% trans "Deutsch" %}</a></li>
+                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();" href="#">{% trans "English" %}</a></li>
                         </ul>
                     </li>
                     {% if user.is_authenticated %}
@@ -165,7 +165,6 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
 
     <script type="text/javascript">
-        
         $(document).ready(function(){
             // show browser information
             $.reject({
