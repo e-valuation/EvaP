@@ -64,7 +64,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         if self.instance.state == "inEvaluation":
             self.fields['vote_start_date'].widget.attrs['readonly'] = "True"
-            self.fields['vote_end_date'].widget.attrs['readonly'] = "True"
 
     def save(self, *args, **kw):
         user = kw.pop("user")
