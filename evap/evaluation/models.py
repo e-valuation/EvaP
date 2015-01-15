@@ -87,7 +87,7 @@ class Questionnaire(models.Model):
     teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
     teaser = Translate
 
-    index = models.IntegerField(verbose_name=_(u"ordering index"))
+    index = models.IntegerField(verbose_name=_(u"ordering index"), default=0)
 
     is_for_contributors = models.BooleanField(verbose_name=_(u"is for contributors"), default=False)
     obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)

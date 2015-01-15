@@ -143,6 +143,9 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Questionnaire
         fields = "__all__"
+        widgets = {
+            'index': forms.HiddenInput(),
+        }
 
 
 class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
