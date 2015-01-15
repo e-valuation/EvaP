@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-15 19:43+0100\n"
+"POT-Creation-Date: 2015-01-15 20:22+0100\n"
 "PO-Revision-Date: 2015-01-04 22:30+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
@@ -1369,7 +1369,7 @@ msgstr "Nutzer {}: Vorname fehlt."
 msgid "User {}: Last name is missing."
 msgstr "Nutzer {}: Nachname fehlt."
 
-#: staff/importers.py:165
+#: staff/importers.py:165 staff/importers.py:176
 msgid "Warning: The existing user"
 msgstr "Warnung: Der bereits existierende Nutzer"
 
@@ -1377,7 +1377,11 @@ msgstr "Warnung: Der bereits existierende Nutzer"
 msgid "would be overwritten with the following data:"
 msgstr "würde mit den folgenden Daten überschrieben werden:"
 
-#: staff/importers.py:208
+#: staff/importers.py:178
+msgid "has the same first and last name like "
+msgstr "hat den selben Vor- und Nachnamen wie "
+
+#: staff/importers.py:211
 msgid ""
 "Sheet \"{}\", row {}: The course's \"{}\" data differs from it's data in a "
 "previous row."
@@ -1385,53 +1389,53 @@ msgstr ""
 "Blatt \"{}\", Reihe {}: Die Daten des Kurses \"{}\" unterscheiden sich von "
 "den Daten in einer vorherigen Zeile."
 
-#: staff/importers.py:221
+#: staff/importers.py:224
 msgid "Course {} in degree {} does already exist in this semester."
 msgstr "Kurs {} in Studiengang {} existiert bereits in diesem Semester."
 
-#: staff/importers.py:230
+#: staff/importers.py:233
 msgid "\"is_graded\" of course {} in degree {} is {}, but must be {} or {}"
 msgstr ""
 "\"is_graded\" der Lehrveranstaltung {} im Studiengang {} ist {}, muss aber "
 "{} oder {} sein"
 
-#: staff/importers.py:239
+#: staff/importers.py:242
 msgid "Warning: User {} has {} enrollments, which is a lot."
 msgstr "Warnung: Nutzer {} hat ungewöhnlich viele Belegungen ({})."
 
-#: staff/importers.py:244
+#: staff/importers.py:247
 msgid ""
 "Warning: The degree \"{}\" does not exist yet and would be newly created."
 msgstr ""
 "Warnung: Der Studiengang \"{}\" existiert noch nicht und würde neu erstellt "
 "werden."
 
-#: staff/importers.py:266
+#: staff/importers.py:269
 msgid "Successfully created {} course(s), {} student(s) and {} contributor(s)."
 msgstr "{} Kurs(e), {} Studierende und {} Mitwirkende erfolgreich erstellt."
 
-#: staff/importers.py:279 staff/importers.py:347
+#: staff/importers.py:282 staff/importers.py:350
 msgid "The input data is malformed. No data was imported."
 msgstr ""
 "Die Eingabedaten haben ein falsches Format. Es wurden keine Daten importiert."
 
-#: staff/importers.py:292 staff/importers.py:357
+#: staff/importers.py:295 staff/importers.py:360
 msgid "Errors occurred while parsing the input data. No data was imported."
 msgstr ""
 "Beim Verarbeiten der Eingabedaten trat ein Fehler auf. Es wurden keine Daten "
 "importiert."
 
-#: staff/importers.py:295 staff/importers.py:360
+#: staff/importers.py:298 staff/importers.py:363
 msgid "The test run showed no errors. No data was imported yet."
 msgstr ""
 "Der Testlauf ergab keine Fehler. Es wurden noch keine Daten importiert."
 
-#: staff/importers.py:300 staff/importers.py:365
+#: staff/importers.py:303 staff/importers.py:368
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: staff/importers.py:332
+#: staff/importers.py:335
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -1442,7 +1446,7 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: staff/importers.py:334
+#: staff/importers.py:337
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."

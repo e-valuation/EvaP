@@ -172,7 +172,11 @@ class ExcelImporter(object):
 
             try:
                 user_same_name = UserProfile.objects.get(first_name=user_data.first_name, last_name=user_data.last_name)
-                self.warnings.append(u"Warning: The user {} {} already exists.".format(user_same_name.first_name, user_same_name.last_name))
+                if user_same_name.username != user_data.username:
+                    self.warnings.append(_(u"Warning: The existing user") + 
+                            u" {} ({} {} {}, {}) ".format(user_same_name.username, user_same_name.title or "", user_same_name.first_name, user_same_name.last_name, user_same_name.email) +
+                            _(u"has the same first and last name like ") +
+                            u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
             except UserProfile.DoesNotExist:
                 # nothing to do here
                 pass
