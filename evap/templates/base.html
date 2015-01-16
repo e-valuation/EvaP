@@ -118,7 +118,7 @@
             <div class="row">
                 <div class="col-md-12">
                     {% for message in messages %}
-                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|linebreaksbr }}</div>
                     {% endfor %}
                 </div>
             </div>
