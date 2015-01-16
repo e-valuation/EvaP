@@ -30,6 +30,7 @@ class ExcelExporter(object):
         'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
         
     # We only assign different colors every 0.2 grades, because excel limits the number of custom colors
+    # colors up to 0x20 are already pre-defined in the xls-format
     grades_and_indices = [(1 + i*2/10.0, 0x20 + i) for i in range(21)]
        
     grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
