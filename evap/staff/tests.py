@@ -5,11 +5,14 @@ from django.test import Client
 from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.auth.models import Group
 
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
+                            TextAnswer, EmailTemplate, NotArchiveable
+from evap.evaluation.tools import calculate_average_and_medium_grades
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributionFormSet, ContributionForm, CourseForm, ImportForm, UserImportForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
@@ -857,3 +860,94 @@ class ContributorFormTests(WebTest):
 
         formset = ContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
+
+class ArchivingTests(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def get_test_semester(self):
+        semester = Semester.objects.get(pk=1)
+        course1 = Course.objects.get(pk=7)
+        course1.publish()
+
+        course2 = Course.objects.get(pk=8)
+        new_semester = Semester()
+        new_semester.save()
+        course1.semester = new_semester
+        course1.save()
+        course2.semester = new_semester
+        course2.save()
+        return new_semester
+
+    def test_counts_dont_change(self):
+        """
+            Asserts that course.num_voters course.num_participants don't change after archiving.
+        """
+        semester = self.get_test_semester()
+
+        voters_counts = {}
+        participant_counts = {}
+        for course in semester.course_set.all():
+            voters_counts[course] = course.num_voters
+            participant_counts[course] = course.num_participants
+        some_participant = semester.course_set.first().participants.first()
+        course_count = some_participant.course_set.count()
+
+        semester.archive()
+
+        for course in semester.course_set.all():
+            self.assertEqual(voters_counts[course], course.num_voters)
+            self.assertEqual(participant_counts[course], course.num_participants)
+        # participants should not loose courses, as they should see all of them
+        self.assertEqual(course_count, some_participant.course_set.count())
+
+    def test_is_archived(self):
+        """
+            Tests whether is_archived returns True on archived semesters and courses.
+        """
+        semester = self.get_test_semester()
+
+        for course in semester.course_set.all():
+            self.assertFalse(course.is_archived)
+
+        semester.archive()
+
+        for course in semester.course_set.all():
+            self.assertTrue(course.is_archived)
+
+    def test_deleting_last_modified_user_does_not_delete_course(self):
+        course = Course.objects.first();
+        user = UserProfile.objects.first();
+
+        course.last_modified_user = user;
+        user.delete()
+        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
+
+    def test_participants_are_not_deleteable(self):
+        student = UserProfile.objects.get(username="student")
+        self.assertTrue(student.course_set.count() > 0)
+        self.assertFalse(student.can_staff_delete)
+        student.course_set.clear()
+        self.assertTrue(student.can_staff_delete)
+
+    def test_archiving_does_not_change_results(self):
+        semester = self.get_test_semester()
+
+        results = {}
+        for course in semester.course_set.all():
+            results[course] = calculate_average_and_medium_grades(course)
+
+        semester.archive()
+        cache.clear()
+
+        for course in semester.course_set.all():
+            self.assertTrue(calculate_average_and_medium_grades(course) == results[course])
+        
+    def test_archiving_twice_raises_exception(self):
+        semester = self.get_test_semester()
+        semester.archive()
+        with self.assertRaises(NotArchiveable):
+            semester.archive()
+        with self.assertRaises(NotArchiveable):
+            semester.course_set.first()._archive()
