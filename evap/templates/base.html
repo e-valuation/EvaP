@@ -67,9 +67,8 @@
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.staff.views.index" %}">{% trans "Manage" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "evap.staff.views.index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a>
-                                        {% include_staff_semester_menu %}
-                                    </li>
+                                    <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a></li>
+                                    {% include_staff_semester_menu %}
                                     <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
                                     <li><a href="{% url "evap.staff.views.user_index" %}">{% trans "Users" %}</a></li>
                                     <li><a href="{% url "evap.rewards.views.reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
