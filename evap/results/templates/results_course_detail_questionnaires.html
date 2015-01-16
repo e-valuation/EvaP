@@ -7,10 +7,10 @@
     <div class="inline-headers">
         <h4>{{ group.grouper.public_name }}</h4>
         {% if questionnaire_warning %}
-            <span class="pull-right participants-warning questionnaire-warning">
+            <p class="pull-right participants-warning questionnaire-warning">
                 <span class="glyphicon glyphicon-warning-sign"></span>
-                <p>{% trans "Only a few participants answered these questions." %}</p>
-            </span>
+                {% trans "Only a few participants answered these questions." %}
+            </p>
         {% endif %}
     </div>
     <table class="table table-striped">

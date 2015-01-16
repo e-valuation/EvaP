@@ -20,8 +20,8 @@
         </fieldset>
 
         <fieldset>
-            {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
+            {{ formset.management_form }}
             {{ formset.non_form_errors }}
             <table id="contribution_table" class="table">
                 <thead>
