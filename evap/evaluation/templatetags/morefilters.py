@@ -74,3 +74,8 @@ def is_false(arg):
 @register.filter
 def is_choice_field(field):
     return field.field.__class__.__name__ == "TypedChoiceField"
+
+
+@register.filter
+def is_user_editor_or_delegate(course, user):
+    return  course.is_user_editor_or_delegate(user)
