@@ -135,6 +135,13 @@ class ExcelImporter(object):
                 user_data.username = username
 
     def check_user_data_correctness(self):
+        username_to_user = {}
+        for user_data in self.users.values():
+            if user_data.username in username_to_user:
+                self.errors.append(_(u'The imported data contains two email addresses with the same username '
+                    + _("('{}' and '{}').")).format(user_data.email, username_to_user[user_data.username].email))
+            username_to_user[user_data.username] = user_data
+
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_(u'Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
