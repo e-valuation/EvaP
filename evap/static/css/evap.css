@@ -125,9 +125,8 @@ td#vertically-aligned {
 
 .grade-bg {
     display: inline-block;
-    padding-left: 3px;
-    padding-right: 3px;
     border-radius: 3px;
+    width: 45px;
 }
 
 @media print {

@@ -44,8 +44,8 @@
                         <td class="col-sm-2">{{ course.kind }}</td>
                         <td class="col-sm-3">{{ course.responsible_contributors_name }}</td>
                         {% if staff or course.can_publish_grades %}
-                            <td class="col-sm-2"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                            <td class="col-sm-2"><div class="grade-bg" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
+                            <td class="col-sm-2"><div class="grade-bg  text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
+                            <td class="col-sm-2"><div class="grade-bg  text-center" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
                         {% else %}
                             <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
                             <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
