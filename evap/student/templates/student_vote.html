@@ -46,6 +46,8 @@
                                 {% if preview %}
                                     <h3 class="panel-title">{{ contributor.full_name }}</h3>
                                 {% else %}
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">
+                                    <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></a>&nbsp
                                     <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
                                     <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                                 {% endif %}
