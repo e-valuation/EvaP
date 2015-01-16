@@ -123,6 +123,12 @@ td#vertically-aligned {
 .vote-bg-4 { background: #f29e58; }
 .vote-bg-5 { background: #eb595a; }
 
+.grade-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+}
+
 @media print {
     body {
         padding: 0;
