@@ -293,3 +293,21 @@ Side notes for calling out things
 .form-field > .error {
     box-shadow: 0px 0px 8px #eb595a;
 }
+
+.panel-heading a {
+    text-decoration: none;
+    color: #000000;
+}
+
+.panel-heading .accordion-toggle:before {
+    /* symbol for open panels */
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";  /* chevron-down */
+    float: left; 
+    color: gray;
+    margin-right: 10px;
+}
+.panel-heading .accordion-toggle.collapsed:before {
+    /* symbol for collapsed panels */
+    content: "\e080"; /* chevron-right */
+}
