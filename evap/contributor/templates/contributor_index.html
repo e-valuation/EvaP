@@ -66,10 +66,12 @@
                                 {% if course.state == 'published' %}
                                     <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% else %}
-                                    {% if course.state == 'prepared' %}
-                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
-                                    {% else %}
-                                        <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                    {% if course|is_user_editor_or_delegate:user %}
+                                        {% if course.state == 'prepared' %}
+                                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
+                                        {% else %}
+                                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                        {% endif %}
                                     {% endif %}
                                     <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                 {% endif %}
