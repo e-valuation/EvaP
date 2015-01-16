@@ -17,21 +17,19 @@
 {% block content %}
     {{ block.super }}
 
-    <small>
-        <div class="bs-callout bs-callout-info">
-            <b>{% trans "Anonymity" %}</b><br />
-            {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#21">{% trans "FAQ/Anonymity" %}</a></em><br />
-            <br />
-            <b>{% trans "References to other answers" %}</b><br />
-            {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#24">{% trans "FAQ/Reference" %}</a></em><br />
-            <br />
-            <b>{% trans "Evaluation Results" %}</b><br />
-            {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
-        </div>
-    </small>
+    <div class="bs-callout bs-callout-info small">
+        <b>{% trans "Anonymity" %}</b><br />
+        {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
+        <em>{% trans "More details:" %} <a href="/faq#21">{% trans "FAQ/Anonymity" %}</a></em><br />
+        <br />
+        <b>{% trans "References to other answers" %}</b><br />
+        {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
+        <em>{% trans "More details:" %} <a href="/faq#24">{% trans "FAQ/Reference" %}</a></em><br />
+        <br />
+        <b>{% trans "Evaluation Results" %}</b><br />
+        {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+        <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+    </div>
 
     {% for semester in semester_list %}
         {% if semester.courses %}
