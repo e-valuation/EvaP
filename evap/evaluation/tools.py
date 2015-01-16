@@ -6,6 +6,15 @@ from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
+from math import ceil
+
+GRADE_COLORS = {
+    1: (136, 191, 74),
+    2: (187, 209, 84),
+    3: (239, 226, 88),
+    4: (242, 158, 88),
+    5: (235,  89, 90),
+}
 
 LIKERT_NAMES = {
     1: _(u"Strongly agree"),
@@ -319,3 +328,17 @@ def user_publish_notifications(courses):
             user_notifications[course.responsible_contributor].add(course)
 
     return user_notifications
+
+def color_lerp(color1, color2, fraction):
+    return tuple(
+        int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3)
+    )
+
+def get_grade_color(grade):
+    # Can happen if no one leaves any grades. Return white because its least likely to cause problems.
+    if grade is None:
+        return (255, 255, 255)
+    grade = round(grade, 1)
+    next_lower = int(grade)
+    next_higher = int(ceil(grade))
+    return color_lerp(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
