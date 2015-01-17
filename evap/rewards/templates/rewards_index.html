@@ -13,11 +13,9 @@
 {% block content %}
     {{ block.super }}
 
-    <small>
-        <div class="bs-callout bs-callout-info">
-            {% trans "You will get reward points once you evaluated all your courses in one semester. These points can be redeemed for many events at HPI. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points." %}
-        </div>
-    </small>
+    <div class="bs-callout bs-callout-info small">
+        {% trans "You will get reward points once you evaluated all your courses in one semester. These points can be redeemed for many events at HPI. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points." %}
+    </div>
 
     <div class="panel panel-info">
         <div class="panel-heading">
