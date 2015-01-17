@@ -115,11 +115,19 @@ td#vertically-aligned {
     white-space: nowrap;
 }
 
+.distribution-bar div:last-child { width: 100% !important; }
+
 .vote-bg-1 { background: #88bf4a; }
 .vote-bg-2 { background: #bbd154; }
 .vote-bg-3 { background: #efe258; }
 .vote-bg-4 { background: #f29e58; }
 .vote-bg-5 { background: #eb595a; }
+
+.grade-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+}
 
 @media print {
     body {
@@ -290,4 +298,22 @@ Side notes for calling out things
 
 .form-field > .error {
     box-shadow: 0px 0px 8px #eb595a;
+}
+
+.panel-heading a {
+    text-decoration: none;
+    color: #000000;
+}
+
+.panel-heading .accordion-toggle:before {
+    /* symbol for open panels */
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";  /* chevron-down */
+    float: left; 
+    color: gray;
+    margin-right: 10px;
+}
+.panel-heading .accordion-toggle.collapsed:before {
+    /* symbol for collapsed panels */
+    content: "\e080"; /* chevron-right */
 }

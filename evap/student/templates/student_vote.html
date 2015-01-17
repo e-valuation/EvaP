@@ -44,9 +44,9 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 {% if preview %}
-                                    <h3 class="panel-title">{{ contributor.full_name }}</h3>
+                                    <p class="panel-title">{{ contributor.full_name }}</p>
                                 {% else %}
-                                    <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
+                                    <a class="panel-title accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
                                     <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                                 {% endif %}
                             </div>
@@ -85,6 +85,7 @@
             
             // hide questionnaire for contributor
             $("#" + contributorId).collapse("hide");
+            $("a[href=#" + contributorId + "]").addClass("collapsed");
         }
         function selectedAnswer(fieldName) {
             // remove error highlighting when an answer was selected

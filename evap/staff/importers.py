@@ -135,6 +135,13 @@ class ExcelImporter(object):
                 user_data.username = username
 
     def check_user_data_correctness(self):
+        username_to_user = {}
+        for user_data in self.users.values():
+            if user_data.username in username_to_user:
+                self.errors.append(_(u'The imported data contains two email addresses with the same username '
+                    + _("('{}' and '{}').")).format(user_data.email, username_to_user[user_data.username].email))
+            username_to_user[user_data.username] = user_data
+
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_(u'Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
@@ -142,7 +149,16 @@ class ExcelImporter(object):
             try:
                 user_data.validate()
             except ValidationError as e:
-                self.errors.append(_(u"User {}: Error when validating: {}").format(user_data.email, e))
+                self.errors.append(_(u'User {}: Error when validating: {}').format(user_data.email, e))
+
+            try:
+                duplicate_email_user = UserProfile.objects.get(email=user_data.email)
+                if duplicate_email_user.username != user_data.username:
+                    self.errors.append(_('User {}, username {}: Another user with the same email address and a '
+                        'different username ({}) already exists.').format(user_data.email, user_data.username, duplicate_email_user.username))
+            except UserProfile.DoesNotExist:
+                pass
+
             if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH :
                 self.errors.append(_(u'User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
@@ -158,12 +174,22 @@ class ExcelImporter(object):
                         or (user.title != None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append(_(u"Warning: The existing user") + 
-                        u" {} ({} {} {}, {}) ".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
-                        _(u"would be overwritten with the following data:") +
-                        u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
+                    self.warnings.append(_(u"The existing user would be overwritten with the following data:") +
+                        u"\n - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
+                        _(u" (existing)") +
+                        u"\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
+                        _(u" (new)"))
             except UserProfile.DoesNotExist:
-                # nothing to do here
+                pass
+                
+            try:
+                user_same_name = UserProfile.objects.get(first_name=user_data.first_name, last_name=user_data.last_name)
+                if user_same_name.username != user_data.username:
+                    self.warnings.append(_(u"Warning: The existing user") + 
+                            u" {} ({} {} {}, {}) ".format(user_same_name.username, user_same_name.title or "", user_same_name.first_name, user_same_name.last_name, user_same_name.email) +
+                            _(u"has the same first and last name like ") +
+                            u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
+            except UserProfile.DoesNotExist:
                 pass
 
     def show_errors_and_warnings(self):

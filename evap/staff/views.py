@@ -35,7 +35,8 @@ def get_tab(request):
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
-                         questionnaires=Questionnaire.objects.filter(obsolete=False),
+                         questionnaires_courses=Questionnaire.objects.filter(obsolete=False,is_for_contributors=False),
+                         questionnaire_contributors=Questionnaire.objects.filter(obsolete=False,is_for_contributors=True),
                          templates=EmailTemplate.objects.all(),
                          sections=FaqSection.objects.all(),
                          disable_breadcrumb_staff=True)
@@ -299,7 +300,7 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         return redirect('evap.staff.views.semester_view', semester_id)
     else:
-        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset))
+        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True))
 
 
 @staff_required
