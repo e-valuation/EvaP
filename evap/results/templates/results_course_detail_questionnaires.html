@@ -16,7 +16,7 @@
         <tbody>
             {% for result in results %}
                 <tr>
-                {% ifequal result.question.kind "L" %}
+                {% if result.question.kind == "L" or result.question.kind == "G" %}
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
                         <span class="twipsify" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
@@ -28,21 +28,19 @@
                     </td>
                     <td>
                         {% if result.show and result.count > 0 %}
+                            {% spaceless %}
                             <div class="distribution-bar twipsify"
-                                title="{% for answer, rel in result.distribution.items %}{{answer|likertname}}: {{rel|floatformat}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
-                                data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer|likertname}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel|floatformat}}%</div></div>{% endfor %}</div>">
-                                {% spaceless %}
+                                title="
+                                    {% for answer, rel in result.distribution.items %}
+                                        {% if result.question.kind == "L" %}{{answer|likertname}}{% else %}{{answer}}{% endif %}: {{rel|floatformat}}%{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}">
                                 {% for answer, rel in result.distribution.items %}
-                                    {% if questionnaire_warning or result.warning %}
-                                        <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }} participants-warning">&nbsp;</div>
-                                    {% else %}
-                                        {% if rel != 0  %}
-                                            <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
-                                        {% endif %}
+                                    {% if rel != 0 %}
+                                        <div class="vote-bg-{{ answer }} {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="width: {% widthratio rel 100 100 %}%;">&nbsp;</div>
                                     {% endif %}
-                                {% endfor %}
-                                {% endspaceless %}
+                                {% endfor %}                                
                             </div>
+                            {% endspaceless %}
                         {% endif %}
                     </td>
                     <td>
@@ -56,34 +54,7 @@
                             <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
                         {% endif %}
                     </td>
-                {% endifequal %}
-                {% ifequal result.question.kind "G" %}
-                    <td colspan="2">{{ result.question.text }}</td>
-                    <td>
-                        <span class="twipsify" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
-                    </td>
-                    <td>
-                        {% if result.show and result.count > 0 %}
-                            <div class="distribution-bar twipsify"
-                                title="{% for answer, rel in result.distribution.items %}{{answer}}: {{rel|floatformat}}%{% if not forloop.last %}, {% endif %}{% endfor %}"
-                                data-twipsy="<div style='display:table;'>{% for answer, rel in result.distribution.items %}<div style='display:table-row;'><div style='display:table-cell; text-align: right;'>{{answer}}:&nbsp;</div><div style='display:table-cell; text-align: right;'>{{rel|floatformat}}%</div></div>{% endfor %}</div>">
-                                {% spaceless %}
-                                {% for answer, rel in result.distribution.items %}
-                                    <div style="display: inline-block; width: {% widthratio rel 100 101 %}%;" class="vote-bg-{{ answer }}">&nbsp;</div>
-                                {% endfor %}
-                                {% endspaceless %}
-                            </div>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if result.show and result.count > 0 %}
-                            {{ result.average|floatformat:1 }}
-                        {% else %}
-                            <span title="{% trans "Not enough answers were given." %}">&mdash;</span>
-                        {% endif %}
-                    </td>
-                {% endifequal %}
-                {% ifequal result.question.kind "T" %}
+                {% elif result.question.kind == "T" %}
                     <td>{{ result.question.text }}</td>
                     <td colspan="4">
                         <ul>
@@ -92,7 +63,7 @@
                         {% endfor %}
                         </ul>
                     </td>
-                {% endifequal %}
+                {% endif %}
                 </tr>
             {% endfor %}
         </tbody>

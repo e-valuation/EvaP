@@ -110,9 +110,13 @@ td#vertically-aligned {
 }
 
 .distribution-bar {
-    border: 1px solid #DDDDDD;
     overflow: hidden;
     white-space: nowrap;
+    border-radius: 3px;
+}
+
+.distribution-bar div {
+    display: inline-block;
 }
 
 .distribution-bar div:last-child { width: 100% !important; }
@@ -248,8 +252,18 @@ Side notes for calling out things
 
 
 
+
+.label-info {
+    color: white;
+    background-color: #31708f;
+}
+
+.btn-primary {
+    background-color: #31708f;
+}
+
 .participants-warning {
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 .glyphicon.participants-warning {
@@ -316,4 +330,32 @@ Side notes for calling out things
 .panel-heading .accordion-toggle.collapsed:before {
     /* symbol for collapsed panels */
     content: "\e080"; /* chevron-right */
+}
+
+.participant-bar {
+    display: inline-block;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.participant-bar.back {
+    background: #d9edf7;
+    width: 95%;
+}
+
+.participant-bar.back.sm {  
+    width: 70%;
+}
+
+.participant-bar.front {
+    background: #31708f;
+    display: block;
+}
+
+.participant-bar.text {
+    color: #ffffff;
+    font-size: 80%;
+    text-align: right;
+    padding: 0px 3px;
+    width: 100%;
 }
