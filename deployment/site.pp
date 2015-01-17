@@ -16,6 +16,10 @@ node default {
     package { ['python', 'python-dev', 'python-pip', 'libxml2-dev', 'libxslt-dev', 'python-lxml', 'gettext']:
         ensure => installed,
     } ->
+    exec { 'update-pip':
+        provider    => shell,
+        command     => 'pip install -U pip'
+    } ->
     class { 'postgresql::server':
     } -> postgresql::server::role { 'evap':
         password_hash  => postgresql_password('evap', 'evap'),
