@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-04 22:31+0100\n"
+"POT-Creation-Date: 2015-01-15 20:22+0100\n"
 "PO-Revision-Date: 2015-01-04 22:30+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
@@ -91,11 +91,11 @@ msgstr "Zurück"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: contributor/templates/contributor_index.html:21 evaluation/models.py:580
+#: contributor/templates/contributor_index.html:11 evaluation/models.py:580
 msgid "Delegates"
 msgstr "Stellvertreter"
 
-#: contributor/templates/contributor_index.html:22
+#: contributor/templates/contributor_index.html:12
 msgid ""
 "Lecturers can assign delegates to help them with the preparation of the "
 "evaluation."
@@ -103,15 +103,15 @@ msgstr ""
 "Dozenten können Stellvertreter definieren, die ihnen bei der Vorbereitung "
 "der Evaluierung helfen."
 
-#: contributor/templates/contributor_index.html:24
+#: contributor/templates/contributor_index.html:14
 msgid "You can assign your own delegates in your profile."
 msgstr "Sie können Stellvertreter in Ihrem Profil definieren."
 
-#: contributor/templates/contributor_index.html:24
+#: contributor/templates/contributor_index.html:14
 msgid "Edit profile"
 msgstr "Profil bearbeiten"
 
-#: contributor/templates/contributor_index.html:27
+#: contributor/templates/contributor_index.html:17
 msgid ""
 "Courses from lecturers who set you as a delegate are marked with a label "
 "below."
@@ -119,24 +119,24 @@ msgstr ""
 "Kurse von Dozenten, von denen Sie als Stellvertreter definiert wurden, sind "
 "unten mit einem Label markiert."
 
-#: contributor/templates/contributor_index.html:29
-#: contributor/templates/contributor_index.html:33
-#: contributor/templates/contributor_index.html:37
+#: contributor/templates/contributor_index.html:19
+#: contributor/templates/contributor_index.html:23
+#: contributor/templates/contributor_index.html:27
 #: student/templates/student_index.html:24
 #: student/templates/student_index.html:28
 #: student/templates/student_index.html:32
 msgid "More details:"
 msgstr "Mehr Infos:"
 
-#: contributor/templates/contributor_index.html:29
+#: contributor/templates/contributor_index.html:19
 msgid "FAQ/Delegates"
 msgstr "FAQ/Stellvertreter"
 
-#: contributor/templates/contributor_index.html:31
+#: contributor/templates/contributor_index.html:21
 msgid "States of the courses"
 msgstr "Zustände der Kurse"
 
-#: contributor/templates/contributor_index.html:32
+#: contributor/templates/contributor_index.html:22
 msgid ""
 "You can only edit courses which are in the state \"prepared\". After you "
 "approved a course it will automatically change to the state \"lecturer "
@@ -146,16 +146,16 @@ msgstr ""
 "einen Kurs bestätigt haben, wechselt dieser automatisch in den Zustand \"von "
 "Dozent bestätigt\" und Ihre Vorbereitung ist abgeschlossen."
 
-#: contributor/templates/contributor_index.html:33
+#: contributor/templates/contributor_index.html:23
 msgid "FAQ/States"
 msgstr "FAQ/Zustände"
 
-#: contributor/templates/contributor_index.html:35
+#: contributor/templates/contributor_index.html:25
 #: student/templates/student_index.html:30
 msgid "Evaluation Results"
 msgstr "Evaluierungs-Ergebnisse"
 
-#: contributor/templates/contributor_index.html:36
+#: contributor/templates/contributor_index.html:26
 msgid ""
 "The student's comments will be shown to the lecturers who were evaluated and "
 "to the person responsible for the course – after the grades of all the "
@@ -170,34 +170,34 @@ msgstr ""
 "Noten auf alle Fragen allen anderen Nutzern der Plattform angezeigt, sofern "
 "mindestens 20 Prozent der Teilnehmer abgestimmt haben."
 
-#: contributor/templates/contributor_index.html:37
+#: contributor/templates/contributor_index.html:27
 #: student/templates/student_index.html:32
 msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
-#: contributor/templates/contributor_index.html:51 evaluation/models.py:701
+#: contributor/templates/contributor_index.html:41 evaluation/models.py:701
 #: rewards/templates/rewards_semester_reward_points_view.html:13
 #: staff/templates/staff_user_index.html:22
 #: student/templates/student_index.html:46
 msgid "Name"
 msgstr "Name"
 
-#: contributor/templates/contributor_index.html:52
+#: contributor/templates/contributor_index.html:42
 #: student/templates/student_index.html:47
 msgid "State"
 msgstr "Zustand"
 
-#: contributor/templates/contributor_index.html:53
+#: contributor/templates/contributor_index.html:43
 #: student/templates/student_index.html:48
 msgid "Evaluation Period"
 msgstr "Abstimmungszeitraum"
 
-#: contributor/templates/contributor_index.html:54
+#: contributor/templates/contributor_index.html:44
 #: staff/templates/staff_semester_view.html:98
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: contributor/templates/contributor_index.html:66
+#: contributor/templates/contributor_index.html:56
 msgid ""
 "You are seeing this course because you are a delegate of a lecturer who can "
 "edit the course."
@@ -205,11 +205,11 @@ msgstr ""
 "Sie sehen diese Veranstaltung, weil Sie Stellvertreter eines Mitwirkenden "
 "sind, der die Veranstaltung bearbeiten kann."
 
-#: contributor/templates/contributor_index.html:66
+#: contributor/templates/contributor_index.html:56
 msgid "Delegate"
 msgstr "Stellvertreter"
 
-#: contributor/templates/contributor_index.html:77 results/exporters.py:95
+#: contributor/templates/contributor_index.html:67 results/exporters.py:95
 #: results/templates/results_base.html:5 results/templates/results_base.html:9
 #: staff/templates/staff_semester_view.html:119
 #: student/templates/student_index.html:87
@@ -217,26 +217,23 @@ msgstr "Stellvertreter"
 msgid "Results"
 msgstr "Ergebnisse"
 
-#: contributor/templates/contributor_index.html:80
+#: contributor/templates/contributor_index.html:70
 #: rewards/templates/rewards_reward_point_redemption_events.html:42
 #: rewards/templates/rewards_reward_point_redemption_events.html:79
-#: staff/templates/staff_faq_index.html:43
+#: staff/templates/staff_faq_index.html:44
 #: staff/templates/staff_questionnaire_base.html:19
-#: staff/templates/staff_questionnaire_index.html:36
-#: staff/templates/staff_questionnaire_index.html:38
-#: staff/templates/staff_questionnaire_index.html:79
-#: staff/templates/staff_questionnaire_index.html:81
+#: staff/templates/staff_questionnaire_index_list.html:27
+#: staff/templates/staff_questionnaire_index_list.html:29
 #: staff/templates/staff_user_index.html:41
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: contributor/templates/contributor_index.html:82
+#: contributor/templates/contributor_index.html:72
 msgid "View"
 msgstr "Anzeigen"
 
-#: contributor/templates/contributor_index.html:84
-#: staff/templates/staff_questionnaire_index.html:40
-#: staff/templates/staff_questionnaire_index.html:83
+#: contributor/templates/contributor_index.html:74
+#: staff/templates/staff_questionnaire_index_list.html:31
 #: staff/templates/staff_semester_view.html:107
 msgid "Preview"
 msgstr "Vorschau"
@@ -410,8 +407,8 @@ msgstr "Sortierindex"
 msgid "is for contributors"
 msgstr "Personenfragebogen"
 
-#: evaluation/models.py:93 staff/templates/staff_questionnaire_index.html:29
-#: staff/templates/staff_questionnaire_index.html:72
+#: evaluation/models.py:93
+#: staff/templates/staff_questionnaire_index_list.html:20
 msgid "obsolete"
 msgstr "obsolet"
 
@@ -665,38 +662,38 @@ msgstr "Text"
 msgid "FAQ"
 msgstr "FAQ"
 
-#: evaluation/templates/faq.html:43
+#: evaluation/templates/faq.html:13
 msgid "These are the Frequently Asked Questions (FAQs)"
 msgstr "Dies sind die Häufig Gestellten Fragen (FAQs)"
 
-#: evaluation/templates/index.html:19
+#: evaluation/templates/index.html:10
 msgid "Welcome to the evaluation platform!"
 msgstr "Willkommen auf der EvaP Evaluierungsplattform!"
 
-#: evaluation/templates/index.html:21
+#: evaluation/templates/index.html:12
 msgid "You are currently not logged in."
 msgstr "Sie sind derzeit nicht angemeldet."
 
-#: evaluation/templates/index.html:25
+#: evaluation/templates/index.html:16
 msgid "HPI student or lecturer"
 msgstr "HPI-Student oder -Dozent"
 
-#: evaluation/templates/index.html:28
+#: evaluation/templates/index.html:19
 msgid ""
 "As an HPI student or lecturer please log in using your usual HPI credentials."
 msgstr ""
 "Als HPI-Student oder -Dozent melden Sie sich bitte mit Ihrem üblichen HPI-"
 "Login an."
 
-#: evaluation/templates/index.html:46 evaluation/templates/index.html.py:77
+#: evaluation/templates/index.html:37 evaluation/templates/index.html.py:68
 msgid "Login"
 msgstr "Anmeldung"
 
-#: evaluation/templates/index.html:54
+#: evaluation/templates/index.html:45
 msgid "External student or lecturer"
 msgstr "Externer Student oder Dozent"
 
-#: evaluation/templates/index.html:56
+#: evaluation/templates/index.html:47
 msgid ""
 "As an external student or lecturer please log in using your login key or "
 "generate a new one below."
@@ -704,19 +701,29 @@ msgstr ""
 "Als externer Student oder Dozent melden Sie sich bitte mit Ihrem "
 "Anmeldeschlüssel an oder lassen sich unten einen neuen zusenden."
 
-#: evaluation/templates/index.html:83
+#: evaluation/templates/index.html:74
 msgid "Don't have a key or lost it?"
 msgstr "Sie haben keinen Schlüssel oder ihn verloren?"
 
-#: evaluation/templates/index.html:84
+#: evaluation/templates/index.html:75
 msgid "Please enter your email address to get a new login key."
 msgstr ""
 "Bitte geben Sie Ihre E‑Mail-Adresse ein, um einen neuen Anmeldeschlüssel zu "
 "erhalten."
 
-#: evaluation/templates/index.html:103
+#: evaluation/templates/index.html:94
 msgid "Send Key"
 msgstr "Schlüssel zusenden"
+
+#: evaluation/templates/sortable_form_js.html:24
+#: staff/templates/staff_questionnaire_form.html:55
+msgid "remove"
+msgstr "Entfernen"
+
+#: evaluation/templates/sortable_form_js.html:25
+#: staff/templates/staff_questionnaire_form.html:56
+msgid "add another"
+msgstr "Weiteren hinzufügen"
 
 #: evaluation/templates/user_list_with_links.html:8
 msgid "Nobody"
@@ -849,28 +856,28 @@ msgid "Degree"
 msgstr "Studiengang"
 
 #: results/templates/results_course_detail.html:33
-#: results/templates/results_semester_detail.html:42
+#: results/templates/results_semester_detail.html:24
 msgid "Type"
 msgstr "Typ"
 
 #: results/templates/results_course_detail.html:34
-#: results/templates/results_semester_detail.html:43
+#: results/templates/results_semester_detail.html:25
 #: staff/templates/staff_user_labels.html:14
 msgid "Responsible"
 msgstr "Verantwortlicher"
 
 #: results/templates/results_course_detail.html:35
-#: results/templates/results_semester_detail.html:44
+#: results/templates/results_semester_detail.html:26
 msgid "Average Grade"
 msgstr "Durchschnittsnote"
 
 #: results/templates/results_course_detail.html:36
-#: results/templates/results_semester_detail.html:45
+#: results/templates/results_semester_detail.html:27
 msgid "Median Grade"
 msgstr "Mediannote"
 
 #: results/templates/results_course_detail.html:37
-#: results/templates/results_semester_detail.html:46
+#: results/templates/results_semester_detail.html:28
 #: staff/templates/staff_semester_view.html:71
 #: staff/templates/staff_semester_view.html:90
 msgid "Voters"
@@ -880,14 +887,14 @@ msgstr "Wähler"
 #: results/templates/results_course_detail.html:51
 #: results/templates/results_course_detail_questionnaires.html:54
 #: results/templates/results_course_detail_questionnaires.html:80
-#: results/templates/results_semester_detail.html:56
-#: results/templates/results_semester_detail.html:67
-#: results/templates/results_semester_detail.html:68
+#: results/templates/results_semester_detail.html:38
+#: results/templates/results_semester_detail.html:49
+#: results/templates/results_semester_detail.html:50
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
 #: results/templates/results_course_detail.html:80
-#: results/templates/results_semester_detail.html:41
+#: results/templates/results_semester_detail.html:23
 msgid "Course"
 msgstr "Veranstaltung"
 
@@ -914,11 +921,11 @@ msgstr "Semester"
 msgid "No results available yet"
 msgstr "Es sind noch keine Ergebnisse verfügbar."
 
-#: results/templates/results_semester_detail.html:96
+#: results/templates/results_semester_detail.html:78
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: results/templates/results_semester_detail.html:97
+#: results/templates/results_semester_detail.html:79
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
@@ -1114,10 +1121,9 @@ msgstr "Veranstaltungsname"
 
 #: rewards/templates/rewards_reward_point_redemption_events.html:30
 #: rewards/templates/rewards_reward_point_redemption_events.html:67
-#: staff/templates/staff_faq_index.html:26
-#: staff/templates/staff_faq_section.html:26
-#: staff/templates/staff_questionnaire_index.html:22
-#: staff/templates/staff_questionnaire_index.html:65
+#: staff/templates/staff_faq_index.html:27
+#: staff/templates/staff_faq_section.html:27
+#: staff/templates/staff_questionnaire_index_list.html:13
 #: staff/templates/staff_user_index.html:25
 msgid "Actions"
 msgstr "Aktionen"
@@ -1133,10 +1139,8 @@ msgstr "Einlösungen exportieren"
 #: rewards/templates/rewards_reward_point_redemption_events.html:83
 #: staff/templates/staff_questionnaire_base.html:22
 #: staff/templates/staff_questionnaire_base.html:24
-#: staff/templates/staff_questionnaire_index.html:43
-#: staff/templates/staff_questionnaire_index.html:45
-#: staff/templates/staff_questionnaire_index.html:86
-#: staff/templates/staff_questionnaire_index.html:88
+#: staff/templates/staff_questionnaire_index_list.html:34
+#: staff/templates/staff_questionnaire_index_list.html:36
 #: staff/templates/staff_semester_view.html:116
 #: staff/templates/staff_user_index.html:43
 #: staff/templates/staff_user_index.html:45
@@ -1336,40 +1340,48 @@ msgstr ""
 msgid "User {}: Username must be empty for external users."
 msgstr "Nutzer {}: Bei externen Nutzern muss der Nutzername leer sein."
 
-#: staff/importers.py:141
+#: staff/importers.py:140
 msgid "Emailaddress {}: Username cannot be empty for non-external users."
 msgstr ""
 "E-Mail-Adresse {}: Bei nicht-externen Nutzern darf der Nutzername nicht leer "
 "sein."
 
-#: staff/importers.py:146
+#: staff/importers.py:145
+msgid "User with email {} does not exist."
+msgstr "Nutzer mit der Email {} existiert nicht."
+
+#: staff/importers.py:149
 msgid "User {}: Error when validating: {}"
 msgstr "Nutzer {}: Fehler beim Validieren: {}"
 
-#: staff/importers.py:148
+#: staff/importers.py:151
 msgid ""
 "User {}: Username cannot be longer than {} characters for non-external users."
 msgstr ""
 "Nutzer {}: Bei nicht-externen Nutzern darf der Nutzername nicht länger als "
 "{} Zeichen sein."
 
-#: staff/importers.py:150
+#: staff/importers.py:153
 msgid "User {}: First name is missing."
 msgstr "Nutzer {}: Vorname fehlt."
 
-#: staff/importers.py:152
+#: staff/importers.py:155
 msgid "User {}: Last name is missing."
 msgstr "Nutzer {}: Nachname fehlt."
 
-#: staff/importers.py:162
+#: staff/importers.py:165 staff/importers.py:176
 msgid "Warning: The existing user"
 msgstr "Warnung: Der bereits existierende Nutzer"
 
-#: staff/importers.py:164
+#: staff/importers.py:167
 msgid "would be overwritten with the following data:"
 msgstr "würde mit den folgenden Daten überschrieben werden:"
 
-#: staff/importers.py:197
+#: staff/importers.py:178
+msgid "has the same first and last name like "
+msgstr "hat den selben Vor- und Nachnamen wie "
+
+#: staff/importers.py:211
 msgid ""
 "Sheet \"{}\", row {}: The course's \"{}\" data differs from it's data in a "
 "previous row."
@@ -1377,53 +1389,53 @@ msgstr ""
 "Blatt \"{}\", Reihe {}: Die Daten des Kurses \"{}\" unterscheiden sich von "
 "den Daten in einer vorherigen Zeile."
 
-#: staff/importers.py:210
+#: staff/importers.py:224
 msgid "Course {} in degree {} does already exist in this semester."
 msgstr "Kurs {} in Studiengang {} existiert bereits in diesem Semester."
 
-#: staff/importers.py:220
+#: staff/importers.py:233
 msgid "\"is_graded\" of course {} in degree {} is {}, but must be {} or {}"
 msgstr ""
 "\"is_graded\" der Lehrveranstaltung {} im Studiengang {} ist {}, muss aber "
 "{} oder {} sein"
 
-#: staff/importers.py:228
+#: staff/importers.py:242
 msgid "Warning: User {} has {} enrollments, which is a lot."
 msgstr "Warnung: Nutzer {} hat ungewöhnlich viele Belegungen ({})."
 
-#: staff/importers.py:233
+#: staff/importers.py:247
 msgid ""
 "Warning: The degree \"{}\" does not exist yet and would be newly created."
 msgstr ""
 "Warnung: Der Studiengang \"{}\" existiert noch nicht und würde neu erstellt "
 "werden."
 
-#: staff/importers.py:255
+#: staff/importers.py:269
 msgid "Successfully created {} course(s), {} student(s) and {} contributor(s)."
 msgstr "{} Kurs(e), {} Studierende und {} Mitwirkende erfolgreich erstellt."
 
-#: staff/importers.py:268 staff/importers.py:336
+#: staff/importers.py:282 staff/importers.py:350
 msgid "The input data is malformed. No data was imported."
 msgstr ""
 "Die Eingabedaten haben ein falsches Format. Es wurden keine Daten importiert."
 
-#: staff/importers.py:281 staff/importers.py:346
+#: staff/importers.py:295 staff/importers.py:360
 msgid "Errors occurred while parsing the input data. No data was imported."
 msgstr ""
 "Beim Verarbeiten der Eingabedaten trat ein Fehler auf. Es wurden keine Daten "
 "importiert."
 
-#: staff/importers.py:284 staff/importers.py:349
+#: staff/importers.py:298 staff/importers.py:363
 msgid "The test run showed no errors. No data was imported yet."
 msgstr ""
 "Der Testlauf ergab keine Fehler. Es wurden noch keine Daten importiert."
 
-#: staff/importers.py:289 staff/importers.py:354
+#: staff/importers.py:303 staff/importers.py:368
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: staff/importers.py:321
+#: staff/importers.py:335
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -1434,7 +1446,7 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: staff/importers.py:323
+#: staff/importers.py:337
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
@@ -1481,7 +1493,7 @@ msgid "Send email"
 msgstr "E‑Mail senden"
 
 #: staff/templates/staff_course_form.html:11
-#: staff/templates/staff_questionnaire_form.html:36
+#: staff/templates/staff_questionnaire_form.html:11
 msgid "General Options"
 msgstr "Allgemeine Optionen"
 
@@ -1532,38 +1544,24 @@ msgid "Do you really want to unpublish the course <em>%(name)s</em>?"
 msgstr ""
 "Soll die Veranstaltung <em>%(name)s</em> wirklich zurückgezogen werden?"
 
-#: staff/templates/staff_faq_index.html:8
-#: staff/templates/staff_faq_section.html:8
+#: staff/templates/staff_faq_index.html:9
+#: staff/templates/staff_faq_section.html:9
 msgid "FAQ Sections"
 msgstr "FAQ-Abschnitte"
 
-#: staff/templates/staff_faq_index.html:56
+#: staff/templates/staff_faq_index.html:57
 msgid "Save FAQ sections"
 msgstr "FAQ-Abschnitte speichern"
 
-#: staff/templates/staff_faq_index.html:90
-#: staff/templates/staff_faq_section.html:91
-#: staff/templates/staff_questionnaire_form.html:21
-#: templates/evap_course_edit_js.html:60
-msgid "remove"
-msgstr "Entfernen"
-
-#: staff/templates/staff_faq_index.html:91
-#: staff/templates/staff_faq_section.html:92
-#: staff/templates/staff_questionnaire_form.html:22
-#: templates/evap_course_edit_js.html:61
-msgid "add another"
-msgstr "Weiteren hinzufügen"
-
-#: staff/templates/staff_faq_section.html:24
+#: staff/templates/staff_faq_section.html:25
 msgid "Question/Answer (german)"
 msgstr "Frage/Antwort (deutsch)"
 
-#: staff/templates/staff_faq_section.html:25
+#: staff/templates/staff_faq_section.html:26
 msgid "Question/Answer (english)"
 msgstr "Fragetext/Antwort (englisch)"
 
-#: staff/templates/staff_faq_section.html:57
+#: staff/templates/staff_faq_section.html:58
 msgid "Save FAQ section"
 msgstr "FAQ-Abschnitt speichern"
 
@@ -1608,12 +1606,12 @@ msgid "All questionnaires"
 msgstr "Alle Fragebögen"
 
 #: staff/templates/staff_index.html:35
-#: staff/templates/staff_questionnaire_index.html:99
+#: staff/templates/staff_questionnaire_index.html:16
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
 #: staff/templates/staff_index.html:39
-#: staff/templates/staff_questionnaire_index.html:8
+#: staff/templates/staff_questionnaire_index.html:9
 msgid "Create new questionnaire"
 msgstr "Neuen Fragebogen anlegen"
 
@@ -1640,8 +1638,7 @@ msgid "All Sections"
 msgstr "Alle Abschnitte"
 
 #: staff/templates/staff_questionnaire_base.html:20
-#: staff/templates/staff_questionnaire_index.html:41
-#: staff/templates/staff_questionnaire_index.html:84
+#: staff/templates/staff_questionnaire_index_list.html:32
 msgid "Copy"
 msgstr "Kopieren"
 
@@ -1650,46 +1647,35 @@ msgstr "Kopieren"
 msgid "Do you really want to delete the questionnaire <em>%(name)s</em>?"
 msgstr "Soll der Fragebogen <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: staff/templates/staff_questionnaire_form.html:41
+#: staff/templates/staff_questionnaire_form.html:16
 msgid "Questions"
 msgstr "Fragen"
 
-#: staff/templates/staff_questionnaire_form.html:51
+#: staff/templates/staff_questionnaire_form.html:26
 msgid "Delete?"
 msgstr "Löschen?"
 
-#: staff/templates/staff_questionnaire_form.html:71
+#: staff/templates/staff_questionnaire_form.html:46
 msgid "Save questionnaire"
 msgstr "Fragebogen speichern"
 
-#: staff/templates/staff_questionnaire_index.html:15
-msgid "Course questionnaires"
-msgstr "Lehrveranstaltungs-Fragebögen"
-
-#: staff/templates/staff_questionnaire_index.html:21
-#: staff/templates/staff_questionnaire_index.html:64
+#: staff/templates/staff_questionnaire_index_list.html:12
 msgid "Questionnaire"
 msgstr "Fragebogen"
 
-#: staff/templates/staff_questionnaire_index.html:31
-#: staff/templates/staff_questionnaire_index.html:74
+#: staff/templates/staff_questionnaire_index_list.html:22
 #, python-format
 msgid "%(count)s question "
 msgid_plural " %(count)s questions"
 msgstr[0] "%(count)s Frage"
 msgstr[1] "%(count)s Fragen"
 
-#: staff/templates/staff_questionnaire_index.html:32
-#: staff/templates/staff_questionnaire_index.html:75
+#: staff/templates/staff_questionnaire_index_list.html:23
 #, python-format
 msgid "used %(count)s time "
 msgid_plural " used %(count)s times "
 msgstr[0] "%(count)s-mal verwendet"
 msgstr[1] "%(count)s-mal verwendet"
-
-#: staff/templates/staff_questionnaire_index.html:58
-msgid "Contributor questionnaires"
-msgstr "Personen-Fragebögen"
 
 #: staff/templates/staff_semester_approve.html:10
 msgid "Approve courses"
@@ -1795,12 +1781,10 @@ msgid "Off"
 msgstr "Aus"
 
 #: staff/templates/staff_semester_view.html:61
-#| msgid "is graded"
 msgid "graded"
 msgstr "benotet"
 
 #: staff/templates/staff_semester_view.html:61
-#| msgid "is graded"
 msgid "not graded"
 msgstr "unbenotet"
 
@@ -1861,23 +1845,23 @@ msgstr "Vorlage speichern"
 msgid "Do you really want to delete the user <em>%(name)s</em>?"
 msgstr "Soll der Nutzer <em>%(name)s</em> wirklich gelöscht werden?"
 
-#: staff/templates/staff_user_form.html:52
+#: staff/templates/staff_user_form.html:30
 msgid "Represented Users"
 msgstr "Stellvertreter für"
 
-#: staff/templates/staff_user_form.html:58
+#: staff/templates/staff_user_form.html:36
 msgid "CC-User for"
 msgstr "CC-Benutzer für"
 
-#: staff/templates/staff_user_form.html:64
+#: staff/templates/staff_user_form.html:42
 msgid "Courses contributing to (active semester)"
 msgstr "Mitwirkender in (aktives Semester)"
 
-#: staff/templates/staff_user_form.html:71
+#: staff/templates/staff_user_form.html:49
 msgid "No courses"
 msgstr "Keine Veranstaltungen"
 
-#: staff/templates/staff_user_form.html:78
+#: staff/templates/staff_user_form.html:56
 msgid "Save user"
 msgstr "Benutzer speichern"
 
@@ -2206,7 +2190,7 @@ msgstr "Ich kann diesen Mitwirkenden nicht bewerten"
 msgid "Submit questionnaire"
 msgstr "Fragebogen absenden"
 
-#: student/views.py:105
+#: student/views.py:104
 msgid "Your vote was recorded."
 msgstr "Ihre Stimme wurde aufgezeichnet."
 
@@ -2277,3 +2261,13 @@ msgstr "Angemeldet als"
 #: templates/base.html:148
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
+
+#: templates/base.html:210
+msgid "Are you sure you want to leave?"
+msgstr ""
+
+#~ msgid "Course questionnaires"
+#~ msgstr "Lehrveranstaltungs-Fragebögen"
+
+#~ msgid "Contributor questionnaires"
+#~ msgstr "Personen-Fragebögen"
