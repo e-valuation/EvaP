@@ -21,9 +21,9 @@
                     <td>{{ user.full_name }}</td>
                     <td>
                         {% spaceless %}
-                            <div style="background: #c9e1fa; display: inline-block; width: 95%;">
-                                <div style="display: inline-block; width: {% widthratio number_of_courses_voted_for number_of_courses 100 %}%; background: #126bc5; color:white;">
-                                    <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ number_of_courses_voted_for }}</div>
+                            <div class="participant-bar back">
+                                <div class="participant-bar front" style="width: {% widthratio number_of_courses_voted_for number_of_courses 100 %}%;">
+                                    <div class="participant-bar text">{{ number_of_courses_voted_for }}</div>
                                 </div>
                             </div>
                         {% endspaceless %}
