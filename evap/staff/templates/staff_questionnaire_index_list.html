@@ -6,16 +6,18 @@
             <h3 class="panel-title">{% trans headline %}</h3>
         </div>
         <div class="panel-body">
-            <table class="table table-striped">
+            <table class="table table-striped questionnaire-table">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>{% trans "Questionnaire" %}</th>
                         <th>{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for questionnaire in questionnaires %}
-                    <tr>
+                    <tr class="questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
+                        <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                         <td>
                             <strong>{{ questionnaire.name }}</strong> {% if questionnaire.obsolete %}<span class="label">{% trans "obsolete" %}</span>{% endif %}
                             <br>
