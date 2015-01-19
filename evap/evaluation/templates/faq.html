@@ -14,20 +14,15 @@
 
     <div class="panel-group" id="accordion">
         {% for section in sections %}
-            <h3 id="{{ section.id }}-s">{{ section.title }}</h2>
+            <h3 id="{{ section.id }}-s">{{ section.title }}</h3>
             {% for question in section.questions.all %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4 class="panel-title" id="{{ question.id }}-q">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">{{ question.question }}</a>
-                        </h4>
+                        <p class="panel-title" id="{{ question.id }}-q">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">{{ question.question }}</a>
+                        </p>
                     </div>
-                    <script type="text/javascript">
-                        document.write('<div id="{{ question.id }}" class="panel-collapse collapse">');
-                    </script>
-                    <noscript>
-                        <div id="{{ question.id }}" class="panel-collapse collapse in">
-                    </noscript>
+                    <div id="{{ question.id }}" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {{ question.answer|safe }}
                         </div>
@@ -41,6 +36,8 @@
 {% endblock %}
 
 {% block on_document_ready %}
+    $(".panel-collapse").removeClass("in");
+    $(".accordion-toggle").addClass("collapsed");
     var anchor = window.location.hash.replace("#", "").split('-');
     id = anchor[0];
     type = 'q';
