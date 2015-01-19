@@ -292,6 +292,23 @@ def semester_todo(request, semester_id):
     return render(request, "staff_semester_todo.html", template_data)
 
 @staff_required
+def semester_archive(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    if semester.is_archiveable:
+        if request.method == 'POST':
+            semester.archive()
+            messages.success(request, _("Successfully archived semester '{}'.").format(semester.name))
+            return redirect('evap.staff.views.semester_view', semester.id)
+        else:
+            return render(request, "staff_semester_archive.html", dict(semester=semester))
+    else:
+        messages.warning(request, _("The semester '%s' cannot be archived, "+
+            "because it already is archived or has courses that are not archiveable.") % semester.name)
+        return redirect('evap.staff.views.semester_view', semester.id)
+
+
+@staff_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = Course(semester=semester)
