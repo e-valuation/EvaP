@@ -10,7 +10,7 @@
             {% if semesters %}
                 <ul>
                 {% for semester in semesters %}
-                    <li><a href="{% url "evap.staff.views.semester_view" semester.id %}">{{ semester.name }}</a></li>
+                    <li><a href="{% url "evap.staff.views.semester_view" semester.id %}#tab1">{{ semester.name }}</a></li>
                 {% endfor %}
                 </ul>
             {% else %}
