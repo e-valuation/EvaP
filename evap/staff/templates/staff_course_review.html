@@ -27,9 +27,6 @@
                     </h3>
                 </div>
                 <div class="panel-body">
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
                     {% if form.non_field_errors %}
                         <div class="clearfix">{{ form.non_field_errors }}</div>
                     {% endif %}

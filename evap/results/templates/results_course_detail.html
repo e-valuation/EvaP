@@ -53,9 +53,9 @@
                         {% if course.num_participants %}
                             <td class="col-sm-2">
                                 {% spaceless %}
-                                    <div style="background: #c9e1fa; display: inline-block; width: 70%;">
-                                        <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
-                                            <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ course.num_voters }}</div>
+                                    <div class="participant-bar back sm">
+                                        <div class="participant-bar front" style="width: {% widthratio course.num_voters course.num_participants 100 %}%;">
+                                            <div class="participant-bar text">{{ course.num_voters }}</div>
                                         </div>
                                     </div>
                                 {% endspaceless %}
