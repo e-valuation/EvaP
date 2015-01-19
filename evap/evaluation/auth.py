@@ -91,7 +91,7 @@ def staff_required(func):
     return user_passes_test(check_user)(func)
 
 
-def editor_or_delegate_or_contributor_required(func):
+def delegate_or_contributor_required(func):
     """
     Decorator for views that checks that the user is logged in, has edit rights
     for at least one course or is a delegate for such a person or is a
@@ -101,7 +101,7 @@ def editor_or_delegate_or_contributor_required(func):
     def check_user(user):
         if not user.is_authenticated():
             return False
-        return user.is_editor_or_delegate_or_contributor
+        return user.is_delegate_or_contributor
     return user_passes_test(check_user)(func)
 
 def editor_or_delegate_required(func):
