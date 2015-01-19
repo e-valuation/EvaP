@@ -154,8 +154,24 @@
 {% endblock %}
 
 {% block on_document_ready %}
-    $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {
-        history.pushState(null, null, "?tab=" + $(this).data("tab"));
+    var storedHash = localStorage.getItem('evap.staff_semester_view.last_tab');
+    var hash = window.location.hash || storedHash || "#tab1";
+    history.replaceState(null, null, hash);
+    $('ul.nav a[href="' + hash + '"]').tab('show');
+
+    $('.nav-tabs a').click(function (e) {
+      $(this).tab('show');
+      history.pushState(null, null, this.hash);
+    });
+
+    // when navigating back
+    $(window).on("popstate", function() {
+        var hash = window.location.hash || "#tab1";
+        $('ul.nav a[href="' + hash + '"]').tab('show');
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        localStorage.setItem('evap.staff_semester_view.last_tab', $(this).attr('href'));
     });
 
     $('.btn-toggle').click(function() {
