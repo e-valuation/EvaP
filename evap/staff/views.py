@@ -27,11 +27,6 @@ from evap.rewards.tools import is_semester_activated
 
 import random
 
-
-def get_tab(request):
-    return request.GET.get('tab', '1') if request.GET else request.POST.get('tab', '1')
-
-
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
@@ -46,10 +41,6 @@ def index(request):
 @staff_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    try:
-        tab = int(get_tab(request))
-    except ValueError:
-        tab = 1
 
     rewards_active = is_semester_activated(semester)
 
@@ -59,7 +50,7 @@ def semester_view(request, semester_id):
         this_courses = [course for course in courses if course.state == state]
         courses_by_state.append((state, this_courses))
 
-    template_data = dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, tab=tab, rewards_active=rewards_active)
+    template_data = dict(semester=semester, courses_by_state=courses_by_state, disable_breadcrumb_semester=True, rewards_active=rewards_active)
     return render(request, "staff_semester_view.html", template_data)
 
 
@@ -322,7 +313,7 @@ def course_edit(request, semester_id, course_id):
         formset.save()
 
         messages.success(request, _("Successfully updated course."))
-        return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
         return render(request, "staff_course_form.html", template_data)
@@ -341,7 +332,7 @@ def course_delete(request, semester_id, course_id):
     if request.method == 'POST':
         course.delete()
         messages.success(request, _("Successfully deleted course."))
-        return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_course_delete.html", dict(semester=semester, course=course))
 
@@ -383,19 +374,19 @@ def course_review(request, semester_id, course_id):
             messages.success(request, _("Successfully reviewed {count} course answers for {course}. {course} is now fully reviewed.").format(count=count, course=course.name))
             course.review_finished()
             course.save()
-            return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+            return custom_redirect('evap.staff.views.semester_view', semester_id)
         else:
             messages.success(request, _("Successfully reviewed {count} course answers for {course}.").format(count=count, course=course.name))
             operation = request.POST.get('operation')
 
             if operation == 'save_and_next' and not course.is_fully_checked_except(skipped_answer_ids):
                 skipped_answers = ';'.join(str(x) for x in skipped_answer_ids)
-                return custom_redirect('evap.staff.views.course_review', semester_id, course_id, tab=get_tab(request), skipped_answers=skipped_answers)
+                return custom_redirect('evap.staff.views.course_review', semester_id, course_id, skipped_answers=skipped_answers)
             else:
-                return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+                return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         skipped_answers = ';'.join(str(x) for x in skipped_answer_ids)
-        template_data = dict(semester=semester, course=course, formset=formset, TextAnswer=TextAnswer, skipped_answers=skipped_answers, tab=get_tab(request))
+        template_data = dict(semester=semester, course=course, formset=formset, TextAnswer=TextAnswer, skipped_answers=skipped_answers)
         return render(request, "staff_course_review.html", template_data)
 
 
@@ -412,7 +403,7 @@ def course_email(request, semester_id, course_id):
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
             messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
-        return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
 
@@ -425,12 +416,12 @@ def course_unpublish(request, semester_id, course_id):
     # check course state
     if not course.state == "published":
         messages.warning(request, _("The course '%s' cannot be unpublished, because it is not published.") % course.name)
-        return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
 
     if request.method == 'POST':
         course.revoke()
         course.save()
-        return custom_redirect('evap.staff.views.semester_view', semester_id, tab=get_tab(request))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_course_unpublish.html", dict(semester=semester, course=course))
 
