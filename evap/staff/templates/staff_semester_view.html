@@ -7,18 +7,22 @@
 {% block content %}
     {{ block.super }}
 
+    {% if semester.is_archived %}
+        <p class="bs-callout bs-callout-info"> {% trans "This semester is archived." %} </p>
+    {% endif %}
+
     <div class="button-menu">
         <a href="{% url "evap.staff.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
         <a href="{% url "evap.staff.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger" {% if not semester.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete Semester" %}</a>
         <a href="{% url "evap.staff.views.semester_archive" semester.id %}" class="btn btn-sm btn-danger" {% if not semester.is_archiveable %} disabled="disabled" {% endif %}>{% trans "Archive Semester" %}</a>
         &nbsp;
-        <a href="{% url "evap.staff.views.course_create" semester.id %}" class="btn btn-sm btn-default">{% trans "Create Course" %}</a>
-        <a href="{% url "evap.staff.views.semester_import" semester.id %}" class="btn btn-sm btn-default">{% trans "Import Courses" %}</a>
-        <a href="{% url "evap.staff.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default">{% trans "Assign Questionnaires" %}</a>
+        <a href="{% url "evap.staff.views.course_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Course" %}</a>
+        <a href="{% url "evap.staff.views.semester_import" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Import Courses" %}</a>
+        <a href="{% url "evap.staff.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Assign Questionnaires" %}</a>
         &nbsp;
         <a href="{% url "evap.staff.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
         &nbsp;
-        <a href="{% url "evap.staff.views.semester_todo" semester.id %}" class="btn btn-sm btn-default">{% trans "Todo" %}</a>
+        <a href="{% url "evap.staff.views.semester_todo" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Todo" %}</a>
         &nbsp;
 
         <div class="btn-group">
@@ -44,7 +48,7 @@
                 <tbody>
                 {% for course in courses %}
                     <tr>
-                        {% include_staff_semester_view_course semester state course %}
+                        {% include_staff_semester_view_course semester state course disable_if_archived %}
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -52,21 +56,21 @@
 
                 <p>
                 {% ifequal state "new" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}">{% trans "Enable courses for Lecturer Review..." %}</a>
+                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Enable courses for Lecturer Review..." %}</a>
                 {% endifequal %}
                 {% ifequal state "prepared" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_revert_to_new" semester.id %}">{% trans "Revert courses to New..." %}</a>
+                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_revert_to_new" semester.id %}" {{ disable_if_archived }}>{% trans "Revert courses to New..." %}</a>
                 {% endifequal %}
                 {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_approve" semester.id %}">{% trans "Approve courses..." %}</a>
+                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_approve" semester.id %}" {{ disable_if_archived }}>{% trans "Approve courses..." %}</a>
                 {% endif %}
 
                 {% ifequal state "lecturerApproved" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}">{% trans "Re-Enable courses for Lecturer Review..." %}</a>
+                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Re-Enable courses for Lecturer Review..." %}</a>
                 {% endifequal %}
 
                 {% ifequal state "reviewed" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_publish" semester.id %}">{% trans "Publish courses..." %}</a>
+                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_publish" semester.id %}" {{ disable_if_archived }}>{% trans "Publish courses..." %}</a>
                 {% endifequal %}
                 </p>
                 <p>&nbsp;</p>

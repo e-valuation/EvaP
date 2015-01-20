@@ -216,7 +216,7 @@ class Course(models.Model):
 
     @property
     def can_staff_edit(self):
-        return self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
+        return not self.is_archived and self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
 
     @property
     def can_staff_delete(self):
