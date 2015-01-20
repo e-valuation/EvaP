@@ -62,6 +62,14 @@ class Semester(models.Model):
     def is_archiveable(self):
         return all(course.is_archiveable for course in self.course_set.all())
 
+    @property
+    def is_archived(self):
+        if self.course_set.count() == 0:
+            return False
+        first_course_is_archived = self.course_set.first().is_archived
+        assert(all(course.is_archived == first_course_is_archived for course in self.course_set.all()))
+        return first_course_is_archived
+
     def archive(self):
         if not self.is_archiveable:
             raise NotArchiveable()

@@ -28,6 +28,11 @@ from evap.rewards.tools import is_semester_activated
 
 import random
 
+def raise_permission_denied_if_archived(archiveable):
+    if archiveable.is_archived:
+        raise PermissionDenied
+
+
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
@@ -135,10 +140,12 @@ def semester_publish(request, semester_id):
 @staff_required
 def semester_import(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
+
     form = ImportForm(request.POST or None, request.FILES or None)
-    operation = request.POST.get('operation')
 
     if form.is_valid():
+        operation = request.POST.get('operation')
         if operation not in ('test', 'import'):
             raise PermissionDenied
 
@@ -161,6 +168,7 @@ def semester_import(request, semester_id):
 @staff_required
 def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
     kinds = courses.values_list('kind', flat=True).order_by().distinct()
     form = QuestionnairesAssignForm(request.POST or None, semester=semester, kinds=kinds)
@@ -205,6 +213,7 @@ def semester_revert_to_new(request, semester_id):
 @staff_required
 def semester_approve(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all()
 
     forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
@@ -227,6 +236,7 @@ def semester_approve(request, semester_id):
 @staff_required
 def semester_contributor_ready(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state__in=['new', 'lecturerApproved']).all()
 
     forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
@@ -311,6 +321,8 @@ def semester_archive(request, semester_id):
 @staff_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
+
     course = Course(semester=semester)
     ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
@@ -331,6 +343,7 @@ def course_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    raise_permission_denied_if_archived(course)
     ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     # check course state
@@ -356,6 +369,7 @@ def course_edit(request, semester_id, course_id):
 def course_delete(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    raise_permission_denied_if_archived(course)
 
     # check course state
     if not course.can_staff_delete:
@@ -445,6 +459,7 @@ def course_email(request, semester_id, course_id):
 def course_unpublish(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    raise_permission_denied_if_archived(course)
 
     # check course state
     if not course.state == "published":

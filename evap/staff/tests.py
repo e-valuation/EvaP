@@ -6,7 +6,7 @@ from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.conf import settings
 from django.contrib.auth.models import Group
 
@@ -951,3 +951,26 @@ class ArchivingTests(WebTest):
             semester.archive()
         with self.assertRaises(NotArchiveable):
             semester.course_set.first()._archive()
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def test_raise_403(self):
+        """
+            Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
+        """
+        semester = self.get_test_semester()
+        self.assertEqual(semester.pk, 4) # when this fails, please update the urls below
+        semester.archive()
+
+        self.get_assert_403("/staff/semester/4/import", "evap")
+        self.get_assert_403("/staff/semester/4/assign", "evap")
+        self.get_assert_403("/staff/semester/4/approve", "evap")
+        self.get_assert_403("/staff/semester/4/contributorready", "evap")
+        self.get_assert_403("/staff/semester/4/course/create", "evap")
+        self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
+        self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
+        self.get_assert_403("/staff/semester/4/course/7/unpublish", "evap")
