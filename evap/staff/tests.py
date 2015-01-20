@@ -214,6 +214,10 @@ class URLTests(WebTest):
     def setUp(self):
         settings.INSTITUTION_EMAIL_DOMAINS.append("example.com")
 
+    def tearDown(self):
+        # settings are persistent between tests, so remove that again
+        settings.INSTITUTION_EMAIL_DOMAINS.remove("example.com")
+
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
