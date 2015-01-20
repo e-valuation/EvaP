@@ -1,8 +1,8 @@
 {% extends "staff_semester_base.html" %}
 
 {% load i18n %}
-{% load static %}
 {% load morefilters %}
+{% load staff_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -44,81 +44,7 @@
                 <tbody>
                 {% for course in courses %}
                     <tr>
-                        <td class="maximize">
-                            <div>
-                            {% if course.can_staff_edit %}
-                                <a href="{% url "evap.staff.views.course_edit" semester.id course.id %}">{{ course.name }}</a>
-                            {% else %}
-                                {{ course.name }}
-                            {% endif %}
-                            </div>
-                            <div style="font-style: italic">
-                                {{ course.responsible_contributors_name }}
-                            </div>
-                            <span class="label label-default">{{ course.degree }}</span>
-                            <span class="label label-default">{{ course.kind }}</span>
-                            <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
-                            {% for warning in course.warnings %}
-                                <span class="label label-warning">{{ warning }}</span>
-                            {% endfor %}
-                        </td>
-                        <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
-                        {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-                            {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_checked_textanswers=course.checked_textanswer_set.count %}
-                                {% if num_participants %}
-                                    <td class="minimize">
-                                        <p class="twipsify" title="{% trans "Voters" %}">
-                                            <span class="glyphicon glyphicon-user"></span>
-                                            <span>{{ num_voters }}/{{ num_participants }}</span>
-                                            <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
-                                        </p>
-                                        {% if course.can_staff_review %}
-                                            <a href="{% url "evap.staff.views.course_review" semester.id course.id %}" class="twipsify" title="{% trans "Click to review text answers" %}">
-                                                <span class="glyphicon glyphicon-comment"></span>
-                                                <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
-                                                <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
-                                            </a>
-                                        {% else %}
-                                            <p class="twipsify" title="{% trans "Text answers" %}">
-                                                <span class="glyphicon glyphicon-comment"></span>
-                                                <span>{{ num_textanswers }}</span>
-                                            </p>
-                                        {% endif %}
-                                    </td>
-                                {% else %}
-                                    <p class="twipsify" title="{% trans "Voters" %}">
-                                        <span class="glyphicon glyphicon-user"></span>
-                                        <span>&mdash;</span>
-                                    </p>
-                                {% endif %}
-                            {% endwith %}
-                        {% else %}
-                            <td class="minimize">
-                                <p class="twipsify" title="{% trans "Participants" %}">
-                                    <span class="glyphicon glyphicon-user"></span>
-                                    <span>{{ course.num_participants }}</span>
-                                </p>
-                            </td>
-                        {% endif %}
-                        <td class="minimize">
-                            <a href="{% url "evap.staff.views.course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
-                            {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
-                                <a href="{% url "evap.staff.views.course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                            {% endif %}
-                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-                                <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
-                            {% endif %}
-                            {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
-                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
-                            {% endif %}
-                            {% if course.can_staff_delete %}
-                                <a href="{% url "evap.staff.views.course_delete" semester.id course.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
-                            {% endif %}
-                            {% if state == 'published' %}
-                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-                                <a href="{% url "evap.staff.views.course_unpublish" semester.id course.id %}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
-                            {% endif %}
-                        </td>
+                        {% include_staff_semester_view_course semester state course %}
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -24,3 +24,7 @@ def include_staff_user_labels(user):
 @register.inclusion_tag("staff_questionnaire_index_list.html")
 def include_staff_questionnaire_index_list(questionnaires, headline):
     return dict(questionnaires=questionnaires, headline=headline)
+
+@register.inclusion_tag("staff_semester_view_course.html")
+def include_staff_semester_view_course(semester, state, course):
+    return dict(semester=semester, state=state, course=course)
