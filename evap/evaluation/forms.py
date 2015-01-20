@@ -186,7 +186,7 @@ class BootstrapMixin(object):
     """"""
 
     __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">
-                 <label class="col-sm-2 control-label" for="{{ field_id }}">{{ label }}</label>
+                 <label class="col-sm-2 control-label"{% if field_id %} for="{{ field_id }}"{% endif %}>{{ label }}</label>
                  <div class="col-sm-6">
                  {{ bf }}
                  {% if errors %}<span class="help-block">{{ errors }}</span>{% endif %}
@@ -279,8 +279,13 @@ class BootstrapMixin(object):
             else:
                 help_text = u''
 
-            field_id = "id_" + bf.name
-            attrs = {"id": field_id}
+            if not isinstance(field_instance.widget, widgets.SelectMultiple):
+                field_id = "id_" + bf.name
+                attrs = {"id": field_id}
+            else:
+                field_id = ""
+                attrs = {}
+
             if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple)):
                 attrs['class'] = 'form-control'
             if isinstance(field_instance.widget, widgets.DateInput) and not field_instance.widget.attrs.get("readonly", False):
