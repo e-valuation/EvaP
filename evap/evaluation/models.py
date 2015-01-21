@@ -101,8 +101,12 @@ class Questionnaire(models.Model):
         return self.name
 
     @property
-    def can_staff_delete(self):
+    def can_staff_edit(self):
         return not self.contributions.exists()
+    
+    @property
+    def can_staff_delete(self):
+        return self.can_staff_edit
 
 
 class Course(models.Model):

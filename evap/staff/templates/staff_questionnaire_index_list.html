@@ -25,7 +25,7 @@
                             {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
                         </td>
                         <td class="right">
-                            {% if not questionnaire.obsolete %}
+                            {% if questionnaire.can_staff_edit %}
                                 <a href="{% url "evap.staff.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                             {% else %}
                                 <a href="#" class="btn btn-sm btn-default" disabled="disabled">{% trans "Edit" %}</a>
