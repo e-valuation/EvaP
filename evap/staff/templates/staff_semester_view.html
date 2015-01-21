@@ -34,13 +34,13 @@
     {% if courses_by_state %}
         <ul class="nav nav-tabs">
             {% for state, courses in courses_by_state %}
-                <li{% if tab == forloop.counter %} class="active"{% endif %}><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+                <li><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
             {% endfor %}
         </ul>
 
             <div class="tab-content">
             {% for state, courses in courses_by_state %}
-                <div id="tab{{ forloop.counter }}" class="tab-pane{% if tab == forloop.counter %} active{% endif %}">
+                <div id="tab{{ forloop.counter }}" class="tab-pane">
                 <table class="table table-striped">
                 <tbody>
                 {% for course in courses %}
@@ -48,7 +48,7 @@
                         <td class="maximize">
                             <div>
                             {% if course.can_staff_edit %}
-                                <a href="{% url "evap.staff.views.course_edit" semester.id course.id %}?tab={{ forloop.parentloop.counter }}">{{ course.name }}</a>
+                                <a href="{% url "evap.staff.views.course_edit" semester.id course.id %}">{{ course.name }}</a>
                             {% else %}
                                 {{ course.name }}
                             {% endif %}
@@ -74,7 +74,7 @@
                                             <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
                                         </p>
                                         {% if course.can_staff_review %}
-                                            <a href="{% url "evap.staff.views.course_review" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="twipsify" title="{% trans "Click to review text answers" %}">
+                                            <a href="{% url "evap.staff.views.course_review" semester.id course.id %}" class="twipsify" title="{% trans "Click to review text answers" %}">
                                                 <span class="glyphicon glyphicon-comment"></span>
                                                 <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
                                                 <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
@@ -102,22 +102,22 @@
                             </td>
                         {% endif %}
                         <td class="minimize">
-                            <a href="{% url "evap.staff.views.course_email" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
+                            <a href="{% url "evap.staff.views.course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
                             {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
-                                <a href="{% url "evap.staff.views.course_preview" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                                <a href="{% url "evap.staff.views.course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                             {% endif %}
                             {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-                                <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
+                                <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
                             {% endif %}
                             {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
-                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
+                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
                             {% endif %}
                             {% if course.can_staff_delete %}
-                                <a href="{% url "evap.staff.views.course_delete" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+                                <a href="{% url "evap.staff.views.course_delete" semester.id course.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% endif %}
                             {% if state == 'published' %}
-                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-                                <a href="{% url "evap.staff.views.course_unpublish" semester.id course.id %}?tab={{ forloop.parentloop.counter }}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
+                                <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                <a href="{% url "evap.staff.views.course_unpublish" semester.id course.id %}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default">{% trans "Unpublish" %}</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -154,8 +154,34 @@
 {% endblock %}
 
 {% block on_document_ready %}
-    $("a[data-toggle='tab']").on("shown.bs.tab", function(e) {
-        history.pushState(null, null, "?tab=" + $(this).data("tab"));
+    var defaultTab = "#tab1";
+
+    // The selected tab can change in three ways:
+    // 1. The page is opened
+    //    Select the tab given in the url, or select the previously selected tab, or default to tab 1
+    var storedHash = localStorage.getItem('evap.staff_semester_view.last_tab');
+    var hash = window.location.hash || storedHash || defaultTab;
+    //    Don't add a new history item, but replace the current one by appending the selected tab
+    $('ul.nav a[href="' + hash + '"]').tab('show');
+    history.replaceState(null, null, hash);
+
+    // 2. The user clicks on a tab link
+    $('.nav-tabs a').click(function (e) {
+      $(this).tab('show');
+      //  Add a new history item
+      history.pushState(null, null, this.hash);
+    });
+
+    // 3. The user navigates back
+    $(window).on("popstate", function() {
+        var hash = window.location.hash || defaultTab;
+        $('ul.nav a[href="' + hash + '"]').tab('show');
+    });
+
+    // This event captures all three occasions of changing the selected tab
+    // and persists the newly selected tab into localStorage
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        localStorage.setItem('evap.staff_semester_view.last_tab', this.hash);
     });
 
     $('.btn-toggle').click(function() {
