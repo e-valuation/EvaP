@@ -12,7 +12,6 @@
         {% csrf_token %}
         {{ formset.management_form }}
         <input type="hidden" name="skipped_answers" value="{{ skipped_answers }}" id="skipped_answers" />
-        <input type="hidden" name="tab" value="{{ tab }}" id="tab" />
         {% for form in formset %}
             <div class="panel panel-default">
                 <div class="panel-heading">

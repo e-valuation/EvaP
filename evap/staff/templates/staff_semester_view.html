@@ -156,22 +156,30 @@
 {% block on_document_ready %}
     var defaultTab = "#tab1";
 
+    // The selected tab can change in three ways:
+    // 1. The page is opened
+    //    Select the tab given in the url, or select the previously selected tab, or default to tab 1
     var storedHash = localStorage.getItem('evap.staff_semester_view.last_tab');
     var hash = window.location.hash || storedHash || defaultTab;
-    history.replaceState(null, null, hash);
+    //    Don't add a new history item, but replace the current one by appending the selected tab
     $('ul.nav a[href="' + hash + '"]').tab('show');
+    history.replaceState(null, null, hash);
 
+    // 2. The user clicks on a tab link
     $('.nav-tabs a').click(function (e) {
       $(this).tab('show');
+      //  Add a new history item
       history.pushState(null, null, this.hash);
     });
 
-    // when navigating back
+    // 3. The user navigates back
     $(window).on("popstate", function() {
         var hash = window.location.hash || defaultTab;
         $('ul.nav a[href="' + hash + '"]').tab('show');
     });
 
+    // This event captures all three occasions of changing the selected tab
+    // and persists the newly selected tab into localStorage
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         localStorage.setItem('evap.staff_semester_view.last_tab', this.hash);
     });
