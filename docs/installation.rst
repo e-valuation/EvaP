@@ -20,6 +20,25 @@ Use ``vagrant halt`` to shutdown the VM, and ``vagrant destroy`` to delete it.
 If you don't want to use Vagrant, you can use the following instructions to 
 manually set up EvaP.
 
+
+Vagrant and Hyper-V
+-------------------
+
+1. Enable Hyper-V (note the warning on `this page <https://docs.vagrantup.com/v2/hyperv/index.html>`_).
+  
+  ..
+
+2. Configure Networking
+
+  You can either connect the VM to your external network directly by creating an *External Virtual Switch* in Hyper-V Manager->Virtual Switch Manager, or use "NAT-Mode" by creating an *Internal Virtual Switch* and setting up `Windows Internet Connection Sharing <http://windows.microsoft.com/en-us/windows/using-internet-connection-sharing#1TC=windows-7>`_ (recommended).
+
+3. ``vagrant up --provider hyperv``
+
+  Select the virtual switch created in step 2 and enter your Windows host credentials when prompted, in order to give the virtual machine access to the working directory via SMB.
+
+4.  Because port forwarding doesn't work with Hyper-V, you have to access the EvaP website using the VM's IP address.
+
+
 Filesystem Structure
 --------------------
 
