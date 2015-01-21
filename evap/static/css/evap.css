@@ -101,12 +101,9 @@ td.right, th.right {
 td.center, th.center {
     text-align: center;
 }
-table.vertically-aligned tr td {
-    vertical-align: middle;
-}
 
-td#vertically-aligned {
-    vertical-align: middle;
+.vertically-aligned, table.vertically-aligned tr td {
+    vertical-align: middle !important; /*Overwrite bootstrap definition*/
 }
 
 .distribution-bar {

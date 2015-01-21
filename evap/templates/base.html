@@ -1,10 +1,11 @@
+{% spaceless %}
 {% load i18n %}
 {% load static %}
 {% load morefilters %}
 {% load staff_templatetags %}
 {% load results_templatetags %}
 
-<!DOCTYPE html>
+{% endspaceless %}<!DOCTYPE html>
 <html>
 <head>
     {% block header %}
@@ -38,7 +39,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/"><img src="{% get_static_prefix %}images/evap.png" height="50px" alt="{% trans "Evaluation Platform" %}"></a>
+                <a class="navbar-brand" href="/"><img src="{% get_static_prefix %}images/evap.png" height="50" alt="{% trans "Evaluation Platform" %}"></a>
             </div>
 
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
@@ -66,9 +67,8 @@
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.staff.views.index" %}">{% trans "Manage" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "evap.staff.views.index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a>
-                                        {% include_staff_semester_menu %}
-                                    </li>
+                                    <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a></li>
+                                    {% include_staff_semester_menu %}
                                     <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
                                     <li><a href="{% url "evap.staff.views.user_index" %}">{% trans "Users" %}</a></li>
                                     <li><a href="{% url "evap.rewards.views.reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
@@ -136,7 +136,7 @@
     <div id="footer">
         <div class="container">
             <p class="text-muted">
-                <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
+                <a href="{% value_from_settings TRACKER_URL %}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
                 &nbsp;&middot;&nbsp;
                 <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
                 &nbsp;&middot;&nbsp;

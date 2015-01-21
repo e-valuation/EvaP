@@ -12,7 +12,7 @@
         {% if semester.can_staff_delete %}
             <a href="{% url "evap.staff.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger">{% trans "Delete Semester" %}</a>
         {% else %}
-            <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete Semester" %}</a>
+            <a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete Semester" %}</a>
         {% endif %}
         &nbsp;
         <a href="{% url "evap.staff.views.course_create" semester.id %}" class="btn btn-sm btn-default">{% trans "Create Course" %}</a>

@@ -19,9 +19,9 @@
         <a href="{% url "evap.staff.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
         <a href="{% url "evap.staff.views.questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
         {% if questionnaire.can_staff_delete %}
-            <a href="{% url "evap.staff.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a></li>
+            <a href="{% url "evap.staff.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
         {% else %}
-            <a href="#" class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete" %}</a></li>
+            <a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a>
         {% endif %}
     </p>
     {% endif %}
