@@ -501,8 +501,8 @@ def questionnaire_edit(request, questionnaire_id):
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = QuestionFormset(request.POST or None, instance=questionnaire)
 
-    if questionnaire.obsolete:
-        messages.info(request, _("Obsolete questionnaires cannot be edited."))
+    if questionnaire.can_staff_edit:
+        messages.info(request, _("Questionnaires that are already used cannot be edited."))
         return redirect('evap.staff.views.questionnaire_index')
 
     if form.is_valid() and formset.is_valid():
