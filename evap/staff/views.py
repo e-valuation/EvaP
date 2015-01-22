@@ -275,6 +275,21 @@ def semester_lottery(request, semester_id):
     template_data =dict(semester=semester, form=form, eligible=eligible, winners=winners)
     return render(request, "staff_semester_lottery.html", template_data)
 
+@staff_required
+def semester_todo(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    courses = semester.course_set.filter(state__in=['prepared', 'lecturerApproved']).all()
+
+    prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
+    responsibles = (course.responsible_contributor for course in prepared_courses)
+    responsibles = list(set(responsibles))
+    responsibles.sort(key = lambda responsible: (responsible.last_name, responsible.first_name))
+
+    responsible_list = [(responsible, [course for course in courses if course.responsible_contributor.id == responsible.id], responsible.delegates.all()) for responsible in responsibles]
+
+    template_data = dict(semester=semester, responsible_list=responsible_list)
+    return render(request, "staff_semester_todo.html", template_data)
 
 @staff_required
 def course_create(request, semester_id):

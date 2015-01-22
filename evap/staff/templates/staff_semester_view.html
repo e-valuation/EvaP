@@ -21,7 +21,9 @@
         &nbsp;
         <a href="{% url "evap.staff.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
         &nbsp;
-        
+        <a href="{% url "evap.staff.views.semester_todo" semester.id %}" class="btn btn-sm btn-default">{% trans "Todo" %}</a>
+        &nbsp;
+
         <div class="btn-group">
             <a href="{% url "evap.rewards.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
             <div class="btn-group btn-toggle">
