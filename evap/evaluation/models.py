@@ -667,6 +667,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.is_editor or self.is_delegate
 
     @property
+    def is_delegate_or_contributor(self):
+        return self.is_delegate or self.is_contributor
+
+    @property
     def is_external(self):
         # do the import here to prevent a circular import
         from evap.evaluation.tools import is_external_email
