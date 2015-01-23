@@ -182,15 +182,16 @@ class ExcelImporter(object):
             except UserProfile.DoesNotExist:
                 pass
                 
-            try:
-                user_same_name = UserProfile.objects.get(first_name=user_data.first_name, last_name=user_data.last_name)
-                if user_same_name.username != user_data.username:
-                    self.warnings.append(_(u"Warning: The existing user") + 
-                            u" {} ({} {} {}, {}) ".format(user_same_name.username, user_same_name.title or "", user_same_name.first_name, user_same_name.last_name, user_same_name.email) +
-                            _(u"has the same first and last name like ") +
-                            u" {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email))
-            except UserProfile.DoesNotExist:
-                pass
+            users_same_name = UserProfile.objects.filter(first_name=user_data.first_name, last_name=user_data.last_name).exclude(username=user_data.username).all()
+            if len(users_same_name) > 0:
+                warningstring = _(u"An existing user has the same first and last name as a new user:") 
+                for user in users_same_name:
+                    warningstring += u"\n - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
+                    warningstring += _(u" (existing)")
+                warningstring += u"\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)  
+                warningstring += _(u" (new)")
+                self.warnings.append(warningstring)
+
 
     def show_errors_and_warnings(self):
         for error in self.errors:
