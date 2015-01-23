@@ -137,7 +137,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'evap.evaluation.auth.RequestAuthMiddleware',
-    'evap.evaluation.403.Django403Middleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
