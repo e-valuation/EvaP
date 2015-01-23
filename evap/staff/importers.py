@@ -363,9 +363,9 @@ class UserImporter(ExcelImporter):
                 return
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.consolidate_user_data()
+            importer.generate_external_usernames_if_external()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity()
-            importer.generate_external_usernames_if_external()
 
             importer.show_errors_and_warnings()
             if importer.errors:
