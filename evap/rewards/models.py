@@ -6,9 +6,9 @@ from collections import OrderedDict
 from operator import attrgetter
 
 class RewardPointRedemptionEvent(models.Model):
-    name = models.CharField(max_length=1024, verbose_name=_(u"event name"))
-    date = models.DateField(verbose_name=_(u"event date"))
-    redeem_end_date = models.DateField(verbose_name=_(u"redemption end date"))
+    name = models.CharField(max_length=1024, verbose_name=_("event name"))
+    date = models.DateField(verbose_name=_("event date"))
+    redeem_end_date = models.DateField(verbose_name=_("redemption end date"))
 
     @property
     def can_delete(self):
@@ -28,13 +28,13 @@ class RewardPointRedemptionEvent(models.Model):
 class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey('evaluation.UserProfile', related_name="reward_point_grantings")
     semester = models.ForeignKey('evaluation.Semester', related_name="reward_point_grantings", blank=True, null=True)
-    granting_time = models.DateTimeField(verbose_name=_(u"granting time"), auto_now_add=True)
-    value = models.IntegerField(verbose_name=_(u"value"), default=0)
+    granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
+    value = models.IntegerField(verbose_name=_("value"), default=0)
 
 class RewardPointRedemption(models.Model):
     user_profile = models.ForeignKey('evaluation.UserProfile', related_name="reward_point_redemptions")
-    redemption_time = models.DateTimeField(verbose_name=_(u"redemption time"), auto_now_add=True)
-    value = models.IntegerField(verbose_name=_(u"value"), default=0)
+    redemption_time = models.DateTimeField(verbose_name=_("redemption time"), auto_now_add=True)
+    value = models.IntegerField(verbose_name=_("value"), default=0)
     event = models.ForeignKey(RewardPointRedemptionEvent, related_name="reward_point_redemptions")
 
 class SemesterActivation(models.Model):

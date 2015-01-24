@@ -6,7 +6,7 @@ from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceFie
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_(u"General questions"))
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
 
     class Meta:
         model = Course

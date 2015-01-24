@@ -15,14 +15,14 @@ from evap.staff.tools import EMAIL_RECIPIENTS
 
 
 class ImportForm(forms.Form, BootstrapMixin):
-    vote_start_date = forms.DateField(label=_(u"First date to vote"), localize=True)
-    vote_end_date = forms.DateField(label=_(u"Last date to vote"), localize=True)
+    vote_start_date = forms.DateField(label=_("First date to vote"), localize=True)
+    vote_end_date = forms.DateField(label=_("Last date to vote"), localize=True)
 
-    excel_file = forms.FileField(label=_(u"Excel file"))
+    excel_file = forms.FileField(label=_("Excel file"))
 
 
 class UserImportForm(forms.Form, BootstrapMixin):
-    excel_file = forms.FileField(label=_(u"Excel file"))
+    excel_file = forms.FileField(label=_("Excel file"))
 
 
 class SemesterForm(forms.ModelForm, BootstrapMixin):
@@ -32,9 +32,9 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_(u"General questions"))
-    last_modified_time_2 = forms.DateTimeField(label=_(u"Last modified"), required=False, localize=True)
-    last_modified_user_2 = forms.CharField(label=_(u"Last modified by"), required=False)
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
+    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
 
     class Meta:
         model = Course
@@ -120,7 +120,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         self.recipient_groups = self.cleaned_data.get('recipients')
 
         if not self.recipient_groups:
-            raise forms.ValidationError(_(u"No recipient selected. Choose at least one group of recipients."))
+            raise forms.ValidationError(_("No recipient selected. Choose at least one group of recipients."))
 
         return self.cleaned_data
 
@@ -188,7 +188,7 @@ class AtLeastOneFormSet(BaseInlineFormSet):
                 count += 1
 
         if count < 1:
-            raise forms.ValidationError(_(u'You must have at least one of these.'))
+            raise forms.ValidationError(_('You must have at least one of these.'))
 
 
 class ContributionFormSet(AtLeastOneFormSet):
@@ -224,9 +224,9 @@ class ContributionFormSet(AtLeastOneFormSet):
                 continue
             contributor = form.cleaned_data.get('contributor')
             if contributor is None:
-                raise forms.ValidationError(_(u'Please select the name of each added contributor. Remove empty rows if necessary.'))
+                raise forms.ValidationError(_('Please select the name of each added contributor. Remove empty rows if necessary.'))
             if contributor and contributor in found_contributor:
-                raise forms.ValidationError(_(u'Duplicate contributor found. Each contributor should only be used once.'))
+                raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
             elif contributor:
                 found_contributor.add(contributor)
 
@@ -234,9 +234,9 @@ class ContributionFormSet(AtLeastOneFormSet):
                 count_responsible += 1
 
         if count_responsible < 1:
-            raise forms.ValidationError(_(u'No responsible contributor found. Each course must have exactly one responsible contributor.'))
+            raise forms.ValidationError(_('No responsible contributor found. Each course must have exactly one responsible contributor.'))
         elif count_responsible > 1:
-            raise forms.ValidationError(_(u'Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
+            raise forms.ValidationError(_('Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
 
 
 class IdLessQuestionFormSet(AtLeastOneFormSet):
@@ -295,7 +295,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
                     value = field.clean(value)
                 self.cleaned_data[name] = value
 
-                name2 = u'clean_%s' % name
+                name2 = 'clean_%s' % name
                 name2 = name2.encode('iso-8859-1')
                 if hasattr(self, name2):
                     value = getattr(self, 'clean_%s' % name)()
@@ -358,7 +358,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
                 # there is a user with this name but that's me
                 return self.cleaned_data.get('username')
 
-        raise forms.ValidationError(_(u"A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+        raise forms.ValidationError(_("A user with the username '%s' already exists") % self.cleaned_data.get('username'))
 
     def _post_clean(self, *args, **kw):
         if self._errors:
@@ -378,7 +378,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
 
 class LotteryForm(forms.Form, BootstrapMixin):
-    number_of_winners = forms.IntegerField(label=_(u"Number of Winners"), initial=3)
+    number_of_winners = forms.IntegerField(label=_("Number of Winners"), initial=3)
 
 
 class EmailTemplateForm(forms.ModelForm, BootstrapMixin):

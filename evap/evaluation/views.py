@@ -30,7 +30,7 @@ def index(request):
 
             EmailTemplate.get_login_key_template().send_to_user(new_key_form.get_user(), cc=False)
 
-            messages.success(request, _(u"Successfully sent email with new login key."))
+            messages.success(request, _("Successfully sent email with new login key."))
         elif login_key_form.is_valid():
             # user would like to login with a login key and passed key test
             auth_login(request, login_key_form.get_user())

@@ -191,10 +191,10 @@ LANGUAGES = (
 
 USERNAME_REPLACEMENTS = [
     (' ', ''),
-    (u'ä', 'ae'),
-    (u'ö', 'oe'),
-    (u'ü', 'ue'),
-    (u'ß', 'ss'),
+    ('ä', 'ae'),
+    ('ö', 'oe'),
+    ('ü', 'ue'),
+    ('ß', 'ss'),
 ]
 
 

@@ -83,14 +83,14 @@ class ExcelExporter(object):
         questionnaires = [Questionnaire.objects.get(id=t[0]) for t in qn_relevant]
 
         self.workbook = xlwt.Workbook()
-        self.sheet = self.workbook.add_sheet(_(u"Results"))
+        self.sheet = self.workbook.add_sheet(_("Results"))
         self.row = 0
         self.col = 0
 
         
         self.add_color_palette_to_workbook(self.workbook)
 
-        writec(self, _(u"Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), "headline")
+        writec(self, _("Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), "headline")
         for course, results in courses_with_results:
             if course.state == "published":
                 writec(self, course.name, "course", cols=2)
@@ -142,7 +142,7 @@ class ExcelExporter(object):
             for course, results in courses_with_results:
                 self.write_two_empty_cells_with_borders()
 
-        writen(self, _(u"Overall Average Grade"), "bold")
+        writen(self, _("Overall Average Grade"), "bold")
         for course, results in courses_with_results:
             avg, med = calculate_average_and_medium_grades(course)
             if avg:
@@ -150,7 +150,7 @@ class ExcelExporter(object):
             else:
                 self.write_two_empty_cells_with_borders()
 
-        writen(self, _(u"Overall Median Grade"), "bold")
+        writen(self, _("Overall Median Grade"), "bold")
         for course, results in courses_with_results:
             avg, med = calculate_average_and_medium_grades(course)
             if med:
@@ -158,7 +158,7 @@ class ExcelExporter(object):
             else:
                 self.write_two_empty_cells_with_borders()
 
-        writen(self, _(u"Total Voters/Total Participants"), "bold")
+        writen(self, _("Total Voters/Total Participants"), "bold")
         for course, results in courses_with_results:
             percent_participants = float(course.num_voters)/float(course.num_participants)
             writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)

@@ -14,8 +14,8 @@ class ToolTipModelChoiceIterator(ModelChoiceIterator):
 class ToolTipSelectMultiple(forms.SelectMultiple):
     def render_option(self, selected_choices, option_value, option_label, option_title):
         option_value = force_text(option_value)
-        selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
-        return u'<option value="%s" title="%s" %s>%s</option>' % (
+        selected_html = (option_value in selected_choices) and ' selected="selected"' or ''
+        return '<option value="%s" title="%s" %s>%s</option>' % (
             escape(option_value), escape(option_title), selected_html,
             conditional_escape(force_text(option_label)))
 
@@ -25,7 +25,7 @@ class ToolTipSelectMultiple(forms.SelectMultiple):
         output = []
         for option_value, option_label, option_title in chain(self.choices, choices):
             output.append(self.render_option(selected_choices, option_value, option_label, option_title))
-        return u'\n'.join(output)
+        return '\n'.join(output)
 
 
 class ToolTipModelMultipleChoiceField(forms.ModelMultipleChoiceField):

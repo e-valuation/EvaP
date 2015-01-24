@@ -34,22 +34,20 @@ class NotArchiveable(Exception):
     pass
 
 
-class Semester(models.Model):
+class Semester(models.Model, metaclass=LocalizeModelBase):
     """Represents a semester, e.g. the winter term of 2011/2012."""
 
-    __metaclass__ = LocalizeModelBase
-
-    name_de = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
+    name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
 
     name = Translate
 
-    created_at = models.DateField(verbose_name=_(u"created at"), auto_now_add=True)
+    created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
     class Meta:
         ordering = ('-created_at', 'name_de')
-        verbose_name = _(u"semester")
-        verbose_name_plural = _(u"semesters")
+        verbose_name = _("semester")
+        verbose_name_plural = _("semesters")
 
     def __unicode__(self):
         return self.name
@@ -85,36 +83,34 @@ class Semester(models.Model):
         return cls.objects.latest("created_at")
 
 
-class Questionnaire(models.Model):
+class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     """A named collection of questions."""
 
-    __metaclass__ = LocalizeModelBase
-
-    name_de = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=1024, unique=True, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
+    name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
     name = Translate
 
-    description_de = models.TextField(verbose_name=_(u"description (german)"), blank=True, null=True)
-    description_en = models.TextField(verbose_name=_(u"description (english)"), blank=True, null=True)
+    description_de = models.TextField(verbose_name=_("description (german)"), blank=True, null=True)
+    description_en = models.TextField(verbose_name=_("description (english)"), blank=True, null=True)
     description = Translate
 
-    public_name_de = models.CharField(max_length=1024, verbose_name=_(u"display name (german)"))
-    public_name_en = models.CharField(max_length=1024, verbose_name=_(u"display name (english)"))
+    public_name_de = models.CharField(max_length=1024, verbose_name=_("display name (german)"))
+    public_name_en = models.CharField(max_length=1024, verbose_name=_("display name (english)"))
     public_name = Translate
 
-    teaser_de = models.TextField(verbose_name=_(u"teaser (german)"), blank=True, null=True)
-    teaser_en = models.TextField(verbose_name=_(u"teaser (english)"), blank=True, null=True)
+    teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True, null=True)
+    teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True, null=True)
     teaser = Translate
 
-    index = models.IntegerField(verbose_name=_(u"ordering index"), default=0)
+    index = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
-    is_for_contributors = models.BooleanField(verbose_name=_(u"is for contributors"), default=False)
-    obsolete = models.BooleanField(verbose_name=_(u"obsolete"), default=False)
+    is_for_contributors = models.BooleanField(verbose_name=_("is for contributors"), default=False)
+    obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
 
     class Meta:
         ordering = ('obsolete', 'index', 'name_de')
-        verbose_name = _(u"questionnaire")
-        verbose_name_plural = _(u"questionnaires")
+        verbose_name = _("questionnaire")
+        verbose_name_plural = _("questionnaires")
 
     def __unicode__(self):
         return self.name
@@ -128,39 +124,37 @@ class Questionnaire(models.Model):
         return self.can_staff_edit
 
 
-class Course(models.Model):
+class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""
-
-    __metaclass__ = LocalizeModelBase
 
     state = FSMField(default='new', protected=True)
 
-    semester = models.ForeignKey(Semester, verbose_name=_(u"semester"))
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
 
-    name_de = models.CharField(max_length=1024, verbose_name=_(u"name (german)"))
-    name_en = models.CharField(max_length=1024, verbose_name=_(u"name (english)"))
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
     name = Translate
 
     # type of course: lecture, seminar, project
-    kind = models.CharField(max_length=1024, verbose_name=_(u"type"))
+    kind = models.CharField(max_length=1024, verbose_name=_("type"))
 
     # bachelor, master, d-school course
-    degree = models.CharField(max_length=1024, verbose_name=_(u"degree"))
+    degree = models.CharField(max_length=1024, verbose_name=_("degree"))
 
     # default is True as that's the more restrictive option
-    is_graded = models.BooleanField(verbose_name=_(u"is graded"), default=True)
+    is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
 
     # students that are allowed to vote
-    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"participants"), blank=True)
-    _participant_count = models.IntegerField(verbose_name=_(u"participant count"), blank=True, null=True, default=None)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True)
+    _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
     # students that already voted
-    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_(u"voters"), blank=True, related_name='+')
-    _voter_count = models.IntegerField(verbose_name=_(u"voter count"), blank=True, null=True, default=None)
+    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='+')
+    _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateField(null=True, verbose_name=_(u"first date to vote"))
-    vote_end_date = models.DateField(null=True, verbose_name=_(u"last date to vote"))
+    vote_start_date = models.DateField(null=True, verbose_name=_("first date to vote"))
+    vote_end_date = models.DateField(null=True, verbose_name=_("last date to vote"))
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
@@ -174,8 +168,8 @@ class Course(models.Model):
             ('semester', 'degree', 'name_de'),
             ('semester', 'degree', 'name_en'),
         )
-        verbose_name = _(u"course")
-        verbose_name_plural = _(u"courses")
+        verbose_name = _("course")
+        verbose_name_plural = _("courses")
 
     def __unicode__(self):
         return self.name
@@ -183,7 +177,7 @@ class Course(models.Model):
     def clean(self):
         if self.vote_start_date and self.vote_end_date:
             if self.vote_start_date >= self.vote_end_date:
-                raise ValidationError(_(u"The vote start date must be before the vote end date."))
+                raise ValidationError(_("The vote start date must be before the vote end date."))
 
     def save(self, *args, **kw):
         super(Course, self).save(*args, **kw)
@@ -355,9 +349,9 @@ class Course(models.Model):
     def warnings(self):
         result = []
         if self.state == 'new' and not self.has_enough_questionnaires:
-            result.append(_(u"Not enough questionnaires assigned"))
+            result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades:
-            result.append(_(u"Not enough participants to publish results"))
+            result.append(_("Not enough participants to publish results"))
         return result
 
     @property
@@ -409,11 +403,11 @@ class Course(models.Model):
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
-    course = models.ForeignKey(Course, verbose_name=_(u"course"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"contributor"), blank=True, null=True, related_name='contributions')
-    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_(u"questionnaires"), blank=True, related_name="contributions")
-    responsible = models.BooleanField(verbose_name=_(u"responsible"), default=False)
-    can_edit = models.BooleanField(verbose_name=_(u"can edit"), default=False)
+    course = models.ForeignKey(Course, verbose_name=_("course"), related_name='contributions')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
+    questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
+    responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
+    can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
@@ -433,37 +427,35 @@ class Contribution(models.Model):
         return self.contributor == None
 
 
-class Question(models.Model):
+class Question(models.Model, metaclass=LocalizeModelBase):
     """A question including a type."""
 
-    __metaclass__ = LocalizeModelBase
-
     QUESTION_KINDS = (
-        (u"T", _(u"Text Question")),
-        (u"L", _(u"Likert Question")),
-        (u"G", _(u"Grade Question")),
+        ("T", _("Text Question")),
+        ("L", _("Likert Question")),
+        ("G", _("Grade Question")),
     )
 
     questionnaire = models.ForeignKey(Questionnaire)
-    text_de = models.TextField(verbose_name=_(u"question text (german)"))
-    text_en = models.TextField(verbose_name=_(u"question text (english)"))
+    text_de = models.TextField(verbose_name=_("question text (german)"))
+    text_en = models.TextField(verbose_name=_("question text (english)"))
     kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
-                            verbose_name=_(u"kind of question"))
+                            verbose_name=_("kind of question"))
 
     text = Translate
 
     class Meta:
         order_with_respect_to = 'questionnaire'
-        verbose_name = _(u"question")
-        verbose_name_plural = _(u"questions")
+        verbose_name = _("question")
+        verbose_name_plural = _("questions")
 
     @property
     def answer_class(self):
-        if self.kind == u"T":
+        if self.kind == "T":
             return TextAnswer
-        elif self.kind == u"L":
+        elif self.kind == "L":
             return LikertAnswer
-        elif self.kind == u"G":
+        elif self.kind == "G":
             return GradeAnswer
         else:
             raise Exception("Unknown answer kind: %r" % self.kind)
@@ -491,29 +483,29 @@ class Answer(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = _(u"answer")
-        verbose_name_plural = _(u"answers")
+        verbose_name = _("answer")
+        verbose_name_plural = _("answers")
 
 
 class LikertAnswer(Answer):
     """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
     being *strongly disagree*."""
 
-    answer = models.IntegerField(verbose_name=_(u"answer"))
+    answer = models.IntegerField(verbose_name=_("answer"))
 
     class Meta:
-        verbose_name = _(u"Likert answer")
-        verbose_name_plural = _(u"Likert answers")
+        verbose_name = _("Likert answer")
+        verbose_name_plural = _("Likert answers")
 
 
 class GradeAnswer(Answer):
     """A grade answer to a question with `1` being best and `5` being worst."""
 
-    answer = models.IntegerField(verbose_name=_(u"answer"))
+    answer = models.IntegerField(verbose_name=_("answer"))
 
     class Meta:
-        verbose_name = _(u"grade answer")
-        verbose_name_plural = _(u"grade answers")
+        verbose_name = _("grade answer")
+        verbose_name_plural = _("grade answers")
 
 
 class TextAnswer(Answer):
@@ -522,15 +514,15 @@ class TextAnswer(Answer):
 
     elements_per_page = 5
 
-    reviewed_answer = models.TextField(verbose_name=_(u"reviewed answer"), blank=True, null=True)
-    original_answer = models.TextField(verbose_name=_(u"original answer"), blank=True)
+    reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
+    original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
 
-    checked = models.BooleanField(verbose_name=_(u"answer checked"), default=False)
-    hidden = models.BooleanField(verbose_name=_(u"hide answer"), default=False)
+    checked = models.BooleanField(verbose_name=_("answer checked"), default=False)
+    hidden = models.BooleanField(verbose_name=_("hide answer"), default=False)
 
     class Meta:
-        verbose_name = _(u"text answer")
-        verbose_name_plural = _(u"text answers")
+        verbose_name = _("text answer")
+        verbose_name_plural = _("text answers")
 
     @property
     def answer(self):
@@ -541,27 +533,23 @@ class TextAnswer(Answer):
         self.reviewed_answer = None
 
 
-class FaqSection(models.Model):
+class FaqSection(models.Model, metaclass=LocalizeModelBase):
     """Section in the frequently asked questions"""
-
-    __metaclass__ = LocalizeModelBase
 
     order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
-    title_de = models.TextField(verbose_name=_(u"section title (german)"))
-    title_en = models.TextField(verbose_name=_(u"section title (english)"))
+    title_de = models.TextField(verbose_name=_("section title (german)"))
+    title_en = models.TextField(verbose_name=_("section title (english)"))
     title = Translate
 
     class Meta:
         ordering = ['order', ]
-        verbose_name = _(u"section")
-        verbose_name_plural = _(u"sections")
+        verbose_name = _("section")
+        verbose_name_plural = _("sections")
 
 
-class FaqQuestion(models.Model):
+class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
     """Question and answer in the frequently asked questions"""
-
-    __metaclass__ = LocalizeModelBase
 
     section = models.ForeignKey(FaqSection, related_name="questions")
 
@@ -577,8 +565,8 @@ class FaqQuestion(models.Model):
 
     class Meta:
         ordering = ['order', ]
-        verbose_name = _(u"question")
-        verbose_name_plural = _(u"questions")
+        verbose_name = _("question")
+        verbose_name_plural = _("questions")
 
 class UserProfileManager(BaseUserManager):
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
@@ -610,9 +598,8 @@ class UserProfileManager(BaseUserManager):
 
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
-class EmailNullField(models.EmailField): #subclass the CharField
+class EmailNullField(models.EmailField, metaclass=models.SubfieldBase): #subclass the CharField
     description = "EmailField that stores NULL but returns ''"
-    __metaclass__ = models.SubfieldBase # this ensures to_python will be called
     def to_python(self, value):  # this is the value right out of the db, or an instance
        return value or ""
 
@@ -623,21 +610,21 @@ class EmailNullField(models.EmailField): #subclass the CharField
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
     email = EmailNullField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
-    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(u"Title"))
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
 
     # delegates of the user, which can also manage their courses
-    delegates = models.ManyToManyField("UserProfile", verbose_name=_(u"Delegates"), related_name="represented_users", blank=True)
+    delegates = models.ManyToManyField("UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField("UserProfile", verbose_name=_(u"CC Users"), related_name="ccing_users", blank=True)
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31-1
 
-    login_key = models.IntegerField(verbose_name=_(u"Login Key"), unique=True, blank=True, null=True)
-    login_key_valid_until = models.DateField(verbose_name=_(u"Login Key Validity"), blank=True, null=True)
+    login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
+    login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
     class Meta:
         verbose_name = _('user')
@@ -750,7 +737,7 @@ def validate_template(value):
 class EmailTemplate(models.Model):
     name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
 
-    subject = models.CharField(max_length=1024, verbose_name=_(u"Subject"), validators=[validate_template])
+    subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
 
     @classmethod

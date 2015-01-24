@@ -21,7 +21,7 @@ def index(request):
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
     due_courses = list(set(Course.objects.filter(participants=request.user, state='inEvaluation').exclude(voters=request.user)))
 
-    sorter = lambda course: (STUDENT_STATES_ORDERED.keys().index(course.student_state), course.vote_end_date, course.name)
+    sorter = lambda course: (list(STUDENT_STATES_ORDERED.keys()).index(course.student_state), course.vote_end_date, course.name)
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
@@ -83,7 +83,7 @@ def vote(request, course_id):
                     identifier = make_form_identifier(contribution, questionnaire, question)
                     value = questionnaire_form.cleaned_data.get(identifier)
 
-                    if type(value) in [str, unicode]:
+                    if type(value) is str:
                         value = value.strip()
 
                     if value == 6: # no answer

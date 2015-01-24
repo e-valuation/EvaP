@@ -130,7 +130,7 @@ def semester_publish(request, semester_id):
                 selected_courses.append(course)
         messages.success(request, _("Successfully published %d courses.") % (len(selected_courses)))
 
-        for user, courses in user_publish_notifications(selected_courses).iteritems():
+        for user, courses in user_publish_notifications(selected_courses).items():
             try:
                 EmailTemplate.get_publish_template().send_to_user(user, courses=list(courses))
             except Exception:

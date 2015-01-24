@@ -41,8 +41,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'EvaP'
-copyright = u'2011-2014 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf'
+project = 'EvaP'
+copyright = '2011-2014 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -179,8 +179,8 @@ htmlhelp_basename = 'EvaPdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'EvaP.tex', u'EvaP Documentation',
-   u'Michael Grünewald, Stefan Richter', 'manual'),
+  ('index', 'EvaP.tex', 'EvaP Documentation',
+   'Michael Grünewald, Stefan Richter', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -212,6 +212,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'evap', u'EvaP Documentation',
-     [u'Michael Grünewald, Stefan Richter'], 1)
+    ('index', 'evap', 'EvaP Documentation',
+     ['Michael Grünewald, Stefan Richter'], 1)
 ]

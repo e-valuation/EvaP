@@ -24,7 +24,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
         if value is None: value = []
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)
-        output = [u'<ul class="inputs-list">']
+        output = ['<ul class="inputs-list">']
 
         # Normalize to strings
         str_values = set([force_text(v) for v in value])
@@ -33,7 +33,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             # so that the checkboxes don't all have the same ID attribute.
             if has_id:
                 final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
-                label_for = u' for="%s"' % final_attrs['id']
+                label_for = ' for="%s"' % final_attrs['id']
             else:
                 label_for = ''
 
@@ -41,9 +41,9 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_text(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_text(option_label))
-            output.append(u'<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
-        output.append(u'</ul>')
-        return mark_safe(u'\n'.join(output))
+            output.append('<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
+        output.append('</ul>')
+        return mark_safe('\n'.join(output))
 
 
 class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -74,8 +74,8 @@ class LoginUsernameForm(forms.Form):
     """Form encapsulating the login with username and password, for example from an Active Directory.
     """
 
-    username = forms.CharField(label=_(u"Username"), max_length=254)
-    password = forms.CharField(label=_(u"Password"), widget=forms.PasswordInput)
+    username = forms.CharField(label=_("Username"), max_length=254)
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
     def __init__(self, request=None, *args, **kwargs):
         """
@@ -120,7 +120,7 @@ class LoginKeyForm(forms.Form):
 
     INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months.")
 
-    login_key = forms.IntegerField(label=_(u"Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE}, widget=forms.TextInput)
+    login_key = forms.IntegerField(label=_("Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE}, widget=forms.TextInput)
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -145,7 +145,7 @@ class LoginKeyForm(forms.Form):
 
 
 class NewKeyForm(forms.Form):
-    email = forms.EmailField(label=_(u"Email address"))
+    email = forms.EmailField(label=_("Email address"))
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -156,13 +156,13 @@ class NewKeyForm(forms.Form):
         email = self.cleaned_data.get('email')
 
         if not UserProfile.email_needs_login_key(email):
-            raise forms.ValidationError(_(u"HPI users cannot request login keys. Please login using your domain credentials."))
+            raise forms.ValidationError(_("HPI users cannot request login keys. Please login using your domain credentials."))
 
         try:
             user = UserProfile.objects.get(email__iexact=email)
             self.user_cache = user
         except UserProfile.DoesNotExist:
-            raise forms.ValidationError(_(u"No user with this email address was found. Please make sure to enter the email address already known to the university office."))
+            raise forms.ValidationError(_("No user with this email address was found. Please make sure to enter the email address already known to the university office."))
 
         return email
 
@@ -178,7 +178,7 @@ class BootstrapFieldset(object):
         self.fields = fields
 
     def as_html(self, form):
-        return u'<fieldset>%s%s</fieldset>' % (self.legend_html, form.render_fields(self.fields), )
+        return '<fieldset>%s%s</fieldset>' % (self.legend_html, form.render_fields(self.fields), )
 
 
 # taken from https://github.com/earle/django-bootstrap/blob/master/bootstrap/forms.py
@@ -203,11 +203,11 @@ class BootstrapMixin(object):
         top_errors.extend(self.non_field_errors())
 
         if top_errors:
-            errors = u"""<ul class="errorlist"><li>%s</li></ul>""" % u"</li><li>".join(top_errors)
+            errors = """<ul class="errorlist"><li>%s</li></ul>""" % "</li><li>".join(top_errors)
         else:
-            errors = u""
+            errors = ""
 
-        prefix = u''.join(self.prefix_fields)
+        prefix = ''.join(self.prefix_fields)
 
         return mark_safe(prefix + errors + output)
 
@@ -227,7 +227,7 @@ class BootstrapMixin(object):
             self.__custom_fields_store = {}
             return self.__custom_fields_store
 
-    def __render_fields(self, fields, top_errors, separator=u""):
+    def __render_fields(self, fields, top_errors, separator=""):
         """ Render a list of fields and join the fields by the value in separator. """
 
         output = []
@@ -262,7 +262,7 @@ class BootstrapMixin(object):
 
         if bf.is_hidden:
             # If the field is hidden, add it at the top of the form
-            self.prefix_fields.append(unicode(bf))
+            self.prefix_fields.append(str(bf))
             # If the hidden field has errors, append them to the top_errors
             # list which will be printed out at the top of form
             if bf_errors:
@@ -278,9 +278,9 @@ class BootstrapMixin(object):
 
             if field_instance.help_text:
                 # The field has a help_text, construct <span> tag
-                help_text = escape(unicode(field_instance.help_text))
+                help_text = escape(str(field_instance.help_text))
             else:
-                help_text = u''
+                help_text = ''
 
             attrs = {}
             if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple)):
@@ -291,9 +291,9 @@ class BootstrapMixin(object):
             field_hash = {
                 'class': mark_safe(css_class),
                 'label': mark_safe(bf.label or ''),
-                'help_text': mark_safe(unicode(help_text)),
+                'help_text': mark_safe(str(help_text)),
                 'field': field_instance,
-                'bf': mark_safe(unicode(bf.as_widget(attrs=attrs))),
+                'bf': mark_safe(str(bf.as_widget(attrs=attrs))),
                 'bf_raw': bf,
                 'errors': mark_safe(bf_errors),
                 'field_type': mark_safe(field.__class__.__name__),
