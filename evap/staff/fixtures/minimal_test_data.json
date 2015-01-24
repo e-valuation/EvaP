@@ -1139,12 +1139,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a new course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "new", 
     "last_modified_user": 1, 
     "participants": [
@@ -1162,12 +1162,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a prepared course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "prepared", 
     "last_modified_user": 1, 
     "participants": [
@@ -1185,12 +1185,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a lecturer approved course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "lecturerApproved", 
     "last_modified_user": 1, 
     "participants": [
@@ -1208,12 +1208,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "an approved course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "approved", 
     "last_modified_user": 1, 
     "participants": [
@@ -1231,14 +1231,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "an in evaluation course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "inEvaluation", 
     "last_modified_user": 1, 
     "participants": [
@@ -1256,14 +1256,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "an evaluated course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "evaluated", 
     "last_modified_user": 1, 
     "participants": [
@@ -1281,14 +1281,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a reviewed course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "reviewed", 
     "last_modified_user": 1, 
     "participants": [
@@ -1306,14 +1306,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a published course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "published", 
     "last_modified_user": 1, 
     "participants": [
@@ -1331,12 +1331,12 @@
     "model": "evaluation.course",
     "fields": {
         "name_de": "dasdadsadas",
-        "participant_count": null,
+        "_participant_count": null,
         "degree": "Bachelor",
         "voters": [],
         "semester": 3,
         "last_modified_time": "2014-11-16T17:28:28.457",
-        "voter_count": null,
+        "_voter_count": null,
         "state": "inEvaluation",
         "last_modified_user": 1,
         "participants": [5],

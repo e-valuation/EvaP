@@ -26,15 +26,15 @@ class QuestionsForm(forms.Form):
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
 
-            if question.is_text_question():
+            if question.is_text_question:
                 field = forms.CharField(required=False, widget=forms.Textarea(),
                                         **field_args)
-            elif question.is_likert_question():
+            elif question.is_likert_question:
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(),
                                                choices=LIKERT_CHOICES,
                                                coerce=int,
                                                **field_args)
-            elif question.is_grade_question():
+            elif question.is_grade_question:
                 field = forms.TypedChoiceField(widget=forms.RadioSelect(),
                                                choices=GRADE_CHOICES,
                                                coerce=int,

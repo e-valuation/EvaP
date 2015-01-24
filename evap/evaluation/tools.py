@@ -98,21 +98,21 @@ def mix(a, b, alpha):
 def get_answers(course, contribution, question):
     answers = None
 
-    if question.is_likert_question():
+    if question.is_likert_question:
         answers = LikertAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
 
-    elif question.is_grade_question():
+    elif question.is_grade_question:
         answers = GradeAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
 
-    elif question.is_text_question():
+    elif question.is_text_question:
         answers = TextAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
@@ -137,7 +137,7 @@ def calculate_results(course, staff_member=False):
         return prior_results
 
     # check if grades for the course will be published
-    show = staff_member or course.can_publish_grades()
+    show = staff_member or course.can_publish_grades
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
@@ -151,7 +151,7 @@ def calculate_results(course, staff_member=False):
         max_answers = 0
         for question in questionnaire.question_set.all():
             # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
-            if not question.is_text_question():
+            if not question.is_text_question:
                 answers = get_answers(course, contribution, question)
                 if len(answers) > max_answers:
                     max_answers = len(answers)
@@ -164,7 +164,7 @@ def calculate_results(course, staff_member=False):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
-            if question.is_likert_question() or question.is_grade_question():
+            if question.is_likert_question or question.is_grade_question:
                 answers = get_answers(course, contribution, question)
 
                 # calculate average, median and distribution
@@ -204,11 +204,11 @@ def calculate_results(course, staff_member=False):
                     'show': show,
                     'warning': warning
                 }
-                if question.is_likert_question():
+                if question.is_likert_question:
                     results.append(LikertResult(**kwargs))
-                else:
+                elif question.is_grade_question:
                     results.append(GradeResult(**kwargs))
-            elif question.is_text_question():
+            elif question.is_text_question:
                 answers = get_answers(course, contribution, question)
 
                 # only add to the results if answers exist at all
@@ -314,7 +314,7 @@ def user_publish_notifications(courses):
     user_notifications = defaultdict(set)
     for course in courses:
         # for published courses all contributors and participants get a notification
-        if course.can_publish_grades():
+        if course.can_publish_grades:
             for participant in course.participants.all():
                 user_notifications[participant].add(course)
             for contribution in course.contributions.all():
