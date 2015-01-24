@@ -104,9 +104,8 @@ td.center, th.center {
 table.vertically-aligned tr td {
     vertical-align: middle;
 }
-
-td#vertically-aligned {
-    vertical-align: middle;
+td.vote-question.text-field {
+    vertical-align: top;
 }
 
 .distribution-bar {
@@ -162,27 +161,27 @@ td.vote-question.choice-error {
     color: #a53e3f;
 }
 
-td.vote-inputs {
+div.vote-inputs {
     width: 100%;
 }
 
-td.vote-inputs label.choice-error {
+div.vote-inputs label.choice-error {
     box-shadow: 0px 0px 8px #eb595a;
 }
 
-td.vote-inputs > label:nth-of-type(1) { color: #5f8634; }
-td.vote-inputs > label:nth-of-type(2) { color: #83933b; }
-td.vote-inputs > label:nth-of-type(3) { color: #a89f3e; }
-td.vote-inputs > label:nth-of-type(4) { color: #aa6f3e; }
-td.vote-inputs > label:nth-of-type(5) { color: #a53e3f; }
+div.vote-inputs > label:nth-of-type(1) { color: #5f8634; }
+div.vote-inputs > label:nth-of-type(2) { color: #83933b; }
+div.vote-inputs > label:nth-of-type(3) { color: #a89f3e; }
+div.vote-inputs > label:nth-of-type(4) { color: #aa6f3e; }
+div.vote-inputs > label:nth-of-type(5) { color: #a53e3f; }
 
-td.vote-inputs > label:nth-of-type(1).active { color: #000000; background-color: #88bf4a; }
-td.vote-inputs > label:nth-of-type(2).active { color: #000000; background-color: #bbd154; }
-td.vote-inputs > label:nth-of-type(3).active { color: #000000; background-color: #efe258; }
-td.vote-inputs > label:nth-of-type(4).active { color: #000000; background-color: #f29e58; }
-td.vote-inputs > label:nth-of-type(5).active { color: #000000; background-color: #eb595a; }
+div.vote-inputs > label:nth-of-type(1).active { color: #000000; background-color: #88bf4a; }
+div.vote-inputs > label:nth-of-type(2).active { color: #000000; background-color: #bbd154; }
+div.vote-inputs > label:nth-of-type(3).active { color: #000000; background-color: #efe258; }
+div.vote-inputs > label:nth-of-type(4).active { color: #000000; background-color: #f29e58; }
+div.vote-inputs > label:nth-of-type(5).active { color: #000000; background-color: #eb595a; }
 
-td.vote-inputs > textarea {
+div.vote-inputs > textarea {
     width: 99%;
     height: 100px;
 }

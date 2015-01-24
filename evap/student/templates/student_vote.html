@@ -76,12 +76,12 @@
     <script type="text/javascript">
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
-            $("#" + contributorId + " td.vote-inputs [type=radio][value!=6]").removeAttr("checked");
-            $("#" + contributorId + " td.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
+            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
 
             // check "no answer" and activate the button
-            $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").prop('checked', true);
-            $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").parent().addClass("active");
+            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
+            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
             
             // hide questionnaire for contributor
             $("#" + contributorId).collapse("hide");
