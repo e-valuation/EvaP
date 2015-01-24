@@ -66,4 +66,12 @@ node default {
         provider    => shell,
         command     => 'echo "\ncd /vagrant" >> /home/vagrant/.bashrc'
     }
+
+    exec { 'alias_python_python3':
+        provider    => shell,
+        # the sudo thing makes "sudo python foo" work
+        command     => 'echo "\nalias python=python3\nalias sudo=\'sudo \'" >> /home/vagrant/.bashrc'
+    }
+
+    
 }
