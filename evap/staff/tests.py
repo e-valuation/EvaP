@@ -2,14 +2,16 @@ from django.core.urlresolvers import reverse
 from django_webtest import WebTest
 from webtest import AppError
 from django.test import Client
+from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.contrib.auth.models import Group
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributionFormSet, ContributionForm, CourseForm
+                            ContributionFormSet, ContributionForm, CourseForm, ImportForm, UserImportForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -35,6 +37,43 @@ class FuzzyInt(int):
     def __repr__(self):
         return "[%d..%d]" % (self.lowest, self.highest)
 
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
+class SampleXlsTests(WebTest):
+
+    def setUp(self):
+        semester = Semester(pk=1, name_de="Testsemester", name_en="test semester")
+        user = UserProfile(username="user")
+        group = Group(name="Staff")
+        group.save()
+        user.save()
+        user.groups = [group]
+        semester.save()
+
+    def test_sample_xls(self):
+        page = self.app.get("/staff/semester/1/import", user='user')
+
+        original_user_count = UserProfile.objects.all().count()
+
+        form = lastform(page)
+        form["vote_start_date"] = "2015-01-01"
+        form["vote_end_date"] = "2099-01-01"
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xls"),)
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
+
+    def test_sample_user_xls(self):
+        page = self.app.get("/staff/user/import", user='user')
+
+        original_user_count = UserProfile.objects.all().count()
+
+        form = lastform(page)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xls"),)
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
+        
+
 
 class UsecaseTests(WebTest):
     fixtures = ['usecase-tests']
@@ -56,7 +95,7 @@ class UsecaseTests(WebTest):
 
         self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
 
-        # safe original user count
+        # save original user count
         original_user_count = UserProfile.objects.all().count()
 
         # import excel file
@@ -205,18 +244,11 @@ class UsecaseTests(WebTest):
         self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_staff_delete)
 
 
-
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
-
-    def setUp(self):
-        settings.INSTITUTION_EMAIL_DOMAINS.append("example.com")
-
-    def tearDown(self):
-        # settings are persistent between tests, so remove that again
-        settings.INSTITUTION_EMAIL_DOMAINS.remove("example.com")
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)

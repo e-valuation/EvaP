@@ -146,7 +146,7 @@ We recommend the following Apache configuration:
 
         WSGIScriptAlias / /opt/evap/handler.wsgi
 
-        Alias /static /opt/evap/evap/staticfiles
+        Alias /static /opt/evap/evap/static_collected
         <Location /static>
             ExpiresActive On
             ExpiresDefault "access plus 1 month"

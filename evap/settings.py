@@ -210,7 +210,7 @@ STATICFILES_DIRS = (
 )
 
 # Absolute path to the directory static files should be collected to.
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
 
 ### User-uploaded files

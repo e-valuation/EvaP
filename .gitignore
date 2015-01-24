@@ -21,7 +21,7 @@ TAGS
 thumbs.db
 
 evap/localsettings.py
-evap/staticfiles
+evap/static_collected
 evap/media
 evap/database.sqlite3
 
