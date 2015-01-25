@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         out = StringIO()
-        call_command("dumpdata", "auth", "evaluation", "rewards", stdout=out)
+        call_command("dumpdata", "auth.group", "evaluation", "rewards", stdout=out)
 
         j = json.loads(out.getvalue())
         # sort lists
