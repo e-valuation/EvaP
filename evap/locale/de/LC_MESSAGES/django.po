@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-04 22:31+0100\n"
-"PO-Revision-Date: 2015-01-04 22:30+0100\n"
+"PO-Revision-Date: 2015-01-26 18:31+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.6.5\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: contributor/forms.py:9 staff/forms.py:35
 msgid "General questions"
@@ -728,7 +728,7 @@ msgstr "Stimme voll zu"
 
 #: evaluation/tools.py:12
 msgid "Agree"
-msgstr "Stimme teils zu"
+msgstr "Stimme zu"
 
 #: evaluation/tools.py:13
 msgid "Neither agree nor disagree"
@@ -736,11 +736,11 @@ msgstr "teils teils"
 
 #: evaluation/tools.py:14
 msgid "Disagree"
-msgstr "Stimme teils nicht zu"
+msgstr "Stimme nicht zu"
 
 #: evaluation/tools.py:15
 msgid "Strongly disagree"
-msgstr "Stimme nicht zu"
+msgstr "Stimme überhaupt nicht zu"
 
 #: evaluation/tools.py:16 evaluation/tools.py:25
 msgid "no answer"
