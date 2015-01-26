@@ -974,3 +974,33 @@ class ArchivingTests(WebTest):
         self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
         self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
         self.get_assert_403("/staff/semester/4/course/7/unpublish", "evap")
+
+
+class RedirectionTest(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def test_not_authenticated(self):
+        url = "/contributor/course/3/edit"
+        response = self.app.get(url)
+        self.assertRedirects(response, "/?next=/contributor/course/3/edit")
+
+    def test_wrong_usergroup(self):
+        url = "/contributor/course/3/edit"
+        self.get_assert_403(url, "student")
+
+    def test_wrong_state(self):
+        url = "/contributor/course/3/edit"
+        self.get_assert_403(url, "responsible")
+
+    def test_ok(self):
+        url = "/contributor/course/2/edit"
+        response = self.app.get(url, user="responsible")
+        self.assertEqual(response.status_code, 200)

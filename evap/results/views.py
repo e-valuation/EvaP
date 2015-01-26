@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import get_language
+from django.contrib.auth.decorators import login_required
 
-from evap.evaluation.auth import login_required, staff_required
+from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Semester
 from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
 
