@@ -118,7 +118,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites', # unused. left here to not break the test data.
     'widget_tweaks',
     'evap.evaluation',
     'evap.staff',
