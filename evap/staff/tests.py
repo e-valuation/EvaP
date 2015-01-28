@@ -46,8 +46,7 @@ class SampleXlsTests(WebTest):
     def setUp(self):
         semester = Semester(pk=1, name_de="Testsemester", name_en="test semester")
         user = UserProfile(username="user")
-        group = Group(name="Staff")
-        group.save()
+        group = Group.objects.get(name="Staff")
         user.save()
         user.groups = [group]
         semester.save()
