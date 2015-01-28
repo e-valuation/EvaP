@@ -6,14 +6,14 @@ from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceFie
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_(u"General questions"))
+    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
 
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'degree', 'general_questions')
 
     def __init__(self, *args, **kwargs):
-        super(CourseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -28,7 +28,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kw):
         user = kw.pop("user")
-        super(CourseForm, self).save(*args, **kw)
+        super().save(*args, **kw)
         self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
@@ -49,7 +49,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         fields = ('title', 'first_name', 'last_name', 'email', 'delegates')
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # fix generated form
         self.fields['delegates'].required = False
@@ -67,4 +67,4 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.instance.email = self.cleaned_data.get('email')
         self.instance.save()
 
-        super(UserForm, self).save(*args, **kw)
+        super().save(*args, **kw)

@@ -17,21 +17,21 @@ GRADE_COLORS = {
 }
 
 LIKERT_NAMES = {
-    1: _(u"Strongly agree"),
-    2: _(u"Agree"),
-    3: _(u"Neither agree nor disagree"),
-    4: _(u"Disagree"),
-    5: _(u"Strongly disagree"),
-    6: _(u"no answer"),
+    1: _("Strongly agree"),
+    2: _("Agree"),
+    3: _("Neither agree nor disagree"),
+    4: _("Disagree"),
+    5: _("Strongly disagree"),
+    6: _("no answer"),
 }
 
 GRADE_NAMES = {
-    1: _(u"1"),
-    2: _(u"2"),
-    3: _(u"3"),
-    4: _(u"4"),
-    5: _(u"5"),
-    6: _(u"no answer"),
+    1: _("1"),
+    2: _("2"),
+    3: _("3"),
+    4: _("4"),
+    5: _("5"),
+    6: _("no answer"),
 }
 
 # the names used for contributors and staff

@@ -7,8 +7,8 @@ from evap.student.tools import make_form_identifier
 from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES
 
 
-LIKERT_CHOICES = [(unicode(k), v) for k, v in LIKERT_NAMES.items()]
-GRADE_CHOICES = [(unicode(k), v) for k, v in GRADE_NAMES.items()]
+LIKERT_CHOICES = [(str(k), v) for k, v in LIKERT_NAMES.items()]
+GRADE_CHOICES = [(str(k), v) for k, v in GRADE_NAMES.items()]
 
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
@@ -20,7 +20,7 @@ class QuestionsForm(forms.Form):
         self.contribution = kwargs.pop('contribution')
         self.questionnaire = kwargs.pop('questionnaire')
 
-        super(QuestionsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for question in self.questionnaire.question_set.all():
             # generic arguments for all kinds of fields

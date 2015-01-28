@@ -5,15 +5,15 @@ class evap ($db_connector) {
         content  => template('evap/localsettings.py.erb')
     } -> exec { 'django-migrate':
         provider    => shell,
-        command     => 'python manage.py migrate --noinput',
+        command     => 'python3 manage.py migrate --noinput',
         cwd         => '/vagrant'
     } -> exec { 'django-collectstatic':
         provider    => shell,
-        command     => 'python manage.py collectstatic --noinput',
+        command     => 'python3 manage.py collectstatic --noinput',
         cwd         => '/vagrant'
     } -> exec { 'evap-load-testdata':
         provider    => shell,
-        command     => 'python manage.py loaddata test_data.json',
+        command     => 'python3 manage.py loaddata test_data.json',
         cwd         => '/vagrant'
     }
 }

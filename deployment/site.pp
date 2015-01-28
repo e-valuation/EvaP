@@ -13,13 +13,18 @@ node default {
         ensure => installed,
     } ->
     # python packages
-    package { ['python', 'python-dev', 'python-pip', 'libxslt-dev', 'gettext']:
+    package { ['python3', 'python3-dev', 'python3-pip', 'libxslt1-dev', 'zlib1g-dev', 'gettext']:
         ensure => installed,
     } ->
-    exec { 'update-pip':
-        provider    => shell,
-        command     => 'pip install -U pip'
+
+
+    class { 'postgresql::globals':
+        python_package_name => 'python3'
     } ->
+    class { 'postgresql::lib::python':
+        package_name => 'python3-psycopg2',
+        package_ensure => 'latest'
+    }
     class { 'postgresql::server':
     } -> postgresql::server::role { 'evap':
         password_hash  => postgresql_password('evap', 'evap'),
@@ -27,14 +32,14 @@ node default {
     } -> postgresql::server::db { 'evap':
         user           => 'evap',
         password       => ''
-    } -> package { 'python-psycopg2':
+    } -> package { 'libapache2-mod-wsgi-py3':
         ensure         => latest,
     } -> exec { '/vagrant/requirements.txt':
         provider       => shell,
-        command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
+        command        => 'pip3 --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
     } -> exec { '/vagrant/requirements-dev.txt':
         provider       => shell,
-        command        => 'pip --log-file /tmp/pip.log install -r /vagrant/requirements-dev.txt'
+        command        => 'pip3 --log-file /tmp/pip.log install -r /vagrant/requirements-dev.txt'
     } -> class { 'evap':
         db_connector   => 'postgresql_psycopg2'
     }
@@ -44,6 +49,7 @@ node default {
         default_vhost => false
     }
     class { 'apache::mod::wsgi':
+        wsgi_python_path            => '/vagrant'
     } -> apache::vhost { 'evap':
         default_vhost               => true,
         vhost_name                  => '*',
@@ -60,4 +66,12 @@ node default {
         provider    => shell,
         command     => 'echo "\ncd /vagrant" >> /home/vagrant/.bashrc'
     }
+
+    exec { 'alias_python_python3':
+        provider    => shell,
+        # the sudo thing makes "sudo python foo" work
+        command     => 'echo "\nalias python=python3\nalias sudo=\'sudo \'" >> /home/vagrant/.bashrc'
+    }
+
+    
 }

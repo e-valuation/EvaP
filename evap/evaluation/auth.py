@@ -50,7 +50,7 @@ class RequestAuthMiddleware(object):
             request.user = user
             auth.login(request, user)
         else:
-            messages.warning(request, _(u"Invalid login key"))
+            messages.warning(request, _("Invalid login key"))
 
 
 class RequestAuthUserBackend(ModelBackend):
