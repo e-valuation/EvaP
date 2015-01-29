@@ -15,6 +15,7 @@ from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course,
 from evap.evaluation.tools import calculate_average_and_medium_grades
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributionFormSet, ContributionForm, CourseForm, ImportForm, UserImportForm
+from evap.contributor.forms import EditorContributionFormSet
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -859,6 +860,43 @@ class ContributorFormTests(WebTest):
 
         formset = ContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
+
+    def test_editors_cannot_change_responsible(self):
+        """
+            Asserts that editors cannot change the responsible of a course
+            through POST-hacking. Regression test for #504.
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user1 = UserProfile.objects.create(pk=9001, username="1")
+        user2 = UserProfile.objects.create(pk=9002, username="2")
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+
+        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        data = {
+            'contributions-TOTAL_FORMS': 1,
+            'contributions-INITIAL_FORMS': 1,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': 9001,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 1,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+        }
+
+        formset = EditorContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+
+        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        data["contributions-0-contributor"] = 9002
+        formset = EditorContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+        formset.save()
+        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        
 
 class ArchivingTests(WebTest):
     fixtures = ['minimal_test_data']
