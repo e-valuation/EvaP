@@ -1025,19 +1025,35 @@ class RedirectionTest(WebTest):
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
     def test_not_authenticated(self):
+        """
+            Asserts that an unauthorized user gets redirected to the login page.
+        """
         url = "/contributor/course/3/edit"
         response = self.app.get(url)
         self.assertRedirects(response, "/?next=/contributor/course/3/edit")
 
     def test_wrong_usergroup(self):
+        """
+            Asserts that a user who is not part of the usergroup
+            that is required for a specific view gets a 403.
+            Regression test for #483
+        """
         url = "/contributor/course/3/edit"
         self.get_assert_403(url, "student")
 
     def test_wrong_state(self):
+        """
+            Asserts that a contributor attempting to edit a course
+            that is in a state where editing is not allowed gets a 403.
+        """
         url = "/contributor/course/3/edit"
         self.get_assert_403(url, "responsible")
 
     def test_ok(self):
+        """
+            Asserts that an editor of a course can access 
+            the edit page of that course.
+        """
         url = "/contributor/course/2/edit"
         response = self.app.get(url, user="responsible")
         self.assertEqual(response.status_code, 200)

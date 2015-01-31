@@ -598,8 +598,10 @@ class UserProfileManager(BaseUserManager):
 
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
-class EmailNullField(models.EmailField, metaclass=models.SubfieldBase): #subclass the CharField
+class EmailNullField(models.EmailField, metaclass=models.SubfieldBase):
+    
     description = "EmailField that stores NULL but returns ''"
+
     def to_python(self, value):  # this is the value right out of the db, or an instance
        return value or ""
 

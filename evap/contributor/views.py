@@ -56,10 +56,10 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
 
     # make everything read-only
     for cform in formset.forms + [form]:
@@ -79,18 +79,18 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
-    form = CourseForm(request.POST or None, instance=course)
-    formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    course_form = CourseForm(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
 
     operation = request.POST.get('operation')
 
-    if form.is_valid() and formset.is_valid():
+    if course_form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
             raise PermissionDenied
 
-        form.save(user=user)
+        course_form.save(user=user)
         formset.save()
 
         if operation == 'approve':
@@ -103,7 +103,7 @@ def course_edit(request, course_id):
 
         return redirect('evap.contributor.views.index')
     else:
-        template_data = dict(form=form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
+        template_data = dict(form=course_form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
         return render(request, "contributor_course_form.html", template_data)
 
 @contributor_or_delegate_required

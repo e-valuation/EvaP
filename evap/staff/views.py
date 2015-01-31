@@ -328,10 +328,10 @@ def course_create(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     course = Course(semester=semester)
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = ContributionFormset(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course)
 
     if form.is_valid() and formset.is_valid():
         form.save(user=request.user)
@@ -348,7 +348,7 @@ def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     raise_permission_denied_if_archived(course)
-    ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     # check course state
     if not course.can_staff_edit:
@@ -356,7 +356,7 @@ def course_edit(request, semester_id, course_id):
         return redirect('evap.staff.views.semester_view', semester_id)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = ContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
 
     if form.is_valid() and formset.is_valid():
         form.save(user=request.user)
@@ -398,7 +398,7 @@ def course_review(request, semester_id, course_id):
         messages.warning(request, _("Reviewing not possible in current state."))
         return redirect('evap.staff.views.semester_view', semester_id)
 
-    review_formset = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
+    InlineReviewFormset = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
 
     skipped_answers = request.POST.get("skipped_answers", "") if request.POST else request.GET.get("skipped_answers", "")
     skipped_answer_ids = [int(x) for x in skipped_answers.split(';')] if skipped_answers else []
@@ -410,7 +410,7 @@ def course_review(request, semester_id, course_id):
         .order_by('id')[:TextAnswer.elements_per_page]
 
     # create formset from sliced queryset
-    formset = review_formset(request.POST or None, queryset=form_queryset)
+    formset = InlineReviewFormset(request.POST or None, queryset=form_queryset)
 
     if formset.is_valid():
         count = 0
@@ -524,10 +524,10 @@ def questionnaire_view(request, questionnaire_id):
 @staff_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = QuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
         newQuestionnaire = form.save(commit=False)
@@ -547,10 +547,10 @@ def questionnaire_create(request):
 @staff_required
 def questionnaire_edit(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
-    formset = QuestionFormset(request.POST or None, instance=questionnaire)
+    formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if questionnaire.can_staff_edit:
         messages.info(request, _("Questionnaires that are already used cannot be edited."))
@@ -571,10 +571,10 @@ def questionnaire_edit(request, questionnaire_id):
 def questionnaire_copy(request, questionnaire_id):
     if request.method == "POST":
         questionnaire = Questionnaire()
-        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
-        formset = QuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
         if form.is_valid() and formset.is_valid():
             form.save()
@@ -586,10 +586,10 @@ def questionnaire_copy(request, questionnaire_id):
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
     else:
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-        QuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
         form = QuestionnaireForm(instance=questionnaire)
-        formset = QuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())
+        formset = InlineQuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())
 
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
@@ -724,8 +724,8 @@ def faq_section(request, section_id):
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
 
-    questionFS = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=1, exclude=('section',))
-    formset = questionFS(request.POST or None, queryset=questions, instance=section)
+    InlineQuestionFormset = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=1, exclude=('section',))
+    formset = InlineQuestionFormset(request.POST or None, queryset=questions, instance=section)
 
     if formset.is_valid():
         formset.save()
