@@ -7,6 +7,7 @@ from django.forms.models import inlineformset_factory
 from django.core import mail
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
 
@@ -1057,3 +1058,18 @@ class RedirectionTest(WebTest):
         url = "/contributor/course/2/edit"
         response = self.app.get(url, user="responsible")
         self.assertEqual(response.status_code, 200)
+
+
+class TestDataTest(WebTest):
+
+    def load_test_data(self):
+        """
+            Asserts that the test data still load cleanly.
+            This test does not have the "test_" prefix, as it is meant
+            to be started manually e.g. by Travis.
+        """
+
+        try:
+            call_command("loaddata", "test_data", verbosity=0)
+        except Exception:
+            self.fail("Test data failed to load.")
