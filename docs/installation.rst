@@ -156,16 +156,16 @@ We recommend the following Apache configuration:
 Productive Environment: Kerberos Authentication
 -----------------------------------------------
 
-EvaP is preconfigured for using Kerberos as an authentication backend. To enable this functionality you have to uncomment several lines in the ``requirements.txt`` and ``settings.py``:
+To use Kerberos as an authentication backend, do the following:
 
-- in ``requirements.txt``:
+- run ``pip install django_auth_kerberos``
 
-  - uncomment ``django_auth_kerberos`` and run another ``pip install -r requirements.txt`` if necessary
+- copy the folloing to your ``localsettings.py`` and edit ``KRB5_REALM`` and ``KRB5_SERVICE`` according to your setup::
 
-- in ``settings.py``:
-
-  - set ``ENABLE_KERBEROS`` to ``True``
-  - set ``KRB5_REALM`` and ``KRB5_SERVICE`` according to your setup
+        KRB5_REALM = 'EXAMPLE.COM'
+        KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
+        INSTALLED_APPS += ('django_auth_kerberos',)
+        MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
 
 
 Productive Environment: Cron Configuration

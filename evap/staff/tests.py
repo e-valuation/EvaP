@@ -7,6 +7,7 @@ from django.forms.models import inlineformset_factory
 from django.core import mail
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
 
@@ -15,6 +16,7 @@ from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course,
 from evap.evaluation.tools import calculate_average_and_medium_grades
 from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
                             ContributionFormSet, ContributionForm, CourseForm, ImportForm, UserImportForm
+from evap.contributor.forms import EditorContributionFormSet
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -46,8 +48,7 @@ class SampleXlsTests(WebTest):
     def setUp(self):
         semester = Semester(pk=1, name_de="Testsemester", name_en="test semester")
         user = UserProfile(username="user")
-        group = Group(name="Staff")
-        group.save()
+        group = Group.objects.get(name="Staff")
         user.save()
         user.groups = [group]
         semester.save()
@@ -861,6 +862,43 @@ class ContributorFormTests(WebTest):
         formset = ContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
 
+    def test_editors_cannot_change_responsible(self):
+        """
+            Asserts that editors cannot change the responsible of a course
+            through POST-hacking. Regression test for #504.
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user1 = UserProfile.objects.create(pk=9001, username="1")
+        user2 = UserProfile.objects.create(pk=9002, username="2")
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+
+        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        data = {
+            'contributions-TOTAL_FORMS': 1,
+            'contributions-INITIAL_FORMS': 1,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': 9001,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 1,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+        }
+
+        formset = EditorContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+
+        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        data["contributions-0-contributor"] = 9002
+        formset = EditorContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+        formset.save()
+        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        
+
 class ArchivingTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
@@ -988,19 +1026,50 @@ class RedirectionTest(WebTest):
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
     def test_not_authenticated(self):
+        """
+            Asserts that an unauthorized user gets redirected to the login page.
+        """
         url = "/contributor/course/3/edit"
         response = self.app.get(url)
         self.assertRedirects(response, "/?next=/contributor/course/3/edit")
 
     def test_wrong_usergroup(self):
+        """
+            Asserts that a user who is not part of the usergroup
+            that is required for a specific view gets a 403.
+            Regression test for #483
+        """
         url = "/contributor/course/3/edit"
         self.get_assert_403(url, "student")
 
     def test_wrong_state(self):
+        """
+            Asserts that a contributor attempting to edit a course
+            that is in a state where editing is not allowed gets a 403.
+        """
         url = "/contributor/course/3/edit"
         self.get_assert_403(url, "responsible")
 
     def test_ok(self):
+        """
+            Asserts that an editor of a course can access 
+            the edit page of that course.
+        """
         url = "/contributor/course/2/edit"
         response = self.app.get(url, user="responsible")
         self.assertEqual(response.status_code, 200)
+
+
+class TestDataTest(WebTest):
+
+    def load_test_data(self):
+        """
+            Asserts that the test data still load cleanly.
+            This test does not have the "test_" prefix, as it is meant
+            to be started manually e.g. by Travis.
+        """
+
+        try:
+            call_command("loaddata", "test_data", verbosity=0)
+        except Exception:
+            self.fail("Test data failed to load.")

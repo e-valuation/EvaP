@@ -598,8 +598,10 @@ class UserProfileManager(BaseUserManager):
 
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
-class EmailNullField(models.EmailField, metaclass=models.SubfieldBase): #subclass the CharField
+class EmailNullField(models.EmailField, metaclass=models.SubfieldBase):
+    
     description = "EmailField that stores NULL but returns ''"
+
     def to_python(self, value):  # this is the value right out of the db, or an instance
        return value or ""
 
@@ -635,6 +637,16 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     objects = UserProfileManager()
+
+    # needed e.g. for compatibility with contrib.auth.admin
+    def get_full_name(self):
+        return self.full_name
+
+    # needed e.g. for compatibility with contrib.auth.admin
+    def get_short_name(self):
+        if self.first_name:
+            return self.first_name
+        return self.username
 
     @property
     def full_name(self):

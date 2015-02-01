@@ -98,15 +98,6 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
-# Kerberos realm and service
-ENABLE_KERBEROS = False
-if (ENABLE_KERBEROS):
-    KRB5_REALM = 'EXAMPLE.COM'
-    KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
-    INSTALLED_APPS += ('django_auth_kerberos',)
-    MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
-
-
 ### Application definition
 
 AUTH_USER_MODEL = 'evaluation.UserProfile'

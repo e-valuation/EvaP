@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
+from evap.staff.forms import ContributionFormSet
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
@@ -41,6 +42,19 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:
             self._update_errors(e)
+
+
+class EditorContributionFormSet(ContributionFormSet):
+    """
+        A ContributionFormSet that protects againt POST hacks
+        by always re-setting the responsible.
+    """
+    def clean(self):
+        for form in self.forms:
+            contribution = form.instance
+            if contribution.responsible:
+                contribution.contributor = contribution.course.responsible_contributor
+        super().clean()
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):

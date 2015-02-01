@@ -141,7 +141,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
-        super(QuestionnaireForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["index"].widget = forms.HiddenInput()
 
     class Meta:
@@ -215,7 +215,7 @@ class ContributionFormSet(AtLeastOneFormSet):
     def clean(self):
         self.handle_deleted_and_added_contributions()
 
-        super(ContributionFormSet, self).clean()
+        super().clean()
 
         found_contributor = set()
         count_responsible = 0
