@@ -10,7 +10,7 @@ EvaP is a standard Django project, divided up into several applications:
 :py:mod:`staff`
     provides views for the student representatives
 
-:py:mod:`lecturer`
+:py:mod:`contributor`
     provides views for lecturers
 
 :py:mod:`results`

@@ -11,7 +11,6 @@ Contents
    :maxdepth: 2
 
    installation
-   data
    sources
    license
 
