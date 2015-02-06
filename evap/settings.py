@@ -97,6 +97,10 @@ REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Config for legal notice
+# The HTML file which should be used must be located in evap\templates\legal_notice_text.html
+LEGAL_NOTICE_ACTIVE = False
+
 
 ### Application definition
 
@@ -137,6 +141,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "evap.context_processors.feedback_email",
+    "evap.context_processors.legal_notice_active",
+    "evap.context_processors.tracker_url",
 )
 
 AUTHENTICATION_BACKENDS = (

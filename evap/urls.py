@@ -11,6 +11,7 @@ import django.contrib.auth.views
 urlpatterns = [
     url(r"^$", evap.evaluation.views.index),
     url(r"^faq$", evap.evaluation.views.faq),
+    url(r"^legal_notice$", evap.evaluation.views.legal_notice),
     url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}),
 
     url(r"^staff/", include('evap.staff.urls')),

@@ -136,9 +136,13 @@
     <div id="footer">
         <div class="container">
             <p class="text-muted">
-                <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
+                <a href="{{ TRACKER_URL }}" target="_new">{% trans "EvaP evaluation platform" %}</a>
                 &nbsp;&middot;&nbsp;
-                <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
+                {% if LEGAL_NOTICE_ACTIVE %}
+                    <a href="{% url "evap.evaluation.views.legal_notice" %}">{% trans "Legal Notice" %}</a>
+                    &nbsp;&middot;&nbsp;
+                {% endif %}
+                <a href="mailto:{{ FEEDBACK_EMAIL }}">Feedback</a>
                 &nbsp;&middot;&nbsp;
                 <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
