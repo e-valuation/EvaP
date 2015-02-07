@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from evap.contributor.views import *
+from evap.contributor.views import index, profile_edit, course_view, course_edit, course_preview
 
 urlpatterns = [
     url(r"^$", index),

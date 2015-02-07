@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from evap.student.views import *
+from evap.student.views import index, vote
 
 urlpatterns = [
     url(r"^$", index),

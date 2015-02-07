@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 

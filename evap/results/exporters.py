@@ -28,11 +28,11 @@ class ExcelExporter(object):
         'border_left':   xlwt.easyxf('borders: left medium'),
         'border_right':  xlwt.easyxf('borders: right medium'),
         'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
-        
+
     # We only assign different colors every 0.2 grades, because excel limits the number of custom colors
     # colors up to 0x20 are already pre-defined in the xls-format
     grades_and_indices = [(1 + i*2/10.0, 0x20 + i) for i in range(21)]
-       
+
     grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
     # Adding evaP colors to palette
     for grade, index in grades_and_indices:
@@ -51,7 +51,7 @@ class ExcelExporter(object):
         # Round grade to .2 steps
         grade = int(grade * 5) * 0.2
         return 'grade_' + str(grade)
-        
+
     @staticmethod
     def variance_to_style(variance):
         rounded_variance = round(variance, 1)
@@ -87,7 +87,7 @@ class ExcelExporter(object):
         self.row = 0
         self.col = 0
 
-        
+
         self.add_color_palette_to_workbook(self.workbook)
 
         writec(self, _("Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), "headline")
@@ -130,7 +130,7 @@ class ExcelExporter(object):
                                     break
                         if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
-                            writec(self, avg, ExcelExporter.grade_to_style(avg));
+                            writec(self, avg, ExcelExporter.grade_to_style(avg))
 
                             var = sum(variances) / len(variances)
                             writec(self, var, ExcelExporter.variance_to_style(var))
@@ -179,7 +179,7 @@ def writen(exporter, label="", style_name="default"):
 
 def writec(exporter, label, style_name, rows=1, cols=1):
     """Write the cell in the next column of the current line."""
-    _write(exporter, label, ExcelExporter.styles[style_name], rows, cols )
+    _write(exporter, label, ExcelExporter.styles[style_name], rows, cols)
     exporter.col += 1
 
 def _write(exporter, label, style, rows, cols):
