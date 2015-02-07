@@ -1,7 +1,4 @@
 from django import forms
-from django.utils.encoding import force_text
-from django.utils.safestring import mark_safe
-
 
 from evap.student.tools import make_form_identifier
 from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES

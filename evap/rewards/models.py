@@ -3,7 +3,6 @@ from django.db import models
 
 from collections import OrderedDict
 
-from operator import attrgetter
 
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))

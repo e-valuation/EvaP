@@ -2,8 +2,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import Semester
-
 import urllib.parse
 
 

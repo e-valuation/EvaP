@@ -1,5 +1,4 @@
 from django.template import Library
-from evap.evaluation.models import Semester
 
 register = Library()
 

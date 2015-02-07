@@ -1,4 +1,5 @@
-uses: django
+uses:
+    - django
 strictness: medium
 doc-warnings: no
 ignore-paths:

@@ -1,18 +1,15 @@
 from django.contrib import messages
-from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db.models import Max
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
-from collections import OrderedDict
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language
 from django.http import HttpResponse
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
-from evap.evaluation.tools import questionnaires_and_contributions, STATES_ORDERED, user_publish_notifications
+from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
                            CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
                            LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
@@ -23,7 +20,6 @@ from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
-from evap.rewards.models import SemesterActivation
 from evap.rewards.tools import is_semester_activated
 
 import random
@@ -613,8 +609,8 @@ def questionnaire_delete(request, questionnaire_id):
 @staff_required
 def questionnaire_update_indices(request):
     updated_indices = request.POST
-    for id, new_index in updated_indices.items():
-        questionnaire = Questionnaire.objects.get(pk=id)
+    for questionnaire_id, new_index in updated_indices.items():
+        questionnaire = Questionnaire.objects.get(pk=questionnaire_id)
         questionnaire.index = new_index
         questionnaire.save()
     return HttpResponse()
