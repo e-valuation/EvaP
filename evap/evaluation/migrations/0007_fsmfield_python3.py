@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import django_fsm.db.fields.fsmfield
+import django_fsm
 
 
 class Migration(migrations.Migration):
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='state',
-            field=django_fsm.db.fields.fsmfield.FSMField(max_length=50, default='new'),
+            field=django_fsm.FSMField(max_length=50, default='new'),
             preserve_default=True,
         ),
     ]

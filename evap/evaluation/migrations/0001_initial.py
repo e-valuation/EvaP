@@ -2,7 +2,7 @@
 
 
 from django.db import models, migrations
-import django_fsm.db.fields.fsmfield
+import django_fsm
 import django.utils.timezone
 from django.conf import settings
 import evap.evaluation.models
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             name='Course',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('state', django_fsm.db.fields.fsmfield.FSMField(default=b'new', max_length=50)),
+                ('state', django_fsm.FSMField(default=b'new', max_length=50)),
                 ('name_de', models.CharField(max_length=1024, verbose_name='name (german)')),
                 ('name_en', models.CharField(max_length=1024, verbose_name='name (english)')),
                 ('kind', models.CharField(max_length=1024, verbose_name='type')),
