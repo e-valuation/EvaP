@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
-from django_fsm.db.fields import FSMField, transition
+from django_fsm import FSMField, transition
 import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
