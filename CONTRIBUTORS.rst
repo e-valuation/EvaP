@@ -26,3 +26,4 @@
 | Simon Krogmann (`simonkrogmann <https://github.com/simonkrogmann>`_)
 | Willi Gierke (`WGierke <https://github.com/WGierke>`_)
 | David Stangl (`Felerius <https://github.com/Felerius>`_)
+| Hannes Rantzsch (`hrantzsch <https://github.com/hrantzsch>`_)
