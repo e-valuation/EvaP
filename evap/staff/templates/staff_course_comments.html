@@ -42,7 +42,7 @@
             $("#"+id+"-buttons").children().removeClass("active");
             $("#"+id+"-"+status).addClass("active");
         }
-        var parameters = {"id": id, "status": status};
+        var parameters = {"id": id, "status": status, "course_id": {{ course.id }}};
         $.post('{% url "evap.staff.views.course_comments_update_publish" %}', parameters);
     }
     </script>

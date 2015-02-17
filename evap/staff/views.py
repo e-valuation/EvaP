@@ -455,7 +455,11 @@ def course_comments(request, semester_id, course_id):
 def course_comments_update_publish(request):
     comment_id = request.POST["id"]
     publish_status = request.POST["status"]
+    course_id = request.POST["course_id"]
+
+    course = Course.objects.get(pk=course_id)
     answer = TextAnswer.objects.get(pk=comment_id)
+
     if publish_status == 'y':
         answer.state = 'Y'
     elif publish_status == 'p':
@@ -465,6 +469,14 @@ def course_comments_update_publish(request):
     elif publish_status == '':
         answer.state = ''
     answer.save()
+
+    if course.state == "evaluated" and course.is_fully_reviewed():
+        course.review_finished()
+        course.save()
+    if course.state == "reviewed" and not course.is_fully_reviewed():
+        course.reopen_review()
+        course.save()
+
     return HttpResponse()
 
 

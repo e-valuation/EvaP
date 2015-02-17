@@ -190,6 +190,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Shortcut for finding out whether all text answers to this course have been reviewed"""
         return not self.open_textanswer_set.exists()
 
+    def is_not_fully_reviewed(self):
+        """Shortcut for finding out whether some text answers to this course have not yet been reviewed"""
+        return self.open_textanswer_set.exists()
+
     def is_fully_reviewed_except(self, ignored_answers):
         """Shortcut for finding out if all text answers to this course have been reviewed except for specified answers"""
         return not self.open_textanswer_set.exclude(pk__in=ignored_answers).exists()
@@ -222,7 +226,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_reviewed()
+        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and len(self.textanswer_set) > 0
 
     @property
     def can_staff_approve(self):
@@ -262,6 +266,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
     def review_finished(self):
+        pass
+
+    @transition(field=state, source='reviewed', target='evaluated', conditions=[is_not_fully_reviewed])
+    def reopen_review(self):
         pass
 
     @transition(field=state, source='reviewed', target='published')
