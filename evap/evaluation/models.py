@@ -524,13 +524,31 @@ class TextAnswer(Answer):
 
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
-
-    checked = models.BooleanField(verbose_name=_("answer checked"), default=False)
-    hidden = models.BooleanField(verbose_name=_("hide answer"), default=False)
+    
+    TEXT_ANSWER_STATES = (
+        ('N', _('not published')),
+        ('P', _('published privately')),
+        ('Y', _('published')),
+        ('', _('not reviewed')),
+    )
+    state = models.CharField(max_length=1, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default='')
 
     class Meta:
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
+
+    @property
+    def reviewed(self):
+        return self.state != ''
+    @property
+    def hidden(self):
+        return self.state == 'N'
+    @property
+    def published_privately(self):
+        return self.state == 'P'
+    @property
+    def published(self):
+        return self.state == 'Y'
 
     @property
     def answer(self):
@@ -539,6 +557,15 @@ class TextAnswer(Answer):
     def answer(self, value):
         self.original_answer = value
         self.reviewed_answer = None
+
+    def publish(self):
+        self.state = 'Y'
+    def unpublish(self):
+        self.state = 'N'
+    def publish_privately(self):
+        self.state = 'P'
+    def unreview(self):
+        self.state = ''
 
 
 class FaqSection(models.Model, metaclass=LocalizeModelBase):
