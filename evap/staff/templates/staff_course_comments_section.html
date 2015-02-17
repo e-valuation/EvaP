@@ -5,7 +5,7 @@
     {% for questionnaire, contributor, is_responsible, results in group.list %}
         <div class="panel panel-default">
             <div class="panel-heading">
-                <span class="panel-title">{{ questionnaire.public_name }}{% if contributor.full_name %}: {{ contributor.full_name }}{% if is_responsible %} (responsible){% endif %}{% endif %}</span>
+                <span class="panel-title">{{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} (responsible){% endif %}{% endif %}</span>
             </div>
             <div class="panel-body">
                 {% for result in results %}
@@ -33,7 +33,7 @@
                                     <td>
                                         <div id="{{ answer.id }}-buttons" class="btn-group btn-toggle">
                                             <span id="{{ answer.id }}-y" onclick="press({{ answer.id }}, 'y');" class="btn btn-sm btn-default {% if answer.published %}active{% endif %}">{% trans "yes" %}</span>
-                                            <span id="{{ answer.id }}-p" onclick="press({{ answer.id }}, 'p');" class="btn btn-sm btn-default {% if answer.published_privately %}active{% endif %}">{% trans "private" %}</span>
+                                            {% if contributor %}<span id="{{ answer.id }}-p" onclick="press({{ answer.id }}, 'p');" class="btn btn-sm btn-default {% if answer.published_privately %}active{% endif %}">{% trans "private" %}</span>{% endif %}
                                             <span id="{{ answer.id }}-n" onclick="press({{ answer.id }}, 'n');" class="btn btn-sm btn-default {% if answer.hidden %}active{% endif %}">{% trans "no" %}</span>
                                         </div>
                                     </td>

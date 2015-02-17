@@ -10,7 +10,7 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_all_textanswers, CommentSection, CommentGroup
+                                  get_all_textanswers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
@@ -436,7 +436,7 @@ def course_comments(request, semester_id, course_id):
             if question.is_text_question:
                 answers = get_all_textanswers(course, contribution, question)
                 if answers:
-                    comments.append(CommentGroup(
+                    comments.append(TextResult(
                         question=question,
                         answers=answers,
                     ))

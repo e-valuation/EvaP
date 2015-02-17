@@ -62,9 +62,12 @@ def course_detail(request, semester_id, course_id):
     if not request.user.is_staff:
         # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
         for section in sections:
-            if not user_can_see_textresults(request.user, course, section):
-                for i, result in list(enumerate(section.results))[::-1]:
-                    if isinstance(result, TextResult):
+            for i, result in list(enumerate(section.results))[::-1]:
+                if isinstance(result, TextResult):
+                    for j, answer in list(enumerate(result.answers))[::-1]:
+                        if not user_can_see_text_answer(request.user, course, answer):
+                            del result.answers[j]
+                    if not result.answers:
                         del section.results[i]
 
     # remove empty sections and group by contributor
@@ -102,14 +105,17 @@ def course_detail(request, semester_id, course_id):
             staff=request.user.is_staff)
     return render(request, "results_course_detail.html", template_data)
 
+def user_can_see_text_answer(user, course, text_answer):
+    if user == None:
+        return False
 
-def user_can_see_textresults(user, course, section):
-    if section.contributor == user:
+    contributor = text_answer.contribution.contributor
+    if contributor == user:
         return True
-    if course.is_user_responsible_or_delegate(user):
-        return True
-
-    if section.contributor in user.represented_users.all():
-        return True
+    if text_answer.published:
+        if course.is_user_responsible_or_delegate(user):
+            return True
+        if contributor in user.represented_users.all():
+            return True
 
     return False
