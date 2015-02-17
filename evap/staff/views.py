@@ -10,11 +10,10 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications
-from evap.staff.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
-                           CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
-                           LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                           SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
-                           FaqSectionForm, FaqQuestionForm, UserImportForm
+from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
+                             IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
+                             QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
+                             FaqSectionForm, FaqQuestionForm, UserImportForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -384,59 +383,6 @@ def course_delete(request, semester_id, course_id):
         return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_course_delete.html", dict(semester=semester, course=course))
-
-
-@staff_required
-def course_review(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-
-    # check course state
-    if not course.can_staff_review:
-        messages.warning(request, _("Reviewing not possible in current state."))
-        return redirect('evap.staff.views.semester_view', semester_id)
-
-    InlineReviewFormset = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
-
-    skipped_answers = request.POST.get("skipped_answers", "") if request.POST else request.GET.get("skipped_answers", "")
-    skipped_answer_ids = [int(x) for x in skipped_answers.split(';')] if skipped_answers else []
-
-    # compute form queryset
-    form_queryset = course.textanswer_set \
-        .filter(checked=False) \
-        .exclude(pk__in=skipped_answer_ids) \
-        .order_by('id')[:TextAnswer.elements_per_page]
-
-    # create formset from sliced queryset
-    formset = InlineReviewFormset(request.POST or None, queryset=form_queryset)
-
-    if formset.is_valid():
-        count = 0
-        for form in formset:
-            form.instance.save()
-            if form.instance.checked:
-                count += 1
-            else:
-                skipped_answer_ids.append(form.instance.id)
-
-        if course.state == "evaluated" and course.is_fully_checked():
-            messages.success(request, _("Successfully reviewed {count} course answers for {course}. {course} is now fully reviewed.").format(count=count, course=course.name))
-            course.review_finished()
-            course.save()
-            return custom_redirect('evap.staff.views.semester_view', semester_id)
-        else:
-            messages.success(request, _("Successfully reviewed {count} course answers for {course}.").format(count=count, course=course.name))
-            operation = request.POST.get('operation')
-
-            if operation == 'save_and_next' and not course.is_fully_checked_except(skipped_answer_ids):
-                skipped_answers = ';'.join(str(x) for x in skipped_answer_ids)
-                return custom_redirect('evap.staff.views.course_review', semester_id, course_id, skipped_answers=skipped_answers)
-            else:
-                return custom_redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        skipped_answers = ';'.join(str(x) for x in skipped_answer_ids)
-        template_data = dict(semester=semester, course=course, formset=formset, TextAnswer=TextAnswer, skipped_answers=skipped_answers)
-        return render(request, "staff_course_review.html", template_data)
 
 
 @staff_required

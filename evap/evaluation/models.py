@@ -520,8 +520,6 @@ class TextAnswer(Answer):
     """A free-form text answer to a question (usually a comment about a course
     or a contributor)."""
 
-    elements_per_page = 5
-
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
     

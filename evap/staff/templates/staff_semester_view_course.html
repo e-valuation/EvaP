@@ -31,7 +31,7 @@
                     <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
                 </p>
                 {% if course.can_staff_review %}
-                    <a href="{% url "evap.staff.views.course_review" semester.id course.id %}" class="twipsify" title="{% trans "Click to review text answers" %}">
+                    <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="twipsify" title="{% trans "Click to review text answers" %}">
                         <span class="glyphicon glyphicon-comment"></span>
                         <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
                         <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
@@ -62,9 +62,6 @@
     <a href="{% url "evap.staff.views.course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
     {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
         <a href="{% url "evap.staff.views.course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-    {% endif %}
-    {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-        <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Comments" %}</a>
     {% endif %}
     {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
         <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>

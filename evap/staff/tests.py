@@ -14,8 +14,8 @@ from django.contrib.auth.models import Group
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
                             TextAnswer, EmailTemplate, NotArchiveable
 from evap.evaluation.tools import calculate_average_and_medium_grades
-from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributionFormSet, ContributionForm, CourseForm, ImportForm, UserImportForm
+from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ContributionFormSet, \
+                             ContributionForm, CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
@@ -532,19 +532,6 @@ class URLTests(WebTest):
         form = SelectCourseForm([course1, course2], data=data)
         self.assertTrue(form.is_valid())
 
-    def test_review_text_answer_form(self):
-        """
-            Tests the ReviewTextAnswerForm with three valid input datasets
-            (one cannot make it invalid through the UI).
-        """
-        textanswer = TextAnswer.objects.get(pk=1)
-        data = dict(reviewed_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(reviewed_answer="edited answer", needs_further_review=False, hidden=False)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(reviewed_answer="edited answer", needs_further_review=True, hidden=True)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-
     def test_contributor_form_set(self):
         """
             Tests the ContributionFormset with various input data sets.
@@ -653,38 +640,6 @@ class URLTests(WebTest):
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
-
-    def test_course_review(self):
-        """
-            Tests the course review view with various input datasets.
-        """
-        self.get_assert_302("/staff/semester/1/course/4/review", user="evap")
-        self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
-
-        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
-        # two answers should be displayed - hide one (5) and mark the other (8) for further review
-        form = lastform(page)
-        form["form-0-hidden"] = "on"
-        form["form-1-needs_further_review"] = "on"
-        # Actually this is not guaranteed, but i'll just guarantee it now for this test.
-        self.assertEqual(form["form-0-id"].value, "5")
-        self.assertEqual(form["form-1-id"].value, "8")
-        page = form.submit(name="operation", value="save_and_next")
-        self.assertRedirects(page, "/staff/semester/1")
-
-        # visit the review page again to finally accept the remaining answer
-        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
-        form = lastform(page)
-        self.assertEqual(form["form-0-reviewed_answer"].value, "mfj49s1my.45j")
-        form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
-        page = form.submit()
-
-        self.assertEqual(TextAnswer.objects.get(pk=5).hidden, True)
-        self.assertEqual(TextAnswer.objects.get(pk=5).reviewed_answer, "")
-        self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
-        self.assertEqual(Course.objects.get(pk=6).state, "reviewed")
-
-        self.get_assert_302("/staff/semester/1/course/6/review", user="evap")
 
     def test_course_email(self):
         """
