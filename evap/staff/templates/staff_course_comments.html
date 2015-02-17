@@ -1,33 +1,49 @@
 {% extends "staff_course_base.html" %}
 
+{% load morefilters %}
 {% load i18n %}
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans "Comments for Course "%}{{ course.name }}</h2>
-    <p>
-        {% for question, answers in textanswers_by_question %}
-            <h3>{{ question.text }}</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>{% trans "ID" %}</th>
-                        <th>{% trans "Original Text" %}</td>
-                        <th>{% trans "Reviewed Text" %}</td>
-                        <th>{% trans "Hidden?" %}</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for textanswer in answers %}
-                        <tr>
-                            <td>{{ textanswer.id }}</td>
-                            <td>{{ textanswer.original_answer }}</td>
-                            <td>{{ textanswer.reviewed_answer|default:"&mdash;" }}</td>
-                            <td>{{ textanswer.hidden|yesno }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endfor %}
-    </p>
+    <h3>{{ course.name }} ({{ course.semester.name }})</h3>
+    
+    {% if course_sections %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">{% trans "Comments about the Course" %}</span>
+            </div>
+            <div class="panel-body">
+                {% regroup course_sections by questionnaire as sections_grouped %}
+                {% include "staff_course_comments_section.html" %}
+            </div>
+        </div>
+    {% endif %}
+    {% if contributor_sections %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
+            </div>
+            <div class="panel-body">
+                {% regroup contributor_sections by questionnaire as sections_grouped %}
+                {% include "staff_course_comments_section.html" %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+    function press(id, status) {
+        if($("#"+id+"-"+status).hasClass("active")) {
+            $("#"+id+"-buttons").children().removeClass("active");
+            status = "";
+        }
+        else {
+            $("#"+id+"-buttons").children().removeClass("active");
+            $("#"+id+"-"+status).addClass("active");
+        }
+        var parameters = {"id": id, "status": status};
+        $.post('{% url "evap.staff.views.course_comments_update_publish" %}', parameters);
+    }
+    </script>
 {% endblock %}

@@ -28,6 +28,8 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)/preview$", course_preview),
     url(r"^semester/(\d+)/course/(\d+)/comments$", course_comments),
 
+    url(r"^comments/updatepublish$", course_comments_update_publish),
+
     url(r"^questionnaire/$", questionnaire_index),
     url(r"^questionnaire/create$", questionnaire_create),
     url(r"^questionnaire/(\d+)$", questionnaire_view),

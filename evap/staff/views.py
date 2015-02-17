@@ -9,7 +9,8 @@ from django.http import HttpResponse
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
-from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications
+from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
+                                  get_all_textanswers, CommentSection, CommentGroup
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
@@ -427,14 +428,44 @@ def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
 
-    textanswers = course.textanswer_set.filter(checked=True)
+    course_sections = []
+    contributor_sections = []
+    for questionnaire, contribution in questionnaires_and_contributions(course):
+        comments = []
+        for question in questionnaire.question_set.all():
+            if question.is_text_question:
+                answers = get_all_textanswers(course, contribution, question)
+                if answers:
+                    comments.append(CommentGroup(
+                        question=question,
+                        answers=answers,
+                    ))
+        if not comments:
+            continue
+        elif contribution.is_general:
+            course_sections.append(CommentSection(questionnaire, contribution.contributor, False, comments))
+        else:
+            contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, comments))
 
-    textanswers_by_question = []
-    for question_id in textanswers.values_list("question", flat=True).distinct():
-        textanswers_by_question.append((Question.objects.get(id=question_id), textanswers.filter(question=question_id)))
-
-    template_data = dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question)
+    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections)
     return render(request, "staff_course_comments.html", template_data)
+
+
+@staff_required
+def course_comments_update_publish(request):
+    comment_id = request.POST["id"]
+    publish_status = request.POST["status"]
+    answer = TextAnswer.objects.get(pk=comment_id)
+    if publish_status == 'y':
+        answer.state = 'Y'
+    elif publish_status == 'p':
+        answer.state = 'P'
+    elif publish_status == 'n':
+        answer.state = 'N'
+    elif publish_status == '':
+        answer.state = ''
+    answer.save()
+    return HttpResponse()
 
 
 @staff_required

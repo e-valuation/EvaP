@@ -1,0 +1,48 @@
+{% load morefilters %}
+{% load i18n %}
+
+{% for group in sections_grouped %}
+    {% for questionnaire, contributor, is_responsible, results in group.list %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="panel-title">{{ questionnaire.public_name }}{% if contributor.full_name %}: {{ contributor.full_name }}{% if is_responsible %} (responsible){% endif %}{% endif %}</span>
+            </div>
+            <div class="panel-body">
+                {% for result in results %}
+                    <p>{{ result.question.text }}</p>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-1">{% trans "ID" %}</th>
+                                <th class="col-sm-9">{% trans "Comment" %}</td>
+                                <th class="col-sm-2">{% trans "Publish" %}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for answer in result.answers %}
+                                <tr>
+                                    <td>{{ answer.id }}</td>
+                                    <td>
+                                        {% if answer.reviewed_answer %}
+                                            {{ answer.reviewed_answer }}<br />
+                                            <span style="color:#aaaaaa">({{ answer.original_answer }})</span>
+                                        {% else %}
+                                            {{ answer.original_answer }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div id="{{ answer.id }}-buttons" class="btn-group btn-toggle">
+                                            <span id="{{ answer.id }}-y" onclick="press({{ answer.id }}, 'y');" class="btn btn-sm btn-default {% if answer.published %}active{% endif %}">{% trans "yes" %}</span>
+                                            <span id="{{ answer.id }}-p" onclick="press({{ answer.id }}, 'p');" class="btn btn-sm btn-default {% if answer.published_privately %}active{% endif %}">{% trans "private" %}</span>
+                                            <span id="{{ answer.id }}-n" onclick="press({{ answer.id }}, 'n');" class="btn btn-sm btn-default {% if answer.hidden %}active{% endif %}">{% trans "no" %}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
