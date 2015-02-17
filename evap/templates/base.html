@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.min.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
-    <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.uix.multiselect.css" />
+    <link rel="stylesheet" href="{% get_static_prefix %}css/chosen.min.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
@@ -158,9 +158,7 @@
 
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.uix.multiselect.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_de.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_en.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
 
@@ -193,7 +191,12 @@
 
             // run the jquery multiselect plugin
             $("select[multiple='multiple']").each(function(i,e) {
-                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+                $(e).chosen({
+                    search_contains: true,
+                    no_results_text: "{% trans "No results for" %}",
+                    placeholder_text_single: "{% trans "Please select..." %}",
+                    placeholder_text_multiple: "{% trans "Please select..." %}"
+                });
             });
 
             // run the jquery datepicker plugin
