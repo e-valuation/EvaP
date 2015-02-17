@@ -22,7 +22,7 @@
 </td>
 <td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_checked_textanswers=course.checked_textanswer_set.count %}
+    {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_reviewed_textanswers=course.reviewed_textanswer_set.count %}
         {% if num_participants %}
             <td class="minimize">
                 <p class="twipsify" title="{% trans "Voters" %}">
@@ -33,8 +33,8 @@
                 {% if course.can_staff_review %}
                     <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="twipsify" title="{% trans "Click to review text answers" %}">
                         <span class="glyphicon glyphicon-comment"></span>
-                        <span>{{ num_checked_textanswers }}/{{ num_textanswers }}</span>
-                        <span>({{ num_checked_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
+                        <span>{{ num_reviewed_textanswers }}/{{ num_textanswers }}</span>
+                        <span>({{ num_reviewed_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
                     </a>
                 {% else %}
                     <p class="twipsify" title="{% trans "Text answers" %}">

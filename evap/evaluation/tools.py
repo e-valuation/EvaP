@@ -94,7 +94,11 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
-def get_answers(course, contribution, question):
+def get_all_textanswers(course, contribution, question):
+    return get_answers(course, contribution, question, exclusion=[])
+
+
+def get_answers(course, contribution, question, exclusion=['', 'N']):
     answers = None
 
     if question.is_likert_question:
@@ -116,8 +120,7 @@ def get_answers(course, contribution, question):
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question,
-            hidden=False
-            )
+        ).exclude(state__in=exclusion)
 
     return answers
 

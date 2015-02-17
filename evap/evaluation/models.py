@@ -186,12 +186,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if not self.general_contribution:
             self.contributions.create(contributor=None)
 
-    def is_fully_checked(self):
-        """Shortcut for finding out whether all text answers to this course have been checked"""
+    def is_fully_reviewed(self):
+        """Shortcut for finding out whether all text answers to this course have been reviewed"""
         return not self.open_textanswer_set.exists()
 
-    def is_fully_checked_except(self, ignored_answers):
-        """Shortcut for finding out if all text answers to this course have been checked except for specified answers"""
+    def is_fully_reviewed_except(self, ignored_answers):
+        """Shortcut for finding out if all text answers to this course have been reviewed except for specified answers"""
         return not self.open_textanswer_set.exclude(pk__in=ignored_answers).exists()
 
     def is_in_evaluation_period(self):
@@ -222,7 +222,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
+        return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_reviewed()
 
     @property
     def can_staff_approve(self):
@@ -260,7 +260,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def evaluation_end(self):
         pass
 
-    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_checked])
+    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
     def review_finished(self):
         pass
 
@@ -370,12 +370,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=False)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state='')
 
     @property
-    def checked_textanswer_set(self):
+    def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=True)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state='')
 
     @property
     def likertanswer_set(self):
