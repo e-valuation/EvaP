@@ -187,16 +187,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             self.contributions.create(contributor=None)
 
     def is_fully_reviewed(self):
-        """Shortcut for finding out whether all text answers to this course have been reviewed"""
         return not self.open_textanswer_set.exists()
 
     def is_not_fully_reviewed(self):
-        """Shortcut for finding out whether some text answers to this course have not yet been reviewed"""
         return self.open_textanswer_set.exists()
-
-    def is_fully_reviewed_except(self, ignored_answers):
-        """Shortcut for finding out if all text answers to this course have been reviewed except for specified answers"""
-        return not self.open_textanswer_set.exclude(pk__in=ignored_answers).exists()
 
     def is_in_evaluation_period(self):
         today = datetime.date.today()
@@ -226,7 +220,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and len(self.textanswer_set) > 0
+        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and self.textanswer_set.exists()
 
     @property
     def can_staff_approve(self):
@@ -378,12 +372,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state='')
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state='')
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def likertanswer_set(self):
@@ -531,13 +525,17 @@ class TextAnswer(Answer):
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
     
+    HIDDEN = 'hidden'
+    PUBLISHED = 'published'
+    PRIVATE = 'private'
+    NOT_REVIEWED = 'not_reviewed'
     TEXT_ANSWER_STATES = (
-        ('N', _('not published')),
-        ('P', _('published privately')),
-        ('Y', _('published')),
-        ('', _('not reviewed')),
+        (HIDDEN, _('hidden')),
+        (PUBLISHED, _('published')),
+        (PRIVATE, _('private')),
+        (NOT_REVIEWED, _('not reviewed')),
     )
-    state = models.CharField(max_length=1, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default='')
+    state = models.CharField(max_length=20, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
         verbose_name = _("text answer")
@@ -545,16 +543,16 @@ class TextAnswer(Answer):
 
     @property
     def reviewed(self):
-        return self.state != ''
+        return self.state != self.NOT_REVIEWED
     @property
     def hidden(self):
-        return self.state == 'N'
+        return self.state == self.HIDDEN
     @property
-    def published_privately(self):
-        return self.state == 'P'
+    def private(self):
+        return self.state == self.PRIVATE
     @property
     def published(self):
-        return self.state == 'Y'
+        return self.state == self.PUBLISHED
 
     @property
     def answer(self):
@@ -565,13 +563,13 @@ class TextAnswer(Answer):
         self.reviewed_answer = None
 
     def publish(self):
-        self.state = 'Y'
-    def unpublish(self):
-        self.state = 'N'
-    def publish_privately(self):
-        self.state = 'P'
+        self.state = self.PUBLISHED
+    def hide(self):
+        self.state = self.HIDDEN
+    def make_private(self):
+        self.state = self.PRIVATE
     def unreview(self):
-        self.state = ''
+        self.state = self.NOT_REVIEWED
 
 
 class FaqSection(models.Model, metaclass=LocalizeModelBase):

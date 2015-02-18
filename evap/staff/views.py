@@ -10,7 +10,7 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_all_textanswers, CommentSection, TextResult
+                                  get_filtered_answers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
@@ -431,21 +431,18 @@ def course_comments(request, semester_id, course_id):
     course_sections = []
     contributor_sections = []
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        comments = []
+        text_results = []
         for question in questionnaire.question_set.all():
             if question.is_text_question:
-                answers = get_all_textanswers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question, exclude_text_answer_states=[])
                 if answers:
-                    comments.append(TextResult(
-                        question=question,
-                        answers=answers,
-                    ))
-        if not comments:
+                    text_results.append(TextResult(question=question, answers=answers))
+        if not text_results:
             continue
-        elif contribution.is_general:
-            course_sections.append(CommentSection(questionnaire, contribution.contributor, False, comments))
+        if contribution.is_general:
+            course_sections.append(CommentSection(questionnaire, contribution.contributor, False, text_results))
         else:
-            contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, comments))
+            contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections)
     return render(request, "staff_course_comments.html", template_data)
@@ -454,20 +451,20 @@ def course_comments(request, semester_id, course_id):
 @staff_required
 def course_comments_update_publish(request):
     comment_id = request.POST["id"]
-    publish_status = request.POST["status"]
+    action = request.POST["action"]
     course_id = request.POST["course_id"]
 
     course = Course.objects.get(pk=course_id)
     answer = TextAnswer.objects.get(pk=comment_id)
 
-    if publish_status == 'y':
-        answer.state = 'Y'
-    elif publish_status == 'p':
-        answer.state = 'P'
-    elif publish_status == 'n':
-        answer.state = 'N'
-    elif publish_status == '':
-        answer.state = ''
+    if action == 'publish':
+        answer.publish()
+    elif action == 'private':
+        answer.make_private()
+    elif action == 'hide':
+        answer.hide()
+    elif action == 'unreview':
+        answer.unreview()
     answer.save()
 
     if course.state == "evaluated" and course.is_fully_reviewed():

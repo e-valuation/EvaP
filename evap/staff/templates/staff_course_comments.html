@@ -33,16 +33,16 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-    function press(id, status) {
-        if($("#"+id+"-"+status).hasClass("active")) {
+    function press(id, action) {
+        if($("#"+id+"-"+action).hasClass("active")) {
             $("#"+id+"-buttons").children().removeClass("active");
-            status = "";
+            action = "unreview";
         }
         else {
             $("#"+id+"-buttons").children().removeClass("active");
-            $("#"+id+"-"+status).addClass("active");
+            $("#"+id+"-"+action).addClass("active");
         }
-        var parameters = {"id": id, "status": status, "course_id": {{ course.id }}};
+        var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
         $.post('{% url "evap.staff.views.course_comments_update_publish" %}', parameters);
     }
     </script>

@@ -59,7 +59,7 @@
                     <td colspan="4">
                         <ul>
                         {% for answer in result.answers %}
-                            <li>{% if answer.published_privately %}<span class="glyphicon glyphicon-info-sign twipsify" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
+                            <li>{% if answer.private %}<span class="glyphicon glyphicon-info-sign twipsify" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
                         {% endfor %}
                         </ul>
                     </td>

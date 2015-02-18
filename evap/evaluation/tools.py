@@ -95,11 +95,7 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
-def get_all_textanswers(course, contribution, question):
-    return get_answers(course, contribution, question, exclusion=[])
-
-
-def get_answers(course, contribution, question, exclusion=['', 'N']):
+def get_filtered_answers(course, contribution, question, exclude_text_answer_states=[TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN]):
     answers = None
 
     if question.is_likert_question:
@@ -121,7 +117,7 @@ def get_answers(course, contribution, question, exclusion=['', 'N']):
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question,
-        ).exclude(state__in=exclusion)
+        ).exclude(state__in=exclude_text_answer_states)
 
     return answers
 
@@ -155,7 +151,7 @@ def calculate_results(course, staff_member=False):
         for question in questionnaire.question_set.all():
             # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
             if not question.is_text_question:
-                answers = get_answers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question)
                 if len(answers) > max_answers:
                     max_answers = len(answers)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
@@ -168,7 +164,7 @@ def calculate_results(course, staff_member=False):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_likert_question or question.is_grade_question:
-                answers = get_answers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question)
 
                 # calculate average, median and distribution
                 if answers:
@@ -212,13 +208,13 @@ def calculate_results(course, staff_member=False):
                 elif question.is_grade_question:
                     results.append(GradeResult(**kwargs))
             elif question.is_text_question:
-                answers = get_answers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question)
 
                 # only add to the results if answers exist at all
                 if answers:
                     results.append(TextResult(
                         question=question,
-                        answers=[answer for answer in answers]
+                        answers=answers
                     ))
 
         # skip section if there were no questions with results

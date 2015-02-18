@@ -106,9 +106,6 @@ def course_detail(request, semester_id, course_id):
     return render(request, "results_course_detail.html", template_data)
 
 def user_can_see_text_answer(user, course, text_answer):
-    if user == None:
-        return False
-
     contributor = text_answer.contribution.contributor
     if contributor == user:
         return True
