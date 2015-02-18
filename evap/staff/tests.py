@@ -313,7 +313,6 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
-            ("test_staff_semester_x_course_y_review", "/staff/semester/1/course/5/review", "evap"),
             ("test_staff_semester_x_course_y_unpublish", "/staff/semester/1/course/8/unpublish", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             # staff questionnaires
@@ -385,7 +384,6 @@ class URLTests(WebTest):
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
             ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_semester_x_course_y_review_fail", "/staff/semester/1/course/8/review", "evap"),
             ("test_staff_semester_x_course_y_unpublish_fail", "/staff/semester/1/course/7/unpublish", "evap"),
             ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/4/edit", "evap"),
             ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
@@ -458,9 +456,6 @@ class URLTests(WebTest):
 
     def test_staff_semester_x_course_y_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
-
-    def test_staff_semester_x_course_y_review__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/5/review", "evap")
 
     def test_staff_semester_x_course_y_unpublish__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/8/unpublish", "evap"),
