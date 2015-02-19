@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Legal Notice" %} - {{ block.super }}{% endblock %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Legal Notice" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Legal Notice" %}</h2>
+    {% if LEGAL_NOTICE_ACTIVE %}{% include "legal_notice_text.html" %}{% endif %}
+{% endblock %}

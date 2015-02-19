@@ -52,25 +52,6 @@ def can_use_reward_points(user):
     return can_user_use_reward_points(user)
 
 
-@register.tag
-def value_from_settings(parser, token):
-    try:
-        # split_contents() knows not to split quoted strings.
-        tag_name, var = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
-    return ValueFromSettings(var)
-
-
-class ValueFromSettings(template.Node):
-    def __init__(self, var):
-        super().__init__()
-        self.arg = template.Variable(var)
-
-    def render(self, context):
-        return settings.__getattr__(str(self.arg))
-
-
 @register.filter
 def is_false(arg): 
     return arg is False
