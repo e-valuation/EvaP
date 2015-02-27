@@ -60,6 +60,10 @@ LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'medi
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
 
+def replace_results(result_section, new_results):
+    return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
+        result_section.average_likert, result_section.median_likert, result_section.average_grade,
+        result_section.median_grade, result_section.average_total, result_section.median_total, result_section.warning)
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of

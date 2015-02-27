@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
+from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult, ResultSection, replace_results
 
 from evap.results.exporters import ExcelExporter
 
@@ -58,22 +58,27 @@ def course_detail(request, semester_id, course_id):
         raise PermissionDenied
 
     sections = calculate_results(course, request.user.is_staff)
-
-    if not request.user.is_staff:
-        # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
+    
+    cleaned_sections = []
+    if request.user.is_staff:
+        cleaned_sections = sections
+    else:
         for section in sections:
-            for i, result in list(enumerate(section.results))[::-1]:
+            results = []
+            for result in section.results:
                 if isinstance(result, TextResult):
-                    for j, answer in list(enumerate(result.answers))[::-1]:
-                        if not user_can_see_text_answer(request.user, course, answer):
-                            del result.answers[j]
-                    if not result.answers:
-                        del section.results[i]
+                    answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, course, answer)]
+                    if answers:
+                        results.append(TextResult(question=result.question, answers=answers))
+                else:
+                    results.append(result)
+            if results:
+                cleaned_sections.append(replace_results(section, results))
 
     # remove empty sections and group by contributor
     course_sections = []
     contributor_sections = OrderedDict()
-    for section in sections:
+    for section in cleaned_sections:
         if not section.results:
             continue
         if section.contributor is None:
