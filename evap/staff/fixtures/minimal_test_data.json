@@ -1151,7 +1151,7 @@
       5, 
       8
     ], 
-    "vote_end_date": "2014-09-30", 
+    "vote_end_date": "2099-12-31", 
     "name_en": "a course", 
     "kind": "a type", 
     "vote_start_date": "2014-09-10"
