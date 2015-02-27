@@ -14,7 +14,7 @@ from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, qu
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
-                             FaqSectionForm, FaqQuestionForm, UserImportForm
+                             FaqSectionForm, FaqQuestionForm, UserImportForm, TextAnswerForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -475,6 +475,22 @@ def course_comments_update_publish(request):
         course.save()
 
     return HttpResponse()
+
+
+@staff_required
+def course_comment_edit(request, semester_id, course_id, text_answer_id):
+    text_answer = get_object_or_404(TextAnswer, id=text_answer_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    form = TextAnswerForm(request.POST or None, instance=text_answer)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, _("Successfully edited comment '{}'.").format(text_answer.id))
+        return custom_redirect('evap.staff.views.course_comments', semester_id, course_id)
+    
+    template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
+    return render(request, "staff_course_comment_edit.html", template_data)
 
 
 @staff_required

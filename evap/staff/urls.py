@@ -27,6 +27,7 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)/unpublish$", course_unpublish),
     url(r"^semester/(\d+)/course/(\d+)/preview$", course_preview),
     url(r"^semester/(\d+)/course/(\d+)/comments$", course_comments),
+    url(r"^semester/(\d+)/course/(\d+)/comment/(\d+)/edit$", course_comment_edit),
 
     url(r"^comments/updatepublish$", course_comments_update_publish),
 

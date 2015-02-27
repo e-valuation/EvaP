@@ -360,3 +360,12 @@ class FaqQuestionForm(forms.ModelForm, BootstrapMixin):
         model = FaqQuestion
         exclude = ("section",)
 
+
+class TextAnswerForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['original_answer'].widget.attrs['readonly'] = "True"
+
+    class Meta:
+        model = TextAnswer
+        fields = ("original_answer", "reviewed_answer",)

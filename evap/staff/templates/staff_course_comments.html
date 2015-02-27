@@ -3,6 +3,11 @@
 {% load morefilters %}
 {% load i18n %}
 
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Comments" %}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     <h3>{{ course.name }} ({{ course.semester.name }})</h3>
