@@ -18,8 +18,9 @@
                 <span class="panel-title">{% trans "Comments about the Course" %}</span>
             </div>
             <div class="panel-body">
-                {% regroup course_sections by questionnaire as sections_grouped %}
-                {% include "staff_course_comments_section.html" %}
+                {% with course_sections as sections %}
+                    {% include "staff_course_comments_section.html" %}
+                {% endwith %}
             </div>
         </div>
     {% endif %}
@@ -29,8 +30,9 @@
                 <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
             </div>
             <div class="panel-body">
-                {% regroup contributor_sections by questionnaire as sections_grouped %}
-                {% include "staff_course_comments_section.html" %}
+                {% with contributor_sections as sections %}
+                    {% include "staff_course_comments_section.html" %}
+                {% endwith %}
             </div>
         </div>
     {% endif %}
