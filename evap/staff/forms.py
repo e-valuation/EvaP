@@ -11,6 +11,8 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 from evap.staff.tools import EMAIL_RECIPIENTS
 
+import datetime
+
 
 class ImportForm(forms.Form, BootstrapMixin):
     vote_start_date = forms.DateField(label=_("First date to vote"), localize=True)
@@ -60,9 +62,13 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
         self.fields['last_modified_user_2'].widget.attrs['readonly'] = "True"
 
-        if self.instance.state == "inEvaluation":
+        if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].widget.attrs['readonly'] = "True"
-            self.fields['vote_end_date'].widget.attrs['readonly'] = "True"
+
+    def clean(self):
+        vote_end_date = self.cleaned_data.get('vote_end_date')
+        if vote_end_date and vote_end_date < datetime.date.today():
+            raise forms.ValidationError(_("The vote end date must be in the future."))
 
     def save(self, *args, **kw):
         user = kw.pop("user")

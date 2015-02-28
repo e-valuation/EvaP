@@ -355,6 +355,8 @@ def course_edit(request, semester_id, course_id):
     formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
 
     if form.is_valid() and formset.is_valid():
+        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
+            course.reopen_evaluation()
         form.save(user=request.user)
         formset.save()
 

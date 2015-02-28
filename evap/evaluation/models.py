@@ -194,10 +194,14 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Shortcut for finding out if all text answers to this course have been checked except for specified answers"""
         return not self.open_textanswer_set.exclude(pk__in=ignored_answers).exists()
 
+    def is_in_evaluation_period(self):
+        today = datetime.date.today()
+        return today >= self.vote_start_date and today <= self.vote_end_date
+
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return (self.state == "inEvaluation"
-            and datetime.date.today() <= self.vote_end_date
+            and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
 
@@ -210,7 +214,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.is_archived and self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation']
+        return not self.is_archived and self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
 
     @property
     def can_staff_delete(self):
@@ -244,8 +248,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def revert_to_new(self):
         pass
 
-    @transition(field=state, source='approved', target='inEvaluation')
+    @transition(field=state, source='approved', target='inEvaluation', conditions=[is_in_evaluation_period])
     def evaluation_begin(self):
+        pass
+
+    @transition(field=state, source=['evaluated', 'reviewed'], target='inEvaluation', conditions=[is_in_evaluation_period])
+    def reopen_evaluation(self):
         pass
 
     @transition(field=state, source='inEvaluation', target='evaluated')
