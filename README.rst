@@ -8,11 +8,11 @@ What is EvaP?
 
 EvaP is the course evaluation system used internally at Hasso Plattner Institute.
 
-For the documentation, please look into the *docs* subdirectory or its online version: https://evap.readthedocs.org.
+For the documentation, please see our `wiki <https://github.com/fsr-itse/EvaP/wiki>`_.
 
 Installation
 ------------
-The vagrant setup is shown here. For manual installation instructions and production deployment see http://evap.readthedocs.org/en/latest/installation.html.
+The vagrant setup is shown here. For manual installation instructions and production deployment please see the `wiki page on installation <https://github.com/fsr-itse/EvaP/wiki/Installation>`_.
 
 (0) Checkout EvaP and its submodules::
 
@@ -51,7 +51,7 @@ You can add yourself to the list at http://lists.myhpi.de/HQowKfvd70oVOTPEWG2UhB
 License
 -------
 
-See `docs/License.rst <docs/license.rst>`_.
+See `LICENSE.rst <LICENSE.rst>`_.
 
 
 
