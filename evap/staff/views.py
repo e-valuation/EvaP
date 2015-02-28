@@ -465,6 +465,8 @@ def course_comments_update_publish(request):
         answer.hide()
     elif action == 'unreview':
         answer.unreview()
+    else:
+        return HttpResponse(status=400) # 400 Bad Request
     answer.save()
 
     if course.state == "evaluated" and course.is_fully_reviewed():
@@ -474,7 +476,7 @@ def course_comments_update_publish(request):
         course.reopen_review()
         course.save()
 
-    return HttpResponse()
+    return HttpResponse() # 200 OK
 
 
 @staff_required

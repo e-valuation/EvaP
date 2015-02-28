@@ -1023,3 +1023,32 @@ class TestDataTest(WebTest):
             call_command("loaddata", "test_data", verbosity=0)
         except Exception:
             self.fail("Test data failed to load.")
+
+
+class TextAnswerReviewTest(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+
+    def test_publish_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "publish", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.PUBLISHED)
+
+    def test_hide_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "hide", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.HIDDEN)
+
+    def test_make_textanswer_private(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "make_private", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.PRIVATE)
+
+    def test_unreview_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 9, "action": "unreview", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=9)
+        self.assertEqual(comment.state, TextAnswer.NOT_REVIEWED)
