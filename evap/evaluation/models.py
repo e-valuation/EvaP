@@ -525,17 +525,17 @@ class TextAnswer(Answer):
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
     
-    HIDDEN = 'hidden'
-    PUBLISHED = 'published'
-    PRIVATE = 'private'
-    NOT_REVIEWED = 'not_reviewed'
+    HIDDEN = 'HI'
+    PUBLISHED = 'PU'
+    PRIVATE = 'PR'
+    NOT_REVIEWED = 'NR'
     TEXT_ANSWER_STATES = (
         (HIDDEN, _('hidden')),
         (PUBLISHED, _('published')),
         (PRIVATE, _('private')),
         (NOT_REVIEWED, _('not reviewed')),
     )
-    state = models.CharField(max_length=20, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
+    state = models.CharField(max_length=2, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
         verbose_name = _("text answer")

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='textanswer',
             name='state',
-            field=models.CharField(verbose_name='state of answer', default='not_reviewed', max_length=20, choices=[('hidden', 'hidden'), ('published', 'published'), ('private', 'private'), ('not_reviewed', 'not reviewed')]),
+            field=models.CharField(verbose_name='state of answer', default='NR', max_length=2, choices=[('HI', 'hidden'), ('PU', 'published'), ('PR', 'private'), ('NR', 'not reviewed')]),
         ),
     ]

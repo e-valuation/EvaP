@@ -103,9 +103,9 @@
   "fields": {
     "reviewed_answer": null, 
     "question": 3, 
-    "original_answer": ".orig_published.", 
+    "original_answer": ".course_orig_published.", 
     "contribution": 1, 
-    "state": "Y"
+    "state": "PU"
   }
 },
 {
@@ -114,20 +114,20 @@
   "fields": {
     "reviewed_answer": null, 
     "question": 3, 
-    "original_answer": ".orig_not_published.", 
+    "original_answer": ".course_orig_hidden.", 
     "contribution": 1, 
-    "state": "N"
+    "state": "HI"
   }
 },
 {
   "pk": 3, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "reviewed_answer": ".changed.", 
+    "reviewed_answer": ".course_changed_published.", 
     "question": 3, 
-    "original_answer": ".orig.", 
+    "original_answer": ".course_orig_published_changed.", 
     "contribution": 1, 
-    "state": "Y"
+    "state": "PU"
   }
 },
 {
@@ -138,7 +138,7 @@
     "question": 1, 
     "original_answer": ".responsible_orig_published.", 
     "contribution": 2, 
-    "state": "Y"
+    "state": "PU"
   }
 },
 {
@@ -147,20 +147,20 @@
   "fields": {
     "reviewed_answer": null, 
     "question": 1, 
-    "original_answer": ".responsible_orig_not_published.", 
+    "original_answer": ".responsible_orig_hidden.", 
     "contribution": 2, 
-    "state": "N"
+    "state": "HI"
   }
 },
 {
   "pk": 6, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "reviewed_answer": ".responsible_changed.", 
+    "reviewed_answer": ".responsible_changed_published.", 
     "question": 1, 
-    "original_answer": ".responsible_orig.", 
+    "original_answer": ".responsible_orig_published_changed.", 
     "contribution": 2, 
-    "state": "Y"
+    "state": "PU"
   }
 },
 {
@@ -171,7 +171,7 @@
     "question": 1, 
     "original_answer": ".responsible_orig_private.", 
     "contribution": 2, 
-    "state": "P"
+    "state": "PR"
   }
 },
 {
@@ -180,9 +180,9 @@
   "fields": {
     "reviewed_answer": null, 
     "question": 1, 
-    "original_answer": ".responsible_orig_unchecked.", 
+    "original_answer": ".responsible_orig_notreviewed.", 
     "contribution": 2, 
-    "state": ""
+    "state": "NR"
   }
 },
 {
@@ -193,7 +193,7 @@
     "question": 1, 
     "original_answer": ".contributor_orig_published.", 
     "contribution": 3, 
-    "state": "Y"
+    "state": "PU"
   }
 },
 {
@@ -204,7 +204,7 @@
     "question": 1, 
     "original_answer": ".contributor_orig_private.", 
     "contribution": 3, 
-    "state": "P"
+    "state": "PR"
   }
 },
 {

@@ -459,7 +459,7 @@ def course_comments_update_publish(request):
 
     if action == 'publish':
         answer.publish()
-    elif action == 'private':
+    elif action == 'make_private':
         answer.make_private()
     elif action == 'hide':
         answer.hide()

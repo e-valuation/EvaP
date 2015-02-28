@@ -33,7 +33,7 @@
                                     <td>
                                         <div id="{{ answer.id }}-buttons" class="btn-group btn-toggle">
                                             <span id="{{ answer.id }}-publish" onclick="press({{ answer.id }}, 'publish');" class="btn btn-sm btn-default {% if answer.published %}active{% endif %}">{% trans "yes" %}</span>
-                                            {% if contributor %}<span id="{{ answer.id }}-private" onclick="press({{ answer.id }}, 'private');" class="btn btn-sm btn-default {% if answer.private %}active{% endif %}">{% trans "private" %}</span>{% endif %}
+                                            {% if contributor %}<span id="{{ answer.id }}-private" onclick="press({{ answer.id }}, 'make-private');" class="btn btn-sm btn-default {% if answer.private %}active{% endif %}">{% trans "private" %}</span>{% endif %}
                                             <span id="{{ answer.id }}-hide" onclick="press({{ answer.id }}, 'hide');" class="btn btn-sm btn-default {% if answer.hidden %}active{% endif %}">{% trans "no" %}</span>
                                         </div>
                                     </td>
