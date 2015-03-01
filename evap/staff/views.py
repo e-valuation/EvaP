@@ -428,6 +428,11 @@ def course_unpublish(request, semester_id, course_id):
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    filter = request.GET.get('filter', False)
+
+    exclude_states = []
+    if filter:
+        exclude_states = [TextAnswer.PUBLISHED, TextAnswer.PRIVATE, TextAnswer.HIDDEN]
 
     course_sections = []
     contributor_sections = []
@@ -435,7 +440,7 @@ def course_comments(request, semester_id, course_id):
         text_results = []
         for question in questionnaire.question_set.all():
             if question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question, exclude_text_answer_states=[])
+                answers = get_filtered_answers(course, contribution, question, exclude_text_answer_states=exclude_states)
                 if answers:
                     text_results.append(TextResult(question=question, answers=answers))
         if not text_results:
@@ -445,7 +450,7 @@ def course_comments(request, semester_id, course_id):
         else:
             contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections)
+    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
     return render(request, "staff_course_comments.html", template_data)
 
 
