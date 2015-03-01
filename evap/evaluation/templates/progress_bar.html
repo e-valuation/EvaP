@@ -1,0 +1,12 @@
+{% load morefilters %}
+
+<div>
+    {% spaceless %}
+        <div class="participant-bar back sm twipsify" title="{{ done|percentage:total|default:'0%' }}">
+            <div class="participant-bar front" style="width: {% widthratio done total 100 %}%;">
+                <div class="participant-bar text">{{ done }}</div>
+            </div>
+        </div>
+    {% endspaceless %}
+    <span style="font-size: 80%;">{{ total }}</span>
+</div>

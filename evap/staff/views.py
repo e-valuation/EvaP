@@ -23,7 +23,7 @@ from evap.student.forms import QuestionsForm
 
 from evap.rewards.tools import is_semester_activated
 
-import random
+import random, datetime
 
 def raise_permission_denied_if_archived(archiveable):
     if archiveable.is_archived:
@@ -53,11 +53,40 @@ def semester_view(request, semester_id):
         this_courses = [course for course in courses if course.state == state]
         courses_by_state.append((state, this_courses))
 
-    template_data = dict(semester=semester, 
-                         courses_by_state=courses_by_state, 
-                         disable_breadcrumb_semester=True,
-                         disable_if_archived="disabled=disabled" if semester.is_archived else "",
-                         rewards_active=rewards_active)
+    # semester statistics
+    num_enrollments_in_evaluation = 0
+    num_votes = 0
+    num_courses_evaluated = 0
+    num_comments = 0
+    num_comments_reviewed = 0
+    first_start = datetime.date(9999, 1, 1)
+    last_end = datetime.date(2000, 1, 1)
+    for course in courses:
+        if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
+            num_enrollments_in_evaluation += course.num_participants
+        if course.state in ['evaluated', 'reviewed', 'published']:
+            num_courses_evaluated += 1
+        num_votes += course.num_voters
+        first_start = min(first_start, course.vote_start_date)
+        last_end = max(last_end, course.vote_end_date)
+        num_comments += len(course.textanswer_set)
+        num_comments_reviewed += len(course.reviewed_textanswer_set)
+
+    template_data = dict(
+        semester=semester, 
+        courses_by_state=courses_by_state, 
+        disable_breadcrumb_semester=True,
+        disable_if_archived="disabled=disabled" if semester.is_archived else "",
+        rewards_active=rewards_active,
+        num_enrollments_in_evaluation=num_enrollments_in_evaluation,
+        num_votes=num_votes,
+        first_start=first_start,
+        last_end=last_end,
+        num_courses=len(courses),
+        num_courses_evaluated=num_courses_evaluated,
+        num_comments=num_comments,
+        num_comments_reviewed=num_comments_reviewed,
+    )
     return render(request, "staff_semester_view.html", template_data)
 
 
