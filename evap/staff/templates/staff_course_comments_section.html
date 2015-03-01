@@ -19,7 +19,7 @@
                     </thead>
                     <tbody>
                         {% for answer in result.answers %}
-                            <tr>
+                            <tr id="{{ answer.id }}">
                                 <td>{{ answer.id }}</td>
                                 <td>
                                     {% if answer.reviewed_answer %}

@@ -4,7 +4,8 @@ from django.db.models import Max
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
@@ -484,12 +485,16 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     text_answer = get_object_or_404(TextAnswer, id=text_answer_id)
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    form = TextAnswerForm(request.POST or None, instance=text_answer)
+    reviewed_answer = text_answer.reviewed_answer
+    if reviewed_answer == None:
+        reviewed_answer = text_answer.original_answer
+    form = TextAnswerForm(request.POST or None, instance=text_answer, initial={'reviewed_answer': reviewed_answer})
 
     if form.is_valid():
         form.save()
-        messages.success(request, _("Successfully edited comment '{}'.").format(text_answer.id))
-        return custom_redirect('evap.staff.views.course_comments', semester_id, course_id)
+        # jump to edited answer
+        url = reverse('evap.staff.views.course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
+        return HttpResponseRedirect(url)
     
     template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
     return render(request, "staff_course_comment_edit.html", template_data)
