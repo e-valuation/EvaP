@@ -12,3 +12,6 @@ def include_user_list_with_links(users):
 def include_sortable_form_js():
     return dict()
 
+@register.inclusion_tag("progress_bar.html")
+def include_progress_bar(done, total, large=False):
+    return dict(done=done, total=total, large=large)

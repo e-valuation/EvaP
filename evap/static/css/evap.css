@@ -327,32 +327,41 @@ Side notes for calling out things
     content: "\e080"; /* chevron-right */
 }
 
-.participant-bar {
-    display: inline-block;
-    border-radius: 3px;
-    vertical-align: middle;
-}
-
-.participant-bar.back {
-    background: #d9edf7;
-    width: 95%;
-}
-
-.participant-bar.back.sm {  
-    width: 70%;
-}
-
-.participant-bar.front {
-    background: #31708f;
+.evap-progress-bar-container {
+    padding-right: 40px;
     display: block;
 }
 
-.participant-bar.text {
-    color: #ffffff;
-    font-size: 80%;
-    text-align: right;
-    padding: 0px 3px;
+.evap-progress-bar-back {
+    background: #d9edf7;
+    border-radius: 3px;
     width: 100%;
+    position: relative;
+    display: inline-block;
+}
+
+.evap-progress-bar-front {
+    background: #31708f;
+    border-radius: 3px;
+    position: relative;
+    display: inline-block;
+}
+
+.evap-progress-bar-bartext {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: #ffffff;
+    width: 100%;
+    text-align: center;
+    text-shadow: 0px 0px 4px #31708f, 0px 0px 4px #31708f, 1px 1px 2px #31708f;
+}
+
+.evap-progress-bar-text {
+    color: #000000;
+    text-align: left;
+    float: right;
+    width: 36px;
 }
 
 .deactivate {

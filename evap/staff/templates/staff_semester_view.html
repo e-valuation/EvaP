@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load morefilters %}
 {% load staff_templatetags %}
+{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -11,75 +12,122 @@
         <p class="bs-callout bs-callout-info"> {% trans "This semester is archived." %} </p>
     {% endif %}
 
-    <div class="button-menu">
-        <a href="{% url "evap.staff.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
-        <a href="{% url "evap.staff.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger" {% if not semester.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete Semester" %}</a>
-        <a href="{% url "evap.staff.views.semester_archive" semester.id %}" class="btn btn-sm btn-danger" {% if not semester.is_archiveable %} disabled="disabled" {% endif %}>{% trans "Archive Semester" %}</a>
-        &nbsp;
-        <a href="{% url "evap.staff.views.course_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Course" %}</a>
-        <a href="{% url "evap.staff.views.semester_import" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Import Courses" %}</a>
-        <a href="{% url "evap.staff.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Assign Questionnaires" %}</a>
-        &nbsp;
-        <a href="{% url "evap.staff.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
-        &nbsp;
-        <a href="{% url "evap.staff.views.semester_todo" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Todo" %}</a>
-        &nbsp;
+    {% if num_courses > 0 %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Overview" %}</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col-sm-3">{% trans "Evaluation period" %}</th>
+                        <th class="col-sm-3">{% trans "Evaluated courses" %}</th>
+                        <th class="col-sm-3">{% trans "Reviewed comments" %}</th>
+                        <th class="col-sm-3">{% trans "Participation" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ first_start|date:"SHORT_DATE_FORMAT" }} - {{ last_end|date:"SHORT_DATE_FORMAT" }}</td>
+                        <td>
+                            {% include_progress_bar num_courses_evaluated num_courses %}
+                        </td>
+                        <td>
+                            {% include_progress_bar num_comments_reviewed num_comments %}
+                        </td>
+                        <td>
+                            {% include_progress_bar num_votes num_enrollments_in_evaluation %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 
-        <div class="btn-group">
-            <a href="{% url "evap.rewards.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
-            <div class="btn-group btn-toggle">
-                <a href="{% url "evap.rewards.views.semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}">{% trans "On" %}</a>
-                <a href="{% url "evap.rewards.views.semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}">{% trans "Off" %}</a>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Actions" %}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="button-menu">
+                <a href="{% url "evap.staff.views.semester_edit" semester.id %}" class="btn btn-sm btn-default">{% trans "Edit Semester" %}</a>
+                <a href="{% url "evap.staff.views.semester_delete" semester.id %}" class="btn btn-sm btn-danger" {% if not semester.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete Semester" %}</a>
+                <a href="{% url "evap.staff.views.semester_archive" semester.id %}" class="btn btn-sm btn-danger" {% if not semester.is_archiveable %} disabled="disabled" {% endif %}>{% trans "Archive Semester" %}</a>
+                &nbsp;
+                <a href="{% url "evap.staff.views.course_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Course" %}</a>
+                <a href="{% url "evap.staff.views.semester_import" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Import Courses" %}</a>
+                <a href="{% url "evap.staff.views.semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Assign Questionnaires" %}</a>
+                &nbsp;
+                <a href="{% url "evap.staff.views.semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
+                &nbsp;
+                <a href="{% url "evap.staff.views.semester_todo" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Todo" %}</a>
+                &nbsp;
+
+                <div class="btn-group">
+                    <a href="{% url "evap.rewards.views.semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
+                    <div class="btn-group btn-toggle">
+                        <a href="{% url "evap.rewards.views.semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}">{% trans "On" %}</a>
+                        <a href="{% url "evap.rewards.views.semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}">{% trans "Off" %}</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    {% if courses_by_state %}
-        <ul class="nav nav-tabs">
-            {% for state, courses in courses_by_state %}
-                <li><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
-            {% endfor %}
-        </ul>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Courses" %}</h3>
+        </div>
+        <div class="panel-body">
+            {% if courses_by_state %}
+                <ul class="nav nav-tabs">
+                    {% for state, courses in courses_by_state %}
+                        <li><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+                    {% endfor %}
+                </ul>
 
-            <div class="tab-content">
-            {% for state, courses in courses_by_state %}
-                <div id="tab{{ forloop.counter }}" class="tab-pane">
-                <table class="table table-striped">
-                <tbody>
-                {% for course in courses %}
-                    <tr>
-                        {% include_staff_semester_view_course semester state course disable_if_archived %}
-                    </tr>
+                <div class="tab-content">
+                {% for state, courses in courses_by_state %}
+                    <div id="tab{{ forloop.counter }}" class="tab-pane">
+                        <table class="table table-striped">
+                        <tbody>
+                        {% for course in courses %}
+                            <tr>
+                                {% include_staff_semester_view_course semester state course disable_if_archived %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        </table>
+
+                        <p>
+                        {% ifequal state "new" %}
+                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Enable courses for Lecturer Review..." %}</a>
+                        {% endifequal %}
+                        {% ifequal state "prepared" %}
+                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_revert_to_new" semester.id %}" {{ disable_if_archived }}>{% trans "Revert courses to New..." %}</a>
+                        {% endifequal %}
+                        {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
+                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_approve" semester.id %}" {{ disable_if_archived }}>{% trans "Approve courses..." %}</a>
+                        {% endif %}
+
+                        {% ifequal state "lecturerApproved" %}
+                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Re-Enable courses for Lecturer Review..." %}</a>
+                        {% endifequal %}
+
+                        {% ifequal state "reviewed" %}
+                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_publish" semester.id %}" {{ disable_if_archived }}>{% trans "Publish courses..." %}</a>
+                        {% endifequal %}
+                        </p>
+                    </div>
                 {% endfor %}
-                </tbody>
-                </table>
-
-                <p>
-                {% ifequal state "new" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Enable courses for Lecturer Review..." %}</a>
-                {% endifequal %}
-                {% ifequal state "prepared" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_revert_to_new" semester.id %}" {{ disable_if_archived }}>{% trans "Revert courses to New..." %}</a>
-                {% endifequal %}
-                {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_approve" semester.id %}" {{ disable_if_archived }}>{% trans "Approve courses..." %}</a>
-                {% endif %}
-
-                {% ifequal state "lecturerApproved" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Re-Enable courses for Lecturer Review..." %}</a>
-                {% endifequal %}
-
-                {% ifequal state "reviewed" %}
-                    <a class="btn btn-default" href="{% url "evap.staff.views.semester_publish" semester.id %}" {{ disable_if_archived }}>{% trans "Publish courses..." %}</a>
-                {% endifequal %}
-                </p>
-                <p>&nbsp;</p>
                 </div>
-            {% endfor %}
-            </div>
-    {% else %}
-        <p>{% trans "There are no courses for this semester yet." %}</p>
-    {% endif %}
+            {% else %}
+                <p>{% trans "There are no courses for this semester yet." %}</p>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block on_document_ready %}

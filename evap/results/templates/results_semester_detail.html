@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
+{% load evaluation_templatetags %}
 {% load morefilters %}
 {% load static %}
 
@@ -20,52 +21,37 @@
         <table class="table table-striped course-table vertically-aligned">
             <thead style="white-space:nowrap">
                 <tr>
-                    <th>{% trans "Course" %}</th>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "Responsible" %}</th>
-                    <th>{% trans "Average Grade" %}</th>
-                    <th>{% trans "Median Grade" %}</th>
-                    <th>{% trans "Voters" %}</th>
+                    <th class="col-sm-4">{% trans "Course" %}</th>
+                    <th class="col-sm-1">{% trans "Type" %}</th>
+                    <th class="col-sm-3">{% trans "Responsible" %}</th>
+                    <th class="col-sm-1">{% trans "Average Grade" %}</th>
+                    <th class="col-sm-1">{% trans "Median Grade" %}</th>
+                    <th class="col-sm-2">{% trans "Voters" %}</th>
                 </tr>
             </thead>
             <tbody>
             {% for course in degree.list %}
                 <tr>
-                    <td class="col-sm-4">
+                    <td>
                     {% if course|can_user_see_course:request.user %}
                         <a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course.name }}</a>
                     {% else %}                       
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
                     {% endif %}
                     </td>
-                    <td class="col-sm-1">{{ course.kind }}</td>
+                    <td>{{ course.kind }}</td>
                     {% with responsible=course.responsible_contributor %}
-                        <td class="col-sm-3" data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
+                        <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                     {% endwith %}
                     {% if course|can_user_see_course:request.user %}
-                        <td class="col-sm-1 text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                        <td class="col-sm-1 text-center"><div class="grade-bg" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
+                        <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
+                        <td class="text-center"><div class="grade-bg" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
                     {% else %}
-                        <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
-                        <td class="col-sm-1" title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                        <td class="text-center twipsify" title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                        <td class="text-center twipsify" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                     {% endif %}
                     {% with num_participants=course.num_participants num_voters=course.num_voters %}
-                        {% if num_participants %}
-                        <td class="col-sm-2" data-order="{% widthratio num_voters num_participants 100 %}">
-                            {% spaceless %}
-                            <div class="participant-bar back sm">
-                                <div class="participant-bar front" style="width: {% widthratio num_voters num_participants 100 %}%;">
-                                    <div class="participant-bar text">{{ num_voters }}</div>
-                                </div>
-                            </div>
-                            {% endspaceless %}
-                            <span style="font-size: 80%;">{{ num_participants }}</span>
-                        </td>
-                        {% else %}
-                        <td class="col-sm-2" data-order="0">
-                            &mdash;
-                        </td>
-                        {% endif %}
+                        <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include_progress_bar num_voters num_participants %}</td>
                     {% endwith %}
                 </tr>
             {% endfor %}
