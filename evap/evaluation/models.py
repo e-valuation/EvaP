@@ -186,13 +186,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if not self.general_contribution:
             self.contributions.create(contributor=None)
 
-    def is_fully_checked(self):
-        """Shortcut for finding out whether all text answers to this course have been checked"""
+    def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
 
-    def is_fully_checked_except(self, ignored_answers):
-        """Shortcut for finding out if all text answers to this course have been checked except for specified answers"""
-        return not self.open_textanswer_set.exclude(pk__in=ignored_answers).exists()
+    def is_not_fully_reviewed(self):
+        return self.open_textanswer_set.exists()
 
     def is_in_evaluation_period(self):
         today = datetime.date.today()
@@ -222,7 +220,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated'] and not self.is_fully_checked()
+        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and self.textanswer_set.exists()
 
     @property
     def can_staff_approve(self):
@@ -260,8 +258,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def evaluation_end(self):
         pass
 
-    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_checked])
+    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
     def review_finished(self):
+        pass
+
+    @transition(field=state, source='reviewed', target='evaluated', conditions=[is_not_fully_reviewed])
+    def reopen_review(self):
         pass
 
     @transition(field=state, source='reviewed', target='published')
@@ -370,12 +372,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=False)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state=TextAnswer.NOT_REVIEWED)
 
     @property
-    def checked_textanswer_set(self):
+    def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), checked=True)
+        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def likertanswer_set(self):
@@ -520,17 +522,37 @@ class TextAnswer(Answer):
     """A free-form text answer to a question (usually a comment about a course
     or a contributor)."""
 
-    elements_per_page = 5
-
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
-
-    checked = models.BooleanField(verbose_name=_("answer checked"), default=False)
-    hidden = models.BooleanField(verbose_name=_("hide answer"), default=False)
+    
+    HIDDEN = 'HI'
+    PUBLISHED = 'PU'
+    PRIVATE = 'PR'
+    NOT_REVIEWED = 'NR'
+    TEXT_ANSWER_STATES = (
+        (HIDDEN, _('hidden')),
+        (PUBLISHED, _('published')),
+        (PRIVATE, _('private')),
+        (NOT_REVIEWED, _('not reviewed')),
+    )
+    state = models.CharField(max_length=2, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
+
+    @property
+    def reviewed(self):
+        return self.state != self.NOT_REVIEWED
+    @property
+    def hidden(self):
+        return self.state == self.HIDDEN
+    @property
+    def private(self):
+        return self.state == self.PRIVATE
+    @property
+    def published(self):
+        return self.state == self.PUBLISHED
 
     @property
     def answer(self):
@@ -539,6 +561,15 @@ class TextAnswer(Answer):
     def answer(self, value):
         self.original_answer = value
         self.reviewed_answer = None
+
+    def publish(self):
+        self.state = self.PUBLISHED
+    def hide(self):
+        self.state = self.HIDDEN
+    def make_private(self):
+        self.state = self.PRIVATE
+    def unreview(self):
+        self.state = self.NOT_REVIEWED
 
 
 class FaqSection(models.Model, metaclass=LocalizeModelBase):

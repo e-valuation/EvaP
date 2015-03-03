@@ -4,17 +4,18 @@ from django.db.models import Max
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
-from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications
-from evap.staff.forms import ContributionForm, AtLeastOneFormSet, ReviewTextAnswerForm, CourseForm, \
-                           CourseEmailForm, EmailTemplateForm, IdLessQuestionFormSet, ImportForm, \
-                           LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                           SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
-                           FaqSectionForm, FaqQuestionForm, UserImportForm
+from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
+                                  get_filtered_answers, CommentSection, TextResult
+from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
+                             IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
+                             QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
+                             FaqSectionForm, FaqQuestionForm, UserImportForm, TextAnswerForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -387,59 +388,6 @@ def course_delete(request, semester_id, course_id):
 
 
 @staff_required
-def course_review(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-
-    # check course state
-    if not course.can_staff_review:
-        messages.warning(request, _("Reviewing not possible in current state."))
-        return redirect('evap.staff.views.semester_view', semester_id)
-
-    InlineReviewFormset = modelformset_factory(TextAnswer, form=ReviewTextAnswerForm, can_order=False, can_delete=False, extra=0)
-
-    skipped_answers = request.POST.get("skipped_answers", "") if request.POST else request.GET.get("skipped_answers", "")
-    skipped_answer_ids = [int(x) for x in skipped_answers.split(';')] if skipped_answers else []
-
-    # compute form queryset
-    form_queryset = course.textanswer_set \
-        .filter(checked=False) \
-        .exclude(pk__in=skipped_answer_ids) \
-        .order_by('id')[:TextAnswer.elements_per_page]
-
-    # create formset from sliced queryset
-    formset = InlineReviewFormset(request.POST or None, queryset=form_queryset)
-
-    if formset.is_valid():
-        count = 0
-        for form in formset:
-            form.instance.save()
-            if form.instance.checked:
-                count += 1
-            else:
-                skipped_answer_ids.append(form.instance.id)
-
-        if course.state == "evaluated" and course.is_fully_checked():
-            messages.success(request, _("Successfully reviewed {count} course answers for {course}. {course} is now fully reviewed.").format(count=count, course=course.name))
-            course.review_finished()
-            course.save()
-            return custom_redirect('evap.staff.views.semester_view', semester_id)
-        else:
-            messages.success(request, _("Successfully reviewed {count} course answers for {course}.").format(count=count, course=course.name))
-            operation = request.POST.get('operation')
-
-            if operation == 'save_and_next' and not course.is_fully_checked_except(skipped_answer_ids):
-                skipped_answers = ';'.join(str(x) for x in skipped_answer_ids)
-                return custom_redirect('evap.staff.views.course_review', semester_id, course_id, skipped_answers=skipped_answers)
-            else:
-                return custom_redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        skipped_answers = ';'.join(str(x) for x in skipped_answer_ids)
-        template_data = dict(semester=semester, course=course, formset=formset, TextAnswer=TextAnswer, skipped_answers=skipped_answers)
-        return render(request, "staff_course_review.html", template_data)
-
-
-@staff_required
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
@@ -480,15 +428,81 @@ def course_unpublish(request, semester_id, course_id):
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    filter = request.GET.get('filter', False)
 
-    textanswers = course.textanswer_set.filter(checked=True)
+    exclude_states = []
+    if filter:
+        exclude_states = [TextAnswer.PUBLISHED, TextAnswer.PRIVATE, TextAnswer.HIDDEN]
 
-    textanswers_by_question = []
-    for question_id in textanswers.values_list("question", flat=True).distinct():
-        textanswers_by_question.append((Question.objects.get(id=question_id), textanswers.filter(question=question_id)))
+    course_sections = []
+    contributor_sections = []
+    for questionnaire, contribution in questionnaires_and_contributions(course):
+        text_results = []
+        for question in questionnaire.question_set.all():
+            if question.is_text_question:
+                answers = get_filtered_answers(course, contribution, question, exclude_text_answer_states=exclude_states)
+                if answers:
+                    text_results.append(TextResult(question=question, answers=answers))
+        if not text_results:
+            continue
+        if contribution.is_general:
+            course_sections.append(CommentSection(questionnaire, contribution.contributor, False, text_results))
+        else:
+            contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, textanswers_by_question=textanswers_by_question)
+    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
     return render(request, "staff_course_comments.html", template_data)
+
+
+@staff_required
+def course_comments_update_publish(request):
+    comment_id = request.POST["id"]
+    action = request.POST["action"]
+    course_id = request.POST["course_id"]
+
+    course = Course.objects.get(pk=course_id)
+    answer = TextAnswer.objects.get(pk=comment_id)
+
+    if action == 'publish':
+        answer.publish()
+    elif action == 'make_private':
+        answer.make_private()
+    elif action == 'hide':
+        answer.hide()
+    elif action == 'unreview':
+        answer.unreview()
+    else:
+        return HttpResponse(status=400) # 400 Bad Request
+    answer.save()
+
+    if course.state == "evaluated" and course.is_fully_reviewed():
+        course.review_finished()
+        course.save()
+    if course.state == "reviewed" and not course.is_fully_reviewed():
+        course.reopen_review()
+        course.save()
+
+    return HttpResponse() # 200 OK
+
+
+@staff_required
+def course_comment_edit(request, semester_id, course_id, text_answer_id):
+    text_answer = get_object_or_404(TextAnswer, id=text_answer_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+    reviewed_answer = text_answer.reviewed_answer
+    if reviewed_answer == None:
+        reviewed_answer = text_answer.original_answer
+    form = TextAnswerForm(request.POST or None, instance=text_answer, initial={'reviewed_answer': reviewed_answer})
+
+    if form.is_valid():
+        form.save()
+        # jump to edited answer
+        url = reverse('evap.staff.views.course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
+        return HttpResponseRedirect(url)
+    
+    template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
+    return render(request, "staff_course_comment_edit.html", template_data)
 
 
 @staff_required

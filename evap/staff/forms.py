@@ -153,37 +153,6 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
         exclude = ()
 
 
-class ReviewTextAnswerForm(forms.ModelForm, BootstrapMixin):
-    reviewed_answer = forms.CharField(widget=forms.Textarea(), label=_("Answer"), required=False)
-    needs_further_review = forms.BooleanField(label=_("Needs further review"), required=False)
-    hidden = forms.BooleanField(label=_("Do not publish"), required=False)
-
-    class Meta:
-        fields = ('reviewed_answer', 'needs_further_review', 'hidden')
-        model = TextAnswer
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # since setting the initial value on fields corresponding to a model field has no effect,
-        # we'll set the initial value on the form, which works.
-        self.initial['reviewed_answer'] = self.instance.answer
-
-    def clean(self):
-        reviewed_answer = self.cleaned_data.get("reviewed_answer") or ""
-        needs_further_review = self.cleaned_data.get("needs_further_review")
-
-        # if the answer was not edited, don't store the original answer again.
-        if normalize_newlines(self.instance.original_answer) == normalize_newlines(reviewed_answer):
-            self.cleaned_data["reviewed_answer"] = ""
-
-        if not reviewed_answer.strip():
-            self.cleaned_data["hidden"] = True
-            
-        self.instance.checked = not needs_further_review
-
-        return self.cleaned_data
-
-
 class AtLeastOneFormSet(BaseInlineFormSet):
     def clean(self):
         count = 0
@@ -391,3 +360,18 @@ class FaqQuestionForm(forms.ModelForm, BootstrapMixin):
         model = FaqQuestion
         exclude = ("section",)
 
+
+class TextAnswerForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['original_answer'].widget.attrs['readonly'] = "True"
+
+    class Meta:
+        model = TextAnswer
+        fields = ("original_answer", "reviewed_answer",)
+
+    def clean_reviewed_answer(self):
+        reviewed_answer = normalize_newlines(self.cleaned_data.get('reviewed_answer'))
+        if reviewed_answer == normalize_newlines(self.instance.original_answer) or reviewed_answer == '':
+            return None
+        return reviewed_answer

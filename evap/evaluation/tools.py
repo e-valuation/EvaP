@@ -55,10 +55,15 @@ STUDENT_STATES_ORDERED = OrderedDict((
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
+CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
 LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
-TextResult = namedtuple('TextResult', ('question', 'texts'))
+TextResult = namedtuple('TextResult', ('question', 'answers'))
 GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
 
+def replace_results(result_section, new_results):
+    return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
+        result_section.average_likert, result_section.median_likert, result_section.average_grade,
+        result_section.median_grade, result_section.average_total, result_section.median_total, result_section.warning)
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -94,7 +99,7 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
-def get_answers(course, contribution, question):
+def get_filtered_answers(course, contribution, question, exclude_text_answer_states=[TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN]):
     answers = None
 
     if question.is_likert_question:
@@ -116,8 +121,7 @@ def get_answers(course, contribution, question):
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question,
-            hidden=False
-            )
+        ).exclude(state__in=exclude_text_answer_states)
 
     return answers
 
@@ -151,7 +155,7 @@ def calculate_results(course, staff_member=False):
         for question in questionnaire.question_set.all():
             # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
             if not question.is_text_question:
-                answers = get_answers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question)
                 if len(answers) > max_answers:
                     max_answers = len(answers)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
@@ -164,7 +168,7 @@ def calculate_results(course, staff_member=False):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_likert_question or question.is_grade_question:
-                answers = get_answers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question)
 
                 # calculate average, median and distribution
                 if answers:
@@ -208,13 +212,13 @@ def calculate_results(course, staff_member=False):
                 elif question.is_grade_question:
                     results.append(GradeResult(**kwargs))
             elif question.is_text_question:
-                answers = get_answers(course, contribution, question)
+                answers = get_filtered_answers(course, contribution, question)
 
                 # only add to the results if answers exist at all
                 if answers:
                     results.append(TextResult(
                         question=question,
-                        texts=[answer.answer for answer in answers]
+                        answers=answers
                     ))
 
         # skip section if there were no questions with results

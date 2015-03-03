@@ -23,12 +23,13 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/create$", course_create),
     url(r"^semester/(\d+)/course/(\d+)/edit$", course_edit),
     url(r"^semester/(\d+)/course/(\d+)/delete$", course_delete),
-    url(r"^semester/(\d+)/course/(\d+)/review$", course_review),
-    url(r"^semester/(\d+)/course/(\d+)/review/(\d+)$", course_review),
     url(r"^semester/(\d+)/course/(\d+)/email$", course_email),
     url(r"^semester/(\d+)/course/(\d+)/unpublish$", course_unpublish),
     url(r"^semester/(\d+)/course/(\d+)/preview$", course_preview),
     url(r"^semester/(\d+)/course/(\d+)/comments$", course_comments),
+    url(r"^semester/(\d+)/course/(\d+)/comment/(\d+)/edit$", course_comment_edit),
+
+    url(r"^comments/updatepublish$", course_comments_update_publish),
 
     url(r"^questionnaire/$", questionnaire_index),
     url(r"^questionnaire/create$", questionnaire_create),

@@ -1,0 +1,46 @@
+{% load morefilters %}
+{% load i18n %}
+
+{% for questionnaire, contributor, is_responsible, results in sections %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="panel-title">{{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} (responsible){% endif %}{% endif %}</span>
+        </div>
+        <div class="panel-body">
+            {% for result in results %}
+                <p>{{ result.question.text }}</p>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-1">{% trans "ID" %}</th>
+                            <th class="col-sm-9">{% trans "Comment" %}</td>
+                            <th class="col-sm-2">{% trans "Publish" %}</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for answer in result.answers %}
+                            <tr id="{{ answer.id }}">
+                                <td>{{ answer.id }}</td>
+                                <td>
+                                    {% if answer.reviewed_answer %}
+                                        <a class="comment-link" href="{% url "evap.staff.views.course_comment_edit" semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
+                                        <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                    {% else %}
+                                        <a class="comment-link" href="{% url "evap.staff.views.course_comment_edit" semester.id course.id answer.id %}">{{ answer.original_answer|linebreaksbr }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div id="{{ answer.id }}-buttons" class="btn-group btn-toggle">
+                                        <span id="{{ answer.id }}-publish" onclick="press({{ answer.id }}, 'publish');" class="btn btn-sm btn-default {% if answer.published %}active{% endif %}">{% trans "yes" %}</span>
+                                        {% if contributor %}<span id="{{ answer.id }}-make_private" onclick="press({{ answer.id }}, 'make_private');" class="btn btn-sm btn-default {% if answer.private %}active{% endif %}">{% trans "private" %}</span>{% endif %}
+                                        <span id="{{ answer.id }}-hide" onclick="press({{ answer.id }}, 'hide');" class="btn btn-sm btn-default {% if answer.hidden %}active{% endif %}">{% trans "no" %}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}

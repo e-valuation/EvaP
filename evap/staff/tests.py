@@ -14,8 +14,8 @@ from django.contrib.auth.models import Group
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
                             TextAnswer, EmailTemplate, NotArchiveable
 from evap.evaluation.tools import calculate_average_and_medium_grades
-from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributionFormSet, ContributionForm, CourseForm, ImportForm, UserImportForm
+from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ContributionFormSet, \
+                             ContributionForm, CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
@@ -313,7 +313,6 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
-            ("test_staff_semester_x_course_y_review", "/staff/semester/1/course/5/review", "evap"),
             ("test_staff_semester_x_course_y_unpublish", "/staff/semester/1/course/8/unpublish", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             # staff questionnaires
@@ -385,7 +384,6 @@ class URLTests(WebTest):
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
             ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_semester_x_course_y_review_fail", "/staff/semester/1/course/8/review", "evap"),
             ("test_staff_semester_x_course_y_unpublish_fail", "/staff/semester/1/course/7/unpublish", "evap"),
             ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/4/edit", "evap"),
             ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
@@ -459,9 +457,6 @@ class URLTests(WebTest):
     def test_staff_semester_x_course_y_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
 
-    def test_staff_semester_x_course_y_review__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/5/review", "evap")
-
     def test_staff_semester_x_course_y_unpublish__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/8/unpublish", "evap"),
 
@@ -531,19 +526,6 @@ class URLTests(WebTest):
         data = {"1": True, "2": False}
         form = SelectCourseForm([course1, course2], data=data)
         self.assertTrue(form.is_valid())
-
-    def test_review_text_answer_form(self):
-        """
-            Tests the ReviewTextAnswerForm with three valid input datasets
-            (one cannot make it invalid through the UI).
-        """
-        textanswer = TextAnswer.objects.get(pk=1)
-        data = dict(reviewed_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(reviewed_answer="edited answer", needs_further_review=False, hidden=False)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(reviewed_answer="edited answer", needs_further_review=True, hidden=True)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
 
     def test_contributor_form_set(self):
         """
@@ -653,38 +635,6 @@ class URLTests(WebTest):
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
-
-    def test_course_review(self):
-        """
-            Tests the course review view with various input datasets.
-        """
-        self.get_assert_302("/staff/semester/1/course/4/review", user="evap")
-        self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
-
-        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
-        # two answers should be displayed - hide one (5) and mark the other (8) for further review
-        form = lastform(page)
-        form["form-0-hidden"] = "on"
-        form["form-1-needs_further_review"] = "on"
-        # Actually this is not guaranteed, but i'll just guarantee it now for this test.
-        self.assertEqual(form["form-0-id"].value, "5")
-        self.assertEqual(form["form-1-id"].value, "8")
-        page = form.submit(name="operation", value="save_and_next")
-        self.assertRedirects(page, "/staff/semester/1")
-
-        # visit the review page again to finally accept the remaining answer
-        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
-        form = lastform(page)
-        self.assertEqual(form["form-0-reviewed_answer"].value, "mfj49s1my.45j")
-        form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
-        page = form.submit()
-
-        self.assertEqual(TextAnswer.objects.get(pk=5).hidden, True)
-        self.assertEqual(TextAnswer.objects.get(pk=5).reviewed_answer, "")
-        self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
-        self.assertEqual(Course.objects.get(pk=6).state, "reviewed")
-
-        self.get_assert_302("/staff/semester/1/course/6/review", user="evap")
 
     def test_course_email(self):
         """
@@ -1073,3 +1023,32 @@ class TestDataTest(WebTest):
             call_command("loaddata", "test_data", verbosity=0)
         except Exception:
             self.fail("Test data failed to load.")
+
+
+class TextAnswerReviewTest(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+
+    def test_publish_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "publish", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.PUBLISHED)
+
+    def test_hide_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "hide", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.HIDDEN)
+
+    def test_make_textanswer_private(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "make_private", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.PRIVATE)
+
+    def test_unreview_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 9, "action": "unreview", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=9)
+        self.assertEqual(comment.state, TextAnswer.NOT_REVIEWED)

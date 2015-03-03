@@ -297,192 +297,176 @@
   "pk": 1, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": false, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 18, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 2, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 17, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 3, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 19, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 4, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": false, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 20, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 5, 
   "model": "evaluation.textanswer", 
-  "fields": {
-    "checked": false, 
+  "fields": { 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 22, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 6, 
   "model": "evaluation.textanswer", 
-  "fields": {
-    "checked": true, 
+  "fields": { 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 21, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 7, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 23, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 8, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": false, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "mfj49s1my.45j", 
     "contribution": 24, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 9, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 26, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 10, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 25, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 11, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 27, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 12, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 28, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 13, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 30, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 14, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 29, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 15, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 31, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 16, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 32, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
