@@ -10,6 +10,6 @@
 {% endblock %}
 
 {% block content %}
-    <h2>{% trans "Legal Notice" %}</h2>
+    <span class="headline headline-large">{% trans "Legal Notice" %}</span>
     {% if LEGAL_NOTICE_ACTIVE %}{% include "legal_notice_text.html" %}{% endif %}
 {% endblock %}

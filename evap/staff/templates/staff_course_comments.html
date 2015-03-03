@@ -16,7 +16,7 @@
     {% else %}
         <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
     {% endif %}
-    <h3>{{ course.name }} ({{ course.semester.name }})</h3>    
+    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>    
     
     {% if course_sections %}
         <div class="panel panel-info">

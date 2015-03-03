@@ -20,11 +20,11 @@
         <div class="alert alert-warning">{% trans "The results of this course have not been published because it didn't get enough votes." %}</div>
     {% endif %}
 
-    <h3>{{ course.name }} ({{ course.semester.name }})</h3>
+    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Overview" %}</h3>
+            <span class="panel-title">{% trans "Overview" %}</span>
         </div>
         <div class="panel-body">
             <table class="table">
@@ -59,7 +59,7 @@
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Course" %}</h3>
+            <span class="panel-title">{% trans "Course" %}</span>
         </div>
         <div class="panel-body">
             {% regroup course_sections by questionnaire as sections_grouped %}
@@ -71,14 +71,14 @@
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Contributors" %}</h3>
+            <span class="panel-title">{% trans "Contributors" %}</span>
         </div>
         <div class="panel-body">
             {% for contributor,sections in contributor_sections.items %}
                 {% regroup sections by questionnaire as sections_grouped %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">{{ contributor.full_name }}</h3>
+                        <span class="panel-title">{{ contributor.full_name }}</span>
                     </div>
                     <div class="panel-body">
                         {% for group in sections_grouped %}
