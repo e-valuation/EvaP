@@ -327,27 +327,27 @@ Side notes for calling out things
     content: "\e080"; /* chevron-right */
 }
 
-.participant-bar {
+.evap-progress-bar {
     display: inline-block;
     border-radius: 3px;
     vertical-align: middle;
 }
 
-.participant-bar.back {
+.evap-progress-bar.back {
     background: #d9edf7;
     width: 95%;
 }
 
-.participant-bar.back.sm {  
+.evap-progress-bar.back.sm {  
     width: 70%;
 }
 
-.participant-bar.front {
+.evap-progress-bar.front {
     background: #31708f;
     display: block;
 }
 
-.participant-bar.text {
+.evap-progress-bar.text {
     color: #ffffff;
     font-size: 80%;
     text-align: right;

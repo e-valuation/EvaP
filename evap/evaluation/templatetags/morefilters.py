@@ -21,6 +21,14 @@ def percentage(fraction, population):
     except ZeroDivisionError:
         return None
 
+@register.filter(name='percentage_value')
+def percentage_value(fraction, population):
+    try:
+        return "{0:0f}".format((float(fraction) / float(population)) * 100)
+    except ValueError:
+        return None
+    except ZeroDivisionError:
+        return None
 
 @register.filter(name='likertname')
 def likertname(grade):
