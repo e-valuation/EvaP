@@ -4,7 +4,7 @@
 
 {% for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, questionnaire_warning in group.list %}
     <div class="inline-headers">
-        <h4>{{ group.grouper.public_name }}</h4>
+        <span class="headline headline-small">{{ group.grouper.public_name }}</span>
         {% if questionnaire_warning %}
             <span class="pull-right participants-warning questionnaire-warning">
                 <span class="glyphicon glyphicon-warning-sign"></span>

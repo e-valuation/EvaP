@@ -4,7 +4,7 @@
     <div class="form-group">
         <label>{% trans "Courses" %}</label>
         {% for form in course_forms %}
-            <h4>{{ form.degree }}</h4>
+            <span class="headline headline-small">{{ form.degree }}</span>
             <ul class="list-group">
                 {% for field in form %}<li class="list-group-item">
                     <label>

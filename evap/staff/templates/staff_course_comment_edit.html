@@ -10,7 +10,7 @@
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans "Comment" %} {{ text_answer.id }}</h3>
+    <span class="headline">{% trans "Comment" %} {{ text_answer.id }}</span>
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
         {{ form.as_div }}

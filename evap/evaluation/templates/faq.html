@@ -10,17 +10,17 @@
 {% endblock %}
 
 {% block content %}
-    <h2>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h2>
+    <span class="headline headline-large">{% trans "These are the Frequently Asked Questions (FAQs)" %}</span>
 
     <div class="panel-group" id="accordion">
         {% for section in sections %}
-            <h3 id="{{ section.id }}-s">{{ section.title }}</h3>
+            <span class="headline" id="{{ section.id }}-s">{{ section.title }}</span>
             {% for question in section.questions.all %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <p class="panel-title" id="{{ question.id }}-q">
+                        <span class="panel-title" id="{{ question.id }}-q">
                             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">{{ question.question }}</a>
-                        </p>
+                        </span>
                     </div>
                     <div id="{{ question.id }}" class="panel-collapse collapse in">
                         <div class="panel-body">

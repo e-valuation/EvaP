@@ -7,16 +7,16 @@
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans "Welcome to the evaluation platform!" %}</h2>
+    <span class="headline headline-large">{% trans "Welcome to the evaluation platform!" %}</span>
 
     <p>{% trans "You are currently not logged in." %}</p>
 
     <div class="row">
         <div class="col-md-6">
-            <h2>{% trans "HPI student or lecturer" %}</h2>
+            <span class="headline headline-large">{% trans "HPI student or lecturer" %}</span>
 
-            <div class="well well-sm">
-                <p style="padding: 5px 5px;">{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+            <div class="well">
+                <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
                 <form class="form-horizontal" role="form" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="login_username" />
@@ -42,9 +42,9 @@
         </div>
 
         <div class="col-md-6">
-            <h2>{% trans "External student or lecturer" %}</h2>
-            <div class="well well-sm">
-                <p style="padding: 5px 5px;">{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
+            <span class="headline headline-large">{% trans "External student or lecturer" %}</span>
+            <div class="well">
+                <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
 
                 <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
@@ -70,9 +70,9 @@
                     </div>
                 </form>
             </div>
-            <div class="well well-sm">
-                <h4 style="padding-left: 5px;">{% trans "Don't have a key or lost it?" %}</h4>
-                <p style="padding: 5px 5px;">{% trans "Please enter your email address to get a new login key." %}</p>
+            <div class="well">
+                <span class="headline headline-small">{% trans "Don't have a key or lost it?" %}</span>
+                <p>{% trans "Please enter your email address to get a new login key." %}</p>
                 <form class="form-horizontal" action="{% url "evap.evaluation.views.index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />

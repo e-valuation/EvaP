@@ -18,20 +18,20 @@
     {% if errors_exist %}
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
-    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
+    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
         
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3 class="panel-title">{% trans "Questions about the course" %}</h3>
+                <span class="panel-title">{% trans "Questions about the course" %}</span>
             </div>
             {% include_student_vote_questionnaire_group course_form_group %}
         </div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "Questions about the contributors" %}</h3>
+                    <span class="panel-title">{% trans "Questions about the contributors" %}</span>
                 </div>
                 <div class="panel-body">
                     {% if not preview or preview|is_false %}
@@ -44,10 +44,12 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 {% if preview %}
-                                    <p class="panel-title">{{ contributor.full_name }}</p>
+                                    <span class="panel-title">{{ contributor.full_name }}</span>
                                 {% else %}
-                                    <a class="panel-title accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
-                                    <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                    <span class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
+                                        <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                    </span>
                                 {% endif %}
                             </div>
                             {% if errors_exist|is_false or contributor_has_errors %}

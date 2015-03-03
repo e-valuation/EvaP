@@ -274,7 +274,7 @@ Side notes for calling out things
     padding-left: 3px;
 }
 
-.inline-headers h4, .inline-headers p {
+.inline-headers span, .inline-headers p {
   display: inline-block;
   vertical-align: baseline;
 }
@@ -368,7 +368,8 @@ Side notes for calling out things
     opacity: 0.4;
 }
 
-.panel :last-child {
+.panel table:last-child,
+.panel div:last-child {
     margin-bottom: 0px;
 }
 
@@ -377,4 +378,22 @@ Side notes for calling out things
 }
 .comment-original {
     color: #aaaaaa;
+}
+
+.headline {
+    font-size: 24px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    line-height: 1.1;
+    display: inline-block;
+}
+.headline-large {
+    font-size: 30px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.headline-small {
+    font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

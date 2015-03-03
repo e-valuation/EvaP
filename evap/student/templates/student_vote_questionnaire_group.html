@@ -3,7 +3,7 @@
 
 <div class="panel-body">
     {% for form in questionnaire_group %}
-        <h4>{{ form.caption }}</h4>
+        <span class="headline headline-small">{{ form.caption }}</span>
         {% if form.teaser %}
             <p>{{ form.teaser }}</p>
         {% endif %}
