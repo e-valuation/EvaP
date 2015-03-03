@@ -371,7 +371,7 @@ class TextAnswerForm(forms.ModelForm, BootstrapMixin):
         fields = ("original_answer", "reviewed_answer",)
 
     def clean_reviewed_answer(self):
-        reviewed_answer = self.cleaned_data.get('reviewed_answer')
-        if reviewed_answer == self.instance.original_answer or reviewed_answer == '':
+        reviewed_answer = normalize_newlines(self.cleaned_data.get('reviewed_answer'))
+        if reviewed_answer == normalize_newlines(self.instance.original_answer) or reviewed_answer == '':
             return None
         return reviewed_answer

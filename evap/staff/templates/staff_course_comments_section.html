@@ -23,10 +23,10 @@
                                 <td>{{ answer.id }}</td>
                                 <td>
                                     {% if answer.reviewed_answer %}
-                                        <a class="comment-link" href="{% url "evap.staff.views.course_comment_edit" semester.id course.id answer.id %}">{{ answer.reviewed_answer }}</a><br />
-                                        <span class="comment-original">({{ answer.original_answer }})</span>
+                                        <a class="comment-link" href="{% url "evap.staff.views.course_comment_edit" semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
+                                        <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
                                     {% else %}
-                                        <a class="comment-link" href="{% url "evap.staff.views.course_comment_edit" semester.id course.id answer.id %}">{{ answer.original_answer }}</a>
+                                        <a class="comment-link" href="{% url "evap.staff.views.course_comment_edit" semester.id course.id answer.id %}">{{ answer.original_answer|linebreaksbr }}</a>
                                     {% endif %}
                                 </td>
                                 <td>
