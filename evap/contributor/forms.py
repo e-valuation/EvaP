@@ -11,14 +11,14 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'degree', 'general_questions')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'type', 'degree', 'general_questions')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
+        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
         self.fields['degree'].widget.attrs['readonly'] = "True"
 
         if self.instance.general_contribution:

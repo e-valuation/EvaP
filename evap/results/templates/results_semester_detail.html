@@ -39,7 +39,7 @@
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
                     {% endif %}
                     </td>
-                    <td>{{ course.kind }}</td>
+                    <td>{{ course.type }}</td>
                     {% with responsible=course.responsible_contributor %}
                         <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                     {% endwith %}

@@ -52,7 +52,7 @@
                                 <div>
                                     {{ course.name }}
                                 </div>
-                                <span class="label label-default">{{ course.kind }}</span>
+                                <span class="label label-default">{{ course.type }}</span>
                                 {% if course in delegated_courses %}<span class="label label-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
                             <td>

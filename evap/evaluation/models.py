@@ -144,7 +144,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     name = Translate
 
     # type of course: lecture, seminar, project
-    kind = models.CharField(max_length=1024, verbose_name=_("type"))
+    type = models.CharField(max_length=1024, verbose_name=_("type"))
 
     # bachelor, master, d-school course
     degree = models.CharField(max_length=1024, verbose_name=_("degree"))
@@ -447,7 +447,7 @@ class Contribution(models.Model):
 class Question(models.Model, metaclass=LocalizeModelBase):
     """A question including a type."""
 
-    QUESTION_KINDS = (
+    QUESTION_TYPES = (
         ("T", _("Text Question")),
         ("L", _("Likert Question")),
         ("G", _("Grade Question")),
@@ -456,8 +456,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     questionnaire = models.ForeignKey(Questionnaire)
     text_de = models.TextField(verbose_name=_("question text (german)"))
     text_en = models.TextField(verbose_name=_("question text (english)"))
-    kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
-                            verbose_name=_("kind of question"))
+    type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     text = Translate
 
@@ -468,14 +467,14 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def answer_class(self):
-        if self.kind == "T":
+        if self.type == "T":
             return TextAnswer
-        elif self.kind == "L":
+        elif self.type == "L":
             return LikertAnswer
-        elif self.kind == "G":
+        elif self.type == "G":
             return GradeAnswer
         else:
-            raise Exception("Unknown answer kind: %r" % self.kind)
+            raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):

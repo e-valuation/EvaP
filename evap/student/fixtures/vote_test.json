@@ -67,7 +67,7 @@
     "_order": 0, 
     "text_en": "test question", 
     "text_de": "Testfrage", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -78,7 +78,7 @@
     "_order": 0, 
     "text_en": "test tutor question", 
     "text_de": "Test Tutorenfrage", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -89,7 +89,7 @@
     "_order": 0, 
     "text_en": "test lecture question", 
     "text_de": "Test Vorlesungsfrage", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -177,7 +177,7 @@
     ], 
     "vote_end_date": "2999-12-31", 
     "name_en": "test lecture", 
-    "kind": "lecture", 
+    "type": "lecture", 
     "vote_start_date": "2014-06-14"
   }
 },

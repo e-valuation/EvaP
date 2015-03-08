@@ -70,7 +70,7 @@ class ExcelExporter(object):
                 results.setdefault(questionnaire.id, []).extend(data)
             courses_with_results.append((course, results))
 
-        courses_with_results.sort(key=lambda cr: cr[0].kind)
+        courses_with_results.sort(key=lambda cr: cr[0].type)
 
         qn_frequencies = defaultdict(int)
         for course, results in courses_with_results:

@@ -36,7 +36,7 @@
                             <tr {% if course.state != "prepared" %}class="deactivate"{%  endif %}>
                                 <th scope="row">
                                     <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a><br />
-                                    <span class="label label-default">{{ course.kind }}</span>
+                                    <span class="label label-default">{{ course.type }}</span>
                                     <span class="label label-default">{{ course.degree }}</span>
                                 </th>
                                 <td>{{ course.state|statename }}</td>
