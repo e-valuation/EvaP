@@ -49,7 +49,7 @@
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
                         {% elif user.is_participant %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses" %}</a></li>
-                        {% elif user.is_editor_or_delegate %}
+                        {% elif user.is_contributor_or_delegate %}
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
