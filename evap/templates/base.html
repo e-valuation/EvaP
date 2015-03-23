@@ -203,6 +203,17 @@
             // run the jquery datepicker plugin
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
 
+            // scroll content to show below navbar
+            var navbar_height = 50;
+            var shiftWindow = function(){
+                setTimeout(function(){
+                    window.scrollBy(0, -navbar_height);
+                }, 0);
+            };
+            if (location.hash)
+                shiftWindow();
+            window.addEventListener("hashchange", shiftWindow);
+
             {% block on_document_ready %} {% endblock %}
         });
     </script>
