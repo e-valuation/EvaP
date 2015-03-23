@@ -71,7 +71,7 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('evap.staff.views.index')
-        elif user.is_editor_or_delegate:
+        elif user.is_contributor_or_delegate:
             return redirect('evap.contributor.views.index')
         elif user.is_participant:
             return redirect('evap.student.views.index')
