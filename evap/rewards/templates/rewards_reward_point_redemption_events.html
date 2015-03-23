@@ -17,7 +17,7 @@
     </p>
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Upcoming events" %}</h3>
+            <span class="panel-title">{% trans "Upcoming events" %}</span>
         </div>
         <div class="panel-body">
             <table class="table table-striped">
@@ -54,7 +54,7 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Past events" %}</h3>
+            <span class="panel-title">{% trans "Past events" %}</span>
         </div>
         <div class="panel-body">
             <table class="table table-striped">
@@ -89,14 +89,4 @@
             </table>
         </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(function() {
-            $(".twipsify").tooltip({container: 'body'});
-        });
-    </script>
 {% endblock %}

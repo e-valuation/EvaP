@@ -2,9 +2,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import Semester
-
-import urllib
+import urllib.parse
 
 
 EMAIL_RECIPIENTS = (
@@ -17,5 +15,5 @@ EMAIL_RECIPIENTS = (
 
 def custom_redirect(url_name, *args, **kwargs):
     url = reverse(url_name, args=args)
-    params = urllib.urlencode(kwargs)
+    params = urllib.parse.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)

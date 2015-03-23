@@ -52,17 +52,16 @@
                 {% if form.instance.state == "inEvaluation" %}
                     <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
                 {% endif %}
-                <input type="submit" value="{% trans "Save course" %}" class="btn btn-primary" onclick="submitFormOkay = true;"/>
+                <input type="submit" value="{% trans "Save course" %}" class="btn btn-primary" onclick="preventAccidentalClosing = false;"/>
             </div>
         </div>
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    {% include "evap_course_edit_js.html" %}
+{# deactivate the default twipsification. this is handled in evap_course_edit_js.html. #}
+{% block activate_twipsify %} {% endblock %}
 
-    <!-- prevent from accendential closing -->
-    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+{% block additional_javascript %}
+    {% include "evap_course_edit_js.html" %}
+    <script type="text/javascript"> preventAccidentalClosing = true; </script>
 {% endblock %}

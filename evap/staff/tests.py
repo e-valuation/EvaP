@@ -2,14 +2,21 @@ from django.core.urlresolvers import reverse
 from django_webtest import WebTest
 from webtest import AppError
 from django.test import Client
+from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.management import call_command
 from django.conf import settings
+from django.contrib.auth.models import Group
 
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, TextAnswer, EmailTemplate
-from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ReviewTextAnswerForm, \
-                            ContributionFormSet, ContributionForm, CourseForm
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
+                            TextAnswer, EmailTemplate, NotArchiveable
+from evap.evaluation.tools import calculate_average_and_medium_grades
+from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ContributionFormSet, \
+                             ContributionForm, CourseForm, ImportForm, UserImportForm
+from evap.contributor.forms import EditorContributionFormSet
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -24,7 +31,7 @@ def lastform(page):
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
     def __new__(cls, lowest, highest):
-        obj = super(FuzzyInt, cls).__new__(cls, highest)
+        obj = super().__new__(cls, highest)
         obj.lowest = lowest
         obj.highest = highest
         return obj
@@ -34,6 +41,42 @@ class FuzzyInt(int):
 
     def __repr__(self):
         return "[%d..%d]" % (self.lowest, self.highest)
+
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
+class SampleXlsTests(WebTest):
+
+    def setUp(self):
+        semester = Semester(pk=1, name_de="Testsemester", name_en="test semester")
+        user = UserProfile(username="user")
+        group = Group.objects.get(name="Staff")
+        user.save()
+        user.groups = [group]
+        semester.save()
+
+    def test_sample_xls(self):
+        page = self.app.get("/staff/semester/1/import", user='user')
+
+        original_user_count = UserProfile.objects.all().count()
+
+        form = lastform(page)
+        form["vote_start_date"] = "2015-01-01"
+        form["vote_end_date"] = "2099-01-01"
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xls"),)
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
+
+    def test_sample_user_xls(self):
+        page = self.app.get("/staff/user/import", user='user')
+
+        original_user_count = UserProfile.objects.all().count()
+
+        form = lastform(page)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xls"),)
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
+        
 
 
 class UsecaseTests(WebTest):
@@ -56,7 +99,7 @@ class UsecaseTests(WebTest):
 
         self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
 
-        # safe original user count
+        # save original user count
         original_user_count = UserProfile.objects.all().count()
 
         # import excel file
@@ -205,14 +248,11 @@ class UsecaseTests(WebTest):
         self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_staff_delete)
 
 
-
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
-
-    def setUp(self):
-        settings.INSTITUTION_EMAIL_DOMAINS.append("example.com")
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -273,7 +313,6 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
-            ("test_staff_semester_x_course_y_review", "/staff/semester/1/course/5/review", "evap"),
             ("test_staff_semester_x_course_y_unpublish", "/staff/semester/1/course/8/unpublish", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             # staff questionnaires
@@ -345,7 +384,6 @@ class URLTests(WebTest):
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
             ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_semester_x_course_y_review_fail", "/staff/semester/1/course/8/review", "evap"),
             ("test_staff_semester_x_course_y_unpublish_fail", "/staff/semester/1/course/7/unpublish", "evap"),
             ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/4/edit", "evap"),
             ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
@@ -419,9 +457,6 @@ class URLTests(WebTest):
     def test_staff_semester_x_course_y_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
 
-    def test_staff_semester_x_course_y_review__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/5/review", "evap")
-
     def test_staff_semester_x_course_y_unpublish__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/8/unpublish", "evap"),
 
@@ -491,19 +526,6 @@ class URLTests(WebTest):
         data = {"1": True, "2": False}
         form = SelectCourseForm([course1, course2], data=data)
         self.assertTrue(form.is_valid())
-
-    def test_review_text_answer_form(self):
-        """
-            Tests the ReviewTextAnswerForm with three valid input datasets
-            (one cannot make it invalid through the UI).
-        """
-        textanswer = TextAnswer.objects.get(pk=1)
-        data = dict(reviewed_answer=textanswer.original_answer, needs_further_review=False, hidden=False)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(reviewed_answer="edited answer", needs_further_review=False, hidden=False)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
-        data = dict(reviewed_answer="edited answer", needs_further_review=True, hidden=True)
-        self.assertTrue(ReviewTextAnswerForm(instance=textanswer, data=data).is_valid())
 
     def test_contributor_form_set(self):
         """
@@ -613,35 +635,6 @@ class URLTests(WebTest):
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
-
-    def test_course_review(self):
-        """
-            Tests the course review view with various input datasets.
-        """
-        self.get_assert_302("/staff/semester/1/course/4/review", user="evap")
-        self.assertEqual(Course.objects.get(pk=6).state, "evaluated")
-
-        page = self.get_assert_200("/staff/semester/1/course/6/review", user="evap")
-
-        form = lastform(page)
-        form["form-0-hidden"] = "on"
-        form["form-1-needs_further_review"] = "on"
-        # Actually this is not guaranteed, but i'll just guarantee it now for this test.
-        self.assertEqual(form["form-0-id"].value, "5")
-        self.assertEqual(form["form-1-id"].value, "8")
-        page = form.submit(name="operation", value="save_and_next").follow()
-
-        form = lastform(page)
-        self.assertEqual(form["form-0-reviewed_answer"].value, "mfj49s1my.45j")
-        form["form-0-reviewed_answer"] = "mflkd862xmnbo5"
-        page = form.submit()
-
-        self.assertEqual(TextAnswer.objects.get(pk=5).hidden, True)
-        self.assertEqual(TextAnswer.objects.get(pk=5).reviewed_answer, "")
-        self.assertEqual(TextAnswer.objects.get(pk=8).reviewed_answer, "mflkd862xmnbo5")
-        self.assertEqual(Course.objects.get(pk=6).state, "reviewed")
-
-        self.get_assert_302("/staff/semester/1/course/6/review", user="evap")
 
     def test_course_email(self):
         """
@@ -818,3 +811,244 @@ class ContributorFormTests(WebTest):
 
         formset = ContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
+
+    def test_editors_cannot_change_responsible(self):
+        """
+            Asserts that editors cannot change the responsible of a course
+            through POST-hacking. Regression test for #504.
+        """
+        course = Course.objects.create(pk=9001, semester_id=1)
+        user1 = UserProfile.objects.create(pk=9001, username="1")
+        user2 = UserProfile.objects.create(pk=9002, username="2")
+        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+
+        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+
+        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+
+        data = {
+            'contributions-TOTAL_FORMS': 1,
+            'contributions-INITIAL_FORMS': 1,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': 9001,
+            'contributions-0-course': 9001,
+            'contributions-0-questionnaires': [9001],
+            'contributions-0-order': 1,
+            'contributions-0-responsible': "on",
+            'contributions-0-contributor': 9001,
+        }
+
+        formset = EditorContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+
+        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        data["contributions-0-contributor"] = 9002
+        formset = EditorContributionFormset(instance=course, data=data.copy())
+        self.assertTrue(formset.is_valid())
+        formset.save()
+        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        
+
+class ArchivingTests(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def get_test_semester(self):
+        semester = Semester.objects.get(pk=1)
+        course1 = Course.objects.get(pk=7)
+        course1.publish()
+
+        course2 = Course.objects.get(pk=8)
+        new_semester = Semester()
+        new_semester.save()
+        course1.semester = new_semester
+        course1.save()
+        course2.semester = new_semester
+        course2.save()
+        return new_semester
+
+    def test_counts_dont_change(self):
+        """
+            Asserts that course.num_voters course.num_participants don't change after archiving.
+        """
+        semester = self.get_test_semester()
+
+        voters_counts = {}
+        participant_counts = {}
+        for course in semester.course_set.all():
+            voters_counts[course] = course.num_voters
+            participant_counts[course] = course.num_participants
+        some_participant = semester.course_set.first().participants.first()
+        course_count = some_participant.course_set.count()
+
+        semester.archive()
+
+        for course in semester.course_set.all():
+            self.assertEqual(voters_counts[course], course.num_voters)
+            self.assertEqual(participant_counts[course], course.num_participants)
+        # participants should not loose courses, as they should see all of them
+        self.assertEqual(course_count, some_participant.course_set.count())
+
+    def test_is_archived(self):
+        """
+            Tests whether is_archived returns True on archived semesters and courses.
+        """
+        semester = self.get_test_semester()
+
+        for course in semester.course_set.all():
+            self.assertFalse(course.is_archived)
+
+        semester.archive()
+
+        for course in semester.course_set.all():
+            self.assertTrue(course.is_archived)
+
+    def test_deleting_last_modified_user_does_not_delete_course(self):
+        course = Course.objects.first();
+        user = UserProfile.objects.first();
+
+        course.last_modified_user = user;
+        user.delete()
+        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
+
+    def test_participants_are_not_deleteable(self):
+        student = UserProfile.objects.get(username="student")
+        self.assertTrue(student.course_set.count() > 0)
+        self.assertFalse(student.can_staff_delete)
+        student.course_set.clear()
+        self.assertTrue(student.can_staff_delete)
+
+    def test_archiving_does_not_change_results(self):
+        semester = self.get_test_semester()
+
+        results = {}
+        for course in semester.course_set.all():
+            results[course] = calculate_average_and_medium_grades(course)
+
+        semester.archive()
+        cache.clear()
+
+        for course in semester.course_set.all():
+            self.assertTrue(calculate_average_and_medium_grades(course) == results[course])
+        
+    def test_archiving_twice_raises_exception(self):
+        semester = self.get_test_semester()
+        semester.archive()
+        with self.assertRaises(NotArchiveable):
+            semester.archive()
+        with self.assertRaises(NotArchiveable):
+            semester.course_set.first()._archive()
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def test_raise_403(self):
+        """
+            Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
+        """
+        semester = self.get_test_semester()
+        self.assertEqual(semester.pk, 4) # when this fails, please update the urls below
+        semester.archive()
+
+        self.get_assert_403("/staff/semester/4/import", "evap")
+        self.get_assert_403("/staff/semester/4/assign", "evap")
+        self.get_assert_403("/staff/semester/4/approve", "evap")
+        self.get_assert_403("/staff/semester/4/contributorready", "evap")
+        self.get_assert_403("/staff/semester/4/course/create", "evap")
+        self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
+        self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
+        self.get_assert_403("/staff/semester/4/course/7/unpublish", "evap")
+
+
+class RedirectionTest(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def test_not_authenticated(self):
+        """
+            Asserts that an unauthorized user gets redirected to the login page.
+        """
+        url = "/contributor/course/3/edit"
+        response = self.app.get(url)
+        self.assertRedirects(response, "/?next=/contributor/course/3/edit")
+
+    def test_wrong_usergroup(self):
+        """
+            Asserts that a user who is not part of the usergroup
+            that is required for a specific view gets a 403.
+            Regression test for #483
+        """
+        url = "/contributor/course/3/edit"
+        self.get_assert_403(url, "student")
+
+    def test_wrong_state(self):
+        """
+            Asserts that a contributor attempting to edit a course
+            that is in a state where editing is not allowed gets a 403.
+        """
+        url = "/contributor/course/3/edit"
+        self.get_assert_403(url, "responsible")
+
+    def test_ok(self):
+        """
+            Asserts that an editor of a course can access 
+            the edit page of that course.
+        """
+        url = "/contributor/course/2/edit"
+        response = self.app.get(url, user="responsible")
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDataTest(WebTest):
+
+    def load_test_data(self):
+        """
+            Asserts that the test data still load cleanly.
+            This test does not have the "test_" prefix, as it is meant
+            to be started manually e.g. by Travis.
+        """
+
+        try:
+            call_command("loaddata", "test_data", verbosity=0)
+        except Exception:
+            self.fail("Test data failed to load.")
+
+
+class TextAnswerReviewTest(WebTest):
+    fixtures = ['minimal_test_data']
+    csrf_checks = False
+
+    def test_publish_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "publish", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.PUBLISHED)
+
+    def test_hide_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "hide", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.HIDDEN)
+
+    def test_make_textanswer_private(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "make_private", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=8)
+        self.assertEqual(comment.state, TextAnswer.PRIVATE)
+
+    def test_unreview_textanswer(self):
+        response = self.app.post("/staff/comments/updatepublish", {"id": 9, "action": "unreview", "course_id": 1}, user="evap")
+        self.assertEqual(response.status_code, 200)
+        comment = TextAnswer.objects.get(id=9)
+        self.assertEqual(comment.state, TextAnswer.NOT_REVIEWED)

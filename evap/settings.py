@@ -97,14 +97,9 @@ REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
-# Kerberos realm and service
-ENABLE_KERBEROS = False
-if (ENABLE_KERBEROS):
-    KRB5_REALM = 'EXAMPLE.COM'
-    KRB5_SERVICE = 'krbtgt@AS.EXAMPLE.COM'
-    INSTALLED_APPS += ('django_auth_kerberos',)
-    MIDDLEWARE_CLASSES += ('django_auth_kerberos.backends.KrbBackend',)
+# Config for legal notice
+# The HTML file which should be used must be located in evap\templates\legal_notice_text.html
+LEGAL_NOTICE_ACTIVE = False
 
 
 ### Application definition
@@ -118,7 +113,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites', # unused. left here to not break the test data.
     'widget_tweaks',
     'evap.evaluation',
     'evap.staff',
@@ -137,7 +131,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'evap.evaluation.auth.RequestAuthMiddleware',
-    'evap.evaluation.403.Django403Middleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -148,6 +141,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "evap.context_processors.feedback_email",
+    "evap.context_processors.legal_notice_active",
+    "evap.context_processors.tracker_url",
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -172,7 +168,7 @@ LOGIN_URL = "/"
 
 ### Internationalization
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'Europe/Berlin'
 
@@ -193,10 +189,10 @@ LANGUAGES = (
 
 USERNAME_REPLACEMENTS = [
     (' ', ''),
-    (u'ä', 'ae'),
-    (u'ö', 'oe'),
-    (u'ü', 'ue'),
-    (u'ß', 'ss'),
+    ('ä', 'ae'),
+    ('ö', 'oe'),
+    ('ü', 'ue'),
+    ('ß', 'ss'),
 ]
 
 
@@ -211,7 +207,7 @@ STATICFILES_DIRS = (
 )
 
 # Absolute path to the directory static files should be collected to.
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
 
 ### User-uploaded files

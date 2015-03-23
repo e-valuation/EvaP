@@ -1,28 +1,36 @@
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Min
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
+from math import ceil
+
+GRADE_COLORS = {
+    1: (136, 191, 74),
+    2: (187, 209, 84),
+    3: (239, 226, 88),
+    4: (242, 158, 88),
+    5: (235,  89, 90),
+}
 
 LIKERT_NAMES = {
-    1: _(u"Strongly agree"),
-    2: _(u"Agree"),
-    3: _(u"Neither agree nor disagree"),
-    4: _(u"Disagree"),
-    5: _(u"Strongly disagree"),
-    6: _(u"no answer"),
+    1: _("Strongly agree"),
+    2: _("Agree"),
+    3: _("Neither agree nor disagree"),
+    4: _("Disagree"),
+    5: _("Strongly disagree"),
+    6: _("no answer"),
 }
 
 GRADE_NAMES = {
-    1: _(u"1"),
-    2: _(u"2"),
-    3: _(u"3"),
-    4: _(u"4"),
-    5: _(u"5"),
-    6: _(u"no answer"),
+    1: _("1"),
+    2: _("2"),
+    3: _("3"),
+    4: _("4"),
+    5: _("5"),
+    6: _("no answer"),
 }
 
 # the names used for contributors and staff
@@ -47,10 +55,15 @@ STUDENT_STATES_ORDERED = OrderedDict((
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
+CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
 LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
-TextResult = namedtuple('TextResult', ('question', 'texts'))
+TextResult = namedtuple('TextResult', ('question', 'answers'))
 GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
 
+def replace_results(result_section, new_results):
+    return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
+        result_section.average_likert, result_section.median_likert, result_section.average_grade,
+        result_section.median_grade, result_section.average_total, result_section.median_total, result_section.warning)
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -86,30 +99,29 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
-def get_answers(course, contribution, question):
+def get_filtered_answers(course, contribution, question, exclude_text_answer_states=[TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN]):
     answers = None
 
-    if question.is_likert_question():
+    if question.is_likert_question:
         answers = LikertAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
 
-    elif question.is_grade_question():
+    elif question.is_grade_question:
         answers = GradeAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question
             ).values_list('answer', flat=True)
 
-    elif question.is_text_question():
+    elif question.is_text_question:
         answers = TextAnswer.objects.filter(
             contribution__course=course,
             contribution__contributor=contribution.contributor,
             question=question,
-            hidden=False
-            )
+        ).exclude(state__in=exclude_text_answer_states)
 
     return answers
 
@@ -128,7 +140,7 @@ def calculate_results(course, staff_member=False):
         return prior_results
 
     # check if grades for the course will be published
-    show = staff_member or course.can_publish_grades()
+    show = staff_member or course.can_publish_grades
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
@@ -142,8 +154,8 @@ def calculate_results(course, staff_member=False):
         max_answers = 0
         for question in questionnaire.question_set.all():
             # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
-            if not question.is_text_question():
-                answers = get_answers(course, contribution, question)
+            if not question.is_text_question:
+                answers = get_filtered_answers(course, contribution, question)
                 if len(answers) > max_answers:
                     max_answers = len(answers)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
@@ -155,8 +167,8 @@ def calculate_results(course, staff_member=False):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
-            if question.is_likert_question() or question.is_grade_question():
-                answers = get_answers(course, contribution, question)
+            if question.is_likert_question or question.is_grade_question:
+                answers = get_filtered_answers(course, contribution, question)
 
                 # calculate average, median and distribution
                 if answers:
@@ -195,18 +207,18 @@ def calculate_results(course, staff_member=False):
                     'show': show,
                     'warning': warning
                 }
-                if question.is_likert_question():
+                if question.is_likert_question:
                     results.append(LikertResult(**kwargs))
-                else:
+                elif question.is_grade_question:
                     results.append(GradeResult(**kwargs))
-            elif question.is_text_question():
-                answers = get_answers(course, contribution, question)
+            elif question.is_text_question:
+                answers = get_filtered_answers(course, contribution, question)
 
                 # only add to the results if answers exist at all
                 if answers:
                     results.append(TextResult(
                         question=question,
-                        texts=[answer.answer for answer in answers]
+                        answers=answers
                     ))
 
         # skip section if there were no questions with results
@@ -305,7 +317,7 @@ def user_publish_notifications(courses):
     user_notifications = defaultdict(set)
     for course in courses:
         # for published courses all contributors and participants get a notification
-        if course.can_publish_grades():
+        if course.can_publish_grades:
             for participant in course.participants.all():
                 user_notifications[participant].add(course)
             for contribution in course.contributions.all():
@@ -319,3 +331,17 @@ def user_publish_notifications(courses):
             user_notifications[course.responsible_contributor].add(course)
 
     return user_notifications
+
+def color_mix(color1, color2, fraction):
+    return tuple(
+        int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3)
+    )
+
+def get_grade_color(grade):
+    # Can happen if no one leaves any grades. Return white because its least likely to cause problems.
+    if grade is None:
+        return (255, 255, 255)
+    grade = round(grade, 1)
+    next_lower = int(grade)
+    next_higher = int(ceil(grade))
+    return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)

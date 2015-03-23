@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models, migrations
+from django.contrib.auth.models import Group
 
 
 def insert_emailtemplates(apps, schema_editor):
@@ -17,6 +17,8 @@ def insert_emailtemplates(apps, schema_editor):
     for name, subject in emailtemplates:
         if not EmailTemplate.objects.filter(name=name).exists():
            EmailTemplate.objects.create(name=name, subject=subject, body="")
+
+    Group.objects.create(name="Staff")
 
 
 class Migration(migrations.Migration):

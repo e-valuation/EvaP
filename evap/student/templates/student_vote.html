@@ -18,20 +18,20 @@
     {% if errors_exist %}
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
-    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
+    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
         
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3 class="panel-title">{% trans "Questions about the course" %}</h3>
+                <span class="panel-title">{% trans "Questions about the course" %}</span>
             </div>
             {% include_student_vote_questionnaire_group course_form_group %}
         </div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "Questions about the contributors" %}</h3>
+                    <span class="panel-title">{% trans "Questions about the contributors" %}</span>
                 </div>
                 <div class="panel-body">
                     {% if not preview or preview|is_false %}
@@ -44,10 +44,12 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 {% if preview %}
-                                    <h3 class="panel-title">{{ contributor.full_name }}</h3>
+                                    <span class="panel-title">{{ contributor.full_name }}</span>
                                 {% else %}
-                                    <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
-                                    <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                    <span class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
+                                        <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                    </span>
                                 {% endif %}
                             </div>
                             {% if errors_exist|is_false or contributor_has_errors %}
@@ -64,33 +66,33 @@
         </div>
         <div class="well submit-area text-center">
             {% if preview %}
-                <a class="btn btn-default" onclick="submitFormOkay = true" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
             {% else %}
-                <input type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="submitFormOkay = true;"/>
+                <input type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
             {% endif %}
         </div>
     </form>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% get_static_prefix %}js/leave.js"></script>
+{% block additional_javascript %}
     <script type="text/javascript">
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
-            $("#" + contributorId + " td.vote-inputs [type=radio][value!=6]").removeAttr("checked");
-            $("#" + contributorId + " td.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
+            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
 
             // check "no answer" and activate the button
-            $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").prop('checked', true);
-            $("#" + contributorId + " td.vote-inputs [type=radio][value=6]").parent().addClass("active");
+            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
+            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
             
             // hide questionnaire for contributor
             $("#" + contributorId).collapse("hide");
+            $("a[href=#" + contributorId + "]").addClass("collapsed");
         }
         function selectedAnswer(fieldName) {
             // remove error highlighting when an answer was selected
             $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
+        preventAccidentalClosing = true;
     </script>
 {% endblock %}

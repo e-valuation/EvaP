@@ -21,7 +21,7 @@
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Redeem points" %}</h3>
+            <span class="panel-title">{% trans "Redeem points" %}</span>
         </div>
         <div class="panel-body">
             <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
@@ -70,7 +70,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Reward points history" %}</h3>
+            <span class="panel-title">{% trans "Reward points history" %}</span>
         </div>
         <div class="panel-body">
             {% if reward_point_actions %}
@@ -102,13 +102,6 @@
 {% endblock %}
 
 
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $(".twipsify").tooltip({container: 'body'});
-            $('.dropdown-toggle').dropdown()
-        });
-    </script>
+{% block on_document_ready %}
+    $('.dropdown-toggle').dropdown()
 {% endblock %}

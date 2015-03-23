@@ -1,7 +1,7 @@
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import auth, messages
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.views import redirect_to_login
 from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
@@ -50,7 +50,7 @@ class RequestAuthMiddleware(object):
             request.user = user
             auth.login(request, user)
         else:
-            messages.warning(request, _(u"Invalid login key"))
+            messages.warning(request, _("Invalid login key"))
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -70,73 +70,79 @@ class RequestAuthUserBackend(ModelBackend):
         except UserProfile.DoesNotExist:
             return None
 
-def login_required(func):
+def user_passes_test(test_func):
     """
-    Decorator for views that checks that the user is logged in
+    Decorator for views that checks whether users are authenticated
+    (redirecting to login if not) and pass a given test (raising 403
+    if not). The test should be a callable
+    that takes the user object and returns True if the user passes.
     """
-    def check_user(user):
-        return user.is_authenticated()
-    return user_passes_test(check_user)(func)
+    def decorator(view_func):
+        @wraps(view_func, assigned=available_attrs(view_func))
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated():
+                return redirect_to_login(request.get_full_path())
+            if not test_func(request.user):
+                raise PermissionDenied()
+            else:
+                return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
 
-
-def staff_required(func):
+def staff_required(view_func):
     """
     Decorator for views that checks that the user is logged in and a staff member
     """
-
     def check_user(user):
-        if not user.is_authenticated():
-            return False
         return user.is_staff
-    return user_passes_test(check_user)(func)
+    return user_passes_test(check_user)(view_func)
 
 
-def editor_or_delegate_required(func):
+def contributor_or_delegate_required(view_func):
+    """
+    Decorator for views that checks that the user is logged in, has edit rights
+    for at least one course or is a delegate for such a person or is a
+    contributor.
+    """
+    def check_user(user):
+        return user.is_contributor_or_delegate
+    return user_passes_test(check_user)(view_func)
+
+
+def editor_or_delegate_required(view_func):
     """
     Decorator for views that checks that the user is logged in, has edit rights
     for at least one course or is a delegate for such a person.
     """
-
     def check_user(user):
-        if not user.is_authenticated():
-            return False
         return user.is_editor_or_delegate
-    return user_passes_test(check_user)(func)
+    return user_passes_test(check_user)(view_func)
 
 
-def editor_required(func):
+def editor_required(view_func):
     """
     Decorator for views that checks that the user is logged in and has edit
     right for at least one course.
     """
-
     def check_user(user):
-        if not user.is_authenticated():
-            return False
         return user.is_editor
-    return user_passes_test(check_user)(func)
+    return user_passes_test(check_user)(view_func)
 
-def participant_required(func):
+def participant_required(view_func):
     """
     Decorator for views that checks that the user is logged in and
     participates in at least one course.
     """
-
     def check_user(user):
-        if not user.is_authenticated():
-            return False
         return user.is_participant
-    return user_passes_test(check_user)(func)
+    return user_passes_test(check_user)(view_func)
 
-def reward_user_required(func):
+def reward_user_required(view_func):
     """
     Decorator for views that checks that the user is logged in and can use
     reward points.
     """
-
     def check_user(user):
         from evap.rewards.tools import can_user_use_reward_points
-        if not user.is_authenticated():
-            return False
         return can_user_use_reward_points(user)
-    return user_passes_test(check_user)(func)
+    return user_passes_test(check_user)(view_func)

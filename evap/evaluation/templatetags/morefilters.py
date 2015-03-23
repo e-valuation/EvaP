@@ -1,11 +1,15 @@
 from django import template
 from django.conf import settings
 from django.template import Library
-from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STUDENT_STATES_ORDERED
+from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STUDENT_STATES_ORDERED, get_grade_color
 from evap.rewards.tools import can_user_use_reward_points
 
 register = Library()
 
+
+@register.filter(name='gradecolor')
+def gradecolor(grade):
+    return 'rgb({}, {}, {})'.format(*get_grade_color(grade))
 
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/
 @register.filter(name='percentage')
@@ -17,6 +21,14 @@ def percentage(fraction, population):
     except ZeroDivisionError:
         return None
 
+@register.filter(name='percentage_value')
+def percentage_value(fraction, population):
+    try:
+        return "{0:0f}".format((float(fraction) / float(population)) * 100)
+    except ValueError:
+        return None
+    except ZeroDivisionError:
+        return None
 
 @register.filter(name='likertname')
 def likertname(grade):
@@ -48,25 +60,6 @@ def can_use_reward_points(user):
     return can_user_use_reward_points(user)
 
 
-@register.tag
-def value_from_settings(parser, token):
-    try:
-        # split_contents() knows not to split quoted strings.
-        tag_name, var = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
-    return ValueFromSettings(var)
-
-
-class ValueFromSettings(template.Node):
-    def __init__(self, var):
-        super(ValueFromSettings, self).__init__()
-        self.arg = template.Variable(var)
-
-    def render(self, context):
-        return settings.__getattr__(str(self.arg))
-
-
 @register.filter
 def is_false(arg): 
     return arg is False
@@ -74,3 +67,7 @@ def is_false(arg):
 @register.filter
 def is_choice_field(field):
     return field.field.__class__.__name__ == "TypedChoiceField"
+
+@register.filter
+def is_user_editor_or_delegate(course, user):
+    return  course.is_user_editor_or_delegate(user)

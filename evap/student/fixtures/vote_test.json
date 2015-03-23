@@ -163,12 +163,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "Testvorlesung", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "bachelor", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-06-14T16:39:18.338", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "inEvaluation", 
     "last_modified_user": 1, 
     "participants": [

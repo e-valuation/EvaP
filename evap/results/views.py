@@ -3,10 +3,11 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import get_language
+from django.contrib.auth.decorators import login_required
 
-from evap.evaluation.auth import login_required, staff_required
+from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
+from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult, ResultSection, replace_results
 
 from evap.results.exporters import ExcelExporter
 
@@ -57,19 +58,27 @@ def course_detail(request, semester_id, course_id):
         raise PermissionDenied
 
     sections = calculate_results(course, request.user.is_staff)
-
-    if not request.user.is_staff:
-        # remove TextResults if user is neither the evaluated person (or a delegate) nor responsible for the course (or a delegate)
+    
+    cleaned_sections = []
+    if request.user.is_staff:
+        cleaned_sections = sections
+    else:
         for section in sections:
-            if not user_can_see_textresults(request.user, course, section):
-                for i, result in list(enumerate(section.results))[::-1]:
-                    if isinstance(result, TextResult):
-                        del section.results[i]
+            results = []
+            for result in section.results:
+                if isinstance(result, TextResult):
+                    answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, course, answer)]
+                    if answers:
+                        results.append(TextResult(question=result.question, answers=answers))
+                else:
+                    results.append(result)
+            if results:
+                cleaned_sections.append(replace_results(section, results))
 
     # remove empty sections and group by contributor
     course_sections = []
     contributor_sections = OrderedDict()
-    for section in sections:
+    for section in cleaned_sections:
         if not section.results:
             continue
         if section.contributor is None:
@@ -101,14 +110,14 @@ def course_detail(request, semester_id, course_id):
             staff=request.user.is_staff)
     return render(request, "results_course_detail.html", template_data)
 
-
-def user_can_see_textresults(user, course, section):
-    if section.contributor == user:
+def user_can_see_text_answer(user, course, text_answer):
+    contributor = text_answer.contribution.contributor
+    if contributor == user:
         return True
-    if course.is_user_responsible_or_delegate(user):
-        return True
-
-    if section.contributor in user.represented_users.all():
-        return True
+    if text_answer.published:
+        if course.is_user_responsible_or_delegate(user):
+            return True
+        if contributor in user.represented_users.all():
+            return True
 
     return False

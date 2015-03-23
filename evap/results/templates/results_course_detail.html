@@ -1,6 +1,7 @@
 {% extends "results_base.html" %}
 
 {% load morefilters %}
+{% load evaluation_templatetags %}
 {% load i18n %}
 {% load static %}
 
@@ -19,56 +20,37 @@
         <div class="alert alert-warning">{% trans "The results of this course have not been published because it didn't get enough votes." %}</div>
     {% endif %}
 
-    <h3>{{ course.name }} ({{ course.semester.name }})</h3>
+    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Overview" %}</h3>
+            <span class="panel-title">{% trans "Overview" %}</span>
         </div>
-        <div class="panel-body nobottompadding">
+        <div class="panel-body">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>{% trans "Degree" %}</th>
-                        <th>{% trans "Type" %}</th>
-                        <th>{% trans "Responsible" %}</th>
-                        <th>{% trans "Average Grade" %}</th>
-                        <th>{% trans "Median Grade" %}</th>
-                        <th>{% trans "Voters" %}</th>
-                        <th></th>
+                        <th class="col-sm-1">{% trans "Degree" %}</th>
+                        <th class="col-sm-2">{% trans "Type" %}</th>
+                        <th class="col-sm-3">{% trans "Responsible" %}</th>
+                        <th class="col-sm-2">{% trans "Average Grade" %}</th>
+                        <th class="col-sm-2">{% trans "Median Grade" %}</th>
+                        <th class="col-sm-2">{% trans "Voters" %}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="col-sm-1">{{ course.degree }}</td>
-                        <td class="col-sm-2">{{ course.kind }}</td>
-                        <td class="col-sm-3">{{ course.responsible_contributors_name }}</td>
+                        <td>{{ course.degree }}</td>
+                        <td>{{ course.kind }}</td>
+                        <td>{{ course.responsible_contributors_name }}</td>
                         {% if staff or course.can_publish_grades %}
-                            <td class="col-sm-2">{{ course.avg_grade|floatformat:1 }}</td>
-                            <td class="col-sm-2">{{ course.med_grade|floatformat:1 }}</td>
+                            <td><div class="grade-bg  text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
+                            <td><div class="grade-bg  text-center" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
                         {% else %}
-                            <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
-                            <td title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                            <td class="text-center twipsify" title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                            <td class="text-center twipsify" title="{% trans "Not enough answers were given." %}">&mdash;</td>
                         {% endif %}
-                        {% if course.num_participants %}
-                            <td class="col-sm-2">
-                                {% spaceless %}
-                                    <div style="background: #c9e1fa; display: inline-block; width: 70%;">
-                                        <div style="display: inline-block; width: {% widthratio course.num_voters course.num_participants 100 %}%; background: #126bc5; color:white;">
-                                            <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ course.num_voters }}</div>
-                                        </div>
-                                    </div>
-                                {% endspaceless %}
-                                <span style="font-size: 80%;">{{ course.num_participants }}</span>
-                            </td>
-                            <td class="col-sm-1">
-                                {{ course.num_voters|percentage:course.num_participants|default:'&mdash;' }}
-                            </td>
-                        {% else %}
-                            <td class="col-sm-3">
-                                &mdash;
-                            </td>
-                        {% endif %}
+                        <td>{% include_progress_bar course.num_voters course.num_participants %}</td>
                     </tr>
                 </tbody>
             </table>
@@ -77,9 +59,9 @@
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Course" %}</h3>
+            <span class="panel-title">{% trans "Course" %}</span>
         </div>
-        <div class="panel-body nobottompadding">
+        <div class="panel-body">
             {% regroup course_sections by questionnaire as sections_grouped %}
             {% for group in sections_grouped %}
                 {% include "results_course_detail_questionnaires.html" %}
@@ -89,16 +71,16 @@
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Contributors" %}</h3>
+            <span class="panel-title">{% trans "Contributors" %}</span>
         </div>
-        <div class="panel-body nobottompadding">
+        <div class="panel-body">
             {% for contributor,sections in contributor_sections.items %}
                 {% regroup sections by questionnaire as sections_grouped %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">{{ contributor.full_name }}</h3>
+                        <span class="panel-title">{{ contributor.full_name }}</span>
                     </div>
-                    <div class="panel-body nobottompadding">
+                    <div class="panel-body">
                         {% for group in sections_grouped %}
                             {% include "results_course_detail_questionnaires.html" %}
                         {% endfor %}
@@ -109,13 +91,9 @@
     </div>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $('.twipsify').tooltip({
-            html: true,
-            placement: 'left',
-            title: 'data-twipsy'
-        });
-    </script>
+{% block activate_twipsify %}
+    $('.twipsify').tooltip({
+        html: true,
+        placement: 'left'
+    });
 {% endblock %}

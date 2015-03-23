@@ -297,192 +297,176 @@
   "pk": 1, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": false, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 18, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 2, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 17, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 3, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 19, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 4, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": false, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 20, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 5, 
   "model": "evaluation.textanswer", 
-  "fields": {
-    "checked": false, 
+  "fields": { 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 22, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 6, 
   "model": "evaluation.textanswer", 
-  "fields": {
-    "checked": true, 
+  "fields": { 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 21, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 7, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 23, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 8, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": false, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "mfj49s1my.45j", 
     "contribution": 24, 
-    "hidden": false
+    "state": "NR"
   }
 },
 {
   "pk": 9, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 26, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 10, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 25, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 11, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 27, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 12, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 28, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 13, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 30, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 14, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": "censored!", 
     "question": 3, 
     "original_answer": "asdf", 
     "contribution": 29, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
   "pk": 15, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 31, 
-    "hidden": true
+    "state": "HI"
   }
 },
 {
   "pk": 16, 
   "model": "evaluation.textanswer", 
   "fields": {
-    "checked": true, 
     "reviewed_answer": null, 
     "question": 1, 
     "original_answer": "sdfg", 
     "contribution": 32, 
-    "hidden": false
+    "state": "PU"
   }
 },
 {
@@ -1139,19 +1123,19 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a new course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "new", 
     "last_modified_user": 1, 
     "participants": [
       5, 
       8
     ], 
-    "vote_end_date": "2014-09-30", 
+    "vote_end_date": "2099-12-31", 
     "name_en": "a course", 
     "kind": "a type", 
     "vote_start_date": "2014-09-10"
@@ -1162,12 +1146,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a prepared course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "prepared", 
     "last_modified_user": 1, 
     "participants": [
@@ -1185,12 +1169,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a lecturer approved course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "lecturerApproved", 
     "last_modified_user": 1, 
     "participants": [
@@ -1208,12 +1192,12 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "an approved course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "approved", 
     "last_modified_user": 1, 
     "participants": [
@@ -1231,14 +1215,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "an in evaluation course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "inEvaluation", 
     "last_modified_user": 1, 
     "participants": [
@@ -1256,14 +1240,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "an evaluated course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "evaluated", 
     "last_modified_user": 1, 
     "participants": [
@@ -1281,14 +1265,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a reviewed course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "reviewed", 
     "last_modified_user": 1, 
     "participants": [
@@ -1306,14 +1290,14 @@
   "model": "evaluation.course", 
   "fields": {
     "name_de": "a published course", 
-    "participant_count": null, 
+    "_participant_count": null, 
     "degree": "a degree", 
     "voters": [
       5
     ], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
-    "voter_count": null, 
+    "_voter_count": null, 
     "state": "published", 
     "last_modified_user": 1, 
     "participants": [
@@ -1331,12 +1315,12 @@
     "model": "evaluation.course",
     "fields": {
         "name_de": "dasdadsadas",
-        "participant_count": null,
+        "_participant_count": null,
         "degree": "Bachelor",
         "voters": [],
         "semester": 3,
         "last_modified_time": "2014-11-16T17:28:28.457",
-        "voter_count": null,
+        "_voter_count": null,
         "state": "inEvaluation",
         "last_modified_user": 1,
         "participants": [5],

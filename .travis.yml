@@ -1,14 +1,10 @@
 language: python
 python:
-  - "2.7"
-  - "pypy"
-matrix:
-  allow_failures:
-    - python: "pypy"
+  - "3.4"
 install:
   - pip install -r requirements.txt
   - pip install coveralls
 script:
-  - coverage run manage.py test evap.evaluation evap.staff evap.contributor evap.results evap.student evap.rewards
+  - coverage run manage.py test evap.evaluation evap.staff evap.contributor evap.results evap.student evap.rewards evap.staff.tests.TestDataTest.load_test_data
 after_success:
   - coveralls

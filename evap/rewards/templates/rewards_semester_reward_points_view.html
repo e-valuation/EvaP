@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load evaluation_templatetags %}
 {% load morefilters %}
 
 {% block content %}
@@ -19,29 +20,10 @@
             {% for user, number_of_courses_voted_for, number_of_courses, earned_reward_points in data %}                
                 <tr>
                     <td>{{ user.full_name }}</td>
-                    <td>
-                        {% spaceless %}
-                            <div style="background: #c9e1fa; display: inline-block; width: 95%;">
-                                <div style="display: inline-block; width: {% widthratio number_of_courses_voted_for number_of_courses 100 %}%; background: #126bc5; color:white;">
-                                    <div style="font-size: 80%; width: 100%; max-width: 100%; display: inline-block; vertical-align: middle;">&nbsp;{{ number_of_courses_voted_for }}</div>
-                                </div>
-                            </div>
-                        {% endspaceless %}
-                        <span style="font-size: 80%;">{{ number_of_courses }}</span>
-                    </td>
+                    <td>{% include_progress_bar number_of_courses_voted_for number_of_courses large %}</td>
                     <td class="text-center">{% if earned_reward_points %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $(".twipsify").tooltip({container: 'body'});
-        });
-    </script>
 {% endblock %}

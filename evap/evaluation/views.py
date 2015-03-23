@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate
@@ -30,7 +31,7 @@ def index(request):
 
             EmailTemplate.get_login_key_template().send_to_user(new_key_form.get_user(), cc=False)
 
-            messages.success(request, _(u"Successfully sent email with new login key."))
+            messages.success(request, _("Successfully sent email with new login key."))
         elif login_key_form.is_valid():
             # user would like to login with a login key and passed key test
             auth_login(request, login_key_form.get_user())
@@ -80,3 +81,6 @@ def index(request):
 
 def faq(request):
     return render(request, "faq.html", dict(sections=FaqSection.objects.all()))
+
+def legal_notice(request):
+    return render(request, "legal_notice.html", dict())

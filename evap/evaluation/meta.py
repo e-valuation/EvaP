@@ -22,7 +22,7 @@ class LocalizeModelBase(ModelBase):
             if class_dict[key] is Translate:
                 # replace them with a getter that uses the current language
                 class_dict[key] = make_property(key)
-        return super(LocalizeModelBase, metacls).__new__(metacls, classname, bases, class_dict)
+        return super().__new__(metacls, classname, bases, class_dict)
 
 
 def make_property(k):

@@ -29,11 +29,15 @@ class LoginTests(WebTest):
 
     def test_send_new_loginkey(self):
         """ Tests whether requesting a new login key is only possible for existing users,
-            shows the expected success message and actually sends an email. """
+            shows the expected success message and sends only one email to the requesting
+            user without people in cc even if the user has delegates and cc users. """
         response = self.app.get("/")
         emailForm = response.forms[4]
         emailForm['email'] = "asdf@example.com"
         self.assertIn("No user with this email address was found", emailForm.submit())
-        emailForm['email'] = "expiredloginkey.user@example.com"
+        email = "expiredloginkey.user@example.com"
+        emailForm['email'] = email
         self.assertIn("Successfully sent", emailForm.submit())
         self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(mail.outbox[0].to == [email])
+        self.assertEqual(len(mail.outbox[0].cc), 0)

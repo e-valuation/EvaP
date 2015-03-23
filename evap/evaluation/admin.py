@@ -15,7 +15,7 @@ class ContributionInline(admin.TabularInline):
 class CourseAdmin(admin.ModelAdmin):
     model = Course
     inlines = [ContributionInline]
-    list_display = ('__unicode__', 'semester', 'kind')
+    list_display = ('__str__', 'semester', 'kind')
     list_filter = ('semester',)
     readonly_fields = ('state',)
     if not settings.DEBUG:
@@ -52,7 +52,7 @@ class UserCreationForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Save the provided password in hashed format
-        user = super(UserCreationForm, self).save(commit=False)
+        user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()

@@ -3,16 +3,6 @@
 {% load i18n %}
 {% load morefilters %}
 
-{% block scripts %}
-    {{ block.super }}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $(".twipsify").tooltip({container: 'body'});
-        });
-    </script>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
 
@@ -42,7 +32,7 @@
         {% if semester.courses %}
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{{ semester.semester_name }}</h3>
+                <span class="panel-title">{{ semester.semester_name }}</span>
             </div>
             <div class="panel-body">
                 <table class="table table-striped">
@@ -76,10 +66,12 @@
                                 {% if course.state == 'published' %}
                                     <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% else %}
-                                    {% if course.state == 'prepared' %}
-                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
-                                    {% else %}
-                                        <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                    {% if course|is_user_editor_or_delegate:user %}
+                                        {% if course.state == 'prepared' %}
+                                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
+                                        {% else %}
+                                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                        {% endif %}
                                     {% endif %}
                                     <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                 {% endif %}

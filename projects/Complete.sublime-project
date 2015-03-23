@@ -6,7 +6,7 @@
             "path": "..",
             "folder_exclude_patterns":
             [
-                "evap/staticfiles",
+                "evap/static_collected",
                 "evap/static/js",
                 "htmlcov",
                 "deployment/modules/apache",

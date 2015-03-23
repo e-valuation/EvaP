@@ -44,7 +44,7 @@
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
                 <ul class="nav navbar-nav">
                     {% if user.is_authenticated %}
-                        {% if user.is_participant and user.is_editor_or_delegate %}
+                        {% if user.is_participant and user.is_contributor_or_delegate %}
                             <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
                             <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
                         {% elif user.is_participant %}
@@ -90,8 +90,8 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Language" %} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();">{% trans "Deutsch" %}</a></li>
-                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();">{% trans "English" %}</a></li>
+                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();" href="#">{% trans "Deutsch" %}</a></li>
+                            <li><form action="{% url 'set_language' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();" href="#">{% trans "English" %}</a></li>
                         </ul>
                     </li>
                     {% if user.is_authenticated %}
@@ -118,7 +118,7 @@
             <div class="row">
                 <div class="col-md-12">
                     {% for message in messages %}
-                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|linebreaksbr }}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -136,9 +136,13 @@
     <div id="footer">
         <div class="container">
             <p class="text-muted">
-                <a href="{% value_from_settings TRACKER_URL %}" target="_new">{% trans "EvaP evaluation platform" %}</a>
+                <a href="{{ TRACKER_URL }}" target="_new">{% trans "EvaP evaluation platform" %}</a>
                 &nbsp;&middot;&nbsp;
-                <a href="mailto:{% value_from_settings FEEDBACK_EMAIL %}">Feedback</a>
+                {% if LEGAL_NOTICE_ACTIVE %}
+                    <a href="{% url "evap.evaluation.views.legal_notice" %}">{% trans "Legal Notice" %}</a>
+                    &nbsp;&middot;&nbsp;
+                {% endif %}
+                <a href="mailto:{{ FEEDBACK_EMAIL }}">Feedback</a>
                 &nbsp;&middot;&nbsp;
                 <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
@@ -150,12 +154,11 @@
             </p>
         </div>
     </div>
-    {% block scripts %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.10.3.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_de.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_en.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-3.0.3.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap.min.js"></script>
 
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
@@ -165,8 +168,10 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.combobox.js"></script>
 
+    <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
+
     <script type="text/javascript">
-        $(function(){
+        $(document).ready(function(){
             // show browser information
             $.reject({
                 imagePath: '{% get_static_prefix %}images/browsers/',
@@ -179,8 +184,39 @@
 
             // activate topbar
             $('#topbar').dropdown();
+
+            // run twipsify
+            {% block activate_twipsify %}
+                $(".twipsify").tooltip({container: 'body'});
+            {% endblock %}
+
+            // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
+            if ($.fn.button.noConflict != undefined) {
+                $.fn.button.noConflict();
+            }
+
+            // run the jquery multiselect plugin
+            $("select[multiple='multiple']").each(function(i,e) {
+                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
+            });
+
+            // run the jquery datepicker plugin
+            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+
+            {% block on_document_ready %} {% endblock %}
         });
     </script>
-    {% endblock %}
+
+    <script type="text/javascript">
+        // If activated, make the user confirm he wants to leave the page by displaying a popup.
+        var preventAccidentalClosing = false;
+        $(window).bind('beforeunload', function(){
+            if (preventAccidentalClosing) {
+                return "{% trans "Are you sure you want to leave?" %}";
+            }
+        });
+    </script>
+
+    {% block additional_javascript %} {% endblock %}
 </body>
 </html>

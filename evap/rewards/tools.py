@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
 
-from evap.evaluation.auth import login_required
+from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Course
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation

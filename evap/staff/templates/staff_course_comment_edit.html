@@ -1,0 +1,21 @@
+{% extends "staff_course_base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "evap.staff.views.course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
+    <li>{{ text_answer.id }}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <span class="headline">{% trans "Comment" %} {{ text_answer.id }}</span>
+    <form method="POST" class="form-horizontal">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <div class="well submit-area text-center">
+            <input type="submit" value="{% trans "Save comment" %}" class="btn btn-primary"/>
+        </div>
+    </form>
+{% endblock %}
