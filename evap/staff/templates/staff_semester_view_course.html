@@ -25,26 +25,26 @@
     {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_reviewed_textanswers=course.reviewed_textanswer_set.count %}
         {% if num_participants %}
             <td class="minimize">
-                <p class="twipsify" title="{% trans "Voters" %}">
+                <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                     <span class="glyphicon glyphicon-user"></span>
                     <span>{{ num_voters }}/{{ num_participants }}</span>
                     <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
                 </p>
                 {% if course.can_staff_review %}
-                    <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="twipsify" title="{% trans "Click to review text answers" %}">
+                    <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
                         <span class="glyphicon glyphicon-comment"></span>
                         <span>{{ num_reviewed_textanswers }}/{{ num_textanswers }}</span>
                         <span>({{ num_reviewed_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
                     </a>
                 {% else %}
-                    <p class="twipsify" title="{% trans "Text answers" %}">
+                    <p data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
                         <span class="glyphicon glyphicon-comment"></span>
                         <span>{{ num_textanswers }}</span>
                     </p>
                 {% endif %}
             </td>
         {% else %}
-            <p class="twipsify" title="{% trans "Voters" %}">
+            <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <span>&mdash;</span>
             </p>
@@ -52,7 +52,7 @@
     {% endwith %}
 {% else %}
     <td class="minimize">
-        <p class="twipsify" title="{% trans "Participants" %}">
+        <p data-toggle="tooltip" data-placement="left" title="{% trans "Participants" %}">
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
         </p>

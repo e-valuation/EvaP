@@ -41,7 +41,7 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             option_value = force_text(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_text(option_label))
-            output.append('<li class="twipsify" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
+            output.append('<li data-toggle="tooltip" data-placement="left" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
         output.append('</ul>')
         return mark_safe('\n'.join(output))
 
