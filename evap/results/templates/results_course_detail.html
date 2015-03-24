@@ -47,8 +47,8 @@
                             <td><div class="grade-bg  text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                             <td><div class="grade-bg  text-center" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
                         {% else %}
-                            <td class="text-center twipsify" title="{% trans "Not enough answers were given." %}">&mdash;</td>
-                            <td class="text-center twipsify" title="{% trans "Not enough answers were given." %}">&mdash;</td>
+                            <td class="text-center"><span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</span></td>
+                            <td class="text-center"><span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</span></td>
                         {% endif %}
                         <td>{% include_progress_bar course.num_voters course.num_participants %}</td>
                     </tr>
@@ -89,11 +89,4 @@
             {% endfor %}
         </div>
     </div>
-{% endblock %}
-
-{% block activate_twipsify %}
-    $('.twipsify').tooltip({
-        html: true,
-        placement: 'left'
-    });
 {% endblock %}
