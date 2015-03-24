@@ -395,3 +395,11 @@ Side notes for calling out things
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+div.disabled-tooltip {
+    display: inline-block;
+}
+
+.tooltip-inner {
+    max-width: 350px;
+}

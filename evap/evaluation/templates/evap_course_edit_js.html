@@ -27,13 +27,6 @@
             };
         }
 
-        function twipsify() {
-            $(".twipsify").tooltip({
-                html: true,
-                placement: "left"
-            });
-        }
-
         function getContributorCount() { 
             return $("#contribution_table select").length;
         }
@@ -44,7 +37,6 @@
         }
 
     $(document).ready(function() {
-        twipsify();
         assignClickHandlers()
 
         // apply initial settings
@@ -67,8 +59,7 @@
             return id || (name && name != "---------");
         };
         row_added = function(row) {
-            twipsify();
-            assignClickHandlers()
+            assignClickHandlers();
         }
         make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false);
 

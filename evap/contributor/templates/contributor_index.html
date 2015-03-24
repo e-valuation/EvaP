@@ -53,7 +53,7 @@
                                     {{ course.name }}
                                 </div>
                                 <span class="label label-default">{{ course.kind }}</span>
-                                {% if course in delegated_courses %}<span class="label label-info twipsify" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
+                                {% if course in delegated_courses %}<span class="label label-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
                             <td>
                                 {{ course.state|statename }}

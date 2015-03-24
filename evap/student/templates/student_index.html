@@ -86,11 +86,11 @@
                                         {% if course.can_publish_grades %}
                                             <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                         {% else %}
-                                            <a class="btn btn-sm btn-default twipsify" disabled="disabled" title="{% trans "We did not receive enough votes to publish the results of this course" %}">{% trans "Results" %}</a>
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
                                         {% endif %}
                                     {% elif course.state == 'inEvaluation' %}
                                         {% if course in voted_courses %}
-                                            <a class="btn btn-sm btn-default twipsify" disabled="disabled" title="{% trans "You already evaluated this course" %}">{% trans "Evaluate" %}</a>
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Evaluate" %}</a></div>
                                         {% else %}
                                             <a href="{% url "evap.student.views.vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
                                         {% endif %}

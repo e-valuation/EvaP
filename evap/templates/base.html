@@ -185,10 +185,8 @@
             // activate topbar
             $('#topbar').dropdown();
 
-            // run twipsify
-            {% block activate_twipsify %}
-                $(".twipsify").tooltip({container: 'body'});
-            {% endblock %}
+            // activate tooltips
+            $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]'});
 
             // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
             if ($.fn.button.noConflict != undefined) {
