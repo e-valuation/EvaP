@@ -108,7 +108,7 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
 
     class Meta:
-        ordering = ('obsolete', 'index', 'name_de')
+        ordering = ('index', 'name_de')
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
