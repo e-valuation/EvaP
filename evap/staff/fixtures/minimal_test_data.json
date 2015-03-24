@@ -150,6 +150,17 @@
   }
 },
 {
+  "pk": 6, 
+  "model": "evaluation.question", 
+  "fields": {
+    "questionnaire": 3, 
+    "_order": 1, 
+    "text_en": "your grade", 
+    "text_de": "your grade", 
+    "kind": "G"
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.likertanswer", 
   "fields": {

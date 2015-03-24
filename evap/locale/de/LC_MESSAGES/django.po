@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-05 10:03+0100\n"
-"PO-Revision-Date: 2015-03-05 10:47+0100\n"
+"POT-Creation-Date: 2015-03-24 15:46+0100\n"
+"PO-Revision-Date: 2015-03-24 15:49+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.4\n"
+"X-Generator: Poedit 1.7.5\n"
 
 #: contributor/forms.py:10 staff/forms.py:35
 msgid "General questions"
@@ -225,8 +225,8 @@ msgstr "Ergebnisse"
 #: rewards/templates/rewards_reward_point_redemption_events.html:79
 #: staff/templates/staff_faq_index.html:44
 #: staff/templates/staff_questionnaire_base.html:19
-#: staff/templates/staff_questionnaire_index_list.html:29
-#: staff/templates/staff_questionnaire_index_list.html:31
+#: staff/templates/staff_questionnaire_index_list.html:30
+#: staff/templates/staff_questionnaire_index_list.html:32
 #: staff/templates/staff_user_index.html:41
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -236,7 +236,7 @@ msgid "View"
 msgstr "Anzeigen"
 
 #: contributor/templates/contributor_index.html:76
-#: staff/templates/staff_questionnaire_index_list.html:33
+#: staff/templates/staff_questionnaire_index_list.html:34
 #: staff/templates/staff_semester_view_course.html:64
 msgid "Preview"
 msgstr "Vorschau"
@@ -399,7 +399,7 @@ msgid "is for contributors"
 msgstr "Personenfragebogen"
 
 #: evaluation/models.py:108
-#: staff/templates/staff_questionnaire_index_list.html:22
+#: staff/templates/staff_questionnaire_index_list.html:26
 msgid "obsolete"
 msgstr "obsolet"
 
@@ -1156,8 +1156,8 @@ msgstr "Einlösungen exportieren"
 #: rewards/templates/rewards_reward_point_redemption_events.html:81
 #: rewards/templates/rewards_reward_point_redemption_events.html:83
 #: staff/templates/staff_questionnaire_base.html:21
-#: staff/templates/staff_questionnaire_index_list.html:36
-#: staff/templates/staff_questionnaire_index_list.html:38
+#: staff/templates/staff_questionnaire_index_list.html:37
+#: staff/templates/staff_questionnaire_index_list.html:39
 #: staff/templates/staff_semester_view_course.html:70
 #: staff/templates/staff_user_index.html:43
 #: staff/templates/staff_user_index.html:45
@@ -1517,7 +1517,6 @@ msgid "Comments about the Contributors"
 msgstr "Kommentare zu den Mitwirkenden"
 
 #: staff/templates/staff_course_comments_section.html:7
-#| msgid "responsible"
 msgid "(responsible)"
 msgstr "(verantwortlich)"
 
@@ -1681,7 +1680,7 @@ msgid "All Sections"
 msgstr "Alle Abschnitte"
 
 #: staff/templates/staff_questionnaire_base.html:20
-#: staff/templates/staff_questionnaire_index_list.html:34
+#: staff/templates/staff_questionnaire_index_list.html:35
 msgid "Copy"
 msgstr "Kopieren"
 
@@ -1719,6 +1718,16 @@ msgid "used %(count)s time "
 msgid_plural " used %(count)s times "
 msgstr[0] "%(count)s-mal verwendet"
 msgstr[1] "%(count)s-mal verwendet"
+
+#: staff/templates/staff_questionnaire_index_list.html:32
+msgid "This questionnaire cannot be edited because it is already in use."
+msgstr ""
+"Dieser Fragebogen kann nicht bearbeitet werden, da er bereits verwendet wird."
+
+#: staff/templates/staff_questionnaire_index_list.html:39
+msgid "This questionnaire cannot be deleted because it is already in use."
+msgstr ""
+"Dieser Fragebogen kann nicht gelöscht werden, da er bereits verwendet wird."
 
 #: staff/templates/staff_semester_approve.html:10
 msgid "Approve courses"
@@ -2337,6 +2346,6 @@ msgstr "Angemeldet als"
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
-#: templates/base.html:215
+#: templates/base.html:224
 msgid "Are you sure you want to leave?"
 msgstr "Sind Sie sicher, dass Sie diese Seite verlassen wollen?"

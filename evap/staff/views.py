@@ -593,7 +593,7 @@ def questionnaire_edit(request, questionnaire_id):
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
-    if questionnaire.can_staff_edit:
+    if not questionnaire.can_staff_edit:
         messages.info(request, _("Questionnaires that are already used cannot be edited."))
         return redirect('evap.staff.views.questionnaire_index')
 
