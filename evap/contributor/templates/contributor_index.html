@@ -35,7 +35,7 @@
                 <span class="panel-title">{{ semester.semester_name }}</span>
             </div>
             <div class="panel-body">
-                <table class="table table-striped">
+                <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>
                         <th class="col-sm-5">{% trans "Name" %}</th>
@@ -56,24 +56,27 @@
                                 {% if course in delegated_courses %}<span class="label label-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
                             <td>
-                                {{ course.state|statename }}
+                                <span data-toggle="tooltip" data-placement="left" title="{{ course.state|statedescription }}">{{ course.state|statename }}</span>
                             </td>
                             <td>
                                 {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
                             </td>
                             <td>{{ course.num_participants }}</td>
                             <td>
+                                {% if course|is_user_editor_or_delegate:user %}
+                                    {% if course.state == 'prepared' %}
+                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
+                                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                                    {% elif course.state == 'lecturerApproved' or course.state == 'approved' %}
+                                        <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                                    {% endif %}
+                                {% endif %}
+                                {% if course.state == 'inEvaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
+                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-default" disabled>{% trans "Results" %}</a></div>
+                                {% endif %}
                                 {% if course.state == 'published' %}
                                     <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-                                {% else %}
-                                    {% if course|is_user_editor_or_delegate:user %}
-                                        {% if course.state == 'prepared' %}
-                                            <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
-                                        {% else %}
-                                            <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
-                                        {% endif %}
-                                    {% endif %}
-                                    <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                 {% endif %}
                             </td>
                         </tr>
