@@ -68,9 +68,9 @@ STUDENT_STATES_ORDERED = OrderedDict((
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
+LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
+GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
-GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
 
 def replace_results(result_section, new_results):
     return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
@@ -123,7 +123,7 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def calculate_results(course, staff_member=False):
+def calculate_results(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
@@ -131,13 +131,10 @@ def calculate_results(course, staff_member=False):
     `LikertResult`, `TextResult` or `GradeResult` instances."""
 
     # return cached results if available
-    cache_key = str.format('evap.staff.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
+    cache_key = str.format('evap.staff.results.views.calculate_results-{:d}', course.id)
     prior_results = cache.get(cache_key)
     if prior_results:
         return prior_results
-
-    # check if grades for the course will be published
-    show = staff_member or course.can_publish_grades
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
@@ -196,7 +193,6 @@ def calculate_results(course, staff_member=False):
                     'median': median,
                     'variance': variance,
                     'distribution': distribution,
-                    'show': show,
                     'warning': warning
                 }
                 if question.is_likert_question:

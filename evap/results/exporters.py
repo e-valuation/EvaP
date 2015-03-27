@@ -118,16 +118,14 @@ class ExcelExporter(object):
                     if qn_results:
                         values = []
                         variances = []
-                        enough_answers = True
                         for contributor, data, avg_grade, med_grade in qn_results:
                             for grade_result in data:
                                 if grade_result.question.id == question.id:
                                     if grade_result.average:
                                         values.append(grade_result.average)
                                         variances.append(grade_result.variance)
-                                        if not grade_result.show:
-                                            enough_answers = False
                                     break
+                        enough_answers = course.can_publish_grades
                         if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
                             writec(self, avg, ExcelExporter.grade_to_style(avg))

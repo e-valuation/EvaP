@@ -57,7 +57,7 @@ def course_detail(request, semester_id, course_id):
     if not course.can_user_see_results(request.user):
         raise PermissionDenied
 
-    sections = calculate_results(course, request.user.is_staff)
+    sections = calculate_results(course)
 
     cleaned_sections = []
     if request.user.is_staff:
@@ -99,6 +99,8 @@ def course_detail(request, semester_id, course_id):
     # users who can open the results page see a warning message in this case
     sufficient_votes_warning = not sufficient_votes
 
+    show_grades = request.user.is_staff or course.can_publish_grades
+
     course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 
     template_data = dict(
@@ -107,6 +109,7 @@ def course_detail(request, semester_id, course_id):
             contributor_sections=contributor_sections,
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
+            show_grades=show_grades,
             staff=request.user.is_staff)
     return render(request, "results_course_detail.html", template_data)
 
