@@ -123,6 +123,10 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     def can_staff_delete(self):
         return self.can_staff_edit
 
+    @property
+    def text_questions(self):
+        return [question for question in self.question_set.all() if question.is_text_question]
+
 
 class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""

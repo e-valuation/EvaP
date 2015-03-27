@@ -12,7 +12,7 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_filtered_answers, CommentSection, TextResult
+                                  get_textanswers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
@@ -447,25 +447,20 @@ def course_comments(request, semester_id, course_id):
         filter = {'true': True, 'false': False}.get(filter.lower()) # convert parameter to boolean
     request.session['filter_comments'] = filter # store value for session
 
-    exclude_states = []
-    if filter:
-        exclude_states = [TextAnswer.PUBLISHED, TextAnswer.PRIVATE, TextAnswer.HIDDEN]
+    filter_states = [TextAnswer.NOT_REVIEWED] if filter else None
 
     course_sections = []
     contributor_sections = []
     for questionnaire, contribution in questionnaires_and_contributions(course):
         text_results = []
-        for question in questionnaire.question_set.all():
-            if question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question, exclude_text_answer_states=exclude_states)
-                if answers:
-                    text_results.append(TextResult(question=question, answers=answers))
+        for question in questionnaire.text_questions:
+            answers = get_textanswers(contribution, question, filter_states)
+            if answers:
+                text_results.append(TextResult(question=question, answers=answers))
         if not text_results:
             continue
-        if contribution.is_general:
-            course_sections.append(CommentSection(questionnaire, contribution.contributor, False, text_results))
-        else:
-            contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
+        section_list = course_sections if contribution.is_general else contributor_sections
+        section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
     return render(request, "staff_course_comments.html", template_data)

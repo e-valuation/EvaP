@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
+from evap.evaluation.models import TextAnswer
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
@@ -111,30 +111,15 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
-def get_filtered_answers(course, contribution, question, exclude_text_answer_states=[TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN]):
-    answers = None
+def get_answers(contribution, question):
+    return question.answer_class.objects.filter(contribution=contribution, question=question)
 
-    if question.is_likert_question:
-        answers = LikertAnswer.objects.filter(
-            contribution__course=course,
-            contribution__contributor=contribution.contributor,
-            question=question
-            ).values_list('answer', flat=True)
 
-    elif question.is_grade_question:
-        answers = GradeAnswer.objects.filter(
-            contribution__course=course,
-            contribution__contributor=contribution.contributor,
-            question=question
-            ).values_list('answer', flat=True)
-
-    elif question.is_text_question:
-        answers = TextAnswer.objects.filter(
-            contribution__course=course,
-            contribution__contributor=contribution.contributor,
-            question=question,
-        ).exclude(state__in=exclude_text_answer_states)
-
+def get_textanswers(contribution, question, filter_states=None):
+    assert question.is_text_question
+    answers = get_answers(contribution, question)
+    if filter_states is not None:
+        answers = answers.filter(state__in=filter_states)
     return answers
 
 
@@ -167,7 +152,7 @@ def calculate_results(course, staff_member=False):
         for question in questionnaire.question_set.all():
             # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
             if not question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question)
+                answers = get_answers(contribution, question)
                 if len(answers) > max_answers:
                     max_answers = len(answers)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
@@ -180,22 +165,17 @@ def calculate_results(course, staff_member=False):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_likert_question or question.is_grade_question:
-                answers = get_filtered_answers(course, contribution, question)
+                answers = get_answers(contribution, question).values_list('answer', flat=True)
 
                 # calculate average, median and distribution
                 if answers:
-                    # average
                     average = avg(answers)
-                    # median
                     median = med(answers)
-                    # variance
                     variance = avg((average - answer) ** 2 for answer in answers)
-                    # calculate relative distribution (histogram) of answers:
-                    # set up a sorted dictionary with a count of zero for each grade
+                    # calculate relative distribution (histogram) of answers
                     distribution = OrderedDict()
                     for i in range(1, 6):
                         distribution[i] = 0
-                    # count the answers
                     for answer in answers:
                         distribution[answer] += 1
                     # divide by the number of answers to get relative 0..1 values
@@ -224,14 +204,11 @@ def calculate_results(course, staff_member=False):
                 elif question.is_grade_question:
                     results.append(GradeResult(**kwargs))
             elif question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question)
+                allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+                answers = get_textanswers(contribution, question, allowed_states)
 
-                # only add to the results if answers exist at all
                 if answers:
-                    results.append(TextResult(
-                        question=question,
-                        answers=answers
-                    ))
+                    results.append(TextResult(question=question, answers=answers))
 
         # skip section if there were no questions with results
         if not results:
