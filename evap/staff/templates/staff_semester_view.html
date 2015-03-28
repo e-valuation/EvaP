@@ -91,35 +91,33 @@
                 <div class="tab-content">
                 {% for state, courses in courses_by_state %}
                     <div id="tab{{ forloop.counter }}" class="tab-pane">
-                        <table class="table table-striped">
-                        <tbody>
-                        {% for course in courses %}
-                            <tr>
-                                {% include_staff_semester_view_course semester state course disable_if_archived %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                        </table>
+                        <form id="form_{{ state }}" method="GET" action="{% url "evap.staff.views.semester_course_operation" semester.id %}">
+                            <table class="table table-striped">
+                                <tbody>
+                                {% for course in courses %}
+                                    <tr>
+                                        {% include_staff_semester_view_course semester state course disable_if_archived %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
 
-                        <p>
-                        {% ifequal state "new" %}
-                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Enable courses for Lecturer Review..." %}</a>
-                        {% endifequal %}
-                        {% ifequal state "prepared" %}
-                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_revert_to_new" semester.id %}" {{ disable_if_archived }}>{% trans "Revert courses to New..." %}</a>
-                        {% endifequal %}
-                        {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
-                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_approve" semester.id %}" {{ disable_if_archived }}>{% trans "Approve courses..." %}</a>
-                        {% endif %}
-
-                        {% ifequal state "lecturerApproved" %}
-                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_contributor_ready" semester.id %}" {{ disable_if_archived }}>{% trans "Re-Enable courses for Lecturer Review..." %}</a>
-                        {% endifequal %}
-
-                        {% ifequal state "reviewed" %}
-                            <a class="btn btn-default" href="{% url "evap.staff.views.semester_publish" semester.id %}" {{ disable_if_archived }}>{% trans "Publish courses..." %}</a>
-                        {% endifequal %}
-                        </p>
+                            {% ifequal state "new" %}
+                                <button name="operation" value="prepare" type="submit" class="btn btn-default" {{ disable_if_archived }}>{% trans "Enable courses for lecturer review" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "prepared" %}
+                                <button name="operation" value="revertToNew" type="submit" class="btn btn-default" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
+                            {% endifequal %}
+                            {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' %}
+                                <button name="operation" value="approve" type="submit" class="btn btn-default" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
+                            {% endif %}
+                            {% ifequal state "lecturerApproved" %}
+                                <button name="operation" value="reenableLecturerReview" type="submit" class="btn btn-default" {{ disable_if_archived }}>{% trans "Re-enable courses for lecturer review" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "reviewed" %}
+                                <button name="operation" value="publish" type="submit" class="btn btn-default" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
+                            {% endifequal %}
+                        </form>
                     </div>
                 {% endfor %}
                 </div>

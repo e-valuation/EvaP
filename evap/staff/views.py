@@ -14,8 +14,8 @@ from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, qu
                                   get_filtered_answers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
-                             QuestionnairesAssignForm, SelectCourseForm, SemesterForm, UserForm, ContributionFormSet, \
-                             FaqSectionForm, FaqQuestionForm, UserImportForm, TextAnswerForm
+                             QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
+                             FaqQuestionForm, UserImportForm, TextAnswerForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -23,7 +23,7 @@ from evap.student.forms import QuestionsForm
 
 from evap.rewards.tools import is_semester_activated
 
-import random, datetime
+import random, datetime, ast
 
 def raise_permission_denied_if_archived(archiveable):
     if archiveable.is_archived:
@@ -44,9 +44,7 @@ def index(request):
 @staff_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-
     rewards_active = is_semester_activated(semester)
-
     courses = semester.course_set.all()
     courses_by_state = []
     for state in STATES_ORDERED.keys():
@@ -91,6 +89,78 @@ def semester_view(request, semester_id):
 
 
 @staff_required
+def semester_course_operation(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
+
+    course_ids = request.GET.getlist('course')
+    operation = request.GET.get('operation')
+    if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish']:
+        messages.error(request, _("Unsupported operation: ") + str(operation))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
+    courses = [get_object_or_404(Course, id=course_id) for course_id in course_ids]
+
+    if request.method == 'POST':        
+        if operation == 'revertToNew':
+            for course in courses:
+                course.revert_to_new()
+                course.save()
+            messages.success(request, _("Successfully reverted %d courses to new.") % (len(courses)))
+        
+        elif operation == 'prepare' or operation == 'reenableLecturerReview':
+            for course in courses:
+                course.ready_for_contributors()
+                course.save()
+            messages.success(request, _("Successfully enabled %d courses for lecturer review.") % (len(courses)))
+            try:
+                EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
+            except Exception:
+                messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
+
+        elif operation == 'approve':
+            for course in courses:
+                course.staff_approve()
+                course.save()
+            messages.success(request, _("Successfully approved %d courses.") % (len(courses)))
+
+        elif operation == 'publish':
+            for course in courses:
+                course.publish()
+                course.save()
+            messages.success(request, _("Successfully published %d courses.") % (len(courses)))
+            for user, user_courses in user_publish_notifications(courses).items():
+                try:
+                    EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
+                except Exception:
+                    messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
+
+    if not courses:
+        messages.warning(request, _("Please select at least one course."))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
+
+    current_state_name = STATES_ORDERED[courses[0].state]
+    if operation == 'revertToNew':
+        new_state_name = STATES_ORDERED['new']
+    elif operation == 'prepare' or operation == 'reenableLecturerReview':
+        new_state_name = STATES_ORDERED['prepared']
+    elif operation == 'approve':
+        new_state_name = STATES_ORDERED['approved']
+    elif operation == 'publish':
+        new_state_name = STATES_ORDERED['published']
+
+    template_data = dict(
+        semester=semester,
+        courses=courses,
+        course_ids=course_ids,
+        operation=operation,
+        current_state_name=current_state_name,
+        new_state_name=new_state_name,
+    )
+    return render(request, "staff_course_operation.html", template_data)
+
+
+@staff_required
 def semester_create(request):
     form = SemesterForm(request.POST or None)
 
@@ -131,40 +201,6 @@ def semester_delete(request, semester_id):
     else:
         messages.warning(request, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
         return redirect('evap.staff.views.semester_view', semester.id)
-
-
-@staff_required
-def semester_publish(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.filter(state="reviewed").all()
-
-    forms = helper_create_grouped_course_selection_forms(courses, None, request)
-
-    valid = helper_are_course_selection_forms_valid(forms)
-
-    for form in forms:
-        for course_id, field in form.fields.items():
-            course = Course.objects.get(pk=course_id)
-            field.label += " (graded)" if course.is_graded else " (not graded)" 
-
-    if valid:
-        selected_courses = []
-        for form in forms:
-            for course in form.selected_courses:
-                course.publish()
-                course.save()
-                selected_courses.append(course)
-        messages.success(request, _("Successfully published %d courses.") % (len(selected_courses)))
-
-        for user, courses in user_publish_notifications(selected_courses).items():
-            try:
-                EmailTemplate.get_publish_template().send_to_user(user, courses=list(courses))
-            except Exception:
-                messages.error(request, _("Could not send notification email to ") + user.username)
-        
-        return redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        return render(request, "staff_semester_publish.html", dict(semester=semester, forms=forms))
 
 
 @staff_required
@@ -215,78 +251,6 @@ def semester_assign_questionnaires(request, semester_id):
         return redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_semester_assign_questionnaires.html", dict(semester=semester, form=form))
-
-
-@staff_required
-def semester_revert_to_new(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    courses = semester.course_set.filter(state__in=['prepared']).all()
-
-    forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
-
-    valid = helper_are_course_selection_forms_valid(forms)
-
-    if valid:
-        count = 0
-        for form in forms:
-            for course in form.selected_courses:
-                course.revert_to_new()
-                course.save()
-            count += len(form.selected_courses)
-
-        messages.success(request, _("Successfully reverted %d courses to New.") % (count))
-        return redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        return render(request, "staff_semester_revert_to_new.html", dict(semester=semester, forms=forms))
-
-
-@staff_required
-def semester_approve(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
-    courses = semester.course_set.filter(state__in=['new', 'prepared', 'lecturerApproved']).all()
-
-    forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
-
-    valid = helper_are_course_selection_forms_valid(forms)
-
-    if valid:
-        count = 0
-        for form in forms:
-            for course in form.selected_courses:
-                course.staff_approve()
-                course.save()
-            count += len(form.selected_courses)
-        messages.success(request, _("Successfully approved %d courses.") % (count))
-        return redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        return render(request, "staff_semester_approve.html", dict(semester=semester, forms=forms))
-
-
-@staff_required
-def semester_contributor_ready(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
-    courses = semester.course_set.filter(state__in=['new', 'lecturerApproved']).all()
-
-    forms = helper_create_grouped_course_selection_forms(courses, lambda course: not course.warnings(), request)
-
-    valid = helper_are_course_selection_forms_valid(forms)
-
-    if valid:
-        selected_courses = []
-        for form in forms:
-            for course in form.selected_courses:
-                course.ready_for_contributors()
-                course.save()
-                selected_courses.append(course)
-
-        EmailTemplate.get_review_template().send_to_users_in_courses(selected_courses, ['editors'])
-
-        messages.success(request, _("Successfully marked %d courses as ready for lecturer review.") % (len(selected_courses)))
-        return redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        return render(request, "staff_semester_contributor_ready.html", dict(semester=semester, forms=forms))
 
 
 @staff_required
@@ -782,29 +746,3 @@ def faq_section(request, section_id):
     else:
         template_data = dict(formset=formset, section=section, questions=questions)
         return render(request, "staff_faq_section.html", template_data)
-
-
-def helper_create_grouped_course_selection_forms(courses, filter_func, request):
-    if filter_func:
-        courses = filter(filter_func, courses)
-    grouped_courses = {}
-    for course in courses:
-        degree = course.degree
-        if degree not in grouped_courses:
-            grouped_courses[degree] = []
-        grouped_courses[degree].append(course)
-
-    forms = []
-    for degree, degree_courses in grouped_courses.items():
-        form = SelectCourseForm(degree_courses, request.POST or None)
-        forms.append(form)
-
-    return forms
-
-
-def helper_are_course_selection_forms_valid(forms):
-    valid = True
-    for form in forms:
-        if not form.is_valid():
-            valid = False
-    return valid

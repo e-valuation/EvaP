@@ -252,22 +252,6 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
 
-class SelectCourseForm(forms.Form, BootstrapMixin):
-    def __init__(self, courses, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.selected_courses = []
-
-        for course in courses:
-            label = '%s (%s) (%s)' % (course.name, course.kind, STATES_ORDERED[course.state])
-            self.fields[str(course.id)] = forms.BooleanField(label=label, required=False)
-
-    def clean(self):
-        for course_id, selected in self.cleaned_data.items():
-            if selected:
-                self.selected_courses.append(Course.objects.get(pk=course_id))
-        return self.cleaned_data
-
-
 class UserForm(forms.ModelForm, BootstrapMixin):
     courses_participating_in = forms.IntegerField()
 
