@@ -271,7 +271,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         pass
 
     @transition(field=state, source='published', target='reviewed')
-    def revoke(self):
+    def unpublish(self):
         pass
 
     @property
@@ -360,7 +360,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         result = []
         if not self.has_enough_questionnaires:
             result.append(_("Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades:
+        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
 

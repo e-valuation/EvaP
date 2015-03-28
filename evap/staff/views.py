@@ -24,7 +24,7 @@ from evap.student.forms import QuestionsForm
 
 from evap.rewards.tools import is_semester_activated
 
-import random, datetime, ast
+import random, datetime
 
 def raise_permission_denied_if_archived(archiveable):
     if archiveable.is_archived:
@@ -99,16 +99,16 @@ def semester_course_operation(request, semester_id):
     if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
         return custom_redirect('evap.staff.views.semester_view', semester_id)
-    courses = [get_object_or_404(Course, id=course_id) for course_id in course_ids]
+    courses = Course.objects.filter(id__in=course_ids)
 
-    if request.method == 'POST':        
+    if request.method == 'POST':
         if operation == 'revertToNew':
             for course in courses:
                 course.revert_to_new()
                 course.save()
             messages.success(request, __("Successfully reverted %(courses)d course to new.",
                 "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
-        
+
         elif operation == 'prepare' or operation == 'reenableLecturerReview':
             for course in courses:
                 course.ready_for_contributors()
@@ -122,7 +122,7 @@ def semester_course_operation(request, semester_id):
 
         elif operation == 'approve':
             approved = 0
-            for course in courses:                
+            for course in courses:
                 if course.has_enough_questionnaires:
                     course.staff_approve()
                     course.save()
@@ -149,7 +149,7 @@ def semester_course_operation(request, semester_id):
 
         elif operation == 'unpublish':
             for course in courses:
-                course.revoke()
+                course.unpublish()
                 course.save()
             messages.success(request, __("Successfully unpublished %(courses)d course.",
                 "Successfully unpublished %(courses)d courses.", len(courses)) % {'courses': len(courses)})
