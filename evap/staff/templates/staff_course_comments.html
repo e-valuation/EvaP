@@ -10,9 +10,9 @@
 
 {% block content %}
     {{ block.super }}
-    
+
     {% if filter %}
-        <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" class="pull-right btn btn-sm btn-default">{% trans "Show reviewed comments" %}</a>
+        <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?filter=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
     {% else %}
         <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
     {% endif %}
