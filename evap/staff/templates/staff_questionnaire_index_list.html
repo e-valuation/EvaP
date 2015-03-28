@@ -10,8 +10,8 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th>{% trans "Questionnaire" %}</th>
-                        <th>{% trans "Actions" %}</th>
+                        <th class="col-sm-8">{% trans "Questionnaire" %}</th>
+                        <th class="col-sm-4">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,7 +25,7 @@
                             {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
                             {% if questionnaire.obsolete %}<span class="label label-info">{% trans "obsolete" %}</span>{% endif %}
                         </td>
-                        <td class="right">
+                        <td>
                             {% if questionnaire.can_staff_edit %}
                                 <a href="{% url "evap.staff.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                             {% else %}
