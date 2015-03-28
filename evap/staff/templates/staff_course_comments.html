@@ -18,30 +18,35 @@
     {% endif %}
     <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>    
     
-    {% if course_sections %}
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Comments about the Course" %}</span>
-            </div>
-            <div class="panel-body">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Comments about the Course" %}</span>
+        </div>
+        <div class="panel-body">
+            {% if course_sections %}
                 {% with course_sections as sections %}
                     {% include "staff_course_comments_section.html" %}
                 {% endwith %}
-            </div>
+            {% else %}
+                <i>{% trans "No comments" %}</i>
+            {% endif %}
         </div>
-    {% endif %}
-    {% if contributor_sections %}
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
-            </div>
-            <div class="panel-body">
+    </div>
+    
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
+        </div>
+        <div class="panel-body">
+            {% if contributor_sections %}
                 {% with contributor_sections as sections %}
                     {% include "staff_course_comments_section.html" %}
                 {% endwith %}
-            </div>
+            {% else %}
+                <i>{% trans "No comments" %}</i>
+            {% endif %}
         </div>
-    {% endif %}
+    </div>
 {% endblock %}
 
 {% block additional_javascript %}
