@@ -4,6 +4,7 @@ from django.db.models import Max
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext as __
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
@@ -105,29 +106,41 @@ def semester_course_operation(request, semester_id):
             for course in courses:
                 course.revert_to_new()
                 course.save()
-            messages.success(request, _("Successfully reverted %d courses to new.") % (len(courses)))
+            messages.success(request, __("Successfully reverted %(courses)d course to new.",
+                "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
         
         elif operation == 'prepare' or operation == 'reenableLecturerReview':
             for course in courses:
                 course.ready_for_contributors()
                 course.save()
-            messages.success(request, _("Successfully enabled %d courses for lecturer review.") % (len(courses)))
+            messages.success(request, __("Successfully enabled %(courses)d course for lecturer review.",
+                "Successfully enabled %(courses)d courses for lecturer review.", len(courses)) % {'courses': len(courses)})
             try:
                 EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
             except Exception:
                 messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
 
         elif operation == 'approve':
-            for course in courses:
-                course.staff_approve()
-                course.save()
-            messages.success(request, _("Successfully approved %d courses.") % (len(courses)))
+            approved = 0
+            for course in courses:                
+                if course.has_enough_questionnaires:
+                    course.staff_approve()
+                    course.save()
+                    approved += 1
+            if approved:
+                messages.success(request, __("Successfully approved %(courses)d course.",
+                    "Successfully approved %(courses)d courses.", approved) % {'courses': approved})
+            if len(courses) != approved:
+                messages.error(request, __("%(courses)d course could not be approved, because it has not enough questionnaires assigned.",
+                    "%(courses)d courses could not be approved, because they have not enough questionnaires assigned.",
+                    len(courses)-approved) % {'courses': len(courses)-approved})
 
         elif operation == 'publish':
             for course in courses:
                 course.publish()
                 course.save()
-            messages.success(request, _("Successfully published %d courses.") % (len(courses)))
+            messages.success(request, __("Successfully published %(courses)d course.",
+                "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
             for user, user_courses in user_publish_notifications(courses).items():
                 try:
                     EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
@@ -138,7 +151,8 @@ def semester_course_operation(request, semester_id):
             for course in courses:
                 course.revoke()
                 course.save()
-            messages.success(request, _("Successfully unpublished %d courses.") % (len(courses)))
+            messages.success(request, __("Successfully unpublished %(courses)d course.",
+                "Successfully unpublished %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
         return custom_redirect('evap.staff.views.semester_view', semester_id)
 

@@ -358,7 +358,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state == 'new' and not self.has_enough_questionnaires:
+        if not self.has_enough_questionnaires:
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
