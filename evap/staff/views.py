@@ -95,7 +95,7 @@ def semester_course_operation(request, semester_id):
 
     course_ids = request.GET.getlist('course')
     operation = request.GET.get('operation')
-    if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish']:
+    if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
         return custom_redirect('evap.staff.views.semester_view', semester_id)
     courses = [get_object_or_404(Course, id=course_id) for course_id in course_ids]
@@ -133,6 +133,13 @@ def semester_course_operation(request, semester_id):
                     EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
                 except Exception:
                     messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+
+        elif operation == 'unpublish':
+            for course in courses:
+                course.revoke()
+                course.save()
+            messages.success(request, _("Successfully unpublished %d courses.") % (len(courses)))
+
         return custom_redirect('evap.staff.views.semester_view', semester_id)
 
     if not courses:
@@ -148,6 +155,8 @@ def semester_course_operation(request, semester_id):
         new_state_name = STATES_ORDERED['approved']
     elif operation == 'publish':
         new_state_name = STATES_ORDERED['published']
+    elif operation == 'unpublish':
+        new_state_name = STATES_ORDERED['reviewed']
 
     template_data = dict(
         semester=semester,
@@ -396,25 +405,6 @@ def course_email(request, semester_id, course_id):
         return custom_redirect('evap.staff.views.semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
-
-
-@staff_required
-def course_unpublish(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-    raise_permission_denied_if_archived(course)
-
-    # check course state
-    if not course.state == "published":
-        messages.warning(request, _("The course '%s' cannot be unpublished, because it is not published.") % course.name)
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
-
-    if request.method == 'POST':
-        course.revoke()
-        course.save()
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
-    else:
-        return render(request, "staff_course_unpublish.html", dict(semester=semester, course=course))
 
 
 @staff_required

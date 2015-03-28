@@ -91,7 +91,6 @@
         {% endif %}
         {% if state == 'published' %}
             <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-            <a href="{% url "evap.staff.views.course_unpublish" semester.id course.id %}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Unpublish" %}</a>
         {% endif %}
     </td>
 {% endif %}

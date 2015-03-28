@@ -20,7 +20,6 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)/edit$", course_edit),
     url(r"^semester/(\d+)/course/(\d+)/delete$", course_delete),
     url(r"^semester/(\d+)/course/(\d+)/email$", course_email),
-    url(r"^semester/(\d+)/course/(\d+)/unpublish$", course_unpublish),
     url(r"^semester/(\d+)/course/(\d+)/preview$", course_preview),
     url(r"^semester/(\d+)/course/(\d+)/comments$", course_comments),
     url(r"^semester/(\d+)/course/(\d+)/comment/(\d+)/edit$", course_comment_edit),
