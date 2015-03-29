@@ -20,7 +20,19 @@
         <span class="label label-warning">{{ warning }}</span>
     {% endfor %}
 </td>
-<td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
+<td class="minimize text-center">
+    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}
+    {% if course.state == 'inEvaluation' %}
+        <br>
+        {% if course.days_left_for_evaluation <= 0 %}
+            <span class="label label-danger">{% trans "ends today" %}</span>
+        {% elif course.days_left_for_evaluation == 1 %}
+            <span class="label label-danger">{% trans "ends tomorrow" %}</span>
+        {% elif course.days_left_for_evaluation < 5 %}
+            <span class="label label-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+        {% endif %}
+    {% endif %}
+</td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_reviewed_textanswers=course.reviewed_textanswer_set.count %}
         {% if num_participants %}

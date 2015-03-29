@@ -457,7 +457,13 @@ def course_unpublish(request, semester_id, course_id):
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    filter = request.GET.get('filter', False)
+    
+    filter = request.GET.get('filter', None)
+    if filter == None: # if no parameter is given take session value
+        filter = request.session.get('filter_comments', False) # defaults to False if no session value exists
+    else:
+        filter = {'true': True, 'false': False}.get(filter.lower()) # convert parameter to boolean
+    request.session['filter_comments'] = filter # store value for session
 
     exclude_states = []
     if filter:
