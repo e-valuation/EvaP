@@ -9,8 +9,8 @@
 
     <form method="POST">
         {% csrf_token %}
-        {% for course_id in course_ids %}
-            <input type="hidden" name="course_ids" value="{{ course_id }}" />
+        {% for course in courses %}
+            <input type="hidden" name="course_ids" value="{{ course.id }}" />
         {% endfor %}
         
         <table class="table table-striped">

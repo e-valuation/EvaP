@@ -103,15 +103,15 @@ def semester_course_operation(request, semester_id):
         course_ids = request.POST.getlist('course_ids')
         courses = Course.objects.filter(id__in=course_ids)
         if operation == 'revertToNew':
-            semester_course_operation_revert(request, courses)
+            helper_semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableLecturerReview':
-            semester_course_operation_prepare(request, courses)
+            helper_semester_course_operation_prepare(request, courses)
         elif operation == 'approve':
-            semester_course_operation_approve(request, courses)
+            helper_semester_course_operation_approve(request, courses)
         elif operation == 'publish':
-            semester_course_operation_publish(request, courses)
+            helper_semester_course_operation_publish(request, courses)
         elif operation == 'unpublish':
-            semester_course_operation_unpublish(request, courses)
+            helper_semester_course_operation_unpublish(request, courses)
 
         return custom_redirect('evap.staff.views.semester_view', semester_id)
 
@@ -130,8 +130,7 @@ def semester_course_operation(request, semester_id):
         difference = len(courses) - len(courses_with_enough_questionnaires)
         if difference:
             courses = courses_with_enough_questionnaires
-            course_ids = [course.id for course in courses]
-            messages.error(request, __("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
+            messages.warning(request, __("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
                 "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                 difference) % {'courses': difference})
     elif operation == 'publish':
@@ -146,25 +145,20 @@ def semester_course_operation(request, semester_id):
     template_data = dict(
         semester=semester,
         courses=courses,
-        course_ids=course_ids,
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
     )
     return render(request, "staff_course_operation.html", template_data)
 
-
-@staff_required
-def semester_course_operation_revert(request, courses):
+def helper_semester_course_operation_revert(request, courses):
     for course in courses:
         course.revert_to_new()
         course.save()
     messages.success(request, __("Successfully reverted %(courses)d course to new.",
         "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
 
-
-@staff_required
-def semester_course_operation_prepare(request, courses):
+def helper_semester_course_operation_prepare(request, courses):
     for course in courses:
         course.ready_for_contributors()
         course.save()
@@ -175,18 +169,14 @@ def semester_course_operation_prepare(request, courses):
     except Exception:
         messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
 
-
-@staff_required
-def semester_course_operation_approve(request, courses):
+def helper_semester_course_operation_approve(request, courses):
     for course in courses:
         course.staff_approve()
         course.save()
     messages.success(request, __("Successfully approved %(courses)d course.",
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
-
-@staff_required
-def semester_course_operation_publish(request, courses):
+def helper_semester_course_operation_publish(request, courses):
     for course in courses:
         course.publish()
         course.save()
@@ -198,9 +188,7 @@ def semester_course_operation_publish(request, courses):
         except Exception:
             messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
 
-
-@staff_required
-def semester_course_operation_unpublish(request, courses):
+def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
         course.unpublish()
         course.save()
