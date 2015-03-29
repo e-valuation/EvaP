@@ -103,56 +103,15 @@ def semester_course_operation(request, semester_id):
 
     if request.method == 'POST':
         if operation == 'revertToNew':
-            for course in courses:
-                course.revert_to_new()
-                course.save()
-            messages.success(request, __("Successfully reverted %(courses)d course to new.",
-                "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
-
+            semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableLecturerReview':
-            for course in courses:
-                course.ready_for_contributors()
-                course.save()
-            messages.success(request, __("Successfully enabled %(courses)d course for lecturer review.",
-                "Successfully enabled %(courses)d courses for lecturer review.", len(courses)) % {'courses': len(courses)})
-            try:
-                EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
-            except Exception:
-                messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
-
+            semester_course_operation_prepare(request, courses)
         elif operation == 'approve':
-            approved = 0
-            for course in courses:
-                if course.has_enough_questionnaires:
-                    course.staff_approve()
-                    course.save()
-                    approved += 1
-            if approved:
-                messages.success(request, __("Successfully approved %(courses)d course.",
-                    "Successfully approved %(courses)d courses.", approved) % {'courses': approved})
-            if len(courses) != approved:
-                messages.error(request, __("%(courses)d course could not be approved, because it has not enough questionnaires assigned.",
-                    "%(courses)d courses could not be approved, because they have not enough questionnaires assigned.",
-                    len(courses)-approved) % {'courses': len(courses)-approved})
-
+            semester_course_operation_approve(request, courses)
         elif operation == 'publish':
-            for course in courses:
-                course.publish()
-                course.save()
-            messages.success(request, __("Successfully published %(courses)d course.",
-                "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-            for user, user_courses in user_publish_notifications(courses).items():
-                try:
-                    EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
-                except Exception:
-                    messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
-
+            semester_course_operation_publish(request, courses)
         elif operation == 'unpublish':
-            for course in courses:
-                course.unpublish()
-                course.save()
-            messages.success(request, __("Successfully unpublished %(courses)d course.",
-                "Successfully unpublished %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+            semester_course_operation_unpublish(request, courses)
 
         return custom_redirect('evap.staff.views.semester_view', semester_id)
 
@@ -181,6 +140,68 @@ def semester_course_operation(request, semester_id):
         new_state_name=new_state_name,
     )
     return render(request, "staff_course_operation.html", template_data)
+
+
+@staff_required
+def semester_course_operation_revert(request, courses):
+    for course in courses:
+        course.revert_to_new()
+        course.save()
+    messages.success(request, __("Successfully reverted %(courses)d course to new.",
+        "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
+
+
+@staff_required
+def semester_course_operation_prepare(request, courses):
+    for course in courses:
+        course.ready_for_contributors()
+        course.save()
+    messages.success(request, __("Successfully enabled %(courses)d course for lecturer review.",
+        "Successfully enabled %(courses)d courses for lecturer review.", len(courses)) % {'courses': len(courses)})
+    try:
+        EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
+    except Exception:
+        messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
+
+
+@staff_required
+def semester_course_operation_approve(request, courses):
+    approved = 0
+    for course in courses:
+        if course.has_enough_questionnaires:
+            course.staff_approve()
+            course.save()
+            approved += 1
+    if approved:
+        messages.success(request, __("Successfully approved %(courses)d course.",
+            "Successfully approved %(courses)d courses.", approved) % {'courses': approved})
+    if len(courses) != approved:
+        messages.error(request, __("%(courses)d course could not be approved, because it has not enough questionnaires assigned.",
+            "%(courses)d courses could not be approved, because they have not enough questionnaires assigned.",
+            len(courses)-approved) % {'courses': len(courses)-approved})
+
+
+@staff_required
+def semester_course_operation_publish(request, courses):
+    for course in courses:
+        course.publish()
+        course.save()
+    messages.success(request, __("Successfully published %(courses)d course.",
+        "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+    for user, user_courses in user_publish_notifications(courses).items():
+        try:
+            EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
+        except Exception:
+            messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+
+
+@staff_required
+def semester_course_operation_unpublish(request, courses):
+    for course in courses:
+        course.unpublish()
+        course.save()
+    messages.success(request, __("Successfully unpublished %(courses)d course.",
+        "Successfully unpublished %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
 
 @staff_required
