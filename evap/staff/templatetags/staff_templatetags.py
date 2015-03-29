@@ -26,5 +26,5 @@ def include_staff_questionnaire_index_list(questionnaires, headline):
     return dict(questionnaires=questionnaires, headline=headline)
 
 @register.inclusion_tag("staff_semester_view_course.html")
-def include_staff_semester_view_course(semester, state, course, disable_if_archived):
-    return dict(semester=semester, state=state, course=course, disable_if_archived=disable_if_archived)
+def include_staff_semester_view_course(semester, state, course, disable_if_archived, info_only=False):
+    return dict(semester=semester, state=state, course=course, disable_if_archived=disable_if_archived, info_only=info_only)

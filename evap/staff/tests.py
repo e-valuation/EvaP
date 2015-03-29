@@ -14,8 +14,8 @@ from django.contrib.auth.models import Group
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
                             TextAnswer, EmailTemplate, NotArchiveable
 from evap.evaluation.tools import calculate_average_and_medium_grades
-from evap.staff.forms import CourseEmailForm, UserForm, SelectCourseForm, ContributionFormSet, \
-                             ContributionForm, CourseForm, ImportForm, UserImportForm
+from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
+                             CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
@@ -304,17 +304,15 @@ class URLTests(WebTest):
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
             ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
             ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
-            ("test_staff_semester_x_reset", "/staff/semester/1/reset", "evap"),
-            ("test_staff_semester_x_contributorready", "/staff/semester/1/contributorready", "evap"),
-            ("test_staff_semester_x_approve", "/staff/semester/1/approve", "evap"),
-            ("test_staff_semester_x_publish", "/staff/semester/1/publish", "evap"),
+            ("test_staff_semester_x_todo", "/staff/semester/1/todo", "evap"),
             # staff semester course
             ("test_staff_semester_x_course_y_edit", "/staff/semester/1/course/5/edit", "evap"),
             ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
-            ("test_staff_semester_x_course_y_unpublish", "/staff/semester/1/course/8/unpublish", "evap"),
+            ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
+            ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
             ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
@@ -384,7 +382,6 @@ class URLTests(WebTest):
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
             ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_semester_x_course_y_unpublish_fail", "/staff/semester/1/course/7/unpublish", "evap"),
             ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/2/edit", "evap"),
             ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
             ("test_staff_semester_x_delete_fail", "/staff/semester/1/delete", "evap"),
@@ -442,23 +439,8 @@ class URLTests(WebTest):
     def test_staff_semester_x_lottery__nodata_success(self):
         self.get_submit_assert_200("/staff/semester/1/lottery", "evap")
 
-    def test_staff_semester_x_reset__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/reset", "evap")
-
-    def test_staff_semester_x_contributorready__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/contributorready", "evap")
-
-    def test_staff_semester_x_approve__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/approve", "evap")
-
-    def test_staff_semester_x_publish__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/publish", "evap")
-
     def test_staff_semester_x_course_y_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
-
-    def test_staff_semester_x_course_y_unpublish__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/8/unpublish", "evap"),
 
     def test_staff_semester_x_course_y_delete__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/delete", "evap"),
@@ -516,17 +498,6 @@ class URLTests(WebTest):
         form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
 
-    def test_course_selection_form(self):
-        """
-            Tests the SelectCourseForm with one valid input dataset
-            (one cannot make it invalid through the UI).
-        """
-        course1 = Course.objects.get(pk=1)
-        course2 = Course.objects.get(pk=2)
-        data = {"1": True, "2": False}
-        form = SelectCourseForm([course1, course2], data=data)
-        self.assertTrue(form.is_valid())
-
     def test_contributor_form_set(self):
         """
             Tests the ContributionFormset with various input data sets.
@@ -576,31 +547,46 @@ class URLTests(WebTest):
         self.get_submit_assert_302("/staff/semester/2/delete", "evap")
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
-    def helper_semester_state_views(self, url, course_ids, old_states, new_state):
-        page = self.app.get(url, user="evap")
-        form = lastform(page)
+    def helper_semester_state_views(self, course_ids, old_state, new_state, operation):
+        page = self.app.get("/staff/semester/1", user="evap")
+        form = page.forms["form_" + old_state]
         for course_id in course_ids:
-            self.assertIn(Course.objects.get(pk=course_id).state, old_states)
-            form[str(course_id)] = "on"
+            self.assertIn(Course.objects.get(pk=course_id).state, old_state)
+        form['course'] = course_ids
+        response = form.submit('operation', value=operation)
+
+        form = lastform(response)
         response = form.submit()
         self.assertIn("Successfully", str(response))
         for course_id in course_ids:
-            self.assertEqual(Course.objects.get(pk=course_id).state,  new_state)
+            self.assertEqual(Course.objects.get(pk=course_id).state, new_state)
 
     """
-        The following four tests test the course state transitions triggerable via the UI.
+        The following tests make sure the course state transitions are triggerable via the UI.
     """
     def test_semester_publish(self):
-        self.helper_semester_state_views("/staff/semester/1/publish", [7], ["reviewed"], "published")
+        self.helper_semester_state_views([7], "reviewed", "published", "publish")
 
     def test_semester_reset(self):
-        self.helper_semester_state_views("/staff/semester/1/reset", [2], ["prepared"], "new")
+        self.helper_semester_state_views([2], "prepared", "new", "revertToNew")
 
-    def test_semester_approve(self):
-        self.helper_semester_state_views("/staff/semester/1/approve", [1,2,3], ["new", "prepared", "lecturerApproved"], "approved")
+    def test_semester_approve_1(self):
+        self.helper_semester_state_views([1], "new", "approved", "approve")
 
-    def test_semester_contributor_ready(self):
-        self.helper_semester_state_views("/staff/semester/1/contributorready", [1,3], ["new", "lecturerApproved"], "prepared")
+    def test_semester_approve_2(self):
+        self.helper_semester_state_views([2], "prepared", "approved", "approve")
+
+    def test_semester_approve_3(self):
+        self.helper_semester_state_views([3], "lecturerApproved", "approved", "approve")
+
+    def test_semester_contributor_ready_1(self):
+        self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
+
+    def test_semester_contributor_ready_2(self):
+        self.helper_semester_state_views([3], "lecturerApproved", "prepared", "reenableLecturerReview")
+
+    def test_semester_unpublish(self):
+        self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
 
     def test_course_create(self):
         """
@@ -956,12 +942,10 @@ class ArchivingTests(WebTest):
 
         self.get_assert_403("/staff/semester/4/import", "evap")
         self.get_assert_403("/staff/semester/4/assign", "evap")
-        self.get_assert_403("/staff/semester/4/approve", "evap")
-        self.get_assert_403("/staff/semester/4/contributorready", "evap")
         self.get_assert_403("/staff/semester/4/course/create", "evap")
         self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
         self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
-        self.get_assert_403("/staff/semester/4/course/7/unpublish", "evap")
+        self.get_assert_403("/staff/semester/4/courseoperation", "evap")
 
 
 class RedirectionTest(WebTest):

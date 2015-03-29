@@ -1342,6 +1342,29 @@
     }
 },
 {
+  "pk": 10, 
+  "model": "evaluation.course", 
+  "fields": {
+    "name_de": "another new course", 
+    "_participant_count": null, 
+    "degree": "a degree", 
+    "voters": [], 
+    "semester": 1, 
+    "last_modified_time": "2014-09-16T23:01:13.059", 
+    "_voter_count": null, 
+    "state": "new", 
+    "last_modified_user": 1, 
+    "participants": [
+      5, 
+      8
+    ], 
+    "vote_end_date": "2099-12-31", 
+    "name_en": "another new course", 
+    "kind": "a type", 
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.faqsection", 
   "fields": {
