@@ -24,7 +24,7 @@ class Command(BaseCommand):
                     courses_new_in_evaluation.append(course)
                 elif course.state == "inEvaluation" and course.vote_end_date < today:
                     course.evaluation_end()
-                    if course.is_fully_checked():
+                    if course.is_fully_reviewed():
                         course.review_finished()
                     course.save()
             except Exception:

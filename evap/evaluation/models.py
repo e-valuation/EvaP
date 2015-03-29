@@ -196,6 +196,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         today = datetime.date.today()
         return today >= self.vote_start_date and today <= self.vote_end_date
 
+    def has_enough_questionnaires(self):
+        return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
+
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return (self.state == "inEvaluation"
@@ -238,7 +241,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def contributor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved')
+    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved', conditions=[has_enough_questionnaires])
     def staff_approve(self):
         pass
 
@@ -271,7 +274,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         pass
 
     @transition(field=state, source='published', target='reviewed')
-    def revoke(self):
+    def unpublish(self):
         pass
 
     @property
@@ -317,10 +320,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def days_left_for_evaluation(self):
         return (self.vote_end_date - datetime.date.today()).days
 
-    @property
-    def has_enough_questionnaires(self):
-        return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
-
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
@@ -358,9 +357,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state == 'new' and not self.has_enough_questionnaires:
+        if not self.has_enough_questionnaires():
             result.append(_("Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed'] and not self.can_publish_grades:
+        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
 

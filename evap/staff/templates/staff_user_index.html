@@ -19,25 +19,19 @@
     <table class="table table-striped user-table">
         <thead>
             <tr>
-                <th class="minimize-with-padding">{% trans "Name" %}</th>
-                <th class="maximize">{% trans "Username" %}</th>
-                <th class="minimize-with-padding">{% trans "Information" %}</th>
-                <th class="minimize-with-padding">{% trans "Actions" %}</th>
+                <th class="col-sm-3">{% trans "Name" %}</th>
+                <th class="col-sm-3">{% trans "Username" %}</th>
+                <th class="col-sm-4">{% trans "Information" %}</th>
+                <th class="col-sm-2">{% trans "Actions" %}</th>
             </tr>
         </thead>
         <tbody>
         {% for user in users %}
             <tr>
-                <td class="minimize-with-padding">
-                    {{ user.full_name }}
-                </td>
-                <td class="maximize">
-                    {{ user.username }}
-                </td>
-                <td class="minimize-with-padding">
-                    {% include_staff_user_labels user %}
-                </td>
-                <td class="minimize-with-padding">
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.username }}</td>
+                <td>{% include_staff_user_labels user %}</td>
+                <td>
                     <a href="{% url "evap.staff.views.user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.can_staff_delete %}
                         <a href="{% url "evap.staff.views.user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>

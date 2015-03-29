@@ -185,7 +185,7 @@ div.vote-inputs > textarea {
     height: 100px;
 }
 
-td.preview > textarea {
+div.preview > textarea {
     height: 60px;
 }
 

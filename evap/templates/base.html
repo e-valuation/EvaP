@@ -180,7 +180,7 @@
             });
 
             // add a close button to each message and make it work
-            $(".alert").append("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>").alert();
+            $(".alert").prepend("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>").alert();
 
             // activate topbar
             $('#topbar').dropdown();

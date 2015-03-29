@@ -2,9 +2,16 @@
 {% load morefilters %}
 {% load static %}
 
+{% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'reviewed' or state == 'published' %}
+    {% if info_only|is_false %}
+        <td class="minimize">
+            <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}"/>
+        </td>
+    {% endif %}
+{% endif %}
 <td class="maximize">
     <div>
-    {% if course.can_staff_edit %}
+    {% if course.can_staff_edit and info_only|is_false %}
         <a href="{% url "evap.staff.views.course_edit" semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}
@@ -20,7 +27,19 @@
         <span class="label label-warning">{{ warning }}</span>
     {% endfor %}
 </td>
-<td class="minimize">{{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}</td>
+<td class="minimize text-center">
+    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}
+    {% if course.state == 'inEvaluation' %}
+        <br>
+        {% if course.days_left_for_evaluation <= 0 %}
+            <span class="label label-danger">{% trans "ends today" %}</span>
+        {% elif course.days_left_for_evaluation == 1 %}
+            <span class="label label-danger">{% trans "ends tomorrow" %}</span>
+        {% elif course.days_left_for_evaluation < 5 %}
+            <span class="label label-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+        {% endif %}
+    {% endif %}
+</td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_reviewed_textanswers=course.reviewed_textanswer_set.count %}
         {% if num_participants %}
@@ -30,7 +49,7 @@
                     <span>{{ num_voters }}/{{ num_participants }}</span>
                     <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
                 </p>
-                {% if course.can_staff_review %}
+                {% if course.can_staff_review and info_only|is_false %}
                     <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
                         <span class="glyphicon glyphicon-comment"></span>
                         <span>{{ num_reviewed_textanswers }}/{{ num_textanswers }}</span>
@@ -58,19 +77,20 @@
         </p>
     </td>
 {% endif %}
-<td class="minimize">
-    <a href="{% url "evap.staff.views.course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
-    {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
-        <a href="{% url "evap.staff.views.course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-    {% endif %}
-    {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
-        <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
-    {% endif %}
-    {% if course.can_staff_delete %}
-        <a href="{% url "evap.staff.views.course_delete" semester.id course.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
-    {% endif %}
-    {% if state == 'published' %}
-        <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-        <a href="{% url "evap.staff.views.course_unpublish" semester.id course.id %}" title="{% trans "Unpublish" %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Unpublish" %}</a>
-    {% endif %}
-</td>
+{% if info_only|is_false %}
+    <td class="minimize">
+        <a href="{% url "evap.staff.views.course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
+        {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'approved' %}
+            <a href="{% url "evap.staff.views.course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+        {% endif %}
+        {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
+            <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
+        {% endif %}
+        {% if course.can_staff_delete %}
+            <a href="{% url "evap.staff.views.course_delete" semester.id course.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+        {% endif %}
+        {% if state == 'published' %}
+            <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+        {% endif %}
+    </td>
+{% endif %}
