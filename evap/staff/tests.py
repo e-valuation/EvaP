@@ -304,12 +304,15 @@ class URLTests(WebTest):
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
             ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
             ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
+            ("test_staff_semester_x_todo", "/staff/semester/1/todo", "evap"),
             # staff semester course
             ("test_staff_semester_x_course_y_edit", "/staff/semester/1/course/5/edit", "evap"),
             ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
+            ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
+            ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
             ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
@@ -942,6 +945,7 @@ class ArchivingTests(WebTest):
         self.get_assert_403("/staff/semester/4/course/create", "evap")
         self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
         self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
+        self.get_assert_403("/staff/semester/4/courseoperation", "evap")
 
 
 class RedirectionTest(WebTest):
