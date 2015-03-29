@@ -94,14 +94,14 @@ def semester_course_operation(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
 
-    course_ids = request.GET.getlist('course')
     operation = request.GET.get('operation')
     if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
         return custom_redirect('evap.staff.views.semester_view', semester_id)
-    courses = Course.objects.filter(id__in=course_ids)
 
     if request.method == 'POST':
+        course_ids = request.POST.getlist('course_ids')
+        courses = Course.objects.filter(id__in=course_ids)
         if operation == 'revertToNew':
             semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableLecturerReview':
@@ -115,9 +115,8 @@ def semester_course_operation(request, semester_id):
 
         return custom_redirect('evap.staff.views.semester_view', semester_id)
 
-    if not courses:
-        messages.warning(request, _("Please select at least one course."))
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+    course_ids = request.GET.getlist('course')
+    courses = Course.objects.filter(id__in=course_ids)
 
     current_state_name = STATES_ORDERED[courses[0].state]
     if operation == 'revertToNew':
@@ -126,10 +125,23 @@ def semester_course_operation(request, semester_id):
         new_state_name = STATES_ORDERED['prepared']
     elif operation == 'approve':
         new_state_name = STATES_ORDERED['approved']
+        # remove courses without enough questionnaires
+        courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires()]
+        difference = len(courses) - len(courses_with_enough_questionnaires)
+        if difference:
+            courses = courses_with_enough_questionnaires
+            course_ids = [course.id for course in courses]
+            messages.error(request, __("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
+                "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
+                difference) % {'courses': difference})
     elif operation == 'publish':
         new_state_name = STATES_ORDERED['published']
     elif operation == 'unpublish':
         new_state_name = STATES_ORDERED['reviewed']
+
+    if not courses:
+        messages.warning(request, _("Please select at least one course."))
+        return custom_redirect('evap.staff.views.semester_view', semester_id)
 
     template_data = dict(
         semester=semester,
@@ -166,19 +178,11 @@ def semester_course_operation_prepare(request, courses):
 
 @staff_required
 def semester_course_operation_approve(request, courses):
-    approved = 0
     for course in courses:
-        if course.has_enough_questionnaires:
-            course.staff_approve()
-            course.save()
-            approved += 1
-    if approved:
-        messages.success(request, __("Successfully approved %(courses)d course.",
-            "Successfully approved %(courses)d courses.", approved) % {'courses': approved})
-    if len(courses) != approved:
-        messages.error(request, __("%(courses)d course could not be approved, because it has not enough questionnaires assigned.",
-            "%(courses)d courses could not be approved, because they have not enough questionnaires assigned.",
-            len(courses)-approved) % {'courses': len(courses)-approved})
+        course.staff_approve()
+        course.save()
+    messages.success(request, __("Successfully approved %(courses)d course.",
+        "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
 
 @staff_required
