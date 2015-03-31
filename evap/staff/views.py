@@ -118,25 +118,26 @@ def semester_course_operation(request, semester_id):
     course_ids = request.GET.getlist('course')
     courses = Course.objects.filter(id__in=course_ids)
 
-    current_state_name = STATES_ORDERED[courses[0].state]
-    if operation == 'revertToNew':
-        new_state_name = STATES_ORDERED['new']
-    elif operation == 'prepare' or operation == 'reenableLecturerReview':
-        new_state_name = STATES_ORDERED['prepared']
-    elif operation == 'approve':
-        new_state_name = STATES_ORDERED['approved']
-        # remove courses without enough questionnaires
-        courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires()]
-        difference = len(courses) - len(courses_with_enough_questionnaires)
-        if difference:
-            courses = courses_with_enough_questionnaires
-            messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
-                "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
-                difference) % {'courses': difference})
-    elif operation == 'publish':
-        new_state_name = STATES_ORDERED['published']
-    elif operation == 'unpublish':
-        new_state_name = STATES_ORDERED['reviewed']
+    if courses:
+        current_state_name = STATES_ORDERED[courses[0].state]
+        if operation == 'revertToNew':
+            new_state_name = STATES_ORDERED['new']
+        elif operation == 'prepare' or operation == 'reenableLecturerReview':
+            new_state_name = STATES_ORDERED['prepared']
+        elif operation == 'approve':
+            new_state_name = STATES_ORDERED['approved']
+            # remove courses without enough questionnaires
+            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires()]
+            difference = len(courses) - len(courses_with_enough_questionnaires)
+            if difference:
+                courses = courses_with_enough_questionnaires
+                messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
+                    "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
+                    difference) % {'courses': difference})
+        elif operation == 'publish':
+            new_state_name = STATES_ORDERED['published']
+        elif operation == 'unpublish':
+            new_state_name = STATES_ORDERED['reviewed']
 
     if not courses:
         messages.warning(request, _("Please select at least one course."))
