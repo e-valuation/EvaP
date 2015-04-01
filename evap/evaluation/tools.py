@@ -140,22 +140,14 @@ def calculate_results(course):
     sections = []
 
     # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
-    questionnaire_med_answers = {}
+    questionnaire_med_answers = defaultdict(list)
     questionnaire_max_answers = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        if questionnaire not in questionnaire_med_answers:
-            questionnaire_med_answers[questionnaire] = []
-        max_answers = 0
-        for question in questionnaire.question_set.all():
-            # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
-            if not question.is_text_question:
-                answers = get_answers(contribution, question)
-                if len(answers) > max_answers:
-                    max_answers = len(answers)
+        max_answers = max([get_answers(contribution, question).count() for question in questionnaire.likert_and_grade_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
-    for questionnaire in questionnaire_med_answers:
-        questionnaire_med_answers[questionnaire] = med(questionnaire_med_answers[questionnaire])
+    for questionnaire, max_answers in questionnaire_med_answers.items():
+        questionnaire_med_answers[questionnaire] = med(max_answers)
 
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question

@@ -127,6 +127,10 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     def text_questions(self):
         return [question for question in self.question_set.all() if question.is_text_question]
 
+    @property
+    def likert_and_grade_questions(self):
+        return [question for question in self.question_set.all() if question.is_grade_question or question.is_likert_question]
+
 
 class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""
