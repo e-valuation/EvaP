@@ -212,13 +212,13 @@ def calculate_results(course):
 
         # compute average and median grades for all LikertResults in this
         # section, will return None if no LikertResults exist in this section
-        average_likert = avg([result.average for result in results if isinstance(result, LikertResult)])
-        median_likert = med([result.median for result in results if isinstance(result, LikertResult)])
+        average_likert = avg([result.average for result in results if result.question.is_likert_question])
+        median_likert = med([result.median for result in results if result.question.is_likert_question])
 
         # compute average and median grades for all GradeResults in this
         # section, will return None if no GradeResults exist in this section
-        average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
-        median_grade = med([result.median for result in results if isinstance(result, GradeResult)])
+        average_grade = avg([result.average for result in results if result.question.is_grade_question])
+        median_grade = med([result.median for result in results if result.question.is_grade_question])
 
         average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
         median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
