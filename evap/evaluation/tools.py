@@ -68,7 +68,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
+# note that GradeResult is also used for likert questions
 GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
@@ -123,6 +123,21 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
+def get_distribution(answers):
+    count = len(answers)
+    if count == 0:
+        return None
+    distribution = OrderedDict()
+    for i in range(1, 6):
+        distribution[i] = 0
+    for answer in answers:
+        distribution[answer] += 1
+    # divide by the number of answers to get relative 0..1 values
+    for k in distribution:
+        distribution[k] = float(distribution[k]) / count * 100.0
+    return distribution
+
+
 def calculate_results(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
@@ -156,41 +171,15 @@ def calculate_results(course):
             if question.is_likert_question or question.is_grade_question:
                 answers = get_answers(contribution, question).values_list('answer', flat=True)
 
-                # calculate average, median and distribution
-                if answers:
-                    average = avg(answers)
-                    median = med(answers)
-                    variance = avg((average - answer) ** 2 for answer in answers)
-                    # calculate relative distribution (histogram) of answers
-                    distribution = OrderedDict()
-                    for i in range(1, 6):
-                        distribution[i] = 0
-                    for answer in answers:
-                        distribution[answer] += 1
-                    # divide by the number of answers to get relative 0..1 values
-                    for k in distribution:
-                        distribution[k] = float(distribution[k]) / len(answers) * 100.0
-                else:
-                    average = None
-                    median = None
-                    variance = None
-                    distribution = None
+                count = len(answers)
+                average = avg(answers)
+                median = med(answers)
+                variance = avg((average - answer) ** 2 for answer in answers)
+                distribution = get_distribution(answers)
+                warning = count > 0 and count < settings.RESULTS_WARNING_PERCENTAGE * questionnaire_med_answers[questionnaire]
 
-                warning = len(answers) > 0 and len(answers) < settings.RESULTS_WARNING_PERCENTAGE * questionnaire_med_answers[questionnaire]
-                # produce the result element
-                kwargs = {
-                    'question': question,
-                    'count': len(answers),
-                    'average': average,
-                    'median': median,
-                    'variance': variance,
-                    'distribution': distribution,
-                    'warning': warning
-                }
-                if question.is_likert_question:
-                    results.append(LikertResult(**kwargs))
-                elif question.is_grade_question:
-                    results.append(GradeResult(**kwargs))
+                results.append(GradeResult(question, count, average, median, variance, distribution, warning))
+
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
                 answers = get_textanswers(contribution, question, allowed_states)
