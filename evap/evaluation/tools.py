@@ -66,15 +66,13 @@ STUDENT_STATES_ORDERED = OrderedDict((
 ))
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'warning'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
 RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
 def replace_results(result_section, new_results):
-    return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
-        result_section.average_likert, result_section.median_likert, result_section.average_grade,
-        result_section.median_grade, result_section.warning)
+    return ResultSection(result_section.questionnaire, result_section.contributor, new_results, result_section.warning)
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -185,21 +183,9 @@ def calculate_results(course):
                 answers = get_textanswers(contribution, question, allowed_states)
                 results.append(TextResult(question=question, answers=answers))
 
-        # compute average and median grades for all likert questions in this section
-        average_likert = avg([result.average for result in results if result.question.is_likert_question])
-        median_likert = med([result.median for result in results if result.question.is_likert_question])
-
-        # compute average and median grades for all grade questions in this section
-        average_grade = avg([result.average for result in results if result.question.is_grade_question])
-        median_grade = med([result.median for result in results if result.question.is_grade_question])
-
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
-        sections.append(ResultSection(
-            questionnaire, contribution.contributor, results,
-            average_likert, median_likert,
-            average_grade, median_grade,
-            section_warning))
+        sections.append(ResultSection(questionnaire, contribution.contributor, results, section_warning))
 
     # store results into cache
     # XXX: What would be a good timeout here? Once public, data is not going to
@@ -220,15 +206,16 @@ def calculate_average_and_medium_grades(course):
     med_generic_grade = []
     med_contribution_grade = []
 
-    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, warning in calculate_results(course):
-        if average_likert:
-            (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
-        if median_likert:
-            (med_contribution_likert if contributor else med_generic_likert).append(median_likert)
-        if average_grade:
-            (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
-        if median_grade:
-            (med_contribution_grade if contributor else med_generic_grade).append(median_grade)
+    for questionnaire, contributor, results, warning in calculate_results(course):
+        average_likert = avg([result.average for result in results if result.question.is_likert_question])
+        median_likert = med([result.median for result in results if result.question.is_likert_question])
+        average_grade = avg([result.average for result in results if result.question.is_grade_question])
+        median_grade = med([result.median for result in results if result.question.is_grade_question])
+
+        (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
+        (med_contribution_likert if contributor else med_generic_likert).append(median_likert)
+        (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
+        (med_contribution_grade if contributor else med_generic_grade).append(median_grade)
 
     # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
     # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
