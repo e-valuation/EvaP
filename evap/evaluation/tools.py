@@ -142,7 +142,7 @@ def calculate_results(course):
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
     median grades for that section (or None). The result elements are either
-    `LikertResult`, `TextResult` or `GradeResult` instances."""
+    `RatingResult` or `TextResult` instances."""
 
     # return cached results if available
     cache_key = str.format('evap.staff.results.views.calculate_results-{:d}', course.id)
@@ -185,13 +185,11 @@ def calculate_results(course):
                 answers = get_textanswers(contribution, question, allowed_states)
                 results.append(TextResult(question=question, answers=answers))
 
-        # compute average and median grades for all LikertResults in this
-        # section, will return None if no LikertResults exist in this section
+        # compute average and median grades for all likert questions in this section
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
         median_likert = med([result.median for result in results if result.question.is_likert_question])
 
-        # compute average and median grades for all GradeResults in this
-        # section, will return None if no GradeResults exist in this section
+        # compute average and median grades for all grade questions in this section
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
         median_grade = med([result.median for result in results if result.question.is_grade_question])
 
