@@ -157,12 +157,13 @@ def calculate_results(course):
     # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
     questionnaire_med_answers = defaultdict(list)
     questionnaire_max_answers = {}
+    questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
         max_answers = max([get_answers(contribution, question).count() for question in questionnaire.likert_and_grade_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
-        questionnaire_med_answers[questionnaire] = med(max_answers)
+        questionnaire_warning_thresholds[questionnaire] = settings.RESULTS_WARNING_PERCENTAGE * med(max_answers)
 
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
@@ -176,7 +177,7 @@ def calculate_results(course):
                 median = med(answers)
                 variance = avg((average - answer) ** 2 for answer in answers)
                 distribution = get_distribution(answers)
-                warning = count > 0 and count < settings.RESULTS_WARNING_PERCENTAGE * questionnaire_med_answers[questionnaire]
+                warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
                 results.append(GradeResult(question, count, average, median, variance, distribution, warning))
 
@@ -204,10 +205,7 @@ def calculate_results(course):
         average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
         median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
 
-        max_answers_this_questionnaire = questionnaire_max_answers[(questionnaire, contribution)]
-        med_answers_this_questionnaire_type = questionnaire_med_answers[questionnaire]
-        warning_threshold = settings.RESULTS_WARNING_PERCENTAGE * med_answers_this_questionnaire_type
-        section_warning = med_answers_this_questionnaire_type > 0 and max_answers_this_questionnaire < warning_threshold
+        section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
         sections.append(ResultSection(
             questionnaire, contribution.contributor, results,
