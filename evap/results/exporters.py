@@ -49,7 +49,7 @@ class ExcelExporter(object):
     @staticmethod
     def grade_to_style(grade):
         # Round grade to .2 steps
-        grade = int(grade * 5) * 0.2
+        grade = int(grade * 5) / 5
         return 'grade_' + str(grade)
 
     @staticmethod
