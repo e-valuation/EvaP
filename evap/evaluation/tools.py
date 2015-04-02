@@ -183,13 +183,7 @@ def calculate_results(course):
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
                 answers = get_textanswers(contribution, question, allowed_states)
-
-                if answers:
-                    results.append(TextResult(question=question, answers=answers))
-
-        # skip section if there were no questions with results
-        if not results:
-            continue
+                results.append(TextResult(question=question, answers=answers))
 
         # compute average and median grades for all LikertResults in this
         # section, will return None if no LikertResults exist in this section
