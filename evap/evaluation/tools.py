@@ -66,7 +66,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 ))
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
 RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
@@ -74,7 +74,7 @@ TextResult = namedtuple('TextResult', ('question', 'answers'))
 def replace_results(result_section, new_results):
     return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
         result_section.average_likert, result_section.median_likert, result_section.average_grade,
-        result_section.median_grade, result_section.average_total, result_section.median_total, result_section.warning)
+        result_section.median_grade, result_section.warning)
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -193,16 +193,12 @@ def calculate_results(course):
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
         median_grade = med([result.median for result in results if result.question.is_grade_question])
 
-        average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
-        median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
-
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
         sections.append(ResultSection(
             questionnaire, contribution.contributor, results,
             average_likert, median_likert,
             average_grade, median_grade,
-            average_total, median_total,
             section_warning))
 
     # store results into cache
@@ -224,7 +220,7 @@ def calculate_average_and_medium_grades(course):
     med_generic_grade = []
     med_contribution_grade = []
 
-    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, warning in calculate_results(course):
+    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, warning in calculate_results(course):
         if average_likert:
             (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
         if median_likert:

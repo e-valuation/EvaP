@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, questionnaire_warning in group.list %}
+{% for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, questionnaire_warning in group.list %}
     <div class="inline-headers">
         <span class="headline headline-small">{{ group.grouper.public_name }}</span>
         {% if questionnaire_warning %}
