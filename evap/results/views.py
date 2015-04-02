@@ -106,9 +106,9 @@ def user_can_see_text_answer(user, text_answer):
     if user.is_staff:
         return True
     contributor = text_answer.contribution.contributor
-    if text_answer.private:
+    if text_answer.is_private:
         return contributor == user
-    if text_answer.published:
+    if text_answer.is_published:
         if contributor == user or contributor in user.represented_users.all():
             return True
         if text_answer.contribution.course.is_user_responsible_or_delegate(user):

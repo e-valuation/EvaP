@@ -553,16 +553,16 @@ class TextAnswer(Answer):
         verbose_name_plural = _("text answers")
 
     @property
-    def reviewed(self):
+    def is_reviewed(self):
         return self.state != self.NOT_REVIEWED
     @property
-    def hidden(self):
+    def is_hidden(self):
         return self.state == self.HIDDEN
     @property
-    def private(self):
+    def is_private(self):
         return self.state == self.PRIVATE
     @property
-    def published(self):
+    def is_published(self):
         return self.state == self.PUBLISHED
 
     @property
