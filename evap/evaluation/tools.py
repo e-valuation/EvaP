@@ -71,9 +71,6 @@ CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', '
 RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
-def replace_results(result_section, new_results):
-    return ResultSection(result_section.questionnaire, result_section.contributor, new_results, result_section.warning)
-
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
     `iterable` is 0 or no items except None exist."""
