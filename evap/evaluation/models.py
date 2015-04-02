@@ -128,8 +128,8 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return [question for question in self.question_set.all() if question.is_text_question]
 
     @property
-    def likert_and_grade_questions(self):
-        return [question for question in self.question_set.all() if question.is_grade_question or question.is_likert_question]
+    def rating_questions(self):
+        return [question for question in self.question_set.all() if question.is_rating_question]
 
 
 class Course(models.Model, metaclass=LocalizeModelBase):
@@ -488,6 +488,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_grade_question(self):
         return self.answer_class == GradeAnswer
+
+    @property
+    def is_rating_question(self):
+        return self.is_grade_question or self.is_likert_question
 
 
 class Answer(models.Model):

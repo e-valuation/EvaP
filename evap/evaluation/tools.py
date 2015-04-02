@@ -68,8 +68,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-# note that GradeResult is also used for likert questions
-GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
+RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
 def replace_results(result_section, new_results):
@@ -159,7 +158,7 @@ def calculate_results(course):
     questionnaire_max_answers = {}
     questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_answers(contribution, question).count() for question in questionnaire.likert_and_grade_questions], default=0)
+        max_answers = max([get_answers(contribution, question).count() for question in questionnaire.rating_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
@@ -169,7 +168,7 @@ def calculate_results(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
-            if question.is_likert_question or question.is_grade_question:
+            if question.is_rating_question:
                 answers = get_answers(contribution, question).values_list('answer', flat=True)
 
                 count = len(answers)
@@ -179,7 +178,7 @@ def calculate_results(course):
                 distribution = get_distribution(answers)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
-                results.append(GradeResult(question, count, average, median, variance, distribution, warning))
+                results.append(RatingResult(question, count, average, median, variance, distribution, warning))
 
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
