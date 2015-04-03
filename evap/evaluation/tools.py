@@ -132,18 +132,30 @@ def get_distribution(answers):
     return distribution
 
 
+def cache_forever_if_published(func):
+    def _wrapped_func(*args, **kw):
+        course = args[0]
+        if course.state == "published":
+            cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+            prior_results = cache.get(cache_key)
+            if prior_results:
+                return prior_results
+
+        results = func(*args, **kw)
+
+        if course.state == "published":
+            cache.set(cache_key, results, None)
+        return results
+
+    return _wrapped_func
+
+@cache_forever_if_published
 def calculate_results(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
     median grades for that section (or None). The result elements are either
     `RatingResult` or `TextResult` instances."""
-
-    # return cached results if available
-    cache_key = str.format('evap.staff.results.views.calculate_results-{:d}', course.id)
-    prior_results = cache.get(cache_key)
-    if prior_results:
-        return prior_results
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
@@ -183,11 +195,6 @@ def calculate_results(course):
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
         sections.append(ResultSection(questionnaire, contribution.contributor, results, section_warning))
-
-    # store results into cache
-    # XXX: What would be a good timeout here? Once public, data is not going to
-    #      change anyway.
-    cache.set(cache_key, sections, 24 * 60 * 60)
 
     return sections
 
