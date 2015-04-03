@@ -132,25 +132,21 @@ def get_distribution(answers):
     return distribution
 
 
-def cache_forever_if_published(func):
-    def _wrapped_func(*args, **kw):
-        course = args[0]
-        if course.state == "published":
-            cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
-            prior_results = cache.get(cache_key)
-            if prior_results:
-                return prior_results
-
-        results = func(*args, **kw)
-
-        if course.state == "published":
-            cache.set(cache_key, results, None)
-        return results
-
-    return _wrapped_func
-
-@cache_forever_if_published
 def calculate_results(course):
+    if course.state == "published":
+        cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+        prior_results = cache.get(cache_key)
+        if prior_results:
+            return prior_results
+
+    results = _calculate_results_impl(course)
+
+    if course.state == "published":
+        cache.set(cache_key, results, None)
+    return results
+
+
+def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
