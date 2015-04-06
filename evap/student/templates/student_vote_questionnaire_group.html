@@ -33,7 +33,7 @@
                             <td>
                                 <div class="vote-inputs {% if preview %}preview{% endif %}">
                                     {{ field.errors }}
-                                    <textarea id="{{ field.id_for_label }}" name="{{ field.name }}" {% if preview %}disabled{% endif %}></textarea>
+                                    <textarea id="{{ field.id_for_label }}" name="{{ field.name }}" {% if preview %}disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
                                 </div>
                             </td>
                         {% endif %}
