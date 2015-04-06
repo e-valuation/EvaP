@@ -854,13 +854,15 @@ class ArchivingTests(WebTest):
     csrf_checks = False
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
+    test_semester_id = 9000
+
     def get_test_semester(self):
         semester = Semester.objects.get(pk=1)
         course1 = Course.objects.get(pk=7)
         course1.publish()
 
         course2 = Course.objects.get(pk=8)
-        new_semester = Semester()
+        new_semester = Semester(pk=self.test_semester_id)
         new_semester.save()
         course1.semester = new_semester
         course1.save()
@@ -951,15 +953,16 @@ class ArchivingTests(WebTest):
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
         semester = self.get_test_semester()
-        self.assertEqual(semester.pk, 4) # when this fails, please update the urls below
         semester.archive()
 
-        self.get_assert_403("/staff/semester/4/import", "evap")
-        self.get_assert_403("/staff/semester/4/assign", "evap")
-        self.get_assert_403("/staff/semester/4/course/create", "evap")
-        self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
-        self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
-        self.get_assert_403("/staff/semester/4/courseoperation", "evap")
+        semester_url = "/staff/semester/{}/".format(self.test_semester_id)
+
+        self.get_assert_403(semester_url + "import", "evap")
+        self.get_assert_403(semester_url + "assign", "evap")
+        self.get_assert_403(semester_url + "course/create", "evap")
+        self.get_assert_403(semester_url + "course/7/edit", "evap")
+        self.get_assert_403(semester_url + "course/7/delete", "evap")
+        self.get_assert_403(semester_url + "courseoperation", "evap")
 
 
 class RedirectionTest(WebTest):
