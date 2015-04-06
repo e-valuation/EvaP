@@ -1,4 +1,4 @@
-django>=1.7,<1.8
+django>=1.8.1,<1.9
 xlrd>=0.7.1
 xlwt-future>=0.8.0
 django-fsm>=2.0.0
