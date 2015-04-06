@@ -16,8 +16,8 @@
     {% else %}
         <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
     {% endif %}
-    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>    
-    
+    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
+
     <div class="panel panel-info">
         <div class="panel-heading">
             <span class="panel-title">{% trans "Comments about the Course" %}</span>
@@ -32,7 +32,7 @@
             {% endif %}
         </div>
     </div>
-    
+
     <div class="panel panel-info">
         <div class="panel-heading">
             <span class="panel-title">{% trans "Comments about the Contributors" %}</span>

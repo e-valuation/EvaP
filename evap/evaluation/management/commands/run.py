@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if os.getuid() != 0:
             print('Error: The "run" command must be executed with root privileges.')
-            sys.exit(1) 
+            sys.exit(1)
         subprocess.call("service apache2 stop", shell=True)
         print('Executing "manage.py runserver 0.0.0.0:80"')
         sys.argv = ["manage.py", "runserver", "0.0.0.0:80"]

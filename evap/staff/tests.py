@@ -76,7 +76,7 @@ class SampleXlsTests(WebTest):
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
-        
+
 
 
 class UsecaseTests(WebTest):
@@ -764,7 +764,7 @@ class ContributorFormTests(WebTest):
 
     def test_take_deleted_contributions_into_account(self):
         """
-            Tests whether contributions marked for deletion are properly taken into account 
+            Tests whether contributions marked for deletion are properly taken into account
             when the same contributor got added again in the same formset.
             Regression test for #415
         """
@@ -833,7 +833,7 @@ class ContributorFormTests(WebTest):
         self.assertTrue(formset.is_valid())
         formset.save()
         self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
-        
+
 
 class ArchivingTests(WebTest):
     fixtures = ['minimal_test_data']
@@ -917,7 +917,7 @@ class ArchivingTests(WebTest):
 
         for course in semester.course_set.all():
             self.assertTrue(calculate_average_and_medium_grades(course) == results[course])
-        
+
     def test_archiving_twice_raises_exception(self):
         semester = self.get_test_semester()
         semester.archive()
@@ -986,7 +986,7 @@ class RedirectionTest(WebTest):
 
     def test_ok(self):
         """
-            Asserts that an editor of a course can access 
+            Asserts that an editor of a course can access
             the edit page of that course.
         """
         url = "/contributor/course/2/edit"

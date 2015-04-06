@@ -72,8 +72,8 @@ def semester_view(request, semester_id):
         num_comments_reviewed += len(course.reviewed_textanswer_set)
 
     template_data = dict(
-        semester=semester, 
-        courses_by_state=courses_by_state, 
+        semester=semester,
+        courses_by_state=courses_by_state,
         disable_breadcrumb_semester=True,
         disable_if_archived="disabled=disabled" if semester.is_archived else "",
         rewards_active=rewards_active,
@@ -439,7 +439,7 @@ def course_email(request, semester_id, course_id):
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    
+
     filter = request.GET.get('filter', None)
     if filter == None: # if no parameter is given take session value
         filter = request.session.get('filter_comments', False) # defaults to False if no session value exists
@@ -517,7 +517,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
         # jump to edited answer
         url = reverse('evap.staff.views.course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
         return HttpResponseRedirect(url)
-    
+
     template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
     return render(request, "staff_course_comment_edit.html", template_data)
 
@@ -682,7 +682,7 @@ def user_import(request):
         UserImporter.process(request, excel_file, test_run)
         if test_run:
             return render(request, "staff_user_import.html", dict(form=form))
-        return redirect('evap.staff.views.user_index')       
+        return redirect('evap.staff.views.user_index')
     else:
         return render(request, "staff_user_import.html", dict(form=form))
 

@@ -50,7 +50,7 @@ class UserData(CommonEqualityMixin):
         user.email = self.email
         user.password = "asdf" # clean_fields needs that...
         user.clean_fields()
-        
+
 
 class CourseData(CommonEqualityMixin):
     """
@@ -170,7 +170,7 @@ class ExcelImporter(object):
         for user_data in self.users.values():
             try:
                 user = UserProfile.objects.get(username=user_data.username)
-                if (user.email != user_data.email 
+                if (user.email != user_data.email
                         or (user.title != None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
@@ -181,14 +181,14 @@ class ExcelImporter(object):
                         _(" (new)"))
             except UserProfile.DoesNotExist:
                 pass
-                
+
             users_same_name = UserProfile.objects.filter(first_name=user_data.first_name, last_name=user_data.last_name).exclude(username=user_data.username).all()
             if len(users_same_name) > 0:
-                warningstring = _("An existing user has the same first and last name as a new user:") 
+                warningstring = _("An existing user has the same first and last name as a new user:")
                 for user in users_same_name:
                     warningstring += "\n - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
                     warningstring += _(" (existing)")
-                warningstring += "\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)  
+                warningstring += "\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
                 warningstring += _(" (new)")
                 self.warnings.append(warningstring)
 
@@ -215,7 +215,7 @@ class EnrollmentImporter(ExcelImporter):
         return (student_data, responsible_data, course_data)
 
     def process_course(self, course_data, sheet, row):
-        course_id = (course_data.degree, course_data.name_en) 
+        course_id = (course_data.degree, course_data.name_en)
         if course_id not in self.courses:
             self.courses[course_id] = course_data
         else:
@@ -252,7 +252,7 @@ class EnrollmentImporter(ExcelImporter):
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
                 self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
-        
+
         degrees = set([course_data.degree for course_data in self.courses.values()])
         for degree in degrees:
             if not Course.objects.filter(degree=degree).exists():
@@ -277,7 +277,7 @@ class EnrollmentImporter(ExcelImporter):
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
-                
+
         messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))
 
     @classmethod
@@ -301,7 +301,7 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_course_data_correctness(semester)
             importer.check_enrollment_data_sanity()
             importer.check_user_data_sanity()
-            
+
             importer.show_errors_and_warnings()
             if importer.errors:
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))

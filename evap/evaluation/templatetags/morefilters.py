@@ -66,7 +66,7 @@ def can_use_reward_points(user):
 
 
 @register.filter
-def is_false(arg): 
+def is_false(arg):
     return arg is False
 
 @register.filter
