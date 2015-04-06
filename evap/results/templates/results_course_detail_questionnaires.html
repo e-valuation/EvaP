@@ -1,4 +1,5 @@
 {% load morefilters %}
+{% load evaluation_templatetags %}
 {% load i18n %}
 {% load static %}
 
@@ -27,36 +28,11 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if show_grades and result.count > 0 %}
-                            {% spaceless %}
-                            <div data-toggle="tooltip" data-placement="left" class="distribution-bar"
-                                title="
-                                    {% for answer, rel in result.distribution.items %}
-                                        {% if result.question.is_likert_question %}{{answer|likertname}}{% else %}{{answer}}{% endif %}: {{rel|floatformat}}%{% if not forloop.last %}</br>{% endif %}
-                                    {% endfor %}">
-                                {% for answer, rel in result.distribution.items %}
-                                    {% if rel != 0 %}
-                                        <div class="vote-bg-{{ answer }} {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="width: {% widthratio rel 100 100 %}%;">&nbsp;</div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            {% endspaceless %}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if show_grades and result.count > 0 %}
-                            {% if questionnaire_warning or result.warning %}
-                                <span class="participants-warning">{{ result.average|floatformat:1 }}</span>
-                            {% else %}
-                                {{ result.average|floatformat:1 }}
-                            {% endif %}
-                        {% else %}
-                            <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</span>
-                        {% endif %}
+                        {% include_result_bar result show_grades questionnaire_warning %}
                     </td>
                 {% elif result.question.is_text_question %}
                     <td>{{ result.question.text }}</td>
-                    <td colspan="4">
+                    <td colspan="3">
                         <ul>
                         {% for answer in result.answers %}
                             <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
@@ -71,10 +47,9 @@
             <!-- empty zero-height cells, necessary to make the overlapped colspans work -->
             <tr>
                 <th class="col-sm-3" style="padding: 0px;"></th>
-                <th class="col-sm-6" style="padding: 0px;"></th>
+                <th class="col-sm-5" style="padding: 0px;"></th>
                 <th class="col-sm-1" style="padding: 0px;"></th>
-                <th class="col-sm-2" style="padding: 0px;"></th>
-                <th class="col-sm-1" style="padding: 0px;"></th>
+                <th class="col-sm-3" style="padding: 0px;"></th>
             </tr>
         </tfoot>
     </table>
