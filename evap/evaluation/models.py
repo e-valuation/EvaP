@@ -123,6 +123,14 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     def can_staff_delete(self):
         return self.can_staff_edit
 
+    @property
+    def text_questions(self):
+        return [question for question in self.question_set.all() if question.is_text_question]
+
+    @property
+    def rating_questions(self):
+        return [question for question in self.question_set.all() if question.is_rating_question]
+
 
 class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""
@@ -481,6 +489,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     def is_grade_question(self):
         return self.answer_class == GradeAnswer
 
+    @property
+    def is_rating_question(self):
+        return self.is_grade_question or self.is_likert_question
+
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
@@ -541,16 +553,16 @@ class TextAnswer(Answer):
         verbose_name_plural = _("text answers")
 
     @property
-    def reviewed(self):
+    def is_reviewed(self):
         return self.state != self.NOT_REVIEWED
     @property
-    def hidden(self):
+    def is_hidden(self):
         return self.state == self.HIDDEN
     @property
-    def private(self):
+    def is_private(self):
         return self.state == self.PRIVATE
     @property
-    def published(self):
+    def is_published(self):
         return self.state == self.PUBLISHED
 
     @property

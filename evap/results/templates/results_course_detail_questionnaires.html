@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, questionnaire_warning in group.list %}
+{% for questionnaire, contributor, results, questionnaire_warning in group.list %}
     <div class="inline-headers">
         <span class="headline headline-small">{{ group.grouper.public_name }}</span>
         {% if questionnaire_warning %}
@@ -16,23 +16,23 @@
         <tbody>
             {% for result in results %}
                 <tr>
-                {% if result.question.kind == "L" or result.question.kind == "G" %}
+                {% if result.question.is_likert_question or result.question.is_grade_question %}
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
                         <span data-toggle="tooltip" data-placement="left" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
-                        {% if result.show and result.count > 0 %}
+                        {% if show_grades and result.count > 0 %}
                             {% if not questionnaire_warning and result.warning %}
                                 <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-warning-sign participants-warning" title="{% trans "Only a few participants answered this question." %}"></span>
                             {% endif %}
                         {% endif %}
                     </td>
                     <td>
-                        {% if result.show and result.count > 0 %}
+                        {% if show_grades and result.count > 0 %}
                             {% spaceless %}
                             <div data-toggle="tooltip" data-placement="left" class="distribution-bar"
                                 title="
                                     {% for answer, rel in result.distribution.items %}
-                                        {% if result.question.kind == "L" %}{{answer|likertname}}{% else %}{{answer}}{% endif %}: {{rel|floatformat}}%{% if not forloop.last %}</br>{% endif %}
+                                        {% if result.question.is_likert_question %}{{answer|likertname}}{% else %}{{answer}}{% endif %}: {{rel|floatformat}}%{% if not forloop.last %}</br>{% endif %}
                                     {% endfor %}">
                                 {% for answer, rel in result.distribution.items %}
                                     {% if rel != 0 %}
@@ -44,7 +44,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if result.show and result.count > 0 %}
+                        {% if show_grades and result.count > 0 %}
                             {% if questionnaire_warning or result.warning %}
                                 <span class="participants-warning">{{ result.average|floatformat:1 }}</span>
                             {% else %}
@@ -54,12 +54,12 @@
                             <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</span>
                         {% endif %}
                     </td>
-                {% elif result.question.kind == "T" %}
+                {% elif result.question.is_text_question %}
                     <td>{{ result.question.text }}</td>
                     <td colspan="4">
                         <ul>
                         {% for answer in result.answers %}
-                            <li>{% if answer.private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
+                            <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
                         {% endfor %}
                         </ul>
                     </td>
