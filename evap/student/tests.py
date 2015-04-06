@@ -14,7 +14,7 @@ class VoteTests(TestCase):
         def get_vote_page():
             return self.client.get(reverse('evap.student.views.vote', kwargs={'course_id': course.id}))
 
-        response = get_vote_page() 
+        response = get_vote_page()
         tutor_user = UserProfile.objects.get(username='tutor')
 
         for contributor, _, _ in response.context['contributor_form_groups']:

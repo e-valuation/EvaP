@@ -37,7 +37,7 @@ class Command(BaseCommand):
         check_dates = []
         for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE:
             check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
-        
+
         recipients = set()
         for course in Course.objects.filter(state='inEvaluation', vote_end_date__in=check_dates):
             recipients.update(course.due_participants)
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         for recipient in recipients:
             due_courses = list(set(Course.objects.filter(participants=recipient, state='inEvaluation').exclude(voters=recipient)))
             due_in_number_of_days = min((course.vote_end_date - datetime.date.today()).days for course in due_courses)
-        
+
             EmailTemplate.send_reminder_to_user(recipient, due_in_number_of_days=due_in_number_of_days, due_courses=due_courses)
 
     def handle(self, *args, **options):

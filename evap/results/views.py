@@ -58,7 +58,7 @@ def course_detail(request, semester_id, course_id):
         raise PermissionDenied
 
     sections = calculate_results(course, request.user.is_staff)
-    
+
     cleaned_sections = []
     if request.user.is_staff:
         cleaned_sections = sections

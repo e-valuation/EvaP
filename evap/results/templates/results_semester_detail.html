@@ -35,7 +35,7 @@
                     <td>
                     {% if course|can_user_see_course:request.user %}
                         <a href="{% url "evap.results.views.course_detail" semester.id course.id %}">{{ course.name }}</a>
-                    {% else %}                       
+                    {% else %}
                         <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
                     {% endif %}
                     </td>

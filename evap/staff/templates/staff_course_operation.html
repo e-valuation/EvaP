@@ -12,7 +12,7 @@
         {% for course in courses %}
             <input type="hidden" name="course_ids" value="{{ course.id }}" />
         {% endfor %}
-        
+
         <table class="table table-striped">
             <tbody>
             {% for course in courses %}
@@ -22,7 +22,7 @@
             {% endfor %}
             </tbody>
         </table>
-        
+
         <button type="submit" name="operation" value="{{ operation }}" class="btn btn-primary">{% trans "Confirm" %}</button>
         <a href="{% url "evap.staff.views.semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
     </form>

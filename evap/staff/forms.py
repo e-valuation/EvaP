@@ -292,13 +292,13 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def _post_clean(self, *args, **kw):
         if self._errors:
             return
-        
+
         self.instance.username = self.cleaned_data.get('username').strip().lower()
         self.instance.title = self.cleaned_data.get('title').strip()
         self.instance.first_name = self.cleaned_data.get('first_name').strip()
         self.instance.last_name = self.cleaned_data.get('last_name').strip()
         self.instance.email = self.cleaned_data.get('email').strip().lower()
-        
+
         # we need to do a save before course_set is set because the user needs to have an id there
         self.instance.save()
         self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester)) + list(self.cleaned_data.get('courses_participating_in'))

@@ -77,7 +77,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()
-    
+
     @classmethod
     def active_semester(cls):
         return cls.objects.latest("created_at")
@@ -118,7 +118,7 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     @property
     def can_staff_edit(self):
         return not self.contributions.exists()
-    
+
     @property
     def can_staff_delete(self):
         return self.can_staff_edit
@@ -523,7 +523,7 @@ class TextAnswer(Answer):
 
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
-    
+
     HIDDEN = 'HI'
     PUBLISHED = 'PU'
     PRIVATE = 'PR'
@@ -624,9 +624,9 @@ class UserProfileManager(BaseUserManager):
     def create_superuser(self, username, password, email=None, first_name=None, last_name=None):
         user = self.create_user(
             username=username,
-            password=password, 
-            email=email, 
-            first_name=first_name, 
+            password=password,
+            email=email,
+            first_name=first_name,
             last_name=last_name
         )
         user.is_superuser = True
@@ -637,7 +637,7 @@ class UserProfileManager(BaseUserManager):
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
 class EmailNullField(models.EmailField, metaclass=models.SubfieldBase):
-    
+
     description = "EmailField that stores NULL but returns ''"
 
     def to_python(self, value):  # this is the value right out of the db, or an instance
@@ -868,7 +868,7 @@ class EmailTemplate(models.Model):
         if not user.email:
             return
 
-        template = cls.get_reminder_template()        
+        template = cls.get_reminder_template()
         subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
         body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
 
