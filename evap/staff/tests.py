@@ -701,8 +701,10 @@ class URLTests(WebTest):
 
     def test_student_vote(self):
         """
-            Submits a student vote for coverage and verifies that the
-            student cannot vote on the course a second time.
+            Submits a student vote for coverage, verifies that an error message is
+            displayed if not all rating questions have been answered and that all
+            given answers stay selected/filled and that the student cannot vote on
+            the course a second time.
         """
         page = self.get_assert_200("/student/vote/5", user="lazy.student")
         form = lastform(page)
@@ -714,7 +716,19 @@ class URLTests(WebTest):
         form["question_19_1_1"] = "some more text"
         form["question_19_1_2"] = 1
         form["question_20_1_1"] = "and the last text"
-        form["question_20_1_2"] = 1
+        response = form.submit()
+
+        self.assertIn("vote for all rating questions", response)
+        form = lastform(page)
+        self.assertEqual(form["question_17_2_3"].value, "some text")
+        self.assertEqual(form["question_17_2_4"].value, "1")
+        self.assertEqual(form["question_17_2_5"].value, "6")
+        self.assertEqual(form["question_18_1_1"].value, "some other text")
+        self.assertEqual(form["question_18_1_2"].value, "1")
+        self.assertEqual(form["question_19_1_1"].value, "some more text")
+        self.assertEqual(form["question_19_1_2"].value, "1")
+        self.assertEqual(form["question_20_1_1"].value, "and the last text")
+        form["question_20_1_2"] = 1 # give missing answer
         response = form.submit()
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
