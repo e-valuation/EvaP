@@ -1,0 +1,26 @@
+{% load morefilters %}
+{% load i18n %}
+
+{% if show_grades and result.count > 0 %}
+    {% spaceless %}
+    <span data-toggle="tooltip" data-placement="left"
+        title="{% for answer, rel in result.distribution.items %}
+            {% if result.question.is_likert_question %}{{ answer|likertname }}{% else %}{{ answer }}{% endif %}: {{ rel|floatformat }}%{% if not forloop.last %}</br>{% endif %}
+        {% endfor %}">
+        
+        <div class="grade-bg-result-bar text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="background-color: {{ result.average|gradecolor }}">
+            {{ result.average|floatformat:1 }}
+        </div>
+
+        <div class="distribution-bar">
+            {% for answer, rel in result.distribution.items %}
+                {% if rel != 0 %}
+                    <div class="vote-bg-{{ answer }} {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="width: {% widthratio rel 100 100 %}%;">&nbsp;</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </span>
+    {% endspaceless %}
+{% else %}
+    <div class="grade-bg-result-bar grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div>
+{% endif %}
