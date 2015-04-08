@@ -375,7 +375,6 @@ class UserImporter(ExcelImporter):
             else:
                 importer.save_users_to_db()
         except Exception as e:
-            raise
             messages.error(request, _("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
