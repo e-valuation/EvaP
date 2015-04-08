@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.models import LikertAnswer, TextAnswer, GradeAnswer
+from evap.evaluation.models import TextAnswer
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
@@ -66,16 +66,10 @@ STUDENT_STATES_ORDERED = OrderedDict((
 ))
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'average_likert', 'median_likert', 'average_grade', 'median_grade', 'average_total', 'median_total', 'warning'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-LikertResult = namedtuple('LikertResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
+RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
-GradeResult = namedtuple('GradeResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'show', 'warning'))
-
-def replace_results(result_section, new_results):
-    return ResultSection(result_section.questionnaire, result_section.contributor, new_results,
-        result_section.average_likert, result_section.median_likert, result_section.average_grade,
-        result_section.median_grade, result_section.average_total, result_section.median_total, result_section.warning)
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -111,161 +105,92 @@ def mix(a, b, alpha):
     return alpha * a + (1 - alpha) * b
 
 
-def get_filtered_answers(course, contribution, question, exclude_text_answer_states=[TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN]):
-    answers = None
+def get_answers(contribution, question):
+    return question.answer_class.objects.filter(contribution=contribution, question=question)
 
-    if question.is_likert_question:
-        answers = LikertAnswer.objects.filter(
-            contribution__course=course,
-            contribution__contributor=contribution.contributor,
-            question=question
-            ).values_list('answer', flat=True)
 
-    elif question.is_grade_question:
-        answers = GradeAnswer.objects.filter(
-            contribution__course=course,
-            contribution__contributor=contribution.contributor,
-            question=question
-            ).values_list('answer', flat=True)
-
-    elif question.is_text_question:
-        answers = TextAnswer.objects.filter(
-            contribution__course=course,
-            contribution__contributor=contribution.contributor,
-            question=question,
-        ).exclude(state__in=exclude_text_answer_states)
-
+def get_textanswers(contribution, question, filter_states=None):
+    assert question.is_text_question
+    answers = get_answers(contribution, question)
+    if filter_states is not None:
+        answers = answers.filter(state__in=filter_states)
     return answers
 
 
-def calculate_results(course, staff_member=False):
+def get_distribution(answers):
+    count = len(answers)
+    if count == 0:
+        return None
+    distribution = OrderedDict()
+    for i in range(1, 6):
+        distribution[i] = 0
+    for answer in answers:
+        distribution[answer] += 1
+    # divide by the number of answers to get relative 0..1 values
+    for k in distribution:
+        distribution[k] = float(distribution[k]) / count * 100.0
+    return distribution
+
+
+def calculate_results(course):
+    if course.state == "published":
+        cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+        prior_results = cache.get(cache_key)
+        if prior_results:
+            return prior_results
+
+    results = _calculate_results_impl(course)
+
+    if course.state == "published":
+        cache.set(cache_key, results, None)
+    return results
+
+
+def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average and
     median grades for that section (or None). The result elements are either
-    `LikertResult`, `TextResult` or `GradeResult` instances."""
-
-    # return cached results if available
-    cache_key = str.format('evap.staff.results.views.calculate_results-{:d}-{:d}', course.id, staff_member)
-    prior_results = cache.get(cache_key)
-    if prior_results:
-        return prior_results
-
-    # check if grades for the course will be published
-    show = staff_member or course.can_publish_grades
+    `RatingResult` or `TextResult` instances."""
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
 
     # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
-    questionnaire_med_answers = {}
+    questionnaire_med_answers = defaultdict(list)
     questionnaire_max_answers = {}
+    questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        if questionnaire not in questionnaire_med_answers:
-            questionnaire_med_answers[questionnaire] = []
-        max_answers = 0
-        for question in questionnaire.question_set.all():
-            # don't count text questions, because few answers here should not result in warnings and having a median of 0 prevents a warning
-            if not question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question)
-                if len(answers) > max_answers:
-                    max_answers = len(answers)
+        max_answers = max([get_answers(contribution, question).count() for question in questionnaire.rating_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
-    for questionnaire in questionnaire_med_answers:
-        questionnaire_med_answers[questionnaire] = med(questionnaire_med_answers[questionnaire])
+    for questionnaire, max_answers in questionnaire_med_answers.items():
+        questionnaire_warning_thresholds[questionnaire] = settings.RESULTS_WARNING_PERCENTAGE * med(max_answers)
 
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
-            if question.is_likert_question or question.is_grade_question:
-                answers = get_filtered_answers(course, contribution, question)
+            if question.is_rating_question:
+                answers = get_answers(contribution, question).values_list('answer', flat=True)
 
-                # calculate average, median and distribution
-                if answers:
-                    # average
-                    average = avg(answers)
-                    # median
-                    median = med(answers)
-                    # variance
-                    variance = avg((average - answer) ** 2 for answer in answers)
-                    # calculate relative distribution (histogram) of answers:
-                    # set up a sorted dictionary with a count of zero for each grade
-                    distribution = OrderedDict()
-                    for i in range(1, 6):
-                        distribution[i] = 0
-                    # count the answers
-                    for answer in answers:
-                        distribution[answer] += 1
-                    # divide by the number of answers to get relative 0..1 values
-                    for k in distribution:
-                        distribution[k] = float(distribution[k]) / len(answers) * 100.0
-                else:
-                    average = None
-                    median = None
-                    variance = None
-                    distribution = None
+                count = len(answers)
+                average = avg(answers)
+                median = med(answers)
+                variance = avg((average - answer) ** 2 for answer in answers)
+                distribution = get_distribution(answers)
+                warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
-                warning = len(answers) > 0 and len(answers) < settings.RESULTS_WARNING_PERCENTAGE * questionnaire_med_answers[questionnaire]
-                # produce the result element
-                kwargs = {
-                    'question': question,
-                    'count': len(answers),
-                    'average': average,
-                    'median': median,
-                    'variance': variance,
-                    'distribution': distribution,
-                    'show': show,
-                    'warning': warning
-                }
-                if question.is_likert_question:
-                    results.append(LikertResult(**kwargs))
-                elif question.is_grade_question:
-                    results.append(GradeResult(**kwargs))
+                results.append(RatingResult(question, count, average, median, variance, distribution, warning))
+
             elif question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question)
+                allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+                answers = get_textanswers(contribution, question, allowed_states)
+                results.append(TextResult(question=question, answers=answers))
 
-                # only add to the results if answers exist at all
-                if answers:
-                    results.append(TextResult(
-                        question=question,
-                        answers=answers
-                    ))
+        section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
-        # skip section if there were no questions with results
-        if not results:
-            continue
-
-        # compute average and median grades for all LikertResults in this
-        # section, will return None if no LikertResults exist in this section
-        average_likert = avg([result.average for result in results if isinstance(result, LikertResult)])
-        median_likert = med([result.median for result in results if isinstance(result, LikertResult)])
-
-        # compute average and median grades for all GradeResults in this
-        # section, will return None if no GradeResults exist in this section
-        average_grade = avg([result.average for result in results if isinstance(result, GradeResult)])
-        median_grade = med([result.median for result in results if isinstance(result, GradeResult)])
-
-        average_total = mix(average_grade, average_likert, settings.GRADE_PERCENTAGE)
-        median_total = mix(median_grade, median_likert, settings.GRADE_PERCENTAGE)
-
-        max_answers_this_questionnaire = questionnaire_max_answers[(questionnaire, contribution)]
-        med_answers_this_questionnaire_type = questionnaire_med_answers[questionnaire]
-        warning_threshold = settings.RESULTS_WARNING_PERCENTAGE * med_answers_this_questionnaire_type
-        section_warning = med_answers_this_questionnaire_type > 0 and max_answers_this_questionnaire < warning_threshold
-
-        sections.append(ResultSection(
-            questionnaire, contribution.contributor, results,
-            average_likert, median_likert,
-            average_grade, median_grade,
-            average_total, median_total,
-            section_warning))
-
-    # store results into cache
-    # XXX: What would be a good timeout here? Once public, data is not going to
-    #      change anyway.
-    cache.set(cache_key, sections, 24 * 60 * 60)
+        sections.append(ResultSection(questionnaire, contribution.contributor, results, section_warning))
 
     return sections
 
@@ -281,15 +206,16 @@ def calculate_average_and_medium_grades(course):
     med_generic_grade = []
     med_contribution_grade = []
 
-    for questionnaire, contributor, results, average_likert, median_likert, average_grade, median_grade, average_total, median_total, warning in calculate_results(course):
-        if average_likert:
-            (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
-        if median_likert:
-            (med_contribution_likert if contributor else med_generic_likert).append(median_likert)
-        if average_grade:
-            (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
-        if median_grade:
-            (med_contribution_grade if contributor else med_generic_grade).append(median_grade)
+    for questionnaire, contributor, results, warning in calculate_results(course):
+        average_likert = avg([result.average for result in results if result.question.is_likert_question])
+        median_likert = med([result.median for result in results if result.question.is_likert_question])
+        average_grade = avg([result.average for result in results if result.question.is_grade_question])
+        median_grade = med([result.median for result in results if result.question.is_grade_question])
+
+        (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
+        (med_contribution_likert if contributor else med_generic_likert).append(median_likert)
+        (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
+        (med_contribution_grade if contributor else med_generic_grade).append(median_grade)
 
     # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
     # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses

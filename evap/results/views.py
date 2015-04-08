@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
@@ -7,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult, ResultSection, replace_results
+from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
 
 from evap.results.exporters import ExcelExporter
 
@@ -57,47 +56,39 @@ def course_detail(request, semester_id, course_id):
     if not course.can_user_see_results(request.user):
         raise PermissionDenied
 
-    sections = calculate_results(course, request.user.is_staff)
-    
-    cleaned_sections = []
-    if request.user.is_staff:
-        cleaned_sections = sections
-    else:
-        for section in sections:
-            results = []
-            for result in section.results:
-                if isinstance(result, TextResult):
-                    answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, course, answer)]
-                    if answers:
-                        results.append(TextResult(question=result.question, answers=answers))
-                else:
-                    results.append(result)
-            if results:
-                cleaned_sections.append(replace_results(section, results))
+    sections = calculate_results(course)
 
-    # remove empty sections and group by contributor
+    for section in sections:
+        results = []
+        for result in section.results:
+            if isinstance(result, TextResult):
+                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, answer)]
+                if answers:
+                    results.append(TextResult(question=result.question, answers=answers))
+            else:
+                results.append(result)
+        section.results[:] = results
+
+    # filter empty sections and group by contributor
     course_sections = []
     contributor_sections = OrderedDict()
-    for section in cleaned_sections:
+    for section in sections:
         if not section.results:
             continue
         if section.contributor is None:
             course_sections.append(section)
         else:
-            if section.contributor not in contributor_sections:
-                contributor_sections[section.contributor] = []
-            contributor_sections[section.contributor].append(section)
+            contributor_sections.setdefault(section.contributor, []).append(section)
 
     # show a warning if course is still in evaluation (for staff preview)
     evaluation_warning = course.state != 'published'
 
-    # check whether course has a sufficient number of votes for publishing it
-    sufficient_votes = course.num_voters >= settings.MIN_ANSWER_COUNT and float(course.num_voters) / course.num_participants >= settings.MIN_ANSWER_PERCENTAGE
-
     # results for a course might not be visible because there are not enough answers
     # but it can still be "published" e.g. to show the comment results to lecturers.
     # users who can open the results page see a warning message in this case
-    sufficient_votes_warning = not sufficient_votes
+    sufficient_votes_warning = not course.can_publish_grades
+
+    show_grades = request.user.is_staff or course.can_publish_grades
 
     course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
 
@@ -107,17 +98,20 @@ def course_detail(request, semester_id, course_id):
             contributor_sections=contributor_sections,
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
+            show_grades=show_grades,
             staff=request.user.is_staff)
     return render(request, "results_course_detail.html", template_data)
 
-def user_can_see_text_answer(user, course, text_answer):
-    contributor = text_answer.contribution.contributor
-    if contributor == user:
+def user_can_see_text_answer(user, text_answer):
+    if user.is_staff:
         return True
-    if text_answer.published:
-        if course.is_user_responsible_or_delegate(user):
+    contributor = text_answer.contribution.contributor
+    if text_answer.is_private:
+        return contributor == user
+    if text_answer.is_published:
+        if contributor == user or contributor in user.represented_users.all():
             return True
-        if contributor in user.represented_users.all():
+        if text_answer.contribution.course.is_user_responsible_or_delegate(user):
             return True
 
     return False

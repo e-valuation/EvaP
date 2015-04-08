@@ -72,6 +72,4 @@ node default {
         # the sudo thing makes "sudo python foo" work
         command     => 'echo "\nalias python=python3\nalias sudo=\'sudo \'" >> /home/vagrant/.bashrc'
     }
-
-    
 }

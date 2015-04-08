@@ -16,7 +16,7 @@ class LoginTests(WebTest):
         self.assertEqual(passwordForm.submit().status_code, 302)
 
     def test_loginkey_login(self):
-        """ Tests whether entering a wrong, an expired and a correct login key 
+        """ Tests whether entering a wrong, an expired and a correct login key
             results in the correct return codes. """
         response = self.app.get("/")
         loginkeyForm = response.forms[3]

@@ -5,7 +5,7 @@
 {% if state == 'new' or state == 'prepared' or state == 'lecturerApproved' or state == 'reviewed' or state == 'published' %}
     {% if info_only|is_false %}
         <td class="minimize">
-            <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}"/>
+            <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}" {{disable_if_archived}}/>
         </td>
     {% endif %}
 {% endif %}

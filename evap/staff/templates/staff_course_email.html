@@ -30,10 +30,10 @@
                             <div class="form-field"><input class="form-control {% if field.errors %}error{% endif %}" id="{{ field.id_for_label }}" name="{{ field.name }}" type="text" oninput="changedFieldValue('{{ field.name }}');"/></div>
                         {% elif field.name == "body" %}
                             <div class="form-label {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
-                            <div class="form-field"><textarea class="form-control {% if field.errors %}error{% endif %}" cols="40" rows="10" id="{{ field.id_for_label }}" name="{{ field.name }}" oninput="changedFieldValue('{{ field.name }}');"></textarea></div>      
+                            <div class="form-field"><textarea class="form-control {% if field.errors %}error{% endif %}" cols="40" rows="10" id="{{ field.id_for_label }}" name="{{ field.name }}" oninput="changedFieldValue('{{ field.name }}');"></textarea></div>
                         {% endif %}
                     </div>
-                {% endfor %}        
+                {% endfor %}
             </div>
         </fieldset>
         <div class="well submit-area text-center">

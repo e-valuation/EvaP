@@ -77,7 +77,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     @classmethod
     def get_all_with_published_courses(cls):
         return cls.objects.filter(course__state="published").distinct()
-    
+
     @classmethod
     def active_semester(cls):
         return cls.objects.latest("created_at")
@@ -118,10 +118,18 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     @property
     def can_staff_edit(self):
         return not self.contributions.exists()
-    
+
     @property
     def can_staff_delete(self):
         return self.can_staff_edit
+
+    @property
+    def text_questions(self):
+        return [question for question in self.question_set.all() if question.is_text_question]
+
+    @property
+    def rating_questions(self):
+        return [question for question in self.question_set.all() if question.is_rating_question]
 
 
 class Course(models.Model, metaclass=LocalizeModelBase):
@@ -481,6 +489,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     def is_grade_question(self):
         return self.answer_class == GradeAnswer
 
+    @property
+    def is_rating_question(self):
+        return self.is_grade_question or self.is_likert_question
+
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
@@ -523,7 +535,7 @@ class TextAnswer(Answer):
 
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
-    
+
     HIDDEN = 'HI'
     PUBLISHED = 'PU'
     PRIVATE = 'PR'
@@ -541,16 +553,16 @@ class TextAnswer(Answer):
         verbose_name_plural = _("text answers")
 
     @property
-    def reviewed(self):
+    def is_reviewed(self):
         return self.state != self.NOT_REVIEWED
     @property
-    def hidden(self):
+    def is_hidden(self):
         return self.state == self.HIDDEN
     @property
-    def private(self):
+    def is_private(self):
         return self.state == self.PRIVATE
     @property
-    def published(self):
+    def is_published(self):
         return self.state == self.PUBLISHED
 
     @property
@@ -624,9 +636,9 @@ class UserProfileManager(BaseUserManager):
     def create_superuser(self, username, password, email=None, first_name=None, last_name=None):
         user = self.create_user(
             username=username,
-            password=password, 
-            email=email, 
-            first_name=first_name, 
+            password=password,
+            email=email,
+            first_name=first_name,
             last_name=last_name
         )
         user.is_superuser = True
@@ -637,7 +649,7 @@ class UserProfileManager(BaseUserManager):
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
 class EmailNullField(models.EmailField, metaclass=models.SubfieldBase):
-    
+
     description = "EmailField that stores NULL but returns ''"
 
     def to_python(self, value):  # this is the value right out of the db, or an instance
@@ -868,7 +880,7 @@ class EmailTemplate(models.Model):
         if not user.email:
             return
 
-        template = cls.get_reminder_template()        
+        template = cls.get_reminder_template()
         subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
         body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
 

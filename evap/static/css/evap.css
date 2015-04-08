@@ -131,6 +131,17 @@ td.vote-question.text-field {
     width: 45px;
 }
 
+.grade-bg-result-bar {
+    float: right;
+    border-radius: 3px;
+    width: 30px;
+    margin-left: 10px;
+}
+
+.grade-bg-disabled {
+    background-color: #ddd;
+}
+
 @media print {
     body {
         padding: 0;

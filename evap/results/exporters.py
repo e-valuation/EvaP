@@ -49,7 +49,7 @@ class ExcelExporter(object):
     @staticmethod
     def grade_to_style(grade):
         # Round grade to .2 steps
-        grade = int(grade * 5) * 0.2
+        grade = int(grade * 5) / 5
         return 'grade_' + str(grade)
 
     @staticmethod
@@ -66,8 +66,8 @@ class ExcelExporter(object):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
             results = OrderedDict()
-            for questionnaire, contributor, data, avg_likert, med_likert, avg_grade, med_grade, avg_total, med_total, section_warning in calculate_results(course):
-                results.setdefault(questionnaire.id, []).append((contributor, data, avg_total, med_total))
+            for questionnaire, contributor, data, section_warning in calculate_results(course):
+                results.setdefault(questionnaire.id, []).extend(data)
             courses_with_results.append((course, results))
 
         courses_with_results.sort(key=lambda cr: cr[0].kind)
@@ -118,16 +118,13 @@ class ExcelExporter(object):
                     if qn_results:
                         values = []
                         variances = []
-                        enough_answers = True
-                        for contributor, data, avg_grade, med_grade in qn_results:
-                            for grade_result in data:
-                                if grade_result.question.id == question.id:
-                                    if grade_result.average:
-                                        values.append(grade_result.average)
-                                        variances.append(grade_result.variance)
-                                        if not grade_result.show:
-                                            enough_answers = False
-                                    break
+                        for grade_result in qn_results:
+                            if grade_result.question.id == question.id:
+                                if grade_result.average:
+                                    values.append(grade_result.average)
+                                    variances.append(grade_result.variance)
+                                break
+                        enough_answers = course.can_publish_grades
                         if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
                             writec(self, avg, ExcelExporter.grade_to_style(avg))

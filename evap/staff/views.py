@@ -12,7 +12,7 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_filtered_answers, CommentSection, TextResult
+                                  get_textanswers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
@@ -72,8 +72,8 @@ def semester_view(request, semester_id):
         num_comments_reviewed += len(course.reviewed_textanswer_set)
 
     template_data = dict(
-        semester=semester, 
-        courses_by_state=courses_by_state, 
+        semester=semester,
+        courses_by_state=courses_by_state,
         disable_breadcrumb_semester=True,
         disable_if_archived="disabled=disabled" if semester.is_archived else "",
         rewards_active=rewards_active,
@@ -439,7 +439,7 @@ def course_email(request, semester_id, course_id):
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    
+
     filter = request.GET.get('filter', None)
     if filter == None: # if no parameter is given take session value
         filter = request.session.get('filter_comments', False) # defaults to False if no session value exists
@@ -447,25 +447,20 @@ def course_comments(request, semester_id, course_id):
         filter = {'true': True, 'false': False}.get(filter.lower()) # convert parameter to boolean
     request.session['filter_comments'] = filter # store value for session
 
-    exclude_states = []
-    if filter:
-        exclude_states = [TextAnswer.PUBLISHED, TextAnswer.PRIVATE, TextAnswer.HIDDEN]
+    filter_states = [TextAnswer.NOT_REVIEWED] if filter else None
 
     course_sections = []
     contributor_sections = []
     for questionnaire, contribution in questionnaires_and_contributions(course):
         text_results = []
-        for question in questionnaire.question_set.all():
-            if question.is_text_question:
-                answers = get_filtered_answers(course, contribution, question, exclude_text_answer_states=exclude_states)
-                if answers:
-                    text_results.append(TextResult(question=question, answers=answers))
+        for question in questionnaire.text_questions:
+            answers = get_textanswers(contribution, question, filter_states)
+            if answers:
+                text_results.append(TextResult(question=question, answers=answers))
         if not text_results:
             continue
-        if contribution.is_general:
-            course_sections.append(CommentSection(questionnaire, contribution.contributor, False, text_results))
-        else:
-            contributor_sections.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
+        section_list = course_sections if contribution.is_general else contributor_sections
+        section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
     return render(request, "staff_course_comments.html", template_data)
@@ -517,7 +512,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
         # jump to edited answer
         url = reverse('evap.staff.views.course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
         return HttpResponseRedirect(url)
-    
+
     template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
     return render(request, "staff_course_comment_edit.html", template_data)
 
@@ -682,7 +677,7 @@ def user_import(request):
         UserImporter.process(request, excel_file, test_run)
         if test_run:
             return render(request, "staff_user_import.html", dict(form=form))
-        return redirect('evap.staff.views.user_index')       
+        return redirect('evap.staff.views.user_index')
     else:
         return render(request, "staff_user_import.html", dict(form=form))
 
