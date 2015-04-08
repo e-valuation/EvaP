@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
-from django.conf import settings
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate

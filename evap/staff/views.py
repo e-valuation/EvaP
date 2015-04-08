@@ -274,7 +274,7 @@ def semester_assign_questionnaires(request, semester_id):
     raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
     kinds = courses.values_list('kind', flat=True).order_by().distinct()
-    form = QuestionnairesAssignForm(request.POST or None, semester=semester, kinds=kinds)
+    form = QuestionnairesAssignForm(request.POST or None, kinds=kinds)
 
     if form.is_valid():
         for course in courses:

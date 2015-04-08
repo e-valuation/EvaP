@@ -242,7 +242,6 @@ class QuestionForm(forms.ModelForm):
 
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
-        semester = kwargs.pop('semester')
         kinds = kwargs.pop('kinds')
         super().__init__(*args, **kwargs)
 
