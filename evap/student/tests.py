@@ -12,7 +12,7 @@ class VoteTests(TestCase):
         course = Course.objects.get() # there is only one
 
         def get_vote_page():
-            return self.client.get(reverse('evap.student.views.vote', kwargs={'course_id': course.id}))
+            return self.client.get(reverse('student:vote', kwargs={'course_id': course.id}))
 
         response = get_vote_page()
         tutor_user = UserProfile.objects.get(username='tutor')

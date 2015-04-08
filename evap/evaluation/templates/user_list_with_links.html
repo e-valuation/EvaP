@@ -2,7 +2,7 @@
 
 {% if users %}
 	{% for user in users %}
-	    <li><a href="{% url "evap.staff.views.user_edit" user.id %}">{{ user.full_name }}</a></li>
+	    <li><a href="{% url "staff:user_edit" user.id %}">{{ user.full_name }}</a></li>
 	{% endfor %}
 {% else %}
 	<i>{% trans "Nobody" %}</i>

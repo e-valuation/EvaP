@@ -11,7 +11,7 @@
             <b>{% trans "Delegates" %}</b><br />
             {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
             {% if user.is_editor %}
-                {% blocktrans %}You can assign your own delegates in your profile.{% endblocktrans %} <a href="{% url "evap.contributor.views.profile_edit" %}" class="btn btn-xs btn-default">{% trans "Edit profile" %}</a><br />
+                {% blocktrans %}You can assign your own delegates in your profile.{% endblocktrans %} <a href="{% url "contributor:profile_edit" %}" class="btn btn-xs btn-default">{% trans "Edit profile" %}</a><br />
             {% endif %}
             {% if delegated_courses %}
                 {% blocktrans %}Courses from lecturers who set you as a delegate are marked with a label below.{% endblocktrans %}<br />
@@ -65,18 +65,18 @@
                             <td>
                                 {% if course|is_user_editor_or_delegate:user %}
                                     {% if course.state == 'prepared' %}
-                                        <a href="{% url "evap.contributor.views.course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
-                                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                                        <a href="{% url "contributor:course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
+                                        <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                     {% elif course.state == 'lecturerApproved' or course.state == 'approved' %}
-                                        <a href="{% url "evap.contributor.views.course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
-                                        <a href="{% url "evap.contributor.views.course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                                        <a href="{% url "contributor:course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                        <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                     {% endif %}
                                 {% endif %}
                                 {% if course.state == 'inEvaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
                                     <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-default" disabled>{% trans "Results" %}</a></div>
                                 {% endif %}
                                 {% if course.state == 'published' %}
-                                    <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                    <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% endif %}
                             </td>
                         </tr>

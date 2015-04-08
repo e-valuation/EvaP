@@ -87,7 +87,7 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
                     <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve"%}</button>
                 {% endif %}
-                <a href="{% url "evap.contributor.views.index" %}" class="btn btn-default">{% if edit|is_false %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>
+                <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit|is_false %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>
             </div>
         </div>
     </form>

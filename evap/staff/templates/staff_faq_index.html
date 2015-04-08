@@ -41,7 +41,7 @@
                     {% for field in form.visible_fields %}
                         <td>
                             {% if forloop.last and form.instance.id %}
-                                <a href="{% url "evap.staff.views.faq_section" form.instance.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
+                                <a href="{% url "staff:faq_section" form.instance.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                             {% endif %}
                             {{ field.errors }}
                             {{ field }}

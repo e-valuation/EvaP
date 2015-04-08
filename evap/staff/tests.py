@@ -84,7 +84,7 @@ class UsecaseTests(WebTest):
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_import(self):
-        page = self.app.get(reverse("staff_root"), user='staff.user')
+        page = self.app.get(reverse("staff:index"), user='staff.user')
 
         # create a new semester
         page = page.click("[Cc]reate [Nn]ew [Ss]emester")
@@ -131,18 +131,18 @@ class UsecaseTests(WebTest):
     def test_login_key(self):
         environ = self.app.extra_environ
         self.app.extra_environ = {}
-        self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
+        self.assertRedirects(self.app.get(reverse("results:index"), extra_environ={}), "/?next=/results/")
         self.app.extra_environ = environ
 
         user = UserProfile.objects.all()[0]
         user.generate_login_key()
         user.save()
 
-        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % user.login_key
+        url_with_key = reverse("results:index") + "?userkey=%s" % user.login_key
         self.app.get(url_with_key)
 
     def test_create_questionnaire(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
@@ -162,7 +162,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(questionnaire.question_set.count(), 1, "New questionnaire is empty.")
 
     def test_create_empty_questionnaire(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
@@ -181,7 +181,7 @@ class UsecaseTests(WebTest):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
 
     def test_copy_questionnaire(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("Seminar")
@@ -198,7 +198,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(questionnaire.question_set.count(), 2, "New questionnaire is empty.")
 
     def test_assign_questionnaires(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # assign questionnaire to courses
         page = page.click("Semester 1 \(en\)", index=0)
@@ -216,7 +216,7 @@ class UsecaseTests(WebTest):
             self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
 
     def test_remove_responsibility(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # remove responsibility in lecturer's checkbox
         page = page.click("Semester 1 \(en\)", index=0)

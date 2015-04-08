@@ -6,7 +6,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        <a href="{% url "evap.staff.views.questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
+        <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
     </p>
     <p>
     {% if course_questionnaires or contributor_questionnaires %}
@@ -33,7 +33,7 @@
                         questionnaire.attr('data-index', i);
                         updatedIndices[questionnaire.attr('data-id')] = i;
                     }
-                    $.post('{% url "evap.staff.views.questionnaire_update_indices" %}', updatedIndices);
+                    $.post('{% url "staff:questionnaire_update_indices" %}', updatedIndices);
                 }
     });
     </script>

@@ -70,13 +70,13 @@ def index(request):
 
         # redirect user to appropriate start page
         if request.user.is_staff:
-            return redirect('evap.staff.views.index')
+            return redirect('staff:index')
         elif user.is_contributor_or_delegate:
-            return redirect('evap.contributor.views.index')
+            return redirect('contributor:index')
         elif user.is_participant:
-            return redirect('evap.student.views.index')
+            return redirect('student:index')
         else:
-            return redirect('evap.results.views.index')
+            return redirect('results:index')
 
 
 def faq(request):

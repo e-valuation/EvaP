@@ -9,16 +9,16 @@ admin.autodiscover()
 import django.contrib.auth.views
 
 urlpatterns = [
-    url(r"^$", evap.evaluation.views.index),
-    url(r"^faq$", evap.evaluation.views.faq),
-    url(r"^legal_notice$", evap.evaluation.views.legal_notice),
-    url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}),
+    url(r"^$", evap.evaluation.views.index, name="evap-evaluation-index"),
+    url(r"^faq$", evap.evaluation.views.faq, name="evap-evaluation-faq"),
+    url(r"^legal_notice$", evap.evaluation.views.legal_notice, name="evap-evaluation-legal_notice"),
+    url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}, name="django-auth-logout"),
 
-    url(r"^staff/", include('evap.staff.urls')),
-    url(r"^results/", include('evap.results.urls')),
-    url(r"^student/", include('evap.student.urls')),
-    url(r"^contributor/", include('evap.contributor.urls')),
-    url(r"^rewards/", include('evap.rewards.urls')),
+    url(r"^staff/", include('evap.staff.urls', namespace="staff")),
+    url(r"^results/", include('evap.results.urls', namespace="results")),
+    url(r"^student/", include('evap.student.urls', namespace="student")),
+    url(r"^contributor/", include('evap.contributor.urls', namespace="contributor")),
+    url(r"^rewards/", include('evap.rewards.urls', namespace="rewards")),
 
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),

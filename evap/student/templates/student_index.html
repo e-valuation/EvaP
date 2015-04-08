@@ -8,7 +8,7 @@
 {% block subtitle %}
     {{ block.super }}
     {% if course %}
-        <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+        <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
     {% else %}
         <li>{% trans "Evaluation" %}</li>
     {% endif %}
@@ -84,7 +84,7 @@
                                 <td>
                                     {% if course.state == 'published' %}
                                         {% if course.can_publish_grades %}
-                                            <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                            <a href="{% url "results:results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                         {% else %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
                                         {% endif %}
@@ -92,7 +92,7 @@
                                         {% if course in voted_courses %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Evaluate" %}</a></div>
                                         {% else %}
-                                            <a href="{% url "evap.student.views.vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
+                                            <a href="{% url "student:vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
