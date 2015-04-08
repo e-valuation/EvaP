@@ -250,7 +250,7 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
-_LOCAL_SETTINGS_FILENAME = os.path.join(BASE_DIR, "localsettings.py")
-if os.path.exists(_LOCAL_SETTINGS_FILENAME):
-    exec(compile(open(_LOCAL_SETTINGS_FILENAME).read(), _LOCAL_SETTINGS_FILENAME, 'exec'))
-del _LOCAL_SETTINGS_FILENAME
+try:
+    from localsettings import *
+except ImportError:
+    pass
