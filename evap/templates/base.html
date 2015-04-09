@@ -139,12 +139,12 @@
                 <a href="{{ TRACKER_URL }}" target="_new">{% trans "EvaP evaluation platform" %}</a>
                 &nbsp;&middot;&nbsp;
                 {% if LEGAL_NOTICE_ACTIVE %}
-                    <a href="{% url "evap-evaluation-legal_notice" %}">{% trans "Legal Notice" %}</a>
+                    <a href="{% url "evaluation:legal_notice" %}">{% trans "Legal Notice" %}</a>
                     &nbsp;&middot;&nbsp;
                 {% endif %}
                 <a href="mailto:{{ FEEDBACK_EMAIL }}">Feedback</a>
                 &nbsp;&middot;&nbsp;
-                <a href="{% url "evap-evaluation-faq" %}">{% trans "FAQ"%}</a>
+                <a href="{% url "evaluation:faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
                 {% if request.user.is_authenticated %}
                     {% trans "Logged in as" %} {{ request.user.full_name }}

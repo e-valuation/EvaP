@@ -9,16 +9,14 @@ admin.autodiscover()
 import django.contrib.auth.views
 
 urlpatterns = [
-    url(r"^$", evap.evaluation.views.index, name="evap-evaluation-index"),
-    url(r"^faq$", evap.evaluation.views.faq, name="evap-evaluation-faq"),
-    url(r"^legal_notice$", evap.evaluation.views.legal_notice, name="evap-evaluation-legal_notice"),
-    url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}, name="django-auth-logout"),
-
+    url(r"^", include('evap.evaluation.urls', namespace="evaluation")),
     url(r"^staff/", include('evap.staff.urls', namespace="staff")),
     url(r"^results/", include('evap.results.urls', namespace="results")),
     url(r"^student/", include('evap.student.urls', namespace="student")),
     url(r"^contributor/", include('evap.contributor.urls', namespace="contributor")),
     url(r"^rewards/", include('evap.rewards.urls', namespace="rewards")),
+
+    url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}, name="django-auth-logout"),
 
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r"^admin/", include(admin.site.urls)),
