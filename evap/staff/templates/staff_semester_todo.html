@@ -14,9 +14,9 @@
 
     {% for responsible, courses, delegates in responsible_list %}
         <div class="panel panel-default">
-            <div class="panel-heading"><b><a href="{% url "evap.staff.views.user_edit" responsible.id %}">{{ responsible.full_name }}</a></b>, {% trans "Delegate" %}:
+            <div class="panel-heading"><b><a href="{% url "staff:user_edit" responsible.id %}">{{ responsible.full_name }}</a></b>, {% trans "Delegate" %}:
                 {% for delegate in delegates %}
-                    <a href="{% url "evap.staff.views.user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if forloop.last|is_false %},{% endif %}
+                    <a href="{% url "staff:user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if forloop.last|is_false %},{% endif %}
                 {% empty %}
                     &mdash;
                 {% endfor %}
@@ -35,7 +35,7 @@
                         {% for course in courses %}
                             <tr {% if course.state != "prepared" %}class="deactivate"{%  endif %}>
                                 <th scope="row">
-                                    <a href="{% url "evap.staff.views.course_edit" semester.id course.id %}">{{ course.name }}</a><br />
+                                    <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a><br />
                                     <span class="label label-default">{{ course.kind }}</span>
                                     <span class="label label-default">{{ course.degree }}</span>
                                 </th>

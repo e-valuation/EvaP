@@ -9,22 +9,22 @@
             {% if semesters %}
                 <ul>
                 {% for semester in semesters %}
-                    <li><a href="{% url "evap.staff.views.semester_view" semester.id %}#tab1">{{ semester.name }}</a></li>
+                    <li><a href="{% url "staff:semester_view" semester.id %}#tab1">{{ semester.name }}</a></li>
                 {% endfor %}
                 </ul>
             {% else %}
                 {% trans "There are no semesters yet." %}
             {% endif %}
-            <a href="{% url "evap.staff.views.semester_create" %}" class="btn btn-sm btn-success">{% trans "Create new semester" %}</a>
+            <a href="{% url "staff:semester_create" %}" class="btn btn-sm btn-success">{% trans "Create new semester" %}</a>
         </div>
         <div class="col-md-3">
             <span class="headline">{% trans "Questionnaires" %}</span>
-            <ul><li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "All questionnaires" %}</a></li></ul>
+            <ul><li><a href="{% url "staff:questionnaire_index" %}">{% trans "All questionnaires" %}</a></li></ul>
             <span class="headline headline-small">{% trans "Courses" %}</span>
             {% if questionnaires_courses %}
                 <ul>
                 {% for questionnaire in questionnaires_courses %}
-                    <li><a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
+                    <li><a href="{% url "staff:questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
                 {% endfor %}
                 </ul>
             {% else %}
@@ -34,36 +34,36 @@
             {% if questionnaire_contributors %}
                 <ul>
                 {% for questionnaire in questionnaire_contributors %}
-                    <li><a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
+                    <li><a href="{% url "staff:questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
                 {% endfor %}
                 </ul>
             {% else %}
                 {% trans "There are no questionnaires yet." %}
             {% endif %}
-            <a href="{% url "evap.staff.views.questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
+            <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
         </div>
         <div class="col-md-3">
             <span class="headline">{% trans "Users" %}</span>
             <ul>
-                <li><a href="{% url "evap.staff.views.user_index" %}">{% trans "All users" %}</a></li>
+                <li><a href="{% url "staff:user_index" %}">{% trans "All users" %}</a></li>
             </ul>
             <span class="headline">{% trans "Reward Points" %}</span>
             <ul>
-                <li><a href="{% url "evap.rewards.views.reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
+                <li><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
             </ul>
             <span class="headline">{% trans "Templates" %}</span>
             <ul>
                 {% for template in templates %}
-                    <li><a href="{% url "evap.staff.views.template_edit" template.id %}">{{ template.name }}</a></li>
+                    <li><a href="{% url "staff:template_edit" template.id %}">{{ template.name }}</a></li>
                 {% endfor %}
             </ul>
         </div>
         <div class="col-md-3">
             <span class="headline">{% trans "FAQ" %}</span>
             <ul>
-                <li><a href="{% url "evap.staff.views.faq_index" %}">{% trans "All Sections" %}</a></li>
+                <li><a href="{% url "staff:faq_index" %}">{% trans "All Sections" %}</a></li>
                 {% for section in sections %}
-                    <li><a href="{% url "evap.staff.views.faq_section" section.id %}">{{ section.title }}</a></li>
+                    <li><a href="{% url "staff:faq_section" section.id %}">{{ section.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>

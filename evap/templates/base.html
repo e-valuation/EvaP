@@ -45,41 +45,41 @@
                 <ul class="nav navbar-nav">
                     {% if user.is_authenticated %}
                         {% if user.is_participant and user.is_contributor_or_delegate %}
-                            <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses (student)" %}</a></li>
-                            <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses (lecturer)" %}</a></li>
+                            <li><a href="{% url "student:index" %}">{% trans "My courses (student)" %}</a></li>
+                            <li><a href="{% url "contributor:index" %}">{% trans "My courses (lecturer)" %}</a></li>
                         {% elif user.is_participant %}
-                            <li><a href="{% url "evap.student.views.index" %}">{% trans "My courses" %}</a></li>
+                            <li><a href="{% url "student:index" %}">{% trans "My courses" %}</a></li>
                         {% elif user.is_contributor_or_delegate %}
-                            <li><a href="{% url "evap.contributor.views.index" %}">{% trans "My courses" %}</a></li>
+                            <li><a href="{% url "contributor:index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
                         {% if user.is_editor %}
-                            <li><a href="{% url "evap.contributor.views.profile_edit" %}">{% trans "My profile" %}</a></li>
+                            <li><a href="{% url "contributor:profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
 
                         {% if user|can_user_use_reward_points %}
-                            <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
+                            <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
                         {% endif %}
 
                         {% if user.is_staff %}
                             <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.staff.views.index" %}">{% trans "Manage" %} <b class="caret"></b></a>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "staff:index" %}">{% trans "Manage" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url "evap.staff.views.index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "staff_root" %}">{% trans "Semesters" %}</a>
+                                    <li><a href="{% url "staff:index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "staff:index" %}">{% trans "Semesters" %}</a>
                                         {% include_staff_semester_menu %}
                                     </li>
-                                    <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
-                                    <li><a href="{% url "evap.staff.views.user_index" %}">{% trans "Users" %}</a></li>
-                                    <li><a href="{% url "evap.rewards.views.reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
-                                    <li><a href="{% url "staff_root" %}">{% trans "Templates" %}</a></li>
-                                    <li><a href="{% url "evap.staff.views.faq_index" %}">{% trans "FAQ" %}</a></li>
+                                    <li><a href="{% url "staff:questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+                                    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
+                                    <li><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
+                                    <li><a href="{% url "staff:index" %}">{% trans "Templates" %}</a></li>
+                                    <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ" %}</a></li>
                                 </ul>
                             </li>
                         {% endif %}
 
                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "evap.results.views.index" %}">{% trans "Results" %} <b class="caret"></b></a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "results:index" %}">{% trans "Results" %} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 {% include_results_semester_menu %}
                             </ul>
@@ -95,7 +95,7 @@
                         </ul>
                     </li>
                     {% if user.is_authenticated %}
-                        <li><a href="{% url "django.contrib.auth.views.logout" %}">{% trans "Logout" %}</a></li>
+                        <li><a href="{% url "django-auth-logout" %}">{% trans "Logout" %}</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -139,12 +139,12 @@
                 <a href="{{ TRACKER_URL }}" target="_new">{% trans "EvaP evaluation platform" %}</a>
                 &nbsp;&middot;&nbsp;
                 {% if LEGAL_NOTICE_ACTIVE %}
-                    <a href="{% url "evap.evaluation.views.legal_notice" %}">{% trans "Legal Notice" %}</a>
+                    <a href="{% url "evaluation:legal_notice" %}">{% trans "Legal Notice" %}</a>
                     &nbsp;&middot;&nbsp;
                 {% endif %}
                 <a href="mailto:{{ FEEDBACK_EMAIL }}">Feedback</a>
                 &nbsp;&middot;&nbsp;
-                <a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ"%}</a>
+                <a href="{% url "evaluation:faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
                 {% if request.user.is_authenticated %}
                     {% trans "Logged in as" %} {{ request.user.full_name }}

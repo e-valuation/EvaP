@@ -4,7 +4,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.staff.views.course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
+    <li><a href="{% url "staff:course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
     <li>{{ text_answer.id }}</li>
 {% endblock %}
 

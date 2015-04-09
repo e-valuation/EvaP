@@ -24,6 +24,6 @@
         </table>
 
         <button type="submit" name="operation" value="{{ operation }}" class="btn btn-primary">{% trans "Confirm" %}</button>
-        <a href="{% url "evap.staff.views.semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
+        <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
     </form>
 {% endblock %}

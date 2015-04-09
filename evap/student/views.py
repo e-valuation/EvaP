@@ -101,7 +101,7 @@ def vote(request, course_id):
         course.was_evaluated(request)
 
     messages.success(request, _("Your vote was recorded."))
-    return redirect('evap.student.views.index')
+    return redirect('student:index')
 
 
 def helper_create_form_group(request, contribution):

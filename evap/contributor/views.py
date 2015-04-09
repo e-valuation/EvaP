@@ -42,7 +42,7 @@ def profile_edit(request):
         form.save()
 
         messages.success(request, _("Successfully updated your profile."))
-        return redirect('evap.contributor.views.index')
+        return redirect('contributor:index')
     else:
         return render(request, "contributor_profile.html", dict(form=form))
 
@@ -101,7 +101,7 @@ def course_edit(request, course_id):
         else:
             messages.success(request, _("Successfully updated course."))
 
-        return redirect('evap.contributor.views.index')
+        return redirect('contributor:index')
     else:
         template_data = dict(form=course_form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
         return render(request, "contributor_course_form.html", template_data)

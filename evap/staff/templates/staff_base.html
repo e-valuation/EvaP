@@ -10,6 +10,6 @@
     {% if disable_breadcrumb_staff %}
         <li>{% trans "Manage" %}</li>
     {% else %}
-        <li><a href="{% url "staff_root" %}">{% trans "Manage" %}</a></li>
+        <li><a href="{% url "staff:index" %}">{% trans "Manage" %}</a></li>
     {% endif %}
 {% endblock %}

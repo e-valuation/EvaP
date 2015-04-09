@@ -8,7 +8,7 @@
 {% block subtitle %}
     {{ block.super }}
     {% if form %}
-        <li><a href="{% url "evap.contributor.views.index" %}">{% trans "Contributor" %}</a></li>
+        <li><a href="{% url "contributor:index" %}">{% trans "Contributor" %}</a></li>
     {% else %}
         <li>{% trans "Contributor" %}</li>
     {% endif %}

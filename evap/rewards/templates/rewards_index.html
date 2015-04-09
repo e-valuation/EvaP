@@ -7,7 +7,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.rewards.views.index" %}">{% trans "Rewards" %}</a></li>
+    <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
                 {% if events %}
                     <form action="#" method="POST" class="form-horizontal multiselect-form">
                         {% csrf_token %}
-                        
+
                         <table class="table table-striped">
                             <thead>
                                 <tr>

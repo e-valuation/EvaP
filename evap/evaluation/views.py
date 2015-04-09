@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
-from django.conf import settings
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate
@@ -70,13 +69,13 @@ def index(request):
 
         # redirect user to appropriate start page
         if request.user.is_staff:
-            return redirect('evap.staff.views.index')
+            return redirect('staff:index')
         elif user.is_contributor_or_delegate:
-            return redirect('evap.contributor.views.index')
+            return redirect('contributor:index')
         elif user.is_participant:
-            return redirect('evap.student.views.index')
+            return redirect('student:index')
         else:
-            return redirect('evap.results.views.index')
+            return redirect('results:index')
 
 
 def faq(request):

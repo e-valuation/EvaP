@@ -97,7 +97,7 @@ def semester_course_operation(request, semester_id):
     operation = request.GET.get('operation')
     if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester_id)
 
     if request.method == 'POST':
         course_ids = request.POST.getlist('course_ids')
@@ -113,7 +113,7 @@ def semester_course_operation(request, semester_id):
         elif operation == 'unpublish':
             helper_semester_course_operation_unpublish(request, courses)
 
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester_id)
 
     course_ids = request.GET.getlist('course')
     courses = Course.objects.filter(id__in=course_ids)
@@ -141,7 +141,7 @@ def semester_course_operation(request, semester_id):
 
     if not courses:
         messages.warning(request, _("Please select at least one course."))
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester_id)
 
     template_data = dict(
         semester=semester,
@@ -205,7 +205,7 @@ def semester_create(request):
         semester = form.save()
 
         messages.success(request, _("Successfully created semester."))
-        return redirect('evap.staff.views.semester_view', semester.id)
+        return redirect('staff:semester_view', semester.id)
     else:
         return render(request, "staff_semester_form.html", dict(form=form))
 
@@ -219,7 +219,7 @@ def semester_edit(request, semester_id):
         semester = form.save()
 
         messages.success(request, _("Successfully updated semester."))
-        return redirect('evap.staff.views.semester_view', semester.id)
+        return redirect('staff:semester_view', semester.id)
     else:
         return render(request, "staff_semester_form.html", dict(semester=semester, form=form))
 
@@ -232,12 +232,12 @@ def semester_delete(request, semester_id):
         if request.method == 'POST':
             semester.delete()
             messages.success(request, _("Successfully deleted semester."))
-            return redirect('staff_root')
+            return redirect('staff:index')
         else:
             return render(request, "staff_semester_delete.html", dict(semester=semester))
     else:
         messages.warning(request, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
-        return redirect('evap.staff.views.semester_view', semester.id)
+        return redirect('staff:semester_view', semester.id)
 
 
 @staff_required
@@ -263,7 +263,7 @@ def semester_import(request, semester_id):
         EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
         if test_run:
             return render(request, "staff_import.html", dict(semester=semester, form=form))
-        return redirect('evap.staff.views.semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_import.html", dict(semester=semester, form=form))
 
@@ -274,7 +274,7 @@ def semester_assign_questionnaires(request, semester_id):
     raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
     kinds = courses.values_list('kind', flat=True).order_by().distinct()
-    form = QuestionnairesAssignForm(request.POST or None, semester=semester, kinds=kinds)
+    form = QuestionnairesAssignForm(request.POST or None, kinds=kinds)
 
     if form.is_valid():
         for course in courses:
@@ -285,7 +285,7 @@ def semester_assign_questionnaires(request, semester_id):
             course.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
-        return redirect('evap.staff.views.semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_semester_assign_questionnaires.html", dict(semester=semester, form=form))
 
@@ -340,13 +340,13 @@ def semester_archive(request, semester_id):
         if request.method == 'POST':
             semester.archive()
             messages.success(request, _("Successfully archived semester '{}'.").format(semester.name))
-            return redirect('evap.staff.views.semester_view', semester.id)
+            return redirect('staff:semester_view', semester.id)
         else:
             return render(request, "staff_semester_archive.html", dict(semester=semester))
     else:
         messages.warning(request, _("The semester '%s' cannot be archived, "+
             "because it already is archived or has courses that are not archiveable.") % semester.name)
-        return redirect('evap.staff.views.semester_view', semester.id)
+        return redirect('staff:semester_view', semester.id)
 
 
 @staff_required
@@ -365,7 +365,7 @@ def course_create(request, semester_id):
         formset.save()
 
         messages.success(request, _("Successfully created course."))
-        return redirect('evap.staff.views.semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True))
 
@@ -380,7 +380,7 @@ def course_edit(request, semester_id, course_id):
     # check course state
     if not course.can_staff_edit:
         messages.warning(request, _("Editing not possible in current state."))
-        return redirect('evap.staff.views.semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
@@ -392,7 +392,7 @@ def course_edit(request, semester_id, course_id):
         formset.save()
 
         messages.success(request, _("Successfully updated course."))
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester_id)
     else:
         template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
         return render(request, "staff_course_form.html", template_data)
@@ -407,12 +407,12 @@ def course_delete(request, semester_id, course_id):
     # check course state
     if not course.can_staff_delete:
         messages.warning(request, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
-        return redirect('evap.staff.views.semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
 
     if request.method == 'POST':
         course.delete()
         messages.success(request, _("Successfully deleted course."))
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_delete.html", dict(semester=semester, course=course))
 
@@ -430,7 +430,7 @@ def course_email(request, semester_id, course_id):
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
             messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
-        return custom_redirect('evap.staff.views.semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
 
@@ -510,7 +510,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse('evap.staff.views.course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
+        url = reverse('staff:course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
         return HttpResponseRedirect(url)
 
     template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
@@ -563,7 +563,7 @@ def questionnaire_create(request):
         formset.save()
 
         messages.success(request, _("Successfully created questionnaire."))
-        return redirect('evap.staff.views.questionnaire_index')
+        return redirect('staff:questionnaire_index')
     else:
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
@@ -578,14 +578,14 @@ def questionnaire_edit(request, questionnaire_id):
 
     if not questionnaire.can_staff_edit:
         messages.info(request, _("Questionnaires that are already used cannot be edited."))
-        return redirect('evap.staff.views.questionnaire_index')
+        return redirect('staff:questionnaire_index')
 
     if form.is_valid() and formset.is_valid():
         form.save()
         formset.save()
 
         messages.success(request, _("Successfully updated questionnaire."))
-        return redirect('evap.staff.views.questionnaire_index')
+        return redirect('staff:questionnaire_index')
     else:
         template_data = dict(questionnaire=questionnaire, form=form, formset=formset)
         return render(request, "staff_questionnaire_form.html", template_data)
@@ -605,7 +605,7 @@ def questionnaire_copy(request, questionnaire_id):
             formset.save()
 
             messages.success(request, _("Successfully created questionnaire."))
-            return redirect('evap.staff.views.questionnaire_index')
+            return redirect('staff:questionnaire_index')
         else:
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
     else:
@@ -626,12 +626,12 @@ def questionnaire_delete(request, questionnaire_id):
         if request.method == 'POST':
             questionnaire.delete()
             messages.success(request, _("Successfully deleted questionnaire."))
-            return redirect('evap.staff.views.questionnaire_index')
+            return redirect('staff:questionnaire_index')
         else:
             return render(request, "staff_questionnaire_delete.html", dict(questionnaire=questionnaire))
     else:
         messages.warning(request, _("The questionnaire '%s' cannot be deleted, because it is still in use.") % questionnaire.name)
-        return redirect('evap.staff.views.questionnaire_index')
+        return redirect('staff:questionnaire_index')
 
 
 @staff_required
@@ -658,7 +658,7 @@ def user_create(request):
     if form.is_valid():
         form.save()
         messages.success(request, _("Successfully created user."))
-        return redirect('evap.staff.views.user_index')
+        return redirect('staff:user_index')
     else:
         return render(request, "staff_user_form.html", dict(form=form))
 
@@ -677,7 +677,7 @@ def user_import(request):
         UserImporter.process(request, excel_file, test_run)
         if test_run:
             return render(request, "staff_user_import.html", dict(form=form))
-        return redirect('evap.staff.views.user_index')
+        return redirect('staff:user_index')
     else:
         return render(request, "staff_user_import.html", dict(form=form))
 
@@ -692,7 +692,7 @@ def user_edit(request, user_id):
     if form.is_valid():
         form.save()
         messages.success(request, _("Successfully updated user."))
-        return redirect('evap.staff.views.user_index')
+        return redirect('staff:user_index')
     else:
         return render(request, "staff_user_form.html", dict(form=form, object=user, courses_contributing_to=courses_contributing_to))
 
@@ -705,12 +705,12 @@ def user_delete(request, user_id):
         if request.method == 'POST':
             user.delete()
             messages.success(request, _("Successfully deleted user."))
-            return redirect('evap.staff.views.user_index')
+            return redirect('staff:user_index')
         else:
             return render(request, "staff_user_delete.html", dict(user_to_delete=user))
     else:
         messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % user.full_name)
-        return redirect('evap.staff.views.user_index')
+        return redirect('staff:user_index')
 
 
 @staff_required
@@ -722,7 +722,7 @@ def template_edit(request, template_id):
         form.save()
 
         messages.success(request, _("Successfully updated template."))
-        return redirect('staff_root')
+        return redirect('staff:index')
     else:
         return render(request, "staff_template_form.html", dict(form=form, template=template))
 
@@ -738,7 +738,7 @@ def faq_index(request):
         formset.save()
 
         messages.success(request, _("Successfully updated the FAQ sections."))
-        return custom_redirect('evap.staff.views.faq_index')
+        return custom_redirect('staff:faq_index')
     else:
         return render(request, "staff_faq_index.html", dict(formset=formset, sections=sections))
 
@@ -755,7 +755,7 @@ def faq_section(request, section_id):
         formset.save()
 
         messages.success(request, _("Successfully updated the FAQ questions."))
-        return custom_redirect('evap.staff.views.faq_index')
+        return custom_redirect('staff:faq_index')
     else:
         template_data = dict(formset=formset, section=section, questions=questions)
         return render(request, "staff_faq_section.html", template_data)
