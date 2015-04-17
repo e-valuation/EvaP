@@ -165,7 +165,7 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
 
     <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
 
@@ -194,7 +194,7 @@
 
             // run the jquery multiselect plugin
             $("select").each(function(i,e) {
-                $(e).select2({ 
+                $(e).select2({
                     language: "{{ LANGUAGE_CODE }}",
                     placeholder: "{% trans "Please select..." %}",
                     minimumResultsForSearch: 15,});
