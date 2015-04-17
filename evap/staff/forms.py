@@ -37,7 +37,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'degree', 'is_graded',
+        fields = ('name_de', 'name_en', 'type', 'degree', 'is_graded',
                   'vote_start_date', 'vote_end_date', 'participants',
                   'general_questions',
                   'last_modified_time_2', 'last_modified_user_2')
@@ -47,7 +47,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
+        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
         self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
         self.fields['participants'].queryset = UserProfile.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
@@ -223,7 +223,7 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
     def get_queryset(self):
         if not hasattr(self, '_queryset'):
             self._queryset = IdLessQuestionFormSet.PseudoQuerySet()
-            self._queryset.extend([Question(text_de=e.text_de, text_en=e.text_en, kind=e.kind) for e in self.queryset.all()])
+            self._queryset.extend([Question(text_de=e.text_de, text_en=e.text_en, type=e.type) for e in self.queryset.all()])
             self._queryset.db = self.queryset.db
         return self._queryset
 
@@ -237,16 +237,16 @@ class QuestionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
         self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
-        self.fields['kind'].widget.attrs['class'] = 'form-control'
+        self.fields['type'].widget.attrs['class'] = 'form-control'
 
 
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
-        kinds = kwargs.pop('kinds')
+        course_types = kwargs.pop('course_types')
         super().__init__(*args, **kwargs)
 
-        for kind in kinds:
-            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
+        for course_type in course_types:
+            self.fields[course_type] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
 

@@ -56,10 +56,10 @@ class CourseData(CommonEqualityMixin):
     """
         Holds information about a course, retrieved from the Excel file.
     """
-    def __init__(self, name_de, name_en, kind, degree, is_graded, responsible_email):
+    def __init__(self, name_de, name_en, type, degree, is_graded, responsible_email):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
-        self.kind = kind.strip()
+        self.type = type.strip()
         self.degree = degree.strip()
         self.is_graded = is_graded.strip()
         self.responsible_email = responsible_email
@@ -67,7 +67,7 @@ class CourseData(CommonEqualityMixin):
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
                         name_en=self.name_en,
-                        kind=self.kind,
+                        type=self.type,
                         is_graded=self.is_graded,
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
@@ -211,7 +211,7 @@ class EnrollmentImporter(ExcelImporter):
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
         responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
-        course_data = CourseData(name_de=data[7], name_en=data[8], kind=data[5], is_graded=data[6], degree=data[0], responsible_email=responsible_data.email)
+        course_data = CourseData(name_de=data[7], name_en=data[8], type=data[5], is_graded=data[6], degree=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, course_data)
 
     def process_course(self, course_data, sheet, row):

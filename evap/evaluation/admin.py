@@ -15,7 +15,7 @@ class ContributionInline(admin.TabularInline):
 class CourseAdmin(admin.ModelAdmin):
     model = Course
     inlines = [ContributionInline]
-    list_display = ('__str__', 'semester', 'kind')
+    list_display = ('__str__', 'semester', 'type')
     list_filter = ('semester',)
     readonly_fields = ('state',)
     if not settings.DEBUG:

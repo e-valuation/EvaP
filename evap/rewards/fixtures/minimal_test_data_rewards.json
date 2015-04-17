@@ -59,7 +59,7 @@
     "_order": 0, 
     "text_en": "how?", 
     "text_de": "how?", 
-    "kind": "T"
+    "type": "T"
   }
 },
 {
@@ -70,7 +70,7 @@
     "_order": 1, 
     "text_en": "how much?", 
     "text_de": "how much?", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -81,7 +81,7 @@
     "_order": 0, 
     "text_en": "how?", 
     "text_de": "how?", 
-    "kind": "T"
+    "type": "T"
   }
 },
 {
@@ -92,7 +92,7 @@
     "_order": 1, 
     "text_en": "how much?", 
     "text_de": "how much?", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -103,7 +103,7 @@
     "_order": 1, 
     "text_en": "your grade", 
     "text_de": "your grade", 
-    "kind": "G"
+    "type": "G"
   }
 },
 {
@@ -177,7 +177,7 @@
     "participants": [5],
     "vote_end_date": "2014-09-30", 
     "name_en": "a course", 
-    "kind": "a type", 
+    "type": "a type", 
     "vote_start_date": "2014-09-10"
   }
 },
@@ -197,7 +197,7 @@
         "participants": [5],
         "vote_end_date": "2099-11-20",
         "name_en": "dadas",
-        "kind": "Masterprojekt",
+        "type": "Masterprojekt",
         "vote_start_date": "2014-11-07"
     }
 },

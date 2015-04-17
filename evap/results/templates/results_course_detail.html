@@ -41,7 +41,7 @@
                 <tbody>
                     <tr>
                         <td>{{ course.degree }}</td>
-                        <td>{{ course.kind }}</td>
+                        <td>{{ course.type }}</td>
                         <td>{{ course.responsible_contributors_name }}</td>
                         {% if show_grades %}
                             <td><div class="grade-bg text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>

@@ -273,13 +273,13 @@ def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
-    kinds = courses.values_list('kind', flat=True).order_by().distinct()
-    form = QuestionnairesAssignForm(request.POST or None, kinds=kinds)
+    course_types = courses.values_list('type', flat=True).order_by().distinct()
+    form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
     if form.is_valid():
         for course in courses:
-            if form.cleaned_data[course.kind]:
-                course.general_contribution.questionnaires = form.cleaned_data[course.kind]
+            if form.cleaned_data[course.type]:
+                course.general_contribution.questionnaires = form.cleaned_data[course.type]
             if form.cleaned_data['Responsible contributor']:
                 course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()

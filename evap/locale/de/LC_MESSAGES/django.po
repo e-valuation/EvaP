@@ -512,7 +512,7 @@ msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
 #: evaluation/models.py:452
-msgid "kind of question"
+msgid "question type"
 msgstr "Frageart"
 
 #: evaluation/models.py:458 evaluation/models.py:606

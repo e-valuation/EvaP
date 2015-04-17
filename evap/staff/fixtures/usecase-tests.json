@@ -52,7 +52,7 @@
         "fields":{
             "name_de":"Course 1",
             "name_en":"Course 1 (en)",
-            "kind":"Seminar",
+            "type":"Seminar",
             "degree":"Bachelor",
             "state":"new",
 
@@ -72,7 +72,7 @@
         "fields":{
             "name_de":"Course 2",
             "name_en":"Course 2 (en)",
-            "kind":"Vorlesung",
+            "type":"Vorlesung",
             "state":"new",
 
             "participants":[ 2, 3 ],
@@ -101,7 +101,7 @@
         "fields":{
             "text_de":"Q1",
             "text_en":"Q1 (en)",
-            "kind":"L",
+            "type":"L",
             "_order":0,
             "questionnaire":1
         }
@@ -112,7 +112,7 @@
         "fields":{
             "text_de":"Q2",
             "text_en":"Q2 (en)",
-            "kind":"T",
+            "type":"T",
             "_order":0,
             "questionnaire":1
         }
