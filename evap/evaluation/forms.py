@@ -283,7 +283,7 @@ class BootstrapMixin(object):
                 help_text = ''
 
             attrs = {}
-            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple)):
+            if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple, widgets.Select)):
                 attrs['class'] = 'form-control'
             if isinstance(field_instance.widget, widgets.DateInput) and not field_instance.widget.attrs.get("readonly", False):
                 attrs['data-datepicker'] = "datepicker"
