@@ -192,13 +192,14 @@
                 $.fn.button.noConflict();
             }
 
-            // run the jquery multiselect plugin
-            $("select").each(function(i,e) {
-                $(e).select2({
+            // put this into a function for later re-use
+            apply_select2 = function(elem) {
+                elem.select2({
                     language: "{{ LANGUAGE_CODE }}",
                     placeholder: "{% trans "Please select..." %}",
                     minimumResultsForSearch: 15,});
-            });
+            };
+            apply_select2($("select"));
 
             // run the jquery datepicker plugin
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
