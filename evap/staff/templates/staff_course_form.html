@@ -23,10 +23,11 @@
             <thead>
                 <tr>
                     <th></th>
-                    {% for field in formset.form.visible_fields %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
-                    <th>{% trans "Remove?" %}</th>
+                        <th class="col-sm-4">{% trans "Contributor" %}</th>
+                        <th class="col-sm-5">{% trans "Questionnaires" %}</th>
+                        <th class="col-sm-1">{% trans "Responsible" %}</th>
+                        <th class="col-sm-1">{% trans "Can edit" %}</th>
+                        <th class="col-sm-1"></th>
                 </tr>
             </thead>
             <tbody>
