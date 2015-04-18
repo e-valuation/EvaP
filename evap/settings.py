@@ -252,6 +252,6 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
-    from localsettings import *
+    from evap.localsettings import *
 except ImportError:
     pass
