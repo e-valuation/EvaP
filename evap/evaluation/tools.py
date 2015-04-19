@@ -68,7 +68,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'median', 'variance', 'distribution', 'warning'))
+RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'variance', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
 def avg(iterable):
@@ -149,8 +149,8 @@ def calculate_results(course):
 def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of single result elements, the average and
-    median grades for that section (or None). The result elements are either
+    contributor (or None), a list of single result elements, the average grade and
+    variance for that section (or None). The result elements are either
     `RatingResult` or `TextResult` instances."""
 
     # there will be one section per relevant questionnaire--contributor pair
@@ -176,12 +176,11 @@ def _calculate_results_impl(course):
 
                 count = len(answers)
                 average = avg(answers)
-                median = med(answers)
                 variance = avg((average - answer) ** 2 for answer in answers)
                 distribution = get_distribution(answers)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
-                results.append(RatingResult(question, count, average, median, variance, distribution, warning))
+                results.append(RatingResult(question, count, average, variance, distribution, warning))
 
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
@@ -195,27 +194,27 @@ def _calculate_results_impl(course):
     return sections
 
 
-def calculate_average_and_medium_grades(course):
-    """Determines the final average and median grades for a course."""
+def calculate_average_grades_and_variance(course):
+    """Determines the final average grade and variance for a course."""
     avg_generic_likert = []
     avg_contribution_likert = []
-    med_generic_likert = []
-    med_contribution_likert = []
+    var_generic_likert = []
+    var_contribution_likert = []
     avg_generic_grade = []
     avg_contribution_grade = []
-    med_generic_grade = []
-    med_contribution_grade = []
+    var_generic_grade = []
+    var_contribution_grade = []
 
     for questionnaire, contributor, results, warning in calculate_results(course):
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
-        median_likert = med([result.median for result in results if result.question.is_likert_question])
+        variance_likert = avg([result.variance for result in results if result.question.is_likert_question])
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
-        median_grade = med([result.median for result in results if result.question.is_grade_question])
+        variance_grade = avg([result.variance for result in results if result.question.is_grade_question])
 
         (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
-        (med_contribution_likert if contributor else med_generic_likert).append(median_likert)
+        (var_contribution_likert if contributor else var_generic_likert).append(variance_likert)
         (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
-        (med_contribution_grade if contributor else med_generic_grade).append(median_grade)
+        (var_contribution_grade if contributor else var_generic_grade).append(variance_grade)
 
     # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
     # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
@@ -223,14 +222,14 @@ def calculate_average_and_medium_grades(course):
     # final = GP * final_grade + (1-GP) * final_likert
 
     final_likert_avg = mix(avg(avg_contribution_likert), avg(avg_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
-    final_likert_med = mix(med(med_contribution_likert), med(med_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
+    final_likert_var = mix(avg(var_contribution_likert), avg(var_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
     final_grade_avg = mix(avg(avg_contribution_grade), avg(avg_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
-    final_grade_med = mix(med(med_contribution_grade), med(med_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
+    final_grade_var = mix(avg(var_contribution_grade), avg(var_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
 
     final_avg = mix(final_grade_avg, final_likert_avg, settings.GRADE_PERCENTAGE)
-    final_med = mix(final_grade_med, final_likert_med, settings.GRADE_PERCENTAGE)
+    final_var = mix(final_grade_var, final_likert_var, settings.GRADE_PERCENTAGE)
 
-    return final_avg, final_med
+    return final_avg, final_var
 
 
 def questionnaires_and_contributions(course):
@@ -283,3 +282,11 @@ def get_grade_color(grade):
     next_lower = int(grade)
     next_higher = int(ceil(grade))
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
+
+def get_variance_color(variance):
+    if variance is None:
+        return (255, 255, 255)
+
+    val = int(255 - variance * 70) # tweaked to look good
+    return (val, val, val)
+
