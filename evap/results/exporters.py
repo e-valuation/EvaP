@@ -1,5 +1,5 @@
 from evap.evaluation.models import Questionnaire
-from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, get_grade_color
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_variance, get_grade_color
 
 from django.utils.translation import ugettext as _
 
@@ -141,17 +141,17 @@ class ExcelExporter(object):
 
         writen(self, _("Overall Average Grade"), "bold")
         for course, results in courses_with_results:
-            avg, med = calculate_average_and_medium_grades(course)
+            avg, var = calculate_average_grades_and_variance(course)
             if avg:
                 writec(self, avg, ExcelExporter.grade_to_style(avg), cols=2)
             else:
                 self.write_two_empty_cells_with_borders()
 
-        writen(self, _("Overall Median Grade"), "bold")
+        writen(self, _("Overall Average Variance"), "bold")
         for course, results in courses_with_results:
-            avg, med = calculate_average_and_medium_grades(course)
-            if med:
-                writec(self, med, ExcelExporter.grade_to_style(med), cols=2)
+            avg, var = calculate_average_grades_and_variance(course)
+            if var is not None:
+                writec(self, var, ExcelExporter.variance_to_style(var), cols=2)
             else:
                 self.write_two_empty_cells_with_borders()
 
