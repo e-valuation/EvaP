@@ -43,7 +43,10 @@
                     {% with responsible=course.responsible_contributor %}
                         <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                     {% endwith %}
-                    {% if course|can_user_see_results:request.user %}
+                    {% if not course.avg_grade %}
+                        <td></td>
+                        <td></td>
+                    {% elif course|can_user_see_results:request.user %}
                         <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                         <td class="text-center"><div class="variance-bg" style="background-color: {{ course.avg_variance|variancecolor }};">{{ course.avg_variance|floatformat:1 }}</div></td>
                     {% else %}
