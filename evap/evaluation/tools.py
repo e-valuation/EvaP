@@ -287,6 +287,7 @@ def get_variance_color(variance):
     if variance is None:
         return (255, 255, 255)
 
-    val = int(255 - variance * 70) # tweaked to look good
+    capped_variance = min(variance, 3.0) # values above that are very uncommon in practice
+    val = int(255 - capped_variance * 35) # tweaked to look good
     return (val, val, val)
 
