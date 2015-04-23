@@ -5,7 +5,7 @@ from evap.evaluation.models import TextAnswer
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
-from math import ceil
+from math import ceil, sqrt
 
 GRADE_COLORS = {
     1: (136, 191, 74),
@@ -176,7 +176,7 @@ def _calculate_results_impl(course):
 
                 count = len(answers)
                 average = avg(answers)
-                deviation = avg((average - answer) ** 2 for answer in answers)
+                deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if count > 0 else None
                 distribution = get_distribution(answers)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
@@ -287,7 +287,7 @@ def get_deviation_color(deviation):
     if deviation is None:
         return (255, 255, 255)
 
-    capped_deviation = min(deviation, 3.0) # values above that are very uncommon in practice
-    val = int(255 - capped_deviation * 35) # tweaked to look good
+    capped_deviation = min(deviation, 2.0) # values above that are very uncommon in practice
+    val = int(255 - capped_deviation * 60) # tweaked to look good
     return (val, val, val)
 

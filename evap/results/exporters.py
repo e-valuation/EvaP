@@ -40,7 +40,7 @@ class ExcelExporter(object):
 
         CUSTOM_COLOR_START = 8
         NUM_GRADE_COLORS = 21 # 1.0 to 5.0 in 0.2 steps
-        NUM_DEVIATION_COLORS = 30 # about to change in next commit
+        NUM_DEVIATION_COLORS = 13 # 0.0 to 2.4 in 0.2 steps
         self.STEP = 0.2 # we only have a limited number of custom colors
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
@@ -151,7 +151,7 @@ class ExcelExporter(object):
             else:
                 self.write_two_empty_cells_with_borders()
 
-        writen(self, _("Overall Average Deviation"), "bold")
+        writen(self, _("Overall Average Standard Deviation"), "bold")
         for course, results in courses_with_results:
             avg, dev = calculate_average_grades_and_deviation(course)
             if dev is not None:
