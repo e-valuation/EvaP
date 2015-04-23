@@ -84,7 +84,7 @@
                                 <td>
                                     {% if course.state == 'published' %}
                                         {% if course.can_publish_grades %}
-                                            <a href="{% url "results:results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                         {% else %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
                                         {% endif %}

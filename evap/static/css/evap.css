@@ -35,25 +35,6 @@ body {
 
 /*-----------------------------------------*/
 
-.custom-combobox {
-    position: relative;
-    display: inline-block;
-}
-.custom-combobox-toggle {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin-left: -1px;
-    padding: 0;
-    /* support: IE7 */
-    *height: 1.7em;
-    *top: 0.1em;
-}
-.custom-combobox-input {
-    margin: 0;
-    padding: 6px 12px;
-}
-
 /*-----------------------------------------*/
 
 input::-webkit-outer-spin-button,
@@ -226,7 +207,7 @@ originally taken from https://gist.github.com/matthiasg/6153853
 
 Side notes for calling out things
 -------------------------------------------------- */
- 
+
 /* Base styles (regardless of theme) */
 .bs-callout {
     margin: 10px 0px 20px 0px;
@@ -243,7 +224,7 @@ Side notes for calling out things
 .bs-callout .highlight {
     background-color: #fff;
 }
- 
+
 /* Themes for different contexts */
 .bs-callout-danger {
     background-color: #fcf2f2;
@@ -327,7 +308,7 @@ Side notes for calling out things
     /* symbol for open panels */
     font-family: 'Glyphicons Halflings';
     content: "\e114";  /* chevron-down */
-    float: left; 
+    float: left;
     color: gray;
     margin-right: 10px;
 }

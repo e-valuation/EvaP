@@ -9,4 +9,8 @@ DATABASES = {
     }
 }
 
+import sys
+if 'test' in sys.argv: # speed up tests by using sqlite
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+
 SECRET_KEY = "<%= @secret_key -%>"

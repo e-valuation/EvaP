@@ -22,7 +22,6 @@
                 ".mo",
                 "*bootstrap*css*",
                 "*jquery*css*",
-                "ui.combobox.css",
             ]
 
         }
