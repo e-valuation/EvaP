@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_variance, TextResult
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult
 
 from evap.results.exporters import ExcelExporter
 
@@ -27,7 +27,7 @@ def semester_detail(request, semester_id):
 
     # annotate each course object with its grades
     for course in courses:
-        course.avg_grade, course.avg_variance = calculate_average_grades_and_variance(course)
+        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     template_data = dict(semester=semester, courses=courses, staff=request.user.is_staff)
     return render(request, "results_semester_detail.html", template_data)
@@ -89,7 +89,7 @@ def course_detail(request, semester_id, course_id):
 
     show_grades = request.user.is_staff or course.can_publish_grades
 
-    course.avg_grade, course.avg_variance = calculate_average_grades_and_variance(course)
+    course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     template_data = dict(
             course=course,

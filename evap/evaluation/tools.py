@@ -68,7 +68,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'variance', 'distribution', 'warning'))
+RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'deviation', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
 def avg(iterable):
@@ -150,7 +150,7 @@ def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of single result elements, the average grade and
-    variance for that section (or None). The result elements are either
+    deviation for that section (or None). The result elements are either
     `RatingResult` or `TextResult` instances."""
 
     # there will be one section per relevant questionnaire--contributor pair
@@ -176,11 +176,11 @@ def _calculate_results_impl(course):
 
                 count = len(answers)
                 average = avg(answers)
-                variance = avg((average - answer) ** 2 for answer in answers)
+                deviation = avg((average - answer) ** 2 for answer in answers)
                 distribution = get_distribution(answers)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
-                results.append(RatingResult(question, count, average, variance, distribution, warning))
+                results.append(RatingResult(question, count, average, deviation, distribution, warning))
 
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
@@ -194,27 +194,27 @@ def _calculate_results_impl(course):
     return sections
 
 
-def calculate_average_grades_and_variance(course):
-    """Determines the final average grade and variance for a course."""
+def calculate_average_grades_and_deviation(course):
+    """Determines the final average grade and deviation for a course."""
     avg_generic_likert = []
     avg_contribution_likert = []
-    var_generic_likert = []
-    var_contribution_likert = []
+    dev_generic_likert = []
+    dev_contribution_likert = []
     avg_generic_grade = []
     avg_contribution_grade = []
-    var_generic_grade = []
-    var_contribution_grade = []
+    dev_generic_grade = []
+    dev_contribution_grade = []
 
     for questionnaire, contributor, results, warning in calculate_results(course):
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
-        variance_likert = avg([result.variance for result in results if result.question.is_likert_question])
+        deviation_likert = avg([result.deviation for result in results if result.question.is_likert_question])
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
-        variance_grade = avg([result.variance for result in results if result.question.is_grade_question])
+        deviation_grade = avg([result.deviation for result in results if result.question.is_grade_question])
 
         (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
-        (var_contribution_likert if contributor else var_generic_likert).append(variance_likert)
+        (dev_contribution_likert if contributor else dev_generic_likert).append(deviation_likert)
         (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
-        (var_contribution_grade if contributor else var_generic_grade).append(variance_grade)
+        (dev_contribution_grade if contributor else dev_generic_grade).append(deviation_grade)
 
     # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
     # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
@@ -222,14 +222,14 @@ def calculate_average_grades_and_variance(course):
     # final = GP * final_grade + (1-GP) * final_likert
 
     final_likert_avg = mix(avg(avg_contribution_likert), avg(avg_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
-    final_likert_var = mix(avg(var_contribution_likert), avg(var_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
+    final_likert_dev = mix(avg(dev_contribution_likert), avg(dev_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
     final_grade_avg = mix(avg(avg_contribution_grade), avg(avg_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
-    final_grade_var = mix(avg(var_contribution_grade), avg(var_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
+    final_grade_dev = mix(avg(dev_contribution_grade), avg(dev_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
 
     final_avg = mix(final_grade_avg, final_likert_avg, settings.GRADE_PERCENTAGE)
-    final_var = mix(final_grade_var, final_likert_var, settings.GRADE_PERCENTAGE)
+    final_dev = mix(final_grade_dev, final_likert_dev, settings.GRADE_PERCENTAGE)
 
-    return final_avg, final_var
+    return final_avg, final_dev
 
 
 def questionnaires_and_contributions(course):
@@ -283,11 +283,11 @@ def get_grade_color(grade):
     next_higher = int(ceil(grade))
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
 
-def get_variance_color(variance):
-    if variance is None:
+def get_deviation_color(deviation):
+    if deviation is None:
         return (255, 255, 255)
 
-    capped_variance = min(variance, 3.0) # values above that are very uncommon in practice
-    val = int(255 - capped_variance * 35) # tweaked to look good
+    capped_deviation = min(deviation, 3.0) # values above that are very uncommon in practice
+    val = int(255 - capped_deviation * 35) # tweaked to look good
     return (val, val, val)
 

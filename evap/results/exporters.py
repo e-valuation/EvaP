@@ -1,5 +1,5 @@
 from evap.evaluation.models import Questionnaire
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_variance, get_grade_color, get_variance_color
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color
 
 from django.utils.translation import ugettext as _
 
@@ -40,7 +40,7 @@ class ExcelExporter(object):
 
         CUSTOM_COLOR_START = 8
         NUM_GRADE_COLORS = 21 # 1.0 to 5.0 in 0.2 steps
-        NUM_VARIANCE_COLORS = 30 # about to change in next commit
+        NUM_DEVIATION_COLORS = 30 # about to change in next commit
         self.STEP = 0.2 # we only have a limited number of custom colors
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
@@ -51,20 +51,20 @@ class ExcelExporter(object):
             style_name = 'grade_' + str(grade)
             self.create_style(workbook, grade_base_style, style_name, palette_index, color)
 
-        variance_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; borders: right medium'
-        for i in range(0, NUM_VARIANCE_COLORS):
-            variance = self.normalize_number(i * self.STEP)
-            color = get_variance_color(variance)
+        deviation_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; borders: right medium'
+        for i in range(0, NUM_DEVIATION_COLORS):
+            deviation = self.normalize_number(i * self.STEP)
+            color = get_deviation_color(deviation)
             palette_index = CUSTOM_COLOR_START + NUM_GRADE_COLORS + i
-            style_name = 'variance_' + str(variance)
-            self.create_style(workbook, variance_base_style, style_name, palette_index, color)
+            style_name = 'deviation_' + str(deviation)
+            self.create_style(workbook, deviation_base_style, style_name, palette_index, color)
 
 
     def grade_to_style(self, grade):
         return 'grade_' + str(self.normalize_number(grade))
 
-    def variance_to_style(self, variance):
-        return 'variance_' + str(self.normalize_number(variance))
+    def deviation_to_style(self, deviation):
+        return 'deviation_' + str(self.normalize_number(deviation))
 
     def export(self, response, ignore_not_enough_answers=False):
         courses_with_results = list()
@@ -104,7 +104,7 @@ class ExcelExporter(object):
         writen(self)
         for course, results in courses_with_results:
             writec(self, "Average", "avg")
-            writec(self, "Variance", "border_top_bottom_right")
+            writec(self, "Deviation", "border_top_bottom_right")
 
         for questionnaire in questionnaires:
             writen(self, questionnaire.name, "bold")
@@ -121,20 +121,20 @@ class ExcelExporter(object):
                     qn_results = results.get(questionnaire.id, None)
                     if qn_results:
                         values = []
-                        variances = []
+                        deviations = []
                         for grade_result in qn_results:
                             if grade_result.question.id == question.id:
                                 if grade_result.average:
                                     values.append(grade_result.average)
-                                    variances.append(grade_result.variance)
+                                    deviations.append(grade_result.deviation)
                                 break
                         enough_answers = course.can_publish_grades
                         if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
                             writec(self, avg, self.grade_to_style(avg))
 
-                            var = sum(variances) / len(variances)
-                            writec(self, var, self.variance_to_style(var))
+                            dev = sum(deviations) / len(deviations)
+                            writec(self, dev, self.deviation_to_style(dev))
                         else:
                             self.write_two_empty_cells_with_borders()
                     else:
@@ -145,17 +145,17 @@ class ExcelExporter(object):
 
         writen(self, _("Overall Average Grade"), "bold")
         for course, results in courses_with_results:
-            avg, var = calculate_average_grades_and_variance(course)
+            avg, dev = calculate_average_grades_and_deviation(course)
             if avg:
                 writec(self, avg, self.grade_to_style(avg), cols=2)
             else:
                 self.write_two_empty_cells_with_borders()
 
-        writen(self, _("Overall Average Variance"), "bold")
+        writen(self, _("Overall Average Deviation"), "bold")
         for course, results in courses_with_results:
-            avg, var = calculate_average_grades_and_variance(course)
-            if var is not None:
-                writec(self, var, self.variance_to_style(var), cols=2)
+            avg, dev = calculate_average_grades_and_deviation(course)
+            if dev is not None:
+                writec(self, dev, self.deviation_to_style(dev), cols=2)
             else:
                 self.write_two_empty_cells_with_borders()
 
