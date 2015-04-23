@@ -123,6 +123,19 @@ td.vote-question.text-field {
     background-color: #ddd;
 }
 
+.variance-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888;
+}
+
+.variance-bg-disabled {
+    background-color: #ddd;
+}
+
 @media print {
     body {
         padding: 0;
