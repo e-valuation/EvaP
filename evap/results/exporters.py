@@ -15,9 +15,15 @@ class ExcelExporter(object):
         self.semester = semester
         self.styles = dict()
 
+        self.CUSTOM_COLOR_START = 8
+        self.NUM_GRADE_COLORS = 21 # 1.0 to 5.0 in 0.2 steps
+        self.NUM_DEVIATION_COLORS = 13 # 0.0 to 2.4 in 0.2 steps
+        self.STEP = 0.2 # we only have a limited number of custom colors
+
     def normalize_number(self, number):
         """ floors 'number' to a multiply of self.STEP """
-        return round(int(number / self.STEP + 0.0001) * self.STEP, 1)
+        rounded_number = round(number, 1) # see #302
+        return round(int(rounded_number / self.STEP + 0.0001) * self.STEP, 1)
 
     def create_style(self, workbook, base_style, style_name, palette_index, color):
         color_name = style_name + "_color"
@@ -38,25 +44,22 @@ class ExcelExporter(object):
             'border_right':  xlwt.easyxf('borders: right medium'),
             'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
 
-        CUSTOM_COLOR_START = 8
-        NUM_GRADE_COLORS = 21 # 1.0 to 5.0 in 0.2 steps
-        NUM_DEVIATION_COLORS = 13 # 0.0 to 2.4 in 0.2 steps
-        self.STEP = 0.2 # we only have a limited number of custom colors
+
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
-        for i in range(0, NUM_GRADE_COLORS):
-            grade = self.normalize_number(1 + i*self.STEP)
+        for i in range(0, self.NUM_GRADE_COLORS):
+            grade = 1 + i*self.STEP
             color = get_grade_color(grade)
-            palette_index = CUSTOM_COLOR_START + i
-            style_name = 'grade_' + str(grade)
+            palette_index = self.CUSTOM_COLOR_START + i
+            style_name = self.grade_to_style(grade)
             self.create_style(workbook, grade_base_style, style_name, palette_index, color)
 
         deviation_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; borders: right medium'
-        for i in range(0, NUM_DEVIATION_COLORS):
-            deviation = self.normalize_number(i * self.STEP)
+        for i in range(0, self.NUM_DEVIATION_COLORS):
+            deviation = i * self.STEP
             color = get_deviation_color(deviation)
-            palette_index = CUSTOM_COLOR_START + NUM_GRADE_COLORS + i
-            style_name = 'deviation_' + str(deviation)
+            palette_index = self.CUSTOM_COLOR_START + self.NUM_GRADE_COLORS + i
+            style_name = self.deviation_to_style(deviation)
             self.create_style(workbook, deviation_base_style, style_name, palette_index, color)
 
 
