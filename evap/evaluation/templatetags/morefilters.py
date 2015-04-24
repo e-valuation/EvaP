@@ -1,5 +1,6 @@
 from django.template import Library
-from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STATE_DESCRIPTIONS, STUDENT_STATES_ORDERED, get_grade_color
+from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STATE_DESCRIPTIONS, STUDENT_STATES_ORDERED, \
+                                    get_grade_color, get_deviation_color
 from evap.rewards.tools import can_user_use_reward_points
 
 register = Library()
@@ -8,6 +9,10 @@ register = Library()
 @register.filter(name='gradecolor')
 def gradecolor(grade):
     return 'rgb({}, {}, {})'.format(*get_grade_color(grade))
+
+@register.filter(name='deviationcolor')
+def deviationcolor(deviation):
+    return 'rgb({}, {}, {})'.format(*get_deviation_color(deviation))
 
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/
 @register.filter(name='percentage')

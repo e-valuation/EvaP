@@ -13,7 +13,7 @@ from django.contrib.auth.models import Group
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
                             TextAnswer, EmailTemplate, NotArchiveable
-from evap.evaluation.tools import calculate_average_and_medium_grades
+from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
@@ -926,13 +926,13 @@ class ArchivingTests(WebTest):
 
         results = {}
         for course in semester.course_set.all():
-            results[course] = calculate_average_and_medium_grades(course)
+            results[course] = calculate_average_grades_and_deviation(course)
 
         semester.archive()
         cache.clear()
 
         for course in semester.course_set.all():
-            self.assertTrue(calculate_average_and_medium_grades(course) == results[course])
+            self.assertTrue(calculate_average_grades_and_deviation(course) == results[course])
 
     def test_archiving_twice_raises_exception(self):
         semester = self.get_test_semester()

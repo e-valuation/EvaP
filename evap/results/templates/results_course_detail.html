@@ -34,7 +34,7 @@
                         <th class="col-sm-2">{% trans "Type" %}</th>
                         <th class="col-sm-3">{% trans "Responsible" %}</th>
                         <th class="col-sm-2">{% trans "Average Grade" %}</th>
-                        <th class="col-sm-2">{% trans "Median Grade" %}</th>
+                        <th class="col-sm-2">{% trans "Standard Deviation" %}</th>
                         <th class="col-sm-2">{% trans "Voters" %}</th>
                     </tr>
                 </thead>
@@ -45,10 +45,10 @@
                         <td>{{ course.responsible_contributors_name }}</td>
                         {% if show_grades %}
                             <td><div class="grade-bg text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                            <td><div class="grade-bg text-center" style="background-color: {{ course.med_grade|gradecolor }};">{{ course.med_grade|floatformat:1 }}</div></td>
+                            <td><div class="deviation-bg text-center" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
                         {% else %}
                             <td><div class="grade-bg grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
-                            <td><div class="grade-bg grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
+                            <td><div class="deviation-bg deviation-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                         {% endif %}
                         <td>{% include_progress_bar course.num_voters course.num_participants %}</td>
                     </tr>
