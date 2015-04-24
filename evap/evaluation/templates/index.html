@@ -7,13 +7,13 @@
 
 {% block content %}
     {{ block.super }}
-    <span class="headline headline-large">{% trans "Welcome to the evaluation platform!" %}</span>
+    <h1>{% trans "Welcome to the evaluation platform!" %}</h1>
 
     <p>{% trans "You are currently not logged in." %}</p>
 
     <div class="row">
         <div class="col-md-6">
-            <span class="headline headline-large">{% trans "HPI student or lecturer" %}</span>
+            <h2>{% trans "HPI student or lecturer" %}</h2>
 
             <div class="well">
                 <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
@@ -42,7 +42,7 @@
         </div>
 
         <div class="col-md-6">
-            <span class="headline headline-large">{% trans "External student or lecturer" %}</span>
+            <h2>{% trans "External student or lecturer" %}</h2>
             <div class="well">
                 <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
 
@@ -71,7 +71,7 @@
                 </form>
             </div>
             <div class="well">
-                <span class="headline headline-small">{% trans "Don't have a key or lost it?" %}</span>
+                <h3>{% trans "Don't have a key or lost it?" %}</h3>
                 <p>{% trans "Please enter your email address to get a new login key." %}</p>
                 <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}

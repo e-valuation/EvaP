@@ -5,7 +5,7 @@
 
 {% for questionnaire, contributor, results, questionnaire_warning in group.list %}
     <div class="inline-headers">
-        <span class="headline headline-small">{{ group.grouper.public_name }}</span>
+        <h4>{{ group.grouper.public_name }}</h4>
         {% if questionnaire_warning %}
             <span class="pull-right participants-warning questionnaire-warning">
                 <span class="glyphicon glyphicon-warning-sign"></span>

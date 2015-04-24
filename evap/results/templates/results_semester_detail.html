@@ -17,7 +17,7 @@
     {% regroup courses by degree as degrees %}
 
     {% for degree in degrees %}
-        <span class="headline">{{ degree.grouper }}</span>
+        <h3>{{ degree.grouper }}</h3>
         <table class="table table-striped course-table vertically-aligned">
             <thead style="white-space:nowrap">
                 <tr>
