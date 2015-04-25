@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                 {% for questionnaire in questionnaires %}
-                    <tr class="questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
+                    <tr class="sortable questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
                         <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                         <td>
                             <strong>{{ questionnaire.name }}</strong>
