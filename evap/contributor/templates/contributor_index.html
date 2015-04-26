@@ -23,7 +23,7 @@
             <em>{% trans "More details:" %} <a href="/faq#18">{% trans "FAQ/States" %}</a></em><br />
             <br />
             <b>{% trans "Evaluation Results" %}</b><br />
-            {% blocktrans %}The student's comments will be shown to the lecturers who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+            {% blocktrans %}The student's comments will be shown to the people who were evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
             <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
         </div>
     </small>
@@ -67,7 +67,7 @@
                                     {% if course.state == 'prepared' %}
                                         <a href="{% url "contributor:course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
                                         <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                                    {% elif course.state == 'lecturerApproved' or course.state == 'approved' %}
+                                    {% elif course.state == 'editorApproved' or course.state == 'approved' %}
                                         <a href="{% url "contributor:course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                                         <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                     {% endif %}

@@ -218,7 +218,7 @@ class UsecaseTests(WebTest):
     def test_remove_responsibility(self):
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
-        # remove responsibility in lecturer's checkbox
+        # remove responsibility in contributor's checkbox
         page = page.click("Semester 1 \(en\)", index=0)
         page = page.click("Course 1 \(en\)")
         form = lastform(page)
@@ -577,13 +577,13 @@ class URLTests(WebTest):
         self.helper_semester_state_views([2], "prepared", "approved", "approve")
 
     def test_semester_approve_3(self):
-        self.helper_semester_state_views([3], "lecturerApproved", "approved", "approve")
+        self.helper_semester_state_views([3], "editorApproved", "approved", "approve")
 
     def test_semester_contributor_ready_1(self):
         self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
 
     def test_semester_contributor_ready_2(self):
-        self.helper_semester_state_views([3], "lecturerApproved", "prepared", "reenableLecturerReview")
+        self.helper_semester_state_views([3], "editorApproved", "prepared", "reenableEditorReview")
 
     def test_semester_unpublish(self):
         self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
@@ -693,7 +693,7 @@ class URLTests(WebTest):
         self.assertEqual(Course.objects.get(pk=2).state, "prepared")
 
         form.submit(name="operation", value="approve")
-        self.assertEqual(Course.objects.get(pk=2).state, "lecturerApproved")
+        self.assertEqual(Course.objects.get(pk=2).state, "editorApproved")
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)

@@ -46,7 +46,7 @@
                     {% if user.is_authenticated %}
                         {% if user.is_participant and user.is_contributor_or_delegate %}
                             <li><a href="{% url "student:index" %}">{% trans "My courses (student)" %}</a></li>
-                            <li><a href="{% url "contributor:index" %}">{% trans "My courses (lecturer)" %}</a></li>
+                            <li><a href="{% url "contributor:index" %}">{% trans "My courses (contributor)" %}</a></li>
                         {% elif user.is_participant %}
                             <li><a href="{% url "student:index" %}">{% trans "My courses" %}</a></li>
                         {% elif user.is_contributor_or_delegate %}

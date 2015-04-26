@@ -95,7 +95,7 @@ def semester_course_operation(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     operation = request.GET.get('operation')
-    if operation not in ['revertToNew', 'prepare', 'reenableLecturerReview', 'approve', 'publish', 'unpublish']:
+    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
         return custom_redirect('staff:semester_view', semester_id)
 
@@ -104,7 +104,7 @@ def semester_course_operation(request, semester_id):
         courses = Course.objects.filter(id__in=course_ids)
         if operation == 'revertToNew':
             helper_semester_course_operation_revert(request, courses)
-        elif operation == 'prepare' or operation == 'reenableLecturerReview':
+        elif operation == 'prepare' or operation == 'reenableEditorReview':
             helper_semester_course_operation_prepare(request, courses)
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
@@ -122,7 +122,7 @@ def semester_course_operation(request, semester_id):
         current_state_name = STATES_ORDERED[courses[0].state]
         if operation == 'revertToNew':
             new_state_name = STATES_ORDERED['new']
-        elif operation == 'prepare' or operation == 'reenableLecturerReview':
+        elif operation == 'prepare' or operation == 'reenableEditorReview':
             new_state_name = STATES_ORDERED['prepared']
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
@@ -163,12 +163,12 @@ def helper_semester_course_operation_prepare(request, courses):
     for course in courses:
         course.ready_for_contributors()
         course.save()
-    messages.success(request, ungettext("Successfully enabled %(courses)d course for lecturer review.",
-        "Successfully enabled %(courses)d courses for lecturer review.", len(courses)) % {'courses': len(courses)})
+    messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
+        "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
     try:
         EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
     except Exception:
-        messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
+        messages.error(request, _("An error occured when sending the notification emails to the editors."))
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -320,7 +320,7 @@ def semester_lottery(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['prepared', 'lecturerApproved']).all()
+    courses = semester.course_set.filter(state__in=['prepared', 'editorApproved']).all()
 
     prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
     responsibles = (course.responsible_contributor for course in prepared_courses)

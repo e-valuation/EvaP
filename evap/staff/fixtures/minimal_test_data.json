@@ -485,7 +485,7 @@
   "model": "evaluation.emailtemplate",
   "fields": {
     "body": "",
-    "name": "Lecturer Review Notice",
+    "name": "Editor Review Notice",
     "subject": "[EvaP] New Course ready for approval"
   }
 },
@@ -1179,21 +1179,21 @@
   "pk": 3,
   "model": "evaluation.course",
   "fields": {
-    "name_de": "a lecturer approved course",
+    "name_de": "an editor approved course",
     "_participant_count": null,
     "degree": "a degree",
     "voters": [],
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
     "_voter_count": null,
-    "state": "lecturerApproved",
+    "state": "editorApproved",
     "last_modified_user": 1,
     "participants": [
       5,
       8
     ],
     "vote_end_date": "2014-09-30",
-    "name_en": "a lecturer approved course",
+    "name_en": "an editor approved course",
     "type": "a type",
     "vote_start_date": "2014-09-10"
   }

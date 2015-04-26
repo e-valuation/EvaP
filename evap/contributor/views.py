@@ -17,7 +17,7 @@ from evap.student.views import vote_preview
 def index(request):
     user = request.user
 
-    contributor_visible_states = ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published']
+    contributor_visible_states = ['prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed', 'published']
     own_courses = Course.objects.filter(contributions__contributor=user, state__in=contributor_visible_states)
 
     represented_users = user.represented_users.all()
@@ -53,7 +53,7 @@ def course_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
+    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
@@ -112,7 +112,7 @@ def course_preview(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_contributor_or_delegate(user) and course.state in ['prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
+    if not (course.is_user_contributor_or_delegate(user) and course.state in ['prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
     return vote_preview(request, course)
