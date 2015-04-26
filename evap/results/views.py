@@ -83,7 +83,7 @@ def course_detail(request, semester_id, course_id):
     evaluation_warning = course.state != 'published'
 
     # results for a course might not be visible because there are not enough answers
-    # but it can still be "published" e.g. to show the comment results to lecturers.
+    # but it can still be "published" e.g. to show the comment results to contributors.
     # users who can open the results page see a warning message in this case
     sufficient_votes_warning = not course.can_publish_grades
 

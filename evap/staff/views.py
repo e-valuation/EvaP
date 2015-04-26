@@ -163,12 +163,12 @@ def helper_semester_course_operation_prepare(request, courses):
     for course in courses:
         course.ready_for_contributors()
         course.save()
-    messages.success(request, ungettext("Successfully enabled %(courses)d course for lecturer review.",
-        "Successfully enabled %(courses)d courses for lecturer review.", len(courses)) % {'courses': len(courses)})
+    messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
+        "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
     try:
         EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
     except Exception:
-        messages.error(request, _("An error occured when sending the notification emails to the lecturers."))
+        messages.error(request, _("An error occured when sending the notification emails to the editors."))
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:

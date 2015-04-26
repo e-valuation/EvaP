@@ -218,7 +218,7 @@ class UsecaseTests(WebTest):
     def test_remove_responsibility(self):
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
-        # remove responsibility in lecturer's checkbox
+        # remove responsibility in contributor's checkbox
         page = page.click("Semester 1 \(en\)", index=0)
         page = page.click("Course 1 \(en\)")
         form = lastform(page)

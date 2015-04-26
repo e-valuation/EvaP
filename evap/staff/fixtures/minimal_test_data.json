@@ -1179,7 +1179,7 @@
   "pk": 3,
   "model": "evaluation.course",
   "fields": {
-    "name_de": "a lecturer approved course",
+    "name_de": "an editor approved course",
     "_participant_count": null,
     "degree": "a degree",
     "voters": [],
@@ -1193,7 +1193,7 @@
       8
     ],
     "vote_end_date": "2014-09-30",
-    "name_en": "a lecturer approved course",
+    "name_en": "an editor approved course",
     "type": "a type",
     "vote_start_date": "2014-09-10"
   }

@@ -160,7 +160,7 @@ msgstr "Evaluierungs-Ergebnisse"
 
 #: contributor/templates/contributor_index.html:26
 msgid ""
-"The student's comments will be shown to the lecturers who were evaluated and "
+"The student's comments will be shown to the people who were evaluated and "
 "to the person responsible for the course – after the grades of all the "
 "course's exams have been published. In addition all average and median "
 "grades will then be published for all users of the platform if at least 20 "
@@ -840,7 +840,7 @@ msgstr ""
 
 #: evaluation/tools.py:52
 msgid ""
-"The course was approved by the responsible person and will now be checked by "
+"The course was approved by a lecturer and will now be checked by "
 "the student representatives."
 msgstr ""
 "Die Veranstaltung wurde von der verantwortlichen Person bestätigt und wird "
@@ -1922,7 +1922,7 @@ msgid "Off"
 msgstr "Aus"
 
 #: staff/templates/staff_semester_view.html:106
-msgid "Enable courses for lecturer review"
+msgid "Enable courses for editor review"
 msgstr "Zur Überprüfung durch Dozent freigeben"
 
 #: staff/templates/staff_semester_view.html:109
@@ -1934,7 +1934,7 @@ msgid "Approve courses"
 msgstr "Veranstaltungen bestätigen"
 
 #: staff/templates/staff_semester_view.html:115
-msgid "Re-enable courses for lecturer review"
+msgid "Re-enable courses for editor review"
 msgstr "Veranstaltungen erneut zur Überprüfung durch Dozent freigeben"
 
 #: staff/templates/staff_semester_view.html:118
@@ -2107,15 +2107,15 @@ msgstr[1] "Erfolgreich %(courses)d Veranstaltungen auf neu zurückgesetzt."
 
 #: staff/views.py:165
 #, python-format
-msgid "Successfully enabled %(courses)d course for lecturer review."
-msgid_plural "Successfully enabled %(courses)d courses for lecturer review."
+msgid "Successfully enabled %(courses)d course for editor review."
+msgid_plural "Successfully enabled %(courses)d courses for editor review."
 msgstr[0] ""
 "Erfolgreich %(courses)d Veranstaltung als bereit für die Dozenten markiert."
 msgstr[1] ""
 "Erfolgreich %(courses)d Veranstaltungen als bereit für die Dozenten markiert."
 
 #: staff/views.py:170
-msgid "An error occured when sending the notification emails to the lecturers."
+msgid "An error occured when sending the notification emails to the editors."
 msgstr ""
 "Beim Versenden der Benachrichtigungs-E-Mails an die Dozenten ist ein Fehler "
 "aufgetreten."
@@ -2307,7 +2307,7 @@ msgstr "FAQ/Verweise"
 
 #: student/templates/student_index.html:31
 msgid ""
-"Your comments will be shown to the contributor whom you evaluated and to the "
+"Your comments will be shown to the person whom you evaluated and to the "
 "person responsible for the course – after the grades of all the course's "
 "exams have been published. In addition all average and median grades will "
 "then be published for all users of the platform if at least 20 percent of "
@@ -2414,7 +2414,7 @@ msgid "My courses (student)"
 msgstr "Meine Veranstaltungen (Student)"
 
 #: templates/base.html:49
-msgid "My courses (lecturer)"
+msgid "My courses (contributor)"
 msgstr "Meine Veranstaltungen (Mitwirkender)"
 
 #: templates/base.html:51 templates/base.html.py:53

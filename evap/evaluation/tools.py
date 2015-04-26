@@ -49,7 +49,7 @@ STATES_ORDERED = OrderedDict((
 STATE_DESCRIPTIONS = OrderedDict((
     ('new', _('The course was newly created and will be prepared by the student representatives.')),
     ('prepared', _('The course was prepared by the student representatives and is now available for editing to the responsible person.')),
-    ('editorApproved', _('The course was approved by the responsible person and will now be checked by the student representatives.')),
+    ('editorApproved', _('The course was approved by a lecturer and will now be checked by the student representatives.')),
     ('approved', _('All preparations are finished. The evaluation will begin once the defined start date is reached.')),
     ('inEvaluation', _('The course is currently in evaluation until the defined end date is reached.')),
     ('evaluated', _('The course was fully evaluated and will now be reviewed by the student representatives.')),
