@@ -12,8 +12,8 @@ from evap.staff.tools import EMAIL_RECIPIENTS
 
 
 class ImportForm(forms.Form, BootstrapMixin):
-    vote_start_date = forms.DateField(label=_("First date to vote"), localize=True)
-    vote_end_date = forms.DateField(label=_("Last date to vote"), localize=True)
+    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True)
+    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True)
 
     excel_file = forms.FileField(label=_("Excel file"))
 

@@ -161,8 +161,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateField(null=True, verbose_name=_("first date to vote"))
-    vote_end_date = models.DateField(null=True, verbose_name=_("last date to vote"))
+    vote_start_date = models.DateField(null=True, verbose_name=_("first day of evaluation"))
+    vote_end_date = models.DateField(null=True, verbose_name=_("last day of evaluation"))
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
@@ -185,7 +185,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def clean(self):
         if self.vote_start_date and self.vote_end_date:
             if self.vote_start_date >= self.vote_end_date:
-                raise ValidationError(_("The vote start date must be before the vote end date."))
+                raise ValidationError(_("The first day of evaluation must be before the last one."))
 
     def save(self, *args, **kw):
         super().save(*args, **kw)

@@ -32,13 +32,13 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def clean_vote_start_date(self):
         vote_start_date = self.cleaned_data.get('vote_start_date')
         if vote_start_date and vote_start_date < datetime.date.today():
-            raise forms.ValidationError(_("The first date to vote must be in the future."))
+            raise forms.ValidationError(_("The first day of evaluation must be in the future."))
         return vote_start_date
 
     def clean_vote_end_date(self):
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_end_date and vote_end_date < datetime.date.today():
-            raise forms.ValidationError(_("The last date to vote must be in the future."))
+            raise forms.ValidationError(_("The last day of evaluation must be in the future."))
         return vote_end_date
 
     def save(self, *args, **kw):
