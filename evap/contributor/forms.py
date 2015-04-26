@@ -5,6 +5,8 @@ from evap.evaluation.models import Course, UserProfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.staff.forms import ContributionFormSet
 
+import datetime
+
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
@@ -27,6 +29,18 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     def clean_degree(self):
         return self.instance.degree
 
+    def clean_vote_start_date(self):
+        vote_start_date = self.cleaned_data.get('vote_start_date')
+        if vote_start_date and vote_start_date < datetime.date.today():
+            raise forms.ValidationError(_("The first day of evaluation must be in the future."))
+        return vote_start_date
+
+    def clean_vote_end_date(self):
+        vote_end_date = self.cleaned_data.get('vote_end_date')
+        if vote_end_date and vote_end_date < datetime.date.today():
+            raise forms.ValidationError(_("The last day of evaluation must be in the future."))
+        return vote_end_date
+
     def save(self, *args, **kw):
         user = kw.pop("user")
         super().save(*args, **kw)
@@ -35,8 +49,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
 
     def validate_unique(self):
+        # see staff.forms.CourseForm for an explanation
         exclude = self._get_validation_exclusions()
-        exclude.remove('semester') # allow checking against the missing attribute
+        exclude.remove('semester')
 
         try:
             self.instance.validate_unique(exclude=exclude)

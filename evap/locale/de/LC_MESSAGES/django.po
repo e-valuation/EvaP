@@ -452,12 +452,12 @@ msgid "voter count"
 msgstr "Anzahl Abstimmende"
 
 #: evaluation/models.py:156
-msgid "first date to vote"
-msgstr "Erster Abstimmungstag"
+msgid "first day of evaluation"
+msgstr "erster Evaluierungstag"
 
 #: evaluation/models.py:157
-msgid "last date to vote"
-msgstr "letzter Abstimmungstag"
+msgid "last day of evaluation"
+msgstr "letzter Evaluierungstag"
 
 #: evaluation/models.py:171 evaluation/models.py:415
 msgid "course"
@@ -468,8 +468,8 @@ msgid "courses"
 msgstr "Veranstaltungen"
 
 #: evaluation/models.py:180
-msgid "The vote start date must be before the vote end date."
-msgstr "Der erste Abstimmungstag muss vor dem letzten liegen."
+msgid "The first day of evaluation must be before the last one."
+msgstr "Der erste Evaluierungstag muss vor dem letzten liegen."
 
 #: evaluation/models.py:361
 msgid "Not enough questionnaires assigned"
@@ -1294,12 +1294,12 @@ msgid "RewardPoints"
 msgstr "Belohnungspunkte"
 
 #: staff/forms.py:17
-msgid "First date to vote"
-msgstr "Erster Abstimmungstag"
+msgid "First day of evaluation"
+msgstr "Erster Evaluierungstag"
 
 #: staff/forms.py:18
-msgid "Last date to vote"
-msgstr "Letzter Abstimmungstag"
+msgid "Last day of evaluation"
+msgstr "Letzter Evaluierungstag"
 
 #: staff/forms.py:20 staff/forms.py:24
 msgid "Excel file"
@@ -1314,7 +1314,7 @@ msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
 #: staff/forms.py:70
-msgid "The vote end date must be in the future."
+msgid "The last day of evaluation must be in the future."
 msgstr "Das Ende des Evaluierungszeitraums muss in der Zukunft liegen."
 
 #: staff/forms.py:113

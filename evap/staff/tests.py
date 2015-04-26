@@ -17,6 +17,7 @@ from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
+from evap.contributor.forms import CourseForm as ContributorCourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -688,6 +689,8 @@ class URLTests(WebTest):
         """
         page = self.get_assert_200("/contributor/course/2/edit", user="responsible")
         form = lastform(page)
+        form["vote_start_date"] = "02/1/2098"
+        form["vote_end_date"] = "02/1/2099"
 
         form.submit(name="operation", value="save")
         self.assertEqual(Course.objects.get(pk=2).state, "prepared")
@@ -732,6 +735,62 @@ class URLTests(WebTest):
         response = form.submit()
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
+
+    def helper_test_course_form_same_name(self, CourseFormClass):
+        courses = Course.objects.filter(semester=1, degree="a degree")
+        self.assertGreater(courses.count(), 1) # need at least two of those
+
+        initial_form = CourseForm(instance=courses[0])
+        form_data = {field.html_name: field.value() for field in initial_form}
+
+        form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
+        form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
+        form = CourseForm(form_data, instance=courses[0])
+        self.assertTrue(form.is_valid())
+        form_data['name_de'] = courses[1].name_de
+        form = CourseForm(form_data, instance=courses[0])
+        self.assertFalse(form.is_valid())
+
+    def test_course_form_same_name(self):
+        """
+            Test whether giving a course the same name as another course
+            in the same degree and semester in the course edit form is invalid.
+        """
+        self.helper_test_course_form_same_name(CourseForm)
+        self.helper_test_course_form_same_name(ContributorCourseForm)
+
+    def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
+        course = Course.objects.filter(semester=1, degree="a degree").first()
+
+        initial_form = CourseFormClass(instance=course)
+        form_data = {field.html_name: field.value() for field in initial_form}
+
+        form_data["vote_start_date"] = start_date
+        form_data["vote_end_date"] = end_date
+        form = CourseFormClass(form_data, instance=course)
+        self.assertEqual(form.is_valid(), expected_result)
+
+    def test_contributor_course_form_date_validation(self):
+        """
+            Tests validity of various start/end date combinations in
+            the two course edit forms.
+        """
+
+        # contributors: start date must be in the future
+        self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
+
+        # contributors: end date must be in the future
+        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/1999", False)
+
+        # contributors: start date must be < end date
+        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/2098", False)
+
+        # staff: neither end nor start date must be in the future
+        self.helper_date_validation(CourseForm, "02/1/1998", "02/1/1999", True)
+
+        # staff: but start date must be < end date
+        self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
+
 
 class ContributorFormTests(WebTest):
     csrf_checks = False
