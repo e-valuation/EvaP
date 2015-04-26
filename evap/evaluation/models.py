@@ -21,7 +21,7 @@ import random
 STUDENT_STATES_NAMES = {
     'new': 'upcoming',
     'prepared': 'upcoming',
-    'lecturerApproved': 'upcoming',
+    'editorApproved': 'upcoming',
     'approved': 'upcoming',
     'inEvaluation': 'inEvaluation',
     'evaluated': 'evaluationFinished',
@@ -223,7 +223,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.is_archived and self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
+        return not self.is_archived and self.state in ['new', 'prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
 
     @property
     def can_staff_delete(self):
@@ -235,21 +235,21 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_approve(self):
-        return self.state in ['new', 'prepared', 'lecturerApproved']
+        return self.state in ['new', 'prepared', 'editorApproved']
 
     @property
     def can_publish_grades(self):
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
-    @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
+    @transition(field=state, source=['new', 'editorApproved'], target='prepared')
     def ready_for_contributors(self):
         pass
 
-    @transition(field=state, source='prepared', target='lecturerApproved')
+    @transition(field=state, source='prepared', target='editorApproved')
     def contributor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved', conditions=[has_enough_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[has_enough_questionnaires])
     def staff_approve(self):
         pass
 
@@ -803,7 +803,7 @@ class EmailTemplate(models.Model):
 
     @classmethod
     def get_review_template(cls):
-        return cls.objects.get(name="Lecturer Review Notice")
+        return cls.objects.get(name="Editor Review Notice")
 
     @classmethod
     def get_reminder_template(cls):

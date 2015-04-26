@@ -67,7 +67,7 @@
                                     {% if course.state == 'prepared' %}
                                         <a href="{% url "contributor:course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
                                         <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                                    {% elif course.state == 'lecturerApproved' or course.state == 'approved' %}
+                                    {% elif course.state == 'editorApproved' or course.state == 'approved' %}
                                         <a href="{% url "contributor:course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
                                         <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                     {% endif %}

@@ -485,7 +485,7 @@
   "model": "evaluation.emailtemplate",
   "fields": {
     "body": "",
-    "name": "Lecturer Review Notice",
+    "name": "Editor Review Notice",
     "subject": "[EvaP] New Course ready for approval"
   }
 },
@@ -1186,7 +1186,7 @@
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
     "_voter_count": null,
-    "state": "lecturerApproved",
+    "state": "editorApproved",
     "last_modified_user": 1,
     "participants": [
       5,
