@@ -26,7 +26,7 @@ import datetime
 
 
 def lastform(page):
-    return page.forms[max(page.forms.keys())]
+    return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/

@@ -5,7 +5,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal multiselect-form">
+    <form method="POST" class="form-horizontal multiselect-form" id="course-form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
@@ -35,7 +35,7 @@
                     {% if form_element.non_field_errors %}
                         <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                     {% endif %}
-                    <tr class="sortable">
+                    <tr class="contribution sortable">
                         {% for field in form_element.hidden_fields %}
                             {{ field }}
                         {% endfor %}

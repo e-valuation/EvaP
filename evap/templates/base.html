@@ -192,6 +192,18 @@
                 $.fn.button.noConflict();
             }
 
+            // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
+            // select2 can't handle already select2'd forms that were copies made by
+            // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
+            var template_form = $(".contribution").last().clone();
+            // later we use this class to give this to django-dynamic-formsets
+            // as template and to make sure it does not get select2'd
+            template_form.addClass("form-template").css("display","none");
+            // for some reason django-dynamic-formsets does not hide the checkbox like it should
+            template_form.find(':checkbox').last().attr("type", "hidden");
+            // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
+            template_form.insertAfter($('#course-form'));
+
             // put this into a function for later re-use
             apply_select2 = function(elem) {
                 elem.select2({
@@ -199,7 +211,7 @@
                     placeholder: "{% trans "Please select..." %}",
                     minimumResultsForSearch: 15,});
             };
-            apply_select2($("select"));
+            apply_select2($('select').not('.form-template select'));
 
             // run the jquery datepicker plugin
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
