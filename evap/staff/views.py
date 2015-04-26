@@ -10,13 +10,13 @@ from django.core.urlresolvers import reverse
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
                                   get_textanswers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm
+                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -642,6 +642,22 @@ def questionnaire_update_indices(request):
         questionnaire.index = new_index
         questionnaire.save()
     return HttpResponse()
+
+
+@staff_required
+def degree_index(request):
+    degrees = Degree.objects.all()
+
+    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_order=False, can_delete=True, extra=0)
+    formset = degreeFS(request.POST or None, queryset=degrees)
+
+    if formset.is_valid():
+        formset.save()
+
+        messages.success(request, _("Successfully updated the degrees."))
+        return custom_redirect('staff:degree_index')
+    else:
+        return render(request, "staff_degree_index.html", dict(formset=formset, degrees=degrees))
 
 
 @staff_required

@@ -6,7 +6,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer
+                                   EmailTemplate, TextAnswer, Degree
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 from evap.staff.tools import EMAIL_RECIPIENTS
 
@@ -25,6 +25,19 @@ class UserImportForm(forms.Form, BootstrapMixin):
 class SemesterForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Semester
+        fields = "__all__"
+
+
+class DegreeForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["order"].widget = forms.HiddenInput()
+
+    class Meta:
+        model = Degree
         fields = "__all__"
 
 

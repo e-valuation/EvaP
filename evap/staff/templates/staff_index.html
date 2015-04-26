@@ -43,6 +43,10 @@
             <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
         </div>
         <div class="col-md-3">
+            <h3>{% trans "Degrees" %}</h3>
+            <ul>
+                <li><a href="{% url "staff:degree_index" %}">{% trans "All degrees" %}</a></li>
+            </ul>
             <h3>{% trans "Users" %}</h3>
             <ul>
                 <li><a href="{% url "staff:user_index" %}">{% trans "All users" %}</a></li>

@@ -35,6 +35,8 @@ urlpatterns = [
     url(r"^questionnaire/(\d+)/delete$", questionnaire_delete, name="questionnaire_delete"),
     url(r"^questionnaire/updateindices$", questionnaire_update_indices, name="questionnaire_update_indices"),
 
+    url(r"^degrees/$", degree_index, name="degree_index"),
+
     url(r"^user/$", user_index, name="user_index"),
     url(r"^user/create$", user_create, name="user_create"),
     url(r"^user/import$", user_import, name="user_import"),
