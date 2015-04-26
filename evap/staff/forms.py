@@ -10,8 +10,6 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 from evap.staff.tools import EMAIL_RECIPIENTS
 
-import datetime
-
 
 class ImportForm(forms.Form, BootstrapMixin):
     vote_start_date = forms.DateField(label=_("First date to vote"), localize=True)
@@ -64,11 +62,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].widget.attrs['readonly'] = "True"
 
-    def clean(self):
-        vote_end_date = self.cleaned_data.get('vote_end_date')
-        if vote_end_date and vote_end_date < datetime.date.today():
-            raise forms.ValidationError(_("The vote end date must be in the future."))
-
     def save(self, *args, **kw):
         user = kw.pop("user")
         super().save(*args, **kw)
@@ -77,8 +70,11 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
 
     def validate_unique(self):
+        # semester is not in the fields list but needs to be validated as well
+        # see https://stackoverflow.com/questions/2141030/djangos-modelform-unique-together-validation
+        # and https://code.djangoproject.com/ticket/13091
         exclude = self._get_validation_exclusions()
-        exclude.remove('semester') # allow checking against the missing attribute
+        exclude.remove('semester')
 
         try:
             self.instance.validate_unique(exclude=exclude)
@@ -100,8 +96,9 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         self.fields['order'].widget = forms.HiddenInput()
 
     def validate_unique(self):
+        # see CourseForm for an explanation
         exclude = self._get_validation_exclusions()
-        exclude.remove('course') # allow checking against the missing attribute
+        exclude.remove('course')
 
         try:
             self.instance.validate_unique(exclude=exclude)
