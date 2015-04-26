@@ -13,7 +13,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'type', 'degree', 'general_questions')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'type', 'degrees', 'general_questions')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,7 +21,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
         self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
-        self.fields['degree'].widget.attrs['readonly'] = "True"
+        self.fields['degrees'].widget.attrs['disabled'] = "true"
+        self.fields['degrees'].help_text = ""
 
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]

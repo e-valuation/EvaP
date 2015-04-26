@@ -5,12 +5,12 @@ from django.utils.translation import get_language
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.auth import staff_required
-from evap.evaluation.models import Semester
+from evap.evaluation.models import Semester, Degree
 from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult
 
 from evap.results.exporters import ExcelExporter
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 
 @login_required
@@ -29,7 +29,14 @@ def semester_detail(request, semester_id):
     for course in courses:
         course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
-    template_data = dict(semester=semester, courses=courses, staff=request.user.is_staff)
+    courses_by_degree = OrderedDict()
+    for degree in Degree.objects.all():
+        courses_by_degree[degree] = []
+    for course in courses:
+        for degree in course.degrees.all():
+            courses_by_degree[degree].append(course)
+
+    template_data = dict(semester=semester, courses_by_degree=courses_by_degree, staff=request.user.is_staff)
     return render(request, "results_semester_detail.html", template_data)
 
 
