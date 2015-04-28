@@ -11,7 +11,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal multiselect-form">
+    <form method="POST" class="form-horizontal multiselect-form" id="course-form">
         {% csrf_token %}
         <fieldset>
             <legend>{{ course.name }} ({{ course.semester.name }})</legend>
@@ -26,10 +26,10 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th>{% trans "Contributor" %}</th>
-                        <th>{% trans "Questionnaires" %}</th>
-                        <th>{% trans "Can edit course" %}</th>
-                        <th>{% trans "Remove?" %}</th>
+                        <th class="col-sm-4">{% trans "Contributor" %}</th>
+                        <th class="col-sm-5">{% trans "Questionnaires" %}</th>
+                        <th class="col-sm-2">{% trans "Can edit course" %}</th>
+                        <th class="col-sm-1"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,7 +38,7 @@
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
 
-                        <tr class="sortable">
+                        <tr class="contribution sortable">
                             {% for field in form_element.hidden_fields %}
                                 {{ field }}
                             {% endfor %}
@@ -56,16 +56,14 @@
                             <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
                             <td>
                                 {{form_element.can_edit.errors}}
-                                <div class="checkbox">
                                 {% if form_element.responsible.value == True %}
                                     <input checked="checked" type="checkbox" disabled="True" />
                                     {{ form_element.can_edit.as_hidden }}
                                 {% else %}
                                     {{ form_element.can_edit }}
                                 {% endif %}
-                                </div>
                             </td>
-                            <td>{% if not form_element.responsible.value == True %}<div class="checkbox">{{ form_element.DELETE }}</div>{% endif %}</td>
+                            <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

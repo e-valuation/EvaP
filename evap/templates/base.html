@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.min.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
-    <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.uix.multiselect.css" />
+    <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
@@ -160,12 +160,12 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_en.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap.min.js"></script>
 
+    <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.uix.multiselect.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_de.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.uix.multiselect_en.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.ui.formset.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
 
     <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
 
@@ -192,10 +192,26 @@
                 $.fn.button.noConflict();
             }
 
-            // run the jquery multiselect plugin
-            $("select[multiple='multiple']").each(function(i,e) {
-                $(e).multiselect({ locale: "{{ LANGUAGE_CODE }}" });
-            });
+            // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
+            // select2 can't handle already select2'd forms that were copies made by
+            // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
+            var template_form = $(".contribution").last().clone();
+            // later we use this class to give this to django-dynamic-formsets
+            // as template and to make sure it does not get select2'd
+            template_form.addClass("form-template").css("display","none");
+            // for some reason django-dynamic-formsets does not hide the checkbox like it should
+            template_form.find(':checkbox').last().attr("type", "hidden");
+            // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
+            template_form.insertAfter($('#course-form'));
+
+            // put this into a function for later re-use
+            apply_select2 = function(elem) {
+                elem.select2({
+                    language: "{{ LANGUAGE_CODE }}",
+                    placeholder: "{% trans "Please select..." %}",
+                    minimumResultsForSearch: 15,});
+            };
+            apply_select2($('select').not('.form-template select'));
 
             // run the jquery datepicker plugin
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );

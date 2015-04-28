@@ -26,7 +26,8 @@
                 added: function(row) {
                     row.find('input[id$=-order]').val(row.parent().children().length);
                     row_added(row);
-                }
+                },
+                formTemplate: ".form-template"
             });
 
             $('tbody').sortable({

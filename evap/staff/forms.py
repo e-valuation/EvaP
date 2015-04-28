@@ -151,6 +151,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 
 class AtLeastOneFormSet(BaseInlineFormSet):
     def clean(self):
+        super().clean()
         count = 0
         for form in self.forms:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
