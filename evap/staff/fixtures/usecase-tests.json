@@ -47,13 +47,29 @@
         }
     },
     {
+      "pk": 1,
+      "model": "evaluation.degree",
+      "fields": {
+            "name_de": "Bachelor",
+            "name_en": "Bachelor"
+      }
+    },
+    {
+      "pk": 2,
+      "model": "evaluation.degree",
+      "fields": {
+            "name_de": "Master",
+            "name_en": "Master"
+      }
+    },
+    {
         "pk":1,
         "model":"evaluation.course",
         "fields":{
             "name_de":"Course 1",
             "name_en":"Course 1 (en)",
             "type":"Seminar",
-            "degree":"Bachelor",
+            "degrees":[1],
             "state":"new",
 
             "participants":[ 2 ],

@@ -593,14 +593,14 @@ class URLTests(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        data = dict(name_de="asdf", name_en="asdf", type="asdf", degree="asd",
+        data = dict(name_de="asdf", name_en="asdf", type="asdf", degrees=["1"],
                     vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/staff/semester/1/course/create", "evap")
         form = lastform(response)
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
         form["type"] = "a type"
-        form["degree"] = "a degree"
+        form["degrees"] = ["1"]
         form["vote_start_date"] = "02/1/2099"
         form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
         form["general_questions"] = ["2"]
@@ -737,7 +737,7 @@ class URLTests(WebTest):
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
     def helper_test_course_form_same_name(self, CourseFormClass):
-        courses = Course.objects.filter(semester=1, degree="a degree")
+        courses = Course.objects.filter(semester=1)
         self.assertGreater(courses.count(), 1) # need at least two of those
 
         initial_form = CourseForm(instance=courses[0])
@@ -754,13 +754,13 @@ class URLTests(WebTest):
     def test_course_form_same_name(self):
         """
             Test whether giving a course the same name as another course
-            in the same degree and semester in the course edit form is invalid.
+            in the same semester in the course edit form is invalid.
         """
         self.helper_test_course_form_same_name(CourseForm)
         self.helper_test_course_form_same_name(ContributorCourseForm)
 
     def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
-        course = Course.objects.filter(semester=1, degree="a degree").first()
+        course = Course.objects.filter(semester=1).first()
 
         initial_form = CourseFormClass(instance=course)
         form_data = {field.html_name: field.value() for field in initial_form}

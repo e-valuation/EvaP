@@ -167,7 +167,7 @@
   "fields": {
     "name_de": "a new course", 
     "_participant_count": null, 
-    "degree": "a degree", 
+    "degrees": [1], 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
@@ -187,7 +187,7 @@
     "fields": {
         "name_de": "dasdadsadas",
         "_participant_count": null,
-        "degree": "Bachelor",
+        "degrees": [1],
         "voters": [],
         "semester": 3,
         "last_modified_time": "2014-11-16T17:28:28.457",
@@ -200,6 +200,14 @@
         "type": "Masterprojekt",
         "vote_start_date": "2014-11-07"
     }
+},
+{
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
 },
 {
     "pk": 1,
