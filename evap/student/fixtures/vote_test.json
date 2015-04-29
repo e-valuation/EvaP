@@ -159,12 +159,20 @@
   }
 },
 {
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.course", 
   "fields": {
     "name_de": "Testvorlesung", 
     "_participant_count": null, 
-    "degree": "bachelor", 
+    "degrees": [1], 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-06-14T16:39:18.338", 

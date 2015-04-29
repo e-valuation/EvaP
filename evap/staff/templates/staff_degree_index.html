@@ -1,0 +1,67 @@
+{% extends "staff_base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load evaluation_templatetags %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Degrees" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="col-sm-offset-1">
+        <table id="degree_table" class="table">
+            <thead>
+                <th style="width: 10px;">&nbsp;</th>
+                {% for field in formset.0.visible_fields %}
+                    <th>{{ field.label }}</th>
+                {% endfor %}
+            </thead>
+            <tbody>
+            {% for form in formset %}
+                <tr class="sortable">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
+                    {% for field in form.visible_fields %}
+                        <td>
+                            {{ field.errors }}
+                            {{ field }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <div class="form-group well">
+            <div class="col-sm-6">
+                <input type="submit" value="{% trans "Save degrees" %}" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include_sortable_form_js %}
+
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name_de = $(row.find('input[id$=-name_de]')).val();
+            name_en = $(row.find('input[id$=-name_en]')).val();
+            return name_de || name_en
+        };
+        row_added = function(row) {
+            row.find('a.btn-default').remove();
+        };
+        make_form_sortable("degree_table", "form", row_changed, row_added, "", true);
+    </script>
+{% endblock %}

@@ -10,13 +10,13 @@ from django.core.urlresolvers import reverse
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
                                   get_textanswers, CommentSection, TextResult
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm
+                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -320,7 +320,7 @@ def semester_lottery(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['prepared', 'editorApproved']).all()
+    courses = semester.course_set.filter(state__in=['prepared', 'editorApproved']).all().prefetch_related("degrees")
 
     prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
     responsibles = (course.responsible_contributor for course in prepared_courses)
@@ -645,6 +645,22 @@ def questionnaire_update_indices(request):
 
 
 @staff_required
+def degree_index(request):
+    degrees = Degree.objects.all()
+
+    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=0)
+    formset = degreeFS(request.POST or None, queryset=degrees)
+
+    if formset.is_valid():
+        formset.save()
+
+        messages.success(request, _("Successfully updated the degrees."))
+        return custom_redirect('staff:degree_index')
+    else:
+        return render(request, "staff_degree_index.html", dict(formset=formset, degrees=degrees))
+
+
+@staff_required
 def user_index(request):
     users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups', 'course_set')
 
@@ -731,7 +747,7 @@ def template_edit(request, template_id):
 def faq_index(request):
     sections = FaqSection.objects.all()
 
-    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_order=False, can_delete=True, extra=1)
+    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
     formset = sectionFS(request.POST or None, queryset=sections)
 
     if formset.is_valid():
@@ -748,7 +764,7 @@ def faq_section(request, section_id):
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
 
-    InlineQuestionFormset = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_order=False, can_delete=True, extra=1, exclude=('section',))
+    InlineQuestionFormset = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_delete=True, extra=1, exclude=('section',))
     formset = InlineQuestionFormset(request.POST or None, queryset=questions, instance=section)
 
     if formset.is_valid():

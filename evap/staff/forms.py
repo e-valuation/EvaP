@@ -6,7 +6,7 @@ from django.utils.text import normalize_newlines
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer
+                                   EmailTemplate, TextAnswer, Degree
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 from evap.staff.tools import EMAIL_RECIPIENTS
 
@@ -28,6 +28,19 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
         fields = "__all__"
 
 
+class DegreeForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["order"].widget = forms.HiddenInput()
+
+    class Meta:
+        model = Degree
+        fields = "__all__"
+
+
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
@@ -35,7 +48,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degree', 'is_graded',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded',
                   'vote_start_date', 'vote_end_date', 'participants',
                   'general_questions',
                   'last_modified_time_2', 'last_modified_user_2')
@@ -46,7 +59,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
         self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
-        self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
+        self.fields['degrees'].help_text = ""
         self.fields['participants'].queryset = UserProfile.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
 

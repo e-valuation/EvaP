@@ -1131,11 +1131,19 @@
 },
 {
   "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
+},
+{
+  "pk": 1,
   "model": "evaluation.course",
   "fields": {
     "name_de": "a new course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [],
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
@@ -1158,7 +1166,7 @@
   "fields": {
     "name_de": "a prepared course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [],
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
@@ -1181,7 +1189,7 @@
   "fields": {
     "name_de": "an editor approved course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [],
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
@@ -1204,7 +1212,7 @@
   "fields": {
     "name_de": "an approved course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [],
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
@@ -1227,7 +1235,7 @@
   "fields": {
     "name_de": "an in evaluation course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [
       5
     ],
@@ -1252,7 +1260,7 @@
   "fields": {
     "name_de": "an evaluated course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [
       5
     ],
@@ -1277,7 +1285,7 @@
   "fields": {
     "name_de": "a reviewed course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [
       5
     ],
@@ -1302,7 +1310,7 @@
   "fields": {
     "name_de": "a published course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [
       5
     ],
@@ -1327,7 +1335,7 @@
     "fields": {
         "name_de": "dasdadsadas",
         "_participant_count": null,
-        "degree": "Bachelor",
+        "degrees": [1],
         "voters": [],
         "semester": 3,
         "last_modified_time": "2014-11-16T17:28:28.457",
@@ -1347,7 +1355,7 @@
   "fields": {
     "name_de": "another new course",
     "_participant_count": null,
-    "degree": "a degree",
+    "degrees": [1],
     "voters": [],
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",

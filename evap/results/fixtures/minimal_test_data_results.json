@@ -337,7 +337,7 @@
   "fields": {
     "name_de": "a new course", 
     "_participant_count": 25, 
-    "degree": "a degree", 
+    "degrees": [1], 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
@@ -349,6 +349,14 @@
     "name_en": "a course", 
     "type": "a type", 
     "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
   }
 }
 ]

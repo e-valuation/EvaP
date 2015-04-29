@@ -132,6 +132,20 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return [question for question in self.question_set.all() if question.is_rating_question]
 
 
+class Degree(models.Model, metaclass=LocalizeModelBase):
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
+    name = Translate
+
+    order = models.IntegerField(verbose_name=_("degree order"), default=0)
+
+    class Meta:
+        ordering = ['order', ]
+
+    def __str__(self):
+        return self.name
+
+
 class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""
 
@@ -146,8 +160,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # type of course: lecture, seminar, project
     type = models.CharField(max_length=1024, verbose_name=_("type"))
 
-    # bachelor, master, d-school course
-    degree = models.CharField(max_length=1024, verbose_name=_("degree"))
+    # e.g. Bachelor, Master
+    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"))
 
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
@@ -171,10 +185,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('semester', 'degree', 'name_de')
+        ordering = ('semester', 'name_de')
         unique_together = (
-            ('semester', 'degree', 'name_de'),
-            ('semester', 'degree', 'name_en'),
+            ('semester', 'name_de'),
+            ('semester', 'name_en'),
         )
         verbose_name = _("course")
         verbose_name_plural = _("courses")

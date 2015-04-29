@@ -40,7 +40,11 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ course.degree }}</td>
+                        <td>
+                            {% for degree in course.degrees.all %}
+                                {{ degree }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
                         <td>{{ course.type }}</td>
                         <td>{{ course.responsible_contributors_name }}</td>
                         {% if show_grades %}

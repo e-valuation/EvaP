@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.models import Course, UserProfile, Degree
 from evap.evaluation.tools import is_external_email
 
 import xlrd
@@ -56,13 +56,17 @@ class CourseData(CommonEqualityMixin):
     """
         Holds information about a course, retrieved from the Excel file.
     """
-    def __init__(self, name_de, name_en, type, degree, is_graded, responsible_email):
+    def __init__(self, name_de, name_en, type, degree_names, is_graded, responsible_email):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
         self.type = type.strip()
-        self.degree = degree.strip()
         self.is_graded = is_graded.strip()
         self.responsible_email = responsible_email
+
+        degree_names = degree_names.split(',')
+        for degree_name in degree_names:
+            degree_name = degree_name.strip()
+        self.degree_names = degree_names
 
     def store_in_database(self, vote_start_date, vote_end_date, semester):
         course = Course(name_de=self.name_de,
@@ -71,11 +75,12 @@ class CourseData(CommonEqualityMixin):
                         is_graded=self.is_graded,
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
-                        semester=semester,
-                        degree=self.degree)
+                        semester=semester)
         course.save()
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True)
+        for degree_name in self.degree_names:
+            course.degrees.add(Degree.objects.get(name_de=degree_name))
 
 
 class ExcelImporter(object):
@@ -211,11 +216,11 @@ class EnrollmentImporter(ExcelImporter):
     def read_one_enrollment(self, data, sheet_name, row_id):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
         responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
-        course_data = CourseData(name_de=data[7], name_en=data[8], type=data[5], is_graded=data[6], degree=data[0], responsible_email=responsible_data.email)
+        course_data = CourseData(name_de=data[7], name_en=data[8], type=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, course_data)
 
     def process_course(self, course_data, sheet, row):
-        course_id = (course_data.degree, course_data.name_en)
+        course_id = course_data.name_en
         if course_id not in self.courses:
             self.courses[course_id] = course_data
         else:
@@ -231,9 +236,16 @@ class EnrollmentImporter(ExcelImporter):
 
     def check_course_data_correctness(self, semester):
         for course_data in self.courses.values():
-            already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de, degree=course_data.degree).exists()
+            already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de).exists()
             if already_exists:
-                self.errors.append(_("Course {} in degree {} does already exist in this semester.").format(course_data.name_en, course_data.degree))
+                self.errors.append(_("Course {} does already exist in this semester.").format(course_data.name_en))
+
+        degree_names = set()
+        for course_data in self.courses.values():
+            degree_names.update(course_data.degree_names)
+        for degree_name in degree_names:
+            if not Degree.objects.filter(name_de=degree_name).exists():
+                self.errors.append(_("Error: The degree \"{}\" does not exist yet. Please manually create it first.").format(degree_name))
 
     def process_graded_column(self):
         for course_data in self.courses.values():
@@ -242,7 +254,7 @@ class EnrollmentImporter(ExcelImporter):
             elif course_data.is_graded == settings.IMPORTER_GRADED_NO:
                 course_data.is_graded = False
             else:
-                self.errors.append(_('"is_graded" of course {} in degree {} is {}, but must be {} or {}').format(course_data.name_en, course_data.degree, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
+                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(course_data.name_en, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
                 course_data.is_graded = True
 
     def check_enrollment_data_sanity(self):
@@ -252,11 +264,6 @@ class EnrollmentImporter(ExcelImporter):
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.maxEnrollments:
                 self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
-
-        degrees = set([course_data.degree for course_data in self.courses.values()])
-        for degree in degrees:
-            if not Course.objects.filter(degree=degree).exists():
-                self.warnings.append(_("Warning: The degree \"{}\" does not exist yet and would be newly created.").format(degree))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
@@ -274,7 +281,7 @@ class EnrollmentImporter(ExcelImporter):
                 course_data.store_in_database(vote_start_date, vote_end_date, semester)
 
             for course_data, student_data in self.enrollments:
-                course = Course.objects.get(semester=semester, name_de=course_data.name_de, degree=course_data.degree)
+                course = Course.objects.get(semester=semester, name_de=course_data.name_de)
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 

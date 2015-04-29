@@ -20,7 +20,9 @@
     <div style="font-style: italic">
         {{ course.responsible_contributors_name }}
     </div>
-    <span class="label label-default">{{ course.degree }}</span>
+    {% for degree in course.degrees.all %}
+        <span class="label label-default">{{ degree }}</span>
+    {% endfor %}
     <span class="label label-default">{{ course.type }}</span>
     <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
     {% for warning in course.warnings %}
