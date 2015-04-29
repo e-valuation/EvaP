@@ -10,7 +10,7 @@ from evap.evaluation.tools import calculate_results, calculate_average_grades_an
 
 from evap.results.exporters import ExcelExporter
 
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 
 @login_required
@@ -23,7 +23,7 @@ def index(request):
 @login_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = list(semester.course_set.filter(state="published"))
+    courses = list(semester.course_set.filter(state="published").prefetch_related("degrees"))
 
     # annotate each course object with its grades
     for course in courses:

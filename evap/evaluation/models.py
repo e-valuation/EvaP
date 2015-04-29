@@ -133,8 +133,8 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
 
 class Degree(models.Model, metaclass=LocalizeModelBase):
-    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
-    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = Translate
 
     order = models.IntegerField(verbose_name=_("degree order"), default=0)
@@ -160,7 +160,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # type of course: lecture, seminar, project
     type = models.CharField(max_length=1024, verbose_name=_("type"))
 
-    # bachelor, master, d-school course
+    # e.g. Bachelor, Master
     degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"))
 
     # default is True as that's the more restrictive option
