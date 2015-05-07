@@ -14,7 +14,7 @@ class RewardPointRedemptionEvent(models.Model):
         if RewardPointRedemption.objects.filter(event=self).exists():
             return False
         return True
-    
+
     def redemptions_by_user(self):
         redemptions = self.reward_point_redemptions.order_by('user_profile__last_name', 'user_profile__first_name')
         redemptions_dict = OrderedDict()
@@ -37,5 +37,5 @@ class RewardPointRedemption(models.Model):
     event = models.ForeignKey(RewardPointRedemptionEvent, related_name="reward_point_redemptions")
 
 class SemesterActivation(models.Model):
-    semester = models.ForeignKey('evaluation.Semester', related_name='rewards_active', unique=True)
+    semester = models.OneToOneField('evaluation.Semester', related_name='rewards_active')
     is_active = models.BooleanField(default=False)
