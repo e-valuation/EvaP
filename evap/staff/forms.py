@@ -311,7 +311,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # we need to do a save before course_set is set because the user needs to have an id there
         self.instance.save()
-        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester)) + list(self.cleaned_data.get('courses_participating_in'))
+        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
 
         super()._post_clean(*args, **kw)
 
