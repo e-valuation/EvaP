@@ -20,8 +20,6 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 DEBUG = True
 
-TEMPLATE_DEBUG = DEBUG
-
 # Very helpful but eats a lot of performance on sql-heavy pages.
 # Works only with DEBUG = True and Django's development server (so no apache).
 ENABLE_DEBUG_TOOLBAR = False
@@ -143,27 +141,33 @@ MIDDLEWARE_CLASSES = (
     'evap.evaluation.auth.RequestAuthMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.request",
-    "django.contrib.messages.context_processors.messages",
-    "evap.context_processors.feedback_email",
-    "evap.context_processors.legal_notice_active",
-    "evap.context_processors.tracker_url",
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, "templates"),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.request",
+                "django.contrib.messages.context_processors.messages",
+                "evap.context_processors.feedback_email",
+                "evap.context_processors.legal_notice_active",
+                "evap.context_processors.tracker_url",
+            ],
+        },
+    },
+]
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
     'django.contrib.auth.backends.ModelBackend',
-)
-
-# Additional locations of templates
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, "templates"),
 )
 
 ROOT_URLCONF = 'evap.urls'

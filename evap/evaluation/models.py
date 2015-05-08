@@ -6,7 +6,8 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
+from django.template.base import TemplateSyntaxError, TemplateEncodingError
+from django.template import Context, Template
 from django_fsm import FSMField, transition
 import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
@@ -661,15 +662,19 @@ class UserProfileManager(BaseUserManager):
 
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
-class EmailNullField(models.EmailField, metaclass=models.SubfieldBase):
+# and https://docs.djangoproject.com/en/1.8/howto/custom-model-fields/#converting-values-to-python-objects
+class EmailNullField(models.EmailField):
 
     description = "EmailField that stores NULL but returns ''"
 
+    def from_db_value(self, value, expression, connection, context):
+        return value or ""
+
     def to_python(self, value):  # this is the value right out of the db, or an instance
-       return value or ""
+        return value or ""
 
     def get_prep_value(self, value):  # catches value right before sending to db
-       return value or None
+        return value or None
 
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
