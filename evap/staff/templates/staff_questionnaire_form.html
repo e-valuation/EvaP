@@ -19,11 +19,10 @@
             <table id="question_table" class="table">
                 <thead>
                     <tr>
-                        {% for field in formset.form %}
-                            <th>{{ field.label }}</th>
-                        {% endfor %}
-                        <th></th>
-                        <th>{% trans "Delete?" %}</th>
+                        <th class="col-sm-4">{% trans "Question text (German)" %}</th>
+                        <th class="col-sm-4">{% trans "Question text (English)" %}</th>
+                        <th class="col-sm-3">{% trans "Question type" %}</th>
+                        <th class="col-sm-1"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,9 +32,12 @@
                         {% endif %}
 
                         <tr>
-                        {% for field in form_element %}
-                            <td>{{field.errors}} {{ field }}</td>
-                        {% endfor %}
+                            {% for field in form_element.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
+                            {% for field in form_element.visible_fields %}
+                                <td>{{ field.errors }} {{ field }}</td>
+                            {% endfor %}
                         </tr>
                     {% endfor %}
                 </tbody>
