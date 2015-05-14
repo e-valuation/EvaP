@@ -162,146 +162,162 @@
 },
 {
   "pk": 1,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 18,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 2,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 17,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 3,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 20,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 4,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 22,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 5,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 21,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 6,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 24,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 7,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 26,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 8,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 25,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 9,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 28,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 10,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 30,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 11,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 29,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 12,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 32,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 1,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 17,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
   "pk": 2,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 21,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
   "pk": 3,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 25,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
   "pk": 4,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 29,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
