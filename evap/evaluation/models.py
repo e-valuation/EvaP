@@ -404,12 +404,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def likertanswer_set(self):
         """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswer.objects.filter(contribution__in=self.contributions.all())
+        return LikertAnswerCounter.objects.filter(contribution__in=self.contributions.all())
 
     @property
     def gradeanswer_set(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
+        return GradeAnswerCounter.objects.filter(contribution__in=self.contributions.all())
 
     def _archive(self):
         """Should be called only via Semester.archive"""
@@ -485,15 +485,15 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         if self.type == "T":
             return TextAnswer
         elif self.type == "L":
-            return LikertAnswer
+            return LikertAnswerCounter
         elif self.type == "G":
-            return GradeAnswer
+            return GradeAnswerCounter
         else:
             raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):
-        return self.answer_class == LikertAnswer
+        return self.answer_class == LikertAnswerCounter
 
     @property
     def is_text_question(self):
@@ -501,7 +501,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_grade_question(self):
-        return self.answer_class == GradeAnswer
+        return self.answer_class == GradeAnswerCounter
 
     @property
     def is_rating_question(self):
@@ -510,8 +510,8 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `LikertAnswer`,
-    `TextAnswer` and `GradeAnswer`."""
+    user ist not stored in the object. Concrete subclasses are `LikertAnswerCounter`,
+    `TextAnswer` and `GradeAnswerCounter`."""
 
     question = models.ForeignKey(Question)
     contribution = models.ForeignKey(Contribution)
@@ -522,25 +522,33 @@ class Answer(models.Model):
         verbose_name_plural = _("answers")
 
 
-class LikertAnswer(Answer):
+class LikertAnswerCounter(Answer):
     """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
     being *strongly disagree*."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
+    count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
         verbose_name = _("Likert answer")
         verbose_name_plural = _("Likert answers")
 
+    def add_vote(self):
+        self.count += 1
 
-class GradeAnswer(Answer):
+
+class GradeAnswerCounter(Answer):
     """A grade answer to a question with `1` being best and `5` being worst."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
+    count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
         verbose_name = _("grade answer")
         verbose_name_plural = _("grade answers")
+
+    def add_vote(self):
+        self.count += 1
 
 
 class TextAnswer(Answer):

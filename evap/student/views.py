@@ -82,18 +82,18 @@ def vote(request, course_id):
                     identifier = make_form_identifier(contribution, questionnaire, question)
                     value = questionnaire_form.cleaned_data.get(identifier)
 
-                    if type(value) is str:
+                    if question.is_text_question:
                         value = value.strip()
-
-                    if value == 6: # no answer
-                        value = None
-
-                    # store the answer if one was given
-                    if value:
-                        question.answer_class.objects.create(
-                            contribution=contribution,
-                            question=question,
-                            answer=value)
+                        if value: # store the answer if one was given
+                            question.answer_class.objects.create(
+                                contribution=contribution,
+                                question=question,
+                                answer=value)
+                    else:
+                        if value and value != 6: # store the answer if one was given
+                            answer_counter, created = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
+                            answer_counter.add_vote()
+                            answer_counter.save()
 
         # remember that the user voted already
         course.voters.add(request.user)

@@ -109,6 +109,22 @@ def get_answers(contribution, question):
     return question.answer_class.objects.filter(contribution=contribution, question=question)
 
 
+def get_number_of_answers(contribution, question):
+    answers = get_answers(contribution, question)
+    if question.is_rating_question:
+        return sum([answer_counter.count for answer_counter in answers])
+    else:
+        return len(answers)
+
+
+def get_answers_from_answer_counters(answer_counters):
+    answers = []
+    for answer_counter in answer_counters:
+        for i in range(0, answer_counter.count):
+            answers.append(answer_counter.answer)
+    return answers
+
+
 def get_textanswers(contribution, question, filter_states=None):
     assert question.is_text_question
     answers = get_answers(contribution, question)
@@ -117,19 +133,18 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def get_distribution(answers):
-    count = len(answers)
-    if count == 0:
+def get_distribution(answer_counters):
+    if not answer_counters:
         return None
-    distribution = OrderedDict()
-    for i in range(1, 6):
-        distribution[i] = 0
-    for answer in answers:
-        distribution[answer] += 1
+    total_count = 0
+    distribution = defaultdict(int)
+    for answer_counter in answer_counters:
+        distribution[answer_counter.answer] = answer_counter.count
+        total_count += answer_counter.count
     # divide by the number of answers to get relative 0..1 values
-    for k in distribution:
-        distribution[k] = float(distribution[k]) / count * 100.0
-    return distribution
+    for i in range(1, 6):
+        distribution[i] = float(distribution[i]) / total_count * 100.0
+    return dict(distribution)
 
 
 def calculate_results(course):
@@ -161,7 +176,7 @@ def _calculate_results_impl(course):
     questionnaire_max_answers = {}
     questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_answers(contribution, question).count() for question in questionnaire.rating_questions], default=0)
+        max_answers = max([get_number_of_answers(contribution, question) for question in questionnaire.rating_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
@@ -172,12 +187,13 @@ def _calculate_results_impl(course):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_rating_question:
-                answers = get_answers(contribution, question).values_list('answer', flat=True)
+                answer_counters = get_answers(contribution, question)
+                answers = get_answers_from_answer_counters(answer_counters)
 
                 count = len(answers)
                 average = avg(answers)
                 deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if count > 0 else None
-                distribution = get_distribution(answers)
+                distribution = get_distribution(answer_counters)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
                 results.append(RatingResult(question, count, average, deviation, distribution, warning))

@@ -1,4 +1,4 @@
-from evap.evaluation.models import Contribution, Course, LikertAnswer, Question, Questionnaire, Semester, TextAnswer, UserProfile, GradeAnswer
+from evap.evaluation.models import Contribution, Course, LikertAnswerCounter, Question, Questionnaire, Semester, TextAnswer, UserProfile, GradeAnswerCounter
 from django.conf import settings
 from django.contrib import admin
 from django import forms
@@ -112,5 +112,5 @@ admin.site.register(UserProfile, UserProfileAdmin)
 
 if settings.DEBUG:
     admin.site.register(TextAnswer)
-    admin.site.register(LikertAnswer)
-    admin.site.register(GradeAnswer)
+    admin.site.register(LikertAnswerCounter)
+    admin.site.register(GradeAnswerCounter)
