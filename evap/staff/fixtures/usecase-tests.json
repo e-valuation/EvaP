@@ -112,6 +112,17 @@
         }
     },
     {
+        "pk":2,
+        "model":"evaluation.questionnaire",
+        "fields":{
+          "name_de":"Einzelergebnis",
+          "name_en":"Single result",
+          "index": 0,
+          "is_for_contributors":true,
+          "obsolete":true
+        }
+    },
+    {
         "pk":1,
         "model":"evaluation.question",
         "fields":{

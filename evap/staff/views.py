@@ -430,8 +430,7 @@ def single_result_edit(request, semester_id, course_id):
 
     initial = {'responsible': course.responsible_contributor}
     answer_counts = defaultdict(int)
-    answer_counters = course.gradeanswer_set
-    for answer_counter in answer_counters:
+    for answer_counter in course.gradeanswer_counters:
         answer_counts[answer_counter.answer] = answer_counter.count
     for i in range(1,6):
         initial['answer_' + str(i)] = answer_counts[i]

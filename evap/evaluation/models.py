@@ -241,7 +241,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return False
 
     def is_single_result(self):
-        return self.vote_start_date == self.vote_end_date and not self.participants.exists()
+        if not self.contributions.filter(responsible=True).exists():
+            return False
+        return self.contributions.get(responsible=True).questionnaires.first() == Questionnaire.get_single_result_questionnaire()
 
     @property
     def can_staff_edit(self):
@@ -262,7 +264,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def can_publish_grades(self):
         if self.is_single_result():
-            return True
+            total_answers = sum([answer_counter.count for answer_counter in self.gradeanswer_counters])
+            return total_answers > 0
+
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     @transition(field=state, source=['new', 'editorApproved'], target='prepared')
@@ -393,7 +397,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires():
+        if not self.has_enough_questionnaires() and not self.is_single_result():
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades and not self.is_single_result():
             result.append(_("Not enough participants to publish results"))
@@ -415,12 +419,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
 
     @property
-    def likertanswer_set(self):
+    def likertanswer_counters(self):
         """Pseudo relationship to all Likert answers for this course"""
         return LikertAnswerCounter.objects.filter(contribution__in=self.contributions.all())
 
     @property
-    def gradeanswer_set(self):
+    def gradeanswer_counters(self):
         """Pseudo relationship to all grade answers for this course"""
         return GradeAnswerCounter.objects.filter(contribution__in=self.contributions.all())
 
@@ -536,13 +540,16 @@ class Answer(models.Model):
 
 
 class LikertAnswerCounter(Answer):
-    """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
-    being *strongly disagree*."""
+    """A Likert-scale answer counter to a question with answer `1` being *strongly agree*
+    and `5` being *strongly disagree*."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
+        unique_together = (
+            ('question', 'contribution', 'answer'),
+        )
         verbose_name = _("Likert answer")
         verbose_name_plural = _("Likert answers")
 
@@ -551,12 +558,15 @@ class LikertAnswerCounter(Answer):
 
 
 class GradeAnswerCounter(Answer):
-    """A grade answer to a question with `1` being best and `5` being worst."""
+    """A grade answer counter to a question with answer `1` being best and `5` being worst."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
+        unique_together = (
+            ('question', 'contribution', 'answer'),
+        )
         verbose_name = _("grade answer")
         verbose_name_plural = _("grade answers")
 

@@ -13,7 +13,7 @@
 
 {{% block content %}
     {{ block.super }}
-    {% for degree, course_data in courses_by_degree.items %}{% with courses=course_data.0 single_results=course_data.1 %}
+    {% for degree, course_data in courses_by_degree.items %}{% with courses=course_data.courses single_results=course_data.single_results %}
         {% if courses or single_results %}
             <h3>{{ degree }}</h3>
             {% if courses %}
@@ -79,7 +79,11 @@
                             {% with responsible=single_result.responsible_contributor %}
                                 <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                             {% endwith %}
-                            <td class="text-center"><div class="deviation-bg" style="background-color: {{ single_result.avg_deviation|deviationcolor }};">{{ single_result.avg_deviation|floatformat:1 }}</div></td>
+                            {% if not single_result.avg_grade %}
+                                <td></td>
+                            {% else %}
+                                <td class="text-center"><div class="deviation-bg" style="background-color: {{ single_result.avg_deviation|deviationcolor }};">{{ single_result.avg_deviation|floatformat:1 }}</div></td>
+                            {% endif %}
                             <td>
                                 {% include_result_bar result True %}
                             </td>

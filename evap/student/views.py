@@ -84,13 +84,13 @@ def vote(request, course_id):
 
                     if question.is_text_question:
                         value = value.strip()
-                        if value: # store the answer if one was given
+                        if value:
                             question.answer_class.objects.create(
                                 contribution=contribution,
                                 question=question,
                                 answer=value)
                     else:
-                        if value and value != 6: # store the answer if one was given
+                        if value != 6:
                             answer_counter, created = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.add_vote()
                             answer_counter.save()

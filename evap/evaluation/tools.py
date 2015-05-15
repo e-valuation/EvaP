@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Sum
 from evap.evaluation.models import TextAnswer
 
 from collections import OrderedDict, defaultdict
@@ -111,10 +112,16 @@ def get_answers(contribution, question):
 
 def get_number_of_answers(contribution, question):
     answers = get_answers(contribution, question)
+    if not answers:
+        return 0
     if question.is_rating_question:
-        return sum([answer_counter.count for answer_counter in answers])
+        return get_sum_of_answer_counters(answers)
     else:
         return len(answers)
+
+
+def get_sum_of_answer_counters(answer_counters):
+    return answer_counters.aggregate(total_count=Sum('count'))['total_count']
 
 
 def get_answers_from_answer_counters(answer_counters):
@@ -133,18 +140,20 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def get_distribution(answer_counters):
+def get_distribution(answer_counters, total_count):
     if not answer_counters:
         return None
-    total_count = 0
-    distribution = defaultdict(int)
+    if get_sum_of_answer_counters(answer_counters) == 0:
+        return None
+
+    distribution = OrderedDict()
+    # make sure that 0-values are kept in the distribution (and order by answer)
+    for answer in range(1,6):
+        distribution[answer] = 0
+
     for answer_counter in answer_counters:
-        distribution[answer_counter.answer] = answer_counter.count
-        total_count += answer_counter.count
-    # divide by the number of answers to get relative 0..1 values
-    for i in range(1, 6):
-        distribution[i] = float(distribution[i]) / total_count * 100.0
-    return dict(distribution)
+        distribution[answer_counter.answer] = float(answer_counter.count) / total_count * 100.0
+    return distribution
 
 
 def calculate_results(course):
@@ -193,7 +202,7 @@ def _calculate_results_impl(course):
                 count = len(answers)
                 average = avg(answers)
                 deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if count > 0 else None
-                distribution = get_distribution(answer_counters)
+                distribution = get_distribution(answer_counters, count)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
                 results.append(RatingResult(question, count, average, deviation, distribution, warning))

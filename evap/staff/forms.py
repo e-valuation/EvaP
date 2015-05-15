@@ -126,14 +126,6 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         if self.instance.vote_start_date:
             self.fields['event_date'].initial = self.instance.vote_start_date
 
-    def clean(self):
-        answer_counts = [self.cleaned_data.get('answer_1'), self.cleaned_data.get('answer_2'), self.cleaned_data.get('answer_3'),
-            self.cleaned_data.get('answer_4'), self.cleaned_data.get('answer_5')]
-        total_count = sum(answer_counts)
-
-        if total_count <= 0:
-            raise forms.ValidationError(_("No votes defined. There must be at least one vote for one of the possible answers."))
-
     def save(self, *args, **kw):
         user = kw.pop("user")
         super().save(*args, **kw)
@@ -154,7 +146,6 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         for i in range(1,6):
             count = {'count': self.cleaned_data['answer_'+str(i)]}
             answer_counter, created = GradeAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
-
 
     def validate_unique(self):
         # see CourseForm for an explanation

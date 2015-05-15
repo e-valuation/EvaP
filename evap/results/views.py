@@ -10,7 +10,7 @@ from evap.evaluation.tools import calculate_results, calculate_average_grades_an
 
 from evap.results.exporters import ExcelExporter
 
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 
 @login_required
@@ -29,18 +29,20 @@ def semester_detail(request, semester_id):
     for course in courses:
         course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
+    CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
+
     courses_by_degree = OrderedDict()
     for degree in Degree.objects.all():
-        courses_by_degree[degree] = ([], [])
+        courses_by_degree[degree] = CourseTuple([], [])
     for course in courses:
         if course.is_single_result():
             for degree in course.degrees.all():
                 section = calculate_results(course)[0]
                 result = section.results[0]
-                courses_by_degree[degree][1].append((course, result))
+                courses_by_degree[degree].single_results.append((course, result))
         else:
             for degree in course.degrees.all():
-                courses_by_degree[degree][0].append(course)
+                courses_by_degree[degree].courses.append(course)
 
     template_data = dict(semester=semester, courses_by_degree=courses_by_degree, staff=request.user.is_staff)
     return render(request, "results_semester_detail.html", template_data)
