@@ -132,6 +132,10 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     def rating_questions(self):
         return [question for question in self.question_set.all() if question.is_rating_question]
 
+    @classmethod
+    def get_single_result_questionnaire(cls):
+        return cls.objects.get(name_en="Single result")
+
 
 class Degree(models.Model, metaclass=LocalizeModelBase):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
@@ -198,7 +202,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def clean(self):
-        if self.vote_start_date and self.vote_end_date:
+        if self.vote_start_date and self.vote_end_date and not self.is_single_result():
             if self.vote_start_date >= self.vote_end_date:
                 raise ValidationError(_("The first day of evaluation must be before the last one."))
 
@@ -236,6 +240,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return self.can_publish_grades or self.is_user_contributor_or_delegate(user)
         return False
 
+    def is_single_result(self):
+        return self.vote_start_date == self.vote_end_date and not self.participants.exists()
+
     @property
     def can_staff_edit(self):
         return not self.is_archived and self.state in ['new', 'prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
@@ -254,6 +261,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_publish_grades(self):
+        if self.is_single_result():
+            return True
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     @transition(field=state, source=['new', 'editorApproved'], target='prepared')
@@ -286,6 +295,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
     def review_finished(self):
+        pass
+
+    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[is_single_result])
+    def single_result_created(self):
         pass
 
     @transition(field=state, source='reviewed', target='evaluated', conditions=[is_not_fully_reviewed])
@@ -382,7 +395,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         result = []
         if not self.has_enough_questionnaires():
             result.append(_("Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
+        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades and not self.is_single_result():
             result.append(_("Not enough participants to publish results"))
         return result
 

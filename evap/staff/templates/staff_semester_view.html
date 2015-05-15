@@ -17,7 +17,7 @@
         <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
         <a href="{% url "staff:semester_delete" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete" %}</a>
         <a href="{% url "staff:semester_archive" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.is_archiveable %} disabled="disabled" {% endif %}>{% trans "Archive" %}</a>
-    </h3>    
+    </h3>
 
     {% if num_courses > 0 %}
     <div class="panel panel-info">
@@ -60,6 +60,7 @@
         <div class="panel-body">
             <div class="button-menu">
                 <a href="{% url "staff:course_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Course" %}</a>
+                <a href="{% url "staff:single_result_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Single Result" %}</a>
                 <a href="{% url "staff:semester_import" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Import Courses" %}</a>
                 <a href="{% url "staff:semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Assign Questionnaires" %}</a>
                 &nbsp;

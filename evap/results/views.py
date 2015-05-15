@@ -31,10 +31,16 @@ def semester_detail(request, semester_id):
 
     courses_by_degree = OrderedDict()
     for degree in Degree.objects.all():
-        courses_by_degree[degree] = []
+        courses_by_degree[degree] = ([], [])
     for course in courses:
-        for degree in course.degrees.all():
-            courses_by_degree[degree].append(course)
+        if course.is_single_result():
+            for degree in course.degrees.all():
+                section = calculate_results(course)[0]
+                result = section.results[0]
+                courses_by_degree[degree][1].append((course, result))
+        else:
+            for degree in course.degrees.all():
+                courses_by_degree[degree][0].append(course)
 
     template_data = dict(semester=semester, courses_by_degree=courses_by_degree, staff=request.user.is_staff)
     return render(request, "results_semester_detail.html", template_data)
