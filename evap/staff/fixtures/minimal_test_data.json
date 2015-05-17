@@ -172,6 +172,17 @@
   }
 },
 {
+  "pk": 7,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 5,
+    "_order": 1,
+    "text_en": "single result",
+    "text_de": "single result",
+    "type": "G"
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.likertanswercounter",
   "fields": {
@@ -329,6 +340,16 @@
     "question": 5,
     "answer": 2,
     "count": 1
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.gradeanswercounter",
+  "fields": {
+    "contribution": 36,
+    "question": 6,
+    "answer": 2,
+    "count": 5
   }
 },
 {
@@ -1157,6 +1178,19 @@
   }
 },
 {
+  "pk": 36,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 11,
+    "responsible": true,
+    "questionnaires": [
+      5
+    ],
+    "can_edit": true
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.degree",
   "fields": {
@@ -1395,6 +1429,26 @@
     ],
     "vote_end_date": "2099-12-31",
     "name_en": "another new course",
+    "type": "a type",
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "single result course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "reviewed",
+    "last_modified_user": 1,
+    "participants": [],
+    "vote_end_date": "2014-09-10",
+    "name_en": "single result course",
     "type": "a type",
     "vote_start_date": "2014-09-10"
   }

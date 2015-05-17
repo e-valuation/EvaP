@@ -314,6 +314,9 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
+            # staff semester single_result
+            ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
+            ("test_staff_semester_x_single_result_y_delete", "/staff/semester/1/course/11/delete", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
             ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
@@ -341,6 +344,7 @@ class URLTests(WebTest):
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "contributor"),
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "responsible"),
             ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/11", "evap"), # single result
             # contributor
             ("test_contributor", "/contributor/", "responsible"),
             ("test_contributor", "/contributor/", "editor"),
@@ -622,6 +626,29 @@ class URLTests(WebTest):
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
+
+    def test_single_result_create(self):
+        """
+            Tests the single result creation view with one valid and one invalid input dataset.
+        """
+        response = self.get_assert_200("/staff/semester/1/singleresult/create", "evap")
+        form = lastform(response)
+        form["name_de"] = "qwertz"
+        form["name_en"] = "qwertz"
+        form["type"] = "a type"
+        form["degrees"] = ["1"]
+        form["event_date"] = "02/1/2014"
+        form["answer_1"] = 6
+        form["answer_3"] = 2
+        # missing responsible to get a validation error
+
+        form.submit()
+        self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
+
+        form["responsible"] = 2 # now do it right
+
+        form.submit()
+        self.assertEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
 
     def test_course_email(self):
         """

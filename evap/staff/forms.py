@@ -2,6 +2,7 @@ from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
+from django.core.exceptions import ValidationError
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
@@ -75,6 +76,14 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].widget.attrs['readonly'] = "True"
 
+    def clean(self):
+        super().clean()
+        vote_start_date = self.cleaned_data.get('vote_start_date')
+        vote_end_date = self.cleaned_data.get('vote_end_date')
+        if vote_start_date and vote_end_date:
+            if vote_start_date >= vote_end_date:
+                raise ValidationError(_("The first day of evaluation must be before the last one."))
+
     def save(self, *args, **kw):
         user = kw.pop("user")
         super().save(*args, **kw)
@@ -123,6 +132,12 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
         self.fields['last_modified_user_2'].widget.attrs['readonly'] = "True"
 
+        self.fields['answer_1'].initial = 0
+        self.fields['answer_2'].initial = 0
+        self.fields['answer_3'].initial = 0
+        self.fields['answer_4'].initial = 0
+        self.fields['answer_5'].initial = 0
+
         if self.instance.vote_start_date:
             self.fields['event_date'].initial = self.instance.vote_start_date
 
@@ -133,7 +148,6 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         self.instance.vote_start_date = self.cleaned_data['event_date']
         self.instance.vote_end_date = self.cleaned_data['event_date']
         self.instance.is_graded = False
-        self.instance.single_result_created() # change state to "reviewed"
         self.instance.save()
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
@@ -146,6 +160,11 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         for i in range(1,6):
             count = {'count': self.cleaned_data['answer_'+str(i)]}
             answer_counter, created = GradeAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
+
+        # change state to "reviewed"
+        # works only for single_results so the course and its contribution must be saved first
+        self.instance.single_result_created()
+        self.instance.save()
 
     def validate_unique(self):
         # see CourseForm for an explanation

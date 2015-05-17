@@ -132,9 +132,11 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     def rating_questions(self):
         return [question for question in self.question_set.all() if question.is_rating_question]
 
+    SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
+
     @classmethod
     def get_single_result_questionnaire(cls):
-        return cls.objects.get(name_en="Single result")
+        return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
 class Degree(models.Model, metaclass=LocalizeModelBase):
@@ -201,11 +203,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def __str__(self):
         return self.name
 
-    def clean(self):
-        if self.vote_start_date and self.vote_end_date and not self.is_single_result():
-            if self.vote_start_date >= self.vote_end_date:
-                raise ValidationError(_("The first day of evaluation must be before the last one."))
-
     def save(self, *args, **kw):
         super().save(*args, **kw)
 
@@ -241,9 +238,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return False
 
     def is_single_result(self):
-        if not self.contributions.filter(responsible=True).exists():
+        # early return to save some queries
+        if self.vote_start_date != self.vote_end_date:
             return False
-        return self.contributions.get(responsible=True).questionnaires.first() == Questionnaire.get_single_result_questionnaire()
+
+        return self.contributions.get(responsible=True).questionnaires.filter(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
 
     @property
     def can_staff_edit(self):
@@ -263,9 +262,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_publish_grades(self):
+        from evap.evaluation.tools import get_sum_of_answer_counters
         if self.is_single_result():
-            total_answers = sum([answer_counter.count for answer_counter in self.gradeanswer_counters])
-            return total_answers > 0
+            return get_sum_of_answer_counters(self.gradeanswer_counters) > 0
 
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
@@ -399,7 +398,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         result = []
         if not self.has_enough_questionnaires() and not self.is_single_result():
             result.append(_("Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades and not self.is_single_result():
+        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
 

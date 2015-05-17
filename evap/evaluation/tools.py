@@ -112,8 +112,6 @@ def get_answers(contribution, question):
 
 def get_number_of_answers(contribution, question):
     answers = get_answers(contribution, question)
-    if not answers:
-        return 0
     if question.is_rating_question:
         return get_sum_of_answer_counters(answers)
     else:
@@ -121,7 +119,7 @@ def get_number_of_answers(contribution, question):
 
 
 def get_sum_of_answer_counters(answer_counters):
-    return answer_counters.aggregate(total_count=Sum('count'))['total_count']
+    return answer_counters.aggregate(total_count=Sum('count'))['total_count'] or 0
 
 
 def get_answers_from_answer_counters(answer_counters):
@@ -141,9 +139,7 @@ def get_textanswers(contribution, question, filter_states=None):
 
 
 def get_distribution(answer_counters, total_count):
-    if not answer_counters:
-        return None
-    if get_sum_of_answer_counters(answer_counters) == 0:
+    if not answer_counters or total_count == 0:
         return None
 
     distribution = OrderedDict()
