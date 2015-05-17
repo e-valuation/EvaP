@@ -12,7 +12,7 @@
 <td class="maximize">
     <div>
     {% if course.can_staff_edit and info_only|is_false %}
-        <a href="{% if course.is_single_result %}{% url "staff:single_result_edit" semester.id course.id %}{% else %}{% url "staff:course_edit" semester.id course.id %}{% endif %}">{{ course.name }}</a>
+        <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}
     {% endif %}

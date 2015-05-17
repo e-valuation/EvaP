@@ -394,12 +394,21 @@ def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     raise_permission_denied_if_archived(course)
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     # check course state
     if not course.can_staff_edit:
         messages.warning(request, _("Editing not possible in current state."))
         return redirect('staff:semester_view', semester_id)
+
+    if course.is_single_result():
+        return helper_single_result_edit(request, semester, course)
+    else:
+        return helper_course_edit(request, semester, course)
+
+
+@staff_required
+def helper_course_edit(request, semester, course):
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
@@ -411,23 +420,14 @@ def course_edit(request, semester_id, course_id):
         formset.save()
 
         messages.success(request, _("Successfully updated course."))
-        return custom_redirect('staff:semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester.id)
     else:
         template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
         return render(request, "staff_course_form.html", template_data)
 
 
 @staff_required
-def single_result_edit(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-    raise_permission_denied_if_archived(course)
-
-    # check course state
-    if not course.can_staff_edit:
-        messages.warning(request, _("Editing not possible in current state."))
-        return redirect('staff:semester_view', semester_id)
-
+def helper_single_result_edit(request, semester, course):
     initial = {'responsible': course.responsible_contributor}
     answer_counts = defaultdict(int)
     for answer_counter in course.gradeanswer_counters:
@@ -441,7 +441,7 @@ def single_result_edit(request, semester_id, course_id):
         form.save(user=request.user)
 
         messages.success(request, _("Successfully created single result."))
-        return redirect('staff:semester_view', semester_id)
+        return redirect('staff:semester_view', semester.id)
     else:
         return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
 
