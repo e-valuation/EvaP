@@ -43,14 +43,25 @@
   }
 },
 {
-  "pk": 1, 
-  "model": "evaluation.question", 
+  "pk":3,
+  "model":"evaluation.questionnaire",
+  "fields":{
+    "name_de":"Einzelergebnis",
+    "name_en":"Single result",
+    "index": 0,
+    "is_for_contributors":true,
+    "obsolete":true
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.question",
   "fields": {
     "questionnaire": 1, 
     "_order": 0, 
     "text_en": "how?", 
     "text_de": "how?", 
-    "kind": "T"
+    "type": "T"
   }
 },
 {
@@ -61,7 +72,7 @@
     "_order": 1, 
     "text_en": "how much?", 
     "text_de": "how much?", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -72,7 +83,7 @@
     "_order": 0, 
     "text_en": "how?", 
     "text_de": "how?", 
-    "kind": "T"
+    "type": "T"
   }
 },
 {
@@ -83,7 +94,7 @@
     "_order": 1, 
     "text_en": "how much?", 
     "text_de": "how much?", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -94,7 +105,7 @@
     "_order": 1, 
     "text_en": "your grade", 
     "text_de": "your grade", 
-    "kind": "G"
+    "type": "G"
   }
 },
 {
@@ -337,7 +348,7 @@
   "fields": {
     "name_de": "a new course", 
     "_participant_count": 25, 
-    "degree": "a degree", 
+    "degrees": [1], 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-09-16T23:01:13.059", 
@@ -347,8 +358,16 @@
     "participants": [], 
     "vote_end_date": "2014-09-30", 
     "name_en": "a course", 
-    "kind": "a type", 
+    "type": "a type", 
     "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
   }
 }
 ]

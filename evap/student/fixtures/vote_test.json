@@ -67,7 +67,7 @@
     "_order": 0, 
     "text_en": "test question", 
     "text_de": "Testfrage", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -78,7 +78,7 @@
     "_order": 0, 
     "text_en": "test tutor question", 
     "text_de": "Test Tutorenfrage", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -89,7 +89,7 @@
     "_order": 0, 
     "text_en": "test lecture question", 
     "text_de": "Test Vorlesungsfrage", 
-    "kind": "L"
+    "type": "L"
   }
 },
 {
@@ -159,12 +159,20 @@
   }
 },
 {
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.course", 
   "fields": {
     "name_de": "Testvorlesung", 
     "_participant_count": null, 
-    "degree": "bachelor", 
+    "degrees": [1], 
     "voters": [], 
     "semester": 1, 
     "last_modified_time": "2014-06-14T16:39:18.338", 
@@ -177,7 +185,7 @@
     ], 
     "vote_end_date": "2999-12-31", 
     "name_en": "test lecture", 
-    "kind": "lecture", 
+    "type": "lecture", 
     "vote_start_date": "2014-06-14"
   }
 },

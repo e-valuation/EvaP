@@ -8,7 +8,7 @@
 {% block subtitle %}
     {{ block.super }}
     {% if course %}
-        <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+        <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
     {% else %}
         <li>{% trans "Evaluation" %}</li>
     {% endif %}
@@ -28,7 +28,7 @@
             <em>{% trans "More details:" %} <a href="/faq#24">{% trans "FAQ/Reference" %}</a></em><br />
             <br />
             <b>{% trans "Evaluation Results" %}</b><br />
-            {% blocktrans %}Your comments will be shown to the contributor whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average and median grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+            {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
             <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
         </div>
     </small>
@@ -57,7 +57,7 @@
                                     <div>
                                         {{ course.name }}
                                     </div>
-                                    <span class="label label-default">{{ course.kind }}</span>
+                                    <span class="label label-default">{{ course.type }}</span>
                                     {% if course not in voted_courses %}
                                         {% if course.state == 'evaluated' or course.state == 'published' %}
                                             <span class="label label-info">{% trans "You did not evaluate this course" %}</span>
@@ -84,7 +84,7 @@
                                 <td>
                                     {% if course.state == 'published' %}
                                         {% if course.can_publish_grades %}
-                                            <a href="{% url "evap.results.views.course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                         {% else %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
                                         {% endif %}
@@ -92,7 +92,7 @@
                                         {% if course in voted_courses %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Evaluate" %}</a></div>
                                         {% else %}
-                                            <a href="{% url "evap.student.views.vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
+                                            <a href="{% url "student:vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                     {% endif %}
                                 </td>

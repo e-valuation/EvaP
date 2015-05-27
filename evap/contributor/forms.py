@@ -1,9 +1,12 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.staff.forms import ContributionFormSet
+
+import datetime
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
@@ -11,21 +14,43 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'kind', 'degree', 'general_questions')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'type', 'degrees', 'general_questions')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
-        self.fields['degree'].widget.attrs['readonly'] = "True"
+        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
+        self.fields['degrees'].widget.attrs['disabled'] = "true"
+        self.fields['degrees'].help_text = ""
 
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-    def clean_degree(self):
-        return self.instance.degree
+    def clean_degrees(self):
+        return self.instance.degrees.all()
+
+    def clean(self):
+        super().clean()
+
+        vote_start_date = self.cleaned_data.get('vote_start_date')
+        vote_end_date = self.cleaned_data.get('vote_end_date')
+        if vote_start_date and vote_end_date:
+            if vote_start_date >= vote_end_date:
+                raise ValidationError(_("The first day of evaluation must be before the last one."))
+
+    def clean_vote_start_date(self):
+        vote_start_date = self.cleaned_data.get('vote_start_date')
+        if vote_start_date and vote_start_date < datetime.date.today():
+            raise forms.ValidationError(_("The first day of evaluation must be in the future."))
+        return vote_start_date
+
+    def clean_vote_end_date(self):
+        vote_end_date = self.cleaned_data.get('vote_end_date')
+        if vote_end_date and vote_end_date < datetime.date.today():
+            raise forms.ValidationError(_("The last day of evaluation must be in the future."))
+        return vote_end_date
 
     def save(self, *args, **kw):
         user = kw.pop("user")
@@ -35,8 +60,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
 
     def validate_unique(self):
+        # see staff.forms.CourseForm for an explanation
         exclude = self._get_validation_exclusions()
-        exclude.remove('semester') # allow checking against the missing attribute
+        exclude.remove('semester')
 
         try:
             self.instance.validate_unique(exclude=exclude)

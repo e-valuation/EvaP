@@ -60,13 +60,8 @@
         };
         row_added = function(row) {
             assignClickHandlers();
+            apply_select2(row.find("select"));
         }
         make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false);
-
-        {% if staff %}
-            $("#id_degree").combobox();
-        {% endif %}
-        $("#id_kind").combobox();
-
     </script>
 {% endif %}

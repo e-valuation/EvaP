@@ -5,12 +5,12 @@
 {% block content %}
     {{ block.super }}
 
-    <span class="headline">{% trans "Semesters" %}</span>
+    <h2>{% trans "Semesters" %}</h2>
 
     <ul>
         {% if semesters %}
             {% for semester in semesters %}
-                <li><a href="{% url "evap.results.views.semester_detail" semester.id %}">{{ semester.name }}</a></li>
+                <li><a href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a></li>
             {% endfor %}
         {% else %}
             <li>{% trans "No results available yet" %}</li>

@@ -8,6 +8,6 @@
         {% csrf_token %}
         <p>{% blocktrans with name=questionnaire.name %}Do you really want to delete the questionnaire <em>{{ name }}</em>?{% endblocktrans %}</p>
         <input type="submit" value="{% trans "Yes" %}" class="btn btn-danger"/>
-        <a href="{% url "evap.staff.views.questionnaire_view" questionnaire.id %}" class="btn btn-default">{% trans "No" %}</a>
+        <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-default">{% trans "No" %}</a>
     </form>
 {% endblock %}

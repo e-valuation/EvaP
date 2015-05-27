@@ -9,7 +9,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.student.views.index" %}">{% trans "Evaluation" %}</a></li>
+    <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
     <li>{{ course.name }}</li>
 {% endblock %}
 
@@ -26,7 +26,7 @@
         </div>
     </small>
     {% endif %}
-    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
+    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
 

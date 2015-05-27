@@ -24,11 +24,11 @@ def index(request):
             if(key.startswith('points-')):
                 event_id = int(key.rpartition('-')[2])
                 redemptions[event_id] = int(value)
-     
+
         if save_redemptions(request, redemptions):
             messages.success(request, _("You successfully redeemed your points."))
         else:
-            messages.warning(request, _("You don't have enough reward points."))            
+            messages.warning(request, _("You don't have enough reward points."))
 
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
@@ -90,7 +90,7 @@ def reward_point_redemption_event_create(request):
     if form.is_valid():
         form.save()
         messages.success(request, _("Successfully created event."))
-        return redirect('evap.rewards.views.reward_point_redemption_events')
+        return redirect('rewards:reward_point_redemption_events')
     else:
         return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
 
@@ -104,7 +104,7 @@ def reward_point_redemption_event_edit(request, event_id):
         event = form.save()
 
         messages.success(request, _("Successfully updated event."))
-        return redirect('evap.rewards.views.reward_point_redemption_events')
+        return redirect('rewards:reward_point_redemption_events')
     else:
         return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
 
@@ -116,12 +116,12 @@ def reward_point_redemption_event_delete(request, event_id):
     if event.can_delete:
         if request.method == 'POST':
             event.delete()
-            return redirect('evap.rewards.views.reward_point_redemption_events')
+            return redirect('rewards:reward_point_redemption_events')
         else:
             return render(request, "rewards_reward_point_redemption_event_delete.html", dict(event=event))
     else:
         messages.warning(request, _("This event cannot be deleted because some users already redeemed points for it."))
-        return redirect('evap.rewards.views.reward_point_redemption_events')
+        return redirect('rewards:reward_point_redemption_events')
 
 
 @staff_required

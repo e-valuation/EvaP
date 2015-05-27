@@ -2,20 +2,19 @@ from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
+from django.core.exceptions import ValidationError
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer
+                                   EmailTemplate, TextAnswer, Degree, GradeAnswerCounter
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 from evap.staff.tools import EMAIL_RECIPIENTS
 
-import datetime
-
 
 class ImportForm(forms.Form, BootstrapMixin):
-    vote_start_date = forms.DateField(label=_("First date to vote"), localize=True)
-    vote_end_date = forms.DateField(label=_("Last date to vote"), localize=True)
+    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True)
+    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True)
 
     excel_file = forms.FileField(label=_("Excel file"))
 
@@ -30,6 +29,19 @@ class SemesterForm(forms.ModelForm, BootstrapMixin):
         fields = "__all__"
 
 
+class DegreeForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["order"].widget = forms.HiddenInput()
+
+    class Meta:
+        model = Degree
+        fields = "__all__"
+
+
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
@@ -37,7 +49,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'kind', 'degree', 'is_graded',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded',
                   'vote_start_date', 'vote_end_date', 'participants',
                   'general_questions',
                   'last_modified_time_2', 'last_modified_user_2')
@@ -47,8 +59,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['kind'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('kind', flat=True).order_by().distinct()])
-        self.fields['degree'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('degree', flat=True).order_by().distinct()])
+        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
+        self.fields['degrees'].help_text = ""
         self.fields['participants'].queryset = UserProfile.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
 
@@ -65,9 +77,12 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self.fields['vote_start_date'].widget.attrs['readonly'] = "True"
 
     def clean(self):
+        super().clean()
+        vote_start_date = self.cleaned_data.get('vote_start_date')
         vote_end_date = self.cleaned_data.get('vote_end_date')
-        if vote_end_date and vote_end_date < datetime.date.today():
-            raise forms.ValidationError(_("The vote end date must be in the future."))
+        if vote_start_date and vote_end_date:
+            if vote_start_date >= vote_end_date:
+                raise ValidationError(_("The first day of evaluation must be before the last one."))
 
     def save(self, *args, **kw):
         user = kw.pop("user")
@@ -77,8 +92,84 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
 
     def validate_unique(self):
+        # semester is not in the fields list but needs to be validated as well
+        # see https://stackoverflow.com/questions/2141030/djangos-modelform-unique-together-validation
+        # and https://code.djangoproject.com/ticket/13091
         exclude = self._get_validation_exclusions()
-        exclude.remove('semester') # allow checking against the missing attribute
+        exclude.remove('semester')
+
+        try:
+            self.instance.validate_unique(exclude=exclude)
+        except forms.ValidationError as e:
+            self._update_errors(e)
+
+
+class SingleResultForm(forms.ModelForm, BootstrapMixin):
+    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
+    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
+    event_date = forms.DateField(label=_("Event date"), localize=True)
+    responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.order_by("last_name", "first_name", "username"))
+    answer_1 = forms.IntegerField(label=_("# very good"))
+    answer_2 = forms.IntegerField(label=_("# good"))
+    answer_3 = forms.IntegerField(label=_("# neutral"))
+    answer_4 = forms.IntegerField(label=_("# bad"))
+    answer_5 = forms.IntegerField(label=_("# very bad"))
+
+    class Meta:
+        model = Course
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'event_date', 'responsible', 'answer_1', 'answer_2', 'answer_3', 'answer_4', 'answer_5',
+                 'last_modified_time_2', 'last_modified_user_2')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
+        self.fields['degrees'].help_text = ""
+
+        self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
+        self.fields['last_modified_time_2'].widget.attrs['readonly'] = "True"
+        if self.instance.last_modified_user:
+            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
+        self.fields['last_modified_user_2'].widget.attrs['readonly'] = "True"
+
+        self.fields['answer_1'].initial = 0
+        self.fields['answer_2'].initial = 0
+        self.fields['answer_3'].initial = 0
+        self.fields['answer_4'].initial = 0
+        self.fields['answer_5'].initial = 0
+
+        if self.instance.vote_start_date:
+            self.fields['event_date'].initial = self.instance.vote_start_date
+
+    def save(self, *args, **kw):
+        user = kw.pop("user")
+        super().save(*args, **kw)
+        self.instance.last_modified_user = user
+        self.instance.vote_start_date = self.cleaned_data['event_date']
+        self.instance.vote_end_date = self.cleaned_data['event_date']
+        self.instance.is_graded = False
+        self.instance.save()
+
+        if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
+            contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True)
+            contribution.save()
+            contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+
+        # set answers
+        contribution = Contribution.objects.get(course=self.instance, responsible=True)
+        for i in range(1,6):
+            count = {'count': self.cleaned_data['answer_'+str(i)]}
+            answer_counter, created = GradeAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
+
+        # change state to "reviewed"
+        # works only for single_results so the course and its contribution must be saved first
+        self.instance.single_result_created()
+        self.instance.save()
+
+    def validate_unique(self):
+        # see CourseForm for an explanation
+        exclude = self._get_validation_exclusions()
+        exclude.remove('semester')
 
         try:
             self.instance.validate_unique(exclude=exclude)
@@ -100,8 +191,9 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         self.fields['order'].widget = forms.HiddenInput()
 
     def validate_unique(self):
+        # see CourseForm for an explanation
         exclude = self._get_validation_exclusions()
-        exclude.remove('course') # allow checking against the missing attribute
+        exclude.remove('course')
 
         try:
             self.instance.validate_unique(exclude=exclude)
@@ -154,6 +246,7 @@ class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
 
 class AtLeastOneFormSet(BaseInlineFormSet):
     def clean(self):
+        super().clean()
         count = 0
         for form in self.forms:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
@@ -223,7 +316,7 @@ class IdLessQuestionFormSet(AtLeastOneFormSet):
     def get_queryset(self):
         if not hasattr(self, '_queryset'):
             self._queryset = IdLessQuestionFormSet.PseudoQuerySet()
-            self._queryset.extend([Question(text_de=e.text_de, text_en=e.text_en, kind=e.kind) for e in self.queryset.all()])
+            self._queryset.extend([Question(text_de=e.text_de, text_en=e.text_en, type=e.type) for e in self.queryset.all()])
             self._queryset.db = self.queryset.db
         return self._queryset
 
@@ -237,17 +330,16 @@ class QuestionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
         self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
-        self.fields['kind'].widget.attrs['class'] = 'form-control'
+        self.fields['type'].widget.attrs['class'] = 'form-control'
 
 
 class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
     def __init__(self, *args, **kwargs):
-        semester = kwargs.pop('semester')
-        kinds = kwargs.pop('kinds')
+        course_types = kwargs.pop('course_types')
         super().__init__(*args, **kwargs)
 
-        for kind in kinds:
-            self.fields[kind] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
+        for course_type in course_types:
+            self.fields[course_type] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
 
@@ -301,7 +393,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # we need to do a save before course_set is set because the user needs to have an id there
         self.instance.save()
-        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester)) + list(self.cleaned_data.get('courses_participating_in'))
+        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
 
         super()._post_clean(*args, **kw)
 

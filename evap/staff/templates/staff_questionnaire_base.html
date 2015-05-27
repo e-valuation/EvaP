@@ -5,7 +5,7 @@
 {% block subtitle %}
     {{ block.super }}
     {% if questionnaire %}
-        <li><a href="{% url "evap.staff.views.questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+        <li><a href="{% url "staff:questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
         <li>{{ questionnaire.name }}</li>
     {% else %}
         <li>{% trans "Questionnaires" %}</li>
@@ -16,9 +16,9 @@
     {{ block.super }}
     {% if questionnaire %}
     <p>
-        <a href="{% url "evap.staff.views.questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default" {% if not questionnaire.can_staff_edit %} disabled="disabled" {% endif %}>{% trans "Edit" %}</a>
-        <a href="{% url "evap.staff.views.questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
-        <a href="{% url "evap.staff.views.questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger" {% if not questionnaire.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete" %}</a>
+        <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default" {% if not questionnaire.can_staff_edit %} disabled="disabled" {% endif %}>{% trans "Edit" %}</a>
+        <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
+        <a href="{% url "staff:questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger" {% if not questionnaire.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete" %}</a>
     </p>
     {% endif %}
 {% endblock %}

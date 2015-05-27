@@ -6,15 +6,15 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.evaluation.views.faq" %}">{% trans "FAQ" %}</a></li>
+    <li><a href="{% url "evaluation:faq" %}">{% trans "FAQ" %}</a></li>
 {% endblock %}
 
 {% block content %}
-    <span class="headline headline-large">{% trans "These are the Frequently Asked Questions (FAQs)" %}</span>
+    <h1>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h1>
 
     <div class="panel-group" id="accordion">
         {% for section in sections %}
-            <span class="headline" id="{{ section.id }}-s">{{ section.title }}</span>
+            <h2 id="{{ section.id }}-s">{{ section.title }}</h2>
             {% for question in section.questions.all %}
                 <div class="panel panel-default">
                     <div class="panel-heading">

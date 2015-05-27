@@ -6,7 +6,8 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.template import Context, Template, TemplateSyntaxError, TemplateEncodingError
+from django.template.base import TemplateSyntaxError, TemplateEncodingError
+from django.template import Context, Template
 from django_fsm import FSMField, transition
 import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
@@ -21,7 +22,7 @@ import random
 STUDENT_STATES_NAMES = {
     'new': 'upcoming',
     'prepared': 'upcoming',
-    'lecturerApproved': 'upcoming',
+    'editorApproved': 'upcoming',
     'approved': 'upcoming',
     'inEvaluation': 'inEvaluation',
     'evaluated': 'evaluationFinished',
@@ -131,6 +132,26 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     def rating_questions(self):
         return [question for question in self.question_set.all() if question.is_rating_question]
 
+    SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
+
+    @classmethod
+    def get_single_result_questionnaire(cls):
+        return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
+
+
+class Degree(models.Model, metaclass=LocalizeModelBase):
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
+    name = Translate
+
+    order = models.IntegerField(verbose_name=_("degree order"), default=0)
+
+    class Meta:
+        ordering = ['order', ]
+
+    def __str__(self):
+        return self.name
+
 
 class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""
@@ -144,10 +165,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     name = Translate
 
     # type of course: lecture, seminar, project
-    kind = models.CharField(max_length=1024, verbose_name=_("type"))
+    type = models.CharField(max_length=1024, verbose_name=_("type"))
 
-    # bachelor, master, d-school course
-    degree = models.CharField(max_length=1024, verbose_name=_("degree"))
+    # e.g. Bachelor, Master
+    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"))
 
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
@@ -161,8 +182,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateField(null=True, verbose_name=_("first date to vote"))
-    vote_end_date = models.DateField(null=True, verbose_name=_("last date to vote"))
+    vote_start_date = models.DateField(null=True, verbose_name=_("first day of evaluation"))
+    vote_end_date = models.DateField(null=True, verbose_name=_("last day of evaluation"))
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
@@ -171,21 +192,16 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('semester', 'degree', 'name_de')
+        ordering = ('semester', 'name_de')
         unique_together = (
-            ('semester', 'degree', 'name_de'),
-            ('semester', 'degree', 'name_en'),
+            ('semester', 'name_de'),
+            ('semester', 'name_en'),
         )
         verbose_name = _("course")
         verbose_name_plural = _("courses")
 
     def __str__(self):
         return self.name
-
-    def clean(self):
-        if self.vote_start_date and self.vote_end_date:
-            if self.vote_start_date >= self.vote_end_date:
-                raise ValidationError(_("The vote start date must be before the vote end date."))
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
@@ -221,9 +237,16 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return self.can_publish_grades or self.is_user_contributor_or_delegate(user)
         return False
 
+    def is_single_result(self):
+        # early return to save some queries
+        if self.vote_start_date != self.vote_end_date:
+            return False
+
+        return self.contributions.get(responsible=True).questionnaires.filter(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
+
     @property
     def can_staff_edit(self):
-        return not self.is_archived and self.state in ['new', 'prepared', 'lecturerApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
+        return not self.is_archived and self.state in ['new', 'prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
 
     @property
     def can_staff_delete(self):
@@ -235,21 +258,25 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_approve(self):
-        return self.state in ['new', 'prepared', 'lecturerApproved']
+        return self.state in ['new', 'prepared', 'editorApproved']
 
     @property
     def can_publish_grades(self):
+        from evap.evaluation.tools import get_sum_of_answer_counters
+        if self.is_single_result():
+            return get_sum_of_answer_counters(self.gradeanswer_counters) > 0
+
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
-    @transition(field=state, source=['new', 'lecturerApproved'], target='prepared')
+    @transition(field=state, source=['new', 'editorApproved'], target='prepared')
     def ready_for_contributors(self):
         pass
 
-    @transition(field=state, source='prepared', target='lecturerApproved')
+    @transition(field=state, source='prepared', target='editorApproved')
     def contributor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'lecturerApproved'], target='approved', conditions=[has_enough_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[has_enough_questionnaires])
     def staff_approve(self):
         pass
 
@@ -271,6 +298,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
     def review_finished(self):
+        pass
+
+    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[is_single_result])
+    def single_result_created(self):
         pass
 
     @transition(field=state, source='reviewed', target='evaluated', conditions=[is_not_fully_reviewed])
@@ -365,7 +396,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires():
+        if not self.has_enough_questionnaires() and not self.is_single_result():
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
@@ -387,14 +418,14 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
 
     @property
-    def likertanswer_set(self):
+    def likertanswer_counters(self):
         """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswer.objects.filter(contribution__in=self.contributions.all())
+        return LikertAnswerCounter.objects.filter(contribution__in=self.contributions.all())
 
     @property
-    def gradeanswer_set(self):
+    def gradeanswer_counters(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswer.objects.filter(contribution__in=self.contributions.all())
+        return GradeAnswerCounter.objects.filter(contribution__in=self.contributions.all())
 
     def _archive(self):
         """Should be called only via Semester.archive"""
@@ -447,7 +478,7 @@ class Contribution(models.Model):
 class Question(models.Model, metaclass=LocalizeModelBase):
     """A question including a type."""
 
-    QUESTION_KINDS = (
+    QUESTION_TYPES = (
         ("T", _("Text Question")),
         ("L", _("Likert Question")),
         ("G", _("Grade Question")),
@@ -456,8 +487,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     questionnaire = models.ForeignKey(Questionnaire)
     text_de = models.TextField(verbose_name=_("question text (german)"))
     text_en = models.TextField(verbose_name=_("question text (english)"))
-    kind = models.CharField(max_length=1, choices=QUESTION_KINDS,
-                            verbose_name=_("kind of question"))
+    type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     text = Translate
 
@@ -468,18 +498,18 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def answer_class(self):
-        if self.kind == "T":
+        if self.type == "T":
             return TextAnswer
-        elif self.kind == "L":
-            return LikertAnswer
-        elif self.kind == "G":
-            return GradeAnswer
+        elif self.type == "L":
+            return LikertAnswerCounter
+        elif self.type == "G":
+            return GradeAnswerCounter
         else:
-            raise Exception("Unknown answer kind: %r" % self.kind)
+            raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):
-        return self.answer_class == LikertAnswer
+        return self.answer_class == LikertAnswerCounter
 
     @property
     def is_text_question(self):
@@ -487,7 +517,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_grade_question(self):
-        return self.answer_class == GradeAnswer
+        return self.answer_class == GradeAnswerCounter
 
     @property
     def is_rating_question(self):
@@ -496,8 +526,8 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `LikertAnswer`,
-    `TextAnswer` and `GradeAnswer`."""
+    user ist not stored in the object. Concrete subclasses are `LikertAnswerCounter`,
+    `TextAnswer` and `GradeAnswerCounter`."""
 
     question = models.ForeignKey(Question)
     contribution = models.ForeignKey(Contribution)
@@ -508,25 +538,39 @@ class Answer(models.Model):
         verbose_name_plural = _("answers")
 
 
-class LikertAnswer(Answer):
-    """A Likert-scale answer to a question with `1` being *strongly agree* and `5`
-    being *strongly disagree*."""
+class LikertAnswerCounter(Answer):
+    """A Likert-scale answer counter to a question with answer `1` being *strongly agree*
+    and `5` being *strongly disagree*."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
+    count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
+        unique_together = (
+            ('question', 'contribution', 'answer'),
+        )
         verbose_name = _("Likert answer")
         verbose_name_plural = _("Likert answers")
 
+    def add_vote(self):
+        self.count += 1
 
-class GradeAnswer(Answer):
-    """A grade answer to a question with `1` being best and `5` being worst."""
+
+class GradeAnswerCounter(Answer):
+    """A grade answer counter to a question with answer `1` being best and `5` being worst."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
+    count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
+        unique_together = (
+            ('question', 'contribution', 'answer'),
+        )
         verbose_name = _("grade answer")
         verbose_name_plural = _("grade answers")
+
+    def add_vote(self):
+        self.count += 1
 
 
 class TextAnswer(Answer):
@@ -648,15 +692,19 @@ class UserProfileManager(BaseUserManager):
 
 
 # taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
-class EmailNullField(models.EmailField, metaclass=models.SubfieldBase):
+# and https://docs.djangoproject.com/en/1.8/howto/custom-model-fields/#converting-values-to-python-objects
+class EmailNullField(models.EmailField):
 
     description = "EmailField that stores NULL but returns ''"
 
+    def from_db_value(self, value, expression, connection, context):
+        return value or ""
+
     def to_python(self, value):  # this is the value right out of the db, or an instance
-       return value or ""
+        return value or ""
 
     def get_prep_value(self, value):  # catches value right before sending to db
-       return value or None
+        return value or None
 
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
@@ -804,7 +852,7 @@ class EmailTemplate(models.Model):
 
     @classmethod
     def get_review_template(cls):
-        return cls.objects.get(name="Lecturer Review Notice")
+        return cls.objects.get(name="Editor Review Notice")
 
     @classmethod
     def get_reminder_template(cls):

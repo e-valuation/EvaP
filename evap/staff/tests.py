@@ -13,10 +13,11 @@ from django.contrib.auth.models import Group
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
                             TextAnswer, EmailTemplate, NotArchiveable
-from evap.evaluation.tools import calculate_average_and_medium_grades
+from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
+from evap.contributor.forms import CourseForm as ContributorCourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -25,7 +26,7 @@ import datetime
 
 
 def lastform(page):
-    return page.forms[max(page.forms.keys())]
+    return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
@@ -84,7 +85,7 @@ class UsecaseTests(WebTest):
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_import(self):
-        page = self.app.get(reverse("staff_root"), user='staff.user')
+        page = self.app.get(reverse("staff:index"), user='staff.user')
 
         # create a new semester
         page = page.click("[Cc]reate [Nn]ew [Ss]emester")
@@ -131,18 +132,18 @@ class UsecaseTests(WebTest):
     def test_login_key(self):
         environ = self.app.extra_environ
         self.app.extra_environ = {}
-        self.assertRedirects(self.app.get(reverse("evap.results.views.index"), extra_environ={}), "/?next=/results/")
+        self.assertRedirects(self.app.get(reverse("results:index"), extra_environ={}), "/?next=/results/")
         self.app.extra_environ = environ
 
         user = UserProfile.objects.all()[0]
         user.generate_login_key()
         user.save()
 
-        url_with_key = reverse("evap.results.views.index") + "?userkey=%s" % user.login_key
+        url_with_key = reverse("results:index") + "?userkey=%s" % user.login_key
         self.app.get(url_with_key)
 
     def test_create_questionnaire(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
@@ -153,7 +154,7 @@ class UsecaseTests(WebTest):
         questionnaire_form['public_name_en'] = "Public Test Questionnaire"
         questionnaire_form['question_set-0-text_de'] = "Frage 1"
         questionnaire_form['question_set-0-text_en'] = "Question 1"
-        questionnaire_form['question_set-0-kind'] = "T"
+        questionnaire_form['question_set-0-type'] = "T"
         questionnaire_form['index'] = 0
         page = questionnaire_form.submit().follow()
 
@@ -162,7 +163,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(questionnaire.question_set.count(), 1, "New questionnaire is empty.")
 
     def test_create_empty_questionnaire(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
@@ -181,7 +182,7 @@ class UsecaseTests(WebTest):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
 
     def test_copy_questionnaire(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
         page = page.click("Seminar")
@@ -198,7 +199,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(questionnaire.question_set.count(), 2, "New questionnaire is empty.")
 
     def test_assign_questionnaires(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # assign questionnaire to courses
         page = page.click("Semester 1 \(en\)", index=0)
@@ -216,9 +217,9 @@ class UsecaseTests(WebTest):
             self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
 
     def test_remove_responsibility(self):
-        page = self.app.get(reverse("staff_root"), user="staff.user")
+        page = self.app.get(reverse("staff:index"), user="staff.user")
 
-        # remove responsibility in lecturer's checkbox
+        # remove responsibility in contributor's checkbox
         page = page.click("Semester 1 \(en\)", index=0)
         page = page.click("Course 1 \(en\)")
         form = lastform(page)
@@ -313,6 +314,9 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
+            # staff semester single_result
+            ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
+            ("test_staff_semester_x_single_result_y_delete", "/staff/semester/1/course/11/delete", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
             ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
@@ -340,6 +344,7 @@ class URLTests(WebTest):
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "contributor"),
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "responsible"),
             ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
+            ("test_results_semester_x_course_y", "/results/semester/1/course/11", "evap"), # single result
             # contributor
             ("test_contributor", "/contributor/", "responsible"),
             ("test_contributor", "/contributor/", "editor"),
@@ -577,13 +582,13 @@ class URLTests(WebTest):
         self.helper_semester_state_views([2], "prepared", "approved", "approve")
 
     def test_semester_approve_3(self):
-        self.helper_semester_state_views([3], "lecturerApproved", "approved", "approve")
+        self.helper_semester_state_views([3], "editorApproved", "approved", "approve")
 
     def test_semester_contributor_ready_1(self):
         self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
 
     def test_semester_contributor_ready_2(self):
-        self.helper_semester_state_views([3], "lecturerApproved", "prepared", "reenableLecturerReview")
+        self.helper_semester_state_views([3], "editorApproved", "prepared", "reenableEditorReview")
 
     def test_semester_unpublish(self):
         self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
@@ -592,14 +597,14 @@ class URLTests(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        data = dict(name_de="asdf", name_en="asdf", kind="asdf", degree="asd",
+        data = dict(name_de="asdf", name_en="asdf", type="asdf", degrees=["1"],
                     vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/staff/semester/1/course/create", "evap")
         form = lastform(response)
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
-        form["kind"] = "a type"
-        form["degree"] = "a degree"
+        form["type"] = "a type"
+        form["degrees"] = ["1"]
         form["vote_start_date"] = "02/1/2099"
         form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
         form["general_questions"] = ["2"]
@@ -621,6 +626,29 @@ class URLTests(WebTest):
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
+
+    def test_single_result_create(self):
+        """
+            Tests the single result creation view with one valid and one invalid input dataset.
+        """
+        response = self.get_assert_200("/staff/semester/1/singleresult/create", "evap")
+        form = lastform(response)
+        form["name_de"] = "qwertz"
+        form["name_en"] = "qwertz"
+        form["type"] = "a type"
+        form["degrees"] = ["1"]
+        form["event_date"] = "02/1/2014"
+        form["answer_1"] = 6
+        form["answer_3"] = 2
+        # missing responsible to get a validation error
+
+        form.submit()
+        self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
+
+        form["responsible"] = 2 # now do it right
+
+        form.submit()
+        self.assertEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
 
     def test_course_email(self):
         """
@@ -688,12 +716,14 @@ class URLTests(WebTest):
         """
         page = self.get_assert_200("/contributor/course/2/edit", user="responsible")
         form = lastform(page)
+        form["vote_start_date"] = "02/1/2098"
+        form["vote_end_date"] = "02/1/2099"
 
         form.submit(name="operation", value="save")
         self.assertEqual(Course.objects.get(pk=2).state, "prepared")
 
         form.submit(name="operation", value="approve")
-        self.assertEqual(Course.objects.get(pk=2).state, "lecturerApproved")
+        self.assertEqual(Course.objects.get(pk=2).state, "editorApproved")
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)
@@ -732,6 +762,62 @@ class URLTests(WebTest):
         response = form.submit()
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
+
+    def helper_test_course_form_same_name(self, CourseFormClass):
+        courses = Course.objects.filter(semester=1)
+        self.assertGreater(courses.count(), 1) # need at least two of those
+
+        initial_form = CourseForm(instance=courses[0])
+        form_data = {field.html_name: field.value() for field in initial_form}
+
+        form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
+        form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
+        form = CourseForm(form_data, instance=courses[0])
+        self.assertTrue(form.is_valid())
+        form_data['name_de'] = courses[1].name_de
+        form = CourseForm(form_data, instance=courses[0])
+        self.assertFalse(form.is_valid())
+
+    def test_course_form_same_name(self):
+        """
+            Test whether giving a course the same name as another course
+            in the same semester in the course edit form is invalid.
+        """
+        self.helper_test_course_form_same_name(CourseForm)
+        self.helper_test_course_form_same_name(ContributorCourseForm)
+
+    def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
+        course = Course.objects.filter(semester=1).first()
+
+        initial_form = CourseFormClass(instance=course)
+        form_data = {field.html_name: field.value() for field in initial_form}
+
+        form_data["vote_start_date"] = start_date
+        form_data["vote_end_date"] = end_date
+        form = CourseFormClass(form_data, instance=course)
+        self.assertEqual(form.is_valid(), expected_result)
+
+    def test_contributor_course_form_date_validation(self):
+        """
+            Tests validity of various start/end date combinations in
+            the two course edit forms.
+        """
+
+        # contributors: start date must be in the future
+        self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
+
+        # contributors: end date must be in the future
+        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/1999", False)
+
+        # contributors: start date must be < end date
+        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/2098", False)
+
+        # staff: neither end nor start date must be in the future
+        self.helper_date_validation(CourseForm, "02/1/1998", "02/1/1999", True)
+
+        # staff: but start date must be < end date
+        self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
+
 
 class ContributorFormTests(WebTest):
     csrf_checks = False
@@ -854,13 +940,15 @@ class ArchivingTests(WebTest):
     csrf_checks = False
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
+    test_semester_id = 9000
+
     def get_test_semester(self):
         semester = Semester.objects.get(pk=1)
         course1 = Course.objects.get(pk=7)
         course1.publish()
 
         course2 = Course.objects.get(pk=8)
-        new_semester = Semester()
+        new_semester = Semester(pk=self.test_semester_id)
         new_semester.save()
         course1.semester = new_semester
         course1.save()
@@ -924,13 +1012,13 @@ class ArchivingTests(WebTest):
 
         results = {}
         for course in semester.course_set.all():
-            results[course] = calculate_average_and_medium_grades(course)
+            results[course] = calculate_average_grades_and_deviation(course)
 
         semester.archive()
         cache.clear()
 
         for course in semester.course_set.all():
-            self.assertTrue(calculate_average_and_medium_grades(course) == results[course])
+            self.assertTrue(calculate_average_grades_and_deviation(course) == results[course])
 
     def test_archiving_twice_raises_exception(self):
         semester = self.get_test_semester()
@@ -951,15 +1039,16 @@ class ArchivingTests(WebTest):
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
         semester = self.get_test_semester()
-        self.assertEqual(semester.pk, 4) # when this fails, please update the urls below
         semester.archive()
 
-        self.get_assert_403("/staff/semester/4/import", "evap")
-        self.get_assert_403("/staff/semester/4/assign", "evap")
-        self.get_assert_403("/staff/semester/4/course/create", "evap")
-        self.get_assert_403("/staff/semester/4/course/7/edit", "evap")
-        self.get_assert_403("/staff/semester/4/course/7/delete", "evap")
-        self.get_assert_403("/staff/semester/4/courseoperation", "evap")
+        semester_url = "/staff/semester/{}/".format(self.test_semester_id)
+
+        self.get_assert_403(semester_url + "import", "evap")
+        self.get_assert_403(semester_url + "assign", "evap")
+        self.get_assert_403(semester_url + "course/create", "evap")
+        self.get_assert_403(semester_url + "course/7/edit", "evap")
+        self.get_assert_403(semester_url + "course/7/delete", "evap")
+        self.get_assert_403(semester_url + "courseoperation", "evap")
 
 
 class RedirectionTest(WebTest):

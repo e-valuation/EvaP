@@ -12,11 +12,11 @@
     {{ block.super }}
 
     {% if filter %}
-        <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?filter=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
+        <a href="{% url "staff:course_comments" semester.id course.id %}?filter=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
     {% else %}
-        <a href="{% url "evap.staff.views.course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
+        <a href="{% url "staff:course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
     {% endif %}
-    <span class="headline">{{ course.name }} ({{ course.semester.name }})</span>
+    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
 
     <div class="panel panel-info">
         <div class="panel-heading">
@@ -60,7 +60,7 @@
             var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
             $.ajax({
                 type: "POST",
-                url: "{% url 'evap.staff.views.course_comments_update_publish' %}",
+                url: "{% url 'staff:course_comments_update_publish' %}",
                 data: parameters,
                 success: function(){ highlight(id, action); },
                 error: function(){ reactivate_button(id, originally_selected); }

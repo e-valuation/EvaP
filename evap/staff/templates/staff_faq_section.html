@@ -6,7 +6,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li><a href="{% url "evap.staff.views.faq_index" %}">{% trans "FAQ Sections" %}</a></li>
+    <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
     <li>{{ section.title }}</li>
 {% endblock %}
 
@@ -18,18 +18,15 @@
         {{ formset.management_form }}
 
         <table id="question_table" class="table">
+            <thead>
+                <th style="width: 10px;">&nbsp;</th>
+                <th>{% trans "Question/Answer (german)" %}</th>
+                <th>{% trans "Question/Answer (english)" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </thead>
+            <tbody>
             {% for form in formset %}
-                {% if forloop.first %}
-                    <thead>
-                        <th style="width: 10px;">&nbsp;</th>
-                        <th>{% trans "Question/Answer (german)" %}</th>
-                        <th>{% trans "Question/Answer (english)" %}</th>
-                        <th>{% trans "Actions" %}</th>
-                    </thead>
-                    <tbody>
-                {% endif %}
-
-                <tr>
+                <tr class="sortable">
                     {% for hidden in form.hidden_fields %}
                         {{ hidden }}
                     {% endfor %}

@@ -5,12 +5,12 @@ from django.utils.translation import get_language
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.auth import staff_required
-from evap.evaluation.models import Semester
-from evap.evaluation.tools import calculate_results, calculate_average_and_medium_grades, TextResult
+from evap.evaluation.models import Semester, Degree
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult
 
 from evap.results.exporters import ExcelExporter
 
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 
 @login_required
@@ -23,14 +23,28 @@ def index(request):
 @login_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = list(semester.course_set.filter(state="published"))
+    courses = list(semester.course_set.filter(state="published").prefetch_related("degrees"))
 
     # annotate each course object with its grades
     for course in courses:
-        # first, make sure that there are no preexisting grade attributes
-        course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
+        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
-    template_data = dict(semester=semester, courses=courses, staff=request.user.is_staff)
+    CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
+
+    courses_by_degree = OrderedDict()
+    for degree in Degree.objects.all():
+        courses_by_degree[degree] = CourseTuple([], [])
+    for course in courses:
+        if course.is_single_result():
+            for degree in course.degrees.all():
+                section = calculate_results(course)[0]
+                result = section.results[0]
+                courses_by_degree[degree].single_results.append((course, result))
+        else:
+            for degree in course.degrees.all():
+                courses_by_degree[degree].courses.append(course)
+
+    template_data = dict(semester=semester, courses_by_degree=courses_by_degree, staff=request.user.is_staff)
     return render(request, "results_semester_detail.html", template_data)
 
 
@@ -84,13 +98,13 @@ def course_detail(request, semester_id, course_id):
     evaluation_warning = course.state != 'published'
 
     # results for a course might not be visible because there are not enough answers
-    # but it can still be "published" e.g. to show the comment results to lecturers.
+    # but it can still be "published" e.g. to show the comment results to contributors.
     # users who can open the results page see a warning message in this case
     sufficient_votes_warning = not course.can_publish_grades
 
     show_grades = request.user.is_staff or course.can_publish_grades
 
-    course.avg_grade, course.med_grade = calculate_average_and_medium_grades(course)
+    course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     template_data = dict(
             course=course,

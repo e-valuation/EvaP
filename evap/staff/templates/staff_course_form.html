@@ -5,7 +5,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal multiselect-form">
+    <form method="POST" class="form-horizontal multiselect-form" id="course-form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
@@ -23,10 +23,11 @@
             <thead>
                 <tr>
                     <th></th>
-                    {% for field in formset.form.visible_fields %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
-                    <th>{% trans "Remove?" %}</th>
+                        <th class="col-sm-4">{% trans "Contributor" %}</th>
+                        <th class="col-sm-5">{% trans "Questionnaires" %}</th>
+                        <th class="col-sm-1">{% trans "Responsible" %}</th>
+                        <th class="col-sm-1">{% trans "Can edit" %}</th>
+                        <th class="col-sm-1"></th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +35,7 @@
                     {% if form_element.non_field_errors %}
                         <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                     {% endif %}
-                    <tr class="moveable">
+                    <tr class="contribution sortable">
                         {% for field in form_element.hidden_fields %}
                             {{ field }}
                         {% endfor %}
