@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Sum
 from evap.evaluation.models import TextAnswer
 
 from collections import OrderedDict, defaultdict
@@ -109,6 +110,26 @@ def get_answers(contribution, question):
     return question.answer_class.objects.filter(contribution=contribution, question=question)
 
 
+def get_number_of_answers(contribution, question):
+    answers = get_answers(contribution, question)
+    if question.is_rating_question:
+        return get_sum_of_answer_counters(answers)
+    else:
+        return len(answers)
+
+
+def get_sum_of_answer_counters(answer_counters):
+    return answer_counters.aggregate(total_count=Sum('count'))['total_count'] or 0
+
+
+def get_answers_from_answer_counters(answer_counters):
+    answers = []
+    for answer_counter in answer_counters:
+        for i in range(0, answer_counter.count):
+            answers.append(answer_counter.answer)
+    return answers
+
+
 def get_textanswers(contribution, question, filter_states=None):
     assert question.is_text_question
     answers = get_answers(contribution, question)
@@ -117,18 +138,17 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def get_distribution(answers):
-    count = len(answers)
-    if count == 0:
+def get_distribution(answer_counters, total_count):
+    if not answer_counters or total_count == 0:
         return None
+
     distribution = OrderedDict()
-    for i in range(1, 6):
-        distribution[i] = 0
-    for answer in answers:
-        distribution[answer] += 1
-    # divide by the number of answers to get relative 0..1 values
-    for k in distribution:
-        distribution[k] = float(distribution[k]) / count * 100.0
+    # make sure that 0-values are kept in the distribution (and order by answer)
+    for answer in range(1,6):
+        distribution[answer] = 0
+
+    for answer_counter in answer_counters:
+        distribution[answer_counter.answer] = float(answer_counter.count) / total_count * 100.0
     return distribution
 
 
@@ -161,7 +181,7 @@ def _calculate_results_impl(course):
     questionnaire_max_answers = {}
     questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_answers(contribution, question).count() for question in questionnaire.rating_questions], default=0)
+        max_answers = max([get_number_of_answers(contribution, question) for question in questionnaire.rating_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
@@ -172,12 +192,13 @@ def _calculate_results_impl(course):
         results = []
         for question in questionnaire.question_set.all():
             if question.is_rating_question:
-                answers = get_answers(contribution, question).values_list('answer', flat=True)
+                answer_counters = get_answers(contribution, question)
+                answers = get_answers_from_answer_counters(answer_counters)
 
                 count = len(answers)
                 average = avg(answers)
                 deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if count > 0 else None
-                distribution = get_distribution(answers)
+                distribution = get_distribution(answer_counters, count)
                 warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
 
                 results.append(RatingResult(question, count, average, deviation, distribution, warning))

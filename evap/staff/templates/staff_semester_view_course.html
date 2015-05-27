@@ -25,12 +25,15 @@
     {% endfor %}
     <span class="label label-default">{{ course.type }}</span>
     <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
+    {% if course.is_single_result %}
+        <span class="label label-info">{% trans "Single result" %}</span>
+    {% endif %}
     {% for warning in course.warnings %}
         <span class="label label-warning">{{ warning }}</span>
     {% endfor %}
 </td>
 <td class="minimize text-center">
-    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}
+    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if course.is_single_result|is_false %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
     {% if course.state == 'inEvaluation' %}
         <br>
         {% if course.days_left_for_evaluation <= 0 %}
@@ -65,10 +68,12 @@
                 {% endif %}
             </td>
         {% else %}
-            <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                <span class="glyphicon glyphicon-user"></span>
-                <span>&mdash;</span>
-            </p>
+            <td class="minimize">
+                <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+                    <span class="glyphicon glyphicon-user"></span>
+                    <span>&mdash;</span>
+                </p>
+            </td>
         {% endif %}
     {% endwith %}
 {% else %}

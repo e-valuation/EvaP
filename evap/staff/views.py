@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from collections import defaultdict
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
@@ -16,7 +17,7 @@ from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, qu
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm
+                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
@@ -371,16 +372,43 @@ def course_create(request, semester_id):
 
 
 @staff_required
+def single_result_create(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(semester)
+
+    course = Course(semester=semester)
+
+    form = SingleResultForm(request.POST or None, instance=course)
+
+    if form.is_valid():
+        form.save(user=request.user)
+
+        messages.success(request, _("Successfully created single result."))
+        return redirect('staff:semester_view', semester_id)
+    else:
+        return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
+
+
+@staff_required
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     raise_permission_denied_if_archived(course)
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     # check course state
     if not course.can_staff_edit:
         messages.warning(request, _("Editing not possible in current state."))
         return redirect('staff:semester_view', semester_id)
+
+    if course.is_single_result():
+        return helper_single_result_edit(request, semester, course)
+    else:
+        return helper_course_edit(request, semester, course)
+
+
+@staff_required
+def helper_course_edit(request, semester, course):
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
@@ -392,10 +420,30 @@ def course_edit(request, semester_id, course_id):
         formset.save()
 
         messages.success(request, _("Successfully updated course."))
-        return custom_redirect('staff:semester_view', semester_id)
+        return custom_redirect('staff:semester_view', semester.id)
     else:
         template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
         return render(request, "staff_course_form.html", template_data)
+
+
+@staff_required
+def helper_single_result_edit(request, semester, course):
+    initial = {'responsible': course.responsible_contributor}
+    answer_counts = defaultdict(int)
+    for answer_counter in course.gradeanswer_counters:
+        answer_counts[answer_counter.answer] = answer_counter.count
+    for i in range(1,6):
+        initial['answer_' + str(i)] = answer_counts[i]
+
+    form = SingleResultForm(request.POST or None, instance=course, initial=initial)
+
+    if form.is_valid():
+        form.save(user=request.user)
+
+        messages.success(request, _("Successfully created single result."))
+        return redirect('staff:semester_view', semester.id)
+    else:
+        return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
 
 
 @staff_required

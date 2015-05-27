@@ -13,54 +13,87 @@
 
 {{% block content %}
     {{ block.super }}
-
-    {% for degree, courses in courses_by_degree.items %}
-        {% if courses %}
+    {% for degree, course_data in courses_by_degree.items %}{% with courses=course_data.courses single_results=course_data.single_results %}
+        {% if courses or single_results %}
             <h3>{{ degree }}</h3>
-            <table class="table table-striped course-table vertically-aligned">
-                <thead style="white-space:nowrap">
-                    <tr>
-                        <th class="col-sm-4">{% trans "Course" %}</th>
-                        <th class="col-sm-1">{% trans "Type" %}</th>
-                        <th class="col-sm-3">{% trans "Responsible" %}</th>
-                        <th class="col-sm-1">{% trans "Average Grade" %}</th>
-                        <th class="col-sm-1">{% trans "Standard Deviation" %}</th>
-                        <th class="col-sm-2">{% trans "Voters" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for course in courses %}
-                    <tr>
-                        <td>
-                        {% if course|can_user_see_results:request.user %}
-                            <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
-                        {% else %}
-                            <span title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
-                        {% endif %}
-                        </td>
-                        <td>{{ course.type }}</td>
-                        {% with responsible=course.responsible_contributor %}
-                            <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
-                        {% endwith %}
-                        {% if not course.avg_grade %}
-                            <td></td>
-                            <td></td>
-                        {% elif course|can_user_see_results:request.user %}
-                            <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                            <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
-                        {% else %}
-                            <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
-                            <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
-                        {% endif %}
-                        {% with num_participants=course.num_participants num_voters=course.num_voters %}
-                            <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include_progress_bar num_voters num_participants %}</td>
-                        {% endwith %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% if courses %}
+                <table class="table table-striped course-table vertically-aligned">
+                    <thead style="white-space:nowrap">
+                        <tr>
+                            <th class="col-sm-4">{% trans "Course" %}</th>
+                            <th class="col-sm-1">{% trans "Type" %}</th>
+                            <th class="col-sm-3">{% trans "Responsible" %}</th>
+                            <th class="col-sm-1">{% trans "Average Grade" %}</th>
+                            <th class="col-sm-1">{% trans "Standard Deviation" %}</th>
+                            <th class="col-sm-2">{% trans "Voters" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for course in courses %}
+                        <tr>
+                            <td>
+                            {% if course|can_user_see_results:request.user %}
+                                <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
+                            {% else %}
+                                <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">{{ course.name }}</span>
+                            {% endif %}
+                            </td>
+                            <td>{{ course.type }}</td>
+                            {% with responsible=course.responsible_contributor %}
+                                <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
+                            {% endwith %}
+                            {% if not course.avg_grade %}
+                                <td></td>
+                                <td></td>
+                            {% elif course|can_user_see_results:request.user %}
+                                <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
+                                <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
+                            {% else %}
+                                <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
+                                <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
+                            {% endif %}
+                            {% with num_participants=course.num_participants num_voters=course.num_voters %}
+                                <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include_progress_bar num_voters num_participants %}</td>
+                            {% endwith %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if single_results %}
+                <table class="table table-striped course-table vertically-aligned">
+                    <thead style="white-space:nowrap">
+                        <tr>
+                            <th class="col-sm-4">{% trans "Course" %}</th>
+                            <th class="col-sm-1">{% trans "Type" %}</th>
+                            <th class="col-sm-3">{% trans "Responsible" %}</th>
+                            <th class="col-sm-1">{% trans "Standard Deviation" %}</th>
+                            <th class="col-sm-3">{% trans "Result" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for single_result, result in single_results %}
+                        <tr>
+                            <td>{{ single_result.name }}</td>
+                            <td>{{ single_result.type }}</td>
+                            {% with responsible=single_result.responsible_contributor %}
+                                <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
+                            {% endwith %}
+                            {% if not single_result.avg_grade %}
+                                <td></td>
+                            {% else %}
+                                <td class="text-center"><div class="deviation-bg" style="background-color: {{ single_result.avg_deviation|deviationcolor }};">{{ single_result.avg_deviation|floatformat:1 }}</div></td>
+                            {% endif %}
+                            <td>
+                                {% include_result_bar result True %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         {% endif %}
-    {% endfor %}
+    {% endwith %}{% endfor %}
 
     {% if request.user.is_staff %}
     <p>

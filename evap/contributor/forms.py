@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
@@ -27,8 +28,17 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-    def clean_degree(self):
-        return self.instance.degree
+    def clean_degrees(self):
+        return self.instance.degrees.all()
+
+    def clean(self):
+        super().clean()
+
+        vote_start_date = self.cleaned_data.get('vote_start_date')
+        vote_end_date = self.cleaned_data.get('vote_end_date')
+        if vote_start_date and vote_end_date:
+            if vote_start_date >= vote_end_date:
+                raise ValidationError(_("The first day of evaluation must be before the last one."))
 
     def clean_vote_start_date(self):
         vote_start_date = self.cleaned_data.get('vote_start_date')

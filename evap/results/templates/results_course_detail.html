@@ -35,7 +35,7 @@
                         <th class="col-sm-3">{% trans "Responsible" %}</th>
                         <th class="col-sm-2">{% trans "Average Grade" %}</th>
                         <th class="col-sm-2">{% trans "Standard Deviation" %}</th>
-                        <th class="col-sm-2">{% trans "Voters" %}</th>
+                        <th class="col-sm-2">{% if course.is_single_result|is_false %}{% trans "Voters" %}{% endif %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,43 +54,47 @@
                             <td><div class="grade-bg grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                             <td><div class="deviation-bg deviation-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                         {% endif %}
-                        <td>{% include_progress_bar course.num_voters course.num_participants %}</td>
+                        <td>{% if course.is_single_result|is_false %}{% include_progress_bar course.num_voters course.num_participants %}{% endif %}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Course" %}</span>
+    {% if course_sections %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">{% trans "Course" %}</span>
+            </div>
+            <div class="panel-body">
+                {% regroup course_sections by questionnaire as sections_grouped %}
+                {% for group in sections_grouped %}
+                    {% include "results_course_detail_questionnaires.html" %}
+                {% endfor %}
+            </div>
         </div>
-        <div class="panel-body">
-            {% regroup course_sections by questionnaire as sections_grouped %}
-            {% for group in sections_grouped %}
-                {% include "results_course_detail_questionnaires.html" %}
-            {% endfor %}
-        </div>
-    </div>
+    {% endif %}
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Contributors" %}</span>
-        </div>
-        <div class="panel-body">
-            {% for contributor,sections in contributor_sections.items %}
-                {% regroup sections by questionnaire as sections_grouped %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <span class="panel-title">{{ contributor.full_name }}</span>
+    {% if contributor_sections %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">{% trans "Contributors" %}</span>
+            </div>
+            <div class="panel-body">
+                {% for contributor,sections in contributor_sections.items %}
+                    {% regroup sections by questionnaire as sections_grouped %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <span class="panel-title">{{ contributor.full_name }}</span>
+                        </div>
+                        <div class="panel-body">
+                            {% for group in sections_grouped %}
+                                {% include "results_course_detail_questionnaires.html" %}
+                            {% endfor %}
+                        </div>
                     </div>
-                    <div class="panel-body">
-                        {% for group in sections_grouped %}
-                            {% include "results_course_detail_questionnaires.html" %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}

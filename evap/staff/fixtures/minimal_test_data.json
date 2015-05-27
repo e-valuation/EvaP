@@ -95,6 +95,17 @@
   }
 },
 {
+  "pk":5,
+  "model":"evaluation.questionnaire",
+  "fields":{
+    "name_de": "Einzelergebnis",
+    "name_en": "Single result",
+    "index": 0,
+    "is_for_contributors": true,
+    "obsolete": true
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.question",
   "fields": {
@@ -161,147 +172,184 @@
   }
 },
 {
-  "pk": 1,
-  "model": "evaluation.likertanswer",
+  "pk": 7,
+  "model": "evaluation.question",
   "fields": {
-    "answer": 1,
+    "questionnaire": 5,
+    "_order": 1,
+    "text_en": "single result",
+    "text_de": "single result",
+    "type": "G"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.likertanswercounter",
+  "fields": {
     "contribution": 18,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 2,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 17,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 3,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 20,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 4,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 22,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 5,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 21,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 6,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 24,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 7,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 26,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 8,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 25,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 9,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 28,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 10,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 30,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 11,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 29,
-    "question": 4
+    "question": 4,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 12,
-  "model": "evaluation.likertanswer",
+  "model": "evaluation.likertanswercounter",
   "fields": {
-    "answer": 1,
     "contribution": 32,
-    "question": 2
+    "question": 2,
+    "answer": 1,
+    "count": 1
   }
 },
 {
   "pk": 1,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 17,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
   "pk": 2,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 21,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
   "pk": 3,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 25,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
   }
 },
 {
   "pk": 4,
-  "model": "evaluation.gradeanswer",
+  "model": "evaluation.gradeanswercounter",
   "fields": {
-    "answer": 2,
     "contribution": 29,
-    "question": 5
+    "question": 5,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.gradeanswercounter",
+  "fields": {
+    "contribution": 36,
+    "question": 6,
+    "answer": 2,
+    "count": 5
   }
 },
 {
@@ -1130,6 +1178,19 @@
   }
 },
 {
+  "pk": 36,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 11,
+    "responsible": true,
+    "questionnaires": [
+      5
+    ],
+    "can_edit": true
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.degree",
   "fields": {
@@ -1368,6 +1429,26 @@
     ],
     "vote_end_date": "2099-12-31",
     "name_en": "another new course",
+    "type": "a type",
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "single result course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "reviewed",
+    "last_modified_user": 1,
+    "participants": [],
+    "vote_end_date": "2014-09-10",
+    "name_en": "single result course",
     "type": "a type",
     "vote_start_date": "2014-09-10"
   }
