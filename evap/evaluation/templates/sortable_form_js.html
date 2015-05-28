@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <script type="text/javascript">
-    function make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button) {
+    function make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button, uses_template) {
 
         function apply_ordering() {
             $(document).find('tr').each(function(i) {
@@ -18,17 +18,31 @@
 
 
         $(document).ready(function() {
-            $('#' + table_id + ' tbody tr').formset({
-                prefix: prefix,
-                deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                    row_added(row);
-                },
-                formTemplate: ".form-template"
-            });
+            if(uses_template) {
+                $('#' + table_id + ' tbody tr').formset({
+                    prefix: prefix,
+                    deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
+                    deleteText: '{% trans "remove" %}',
+                    addText: '{% trans "add another" %}',
+                    added: function(row) {
+                        row.find('input[id$=-order]').val(row.parent().children().length);
+                        row_added(row);
+                    },
+                    formTemplate: ".form-template"
+                });
+            }
+            else {
+                $('#' + table_id + ' tbody tr').formset({
+                    prefix: prefix,
+                    deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
+                    deleteText: '{% trans "remove" %}',
+                    addText: '{% trans "add another" %}',
+                    added: function(row) {
+                        row.find('input[id$=-order]').val(row.parent().children().length);
+                        row_added(row);
+                    }
+                });
+            }
 
             $('tbody').sortable({
                 items: '.sortable',
