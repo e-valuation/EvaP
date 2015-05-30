@@ -141,12 +141,11 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kw):
         user = kw.pop("user")
-        super().save(*args, **kw)
         self.instance.last_modified_user = user
         self.instance.vote_start_date = self.cleaned_data['event_date']
         self.instance.vote_end_date = self.cleaned_data['event_date']
         self.instance.is_graded = False
-        self.instance.save()
+        super().save(*args, **kw)
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
             contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True)
