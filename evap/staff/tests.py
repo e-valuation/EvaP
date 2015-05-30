@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
+from django.test import TestCase
 from webtest import AppError
 from django.test import Client
 from django.test.utils import override_settings
@@ -11,8 +12,8 @@ from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
 
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
-                            TextAnswer, EmailTemplate, NotArchiveable
+from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
+                            Contribution, TextAnswer, EmailTemplate, NotArchiveable
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
@@ -20,6 +21,8 @@ from evap.contributor.forms import EditorContributionFormSet
 from evap.contributor.forms import CourseForm as ContributorCourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
+
+from model_mommy import mommy
 
 import os.path
 import datetime
@@ -47,12 +50,8 @@ class FuzzyInt(int):
 class SampleXlsTests(WebTest):
 
     def setUp(self):
-        semester = Semester(pk=1, name_de="Testsemester", name_en="test semester")
-        user = UserProfile(username="user")
-        group = Group.objects.get(name="Staff")
-        user.save()
-        user.groups = [group]
-        semester.save()
+        mommy.make(Semester, pk=1)
+        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
 
     def test_sample_xls(self):
         page = self.app.get("/staff/semester/1/import", user='user')
@@ -81,8 +80,10 @@ class SampleXlsTests(WebTest):
 
 
 class UsecaseTests(WebTest):
-    fixtures = ['usecase-tests']
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    def setUp(self):
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
 
     def test_import(self):
         page = self.app.get(reverse("staff:index"), user='staff.user')
@@ -130,12 +131,9 @@ class UsecaseTests(WebTest):
         self.assertEqual(check_contributor.email, "567@web.de")
 
     def test_login_key(self):
-        environ = self.app.extra_environ
-        self.app.extra_environ = {}
-        self.assertRedirects(self.app.get(reverse("results:index"), extra_environ={}), "/?next=/results/")
-        self.app.extra_environ = environ
+        self.assertRedirects(self.app.get(reverse("results:index")), "/?next=/results/")
 
-        user = UserProfile.objects.all()[0]
+        user = mommy.make(UserProfile)
         user.generate_login_key()
         user.save()
 
@@ -175,13 +173,15 @@ class UsecaseTests(WebTest):
         questionnaire_form['index'] = 0
         page = questionnaire_form.submit()
 
-        assert "You must have at least one of these" in page
+        self.assertIn("You must have at least one of these", page)
 
         # retrieve new questionnaire
         with self.assertRaises(Questionnaire.DoesNotExist):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
 
     def test_copy_questionnaire(self):
+        questionnaire = mommy.make(Questionnaire, name_en="Seminar")
+        Question.objects.create(questionnaire=questionnaire, text_de="asdf", text_en="asdf", type="T")
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
@@ -196,42 +196,44 @@ class UsecaseTests(WebTest):
 
         # retrieve new questionnaire
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
-        self.assertEqual(questionnaire.question_set.count(), 2, "New questionnaire is empty.")
+        self.assertEqual(questionnaire.question_set.count(), 1, "New questionnaire is empty.")
 
     def test_assign_questionnaires(self):
+        semester = mommy.make(Semester, name_en="Semester 1")
+        mommy.make(Course, semester=semester, type="Seminar")
+        mommy.make(Course, semester=semester, type="Vorlesung")
+        questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # assign questionnaire to courses
-        page = page.click("Semester 1 \(en\)", index=0)
+        page = page.click("Semester 1", index=0)
         page = page.click("Assign Questionnaires")
         assign_form = lastform(page)
-        assign_form['Seminar'] = [1]
-        assign_form['Vorlesung'] = [1]
+        assign_form['Seminar'] = [questionnaire.pk]
+        assign_form['Vorlesung'] = [questionnaire.pk]
         page = assign_form.submit().follow()
 
-        # get semester and check
-        semester = Semester.objects.get(pk=1)
-        questionnaire = Questionnaire.objects.get(pk=1)
         for course in semester.course_set.all():
             self.assertEqual(course.general_contribution.questionnaires.count(), 1)
             self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
 
     def test_remove_responsibility(self):
+        user = mommy.make(UserProfile)
+        contribution = mommy.make(Contribution, contributor=user, responsible=True)
+
         page = self.app.get(reverse("staff:index"), user="staff.user")
+        page = page.click(contribution.course.semester.name_en, index=0)
+        page = page.click(contribution.course.name_en)
 
         # remove responsibility in contributor's checkbox
-        page = page.click("Semester 1 \(en\)", index=0)
-        page = page.click("Course 1 \(en\)")
         form = lastform(page)
-
-        # add one questionnaire to avoid the error message preventing the responsibility error to show
-        form['general_questions'] = True
-
         form['contributions-0-responsible'] = False
         page = form.submit()
 
-        assert "No responsible contributor found" in page
+        self.assertIn("No responsible contributor found", page)
 
+
+class PerformanceTests(WebTest):
     # disabled, see issue #164: https://github.com/fsr-itse/EvaP/issues/164
     #def test_num_queries_user_list(self):
     #    """
@@ -243,10 +245,22 @@ class UsecaseTests(WebTest):
     #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
     #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
     #        self.app.get("/staff/user/", user="staff.user")
+    pass
 
+
+class UnitTests(TestCase):
     def test_users_are_deletable(self):
-        self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_staff_delete)
-        self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_staff_delete)
+        user = mommy.make(UserProfile)
+        course = mommy.make(Course, participants=[user], state="new")
+        self.assertTrue(user.can_staff_delete)
+
+        user2 = mommy.make(UserProfile)
+        course2 = mommy.make(Course, participants=[user2], state="inEvaluation")
+        self.assertFalse(user2.can_staff_delete)
+
+        contributor = mommy.make(UserProfile)
+        mommy.make(Contribution, contributor=contributor)
+        self.assertFalse(contributor.can_staff_delete)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
