@@ -367,19 +367,9 @@ class UserForm(forms.ModelForm, BootstrapMixin):
                                                                           required=False)
         self.fields['courses_participating_in'].help_text = ""
 
-    def clean_username(self):
-        conflicting_user = UserProfile.objects.filter(username__iexact=self.cleaned_data.get('username'))
-        if not conflicting_user.exists():
-            return self.cleaned_data.get('username')
-
-        if self.instance and self.instance.pk:
-            if conflicting_user[0] == self.instance:
-                # there is a user with this name but that's me
-                return self.cleaned_data.get('username')
-
-        raise forms.ValidationError(_("A user with the username '%s' already exists") % self.cleaned_data.get('username'))
-
     def _post_clean(self, *args, **kw):
+        super()._post_clean(*args, **kw)
+
         if self._errors:
             return
 
@@ -392,8 +382,6 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         # we need to do a save before course_set is set because the user needs to have an id there
         self.instance.save()
         self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
-
-        super()._post_clean(*args, **kw)
 
 
 class LotteryForm(forms.Form, BootstrapMixin):
