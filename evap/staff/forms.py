@@ -350,7 +350,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        all_users = UserProfile.objects.order_by('username')
+        all_users = UserProfile.objects.order_by('last_name', 'first_name')
         # fix generated form
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = all_users
