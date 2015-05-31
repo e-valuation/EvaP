@@ -65,10 +65,13 @@ def semester_reward_points(request, semester_id):
 
     data = []
     for participant in participants:
-        number_of_courses = Course.objects.filter(semester=semester, participants=participant).count()
-        number_of_courses_voted_for = Course.objects.filter(semester=semester, voters=participant).count()
+        number_of_required_courses = Course.objects.filter(semester=semester, participants=participant, is_required_for_reward=True).count()
+        number_of_required_courses_voted_for = Course.objects.filter(semester=semester, voters=participant, is_required_for_reward=True).count()
+        number_of_optional_courses = Course.objects.filter(semester=semester, participants=participant, is_required_for_reward=False).count()
+        number_of_optional_courses_voted_for = Course.objects.filter(semester=semester, voters=participant, is_required_for_reward=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
-        data.append((participant, number_of_courses_voted_for, number_of_courses, earned_reward_points))
+        data.append((participant, number_of_required_courses_voted_for, number_of_required_courses,
+            number_of_optional_courses_voted_for, number_of_optional_courses, earned_reward_points))
 
     template_data = dict(semester=semester, data=data, disable_breadcrumb_semester=False)
     return render(request, "rewards_semester_reward_points_view.html", template_data)

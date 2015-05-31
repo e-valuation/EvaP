@@ -173,6 +173,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
 
+    # whether participants must vote to qualify for reward points
+    is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True)
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
