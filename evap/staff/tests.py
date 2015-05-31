@@ -521,7 +521,7 @@ class URLTests(WebTest):
         """
             Tests the ContributionFormset with various input data sets.
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
+        course = mommy.make(Course)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -529,7 +529,7 @@ class URLTests(WebTest):
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': 9001,
+            'contributions-0-course': course.pk,
             'contributions-0-questionnaires': [1],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
@@ -542,7 +542,7 @@ class URLTests(WebTest):
         # duplicate contributor
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = 1
-        data['contributions-1-course'] = 9001
+        data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = [1]
         data['contributions-1-order'] = 1
         self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
@@ -842,11 +842,11 @@ class ContributorFormTests(WebTest):
             Tests whether contributions marked for deletion are validated.
             Regression test for #415 and #244
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
-        user = UserProfile.objects.create(pk=9001)
-        user = UserProfile.objects.create(pk=9002, username="1")
-        user = UserProfile.objects.create(pk=9003, username="2")
-        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        user3 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -855,25 +855,25 @@ class ContributorFormTests(WebTest):
             'contributions-TOTAL_FORMS': 3,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': 9001,
-            'contributions-0-questionnaires': [9001],
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
-            'contributions-0-contributor': 9001,
+            'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
-            'contributions-1-course': 9001,
-            'contributions-1-questionnaires': [9001],
+            'contributions-1-course': course.pk,
+            'contributions-1-questionnaires': [questionnaire.pk],
             'contributions-1-order': 0,
             'contributions-1-responsible': "on",
-            'contributions-1-contributor': 9002,
-            'contributions-2-course': 9001,
+            'contributions-1-contributor': user2.pk,
+            'contributions-2-course': course.pk,
             'contributions-2-questionnaires': [],
             'contributions-2-order': 1,
-            'contributions-2-contributor': 9003,
+            'contributions-2-contributor': user2.pk,
             'contributions-2-DELETE': 'on',
         }
 
-        formset = ContributionFormset(instance=course, data=data.copy())
+        formset = ContributionFormset(instance=course, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_take_deleted_contributions_into_account(self):
@@ -882,12 +882,10 @@ class ContributorFormTests(WebTest):
             when the same contributor got added again in the same formset.
             Regression test for #415
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
-        user1 = UserProfile.objects.create(pk=9001)
-        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
-
-        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
-        contribution1.questionnaires = [questionnaire]
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -895,21 +893,21 @@ class ContributorFormTests(WebTest):
             'contributions-TOTAL_FORMS': 2,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': 9001,
-            'contributions-0-course': 9001,
-            'contributions-0-questionnaires': [9001],
+            'contributions-0-id': contribution1.pk,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
-            'contributions-0-contributor': 9001,
+            'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
-            'contributions-1-course': 9001,
-            'contributions-1-questionnaires': [9001],
+            'contributions-1-course': course.pk,
+            'contributions-1-questionnaires': [questionnaire.pk],
             'contributions-1-order': 0,
             'contributions-1-responsible': "on",
-            'contributions-1-contributor': 9001,
+            'contributions-1-contributor': user1.pk ,
         }
 
-        formset = ContributionFormset(instance=course, data=data.copy())
+        formset = ContributionFormset(instance=course, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_editors_cannot_change_responsible(self):
@@ -917,12 +915,11 @@ class ContributorFormTests(WebTest):
             Asserts that editors cannot change the responsible of a course
             through POST-hacking. Regression test for #504.
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
-        user1 = UserProfile.objects.create(pk=9001, username="1")
-        user2 = UserProfile.objects.create(pk=9002, username="2")
-        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
-
-        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
 
         EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -930,19 +927,19 @@ class ContributorFormTests(WebTest):
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': 9001,
-            'contributions-0-course': 9001,
-            'contributions-0-questionnaires': [9001],
+            'contributions-0-id': contribution1.pk,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 1,
             'contributions-0-responsible': "on",
-            'contributions-0-contributor': 9001,
+            'contributions-0-contributor': user1.pk,
         }
 
         formset = EditorContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
 
         self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
-        data["contributions-0-contributor"] = 9002
+        data["contributions-0-contributor"] = user2.pk
         formset = EditorContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
         formset.save()
