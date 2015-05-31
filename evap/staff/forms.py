@@ -367,32 +367,41 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['courses_participating_in'].help_text = ""
 
     def clean_username(self):
-        conflicting_user = UserProfile.objects.filter(username__iexact=self.cleaned_data.get('username'))
-        if not conflicting_user.exists():
-            return self.cleaned_data.get('username')
+        username = self.cleaned_data.get('username')
+        user_with_same_name = UserProfile.objects.filter(username__iexact=username)
 
+        # make sure we don't take the instance itself into account
         if self.instance and self.instance.pk:
-            if conflicting_user[0] == self.instance:
-                # there is a user with this name but that's me
-                return self.cleaned_data.get('username')
+            user_with_same_name = user_with_same_name.exclude(pk=self.instance.pk)
 
-        raise forms.ValidationError(_("A user with the username '%s' already exists") % self.cleaned_data.get('username'))
+        if user_with_same_name.exists():
+            raise forms.ValidationError(_("A user with the username '%s' already exists") % username)
+        return username.strip().lower()
 
-    def _post_clean(self, *args, **kw):
-        if self._errors:
-            return
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        user_with_same_email = UserProfile.objects.filter(email__iexact=email)
 
-        self.instance.username = self.cleaned_data.get('username').strip().lower()
-        self.instance.title = self.cleaned_data.get('title').strip()
-        self.instance.first_name = self.cleaned_data.get('first_name').strip()
-        self.instance.last_name = self.cleaned_data.get('last_name').strip()
-        self.instance.email = self.cleaned_data.get('email').strip().lower()
+        # make sure we don't take the instance itself into account
+        if self.instance and self.instance.pk:
+            user_with_same_email = user_with_same_email.exclude(pk=self.instance.pk)
 
-        # we need to do a save before course_set is set because the user needs to have an id there
-        self.instance.save()
+        if user_with_same_email.exists():
+            raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
+        return email.strip().lower()
+
+    def clean_first_name(self):
+        return self.cleaned_data['first_name'].strip()
+
+    def clean_last_name(self):
+        return self.cleaned_data['last_name'].strip()
+
+    def clean_title(self):
+        return self.cleaned_data['title'].strip()
+
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
         self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
-
-        super()._post_clean(*args, **kw)
 
 
 class LotteryForm(forms.Form, BootstrapMixin):

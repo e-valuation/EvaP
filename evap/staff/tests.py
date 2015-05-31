@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.utils import IntegrityError
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable
@@ -19,6 +20,7 @@ from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, Con
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.contributor.forms import CourseForm as ContributorCourseForm
+from evap.contributor.forms import UserForm as ContributorUserForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -49,7 +51,8 @@ class FuzzyInt(int):
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class SampleXlsTests(WebTest):
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
 
@@ -82,7 +85,8 @@ class SampleXlsTests(WebTest):
 class UsecaseTests(WebTest):
     extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
 
     def test_import(self):
@@ -1150,3 +1154,50 @@ class TextAnswerReviewTest(WebTest):
         self.assertEqual(response.status_code, 200)
         comment = TextAnswer.objects.get(id=9)
         self.assertEqual(comment.state, TextAnswer.NOT_REVIEWED)
+
+
+class UserFormTests(TestCase):
+    def test_user_with_same_email(self):
+        """
+            Tests whether the user form correctly handles email adresses
+            that already exist in the database
+            Regression test for #590
+        """
+        user = mommy.make(UserProfile, email="uiae@example.com")
+
+        data = {"username": "uiae", "email": user.email}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+        form = ContributorUserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": "uiae", "email": user.email.upper()}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+        form = ContributorUserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": "uiae", "email": user.email.upper()}
+        form = UserForm(instance=user, data=data)
+        self.assertTrue(form.is_valid())
+        form = ContributorUserForm(instance=user, data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_user_with_same_username(self):
+        """
+            Tests whether the user form correctly handles usernames
+            that already exist in the database
+        """
+        user = mommy.make(UserProfile)
+
+        data = {"username": user.username}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": user.username.upper()}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": user.username.upper()}
+        form = UserForm(instance=user, data=data)
+        self.assertTrue(form.is_valid())
