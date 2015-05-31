@@ -218,7 +218,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         return self.cleaned_data
 
     # returns whether all recepients have an email address
-    def all_recepients_reachable(self):
+    def all_recipients_reachable(self):
         return self.missing_email_addresses() == 0
 
     # returns the number of recepients without an email address

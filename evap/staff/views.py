@@ -474,7 +474,7 @@ def course_email(request, semester_id, course_id):
     if form.is_valid():
         form.send()
 
-        if form.all_recepients_reachable():
+        if form.all_recipients_reachable():
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
             messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
