@@ -81,7 +81,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def active_semester(cls):
-        return cls.objects.latest("created_at")
+        return cls.objects.order_by("created_at").last()
 
 
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
