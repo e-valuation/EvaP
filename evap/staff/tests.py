@@ -14,7 +14,7 @@ from django.contrib.auth.models import Group
 from django.db.utils import IntegrityError
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
-                            Contribution, TextAnswer, EmailTemplate, NotArchiveable
+                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
@@ -33,6 +33,10 @@ import datetime
 def lastform(page):
     return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
 
+def get_form_data_from_instance(FormClass, instance):
+    assert FormClass._meta.model == type(instance)
+    form = FormClass(instance=instance)
+    return {field.html_name: field.value() for field in form}
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
@@ -183,7 +187,7 @@ class UsecaseTests(WebTest):
 
     def test_copy_questionnaire(self):
         questionnaire = mommy.make(Questionnaire, name_en="Seminar")
-        Question.objects.create(questionnaire=questionnaire, text_de="asdf", text_en="asdf", type="T")
+        mommy.make(Question, questionnaire=questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
@@ -785,15 +789,16 @@ class URLTests(WebTest):
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
+
+class CourseFormTests(TestCase):
+
     def helper_test_course_form_same_name(self, CourseFormClass):
-        courses = Course.objects.filter(semester=1)
-        self.assertGreater(courses.count(), 1) # need at least two of those
+        courses = Course.objects.all()
 
-        initial_form = CourseForm(instance=courses[0])
-        form_data = {field.html_name: field.value() for field in initial_form}
-
+        form_data = get_form_data_from_instance(CourseForm, courses[0])
         form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
         form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
+
         form = CourseForm(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
         form_data['name_de'] = courses[1].name_de
@@ -805,17 +810,20 @@ class URLTests(WebTest):
             Test whether giving a course the same name as another course
             in the same semester in the course edit form is invalid.
         """
+        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
+        courses[0].general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        courses[1].general_contribution.questionnaires = [mommy.make(Questionnaire)]
+
         self.helper_test_course_form_same_name(CourseForm)
         self.helper_test_course_form_same_name(ContributorCourseForm)
 
     def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
-        course = Course.objects.filter(semester=1).first()
+        course = Course.objects.get()
 
-        initial_form = CourseFormClass(instance=course)
-        form_data = {field.html_name: field.value() for field in initial_form}
-
+        form_data = get_form_data_from_instance(CourseFormClass, course)
         form_data["vote_start_date"] = start_date
         form_data["vote_end_date"] = end_date
+
         form = CourseFormClass(form_data, instance=course)
         self.assertEqual(form.is_valid(), expected_result)
 
@@ -824,6 +832,8 @@ class URLTests(WebTest):
             Tests validity of various start/end date combinations in
             the two course edit forms.
         """
+        course = mommy.make(Course, degrees=[mommy.make(Degree)])
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
         # contributors: start date must be in the future
         self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
@@ -834,8 +844,14 @@ class URLTests(WebTest):
         # contributors: start date must be < end date
         self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/2098", False)
 
+        # contributors: valid data
+        self.helper_date_validation(ContributorCourseForm, "02/1/2098", "02/1/2099", True)
+
         # staff: neither end nor start date must be in the future
         self.helper_date_validation(CourseForm, "02/1/1998", "02/1/1999", True)
+
+        # staff: valid data in the future
+        self.helper_date_validation(CourseForm, "02/1/2098", "02/1/2099", True)
 
         # staff: but start date must be < end date
         self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
@@ -1106,32 +1122,25 @@ class TestDataTest(TestCase):
 
 
 class TextAnswerReviewTest(WebTest):
-    fixtures = ['minimal_test_data']
     csrf_checks = False
 
-    def test_publish_textanswer(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "publish", "course_id": 1}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=8)
-        self.assertEqual(comment.state, TextAnswer.PUBLISHED)
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(Course, pk=1)
 
-    def test_hide_textanswer(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "hide", "course_id": 1}, user="evap")
+    def helper(self, old_state, expected_new_state, action):
+        textanswer = mommy.make(TextAnswer, state=old_state)
+        response = self.app.post("/staff/comments/updatepublish", {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=8)
-        self.assertEqual(comment.state, TextAnswer.HIDDEN)
+        textanswer.refresh_from_db()
+        self.assertEqual(textanswer.state, expected_new_state)
 
-    def test_make_textanswer_private(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "make_private", "course_id": 1}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=8)
-        self.assertEqual(comment.state, TextAnswer.PRIVATE)
-
-    def test_unreview_textanswer(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 9, "action": "unreview", "course_id": 1}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=9)
-        self.assertEqual(comment.state, TextAnswer.NOT_REVIEWED)
+    def test_review_actions(self):
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")
+        self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
 
 
 class UserFormTests(TestCase):
