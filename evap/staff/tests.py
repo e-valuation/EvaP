@@ -81,9 +81,7 @@ class SampleXlsTests(WebTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
 
 
-
 class UsecaseTests(WebTest):
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     @classmethod
     def setUpTestData(cls):
@@ -237,7 +235,8 @@ class UsecaseTests(WebTest):
         self.assertIn("No responsible contributor found", page)
 
 
-class PerformanceTests(WebTest):
+class PerformanceTests(TestCase):
+
     # disabled, see issue #164: https://github.com/fsr-itse/EvaP/issues/164
     #def test_num_queries_user_list(self):
     #    """
@@ -253,6 +252,7 @@ class PerformanceTests(WebTest):
 
 
 class UnitTests(TestCase):
+
     def test_users_are_deletable(self):
         user = mommy.make(UserProfile)
         course = mommy.make(Course, participants=[user], state="new")
@@ -266,12 +266,16 @@ class UnitTests(TestCase):
         mommy.make(Contribution, contributor=contributor)
         self.assertFalse(contributor.can_staff_delete)
 
+    def test_deleting_last_modified_user_does_not_delete_course(self):
+        user = mommy.make(UserProfile);
+        course = mommy.make(Course, last_modified_user=user);
+        user.delete()
+        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
+
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -837,9 +841,7 @@ class URLTests(WebTest):
         self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
 
 
-class ContributorFormTests(WebTest):
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+class ContributionFormsetTests(TestCase):
 
     def test_dont_validate_deleted_contributions(self):
         """
@@ -952,30 +954,24 @@ class ContributorFormTests(WebTest):
 
 class ArchivingTests(WebTest):
     fixtures = ['minimal_test_data']
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
-    test_semester_id = 9000
-
-    def get_test_semester(self):
-        semester = Semester.objects.get(pk=1)
+    @classmethod
+    def setUpTestData(cls):
+        new_semester = mommy.make(Semester)
         course1 = Course.objects.get(pk=7)
         course1.publish()
-
-        course2 = Course.objects.get(pk=8)
-        new_semester = Semester(pk=self.test_semester_id)
-        new_semester.save()
         course1.semester = new_semester
         course1.save()
+        course2 = Course.objects.get(pk=8)
         course2.semester = new_semester
         course2.save()
-        return new_semester
+        cls.test_semester = new_semester
 
     def test_counts_dont_change(self):
         """
             Asserts that course.num_voters course.num_participants don't change after archiving.
         """
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
 
         voters_counts = {}
         participant_counts = {}
@@ -997,7 +993,7 @@ class ArchivingTests(WebTest):
         """
             Tests whether is_archived returns True on archived semesters and courses.
         """
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
 
         for course in semester.course_set.all():
             self.assertFalse(course.is_archived)
@@ -1007,23 +1003,8 @@ class ArchivingTests(WebTest):
         for course in semester.course_set.all():
             self.assertTrue(course.is_archived)
 
-    def test_deleting_last_modified_user_does_not_delete_course(self):
-        course = Course.objects.first();
-        user = UserProfile.objects.first();
-
-        course.last_modified_user = user;
-        user.delete()
-        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
-
-    def test_participants_are_not_deleteable(self):
-        student = UserProfile.objects.get(username="student")
-        self.assertTrue(student.course_set.count() > 0)
-        self.assertFalse(student.can_staff_delete)
-        student.course_set.clear()
-        self.assertTrue(student.can_staff_delete)
-
     def test_archiving_does_not_change_results(self):
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
 
         results = {}
         for course in semester.course_set.all():
@@ -1036,7 +1017,7 @@ class ArchivingTests(WebTest):
             self.assertTrue(calculate_average_grades_and_deviation(course) == results[course])
 
     def test_archiving_twice_raises_exception(self):
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
         semester.archive()
         with self.assertRaises(NotArchiveable):
             semester.archive()
@@ -1053,10 +1034,10 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
         semester.archive()
 
-        semester_url = "/staff/semester/{}/".format(self.test_semester_id)
+        semester_url = "/staff/semester/{}/".format(semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")
@@ -1068,8 +1049,6 @@ class ArchivingTests(WebTest):
 
 class RedirectionTest(WebTest):
     fixtures = ['minimal_test_data']
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def get_assert_403(self, url, user):
         try:
@@ -1091,7 +1070,7 @@ class RedirectionTest(WebTest):
             that is required for a specific view gets a 403.
             Regression test for #483
         """
-        url = "/contributor/course/3/edit"
+        url = "/contributor/course/2/edit"
         self.get_assert_403(url, "student")
 
     def test_wrong_state(self):
@@ -1112,7 +1091,7 @@ class RedirectionTest(WebTest):
         self.assertEqual(response.status_code, 200)
 
 
-class TestDataTest(WebTest):
+class TestDataTest(TestCase):
 
     def load_test_data(self):
         """
@@ -1120,7 +1099,6 @@ class TestDataTest(WebTest):
             This test does not have the "test_" prefix, as it is meant
             to be started manually e.g. by Travis.
         """
-
         try:
             call_command("loaddata", "test_data", verbosity=0)
         except Exception:
@@ -1157,6 +1135,7 @@ class TextAnswerReviewTest(WebTest):
 
 
 class UserFormTests(TestCase):
+
     def test_user_with_same_email(self):
         """
             Tests whether the user form correctly handles email adresses

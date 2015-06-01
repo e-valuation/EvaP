@@ -11,10 +11,8 @@ from model_mommy import mommy
 
 
 class RewardTests(WebTest):
-
     fixtures = ['minimal_test_data_rewards']
     csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_delete_redemption_events(self):
         """
