@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
 from django_fsm import FSMField, transition
@@ -768,7 +769,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_active(self):
         return True
 
-    @property
+    @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
 

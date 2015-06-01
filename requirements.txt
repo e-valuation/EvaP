@@ -1,4 +1,4 @@
-django>=1.8.1,<1.9
+django>=1.8.2,<1.9
 xlrd>=0.9.3
 xlwt>=1.0.0
 django-fsm>=2.2.1
