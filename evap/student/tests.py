@@ -13,7 +13,7 @@ class VoteTests(WebTest):
 
         course = mommy.make(Course, state='inEvaluation', participants=[student, contributor1])
         questionnaire = mommy.make(Questionnaire)
-        question = Question.objects.create(questionnaire=questionnaire, text_de="asdf", text_en="asdf", type="G")
+        mommy.make(Question, questionnaire=questionnaire, type="G")
         mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
         mommy.make(Contribution, contributor=contributor2, course=course, questionnaires=[questionnaire])
 
