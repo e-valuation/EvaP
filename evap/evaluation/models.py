@@ -81,7 +81,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def active_semester(cls):
-        return cls.objects.latest("created_at")
+        return cls.objects.order_by("created_at").last()
 
 
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
@@ -185,8 +185,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateField(null=True, verbose_name=_("first day of evaluation"))
-    vote_end_date = models.DateField(null=True, verbose_name=_("last day of evaluation"))
+    vote_start_date = models.DateField(verbose_name=_("first day of evaluation"))
+    vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)

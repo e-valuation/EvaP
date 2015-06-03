@@ -93,18 +93,27 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = UserProfile.objects.order_by('username')
+        self.fields['delegates'].queryset = UserProfile.objects.order_by('last_name', 'first_name')
         self.fields['delegates'].help_text = ""
 
-        # load user fields
-        self.fields['first_name'].initial = self.instance.first_name
-        self.fields['last_name'].initial = self.instance.last_name
-        self.fields['email'].initial = self.instance.email
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        user_with_same_email = UserProfile.objects.filter(email__iexact=email)
 
-    def save(self, *args, **kw):
-        self.instance.first_name = self.cleaned_data.get('first_name')
-        self.instance.last_name = self.cleaned_data.get('last_name')
-        self.instance.email = self.cleaned_data.get('email')
-        self.instance.save()
+        # make sure we don't take the instance itself into account
+        if self.instance and self.instance.pk:
+            user_with_same_email = user_with_same_email.exclude(pk=self.instance.pk)
 
-        super().save(*args, **kw)
+        if user_with_same_email.exists():
+            raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
+        return email.strip().lower()
+
+    def clean_first_name(self):
+        return self.cleaned_data['first_name'].strip()
+
+    def clean_last_name(self):
+        return self.cleaned_data['last_name'].strip()
+
+    def clean_title(self):
+        return self.cleaned_data['title'].strip()
+

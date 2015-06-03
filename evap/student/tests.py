@@ -1,29 +1,30 @@
-from django.test import TestCase
+from django_webtest import WebTest
 from django.core.urlresolvers import reverse
-from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.models import Course, UserProfile, Contribution, Questionnaire, Question
+from model_mommy import mommy
 
 
-class VoteTests(TestCase):
-    fixtures = ['vote_test']
+class VoteTests(WebTest):
 
     def test_user_cannot_vote_for_themselves(self):
-        success = self.client.login(username='tutor', password='tutor')
-        self.assertTrue(success, 'Fixture error: tutor user could not log in')
-        course = Course.objects.get() # there is only one
+        contributor1 = mommy.make(UserProfile)
+        contributor2 = mommy.make(UserProfile)
+        student = mommy.make(UserProfile)
 
-        def get_vote_page():
-            return self.client.get(reverse('student:vote', kwargs={'course_id': course.id}))
+        course = mommy.make(Course, state='inEvaluation', participants=[student, contributor1])
+        questionnaire = mommy.make(Questionnaire)
+        mommy.make(Question, questionnaire=questionnaire, type="G")
+        mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
+        mommy.make(Contribution, contributor=contributor2, course=course, questionnaires=[questionnaire])
 
-        response = get_vote_page()
-        tutor_user = UserProfile.objects.get(username='tutor')
+        def get_vote_page(user):
+            return self.app.get(reverse('student:vote', kwargs={'course_id': course.id}), user=user)
+
+        response = get_vote_page(contributor1)
 
         for contributor, _, _ in response.context['contributor_form_groups']:
-            self.assertNotEqual(contributor, tutor_user, "Contributor should not see the questionnaire about themselves")
-        self.client.logout()
+            self.assertNotEqual(contributor, contributor1, "Contributor should not see the questionnaire about themselves")
 
-        success = self.client.login(username='student', password='student')
-        self.assertTrue(success, 'Fixture error: student user could not log in')
-
-        response = get_vote_page()
-        self.assertTrue(any(contributor == tutor_user for contributor, _, _ in response.context['contributor_form_groups']),
+        response = get_vote_page(student)
+        self.assertTrue(any(contributor == contributor1 for contributor, _, _ in response.context['contributor_form_groups']),
             "Regular students should see the questionnaire about a contributor")

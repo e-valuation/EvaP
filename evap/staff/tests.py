@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
+from django.test import TestCase
 from webtest import AppError
 from django.test import Client
 from django.test.utils import override_settings
@@ -10,16 +11,20 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.utils import IntegrityError
 
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, Contribution, \
-                            TextAnswer, EmailTemplate, NotArchiveable
+from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
+                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.contributor.forms import CourseForm as ContributorCourseForm
+from evap.contributor.forms import UserForm as ContributorUserForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
+
+from model_mommy import mommy
 
 import os.path
 import datetime
@@ -28,6 +33,10 @@ import datetime
 def lastform(page):
     return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
 
+def get_form_data_from_instance(FormClass, instance):
+    assert FormClass._meta.model == type(instance)
+    form = FormClass(instance=instance)
+    return {field.html_name: field.value() for field in form}
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
@@ -46,13 +55,10 @@ class FuzzyInt(int):
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class SampleXlsTests(WebTest):
 
-    def setUp(self):
-        semester = Semester(pk=1, name_de="Testsemester", name_en="test semester")
-        user = UserProfile(username="user")
-        group = Group.objects.get(name="Staff")
-        user.save()
-        user.groups = [group]
-        semester.save()
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(Semester, pk=1)
+        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
 
     def test_sample_xls(self):
         page = self.app.get("/staff/semester/1/import", user='user')
@@ -79,10 +85,11 @@ class SampleXlsTests(WebTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
 
 
-
 class UsecaseTests(WebTest):
-    fixtures = ['usecase-tests']
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
 
     def test_import(self):
         page = self.app.get(reverse("staff:index"), user='staff.user')
@@ -130,12 +137,9 @@ class UsecaseTests(WebTest):
         self.assertEqual(check_contributor.email, "567@web.de")
 
     def test_login_key(self):
-        environ = self.app.extra_environ
-        self.app.extra_environ = {}
-        self.assertRedirects(self.app.get(reverse("results:index"), extra_environ={}), "/?next=/results/")
-        self.app.extra_environ = environ
+        self.assertRedirects(self.app.get(reverse("results:index")), "/?next=/results/")
 
-        user = UserProfile.objects.all()[0]
+        user = mommy.make(UserProfile)
         user.generate_login_key()
         user.save()
 
@@ -175,13 +179,15 @@ class UsecaseTests(WebTest):
         questionnaire_form['index'] = 0
         page = questionnaire_form.submit()
 
-        assert "You must have at least one of these" in page
+        self.assertIn("You must have at least one of these", page)
 
         # retrieve new questionnaire
         with self.assertRaises(Questionnaire.DoesNotExist):
             Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
 
     def test_copy_questionnaire(self):
+        questionnaire = mommy.make(Questionnaire, name_en="Seminar")
+        mommy.make(Question, questionnaire=questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
@@ -196,41 +202,44 @@ class UsecaseTests(WebTest):
 
         # retrieve new questionnaire
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
-        self.assertEqual(questionnaire.question_set.count(), 2, "New questionnaire is empty.")
+        self.assertEqual(questionnaire.question_set.count(), 1, "New questionnaire is empty.")
 
     def test_assign_questionnaires(self):
+        semester = mommy.make(Semester, name_en="Semester 1")
+        mommy.make(Course, semester=semester, type="Seminar")
+        mommy.make(Course, semester=semester, type="Vorlesung")
+        questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # assign questionnaire to courses
-        page = page.click("Semester 1 \(en\)", index=0)
+        page = page.click("Semester 1", index=0)
         page = page.click("Assign Questionnaires")
         assign_form = lastform(page)
-        assign_form['Seminar'] = [1]
-        assign_form['Vorlesung'] = [1]
+        assign_form['Seminar'] = [questionnaire.pk]
+        assign_form['Vorlesung'] = [questionnaire.pk]
         page = assign_form.submit().follow()
 
-        # get semester and check
-        semester = Semester.objects.get(pk=1)
-        questionnaire = Questionnaire.objects.get(pk=1)
         for course in semester.course_set.all():
             self.assertEqual(course.general_contribution.questionnaires.count(), 1)
             self.assertEqual(course.general_contribution.questionnaires.get(), questionnaire)
 
     def test_remove_responsibility(self):
+        user = mommy.make(UserProfile)
+        contribution = mommy.make(Contribution, contributor=user, responsible=True)
+
         page = self.app.get(reverse("staff:index"), user="staff.user")
+        page = page.click(contribution.course.semester.name_en, index=0)
+        page = page.click(contribution.course.name_en)
 
         # remove responsibility in contributor's checkbox
-        page = page.click("Semester 1 \(en\)", index=0)
-        page = page.click("Course 1 \(en\)")
         form = lastform(page)
-
-        # add one questionnaire to avoid the error message preventing the responsibility error to show
-        form['general_questions'] = True
-
         form['contributions-0-responsible'] = False
         page = form.submit()
 
-        assert "No responsible contributor found" in page
+        self.assertIn("No responsible contributor found", page)
+
+
+class PerformanceTests(TestCase):
 
     # disabled, see issue #164: https://github.com/fsr-itse/EvaP/issues/164
     #def test_num_queries_user_list(self):
@@ -243,17 +252,34 @@ class UsecaseTests(WebTest):
     #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
     #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
     #        self.app.get("/staff/user/", user="staff.user")
+    pass
+
+
+class UnitTests(TestCase):
 
     def test_users_are_deletable(self):
-        self.assertTrue(UserProfile.objects.filter(username="participant_user").get().can_staff_delete)
-        self.assertFalse(UserProfile.objects.filter(username="contributor_user").get().can_staff_delete)
+        user = mommy.make(UserProfile)
+        course = mommy.make(Course, participants=[user], state="new")
+        self.assertTrue(user.can_staff_delete)
+
+        user2 = mommy.make(UserProfile)
+        course2 = mommy.make(Course, participants=[user2], state="inEvaluation")
+        self.assertFalse(user2.can_staff_delete)
+
+        contributor = mommy.make(UserProfile)
+        mommy.make(Contribution, contributor=contributor)
+        self.assertFalse(contributor.can_staff_delete)
+
+    def test_deleting_last_modified_user_does_not_delete_course(self):
+        user = mommy.make(UserProfile);
+        course = mommy.make(Course, last_modified_user=user);
+        user.delete()
+        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -482,7 +508,7 @@ class URLTests(WebTest):
         data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
-        form.all_recepients_reachable()
+        form.all_recipients_reachable()
         form.send()
 
         data = {"body": "wat", "subject": "some subject"}
@@ -507,7 +533,7 @@ class URLTests(WebTest):
         """
             Tests the ContributionFormset with various input data sets.
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
+        course = mommy.make(Course)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -515,7 +541,7 @@ class URLTests(WebTest):
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': 9001,
+            'contributions-0-course': course.pk,
             'contributions-0-questionnaires': [1],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
@@ -528,7 +554,7 @@ class URLTests(WebTest):
         # duplicate contributor
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = 1
-        data['contributions-1-course'] = 9001
+        data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = [1]
         data['contributions-1-order'] = 1
         self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
@@ -763,15 +789,16 @@ class URLTests(WebTest):
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
+
+class CourseFormTests(TestCase):
+
     def helper_test_course_form_same_name(self, CourseFormClass):
-        courses = Course.objects.filter(semester=1)
-        self.assertGreater(courses.count(), 1) # need at least two of those
+        courses = Course.objects.all()
 
-        initial_form = CourseForm(instance=courses[0])
-        form_data = {field.html_name: field.value() for field in initial_form}
-
+        form_data = get_form_data_from_instance(CourseForm, courses[0])
         form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
         form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
+
         form = CourseForm(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
         form_data['name_de'] = courses[1].name_de
@@ -783,17 +810,20 @@ class URLTests(WebTest):
             Test whether giving a course the same name as another course
             in the same semester in the course edit form is invalid.
         """
+        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
+        courses[0].general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        courses[1].general_contribution.questionnaires = [mommy.make(Questionnaire)]
+
         self.helper_test_course_form_same_name(CourseForm)
         self.helper_test_course_form_same_name(ContributorCourseForm)
 
     def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
-        course = Course.objects.filter(semester=1).first()
+        course = Course.objects.get()
 
-        initial_form = CourseFormClass(instance=course)
-        form_data = {field.html_name: field.value() for field in initial_form}
-
+        form_data = get_form_data_from_instance(CourseFormClass, course)
         form_data["vote_start_date"] = start_date
         form_data["vote_end_date"] = end_date
+
         form = CourseFormClass(form_data, instance=course)
         self.assertEqual(form.is_valid(), expected_result)
 
@@ -802,6 +832,8 @@ class URLTests(WebTest):
             Tests validity of various start/end date combinations in
             the two course edit forms.
         """
+        course = mommy.make(Course, degrees=[mommy.make(Degree)])
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
         # contributors: start date must be in the future
         self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
@@ -812,27 +844,31 @@ class URLTests(WebTest):
         # contributors: start date must be < end date
         self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/2098", False)
 
+        # contributors: valid data
+        self.helper_date_validation(ContributorCourseForm, "02/1/2098", "02/1/2099", True)
+
         # staff: neither end nor start date must be in the future
         self.helper_date_validation(CourseForm, "02/1/1998", "02/1/1999", True)
+
+        # staff: valid data in the future
+        self.helper_date_validation(CourseForm, "02/1/2098", "02/1/2099", True)
 
         # staff: but start date must be < end date
         self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
 
 
-class ContributorFormTests(WebTest):
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
+class ContributionFormsetTests(TestCase):
 
     def test_dont_validate_deleted_contributions(self):
         """
             Tests whether contributions marked for deletion are validated.
             Regression test for #415 and #244
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
-        user = UserProfile.objects.create(pk=9001)
-        user = UserProfile.objects.create(pk=9002, username="1")
-        user = UserProfile.objects.create(pk=9003, username="2")
-        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        user3 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -841,25 +877,25 @@ class ContributorFormTests(WebTest):
             'contributions-TOTAL_FORMS': 3,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': 9001,
-            'contributions-0-questionnaires': [9001],
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
-            'contributions-0-contributor': 9001,
+            'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
-            'contributions-1-course': 9001,
-            'contributions-1-questionnaires': [9001],
+            'contributions-1-course': course.pk,
+            'contributions-1-questionnaires': [questionnaire.pk],
             'contributions-1-order': 0,
             'contributions-1-responsible': "on",
-            'contributions-1-contributor': 9002,
-            'contributions-2-course': 9001,
+            'contributions-1-contributor': user2.pk,
+            'contributions-2-course': course.pk,
             'contributions-2-questionnaires': [],
             'contributions-2-order': 1,
-            'contributions-2-contributor': 9003,
+            'contributions-2-contributor': user2.pk,
             'contributions-2-DELETE': 'on',
         }
 
-        formset = ContributionFormset(instance=course, data=data.copy())
+        formset = ContributionFormset(instance=course, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_take_deleted_contributions_into_account(self):
@@ -868,12 +904,10 @@ class ContributorFormTests(WebTest):
             when the same contributor got added again in the same formset.
             Regression test for #415
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
-        user1 = UserProfile.objects.create(pk=9001)
-        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
-
-        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
-        contribution1.questionnaires = [questionnaire]
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -881,21 +915,21 @@ class ContributorFormTests(WebTest):
             'contributions-TOTAL_FORMS': 2,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': 9001,
-            'contributions-0-course': 9001,
-            'contributions-0-questionnaires': [9001],
+            'contributions-0-id': contribution1.pk,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 0,
             'contributions-0-responsible': "on",
-            'contributions-0-contributor': 9001,
+            'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
-            'contributions-1-course': 9001,
-            'contributions-1-questionnaires': [9001],
+            'contributions-1-course': course.pk,
+            'contributions-1-questionnaires': [questionnaire.pk],
             'contributions-1-order': 0,
             'contributions-1-responsible': "on",
-            'contributions-1-contributor': 9001,
+            'contributions-1-contributor': user1.pk ,
         }
 
-        formset = ContributionFormset(instance=course, data=data.copy())
+        formset = ContributionFormset(instance=course, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_editors_cannot_change_responsible(self):
@@ -903,12 +937,11 @@ class ContributorFormTests(WebTest):
             Asserts that editors cannot change the responsible of a course
             through POST-hacking. Regression test for #504.
         """
-        course = Course.objects.create(pk=9001, semester_id=1)
-        user1 = UserProfile.objects.create(pk=9001, username="1")
-        user2 = UserProfile.objects.create(pk=9002, username="2")
-        questionnaire = Questionnaire.objects.create(pk=9001, index=0, is_for_contributors=True)
-
-        contribution1 = Contribution.objects.create(pk=9001, course=course, contributor=user1, responsible=True, can_edit=True)
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
 
         EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -916,19 +949,19 @@ class ContributorFormTests(WebTest):
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': 9001,
-            'contributions-0-course': 9001,
-            'contributions-0-questionnaires': [9001],
+            'contributions-0-id': contribution1.pk,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 1,
             'contributions-0-responsible': "on",
-            'contributions-0-contributor': 9001,
+            'contributions-0-contributor': user1.pk,
         }
 
         formset = EditorContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
 
         self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
-        data["contributions-0-contributor"] = 9002
+        data["contributions-0-contributor"] = user2.pk
         formset = EditorContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
         formset.save()
@@ -937,30 +970,24 @@ class ContributorFormTests(WebTest):
 
 class ArchivingTests(WebTest):
     fixtures = ['minimal_test_data']
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
-    test_semester_id = 9000
-
-    def get_test_semester(self):
-        semester = Semester.objects.get(pk=1)
+    @classmethod
+    def setUpTestData(cls):
+        new_semester = mommy.make(Semester)
         course1 = Course.objects.get(pk=7)
         course1.publish()
-
-        course2 = Course.objects.get(pk=8)
-        new_semester = Semester(pk=self.test_semester_id)
-        new_semester.save()
         course1.semester = new_semester
         course1.save()
+        course2 = Course.objects.get(pk=8)
         course2.semester = new_semester
         course2.save()
-        return new_semester
+        cls.test_semester = new_semester
 
     def test_counts_dont_change(self):
         """
             Asserts that course.num_voters course.num_participants don't change after archiving.
         """
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
 
         voters_counts = {}
         participant_counts = {}
@@ -982,7 +1009,7 @@ class ArchivingTests(WebTest):
         """
             Tests whether is_archived returns True on archived semesters and courses.
         """
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
 
         for course in semester.course_set.all():
             self.assertFalse(course.is_archived)
@@ -992,23 +1019,8 @@ class ArchivingTests(WebTest):
         for course in semester.course_set.all():
             self.assertTrue(course.is_archived)
 
-    def test_deleting_last_modified_user_does_not_delete_course(self):
-        course = Course.objects.first();
-        user = UserProfile.objects.first();
-
-        course.last_modified_user = user;
-        user.delete()
-        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
-
-    def test_participants_are_not_deleteable(self):
-        student = UserProfile.objects.get(username="student")
-        self.assertTrue(student.course_set.count() > 0)
-        self.assertFalse(student.can_staff_delete)
-        student.course_set.clear()
-        self.assertTrue(student.can_staff_delete)
-
     def test_archiving_does_not_change_results(self):
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
 
         results = {}
         for course in semester.course_set.all():
@@ -1021,7 +1033,7 @@ class ArchivingTests(WebTest):
             self.assertTrue(calculate_average_grades_and_deviation(course) == results[course])
 
     def test_archiving_twice_raises_exception(self):
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
         semester.archive()
         with self.assertRaises(NotArchiveable):
             semester.archive()
@@ -1038,10 +1050,10 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        semester = self.get_test_semester()
+        semester = ArchivingTests.test_semester
         semester.archive()
 
-        semester_url = "/staff/semester/{}/".format(self.test_semester_id)
+        semester_url = "/staff/semester/{}/".format(semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")
@@ -1053,8 +1065,6 @@ class ArchivingTests(WebTest):
 
 class RedirectionTest(WebTest):
     fixtures = ['minimal_test_data']
-    csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def get_assert_403(self, url, user):
         try:
@@ -1076,7 +1086,7 @@ class RedirectionTest(WebTest):
             that is required for a specific view gets a 403.
             Regression test for #483
         """
-        url = "/contributor/course/3/edit"
+        url = "/contributor/course/2/edit"
         self.get_assert_403(url, "student")
 
     def test_wrong_state(self):
@@ -1097,7 +1107,7 @@ class RedirectionTest(WebTest):
         self.assertEqual(response.status_code, 200)
 
 
-class TestDataTest(WebTest):
+class TestDataTest(TestCase):
 
     def load_test_data(self):
         """
@@ -1105,7 +1115,6 @@ class TestDataTest(WebTest):
             This test does not have the "test_" prefix, as it is meant
             to be started manually e.g. by Travis.
         """
-
         try:
             call_command("loaddata", "test_data", verbosity=0)
         except Exception:
@@ -1113,29 +1122,70 @@ class TestDataTest(WebTest):
 
 
 class TextAnswerReviewTest(WebTest):
-    fixtures = ['minimal_test_data']
     csrf_checks = False
 
-    def test_publish_textanswer(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "publish", "course_id": 1}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=8)
-        self.assertEqual(comment.state, TextAnswer.PUBLISHED)
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(Course, pk=1)
 
-    def test_hide_textanswer(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "hide", "course_id": 1}, user="evap")
+    def helper(self, old_state, expected_new_state, action):
+        textanswer = mommy.make(TextAnswer, state=old_state)
+        response = self.app.post("/staff/comments/updatepublish", {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=8)
-        self.assertEqual(comment.state, TextAnswer.HIDDEN)
+        textanswer.refresh_from_db()
+        self.assertEqual(textanswer.state, expected_new_state)
 
-    def test_make_textanswer_private(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 8, "action": "make_private", "course_id": 1}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=8)
-        self.assertEqual(comment.state, TextAnswer.PRIVATE)
+    def test_review_actions(self):
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")
+        self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
 
-    def test_unreview_textanswer(self):
-        response = self.app.post("/staff/comments/updatepublish", {"id": 9, "action": "unreview", "course_id": 1}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        comment = TextAnswer.objects.get(id=9)
-        self.assertEqual(comment.state, TextAnswer.NOT_REVIEWED)
+
+class UserFormTests(TestCase):
+
+    def test_user_with_same_email(self):
+        """
+            Tests whether the user form correctly handles email adresses
+            that already exist in the database
+            Regression test for #590
+        """
+        user = mommy.make(UserProfile, email="uiae@example.com")
+
+        data = {"username": "uiae", "email": user.email}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+        form = ContributorUserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": "uiae", "email": user.email.upper()}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+        form = ContributorUserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": "uiae", "email": user.email.upper()}
+        form = UserForm(instance=user, data=data)
+        self.assertTrue(form.is_valid())
+        form = ContributorUserForm(instance=user, data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_user_with_same_username(self):
+        """
+            Tests whether the user form correctly handles usernames
+            that already exist in the database
+        """
+        user = mommy.make(UserProfile)
+
+        data = {"username": user.username}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": user.username.upper()}
+        form = UserForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        data = {"username": user.username.upper()}
+        form = UserForm(instance=user, data=data)
+        self.assertTrue(form.is_valid())
