@@ -352,14 +352,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.contributions.get(responsible=True).contributor
 
     @property
-    def responsible_contributors_name(self):
-        return self.responsible_contributor.full_name
-
-    @property
-    def responsible_contributors_username(self):
-        return self.responsible_contributor.username
-
-    @property
     def days_left_for_evaluation(self):
         return (self.vote_end_date - datetime.date.today()).days
 

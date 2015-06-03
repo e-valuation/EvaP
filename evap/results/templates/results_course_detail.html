@@ -54,7 +54,7 @@
                             {% endfor %}
                         </td>
                         <td>{{ course.type }}</td>
-                        <td>{{ course.responsible_contributors_name }}</td>
+                        <td>{{ course.responsible_contributor.full_name }}</td>
                         {% if show_grades %}
                             <td><div class="grade-bg text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                             <td><div class="deviation-bg text-center" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
