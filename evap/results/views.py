@@ -72,11 +72,14 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course)
 
+    public_view = request.GET.get('public_view', 'false') # default: show own view
+    public_view = {'true': True, 'false': False}.get(public_view.lower()) # convert parameter to boolean
+
     for section in sections:
         results = []
         for result in section.results:
             if isinstance(result, TextResult):
-                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, answer)]
+                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, answer, public_view)]
                 if answers:
                     results.append(TextResult(question=result.question, answers=answers))
             else:
@@ -113,10 +116,14 @@ def course_detail(request, semester_id, course_id):
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
             show_grades=show_grades,
-            staff=request.user.is_staff)
+            staff=request.user.is_staff,
+            contributor=course.is_user_contributor_or_delegate(request.user),
+            public_view=public_view)
     return render(request, "results_course_detail.html", template_data)
 
-def user_can_see_text_answer(user, text_answer):
+def user_can_see_text_answer(user, text_answer, public_view=False):
+    if public_view:
+        return False
     if user.is_staff:
         return True
     contributor = text_answer.contribution.contributor
