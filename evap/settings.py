@@ -252,6 +252,10 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
     }
 
+# make generation of Question objects work, see https://github.com/vandersonmota/model_mommy/issues/231
+MOMMY_CUSTOM_FIELDS_GEN = {
+    'django.db.models.fields.proxy.OrderWrt': int,
+}
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.

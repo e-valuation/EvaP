@@ -12,15 +12,17 @@
         <thead>
             <tr>
                 <th class="col-sm-3">{% trans "Name" %}</th>
-                <th class="col-sm-6">{% trans "Evaluated" %}</th>
+                <th class="col-sm-3">{% trans "Optional courses" %}</th>
+                <th class="col-sm-3">{% trans "Required courses" %}</th>
                 <th class="col-sm-3 text-center">{% trans "Reward points earned" %}</th>
             </tr>
         </thead>
         <tbody>
-            {% for user, number_of_courses_voted_for, number_of_courses, earned_reward_points in data %}                
+            {% for user, number_of_required_courses_voted_for, number_of_required_courses, number_of_optional_courses_voted_for, number_of_optional_courses, earned_reward_points in data %}
                 <tr>
                     <td>{{ user.full_name }}</td>
-                    <td>{% include_progress_bar number_of_courses_voted_for number_of_courses large %}</td>
+                    <td>{% include_progress_bar number_of_optional_courses_voted_for number_of_optional_courses large %}</td>
+                    <td>{% include_progress_bar number_of_required_courses_voted_for number_of_required_courses large %}</td>
                     <td class="text-center">{% if earned_reward_points %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
                 </tr>
             {% endfor %}

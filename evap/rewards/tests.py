@@ -7,13 +7,12 @@ from evap.rewards.models import RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
 from evap.staff.tests import lastform
 from django.core.urlresolvers import reverse
+from model_mommy import mommy
 
 
 class RewardTests(WebTest):
-
     fixtures = ['minimal_test_data_rewards']
     csrf_checks = False
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     def test_delete_redemption_events(self):
         """
@@ -116,7 +115,7 @@ class RewardTests(WebTest):
         activation.is_active = True
         activation.save()
         # create a new course
-        new_course = Course(semester=course.semester, name_de="bhabda", name_en="dsdsfds")
+        new_course = mommy.make(Course, semester=course.semester)
         new_course.save()
         new_course.participants.add(user)
         new_course.save()

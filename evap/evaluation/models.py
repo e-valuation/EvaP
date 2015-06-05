@@ -81,7 +81,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def active_semester(cls):
-        return cls.objects.latest("created_at")
+        return cls.objects.order_by("created_at").last()
 
 
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
@@ -173,6 +173,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
 
+    # whether participants must vote to qualify for reward points
+    is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True)
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
@@ -182,8 +185,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateField(null=True, verbose_name=_("first day of evaluation"))
-    vote_end_date = models.DateField(null=True, verbose_name=_("last day of evaluation"))
+    vote_start_date = models.DateField(verbose_name=_("first day of evaluation"))
+    vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)

@@ -18,31 +18,17 @@
 
 
         $(document).ready(function() {
-            if(uses_template) {
-                $('#' + table_id + ' tbody tr').formset({
-                    prefix: prefix,
-                    deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
-                    deleteText: '{% trans "remove" %}',
-                    addText: '{% trans "add another" %}',
-                    added: function(row) {
-                        row.find('input[id$=-order]').val(row.parent().children().length);
-                        row_added(row);
-                    },
-                    formTemplate: ".form-template"
-                });
-            }
-            else {
-                $('#' + table_id + ' tbody tr').formset({
-                    prefix: prefix,
-                    deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
-                    deleteText: '{% trans "remove" %}',
-                    addText: '{% trans "add another" %}',
-                    added: function(row) {
-                        row.find('input[id$=-order]').val(row.parent().children().length);
-                        row_added(row);
-                    }
-                });
-            }
+            $('#' + table_id + ' tbody tr').formset({
+                prefix: prefix,
+                deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
+                deleteText: '{% trans "remove" %}',
+                addText: '{% trans "add another" %}',
+                added: function(row) {
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                    row_added(row);
+                },
+                formTemplate: (uses_template ? ".form-template" : null)
+            });
 
             $('tbody').sortable({
                 items: '.sortable',

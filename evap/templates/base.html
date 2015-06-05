@@ -127,8 +127,10 @@
         {% block rawcontent %}
             <div class="row">
                 <div class="col-md-12">
-                    {% block content %}
-                    {% endblock %}
+                    <div>
+                        {% block content %}
+                        {% endblock %}
+                    </div>
                 </div>
             </div>
         {% endblock %}

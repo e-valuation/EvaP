@@ -20,6 +20,14 @@
         <div class="alert alert-warning">{% trans "The results of this course have not been published because it didn't get enough votes." %}</div>
     {% endif %}
 
+    {% if staff or contributor %}
+        {% if public_view %}
+            <div class="alert alert-info">{% trans "This is the public view. Users who are neither contributors of this course nor their delegates can only see the results below." %}</div>
+            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=false" class="pull-right btn btn-sm btn-primary">{% trans "Show my view" %}</a>
+        {% else %}
+            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=true" class="pull-right btn btn-sm btn-default">{% trans "Show public view" %}</a>
+        {% endif %}
+    {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
 
     <div class="panel panel-info">
