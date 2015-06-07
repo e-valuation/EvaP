@@ -62,7 +62,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def is_archiveable(self):
         return all(course.is_archiveable for course in self.course_set.all())
 
-    @property
+    @cached_property
     def is_archived(self):
         if self.course_set.count() == 0:
             return False
@@ -212,7 +212,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         # make sure there is a general contribution
         if not self.general_contribution:
-            self.contributions.create(contributor=None)
+            self.general_contribution = self.contributions.create(contributor=None)
 
     def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
@@ -324,20 +324,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def student_state(self):
         return STUDENT_STATES_NAMES[self.state]
 
-    @property
+    @cached_property
     def general_contribution(self):
         try:
             return self.contributions.get(contributor=None)
         except Contribution.DoesNotExist:
             return None
 
-    @property
+    @cached_property
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
         return self.participants.count()
 
-    @property
+    @cached_property
     def num_voters(self):
         if self._voter_count is not None:
             return self._voter_count
@@ -347,7 +347,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def due_participants(self):
         return self.participants.exclude(pk__in=self.voters.all())
 
-    @property
+    @cached_property
     def responsible_contributor(self):
         return self.contributions.get(responsible=True).contributor
 
@@ -392,7 +392,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires() and not self.is_single_result():
+        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires() and not self.is_single_result():
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
@@ -403,6 +403,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(contribution__course=self)
 
+    @cached_property
+    def num_textanswers(self):
+        return self.textanswer_set.count()
+
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
@@ -412,6 +416,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
         return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
+
+    @cached_property
+    def num_reviewed_textanswers(self):
+        return self.reviewed_textanswer_set.count()
 
     @property
     def likertanswer_counters(self):
@@ -526,7 +534,7 @@ class Answer(models.Model):
     `TextAnswer` and `GradeAnswerCounter`."""
 
     question = models.ForeignKey(Question)
-    contribution = models.ForeignKey(Contribution)
+    contribution = models.ForeignKey(Contribution, related_name="%(class)s_set")
 
     class Meta:
         abstract = True

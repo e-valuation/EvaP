@@ -206,8 +206,10 @@ class UsecaseTests(WebTest):
 
     def test_assign_questionnaires(self):
         semester = mommy.make(Semester, name_en="Semester 1")
-        mommy.make(Course, semester=semester, type="Seminar")
-        mommy.make(Course, semester=semester, type="Vorlesung")
+        mommy.make(Course, semester=semester, type="Seminar", contributions=[
+                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
+        mommy.make(Course, semester=semester, type="Vorlesung", contributions=[
+                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
         questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 

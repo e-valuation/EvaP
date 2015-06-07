@@ -46,7 +46,7 @@
     {% endif %}
 </td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.textanswer_set.count num_reviewed_textanswers=course.reviewed_textanswer_set.count %}
+    {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.num_textanswers num_reviewed_textanswers=course.num_reviewed_textanswers %}
         {% if num_participants %}
             <td class="minimize">
                 <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">

@@ -1,12 +1,13 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Max, BooleanField, ExpressionWrapper, Q
+from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.db.models import Prefetch
 from collections import defaultdict
 
 from evap.evaluation.auth import staff_required
@@ -43,11 +44,31 @@ def index(request):
     return render(request, "staff_index.html", template_data)
 
 
+def get_courses_with_prefetched_data(semester):
+    courses = semester.course_set.prefetch_related(
+        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contribution"),
+        Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
+        "degrees")
+    participant_counts = semester.course_set.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
+    voter_counts = semester.course_set.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+    textanswer_counts = semester.course_set.annotate(num_textanswers=Count("contributions__textanswer_set")).values_list("num_textanswers", flat=True)
+
+    for course, participant_count, voter_count, textanswer_count in zip(courses, participant_counts, voter_counts, textanswer_counts):
+        course.general_contribution = course.general_contribution[0]
+        course.responsible_contributor = course.responsible_contribution[0].contributor
+        course.num_textanswers = textanswer_count
+        if not semester.is_archived:
+            course.num_voters = voter_count
+            course.num_participants = participant_count
+    return courses
+
 @staff_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     rewards_active = is_semester_activated(semester)
-    courses = semester.course_set.all()
+
+    courses = get_courses_with_prefetched_data(semester)
+
     courses_by_state = []
     for state in STATES_ORDERED.keys():
         this_courses = [course for course in courses if course.state == state]
@@ -64,13 +85,13 @@ def semester_view(request, semester_id):
     for course in courses:
         if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
             num_enrollments_in_evaluation += course.num_participants
+            num_votes += course.num_voters
+            num_comments += course.num_textanswers
+            num_comments_reviewed += course.num_reviewed_textanswers
         if course.state in ['evaluated', 'reviewed', 'published']:
             num_courses_evaluated += 1
-        num_votes += course.num_voters
         first_start = min(first_start, course.vote_start_date)
         last_end = max(last_end, course.vote_end_date)
-        num_comments += len(course.textanswer_set)
-        num_comments_reviewed += len(course.reviewed_textanswer_set)
 
     template_data = dict(
         semester=semester,
