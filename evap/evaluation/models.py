@@ -401,27 +401,27 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all())
+        return TextAnswer.objects.filter(contribution__course=self)
 
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def likertanswer_counters(self):
         """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswerCounter.objects.filter(contribution__in=self.contributions.all())
+        return LikertAnswerCounter.objects.filter(contribution__course=self)
 
     @property
     def gradeanswer_counters(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswerCounter.objects.filter(contribution__in=self.contributions.all())
+        return GradeAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
         """Should be called only via Semester.archive"""
