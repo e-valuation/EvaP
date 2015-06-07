@@ -257,10 +257,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and not self.num_voters > 0
 
     @property
-    def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and self.textanswer_set.exists()
-
-    @property
     def can_staff_approve(self):
         return self.state in ['new', 'prepared', 'editorApproved']
 

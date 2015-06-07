@@ -46,36 +46,34 @@
     {% endif %}
 </td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    {% with num_participants=course.num_participants num_voters=course.num_voters num_textanswers=course.num_textanswers num_reviewed_textanswers=course.num_reviewed_textanswers %}
-        {% if num_participants %}
-            <td class="minimize">
-                <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                    <span class="glyphicon glyphicon-user"></span>
-                    <span>{{ num_voters }}/{{ num_participants }}</span>
-                    <span>({{ num_voters|percentage:num_participants|default:'&mdash;' }})</span>
+    {% if course.num_participants %}
+        <td class="minimize">
+            <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+                <span class="glyphicon glyphicon-user"></span>
+                <span>{{ course.num_voters }}/{{ course.num_participants }}</span>
+                <span>({{ course.num_voters|percentage:course.num_participants|default:'&madsh;' }})</span>
+            </p>
+            {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
+                <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
+                    <span class="glyphicon glyphicon-comment"></span>
+                    <span>{{ course.num_reviewed_textanswers }}/{{ course.num_textanswers }}</span>
+                    <span>({{ course.num_reviewed_textanswers|percentage:course.num_textanswers|default:'&mdash;' }})</span>
+                </a>
+            {% else %}
+                <p data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
+                    <span class="glyphicon glyphicon-comment"></span>
+                    <span>{{ course.num_textanswers }}</span>
                 </p>
-                {% if course.can_staff_review and info_only|is_false %}
-                    <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
-                        <span class="glyphicon glyphicon-comment"></span>
-                        <span>{{ num_reviewed_textanswers }}/{{ num_textanswers }}</span>
-                        <span>({{ num_reviewed_textanswers|percentage:num_textanswers|default:'&mdash;' }})</span>
-                    </a>
-                {% else %}
-                    <p data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
-                        <span class="glyphicon glyphicon-comment"></span>
-                        <span>{{ num_textanswers }}</span>
-                    </p>
-                {% endif %}
-            </td>
-        {% else %}
-            <td class="minimize">
-                <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                    <span class="glyphicon glyphicon-user"></span>
-                    <span>&mdash;</span>
-                </p>
-            </td>
-        {% endif %}
-    {% endwith %}
+            {% endif %}
+        </td>
+    {% else %}
+        <td class="minimize">
+            <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+                <span class="glyphicon glyphicon-user"></span>
+                <span>&mdash;</span>
+            </p>
+        </td>
+    {% endif %}
 {% else %}
     <td class="minimize">
         <p data-toggle="tooltip" data-placement="left" title="{% trans "Participants" %}">
