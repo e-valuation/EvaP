@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'evap.student',
     'evap.contributor',
     'evap.rewards',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (
