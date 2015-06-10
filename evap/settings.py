@@ -88,7 +88,8 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'evap_db_cache',
         'OPTIONS': {
             'MAX_ENTRIES': 1000 # note that the results alone need one entry per course
         }
