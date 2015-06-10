@@ -249,18 +249,6 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Django debug toolbar settings
-TESTING = 'test' in sys.argv
-if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
-    DEBUG_TOOLBAR_PATCH_SETTINGS = False
-    INSTALLED_APPS += ('debug_toolbar',)
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
-    def show_toolbar(request):
-        return True
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
-    }
-
 # make generation of Question objects work, see https://github.com/vandersonmota/model_mommy/issues/231
 MOMMY_CUSTOM_FIELDS_GEN = {
     'django.db.models.fields.proxy.OrderWrt': int,
@@ -276,3 +264,15 @@ except ImportError:
 # speed up tests by using sqlite
 if 'test' in sys.argv:
     DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+
+# Django debug toolbar settings
+TESTING = 'test' in sys.argv
+if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    INSTALLED_APPS += ('debug_toolbar',)
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    def show_toolbar(request):
+        return True
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+    }
