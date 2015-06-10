@@ -272,3 +272,7 @@ try:
     from evap.localsettings import *
 except ImportError:
     pass
+
+# speed up tests by using sqlite
+if 'test' in sys.argv:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
