@@ -731,7 +731,7 @@ def degree_index(request):
 
 @staff_required
 def user_index(request):
-    users = UserProfile.objects.order_by("last_name", "first_name", "username") \
+    users = UserProfile.objects.all() \
                 .prefetch_related('contributions', 'course_set') \
                 .annotate(is_staff=ExpressionWrapper(Q(groups__name="Staff"), output_field=BooleanField()))
 

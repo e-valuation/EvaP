@@ -16,7 +16,7 @@ class RewardPointRedemptionEvent(models.Model):
         return True
 
     def redemptions_by_user(self):
-        redemptions = self.reward_point_redemptions.order_by('user_profile__last_name', 'user_profile__first_name')
+        redemptions = self.reward_point_redemptions.order_by('user_profile')
         redemptions_dict = OrderedDict()
         for redemption in redemptions:
             if not redemption.user_profile in redemptions_dict:

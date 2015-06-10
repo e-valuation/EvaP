@@ -662,6 +662,7 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
         verbose_name = _("question")
         verbose_name_plural = _("questions")
 
+
 class UserProfileManager(BaseUserManager):
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
@@ -727,6 +728,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
     class Meta:
+        ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
