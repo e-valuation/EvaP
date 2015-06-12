@@ -67,7 +67,7 @@ def course_view(request, course_id):
             field.widget.attrs['readonly'] = "True"
             field.widget.attrs['disabled'] = "True"
 
-    template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributors_username)
+    template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributor.username)
     return render(request, "contributor_course_form.html", template_data)
 
 @editor_or_delegate_required
@@ -103,7 +103,7 @@ def course_edit(request, course_id):
 
         return redirect('contributor:index')
     else:
-        template_data = dict(form=course_form, formset=formset, course=course, edit=True, responsible=course.responsible_contributors_username)
+        template_data = dict(form=course_form, formset=formset, course=course, edit=True, responsible=course.responsible_contributor.username)
         return render(request, "contributor_course_form.html", template_data)
 
 @contributor_or_delegate_required

@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
 from django_fsm import FSMField, transition
@@ -61,7 +62,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def is_archiveable(self):
         return all(course.is_archiveable for course in self.course_set.all())
 
-    @property
+    @cached_property
     def is_archived(self):
         if self.course_set.count() == 0:
             return False
@@ -211,7 +212,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         # make sure there is a general contribution
         if not self.general_contribution:
-            self.contributions.create(contributor=None)
+            self.general_contribution = self.contributions.create(contributor=None)
 
     def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
@@ -254,10 +255,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def can_staff_delete(self):
         return self.can_staff_edit and not self.num_voters > 0
-
-    @property
-    def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and self.textanswer_set.exists()
 
     @property
     def can_staff_approve(self):
@@ -323,20 +320,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def student_state(self):
         return STUDENT_STATES_NAMES[self.state]
 
-    @property
+    @cached_property
     def general_contribution(self):
         try:
             return self.contributions.get(contributor=None)
         except Contribution.DoesNotExist:
             return None
 
-    @property
+    @cached_property
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
         return self.participants.count()
 
-    @property
+    @cached_property
     def num_voters(self):
         if self._voter_count is not None:
             return self._voter_count
@@ -346,17 +343,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def due_participants(self):
         return self.participants.exclude(pk__in=self.voters.all())
 
-    @property
+    @cached_property
     def responsible_contributor(self):
         return self.contributions.get(responsible=True).contributor
-
-    @property
-    def responsible_contributors_name(self):
-        return self.responsible_contributor.full_name
-
-    @property
-    def responsible_contributors_username(self):
-        return self.responsible_contributor.username
 
     @property
     def days_left_for_evaluation(self):
@@ -399,7 +388,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires() and not self.is_single_result():
+        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires() and not self.is_single_result():
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
@@ -408,27 +397,35 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all())
+        return TextAnswer.objects.filter(contribution__course=self)
+
+    @cached_property
+    def num_textanswers(self):
+        return self.textanswer_set.count()
 
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
+
+    @cached_property
+    def num_reviewed_textanswers(self):
+        return self.reviewed_textanswer_set.count()
 
     @property
     def likertanswer_counters(self):
         """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswerCounter.objects.filter(contribution__in=self.contributions.all())
+        return LikertAnswerCounter.objects.filter(contribution__course=self)
 
     @property
     def gradeanswer_counters(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswerCounter.objects.filter(contribution__in=self.contributions.all())
+        return GradeAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
         """Should be called only via Semester.archive"""
@@ -533,7 +530,7 @@ class Answer(models.Model):
     `TextAnswer` and `GradeAnswerCounter`."""
 
     question = models.ForeignKey(Question)
-    contribution = models.ForeignKey(Contribution)
+    contribution = models.ForeignKey(Contribution, related_name="%(class)s_set")
 
     class Meta:
         abstract = True
@@ -665,6 +662,7 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
         verbose_name = _("question")
         verbose_name_plural = _("questions")
 
+
 class UserProfileManager(BaseUserManager):
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
@@ -730,6 +728,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
     class Meta:
+        ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
@@ -768,7 +767,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_active(self):
         return True
 
-    @property
+    @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
 

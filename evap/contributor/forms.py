@@ -93,7 +93,6 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].queryset = UserProfile.objects.order_by('last_name', 'first_name')
         self.fields['delegates'].help_text = ""
 
     def clean_email(self):

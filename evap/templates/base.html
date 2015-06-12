@@ -3,6 +3,7 @@
 {% load morefilters %}
 {% load staff_templatetags %}
 {% load results_templatetags %}
+{% load cache %}
 
 <!DOCTYPE html>
 <html>
@@ -29,6 +30,8 @@
 </head>
 <body>
 <div id="wrap">
+{% get_current_language as LANGUAGE_CODE %}
+{% cache 3600 navbar request.user.username LANGUAGE_CODE %}
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -102,7 +105,7 @@
             </div>
         </div>
     </nav>
-
+    {% endcache %}
     <div class="container">
         {% if user.is_staff %}
             {% block breadcrumbs %}
