@@ -33,6 +33,16 @@
     <div class="panel panel-info">
         <div class="panel-heading">
             <span class="panel-title">{% trans "Overview" %}</span>
+            {% if course.grade_documents.count > 0 %}
+                <div class="pull-right btn-group">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Download grades" %} <span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        {% for grade_document in course.grade_documents.all %}
+                            <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
         </div>
         <div class="panel-body">
             <table class="table">

@@ -1534,6 +1534,13 @@
   }
 },
 {
+  "pk": 2,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Grade publisher"
+  }
+},
+{
     "pk": 1,
     "model": "rewards.rewardpointredemptionevent",
     "fields": {

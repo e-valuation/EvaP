@@ -1,0 +1,13 @@
+{% extends "grades_course_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <form method="POST" style="display: inline;">
+        {% csrf_token %}
+        <p>{% blocktrans with semester=semester.name course=course.name name=grade_document.description %}Do you really want to delete the grade document <em>{{ name }}</em> for the course {{ course }} ({{ semester }})?{% endblocktrans %}</p>
+        <input type="submit" value="{% trans "Yes" %}" class="btn btn-danger"/>
+        <a href="{% url "grades:course_view" semester.id course.id %}" class="btn btn-default">{% trans "No" %}</a>
+    </form>
+{% endblock %}

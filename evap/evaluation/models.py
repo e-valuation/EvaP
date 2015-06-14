@@ -447,6 +447,17 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def was_evaluated(self, request):
         self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
 
+    @property
+    def final_grade_documents(self):
+        from evap.grades.models import GradeDocument
+        return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
+
+    @property
+    def preliminary_grade_documents(self):
+        from evap.grades.models import GradeDocument
+        return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
+    
+
 
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
@@ -770,6 +781,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
+
+    @property
+    def is_grade_publisher(self):
+        return self.groups.filter(name='Grade publisher').exists()
 
     @property
     def can_staff_delete(self):

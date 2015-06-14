@@ -1,0 +1,46 @@
+{% extends "grades_course_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+
+    <h3>{{ course.name }} ({{ semester.name }})</h3>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Uploaded grade documents" %}</h3>
+        </div>
+        <div class="panel-body">
+            {% if grade_documents %}
+                <table class="table table-striped vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-4">{% trans "Description" %}</th>
+                            <th class="col-sm-2">{% trans "Type" %}</th>
+                            <th class="col-sm-4">{% trans "Last edited" %}</th>
+                            <th class="col-sm-2"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade_document in grade_documents %}
+                            <tr>
+                                <td>{{ grade_document.description }}</td>
+                                <td>{{ grade_document.get_type_display }}</td>
+                                <td>{{ grade_document.last_modified_time }}, {% trans "by" %} {{ grade_document.last_modified_user }}</td>
+                                <td>
+                                    <a href="{% url "grades:edit_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Edit" %}</a>
+                                    <a href="{% url "grades:delete_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-danger" {{ disable_if_archived }}>{% trans "Delete" %}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <i>{% trans "No grade documents have been uploaded yet" %}</i>
+            {% endif %}
+        </div>
+    </div>
+    <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new preliminary grades" %}</a>
+    <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new final grades" %}</a>
+{% endblock %}

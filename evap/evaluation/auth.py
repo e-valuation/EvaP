@@ -70,6 +70,7 @@ class RequestAuthUserBackend(ModelBackend):
         except UserProfile.DoesNotExist:
             return None
 
+
 def user_passes_test(test_func):
     """
     Decorator for views that checks whether users are authenticated
@@ -89,12 +90,22 @@ def user_passes_test(test_func):
         return _wrapped_view
     return decorator
 
+
 def staff_required(view_func):
     """
     Decorator for views that checks that the user is logged in and a staff member
     """
     def check_user(user):
         return user.is_staff
+    return user_passes_test(check_user)(view_func)
+
+
+def grade_publisher_required(view_func):
+    """
+    Decorator for views that checks that the user is logged in and a grade publisher
+    """
+    def check_user(user):
+        return user.is_grade_publisher
     return user_passes_test(check_user)(view_func)
 
 
@@ -128,6 +139,7 @@ def editor_required(view_func):
         return user.is_editor
     return user_passes_test(check_user)(view_func)
 
+
 def participant_required(view_func):
     """
     Decorator for views that checks that the user is logged in and
@@ -136,6 +148,7 @@ def participant_required(view_func):
     def check_user(user):
         return user.is_participant
     return user_passes_test(check_user)(view_func)
+
 
 def reward_user_required(view_func):
     """

@@ -15,6 +15,7 @@ urlpatterns = [
     url(r"^student/", include('evap.student.urls', namespace="student")),
     url(r"^contributor/", include('evap.contributor.urls', namespace="contributor")),
     url(r"^rewards/", include('evap.rewards.urls', namespace="rewards")),
+    url(r"^grades/", include('evap.grades.urls', namespace="grades")),
 
     url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}, name="django-auth-logout"),
 
