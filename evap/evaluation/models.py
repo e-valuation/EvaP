@@ -778,7 +778,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_active(self):
         return True
 
-    @cached_property
+    @property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
 

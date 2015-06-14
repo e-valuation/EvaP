@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count
+from django.db.models import Max, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
@@ -732,8 +732,7 @@ def degree_index(request):
 @staff_required
 def user_index(request):
     users = UserProfile.objects.all() \
-                .prefetch_related('contributions', 'course_set') \
-                .annotate(is_staff=ExpressionWrapper(Q(groups__name="Staff"), output_field=BooleanField()))
+                .prefetch_related('contributions', 'course_set')
 
     return render(request, "staff_user_index.html", dict(users=users))
 
