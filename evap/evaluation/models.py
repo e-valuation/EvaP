@@ -196,7 +196,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('semester', 'name_de')
+        ordering = ('name_de',)
         unique_together = (
             ('semester', 'name_de'),
             ('semester', 'name_en'),
@@ -225,7 +225,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return today >= self.vote_start_date and today <= self.vote_end_date
 
     def has_enough_questionnaires(self):
-        return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
+        return self.general_contribution and (self.is_single_result() or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
@@ -388,7 +388,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires() and not self.is_single_result():
+        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires():
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
