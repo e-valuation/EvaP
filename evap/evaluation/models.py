@@ -196,7 +196,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('semester', 'name_de')
+        ordering = ('name_de',)
         unique_together = (
             ('semester', 'name_de'),
             ('semester', 'name_en'),
