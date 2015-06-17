@@ -830,6 +830,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return True
         return is_external_email(self.email)
 
+    @property
+    def can_download_grades(self):
+        return not self.is_external
+
     @classmethod
     def email_needs_login_key(cls, email):
         # do the import here to prevent a circular import

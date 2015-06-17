@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 import os
 from sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required
+from evap.evaluation.auth import grade_publisher_required, grade_downloader_required
 from evap.evaluation.models import Semester, Contribution, Course
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
@@ -106,7 +106,7 @@ def upload_grades(request, semester_id, course_id):
         return render(request, "grades_upload_form.html", template_data)
 
 
-@login_required
+@grade_downloader_required
 def download_grades(request, grade_document_id):
     if not request.method == "GET":
         return HttpResponseBadRequest()

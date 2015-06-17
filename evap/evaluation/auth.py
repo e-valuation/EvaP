@@ -109,6 +109,15 @@ def grade_publisher_required(view_func):
     return user_passes_test(check_user)(view_func)
 
 
+def grade_downloader_required(view_func):
+    """
+    Decorator for views that checks that the user is logged in and can download grades
+    """
+    def check_user(user):
+        return user.can_download_grades
+    return user_passes_test(check_user)(view_func)
+
+
 def contributor_or_delegate_required(view_func):
     """
     Decorator for views that checks that the user is logged in, has edit rights

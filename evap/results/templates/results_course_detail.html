@@ -33,7 +33,7 @@
     <div class="panel panel-info">
         <div class="panel-heading">
             <span class="panel-title">{% trans "Overview" %}</span>
-            {% if course.grade_documents.count > 0 %}
+            {% if course.grade_documents.count > 0 and can_download_grades %}
                 <div class="pull-right btn-group">
                     <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Download grades" %} <span class="caret"></span></button>
                     <ul class="dropdown-menu" role="menu">
