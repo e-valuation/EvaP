@@ -9,6 +9,8 @@ from collections import OrderedDict, defaultdict
 from collections import namedtuple
 from math import ceil, sqrt
 
+import logging
+
 GRADE_COLORS = {
     1: (136, 191, 74),
     2: (187, 209, 84),
@@ -311,7 +313,7 @@ def send_publish_notifications(grade_document_courses=[], evaluation_results_cou
                 evaluation_results_courses=list(course_lists.evaluation_results_courses)
             )
         except Exception:
-            messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+            logging.getLogger(__name__).exception(("An error occured when sending the notification email to {}.").format(user.username))
 
 
 def color_mix(color1, color2, fraction):

@@ -18,6 +18,7 @@ from evap.evaluation.meta import LocalizeModelBase, Translate
 
 import datetime
 import random
+import logging
 
 # for converting state into student_state
 STUDENT_STATES_NAMES = {
@@ -919,7 +920,7 @@ class EmailTemplate(models.Model):
         for course in courses:
             responsible = course.responsible_contributor
             for user in self.recipient_list_for_course(course, recipient_groups):
-                if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
+                if user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.items():
@@ -927,6 +928,7 @@ class EmailTemplate(models.Model):
 
     def send_to_user(self, user, courses=[], grade_document_courses=[], evaluation_results_courses=[], cc=True):
         if not user.email:
+            logging.getLogger(__name__).warning("{} has no email address defined. Could not send email.".format(user.username))
             return
 
         if cc:
