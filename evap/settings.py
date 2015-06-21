@@ -61,6 +61,10 @@ INTERNAL_USERNAMES_MAX_LENGTH = 20
 IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
 
+# the default descriptions for grade documents
+DEFAULT_FINAL_GRADES_DESCRIPTION = "Final grades"
+DEFAULT_PRELIMINARY_GRADES_DESCRIPTION = "Preliminary grades"
+
 
 ### Installation specific settings
 

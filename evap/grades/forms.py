@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import BootstrapMixin
 
@@ -28,9 +29,14 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
         exclude = ('course',)
 
     def __init__(self, *args, **kwargs):
+        final_grades = kwargs.pop('final_grades')
         super().__init__(*args, **kwargs)
 
-        self.fields['description'].help_text = _('e.g. "Preliminary test" or "Final grades"')
+        self.fields['description'].help_text = _('e.g. "{}" or "{}"').format(settings.DEFAULT_PRELIMINARY_GRADES_DESCRIPTION, settings.DEFAULT_FINAL_GRADES_DESCRIPTION)
+        if final_grades:
+            self.fields['description'].initial = settings.DEFAULT_FINAL_GRADES_DESCRIPTION
+        else:
+            self.fields['description'].initial = settings.DEFAULT_PRELIMINARY_GRADES_DESCRIPTION
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         self.fields['last_modified_time_2'].widget.attrs['readonly'] = "True"

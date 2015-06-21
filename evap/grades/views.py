@@ -83,7 +83,7 @@ def helper_grade_upload(request, course, final_grades=False, instance=None):
             instance.save()
             return True, created, form
     else:
-        form = GradeDocumentForm(instance=instance)
+        form = GradeDocumentForm(instance=instance, final_grades=final_grades)
     return False, created, form
 
 
