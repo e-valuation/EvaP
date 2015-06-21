@@ -24,7 +24,7 @@ class GradeDocument(models.Model):
     description = models.TextField(max_length=255, verbose_name=_("Description"))
 
     last_modified_time = models.DateTimeField(auto_now=True, verbose_name=_("Created"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True, on_delete=models.SET_NULL)
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="last_modified_user+", null=True, blank=True, on_delete=models.SET_NULL)
     
     class Meta:
         verbose_name = _("Grade Document")
