@@ -925,7 +925,7 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             self.send_to_user(user, courses)
 
-    def send_to_user(self, user, courses=None, cc=True):
+    def send_to_user(self, user, courses=[], grade_document_courses=[], evaluation_results_courses=[], cc=True):
         if not user.email:
             return
 
@@ -935,9 +935,22 @@ class EmailTemplate(models.Model):
         else:
             cc_addresses = []
 
+        grade_documents = len(grade_document_courses) > 0
+        evaluation_results = len(evaluation_results_courses) > 0
+
         mail = EmailMessage(
-            subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
-            body = self.render_string(self.body, {'user': user, 'courses': courses}),
+            subject = self.render_string(self.subject, {
+                'grade_documents': grade_documents,
+                'evaluation_results': evaluation_results
+            }),
+            body = self.render_string(self.body, {
+                'user': user,
+                'courses': courses,
+                'grade_documents': grade_documents,
+                'evaluation_results': evaluation_results,
+                'grade_document_courses': grade_document_courses,
+                'evaluation_results_courses': evaluation_results_courses
+            }),
             to = [user.email],
             cc = cc_addresses,
             bcc = [a[1] for a in settings.MANAGERS],

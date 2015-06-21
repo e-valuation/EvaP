@@ -14,7 +14,7 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
 from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_textanswers, CommentSection, TextResult
+                                  get_textanswers, CommentSection, TextResult, send_publish_notifications
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
@@ -205,11 +205,7 @@ def helper_semester_course_operation_publish(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    for user, user_courses in user_publish_notifications(courses).items():
-        try:
-            EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
-        except Exception:
-            messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+    send_publish_notifications(evaluation_results_courses=courses)
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:

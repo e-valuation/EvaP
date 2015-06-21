@@ -82,7 +82,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-right">
-                                    {% if course.state == 'published' %}
+                                    {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
                                         {% if course.grade_documents.count > 0 and can_download_grades %}
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Download grades" %} <span class="caret"></span></button>
@@ -95,10 +95,12 @@
                                         {% elif course.is_graded and can_download_grades %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "No grades have been uploaded yet." %}"><button type="button" class="btn btn-sm btn-default dropdown-toggle" disabled="disabled">{% trans "Download grades" %} <span class="caret"></span></button></div>
                                         {% endif %}
-                                        {% if course.can_publish_grades %}
-                                            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
-                                        {% else %}
-                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
+                                        {% if course.state == 'published' %}
+                                            {% if course.can_publish_grades %}
+                                                <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                            {% else %}
+                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
+                                            {% endif %}
                                         {% endif %}
                                     {% else %}
                                         {% if course.preliminary_grade_documents.count > 0 and can_download_grades %}

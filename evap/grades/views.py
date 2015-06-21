@@ -13,6 +13,7 @@ from evap.evaluation.auth import grade_publisher_required, grade_downloader_requ
 from evap.evaluation.models import Semester, Contribution, Course
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
+from evap.evaluation.tools import send_publish_notifications
 
 def get_graded_courses_with_prefetched_data(semester):
     courses = semester.course_set.filter(is_graded=True).exclude(state='new').prefetch_related(
@@ -94,6 +95,13 @@ def upload_grades(request, semester_id, course_id):
     success, form = helper_grade_upload(request, course, final_grades=final_grades)
 
     if success:
+        if not final_grades or course.state in ['evaluated', 'published']:
+            send_publish_notifications(grade_document_courses=[course])
+        elif course.state == 'reviewed':
+            course.publish()
+            course.save()
+            send_publish_notifications(grade_document_courses=[course], evaluation_results_courses=[course])
+
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
     else:
@@ -113,8 +121,8 @@ def download_grades(request, grade_document_id):
 
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
 
-    # final grades can only be downloaded when the course was published
-    if not grade_document.course.state == 'published' and grade_document.type == GradeDocument.FINAL_GRADES:
+    # final grades can only be downloaded when the evaluation is finished
+    if grade_document.type == GradeDocument.FINAL_GRADES and grade_document.course.state not in ['evaluated', 'reviewed', 'published']:
         return HttpResponseForbidden()
 
     filename = os.path.join(settings.MEDIA_ROOT, grade_document.file.name)
