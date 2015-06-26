@@ -5,10 +5,10 @@
 {% block content %}
     {{ block.super }}
     
-    {% if final_grades %}
+    {% if show_automated_publishing_info %}
         <div class="bs-callout bs-callout-info">
             <b>{% trans "Automated publishing" %}</b><br />
-            {% blocktrans %}After this file with total grades was uploaded, the course will be published automatically once the evaluation ends. If the evaluation for this course has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
+            {% blocktrans %}After this file with final grades was uploaded, the course will be published automatically once the evaluation ends. If the evaluation for this course has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
         </div>
     {% endif %}
 

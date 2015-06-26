@@ -957,7 +957,11 @@ class EmailTemplate(models.Model):
             cc = cc_addresses,
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.send(False)
+        
+        try:
+            mail.send(False)
+        except Exception:
+            logging.getLogger(__name__).exception(('An error occured when sending email "{}" to {}.').format(subject, user.username))
 
     @classmethod
     def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):

@@ -1,12 +1,9 @@
-from django.conf import settings
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Prefetch
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
-from django.contrib.auth.decorators import login_required
 
-import os
 from sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required
@@ -14,6 +11,15 @@ from evap.evaluation.models import Semester, Contribution, Course
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
+
+
+@grade_publisher_required
+def index(request):
+    template_data = dict(
+        semesters=Semester.objects.all()
+    )
+    return render(request, "grades_index.html", template_data)
+
 
 def get_graded_courses_with_prefetched_data(semester):
     courses = semester.course_set.filter(is_graded=True).exclude(state='new').prefetch_related(
@@ -26,14 +32,6 @@ def get_graded_courses_with_prefetched_data(semester):
         course_data.append((course, GradeDocument.objects.filter(course=course, type=GradeDocument.FINAL_GRADES).exists()))
 
     return course_data
-
-
-@grade_publisher_required
-def index(request):
-    template_data = dict(
-        semesters=Semester.objects.all()
-    )
-    return render(request, "grades_index.html", template_data)
 
 
 @grade_publisher_required
@@ -56,12 +54,10 @@ def course_view(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
 
-    grade_documents = GradeDocument.objects.filter(course=course)
-
     template_data = dict(
         semester=semester,
         course=course,
-        grade_documents=grade_documents,
+        grade_documents=course.grade_documents.all(),
         disable_if_archived="disabled=disabled" if semester.is_archived else "",
         disable_breadcrumb_course=True,
     )
@@ -73,17 +69,12 @@ def helper_grade_upload(request, course, final_grades=False, instance=None):
     if request.method == "POST":
         if instance:
             created = False
-        form = GradeDocumentForm(request.POST, request.FILES, instance=instance)
+        form = GradeDocumentForm(request.POST, request.FILES, course=course, final_grades=final_grades, instance=instance, user=request.user)
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.last_modified_user = request.user
-            instance.course = course
-            if final_grades:
-                instance.type = GradeDocument.FINAL_GRADES
-            instance.save()
+            form.save()
             return True, created, form
     else:
-        form = GradeDocumentForm(instance=instance, final_grades=final_grades)
+        form = GradeDocumentForm(course=course, final_grades=final_grades, instance=instance, user=request.user)
     return False, created, form
 
 
@@ -113,7 +104,7 @@ def upload_grades(request, semester_id, course_id):
             semester=semester,
             course=course,
             form=form,
-            final_grades=final_grades,
+            show_automated_publishing_info=final_grades,
         )
         return render(request, "grades_upload_form.html", template_data)
 
@@ -129,8 +120,7 @@ def download_grades(request, grade_document_id):
     if grade_document.type == GradeDocument.FINAL_GRADES and grade_document.course.state not in ['evaluated', 'reviewed', 'published']:
         return HttpResponseForbidden()
 
-    filename = os.path.join(settings.MEDIA_ROOT, grade_document.file.name)
-    return sendfile(request, filename, attachment=True, attachment_filename=grade_document.filename())
+    return sendfile(request, grade_document.file.path, attachment=True, attachment_filename=grade_document.filename())
 
 
 @grade_publisher_required
@@ -150,7 +140,7 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
             semester=semester,
             course=course,
             form=form,
-            final_grades=False,  # don't show publishing information
+            show_automated_publishing_info=False,
         )
         return render(request, "grades_upload_form.html", template_data)
 

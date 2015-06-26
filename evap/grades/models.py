@@ -30,5 +30,8 @@ class GradeDocument(models.Model):
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
 
+    def __unicode__(self):
+        return self.description
+
     def filename(self):
         return os.path.basename(self.file.name)

@@ -13,8 +13,8 @@ from collections import defaultdict
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
-from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_textanswers, CommentSection, TextResult, send_publish_notifications
+from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
+                                  TextResult, send_publish_notifications
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \

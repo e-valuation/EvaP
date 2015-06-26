@@ -2,14 +2,11 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
-from django.contrib import messages
 from evap.evaluation.models import TextAnswer, EmailTemplate
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
 from math import ceil, sqrt
-
-import logging
 
 GRADE_COLORS = {
     1: (136, 191, 74),
@@ -276,7 +273,10 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def user_publish_notifications(grade_document_courses, evaluation_results_courses):
+def send_publish_notifications(grade_document_courses=None, evaluation_results_courses=None):
+    grade_document_courses = grade_document_courses or []
+    evaluation_results_courses = evaluation_results_courses or []
+
     publish_notifications = defaultdict(lambda: CourseLists(set(), set()))
 
     for course in evaluation_results_courses:
@@ -299,21 +299,12 @@ def user_publish_notifications(grade_document_courses, evaluation_results_course
             if participant.can_download_grades:
                 publish_notifications[participant].grade_document_courses.add(course)
 
-    return publish_notifications
-
-
-def send_publish_notifications(grade_document_courses=[], evaluation_results_courses=[]):
-    publish_notifications = user_publish_notifications(grade_document_courses, evaluation_results_courses)
-
     for user, course_lists in publish_notifications.items():
-        try:
-            EmailTemplate.get_publish_template().send_to_user(
-                user, 
-                grade_document_courses=list(course_lists.grade_document_courses),
-                evaluation_results_courses=list(course_lists.evaluation_results_courses)
-            )
-        except Exception:
-            logging.getLogger(__name__).exception(("An error occured when sending the notification email to {}.").format(user.username))
+        EmailTemplate.get_publish_template().send_to_user(
+            user,
+            grade_document_courses=list(course_lists.grade_document_courses),
+            evaluation_results_courses=list(course_lists.evaluation_results_courses)
+        )
 
 
 def color_mix(color1, color2, fraction):

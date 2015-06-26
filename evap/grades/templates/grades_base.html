@@ -7,9 +7,5 @@
 
 {% block subtitle %}
     {{ block.super }}
-    {% if disable_breadcrumb_staff %}
-        <li>{% trans "Grade publishing" %}</li>
-    {% else %}
-        <li><a href="{% url "grades:index" %}">{% trans "Grade publishing" %}</a></li>
-    {% endif %}
+    <li><a href="{% url "grades:index" %}">{% trans "Grade publishing" %}</a></li>
 {% endblock %}

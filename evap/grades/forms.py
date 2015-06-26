@@ -20,6 +20,7 @@ class StrippedCharField(forms.CharField):
 
 class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
     description = StrippedCharField(max_length=255)
+    # see CourseForm (staff/forms.py) for details, why the following two fields are needed
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
 
@@ -29,7 +30,9 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
         exclude = ('course',)
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         final_grades = kwargs.pop('final_grades')
+        course = kwargs.pop('course')
         super().__init__(*args, **kwargs)
 
         self.fields['description'].help_text = _('e.g. "{}" or "{}"').format(settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION, settings.DEFAULT_FINAL_GRADES_DESCRIPTION)
@@ -43,3 +46,8 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
         self.fields['last_modified_user_2'].widget.attrs['readonly'] = "True"
+
+        self.instance.course = course
+        if final_grades:
+            self.instance.type = GradeDocument.FINAL_GRADES
+        self.instance.last_modified_user = user

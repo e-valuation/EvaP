@@ -44,6 +44,11 @@ class DegreeForm(forms.ModelForm, BootstrapMixin):
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+    
+    # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
+    # uneditable and so it can't be displayed in the model form
+    # see https://docs.djangoproject.com/en/dev/ref/models/fields/#datefield for details
+    # last_modified_user would usually get a select widget but should here be displayed as a readonly CharField instead    
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
 
