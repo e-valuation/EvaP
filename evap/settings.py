@@ -63,7 +63,7 @@ IMPORTER_GRADED_NO = "no"
 
 # the default descriptions for grade documents
 DEFAULT_FINAL_GRADES_DESCRIPTION = "Final grades"
-DEFAULT_PRELIMINARY_GRADES_DESCRIPTION = "Preliminary grades"
+DEFAULT_MIDTERM_GRADES_DESCRIPTION = "Midterm grades"
 
 
 ### Installation specific settings

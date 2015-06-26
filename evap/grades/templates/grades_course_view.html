@@ -41,6 +41,6 @@
             {% endif %}
         </div>
     </div>
-    <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new preliminary grades" %}</a>
+    <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new midterm grades" %}</a>
     <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new final grades" %}</a>
 {% endblock %}

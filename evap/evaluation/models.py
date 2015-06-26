@@ -454,7 +454,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
 
     @property
-    def preliminary_grade_documents(self):
+    def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
     

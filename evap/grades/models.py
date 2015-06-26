@@ -13,13 +13,13 @@ class GradeDocument(models.Model):
     course = models.ForeignKey(Course, related_name='grade_documents', verbose_name=_("Course"))
     file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File")) #upload_to="grades/{}/".format(course.id),
 
-    PRELIMINARY_GRADES = 'PRE'
+    MIDTERM_GRADES = 'MID'
     FINAL_GRADES = 'FIN'
     GRADE_DOCUMENT_TYPES = (
-        (PRELIMINARY_GRADES, _('preliminary grades')),
+        (MIDTERM_GRADES, _('midterm grades')),
         (FINAL_GRADES, _('final grades')),
     )
-    type = models.CharField(max_length=3, choices=GRADE_DOCUMENT_TYPES, verbose_name=_('grade type'), default=PRELIMINARY_GRADES)
+    type = models.CharField(max_length=3, choices=GRADE_DOCUMENT_TYPES, verbose_name=_('grade type'), default=MIDTERM_GRADES)
 
     description = models.TextField(max_length=255, verbose_name=_("Description"))
 

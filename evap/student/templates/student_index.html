@@ -103,11 +103,11 @@
                                             {% endif %}
                                         {% endif %}
                                     {% else %}
-                                        {% if course.preliminary_grade_documents.count > 0 and can_download_grades %}
+                                        {% if course.midterm_grade_documents.count > 0 and can_download_grades %}
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Download grades" %} <span class="caret"></span></button>
                                                 <ul class="dropdown-menu" role="menu">
-                                                    {% for grade_document in course.preliminary_grade_documents %}
+                                                    {% for grade_document in course.midterm_grade_documents %}
                                                         <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
                                                     {% endfor %}
                                                 </ul>

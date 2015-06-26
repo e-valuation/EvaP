@@ -32,11 +32,11 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
         final_grades = kwargs.pop('final_grades')
         super().__init__(*args, **kwargs)
 
-        self.fields['description'].help_text = _('e.g. "{}" or "{}"').format(settings.DEFAULT_PRELIMINARY_GRADES_DESCRIPTION, settings.DEFAULT_FINAL_GRADES_DESCRIPTION)
+        self.fields['description'].help_text = _('e.g. "{}" or "{}"').format(settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION, settings.DEFAULT_FINAL_GRADES_DESCRIPTION)
         if final_grades:
             self.fields['description'].initial = settings.DEFAULT_FINAL_GRADES_DESCRIPTION
         else:
-            self.fields['description'].initial = settings.DEFAULT_PRELIMINARY_GRADES_DESCRIPTION
+            self.fields['description'].initial = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         self.fields['last_modified_time_2'].widget.attrs['readonly'] = "True"

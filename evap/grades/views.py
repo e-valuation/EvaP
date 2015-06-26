@@ -92,7 +92,7 @@ def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
 
-    final_grades = request.GET.get('final', 'false') # default: preliminary grades
+    final_grades = request.GET.get('final', 'false') # default: midterm grades
     final_grades = {'true': True, 'false': False}.get(final_grades.lower()) # convert parameter to boolean
 
     success, created, form = helper_grade_upload(request, course, final_grades=final_grades)
