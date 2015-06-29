@@ -64,20 +64,6 @@ def course_view(request, semester_id, course_id):
     return render(request, "grades_course_view.html", template_data)
 
 
-def helper_grade_upload(request, course, final_grades=False, instance=None):
-    created = True
-    if request.method == "POST":
-        if instance:
-            created = False
-        form = GradeDocumentForm(request.POST, request.FILES, course=course, final_grades=final_grades, instance=instance, user=request.user)
-        if form.is_valid():
-            form.save()
-            return True, created, form
-    else:
-        form = GradeDocumentForm(course=course, final_grades=final_grades, instance=instance, user=request.user)
-    return False, created, form
-
-
 @grade_publisher_required
 def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -86,16 +72,16 @@ def upload_grades(request, semester_id, course_id):
     final_grades = request.GET.get('final', 'false') # default: midterm grades
     final_grades = {'true': True, 'false': False}.get(final_grades.lower()) # convert parameter to boolean
 
-    success, created, form = helper_grade_upload(request, course, final_grades=final_grades)
+    form = GradeDocumentForm(request.POST or None, request.FILES or None, course=course, final_grades=final_grades, user=request.user)
 
-    if success:
-        if created:
-            if not final_grades or course.state in ['evaluated', 'published']:
-                send_publish_notifications(grade_document_courses=[course])
-            elif course.state == 'reviewed':
-                course.publish()
-                course.save()
-                send_publish_notifications(grade_document_courses=[course], evaluation_results_courses=[course])
+    if form.is_valid():
+        form.save()
+        if not final_grades or course.state in ['evaluated', 'published']:
+            send_publish_notifications(grade_document_courses=[course])
+        elif course.state == 'reviewed':
+            course.publish()
+            course.save()
+            send_publish_notifications(grade_document_courses=[course], evaluation_results_courses=[course])
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -130,9 +116,10 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
     final_grades = grade_document.type == GradeDocument.FINAL_GRADES
 
-    success, created, form = helper_grade_upload(request, course, final_grades=final_grades, instance=grade_document)
+    form = GradeDocumentForm(request.POST or None, request.FILES or None, course=course, final_grades=final_grades, instance=grade_document, user=request.user)
 
-    if success:
+    if form.is_valid():
+        form.save()
         messages.success(request, _("Successfully updated grades."))
         return redirect('grades:course_view', semester.id, course.id)
     else:
