@@ -457,7 +457,43 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
-    
+
+    @classmethod
+    def update_courses(cls):
+        from evap.evaluation.tools import send_publish_notifications
+        today = datetime.date.today()
+
+        courses_new_in_evaluation = []
+        grade_document_courses = []
+        evaluation_results_courses = []
+
+        for course in cls.objects.all():
+            try:
+                if course.state == "approved" and course.vote_start_date <= today:
+                    course.evaluation_begin()
+                    course.save()
+                    courses_new_in_evaluation.append(course)
+                elif course.state == "inEvaluation" and course.vote_end_date < today:
+                    course.evaluation_end()
+                    if course.is_fully_reviewed():
+                        course.review_finished()
+                        if not course.is_graded:
+                            course.publish()
+                            evaluation_results_courses.append(course)
+                        elif course.final_grade_documents.exists():
+                            course.publish()
+                            grade_document_courses.append(course)
+                            evaluation_results_courses.append(course)
+                    elif course.final_grade_documents.exists():
+                        grade_document_courses.append(course)
+                    course.save()
+            except Exception:
+                pass
+
+        if courses_new_in_evaluation:
+            EmailTemplate.get_evaluation_started_template().send_to_users_in_courses(courses_new_in_evaluation, ['all_participants'])
+        
+        send_publish_notifications(grade_document_courses=grade_document_courses, evaluation_results_courses=evaluation_results_courses)
 
 
 class Contribution(models.Model):
