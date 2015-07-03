@@ -460,7 +460,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def update_courses(cls):
-        from evap.evaluation.tools import send_publish_notifications
+        from evap.evaluation.tools import send_publish_notifications, send_evaluation_started_notifications
         today = datetime.date.today()
 
         courses_new_in_evaluation = []
@@ -490,9 +490,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             except Exception:
                 logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
 
-        if courses_new_in_evaluation:
-            EmailTemplate.get_evaluation_started_template().send_to_users_in_courses(courses_new_in_evaluation, ['all_participants'])
-        
+        send_evaluation_started_notifications(courses_new_in_evaluation)
         send_publish_notifications(grade_document_courses=grade_document_courses, evaluation_results_courses=evaluation_results_courses)
 
 

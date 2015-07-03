@@ -307,6 +307,10 @@ def send_publish_notifications(grade_document_courses=None, evaluation_results_c
         )
 
 
+def send_evaluation_started_notifications(courses):
+    EmailTemplate.get_evaluation_started_template().send_to_users_in_courses(courses, ['all_participants'])
+
+
 def color_mix(color1, color2, fraction):
     return tuple(
         int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3)
