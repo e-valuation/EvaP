@@ -129,6 +129,10 @@ LOGGING = {
             'filename': BASE_DIR + '/logs/evap.log',
             'formatter': 'default',
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
     },
     'loggers': {
         'django': {
@@ -137,7 +141,7 @@ LOGGING = {
             'propagate': True,
         },
         'evap': {
-            'handlers': ['file'],
+            'handlers': ['file', 'mail_admins'],
             'level': 'WARNING',
             'propagate': True,
         },

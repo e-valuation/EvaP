@@ -488,7 +488,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         grade_document_courses.append(course)
                     course.save()
             except Exception:
-                pass
+                logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
 
         if courses_new_in_evaluation:
             EmailTemplate.get_evaluation_started_template().send_to_users_in_courses(courses_new_in_evaluation, ['all_participants'])
