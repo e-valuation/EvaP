@@ -70,17 +70,14 @@ class GradeUploadTests(WebTest):
         ).follow()
         return response
 
-    def helper_check_final_grade_upload(self, course, expected_number_of_emails, can_download):
+    def helper_check_final_grade_upload(self, course, expected_number_of_emails):
         response = self.helper_upload_grades(course, final_grades=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
         self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        if can_download:
-            response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user="student")
-            self.assertEqual(response.status_code, 200)
-        else:
-            self.get_assert_403("/grades/download/{}".format(course.final_grade_documents.first().id), "student")
+        response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user="student")
+        self.assertEqual(response.status_code, 200)
 
         # tear down
         course.final_grade_documents.first().file.delete()
@@ -102,39 +99,39 @@ class GradeUploadTests(WebTest):
         self.assertEqual(course.final_grade_documents.count(), 0)
         
         # state: new
-        self.helper_check_final_grade_upload(course, 0, False)
+        self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: prepared
         course.ready_for_contributors()
         course.save()
-        self.helper_check_final_grade_upload(course, 0, False)
+        self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: editorApproved
         course.contributor_approve()
         course.save()
-        self.helper_check_final_grade_upload(course, 0, False)
+        self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: approved
         course.staff_approve()
         course.save()
-        self.helper_check_final_grade_upload(course, 0, False)
+        self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: inEvaluation
         course.evaluation_begin()
         course.save()
-        self.helper_check_final_grade_upload(course, 0, False)
+        self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: evaluated
         course.evaluation_end()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants, True)
+        self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: reviewed
         course.review_finished()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants + course.contributions.exclude(contributor=None).count(), True)
+        self.helper_check_final_grade_upload(course, course.num_participants + course.contributions.exclude(contributor=None).count())
 
         # state: published
         course.publish()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants, True)
+        self.helper_check_final_grade_upload(course, course.num_participants)

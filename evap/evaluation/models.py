@@ -464,7 +464,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         today = datetime.date.today()
 
         courses_new_in_evaluation = []
-        grade_document_courses = []
         evaluation_results_courses = []
 
         for course in cls.objects.all():
@@ -480,14 +479,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         if not course.is_graded or course.final_grade_documents.exists():
                             course.publish()
                             evaluation_results_courses.append(course)
-                    if course.final_grade_documents.exists():
-                        grade_document_courses.append(course)
                     course.save()
             except Exception:
                 logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
 
         send_evaluation_started_notifications(courses_new_in_evaluation)
-        send_publish_notifications(grade_document_courses=grade_document_courses, evaluation_results_courses=evaluation_results_courses)
+        send_publish_notifications(evaluation_results_courses=evaluation_results_courses)
 
 
 class Contribution(models.Model):

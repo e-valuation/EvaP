@@ -76,12 +76,12 @@ def upload_grades(request, semester_id, course_id):
 
     if form.is_valid():
         form.save()
-        if not final_grades or course.state in ['evaluated', 'published']:
-            send_publish_notifications(grade_document_courses=[course])
-        elif course.state == 'reviewed':
+        if final_grades and course.state == 'reviewed':
             course.publish()
             course.save()
             send_publish_notifications(grade_document_courses=[course], evaluation_results_courses=[course])
+        else:
+            send_publish_notifications(grade_document_courses=[course])            
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -101,11 +101,6 @@ def download_grades(request, grade_document_id):
         return HttpResponseBadRequest()
 
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
-
-    # final grades can only be downloaded when the evaluation is finished
-    if grade_document.type == GradeDocument.FINAL_GRADES and grade_document.course.state not in ['evaluated', 'reviewed', 'published']:
-        return HttpResponseForbidden()
-
     return sendfile(request, grade_document.file.path, attachment=True, attachment_filename=grade_document.filename())
 
 
