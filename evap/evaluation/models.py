@@ -477,14 +477,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     course.evaluation_end()
                     if course.is_fully_reviewed():
                         course.review_finished()
-                        if not course.is_graded:
+                        if not course.is_graded or course.final_grade_documents.exists():
                             course.publish()
                             evaluation_results_courses.append(course)
-                        elif course.final_grade_documents.exists():
-                            course.publish()
-                            grade_document_courses.append(course)
-                            evaluation_results_courses.append(course)
-                    elif course.final_grade_documents.exists():
+                    if course.final_grade_documents.exists():
                         grade_document_courses.append(course)
                     course.save()
             except Exception:
@@ -971,19 +967,19 @@ class EmailTemplate(models.Model):
         else:
             cc_addresses = []
 
-        grade_documents = len(grade_document_courses) > 0
-        evaluation_results = len(evaluation_results_courses) > 0
+        grade_documents_exist = len(grade_document_courses) > 0
+        evaluation_results_exist = len(evaluation_results_courses) > 0
 
         mail = EmailMessage(
             subject = self.render_string(self.subject, {
-                'grade_documents': grade_documents,
-                'evaluation_results': evaluation_results
+                'grade_documents_exist': grade_documents_exist,
+                'evaluation_results_exist': evaluation_results_exist
             }),
             body = self.render_string(self.body, {
                 'user': user,
                 'courses': courses,
-                'grade_documents': grade_documents,
-                'evaluation_results': evaluation_results,
+                'grade_documents_exist': grade_documents_exist,
+                'evaluation_results_exist': evaluation_results_exist,
                 'grade_document_courses': grade_document_courses,
                 'evaluation_results_courses': evaluation_results_courses
             }),

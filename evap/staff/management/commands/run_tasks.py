@@ -34,4 +34,3 @@ class Command(BaseCommand):
             self.check_reminders()
         else:
             self.update_courses()
-

@@ -51,7 +51,7 @@ class GradeUploadTests(WebTest):
         except AppError as e:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
-    def helper_upload_grades(self, course, final_grades=False):
+    def helper_upload_grades(self, course, final_grades):
         f = tempfile.SpooledTemporaryFile()
         f.write(b"Grades")
         f.seek(0)
@@ -91,7 +91,7 @@ class GradeUploadTests(WebTest):
         course = Course.objects.get(name_en="Test")
         self.assertEqual(course.midterm_grade_documents.count(), 0)
         
-        response = self.helper_upload_grades(course)
+        response = self.helper_upload_grades(course, final_grades=False)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
         self.assertEqual(course.midterm_grade_documents.count(), 1)

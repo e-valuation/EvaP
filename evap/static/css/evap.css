@@ -394,3 +394,7 @@ div.disabled-tooltip {
 .grade-course-table tr {
     height: 57px;
 }
+
+li.menu-indent {
+    padding-left: 20px;
+}
