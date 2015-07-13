@@ -460,7 +460,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def update_courses(cls):
-        from evap.evaluation.tools import send_publish_notifications, send_evaluation_started_notifications
+        from evap.evaluation.tools import send_publish_notifications
         today = datetime.date.today()
 
         courses_new_in_evaluation = []
@@ -483,7 +483,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             except Exception:
                 logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
 
-        send_evaluation_started_notifications(courses_new_in_evaluation)
+        EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
         send_publish_notifications(evaluation_results_courses=evaluation_results_courses)
 
 
@@ -899,25 +899,22 @@ class EmailTemplate(models.Model):
     subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
 
-    @classmethod
-    def get_review_template(cls):
-        return cls.objects.get(name="Editor Review Notice")
+    EDITOR_REVIEW_NOTICE = "Editor Review Notice"
+    STUDENT_REMINDER = "Student Reminder"
+    PUBLISHING_NOTICE = "Publishing Notice"
+    LOGIN_KEY_CREATED = "Login Key Created"
+    EVALUATION_STARTED = "Evaluation Started"
 
-    @classmethod
-    def get_reminder_template(cls):
-        return cls.objects.get(name="Student Reminder")
 
-    @classmethod
-    def get_publish_template(cls):
-        return cls.objects.get(name="Publishing Notice")
 
-    @classmethod
-    def get_login_key_template(cls):
-        return cls.objects.get(name="Login Key Created")
+    EMAIL_RECIPIENTS = (
+        ('all_participants', _('all participants')),
+        ('due_participants', _('due participants')),
+        ('responsible', _('responsible person')),
+        ('editors', _('all editors')),
+        ('contributors', _('all contributors'))
+    )
 
-    @classmethod
-    def get_evaluation_started_template(cls):
-        return cls.objects.get(name="Evaluation Started")
 
     @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
@@ -938,11 +935,13 @@ class EmailTemplate(models.Model):
 
         return recipients
 
+
     @classmethod
-    def render_string(cls, text, dictionary):
+    def __render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    def send_to_users_in_courses(self, courses, recipient_groups):
+    @classmethod
+    def send_to_users_in_courses(self, template, courses, recipient_groups):
         user_course_map = {}
         for course in courses:
             responsible = course.responsible_contributor
@@ -951,9 +950,13 @@ class EmailTemplate(models.Model):
                     user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.items():
-            self.send_to_user(user, courses)
+            subject_params = {}
+            body_params = {'user': user, 'courses': courses}
+            self.__send_to_user(user, template, subject_params, body_params, cc=True)
 
-    def send_to_user(self, user, courses=[], grade_document_courses=[], evaluation_results_courses=[], cc=True):
+
+    @classmethod
+    def __send_to_user(cls, user, template, subject_params, body_params, cc):
         if not user.email:
             logging.getLogger(__name__).warning("{} has no email address defined. Could not send email.".format(user.username))
             return
@@ -964,45 +967,66 @@ class EmailTemplate(models.Model):
         else:
             cc_addresses = []
 
-        grade_documents_exist = len(grade_document_courses) > 0
-        evaluation_results_exist = len(evaluation_results_courses) > 0
-
-        mail = EmailMessage(
-            subject = self.render_string(self.subject, {
-                'grade_documents_exist': grade_documents_exist,
-                'evaluation_results_exist': evaluation_results_exist
-            }),
-            body = self.render_string(self.body, {
-                'user': user,
-                'courses': courses,
-                'grade_documents_exist': grade_documents_exist,
-                'evaluation_results_exist': evaluation_results_exist,
-                'grade_document_courses': grade_document_courses,
-                'evaluation_results_courses': evaluation_results_courses
-            }),
-            to = [user.email],
-            cc = cc_addresses,
-            bcc = [a[1] for a in settings.MANAGERS],
-            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        
-        try:
-            mail.send(False)
-        except Exception:
-            logging.getLogger(__name__).exception(('An error occured when sending email "{}" to {}.').format(subject, user.username))
-
-    @classmethod
-    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
-        if not user.email:
-            return
-
-        template = cls.get_reminder_template()
-        subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
-        body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
+        subject = cls.__render_string(template.subject, subject_params)
+        body = cls.__render_string(template.body, body_params)
 
         mail = EmailMessage(
             subject = subject,
             body = body,
             to = [user.email],
+            cc = cc_addresses,
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.send(False)
+
+        try:
+            mail.send(False)
+        except Exception:
+            logging.getLogger(__name__).exception(('An error occured when sending email "{}" to {}.').format(subject, user.username))
+
+
+    @classmethod
+    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
+        template = cls.objects.get(name=cls.STUDENT_REMINDER)
+        subject_params = {'user': user, 'due_in_number_of_days': due_in_number_of_days}
+        body_params = {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses}
+
+        cls.__send_to_user(user, template, subject_params, body_params, cc=False)
+
+    @classmethod
+    def send_login_key_to_user(cls, user):
+        template = cls.objects.get(name=cls.LOGIN_KEY_CREATED)
+        subject_params = {}
+        body_params = {'user': user}
+
+        cls.__send_to_user(user, template, subject_params, body_params, cc=False)
+
+    @classmethod
+    def send_publish_notifications_to_user(cls, user, grade_document_courses=[], evaluation_results_courses=[]):
+        template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
+
+        grade_documents_exist = len(grade_document_courses) > 0
+        evaluation_results_exist = len(evaluation_results_courses) > 0
+
+        subject_params = {
+                'grade_documents_exist': grade_documents_exist,
+                'evaluation_results_exist': evaluation_results_exist
+            }
+        body_params = {
+                'user': user,
+                'grade_documents_exist': grade_documents_exist,
+                'evaluation_results_exist': evaluation_results_exist,
+                'grade_document_courses': grade_document_courses,
+                'evaluation_results_courses': evaluation_results_courses
+            }
+
+        cls.__send_to_user(user, template, subject_params, body_params, cc=True)
+
+    @classmethod
+    def send_review_notifications(cls, courses):
+        template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
+        cls.send_to_users_in_courses(template, courses, ['editors'])
+
+    @classmethod
+    def send_evaluation_started_notifications(cls, courses):
+        template = cls.objects.get(name=cls.EVALUATION_STARTED)
+        cls.send_to_users_in_courses(template, courses, ['all_participants'])

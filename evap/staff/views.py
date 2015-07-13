@@ -187,10 +187,8 @@ def helper_semester_course_operation_prepare(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-    try:
-        EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
-    except Exception:
-        messages.error(request, _("An error occured when sending the notification emails to the editors."))
+
+    EmailTemplate.send_review_notifications(courses)
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -491,10 +489,11 @@ def course_email(request, semester_id, course_id):
     if form.is_valid():
         form.send()
 
-        if form.all_recipients_reachable():
+        missing_email_addresses = form.missing_email_addresses()
+        if missing_email_addresses == 0:
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
-            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
+            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))

@@ -28,7 +28,7 @@ def index(request):
             profile.generate_login_key()
             profile.save()
 
-            EmailTemplate.get_login_key_template().send_to_user(new_key_form.get_user(), cc=False)
+            EmailTemplate.send_login_key_to_user(new_key_form.get_user())
 
             messages.success(request, _("Successfully sent email with new login key."))
         elif login_key_form.is_valid():

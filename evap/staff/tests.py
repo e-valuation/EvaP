@@ -511,7 +511,7 @@ class URLTests(WebTest):
         data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
-        form.all_recipients_reachable()
+        self.assertTrue(form.missing_email_addresses() == 0)
         form.send()
 
         data = {"body": "wat", "subject": "some subject"}
