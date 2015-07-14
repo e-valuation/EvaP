@@ -8,3 +8,7 @@ script:
   - coverage run manage.py test evap.evaluation evap.staff evap.contributor evap.results evap.student evap.grades evap.rewards evap.staff.tests.TestDataTest.load_test_data
 after_success:
   - coveralls
+sudo: false
+cache:
+  directories:
+  - $HOME/.cache/pip
