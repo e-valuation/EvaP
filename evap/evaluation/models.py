@@ -806,11 +806,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_active(self):
         return True
 
-    @property
+    @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
 
-    @property
+    @cached_property
     def is_grade_publisher(self):
         return self.groups.filter(name='Grade publisher').exists()
 

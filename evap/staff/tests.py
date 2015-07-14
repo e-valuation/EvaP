@@ -242,7 +242,6 @@ class UsecaseTests(WebTest):
         self.assertIn("No responsible contributor found", page)
 
 
-@unittest.skip("skip performance test because of d1dd563")
 class PerformanceTests(WebTest):
 
     def test_num_queries_user_list(self):
