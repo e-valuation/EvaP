@@ -61,6 +61,10 @@ INTERNAL_USERNAMES_MAX_LENGTH = 20
 IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
 
+# the default descriptions for grade documents
+DEFAULT_FINAL_GRADES_DESCRIPTION = "Final grades"
+DEFAULT_MIDTERM_GRADES_DESCRIPTION = "Midterm grades"
+
 
 ### Installation specific settings
 
@@ -111,6 +115,40 @@ if DEBUG:
 LEGAL_NOTICE_ACTIVE = False
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(levelname)s: %(message)s',
+        },
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR + '/logs/evap.log',
+            'formatter': 'default',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'evap': {
+            'handlers': ['file', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
+
+
 ### Application definition
 
 AUTH_USER_MODEL = 'evaluation.UserProfile'
@@ -129,6 +167,7 @@ INSTALLED_APPS = (
     'evap.student',
     'evap.contributor',
     'evap.rewards',
+    'evap.grades',
     'django_extensions',
 )
 
@@ -242,6 +281,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 # URL that handles the media served from MEDIA_ROOT.
 MEDIA_URL = '/media/'
 
+# the backend used for downloading attachments
+# see https://github.com/johnsensible/django-sendfile for further information
+SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 ### Other
 

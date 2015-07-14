@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
-from evap.evaluation.models import TextAnswer
+from evap.evaluation.models import TextAnswer, EmailTemplate
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
@@ -71,6 +71,8 @@ ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 're
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
 RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'deviation', 'distribution', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
+
+CourseLists = namedtuple('CourseLists', ('grade_document_courses', 'evaluation_results_courses'))
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -271,29 +273,45 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def user_publish_notifications(courses):
-    user_notifications = defaultdict(set)
-    for course in courses:
+def send_publish_notifications(grade_document_courses=None, evaluation_results_courses=None):
+    grade_document_courses = grade_document_courses or []
+    evaluation_results_courses = evaluation_results_courses or []
+
+    publish_notifications = defaultdict(lambda: CourseLists(set(), set()))
+
+    for course in evaluation_results_courses:
         # for published courses all contributors and participants get a notification
         if course.can_publish_grades:
             for participant in course.participants.all():
-                user_notifications[participant].add(course)
+                publish_notifications[participant].evaluation_results_courses.add(course)
             for contribution in course.contributions.all():
                 if contribution.contributor:
-                    user_notifications[contribution.contributor].add(course)
+                    publish_notifications[contribution.contributor].evaluation_results_courses.add(course)
         # if a course was not published notifications are only sent for contributors who can see comments
         elif len(course.textanswer_set) > 0:
             for textanswer in course.textanswer_set:
                 if textanswer.contribution.contributor:
-                    user_notifications[textanswer.contribution.contributor].add(course)
-            user_notifications[course.responsible_contributor].add(course)
+                    publish_notifications[textanswer.contribution.contributor].evaluation_results_courses.add(course)
+            publish_notifications[course.responsible_contributor].evaluation_results_courses.add(course)
+    for course in grade_document_courses:
+        # all participants who can download grades get a notification
+        for participant in course.participants.all():
+            if participant.can_download_grades:
+                publish_notifications[participant].grade_document_courses.add(course)
 
-    return user_notifications
+    for user, course_lists in publish_notifications.items():
+        EmailTemplate.send_publish_notifications_to_user(
+            user,
+            grade_document_courses=list(course_lists.grade_document_courses),
+            evaluation_results_courses=list(course_lists.evaluation_results_courses)
+        )
+
 
 def color_mix(color1, color2, fraction):
     return tuple(
         int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3)
     )
+
 
 def get_grade_color(grade):
     # Can happen if no one leaves any grades. Return white because its least likely to cause problems.
@@ -304,6 +322,7 @@ def get_grade_color(grade):
     next_higher = int(ceil(grade))
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
 
+
 def get_deviation_color(deviation):
     if deviation is None:
         return (255, 255, 255)
@@ -311,4 +330,3 @@ def get_deviation_color(deviation):
     capped_deviation = min(deviation, 2.0) # values above that are very uncommon in practice
     val = int(255 - capped_deviation * 60) # tweaked to look good
     return (val, val, val)
-

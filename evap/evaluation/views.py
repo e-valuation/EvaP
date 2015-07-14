@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate
+from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
 
 
 def index(request):
@@ -28,7 +28,7 @@ def index(request):
             profile.generate_login_key()
             profile.save()
 
-            EmailTemplate.get_login_key_template().send_to_user(new_key_form.get_user(), cc=False)
+            EmailTemplate.send_login_key_to_user(new_key_form.get_user())
 
             messages.success(request, _("Successfully sent email with new login key."))
         elif login_key_form.is_valid():
@@ -58,6 +58,9 @@ def index(request):
             if redirect_to.startswith("/staff/"):
                 if request.user.is_staff:
                     return redirect(redirect_to)
+            elif redirect_to.startswith("/grades/"):
+                if request.user.is_grade_publisher:
+                    return redirect(redirect_to)
             elif redirect_to.startswith("/contributor/"):
                 if user.is_contributor:
                     return redirect(redirect_to)
@@ -70,6 +73,8 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_staff:
             return redirect('staff:index')
+        elif request.user.is_grade_publisher:
+            return redirect('grades:semester_view', Semester.active_semester().id)
         elif user.is_contributor_or_delegate:
             return redirect('contributor:index')
         elif user.is_participant:

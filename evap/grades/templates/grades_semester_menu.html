@@ -1,0 +1,5 @@
+{% load i18n %}
+
+{% for semester in semesters %}
+    <li class="menu-indent"><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
+{% endfor %}

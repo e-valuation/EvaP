@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count
+from django.db.models import Max, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
@@ -13,8 +13,8 @@ from collections import defaultdict
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
-from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_textanswers, CommentSection, TextResult
+from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
+                                  TextResult, send_publish_notifications
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
@@ -187,10 +187,8 @@ def helper_semester_course_operation_prepare(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-    try:
-        EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
-    except Exception:
-        messages.error(request, _("An error occured when sending the notification emails to the editors."))
+
+    EmailTemplate.send_review_notifications(courses)
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -205,11 +203,7 @@ def helper_semester_course_operation_publish(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    for user, user_courses in user_publish_notifications(courses).items():
-        try:
-            EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
-        except Exception:
-            messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+    send_publish_notifications(evaluation_results_courses=courses)
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
@@ -495,10 +489,11 @@ def course_email(request, semester_id, course_id):
     if form.is_valid():
         form.send()
 
-        if form.all_recipients_reachable():
+        missing_email_addresses = form.missing_email_addresses()
+        if missing_email_addresses == 0:
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
-            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
+            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
@@ -732,8 +727,7 @@ def degree_index(request):
 @staff_required
 def user_index(request):
     users = UserProfile.objects.all() \
-                .prefetch_related('contributions', 'course_set') \
-                .annotate(is_staff=ExpressionWrapper(Q(groups__name="Staff"), output_field=BooleanField()))
+                .prefetch_related('contributions', 'course_set')
 
     return render(request, "staff_user_index.html", dict(users=users))
 

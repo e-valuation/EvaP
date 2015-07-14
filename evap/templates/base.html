@@ -2,6 +2,7 @@
 {% load static %}
 {% load morefilters %}
 {% load staff_templatetags %}
+{% load grades_templatetags %}
 {% load results_templatetags %}
 {% load cache %}
 
@@ -56,6 +57,18 @@
                             <li><a href="{% url "contributor:index" %}">{% trans "My courses" %}</a></li>
                         {% endif %}
 
+                        {% if user.is_grade_publisher %}
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "grades:index" %}">{% trans "Publish grades" %} <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "grades:index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "grades:index" %}">{% trans "Semesters" %}</a>
+                                        {% include_grades_semester_menu %}
+                                    </li>
+                                </ul>
+                            </li>                            
+                        {% endif %}
+
                         {% if user.is_editor %}
                             <li><a href="{% url "contributor:profile_edit" %}">{% trans "My profile" %}</a></li>
                         {% endif %}
@@ -107,7 +120,7 @@
     </nav>
     {% endcache %}
     <div class="container">
-        {% if user.is_staff %}
+        {% if user.is_staff or user.is_grade_publisher %}
             {% block breadcrumbs %}
                 <div class="row">
                     <div class="col-md-12">
