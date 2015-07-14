@@ -102,12 +102,12 @@ class GradeUploadTests(WebTest):
         self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: prepared
-        course.ready_for_contributors()
+        course.ready_for_editors()
         course.save()
         self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: editorApproved
-        course.contributor_approve()
+        course.editor_approve()
         course.save()
         self.helper_check_final_grade_upload(course, course.num_participants)
 

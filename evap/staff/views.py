@@ -183,7 +183,7 @@ def helper_semester_course_operation_revert(request, courses):
 
 def helper_semester_course_operation_prepare(request, courses):
     for course in courses:
-        course.ready_for_contributors()
+        course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
