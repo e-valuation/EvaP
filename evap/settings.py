@@ -125,8 +125,11 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'class': 'logging.FileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + '/logs/evap.log',
+            'maxBytes': 1024*1024*10,
+            'backupCount': 5,
             'formatter': 'default',
         },
         'mail_admins': {
@@ -137,12 +140,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'WARNING',
+            'level': 'INFO',
             'propagate': True,
         },
         'evap': {
             'handlers': ['file', 'mail_admins'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'propagate': True,
         },
     },
