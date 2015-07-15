@@ -15,8 +15,8 @@
     <h3>
         {{ semester.name }}
         <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
-        <a href="{% url "staff:semester_delete" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete" %}</a>
-        <a href="{% url "staff:semester_archive" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.is_archiveable %} disabled="disabled" {% endif %}>{% trans "Archive" %}</a>
+        <a href="{% url "staff:semester_delete" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.can_staff_delete %} disabled {% endif %}>{% trans "Delete" %}</a>
+        <a href="{% url "staff:semester_archive" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.is_archiveable %} disabled {% endif %}>{% trans "Archive" %}</a>
     </h3>
 
     {% if num_courses > 0 %}

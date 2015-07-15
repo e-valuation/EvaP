@@ -48,7 +48,7 @@
                                 {{ form_element.responsible.as_hidden }}
                                 {{ form_element.contributor.errors }}
                                 {% if form_element.responsible.value == True %}
-                                    <select class="form-control" disabled="disabled"><option selected="selected">{{ responsible }} ({% trans "responsible" %})</option></select>
+                                    <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
                                     {{ form_element.contributor.as_hidden }}
                                 {% else %}
                                     {{ form_element.contributor }}
@@ -58,7 +58,7 @@
                             <td>
                                 {{ form_element.can_edit.errors }}
                                 {% if form_element.responsible.value == True %}
-                                    <input checked="checked" type="checkbox" disabled="disabled" />
+                                    <input type="checkbox" checked disabled />
                                     {{ form_element.can_edit.as_hidden }}
                                 {% else %}
                                     {{ form_element.can_edit }}

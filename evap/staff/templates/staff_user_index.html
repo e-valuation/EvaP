@@ -36,7 +36,7 @@
                     {% if user.can_staff_delete %}
                         <a href="{% url "staff:user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                     {% else %}
-                        <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}"><a class="btn btn-sm btn-danger" disabled="disabled">{% trans "Delete" %}</a></div>
+                        <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This user cannot be deleted because he is a contributor to a course" %}"><a class="btn btn-sm btn-danger" disabled>{% trans "Delete" %}</a></div>
                     {% endif %}
                 </td>
             </tr>
