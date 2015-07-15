@@ -12,7 +12,11 @@
         </div>
     {% endif %}
 
-    <h3>{% blocktrans with course=course.name semester=semester.name %}Upload grades for {{ course }} ({{ semester }}){% endblocktrans %}</h3>
+    <h3>{% if final_grades %}
+        {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
+    {% else %}
+        {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
+    {% endif %}</h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_div }}
