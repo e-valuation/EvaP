@@ -183,7 +183,7 @@ def helper_semester_course_operation_revert(request, courses):
 
 def helper_semester_course_operation_prepare(request, courses):
     for course in courses:
-        course.ready_for_contributors()
+        course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
@@ -726,8 +726,15 @@ def degree_index(request):
 
 @staff_required
 def user_index(request):
-    users = UserProfile.objects.all() \
-                .prefetch_related('contributions', 'course_set')
+    from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count, Sum, Case, When, IntegerField
+    from django.contrib.auth.models import Group
+    users = (UserProfile.objects.all()
+        # the following four annotations basically add two bools indicating whether each user is part of a group or not.
+        .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
+        .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
+        .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
+        .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
+        .prefetch_related('contributions', 'course_set'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 

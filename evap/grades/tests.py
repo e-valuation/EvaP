@@ -21,7 +21,6 @@ class GradeUploadTests(WebTest):
         mommy.make(UserProfile, username="student3", email="student3@student.hpi.de")
         mommy.make(UserProfile, username="responsible", email="responsible@hpi.de")
 
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=False)
         course = mommy.make(Course,
             name_en="Test",
             vote_start_date=datetime.date.today(),
@@ -37,8 +36,9 @@ class GradeUploadTests(WebTest):
         )
         contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True)
         contribution.save()
-        contribution.questionnaires = [questionnaire]
-        contribution.save()
+        contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
+
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
     def tearDown(self):
         for course in Course.objects.all():
@@ -87,7 +87,7 @@ class GradeUploadTests(WebTest):
     def test_upload_midterm_grades(self):
         course = Course.objects.get(name_en="Test")
         self.assertEqual(course.midterm_grade_documents.count(), 0)
-        
+
         response = self.helper_upload_grades(course, final_grades=False)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
@@ -97,17 +97,17 @@ class GradeUploadTests(WebTest):
     def test_upload_final_grades(self):
         course = Course.objects.get(name_en="Test")
         self.assertEqual(course.final_grade_documents.count(), 0)
-        
+
         # state: new
         self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: prepared
-        course.ready_for_contributors()
+        course.ready_for_editors()
         course.save()
         self.helper_check_final_grade_upload(course, course.num_participants)
 
         # state: editorApproved
-        course.contributor_approve()
+        course.editor_approve()
         course.save()
         self.helper_check_final_grade_upload(course, course.num_participants)
 

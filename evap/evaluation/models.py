@@ -270,11 +270,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     @transition(field=state, source=['new', 'editorApproved'], target='prepared')
-    def ready_for_contributors(self):
+    def ready_for_editors(self):
         pass
 
     @transition(field=state, source='prepared', target='editorApproved')
-    def contributor_approve(self):
+    def editor_approve(self):
         pass
 
     @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[has_enough_questionnaires])
@@ -806,11 +806,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_active(self):
         return True
 
-    @property
+    @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
 
-    @property
+    @cached_property
     def is_grade_publisher(self):
         return self.groups.filter(name='Grade publisher').exists()
 

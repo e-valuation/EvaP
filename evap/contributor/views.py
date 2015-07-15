@@ -95,7 +95,7 @@ def course_edit(request, course_id):
 
         if operation == 'approve':
             # approve course
-            course.contributor_approve()
+            course.editor_approve()
             course.save()
             messages.success(request, _("Successfully updated and approved course."))
         else:
