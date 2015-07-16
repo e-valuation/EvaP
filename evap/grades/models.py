@@ -29,6 +29,9 @@ class GradeDocument(models.Model):
     class Meta:
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
+        unique_together = (
+            ('course', 'description'),
+        )
 
     def __unicode__(self):
         return self.description

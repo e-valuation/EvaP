@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 from evap.evaluation.forms import BootstrapMixin
 
 from evap.grades.models import GradeDocument
@@ -53,3 +54,9 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
         if final_grades:
             self.instance.type = GradeDocument.FINAL_GRADES
         self.instance.last_modified_user = user
+
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+        if GradeDocument.objects.filter(course=self.instance.course, description=description).exclude(id=self.instance.id).exists():
+            raise ValidationError(_("This description for a grade document was already used for this course."))
+        return description
