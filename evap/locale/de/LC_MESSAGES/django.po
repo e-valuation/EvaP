@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-16 08:52+0200\n"
-"PO-Revision-Date: 2015-07-16 08:52+0200\n"
+"POT-Creation-Date: 2015-07-18 10:59+0200\n"
+"PO-Revision-Date: 2015-07-18 11:00+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -937,19 +937,25 @@ msgstr "Evaluierung beendet"
 msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
-#: grades/forms.py:22 grades/models.py:24
+#: grades/forms.py:23 grades/models.py:24
 #: grades/templates/grades_course_view.html:19
 msgid "Description"
 msgstr "Beschreibung"
 
-#: grades/forms.py:24 staff/forms.py:51 staff/forms.py:109
+#: grades/forms.py:25 staff/forms.py:51 staff/forms.py:109
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: grades/forms.py:25 staff/forms.py:52 staff/forms.py:110
+#: grades/forms.py:26 staff/forms.py:52 staff/forms.py:110
 #: staff/templates/staff_semester_todo.html:31
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
+
+#: grades/forms.py:61
+msgid "This description for a grade document was already used for this course."
+msgstr ""
+"Diese Beschreibung wurde bereits für ein Noten-Dokument in diesem Kurs "
+"genutzt."
 
 #: grades/models.py:13 results/templates/results_course_detail.html:85
 #: results/templates/results_semester_detail.html:23
@@ -1499,7 +1505,7 @@ msgstr "Benötigte Veranstaltungen"
 msgid "Reward points earned"
 msgstr "Belohnungspunkte vergeben"
 
-#: rewards/tools.py:67
+#: rewards/tools.py:71
 msgid ""
 "You just have earned reward points for this semester because you evaluated "
 "all your courses. Thank you very much!"
@@ -2483,33 +2489,33 @@ msgstr ""
 msgid "Successfully updated the degrees."
 msgstr "Studiengänge erfolgreich geändert."
 
-#: staff/views.py:741
+#: staff/views.py:748
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: staff/views.py:775
+#: staff/views.py:782
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: staff/views.py:788
+#: staff/views.py:795
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: staff/views.py:793
+#: staff/views.py:800
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: staff/views.py:805
+#: staff/views.py:812
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: staff/views.py:821
+#: staff/views.py:828
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: staff/views.py:838
+#: staff/views.py:845
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -2635,7 +2641,7 @@ msgstr "Fragebogen absenden"
 
 #: student/views.py:109
 msgid "Your vote was recorded."
-msgstr "Ihre Stimme wurde aufgezeichnet."
+msgstr "Deine Antworten wurden gespeichert."
 
 #: templates/403.html:15
 msgid "You seem to not be allowed to view this page."
