@@ -48,11 +48,11 @@
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if course.num_participants %}
         <td class="minimize">
-            <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+            <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <span>{{ course.num_voters }}/{{ course.num_participants }}</span>
                 <span>({{ course.num_voters|percentage:course.num_participants|default:'&madsh;' }})</span>
-            </p>
+            </span><br>
             {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
                 <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
                     <span class="glyphicon glyphicon-comment"></span>
@@ -60,11 +60,16 @@
                     <span>({{ course.num_reviewed_textanswers|percentage:course.num_textanswers|default:'&mdash;' }})</span>
                 </a>
             {% else %}
-                <p data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
+                <span data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
                     <span class="glyphicon glyphicon-comment"></span>
                     <span>{{ course.num_textanswers }}</span>
-                </p>
+                </span>
             {% endif %}
+            <br>
+            <span data-toggle="tooltip" data-placement="left" title="{% trans "Grade documents (Midterm, Final)" %}">
+                <span class="glyphicon glyphicon-file"></span>
+                <span>{% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}</span>
+            </span>
         </td>
     {% else %}
         <td class="minimize">

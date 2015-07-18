@@ -90,6 +90,7 @@ def upload_grades(request, semester_id, course_id):
             semester=semester,
             course=course,
             form=form,
+            final_grades=final_grades,
             show_automated_publishing_info=final_grades,
         )
         return render(request, "grades_upload_form.html", template_data)

@@ -48,8 +48,8 @@
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Upload grades" %} <span class="caret"></span></button>
                                         <ul class="dropdown-menu" role="menu">
-                                            <li><a href="{% url "grades:upload_grades" semester.id course.id %}">Midterm grades</a></li>
-                                            <li><a href="{% url "grades:upload_grades" semester.id course.id %}?final=true">Final grades</a></li>
+                                            <li><a href="{% url "grades:upload_grades" semester.id course.id %}">{% trans "Midterm grades" %}</a></li>
+                                            <li><a href="{% url "grades:upload_grades" semester.id course.id %}?final=true">{% trans "Final grades" %}</a></li>
                                         </ul>
                                     </div>
                                 </td>
