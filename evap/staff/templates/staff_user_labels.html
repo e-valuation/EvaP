@@ -4,6 +4,9 @@
     {% if user.is_staff %}
         <span class="label label-primary">{% trans "Staff" %}</span>
     {% endif %}
+    {% if user.is_grade_publisher %}
+        <span class="label label-primary">{% trans "Grade publisher" %}</span>
+    {% endif %}
     {% if user.is_external %}
         <span class="label label-default">{% trans "External" %}</span>
     {% endif %}

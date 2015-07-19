@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
 from django_fsm import FSMField, transition
@@ -17,6 +18,7 @@ from evap.evaluation.meta import LocalizeModelBase, Translate
 
 import datetime
 import random
+import logging
 
 # for converting state into student_state
 STUDENT_STATES_NAMES = {
@@ -61,7 +63,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def is_archiveable(self):
         return all(course.is_archiveable for course in self.course_set.all())
 
-    @property
+    @cached_property
     def is_archived(self):
         if self.course_set.count() == 0:
             return False
@@ -195,7 +197,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('semester', 'name_de')
+        ordering = ('name_de',)
         unique_together = (
             ('semester', 'name_de'),
             ('semester', 'name_en'),
@@ -211,7 +213,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         # make sure there is a general contribution
         if not self.general_contribution:
-            self.contributions.create(contributor=None)
+            self.general_contribution = self.contributions.create(contributor=None)
 
     def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
@@ -224,7 +226,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return today >= self.vote_start_date and today <= self.vote_end_date
 
     def has_enough_questionnaires(self):
-        return self.general_contribution and all(self.contributions.aggregate(Count('questionnaires')).values())
+        return self.general_contribution and (self.is_single_result() or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
@@ -256,10 +258,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and not self.num_voters > 0
 
     @property
-    def can_staff_review(self):
-        return self.state in ['inEvaluation', 'evaluated', 'reviewed'] and self.textanswer_set.exists()
-
-    @property
     def can_staff_approve(self):
         return self.state in ['new', 'prepared', 'editorApproved']
 
@@ -272,11 +270,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
     @transition(field=state, source=['new', 'editorApproved'], target='prepared')
-    def ready_for_contributors(self):
+    def ready_for_editors(self):
         pass
 
     @transition(field=state, source='prepared', target='editorApproved')
-    def contributor_approve(self):
+    def editor_approve(self):
         pass
 
     @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[has_enough_questionnaires])
@@ -323,20 +321,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def student_state(self):
         return STUDENT_STATES_NAMES[self.state]
 
-    @property
+    @cached_property
     def general_contribution(self):
         try:
             return self.contributions.get(contributor=None)
         except Contribution.DoesNotExist:
             return None
 
-    @property
+    @cached_property
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
         return self.participants.count()
 
-    @property
+    @cached_property
     def num_voters(self):
         if self._voter_count is not None:
             return self._voter_count
@@ -346,17 +344,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def due_participants(self):
         return self.participants.exclude(pk__in=self.voters.all())
 
-    @property
+    @cached_property
     def responsible_contributor(self):
         return self.contributions.get(responsible=True).contributor
-
-    @property
-    def responsible_contributors_name(self):
-        return self.responsible_contributor.full_name
-
-    @property
-    def responsible_contributors_username(self):
-        return self.responsible_contributor.username
 
     @property
     def days_left_for_evaluation(self):
@@ -399,7 +389,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if not self.has_enough_questionnaires() and not self.is_single_result():
+        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires():
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
@@ -408,27 +398,35 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all())
+        return TextAnswer.objects.filter(contribution__course=self)
+
+    @cached_property
+    def num_textanswers(self):
+        return self.textanswer_set.count()
 
     @property
     def open_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all(), state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
         """Pseudo relationship to all text answers for this course"""
-        return TextAnswer.objects.filter(contribution__in=self.contributions.all()).exclude(state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
+
+    @cached_property
+    def num_reviewed_textanswers(self):
+        return self.reviewed_textanswer_set.count()
 
     @property
     def likertanswer_counters(self):
         """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswerCounter.objects.filter(contribution__in=self.contributions.all())
+        return LikertAnswerCounter.objects.filter(contribution__course=self)
 
     @property
     def gradeanswer_counters(self):
         """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswerCounter.objects.filter(contribution__in=self.contributions.all())
+        return GradeAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
         """Should be called only via Semester.archive"""
@@ -449,6 +447,44 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def was_evaluated(self, request):
         self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
+
+    @property
+    def final_grade_documents(self):
+        from evap.grades.models import GradeDocument
+        return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
+
+    @property
+    def midterm_grade_documents(self):
+        from evap.grades.models import GradeDocument
+        return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
+
+    @classmethod
+    def update_courses(cls):
+        from evap.evaluation.tools import send_publish_notifications
+        today = datetime.date.today()
+
+        courses_new_in_evaluation = []
+        evaluation_results_courses = []
+
+        for course in cls.objects.all():
+            try:
+                if course.state == "approved" and course.vote_start_date <= today:
+                    course.evaluation_begin()
+                    course.save()
+                    courses_new_in_evaluation.append(course)
+                elif course.state == "inEvaluation" and course.vote_end_date < today:
+                    course.evaluation_end()
+                    if course.is_fully_reviewed():
+                        course.review_finished()
+                        if not course.is_graded or course.final_grade_documents.exists():
+                            course.publish()
+                            evaluation_results_courses.append(course)
+                    course.save()
+            except Exception:
+                logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
+
+        EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
+        send_publish_notifications(evaluation_results_courses=evaluation_results_courses)
 
 
 class Contribution(models.Model):
@@ -533,7 +569,7 @@ class Answer(models.Model):
     `TextAnswer` and `GradeAnswerCounter`."""
 
     question = models.ForeignKey(Question)
-    contribution = models.ForeignKey(Contribution)
+    contribution = models.ForeignKey(Contribution, related_name="%(class)s_set")
 
     class Meta:
         abstract = True
@@ -665,6 +701,7 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
         verbose_name = _("question")
         verbose_name_plural = _("questions")
 
+
 class UserProfileManager(BaseUserManager):
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
@@ -730,6 +767,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
     class Meta:
+        ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
@@ -768,9 +806,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_active(self):
         return True
 
-    @property
+    @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
+
+    @cached_property
+    def is_grade_publisher(self):
+        return self.groups.filter(name='Grade publisher').exists()
 
     @property
     def can_staff_delete(self):
@@ -816,6 +858,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return True
         return is_external_email(self.email)
 
+    @property
+    def can_download_grades(self):
+        return not self.is_external
+
     @classmethod
     def email_needs_login_key(cls, email):
         # do the import here to prevent a circular import
@@ -853,25 +899,22 @@ class EmailTemplate(models.Model):
     subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
 
-    @classmethod
-    def get_review_template(cls):
-        return cls.objects.get(name="Editor Review Notice")
+    EDITOR_REVIEW_NOTICE = "Editor Review Notice"
+    STUDENT_REMINDER = "Student Reminder"
+    PUBLISHING_NOTICE = "Publishing Notice"
+    LOGIN_KEY_CREATED = "Login Key Created"
+    EVALUATION_STARTED = "Evaluation Started"
 
-    @classmethod
-    def get_reminder_template(cls):
-        return cls.objects.get(name="Student Reminder")
 
-    @classmethod
-    def get_publish_template(cls):
-        return cls.objects.get(name="Publishing Notice")
 
-    @classmethod
-    def get_login_key_template(cls):
-        return cls.objects.get(name="Login Key Created")
+    EMAIL_RECIPIENTS = (
+        ('all_participants', _('all participants')),
+        ('due_participants', _('due participants')),
+        ('responsible', _('responsible person')),
+        ('editors', _('all editors')),
+        ('contributors', _('all contributors'))
+    )
 
-    @classmethod
-    def get_evaluation_started_template(cls):
-        return cls.objects.get(name="Evaluation Started")
 
     @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
@@ -892,23 +935,30 @@ class EmailTemplate(models.Model):
 
         return recipients
 
+
     @classmethod
-    def render_string(cls, text, dictionary):
+    def __render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    def send_to_users_in_courses(self, courses, recipient_groups):
+    @classmethod
+    def send_to_users_in_courses(self, template, courses, recipient_groups):
         user_course_map = {}
         for course in courses:
             responsible = course.responsible_contributor
             for user in self.recipient_list_for_course(course, recipient_groups):
-                if user.email and user not in responsible.cc_users.all() and user not in responsible.delegates.all():
+                if user not in responsible.cc_users.all() and user not in responsible.delegates.all():
                     user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.items():
-            self.send_to_user(user, courses)
+            subject_params = {}
+            body_params = {'user': user, 'courses': courses}
+            self.__send_to_user(user, template, subject_params, body_params, cc=True)
 
-    def send_to_user(self, user, courses=None, cc=True):
+
+    @classmethod
+    def __send_to_user(cls, user, template, subject_params, body_params, cc):
         if not user.email:
+            logging.getLogger(__name__).warning("{} has no email address defined. Could not send email.".format(user.username))
             return
 
         if cc:
@@ -917,28 +967,66 @@ class EmailTemplate(models.Model):
         else:
             cc_addresses = []
 
-        mail = EmailMessage(
-            subject = self.render_string(self.subject, {'user': user, 'courses': courses}),
-            body = self.render_string(self.body, {'user': user, 'courses': courses}),
-            to = [user.email],
-            cc = cc_addresses,
-            bcc = [a[1] for a in settings.MANAGERS],
-            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.send(False)
-
-    @classmethod
-    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
-        if not user.email:
-            return
-
-        template = cls.get_reminder_template()
-        subject = template.render_string(template.subject, {'user': user, 'due_in_number_of_days': due_in_number_of_days})
-        body = template.render_string(template.body, {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses})
+        subject = cls.__render_string(template.subject, subject_params)
+        body = cls.__render_string(template.body, body_params)
 
         mail = EmailMessage(
             subject = subject,
             body = body,
             to = [user.email],
+            cc = cc_addresses,
             bcc = [a[1] for a in settings.MANAGERS],
             headers = {'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.send(False)
+
+        try:
+            mail.send(False)
+        except Exception:
+            logging.getLogger(__name__).exception(('An error occured when sending email "{}" to {}.').format(subject, user.username))
+
+
+    @classmethod
+    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
+        template = cls.objects.get(name=cls.STUDENT_REMINDER)
+        subject_params = {'user': user, 'due_in_number_of_days': due_in_number_of_days}
+        body_params = {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses}
+
+        cls.__send_to_user(user, template, subject_params, body_params, cc=False)
+
+    @classmethod
+    def send_login_key_to_user(cls, user):
+        template = cls.objects.get(name=cls.LOGIN_KEY_CREATED)
+        subject_params = {}
+        body_params = {'user': user}
+
+        cls.__send_to_user(user, template, subject_params, body_params, cc=False)
+
+    @classmethod
+    def send_publish_notifications_to_user(cls, user, grade_document_courses=[], evaluation_results_courses=[]):
+        template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
+
+        grade_documents_exist = len(grade_document_courses) > 0
+        evaluation_results_exist = len(evaluation_results_courses) > 0
+
+        subject_params = {
+                'grade_documents_exist': grade_documents_exist,
+                'evaluation_results_exist': evaluation_results_exist
+            }
+        body_params = {
+                'user': user,
+                'grade_documents_exist': grade_documents_exist,
+                'evaluation_results_exist': evaluation_results_exist,
+                'grade_document_courses': grade_document_courses,
+                'evaluation_results_courses': evaluation_results_courses
+            }
+
+        cls.__send_to_user(user, template, subject_params, body_params, cc=True)
+
+    @classmethod
+    def send_review_notifications(cls, courses):
+        template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
+        cls.send_to_users_in_courses(template, courses, ['editors'])
+
+    @classmethod
+    def send_evaluation_started_notifications(cls, courses):
+        template = cls.objects.get(name=cls.EVALUATION_STARTED)
+        cls.send_to_users_in_courses(template, courses, ['all_participants'])

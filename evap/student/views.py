@@ -26,7 +26,13 @@ def index(request):
     semesters = Semester.objects.all()
     semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
-    return render(request, "student_index.html", dict(semester_list=semester_list, voted_courses=voted_courses, due_courses=due_courses))
+    template_data = dict(
+        semester_list=semester_list,
+        voted_courses=voted_courses,
+        due_courses=due_courses,
+        can_download_grades=request.user.can_download_grades,
+    )
+    return render(request, "student_index.html", template_data)
 
 
 def vote_preview(request, course):

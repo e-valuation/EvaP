@@ -33,6 +33,16 @@
     <div class="panel panel-info">
         <div class="panel-heading">
             <span class="panel-title">{% trans "Overview" %}</span>
+            {% if course.grade_documents.count > 0 and can_download_grades %}
+                <div class="pull-right btn-group">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        {% for grade_document in course.grade_documents.all %}
+                            <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
         </div>
         <div class="panel-body">
             <table class="table">
@@ -54,7 +64,7 @@
                             {% endfor %}
                         </td>
                         <td>{{ course.type }}</td>
-                        <td>{{ course.responsible_contributors_name }}</td>
+                        <td>{{ course.responsible_contributor.full_name }}</td>
                         {% if show_grades %}
                             <td><div class="grade-bg text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                             <td><div class="deviation-bg text-center" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>

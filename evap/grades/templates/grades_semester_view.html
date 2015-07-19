@@ -1,0 +1,85 @@
+{% extends "grades_semester_base.html" %}
+
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% if semester.is_archived %}
+        <p class="bs-callout bs-callout-info"> {% trans "This semester is archived." %} </p>
+    {% endif %}
+
+    <h3>
+        {{ semester.name }}
+    </h3>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Courses" %}</h3>
+        </div>
+        <div class="panel-body">
+            {% if courses %}
+                <table class="table table-striped grade-course-table vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-4">{% trans "Name" %}</th>
+                            <th class="col-sm-2">{% trans "Responsible" %}</th>
+                            <th class="col-sm-1">{% trans "Degree" %}</th>
+                            <th class="col-sm-1">{% trans "Type" %}</th>
+                            <th class="col-sm-2">{% trans "Final grades" %}</th>
+                            <th class="col-sm-2"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course, has_final_grades in courses %}
+                            <tr>
+                                <td><a href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>{{ course.name }}</a></td>
+                                <td>{{ course.responsible_contributor.full_name }}</td>
+                                <td>
+                                    {% for degree in course.degrees.all %}
+                                        {{ degree }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ course.type }}</td>
+                                <td class="text-center">{% if has_final_grades %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Upload grades" %} <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="{% url "grades:upload_grades" semester.id course.id %}">{% trans "Midterm grades" %}</a></li>
+                                            <li><a href="{% url "grades:upload_grades" semester.id course.id %}?final=true">{% trans "Final grades" %}</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <i>{% trans "No courses have been created yet" %}</i>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.grade-course-table').dataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                },
+                "aoColumnDefs": [
+                    { 'bSortable': false, 'aTargets': [ -1 ] }
+                ]
+            });
+        });
+    </script>
+{% endblock %}

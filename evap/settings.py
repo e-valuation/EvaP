@@ -61,6 +61,10 @@ INTERNAL_USERNAMES_MAX_LENGTH = 20
 IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
 
+# the default descriptions for grade documents
+DEFAULT_FINAL_GRADES_DESCRIPTION = "Final grades"
+DEFAULT_MIDTERM_GRADES_DESCRIPTION = "Midterm grades"
+
 
 ### Installation specific settings
 
@@ -82,12 +86,14 @@ DATABASES = {
         'PASSWORD': '',                         # Not used with sqlite3.
         'HOST': '',                             # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                             # Set to empty string for default. Not used with sqlite3.
+        'CONN_MAX_AGE': 600,
     }
 }
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'evap_db_cache',
         'OPTIONS': {
             'MAX_ENTRIES': 1000 # note that the results alone need one entry per course
         }
@@ -109,6 +115,40 @@ if DEBUG:
 LEGAL_NOTICE_ACTIVE = False
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(levelname)s: %(message)s',
+        },
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR + '/logs/evap.log',
+            'formatter': 'default',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'evap': {
+            'handlers': ['file', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
+
+
 ### Application definition
 
 AUTH_USER_MODEL = 'evaluation.UserProfile'
@@ -127,6 +167,8 @@ INSTALLED_APPS = (
     'evap.student',
     'evap.contributor',
     'evap.rewards',
+    'evap.grades',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -164,6 +206,13 @@ TEMPLATES = [
         },
     },
 ]
+
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )),
+)
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
@@ -232,6 +281,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 # URL that handles the media served from MEDIA_ROOT.
 MEDIA_URL = '/media/'
 
+# the backend used for downloading attachments
+# see https://github.com/johnsensible/django-sendfile for further information
+SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 ### Other
 
@@ -239,18 +291,6 @@ MEDIA_URL = '/media/'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
-
-# Django debug toolbar settings
-TESTING = 'test' in sys.argv
-if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
-    DEBUG_TOOLBAR_PATCH_SETTINGS = False
-    INSTALLED_APPS += ('debug_toolbar',)
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
-    def show_toolbar(request):
-        return True
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
-    }
 
 # make generation of Question objects work, see https://github.com/vandersonmota/model_mommy/issues/231
 MOMMY_CUSTOM_FIELDS_GEN = {
@@ -263,3 +303,19 @@ try:
     from evap.localsettings import *
 except ImportError:
     pass
+
+# speed up tests by using sqlite
+if 'test' in sys.argv:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+
+# Django debug toolbar settings
+TESTING = 'test' in sys.argv
+if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    INSTALLED_APPS += ('debug_toolbar',)
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    def show_toolbar(request):
+        return True
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+    }

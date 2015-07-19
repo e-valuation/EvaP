@@ -24,6 +24,7 @@ evap/localsettings.py
 evap/static_collected
 evap/media
 evap/database.sqlite3
+evap/upload
 
 docs/_build
 

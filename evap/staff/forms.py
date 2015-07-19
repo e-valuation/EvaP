@@ -9,7 +9,6 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
                                    EmailTemplate, TextAnswer, Degree, GradeAnswerCounter
 from evap.staff.fields import ToolTipModelMultipleChoiceField
-from evap.staff.tools import EMAIL_RECIPIENTS
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -44,6 +43,11 @@ class DegreeForm(forms.ModelForm, BootstrapMixin):
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+
+    # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
+    # uneditable and so it can't be displayed in the model form
+    # see https://docs.djangoproject.com/en/dev/ref/models/fields/#datefield for details
+    # last_modified_user would usually get a select widget but should here be displayed as a readonly CharField instead
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
 
@@ -59,7 +63,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.fields['vote_end_date'].localize = True
         self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
         self.fields['degrees'].help_text = ""
-        self.fields['participants'].queryset = UserProfile.objects.order_by("last_name", "first_name", "username")
         self.fields['participants'].help_text = ""
 
         if self.instance.general_contribution:
@@ -106,7 +109,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.order_by("last_name", "first_name", "username"))
+    responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
     answer_1 = forms.IntegerField(label=_("# very good"))
     answer_2 = forms.IntegerField(label=_("# good"))
     answer_3 = forms.IntegerField(label=_("# neutral"))
@@ -183,7 +186,6 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         super().__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
-        self.fields['contributor'].queryset = UserProfile.objects.order_by('username')
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
         self.fields['order'].widget = forms.HiddenInput()
 
@@ -199,7 +201,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
 
 class CourseEmailForm(forms.Form, BootstrapMixin):
-    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EMAIL_RECIPIENTS, label=_("Send email to"))
+    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.EMAIL_RECIPIENTS, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
@@ -216,10 +218,6 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
         return self.cleaned_data
 
-    # returns whether all recepients have an email address
-    def all_recipients_reachable(self):
-        return self.missing_email_addresses() == 0
-
     # returns the number of recepients without an email address
     def missing_email_addresses(self):
         recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
@@ -228,7 +226,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_to_users_in_courses([self.instance], self.recipient_groups)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups)
 
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
@@ -350,7 +348,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        all_users = UserProfile.objects.order_by('last_name', 'first_name')
+        all_users = UserProfile.objects.all()
         # fix generated form
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = all_users

@@ -149,6 +149,13 @@
   }
 },
 {
+  "pk": 2,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Grade publisher"
+  }
+},
+{
   "pk": 35,
   "model": "evaluation.contribution",
   "fields": {

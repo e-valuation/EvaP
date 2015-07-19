@@ -1,0 +1,29 @@
+{% extends "grades_course_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    
+    {% if show_automated_publishing_info %}
+        <div class="bs-callout bs-callout-info">
+            <b>{% trans "Automated publishing" %}</b><br />
+            {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation for this course has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
+        </div>
+    {% endif %}
+
+    <h3>{% if final_grades %}
+        {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
+    {% else %}
+        {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
+    {% endif %}</h3>
+    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                <input type="submit" value="{% trans "Upload grades" %}" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}

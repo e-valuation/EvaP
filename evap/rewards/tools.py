@@ -57,8 +57,12 @@ def grant_reward_points(sender, **kwargs):
     # has the semester been activated for reward points?
     if not is_semester_activated(semester):
         return
+    # does the user have at least one required course in this semester?
+    required_courses = Course.objects.filter(participants=request.user, semester=semester, is_required_for_reward=True)
+    if not required_courses.exists():
+        return
     # does the user not participate in any more required courses in this semester?
-    if Course.objects.filter(participants=request.user, semester=semester, is_required_for_reward=True).exclude(voters=request.user).exists():
+    if required_courses.exclude(voters=request.user).exists():
         return
     # did the user not already get reward points for this semester?
     if not RewardPointGranting.objects.filter(user_profile=request.user, semester=semester):

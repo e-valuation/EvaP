@@ -1,19 +1,20 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Max
+from django.db.models import Max, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.db.models import Prefetch
 from collections import defaultdict
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
-from evap.evaluation.tools import STATES_ORDERED, user_publish_notifications, questionnaires_and_contributions, \
-                                  get_textanswers, CommentSection, TextResult
+from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
+                                  TextResult, send_publish_notifications
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
@@ -43,11 +44,31 @@ def index(request):
     return render(request, "staff_index.html", template_data)
 
 
+def get_courses_with_prefetched_data(semester):
+    courses = semester.course_set.prefetch_related(
+        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contribution"),
+        Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
+        "degrees")
+    participant_counts = semester.course_set.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
+    voter_counts = semester.course_set.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+    textanswer_counts = semester.course_set.annotate(num_textanswers=Count("contributions__textanswer_set")).values_list("num_textanswers", flat=True)
+
+    for course, participant_count, voter_count, textanswer_count in zip(courses, participant_counts, voter_counts, textanswer_counts):
+        course.general_contribution = course.general_contribution[0]
+        course.responsible_contributor = course.responsible_contribution[0].contributor
+        course.num_textanswers = textanswer_count
+        if not semester.is_archived:
+            course.num_voters = voter_count
+            course.num_participants = participant_count
+    return courses
+
 @staff_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     rewards_active = is_semester_activated(semester)
-    courses = semester.course_set.all()
+
+    courses = get_courses_with_prefetched_data(semester)
+
     courses_by_state = []
     for state in STATES_ORDERED.keys():
         this_courses = [course for course in courses if course.state == state]
@@ -64,13 +85,13 @@ def semester_view(request, semester_id):
     for course in courses:
         if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
             num_enrollments_in_evaluation += course.num_participants
+            num_votes += course.num_voters
+            num_comments += course.num_textanswers
+            num_comments_reviewed += course.num_reviewed_textanswers
         if course.state in ['evaluated', 'reviewed', 'published']:
             num_courses_evaluated += 1
-        num_votes += course.num_voters
         first_start = min(first_start, course.vote_start_date)
         last_end = max(last_end, course.vote_end_date)
-        num_comments += len(course.textanswer_set)
-        num_comments_reviewed += len(course.reviewed_textanswer_set)
 
     template_data = dict(
         semester=semester,
@@ -162,14 +183,12 @@ def helper_semester_course_operation_revert(request, courses):
 
 def helper_semester_course_operation_prepare(request, courses):
     for course in courses:
-        course.ready_for_contributors()
+        course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-    try:
-        EmailTemplate.get_review_template().send_to_users_in_courses(courses, ['editors'])
-    except Exception:
-        messages.error(request, _("An error occured when sending the notification emails to the editors."))
+
+    EmailTemplate.send_review_notifications(courses)
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -184,11 +203,7 @@ def helper_semester_course_operation_publish(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    for user, user_courses in user_publish_notifications(courses).items():
-        try:
-            EmailTemplate.get_publish_template().send_to_user(user, courses=list(user_courses))
-        except Exception:
-            messages.error(request, _("An error occured when sending the notification email to %s.") % user.username)
+    send_publish_notifications(evaluation_results_courses=courses)
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
@@ -474,10 +489,11 @@ def course_email(request, semester_id, course_id):
     if form.is_valid():
         form.send()
 
-        if form.all_recipients_reachable():
+        missing_email_addresses = form.missing_email_addresses()
+        if missing_email_addresses == 0:
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
-            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=form.missing_email_addresses()))
+            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
@@ -710,7 +726,15 @@ def degree_index(request):
 
 @staff_required
 def user_index(request):
-    users = UserProfile.objects.order_by("last_name", "first_name", "username").prefetch_related('contributions', 'groups', 'course_set')
+    from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count, Sum, Case, When, IntegerField
+    from django.contrib.auth.models import Group
+    users = (UserProfile.objects.all()
+        # the following four annotations basically add two bools indicating whether each user is part of a group or not.
+        .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
+        .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
+        .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
+        .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
+        .prefetch_related('contributions', 'course_set'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 

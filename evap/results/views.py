@@ -118,6 +118,7 @@ def course_detail(request, semester_id, course_id):
             show_grades=show_grades,
             staff=request.user.is_staff,
             contributor=course.is_user_contributor_or_delegate(request.user),
+            can_download_grades=request.user.can_download_grades,
             public_view=public_view)
     return render(request, "results_course_detail.html", template_data)
 

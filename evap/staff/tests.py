@@ -28,6 +28,7 @@ from model_mommy import mommy
 
 import os.path
 import datetime
+import unittest
 
 
 def lastform(page):
@@ -206,8 +207,10 @@ class UsecaseTests(WebTest):
 
     def test_assign_questionnaires(self):
         semester = mommy.make(Semester, name_en="Semester 1")
-        mommy.make(Course, semester=semester, type="Seminar")
-        mommy.make(Course, semester=semester, type="Vorlesung")
+        mommy.make(Course, semester=semester, type="Seminar", contributions=[
+                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
+        mommy.make(Course, semester=semester, type="Vorlesung", contributions=[
+                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
         questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
@@ -239,20 +242,19 @@ class UsecaseTests(WebTest):
         self.assertIn("No responsible contributor found", page)
 
 
-class PerformanceTests(TestCase):
+class PerformanceTests(WebTest):
 
-    # disabled, see issue #164: https://github.com/fsr-itse/EvaP/issues/164
-    #def test_num_queries_user_list(self):
-    #    """
-    #        ensures that the number of queries in the user list is constant
-    #        and not linear to the number of users
-    #    """
-    #    num_users = 50
-    #    for i in range(0, num_users):
-    #        user = UserProfile.objects.get_or_create(id=9000+i, username=i)
-    #    with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-    #        self.app.get("/staff/user/", user="staff.user")
-    pass
+    def test_num_queries_user_list(self):
+        """
+            ensures that the number of queries in the user list is constant
+            and not linear to the number of users
+        """
+        num_users = 50
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(UserProfile, _quantity=num_users)
+
+        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+            self.app.get("/staff/user/", user="staff.user")
 
 
 class UnitTests(TestCase):
@@ -275,6 +277,28 @@ class UnitTests(TestCase):
         course = mommy.make(Course, last_modified_user=user);
         user.delete()
         self.assertTrue(Course.objects.filter(pk=course.pk).exists())
+
+    def test_has_enough_questionnaires(self):
+        # manually circumvent Course's save() method to have a Course without a general contribution
+        courses = Course.objects.bulk_create([mommy.prepare(Course)])
+        course = Course.objects.get()
+        self.assertEqual(course.contributions.count(), 0)
+        self.assertFalse(course.has_enough_questionnaires())
+
+        responsible_contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), responsible=True)
+        course = Course.objects.get()
+        self.assertFalse(course.has_enough_questionnaires())
+
+        general_contribution = mommy.make(Contribution, course=course, contributor=None)
+        course = Course.objects.get() # refresh because of cached properties
+        self.assertFalse(course.has_enough_questionnaires())
+
+        q = mommy.make(Questionnaire)
+        general_contribution.questionnaires.add(q)
+        self.assertFalse(course.has_enough_questionnaires())
+
+        responsible_contribution.questionnaires.add(q)
+        self.assertTrue(course.has_enough_questionnaires())
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
@@ -508,7 +532,7 @@ class URLTests(WebTest):
         data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
-        form.all_recipients_reachable()
+        self.assertTrue(form.missing_email_addresses() == 0)
         form.send()
 
         data = {"body": "wat", "subject": "some subject"}

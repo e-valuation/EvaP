@@ -2,7 +2,9 @@
 {% load static %}
 {% load morefilters %}
 {% load staff_templatetags %}
+{% load grades_templatetags %}
 {% load results_templatetags %}
+{% load cache %}
 
 <!DOCTYPE html>
 <html>
@@ -29,6 +31,8 @@
 </head>
 <body>
 <div id="wrap">
+{% get_current_language as LANGUAGE_CODE %}
+{% cache 3600 navbar request.user.username LANGUAGE_CODE %}
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -51,6 +55,18 @@
                             <li><a href="{% url "student:index" %}">{% trans "My courses" %}</a></li>
                         {% elif user.is_contributor_or_delegate %}
                             <li><a href="{% url "contributor:index" %}">{% trans "My courses" %}</a></li>
+                        {% endif %}
+
+                        {% if user.is_grade_publisher %}
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "grades:index" %}">{% trans "Publish grades" %} <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "grades:index" %}">{% trans "Overview" %}</a></li>
+                                    <li><a href="{% url "grades:index" %}">{% trans "Semesters" %}</a>
+                                        {% include_grades_semester_menu %}
+                                    </li>
+                                </ul>
+                            </li>                            
                         {% endif %}
 
                         {% if user.is_editor %}
@@ -102,9 +118,9 @@
             </div>
         </div>
     </nav>
-
+    {% endcache %}
     <div class="container">
-        {% if user.is_staff %}
+        {% if user.is_staff or user.is_grade_publisher %}
             {% block breadcrumbs %}
                 <div class="row">
                     <div class="col-md-12">

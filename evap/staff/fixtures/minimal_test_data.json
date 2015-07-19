@@ -1181,6 +1181,58 @@
   "pk": 36,
   "model": "evaluation.contribution",
   "fields": {
+    "contributor": 2,
+    "course": 9,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 37,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 10,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 38,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 10,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 39,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 11,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 40,
+  "model": "evaluation.contribution",
+  "fields": {
     "contributor": 9,
     "course": 11,
     "responsible": true,
@@ -1479,6 +1531,13 @@
   "model": "auth.Group",
   "fields": {
     "name": "Staff"
+  }
+},
+{
+  "pk": 2,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Grade publisher"
   }
 },
 {

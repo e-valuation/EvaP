@@ -43,11 +43,11 @@
                 <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>
-                        <th style="width: 48%">{% trans "Name" %}</th>
+                        <th style="width: 35%">{% trans "Name" %}</th>
                         <th style="width: 12%">{% trans "State" %}</th>
                         <th style="width: 20%">{% trans "Evaluation Period" %}</th>
-                        <th style="width: 12%"></th>
-                        <th style="width: 8%"></th>
+                        <th style="width: 10%"></th>
+                        <th style="width: 23%"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -81,18 +81,42 @@
                                         {% endif %}
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td class="text-right">
+                                    {% if course.state == 'inEvaluation' %}
+                                        {% if course in voted_courses %}
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Evaluate" %}</a></div>
+                                        {% else %}
+                                            <a href="{% url "student:vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                        {% if course.grade_documents.count > 0 and can_download_grades %}
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    {% for grade_document in course.grade_documents.all %}
+                                                        <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% elif course.is_graded and can_download_grades %}
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "No grades have been uploaded yet." %}"><button type="button" class="btn btn-sm btn-default dropdown-toggle" disabled="disabled">{% trans "Download grades" %} <span class="caret"></span></button></div>
+                                        {% endif %}
+                                    {% elif course.midterm_grade_documents.count > 0 and can_download_grades %}
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                {% for grade_document in course.midterm_grade_documents %}
+                                                    <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
                                     {% if course.state == 'published' %}
                                         {% if course.can_publish_grades %}
                                             <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                         {% else %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Results" %}</a></div>
-                                        {% endif %}
-                                    {% elif course.state == 'inEvaluation' %}
-                                        {% if course in voted_courses %}
-                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled="disabled">{% trans "Evaluate" %}</a></div>
-                                        {% else %}
-                                            <a href="{% url "student:vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
