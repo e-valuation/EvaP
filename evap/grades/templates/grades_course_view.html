@@ -30,8 +30,10 @@
                                 <td>{{ grade_document.last_modified_time }}, {% trans "by" %} {{ grade_document.last_modified_user }}</td>
                                 <td>
                                     <a href="{% url "grades:download_grades" grade_document.id %}" class="btn btn-sm btn-default">{% trans "Download" %}</a>
-                                    <a href="{% url "grades:edit_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Edit" %}</a>
-                                    <a href="{% url "grades:delete_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-danger" {{ disable_if_archived }}>{% trans "Delete" %}</a>
+                                    {% if is_grade_publisher %}
+                                        <a href="{% url "grades:edit_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Edit" %}</a>
+                                        <a href="{% url "grades:delete_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-danger" {{ disable_if_archived }}>{% trans "Delete" %}</a>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -42,6 +44,8 @@
             {% endif %}
         </div>
     </div>
-    <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new midterm grades" %}</a>
-    <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new final grades" %}</a>
+    {% if is_grade_publisher %}
+        <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new midterm grades" %}</a>
+        <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new final grades" %}</a>
+    {% endif %}
 {% endblock %}

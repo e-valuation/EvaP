@@ -66,10 +66,10 @@
                 </span>
             {% endif %}
             <br>
-            <span data-toggle="tooltip" data-placement="left" title="{% trans "Grade documents (Midterm, Final)" %}">
+            <a href="{% url "grades:course_view" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Grade documents (Midterm, Final)" %}">
                 <span class="glyphicon glyphicon-file"></span>
                 <span>{% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}</span>
-            </span>
+            </a>
         </td>
     {% else %}
         <td class="minimize">
