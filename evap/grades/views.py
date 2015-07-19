@@ -29,7 +29,11 @@ def get_graded_courses_with_prefetched_data(semester):
     course_data = []
     for course in courses:
         course.responsible_contributor = course.responsible_contribution[0].contributor
-        course_data.append((course, GradeDocument.objects.filter(course=course, type=GradeDocument.FINAL_GRADES).exists()))
+        course_data.append((
+            course,
+            GradeDocument.objects.filter(course=course, type=GradeDocument.MIDTERM_GRADES).count(),
+            GradeDocument.objects.filter(course=course, type=GradeDocument.FINAL_GRADES).count()
+        ))
 
     return course_data
 
