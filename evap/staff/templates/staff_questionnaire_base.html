@@ -16,9 +16,9 @@
     {{ block.super }}
     {% if questionnaire %}
     <p>
-        <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default" {% if not questionnaire.can_staff_edit %} disabled="disabled" {% endif %}>{% trans "Edit" %}</a>
+        <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default" {% if not questionnaire.can_staff_edit %} disabled {% endif %}>{% trans "Edit" %}</a>
         <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
-        <a href="{% url "staff:questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger" {% if not questionnaire.can_staff_delete %} disabled="disabled" {% endif %}>{% trans "Delete" %}</a>
+        <a href="{% url "staff:questionnaire_delete" questionnaire.id %}" class="btn btn-sm btn-danger" {% if not questionnaire.can_staff_delete %} disabled {% endif %}>{% trans "Delete" %}</a>
     </p>
     {% endif %}
 {% endblock %}

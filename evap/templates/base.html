@@ -42,7 +42,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/"><img src="{% get_static_prefix %}images/evap.png" height="50px" alt="{% trans "Evaluation Platform" %}"></a>
+                <a class="navbar-brand" href="/"><img src="{% get_static_prefix %}images/evap.png" height="50" alt="{% trans "Evaluation Platform" %}"></a>
             </div>
 
             <div class="collapse navbar-collapse" id="evap-navbar-collapse">
@@ -62,11 +62,10 @@
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "grades:index" %}">{% trans "Publish grades" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "grades:index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "grades:index" %}">{% trans "Semesters" %}</a>
-                                        {% include_grades_semester_menu %}
-                                    </li>
+                                    <li><a href="{% url "grades:index" %}">{% trans "Semesters" %}</a></li>
+                                    {% include_grades_semester_menu %}
                                 </ul>
-                            </li>                            
+                            </li>
                         {% endif %}
 
                         {% if user.is_editor %}
@@ -82,9 +81,8 @@
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "staff:index" %}">{% trans "Manage" %} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "staff:index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "staff:index" %}">{% trans "Semesters" %}</a>
-                                        {% include_staff_semester_menu %}
-                                    </li>
+                                    <li><a href="{% url "staff:index" %}">{% trans "Semesters" %}</a></li>
+                                    {% include_staff_semester_menu %}
                                     <li><a href="{% url "staff:questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
                                     <li><a href="{% url "staff:degree_index" %}">{% trans "Degrees" %}</a></li>
                                     <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
@@ -155,13 +153,13 @@
     <div id="footer">
         <div class="container">
             <p class="text-muted">
-                <a href="{{ TRACKER_URL }}" target="_new">{% trans "EvaP evaluation platform" %}</a>
+                <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
                 &nbsp;&middot;&nbsp;
                 {% if LEGAL_NOTICE_ACTIVE %}
                     <a href="{% url "evaluation:legal_notice" %}">{% trans "Legal Notice" %}</a>
                     &nbsp;&middot;&nbsp;
                 {% endif %}
-                <a href="mailto:{{ FEEDBACK_EMAIL }}">Feedback</a>
+                <a href="mailto:{{ FEEDBACK_EMAIL }}" target="_blank">Feedback</a>
                 &nbsp;&middot;&nbsp;
                 <a href="{% url "evaluation:faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;

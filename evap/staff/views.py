@@ -97,7 +97,7 @@ def semester_view(request, semester_id):
         semester=semester,
         courses_by_state=courses_by_state,
         disable_breadcrumb_semester=True,
-        disable_if_archived="disabled=disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.is_archived else "",
         rewards_active=rewards_active,
         num_enrollments_in_evaluation=num_enrollments_in_evaluation,
         num_votes=num_votes,

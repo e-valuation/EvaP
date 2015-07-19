@@ -42,8 +42,8 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
             self.fields['description'].initial = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION
 
         if self.instance.last_modified_user:
-            self.fields['last_modified_time_2'].widget.attrs['readonly'] = "True"
-            self.fields['last_modified_user_2'].widget.attrs['readonly'] = "True"
+            self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
+            self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
             self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
         else:

@@ -23,7 +23,7 @@
                                 <div class="vote-inputs {% if preview %}preview{% endif %} btn-group" data-toggle="buttons">
                                 {% for choice in field %}
                                     <label class="btn btn-sm btn-default vote-btn {% if field.value == choice.choice_value %}active{% endif %} {% if field.errors %}choice-error{% endif %}" name="{{ choice.name }}" onclick="selectedAnswer('{{ choice.name }}');" {% if preview %}disabled{% endif %}>
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if field.value == choice.choice_value %}checked="checked"{% endif %}/>
+                                        <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if field.value == choice.choice_value %}checked{% endif %} />
                                         {{ choice.choice_label }} {{ choice.id }}
                                     </label>
                                 {% endfor %}
