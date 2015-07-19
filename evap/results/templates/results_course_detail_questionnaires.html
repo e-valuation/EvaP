@@ -5,13 +5,13 @@
 
 {% for questionnaire, contributor, results, questionnaire_warning in group.list %}
     <div class="inline-headers">
-        <h4>{{ group.grouper.public_name }}</h4>
         {% if questionnaire_warning %}
             <p class="pull-right participants-warning questionnaire-warning">
                 <span class="glyphicon glyphicon-warning-sign"></span>
                 {% trans "Only a few participants answered these questions." %}
             </p>
         {% endif %}
+        <h4>{{ group.grouper.public_name }}</h4>
     </div>
     <table class="table table-striped">
         <tbody>
