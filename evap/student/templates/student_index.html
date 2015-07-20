@@ -87,28 +87,19 @@
                                             <a href="{% url "student:vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                     {% endif %}
-                                    {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
-                                        {% if course.grade_documents.count > 0 and can_download_grades %}
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
-                                                <ul class="dropdown-menu" role="menu">
-                                                    {% for grade_document in course.grade_documents.all %}
-                                                        <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        {% elif course.is_graded and can_download_grades %}
-                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "No grades have been uploaded yet." %}"><button type="button" class="btn btn-sm btn-default dropdown-toggle" disabled>{% trans "Download grades" %} <span class="caret"></span></button></div>
-                                        {% endif %}
-                                    {% elif course.midterm_grade_documents.count > 0 and can_download_grades %}
+                                    {% if course.grade_documents.count > 0 and can_download_grades %}
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
                                             <ul class="dropdown-menu" role="menu">
-                                                {% for grade_document in course.midterm_grade_documents %}
+                                                {% for grade_document in course.grade_documents.all %}
                                                     <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
+                                    {% elif course.is_graded and can_download_grades %}
+                                        {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "No grades have been uploaded yet." %}"><button type="button" class="btn btn-sm btn-default dropdown-toggle" disabled>{% trans "Download grades" %} <span class="caret"></span></button></div>
+                                        {% endif %}
                                     {% endif %}
                                     {% if course.state == 'published' %}
                                         {% if course.can_publish_grades %}
