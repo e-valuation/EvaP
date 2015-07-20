@@ -185,13 +185,13 @@ class BootstrapFieldset(object):
 class BootstrapMixin(object):
     """"""
 
-    __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">""" \
-                 """<label class="col-sm-2 control-label" for="{{ field.auto_id }}">{{ label }}</label>""" \
-                 """<div class="col-sm-6">""" \
-                 """{{ bf }}""" \
-                 """{% if errors %}<span class="help-block">{{ errors }}</span>{% endif %}""" \
-                 """{% if help_text %}<span class="help-block">{{ help_text }}</span>{% endif %}""" \
-                 """</div></div>"""
+    __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">
+                 <label class="col-sm-2 control-label" for="{{ field_id }}">{{ label }}</label>
+                 <div class="col-sm-6">
+                 {{ bf }}
+                 {% if errors %}<span class="help-block">{{ errors }}</span>{% endif %}
+                 {% if help_text %}<span class="help-block">{{ help_text }}</span>{% endif %}
+                 </div></div>"""
 
     def as_div(self):
         """ Render the form as a set of <div>s. """
@@ -282,7 +282,8 @@ class BootstrapMixin(object):
             else:
                 help_text = ''
 
-            attrs = {}
+            field_id = "id_" + bf.name
+            attrs = {"id": field_id}
             if isinstance(field_instance.widget, (widgets.DateInput, widgets.Textarea, widgets.TextInput, widgets.SelectMultiple, widgets.Select)):
                 attrs['class'] = 'form-control'
             if isinstance(field_instance.widget, widgets.DateInput) and not field_instance.widget.attrs.get("readonly", False):
@@ -293,6 +294,7 @@ class BootstrapMixin(object):
                 'label': mark_safe(bf.label or ''),
                 'help_text': mark_safe(str(help_text)),
                 'field': field_instance,
+                'field_id': field_id,
                 'bf': mark_safe(str(bf.as_widget(attrs=attrs))),
                 'bf_raw': bf,
                 'errors': mark_safe(bf_errors),

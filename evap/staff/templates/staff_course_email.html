@@ -20,7 +20,7 @@
                             <div class="form-field btn-group" data-toggle="buttons">
                                 {% for choice in field %}
                                     <label class="btn btn-sm btn-default {% if choice.choice_value in field.value %}active{% endif %} {% if field.errors %}error{% endif %}" name="{{ field.name }}" onclick="changedFieldValue('{{ field.name }}')">
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="checkbox" value="{{ choice.choice_value }}" autocomplete="off" {% if choice.choice_value in field.value %}checked="checked"{% endif %}/>
+                                        <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="checkbox" value="{{ choice.choice_value }}" autocomplete="off" {% if choice.choice_value in field.value %}checked{% endif %} />
                                         {{ choice.choice_label }} {{ choice.id }}
                                     </label>
                                 {% endfor %}

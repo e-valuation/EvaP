@@ -20,8 +20,8 @@
         </fieldset>
 
         <fieldset>
-            {{ formset.management_form }}
             <legend>{% trans "Contributors" %}</legend>
+            {{ formset.management_form }}
             {{ formset.non_form_errors }}
             <table id="contribution_table" class="table">
                 <thead>
@@ -36,29 +36,29 @@
                 <tbody>
                     {% for form_element in formset %}
                         {% if form_element.non_field_errors %}
-                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
+                            <tr><td colspan="100">{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
 
                         <tr class="contribution sortable">
-                            {% for field in form_element.hidden_fields %}
-                                {{ field }}
-                            {% endfor %}
-                            <td style="width: 10px; cursor:move"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
-                            {{ form_element.responsible.as_hidden }}
+                            <td style="width: 10px; cursor: move;"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                             <td>
-                                {{form_element.contributor.errors}}
+                                {% for field in form_element.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                                {{ form_element.responsible.as_hidden }}
+                                {{ form_element.contributor.errors }}
                                 {% if form_element.responsible.value == True %}
-                                    <select class="form-control" disabled="True"><option selected="selected">{{ responsible }} ({% trans "responsible" %})</option></select>
+                                    <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
                                     {{ form_element.contributor.as_hidden }}
                                 {% else %}
                                     {{ form_element.contributor }}
                                 {% endif %}
                             </td>
-                            <td>{{form_element.questionnaires.errors}} {{ form_element.questionnaires }}</td>
+                            <td>{{ form_element.questionnaires.errors }} {{ form_element.questionnaires }}</td>
                             <td>
-                                {{form_element.can_edit.errors}}
+                                {{ form_element.can_edit.errors }}
                                 {% if form_element.responsible.value == True %}
-                                    <input checked="checked" type="checkbox" disabled="True" />
+                                    <input type="checkbox" checked disabled />
                                     {{ form_element.can_edit.as_hidden }}
                                 {% else %}
                                     {{ form_element.can_edit }}
