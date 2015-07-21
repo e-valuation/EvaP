@@ -384,7 +384,7 @@ div.disabled-tooltip {
 }
 
 .tooltip-inner {
-    max-width: 350px;
+    max-width: 250px;
 }
 
 .grade-course-table tr {

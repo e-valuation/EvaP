@@ -13,6 +13,7 @@
 
 {{% block content %}
     {{ block.super }}
+    <h2>{{ semester.name }}</h2>
     {% for degree, course_data in courses_by_degree.items %}{% with courses=course_data.courses single_results=course_data.single_results %}
         {% if courses or single_results %}
             <h3>{{ degree }}</h3>
