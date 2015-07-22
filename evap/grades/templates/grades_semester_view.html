@@ -28,12 +28,12 @@
                             <th class="col-sm-2">{% trans "Responsible" %}</th>
                             <th class="col-sm-1">{% trans "Degree" %}</th>
                             <th class="col-sm-1">{% trans "Type" %}</th>
-                            <th class="col-sm-2">{% trans "Final grades" %}</th>
+                            <th class="col-sm-2" colspan="2">{% trans "Number of midterm/final grade documents" %}</th>
                             <th class="col-sm-2"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for course, has_final_grades in courses %}
+                        {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
                                 <td><a href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>{{ course.name }}</a></td>
                                 <td>{{ course.responsible_contributor.full_name }}</td>
@@ -43,7 +43,16 @@
                                     {% endfor %}
                                 </td>
                                 <td>{{ course.type }}</td>
-                                <td class="text-center">{% if has_final_grades %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+                                <td>
+                                    <span data-toggle="tooltip" data-placement="top" title="{% trans "Number of midterm grade documents" %}">
+                                        <span class="glyphicon glyphicon-file"></span> {{ num_midterm_grades }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span data-toggle="tooltip" data-placement="top" title="{% trans "Number of final grade documents" %}">
+                                        <span class="glyphicon glyphicon-file"></span> {{ num_final_grades }}
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>{% trans "Upload grades" %} <span class="caret"></span></button>

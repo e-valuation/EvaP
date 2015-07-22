@@ -6,7 +6,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden
 
 from sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required, grade_downloader_required
+from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required
 from evap.evaluation.models import Semester, Contribution, Course
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
@@ -29,7 +29,11 @@ def get_graded_courses_with_prefetched_data(semester):
     course_data = []
     for course in courses:
         course.responsible_contributor = course.responsible_contribution[0].contributor
-        course_data.append((course, GradeDocument.objects.filter(course=course, type=GradeDocument.FINAL_GRADES).exists()))
+        course_data.append((
+            course,
+            GradeDocument.objects.filter(course=course, type=GradeDocument.MIDTERM_GRADES).count(),
+            GradeDocument.objects.filter(course=course, type=GradeDocument.FINAL_GRADES).count()
+        ))
 
     return course_data
 
@@ -49,10 +53,11 @@ def semester_view(request, semester_id):
     return render(request, "grades_semester_view.html", template_data)
 
 
-@grade_publisher_required
+@grade_publisher_or_staff_required
 def course_view(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
+    is_grade_publisher = request.user.is_grade_publisher
 
     template_data = dict(
         semester=semester,
@@ -60,6 +65,7 @@ def course_view(request, semester_id, course_id):
         grade_documents=course.grade_documents.all(),
         disable_if_archived="disabled=disabled" if semester.is_archived else "",
         disable_breadcrumb_course=True,
+        is_grade_publisher=is_grade_publisher,
     )
     return render(request, "grades_course_view.html", template_data)
 
