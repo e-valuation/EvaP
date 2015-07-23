@@ -20,14 +20,6 @@
                 {% if result.question.is_likert_question or result.question.is_grade_question %}
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
-                        <span data-toggle="tooltip" data-placement="left" title="{% trans "Answers given: " %}{{ result.count }}">({{ result.count }})</span>
-                        {% if show_grades and result.count > 0 %}
-                            {% if not questionnaire_warning and result.warning %}
-                                <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-warning-sign participants-warning" title="{% trans "Only a few participants answered this question." %}"></span>
-                            {% endif %}
-                        {% endif %}
-                    </td>
-                    <td>
                         {% include_result_bar result show_grades questionnaire_warning %}
                     </td>
                 {% elif result.question.is_text_question %}
@@ -48,8 +40,7 @@
             <tr>
                 <th class="col-sm-3" style="padding: 0px;"></th>
                 <th class="col-sm-5" style="padding: 0px;"></th>
-                <th class="col-sm-1" style="padding: 0px;"></th>
-                <th class="col-sm-3" style="padding: 0px;"></th>
+                <th class="col-sm-4" style="padding: 0px;"></th>
             </tr>
         </tfoot>
     </table>

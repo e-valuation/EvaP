@@ -18,7 +18,16 @@ def deviationcolor(deviation):
 @register.filter(name='percentage')
 def percentage(fraction, population):
     try:
-        return "%.0f%%" % ((float(fraction) / float(population)) * 100)
+        return "{0:.0f}%".format((float(fraction) / float(population)) * 100)
+    except ValueError:
+        return None
+    except ZeroDivisionError:
+        return None
+
+@register.filter(name='percentage_one_decimal')
+def percentage_one_decimal(fraction, population):
+    try:
+        return "{0:.1f}%".format((float(fraction) / float(population)) * 100)
     except ValueError:
         return None
     except ZeroDivisionError:

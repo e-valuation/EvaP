@@ -69,7 +69,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
-RatingResult = namedtuple('RatingResult', ('question', 'count', 'average', 'deviation', 'distribution', 'warning'))
+RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
 CourseLists = namedtuple('CourseLists', ('grade_document_courses', 'evaluation_results_courses'))
@@ -140,18 +140,18 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def get_distribution(answer_counters, total_count):
-    if not answer_counters or total_count == 0:
+def get_counts(answer_counters):
+    if not answer_counters:
         return None
 
-    distribution = OrderedDict()
-    # make sure that 0-values are kept in the distribution (and order by answer)
+    counts = OrderedDict()
+    # ensure ordering of answers
     for answer in range(1,6):
-        distribution[answer] = 0
+        counts[answer] = 0
 
     for answer_counter in answer_counters:
-        distribution[answer_counter.answer] = float(answer_counter.count) / total_count * 100.0
-    return distribution
+        counts[answer_counter.answer] = answer_counter.count
+    return counts
 
 
 def calculate_results(course):
@@ -197,13 +197,13 @@ def _calculate_results_impl(course):
                 answer_counters = get_answers(contribution, question)
                 answers = get_answers_from_answer_counters(answer_counters)
 
-                count = len(answers)
+                total_count = len(answers)
                 average = avg(answers)
-                deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if count > 0 else None
-                distribution = get_distribution(answer_counters, count)
-                warning = count > 0 and count < questionnaire_warning_thresholds[questionnaire]
+                deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if total_count > 0 else None
+                counts = get_counts(answer_counters)
+                warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
 
-                results.append(RatingResult(question, count, average, deviation, distribution, warning))
+                results.append(RatingResult(question, total_count, average, deviation, counts, warning))
 
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
