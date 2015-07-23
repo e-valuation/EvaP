@@ -985,10 +985,10 @@ class EmailTemplate(models.Model):
 
 
     @classmethod
-    def send_reminder_to_user(cls, user, due_in_number_of_days, due_courses):
+    def send_reminder_to_user(cls, user, first_due_in_days, due_courses):
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
-        subject_params = {'user': user, 'due_in_number_of_days': due_in_number_of_days}
-        body_params = {'user': user, 'due_in_number_of_days': due_in_number_of_days, 'due_courses': due_courses}
+        subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
+        body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_courses': due_courses}
 
         cls.__send_to_user(user, template, subject_params, body_params, cc=False)
 
