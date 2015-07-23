@@ -1,4 +1,5 @@
 import datetime
+import operator
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -24,10 +25,14 @@ class Command(BaseCommand):
             recipients.update(course.due_participants)
 
         for recipient in recipients:
-            due_courses = list(set(Course.objects.filter(participants=recipient, state='inEvaluation').exclude(voters=recipient)))
-            due_in_number_of_days = min((course.vote_end_date - datetime.date.today()).days for course in due_courses)
+            due_courses = dict()
+            for course in Course.objects.filter(participants=recipient, state='inEvaluation').exclude(voters=recipient):
+                due_courses[course] = (course.vote_end_date - datetime.date.today()).days
+            first_due_in_days = min(due_courses.values())
+            # sort courses by number of days left for evaluation and bring them to following format: [(course, due_in_days), ...]
+            due_courses = sorted(due_courses.items(), key=operator.itemgetter(1))
 
-            EmailTemplate.send_reminder_to_user(recipient, due_in_number_of_days=due_in_number_of_days, due_courses=due_courses)
+            EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_courses=due_courses)
 
     def handle(self, *args, **options):
         if len(args) > 0 and args[0] == 'daily':
