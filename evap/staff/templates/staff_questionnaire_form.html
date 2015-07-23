@@ -5,7 +5,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal">
+    <form method="POST" class="form-horizontal select2form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
@@ -31,7 +31,7 @@
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
 
-                        <tr>
+                        <tr class="select2tr">
                             {% for field in form_element.hidden_fields %}
                                 {{ field }}
                             {% endfor %}
@@ -55,7 +55,11 @@
     $('#question_table tbody tr').formset({
         prefix: 'question_set',
         deleteText: '{% trans "remove" %}',
-        addText: '{% trans "add another" %}'
+        addText: '{% trans "add another" %}',
+        added: function(row) {
+            apply_select2(row.find("select"));
+        },
+        formTemplate: (".form-template")
     });
 {% endblock %}
 
