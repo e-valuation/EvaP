@@ -68,8 +68,7 @@
                             <th class="col-sm-4">{% trans "Course" %}</th>
                             <th class="col-sm-1">{% trans "Type" %}</th>
                             <th class="col-sm-3">{% trans "Responsible" %}</th>
-                            <th class="col-sm-1">{% trans "Standard Deviation" %}</th>
-                            <th class="col-sm-3">{% trans "Result" %}</th>
+                            <th class="col-sm-4">{% trans "Result" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,14 +79,7 @@
                             {% with responsible=single_result.responsible_contributor %}
                                 <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                             {% endwith %}
-                            {% if not single_result.avg_grade %}
-                                <td></td>
-                            {% else %}
-                                <td class="text-center"><div class="deviation-bg" style="background-color: {{ single_result.avg_deviation|deviationcolor }};">{{ single_result.avg_deviation|floatformat:1 }}</div></td>
-                            {% endif %}
-                            <td>
-                                {% include_result_bar result True %}
-                            </td>
+                            <td>{% include_result_bar result True %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
