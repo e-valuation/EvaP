@@ -265,7 +265,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_publish_grades(self):
         from evap.evaluation.tools import get_sum_of_answer_counters
         if self.is_single_result():
-            return get_sum_of_answer_counters(self.gradeanswer_counters) > 0
+            return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
@@ -419,14 +419,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.reviewed_textanswer_set.count()
 
     @property
-    def likertanswer_counters(self):
-        """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswerCounter.objects.filter(contribution__course=self)
-
-    @property
-    def gradeanswer_counters(self):
-        """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswerCounter.objects.filter(contribution__course=self)
+    def ratinganswer_counters(self):
+        """Pseudo relationship to all rating answers for this course"""
+        return RatingAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
         """Should be called only via Semester.archive"""
@@ -537,26 +532,26 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def answer_class(self):
-        if self.type == "T":
+        if self.is_text_question:
             return TextAnswer
-        elif self.type == "L":
-            return LikertAnswerCounter
-        elif self.type == "G":
-            return GradeAnswerCounter
+        elif self.is_likert_question:
+            return RatingAnswerCounter
+        elif self.is_grade_question:
+            return RatingAnswerCounter
         else:
             raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):
-        return self.answer_class == LikertAnswerCounter
+        return self.type == "L"
 
     @property
     def is_text_question(self):
-        return self.answer_class == TextAnswer
+        return self.type == "T"
 
     @property
     def is_grade_question(self):
-        return self.answer_class == GradeAnswerCounter
+        return self.type == "G"
 
     @property
     def is_rating_question(self):
@@ -565,8 +560,8 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `LikertAnswerCounter`,
-    `TextAnswer` and `GradeAnswerCounter`."""
+    user ist not stored in the object. Concrete subclasses are `RatingAnswerCounter`,
+    and `TextAnswer`."""
 
     question = models.ForeignKey(Question)
     contribution = models.ForeignKey(Contribution, related_name="%(class)s_set")
@@ -577,9 +572,8 @@ class Answer(models.Model):
         verbose_name_plural = _("answers")
 
 
-class LikertAnswerCounter(Answer):
-    """A Likert-scale answer counter to a question with answer `1` being *strongly agree*
-    and `5` being *strongly disagree*."""
+class RatingAnswerCounter(Answer):
+    """A rating answer counter to a question. A lower answer is better or indicates more agreement."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
@@ -588,25 +582,8 @@ class LikertAnswerCounter(Answer):
         unique_together = (
             ('question', 'contribution', 'answer'),
         )
-        verbose_name = _("Likert answer")
-        verbose_name_plural = _("Likert answers")
-
-    def add_vote(self):
-        self.count += 1
-
-
-class GradeAnswerCounter(Answer):
-    """A grade answer counter to a question with answer `1` being best and `5` being worst."""
-
-    answer = models.IntegerField(verbose_name=_("answer"))
-    count = models.IntegerField(verbose_name=_("count"), default=0)
-
-    class Meta:
-        unique_together = (
-            ('question', 'contribution', 'answer'),
-        )
-        verbose_name = _("grade answer")
-        verbose_name_plural = _("grade answers")
+        verbose_name = _("rating answer")
+        verbose_name_plural = _("rating answers")
 
     def add_vote(self):
         self.count += 1

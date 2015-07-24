@@ -17,7 +17,7 @@
         <tbody>
             {% for result in results %}
                 <tr>
-                {% if result.question.is_likert_question or result.question.is_grade_question %}
+                {% if result.question.is_rating_question %}
                     <td colspan="2">{{ result.question.text }}</td>
                     <td>
                         {% include_result_bar result show_grades questionnaire_warning %}

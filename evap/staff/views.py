@@ -445,7 +445,7 @@ def helper_course_edit(request, semester, course):
 def helper_single_result_edit(request, semester, course):
     initial = {'responsible': course.responsible_contributor}
     answer_counts = defaultdict(int)
-    for answer_counter in course.gradeanswer_counters:
+    for answer_counter in course.ratinganswer_counters:
         answer_counts[answer_counter.answer] = answer_counter.count
     for i in range(1,6):
         initial['answer_' + str(i)] = answer_counts[i]
