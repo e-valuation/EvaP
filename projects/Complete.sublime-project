@@ -39,7 +39,7 @@
                 },
                 {
                     "name": "vagrant test",
-                    "cmd": ["vagrant", "ssh", "-c", "\"cd /vagrant && python manage.py test\""]
+                    "cmd": ["vagrant", "ssh", "-c", "\"cd /vagrant && python3 manage.py test\""]
                 }
             ]
         }
