@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-18 10:59+0200\n"
-"PO-Revision-Date: 2015-07-18 11:00+0200\n"
+"POT-Creation-Date: 2015-07-27 09:38+0200\n"
+"PO-Revision-Date: 2015-07-27 09:39+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -51,7 +51,7 @@ msgstr "Mein EvaP"
 msgid "Contributor"
 msgstr "Mitwirkender"
 
-#: contributor/templates/contributor_course_form.html:24
+#: contributor/templates/contributor_course_form.html:23
 #: results/templates/results_course_detail.html:99
 #: staff/templates/staff_course_form.html:16
 #: staff/templates/staff_index.html:33
@@ -62,7 +62,7 @@ msgstr "Mitwirkende"
 #: staff/templates/staff_course_form.html:27
 #: staff/templates/staff_index.html:21
 #: staff/templates/staff_questionnaire_base.html:8
-#: staff/templates/staff_questionnaire_base.html:11 templates/base.html:88
+#: staff/templates/staff_questionnaire_base.html:11 templates/base.html:86
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -107,11 +107,11 @@ msgstr "Zurück"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: contributor/templates/contributor_index.html:11 evaluation/models.py:758
+#: contributor/templates/contributor_index.html:10 evaluation/models.py:758
 msgid "Delegates"
 msgstr "Stellvertreter"
 
-#: contributor/templates/contributor_index.html:12
+#: contributor/templates/contributor_index.html:11
 msgid ""
 "Lecturers can assign delegates to help them with the preparation of the "
 "evaluation."
@@ -119,15 +119,15 @@ msgstr ""
 "Dozenten können Stellvertreter definieren, die ihnen bei der Vorbereitung "
 "der Evaluierung helfen."
 
-#: contributor/templates/contributor_index.html:14
+#: contributor/templates/contributor_index.html:13
 msgid "You can assign your own delegates in your profile."
 msgstr "Sie können Stellvertreter in Ihrem Profil definieren."
 
-#: contributor/templates/contributor_index.html:14
+#: contributor/templates/contributor_index.html:13
 msgid "Edit profile"
 msgstr "Profil bearbeiten"
 
-#: contributor/templates/contributor_index.html:17
+#: contributor/templates/contributor_index.html:16
 msgid ""
 "Courses from lecturers who set you as a delegate are marked with a label "
 "below."
@@ -135,24 +135,24 @@ msgstr ""
 "Veranstaltungen von Dozenten, von denen Sie als Stellvertreter definiert "
 "wurden, sind unten mit einem Label markiert."
 
-#: contributor/templates/contributor_index.html:19
-#: contributor/templates/contributor_index.html:23
-#: contributor/templates/contributor_index.html:27
-#: student/templates/student_index.html:24
-#: student/templates/student_index.html:28
-#: student/templates/student_index.html:32
+#: contributor/templates/contributor_index.html:18
+#: contributor/templates/contributor_index.html:22
+#: contributor/templates/contributor_index.html:26
+#: student/templates/student_index.html:23
+#: student/templates/student_index.html:27
+#: student/templates/student_index.html:31
 msgid "More details:"
 msgstr "Mehr Infos:"
 
-#: contributor/templates/contributor_index.html:19
+#: contributor/templates/contributor_index.html:18
 msgid "FAQ/Delegates"
 msgstr "FAQ/Stellvertreter"
 
-#: contributor/templates/contributor_index.html:21
+#: contributor/templates/contributor_index.html:20
 msgid "States of the courses"
 msgstr "Zustände der Veranstaltungen"
 
-#: contributor/templates/contributor_index.html:22
+#: contributor/templates/contributor_index.html:21
 msgid ""
 "You can only edit courses which are in the state \"prepared\". After you "
 "approved a course it will automatically change to the state \"lecturer "
@@ -163,16 +163,16 @@ msgstr ""
 "in den Zustand \"von Dozent bestätigt\" und Ihre Vorbereitung ist "
 "abgeschlossen."
 
-#: contributor/templates/contributor_index.html:23
+#: contributor/templates/contributor_index.html:22
 msgid "FAQ/States"
 msgstr "FAQ/Zustände"
 
-#: contributor/templates/contributor_index.html:25
-#: student/templates/student_index.html:30
+#: contributor/templates/contributor_index.html:24
+#: student/templates/student_index.html:29
 msgid "Evaluation Results"
 msgstr "Evaluierungs-Ergebnisse"
 
-#: contributor/templates/contributor_index.html:26
+#: contributor/templates/contributor_index.html:25
 msgid ""
 "The student's comments will be shown to the people who were evaluated and to "
 "the person responsible for the course – after the grades of all the course's "
@@ -187,36 +187,36 @@ msgstr ""
 "Fragen allen anderen Nutzern der Plattform angezeigt, sofern mindestens 20 "
 "Prozent der Teilnehmer abgestimmt haben."
 
-#: contributor/templates/contributor_index.html:27
-#: student/templates/student_index.html:32
+#: contributor/templates/contributor_index.html:26
+#: student/templates/student_index.html:31
 msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
-#: contributor/templates/contributor_index.html:41 evaluation/models.py:897
+#: contributor/templates/contributor_index.html:39 evaluation/models.py:897
 #: grades/templates/grades_semester_view.html:27
 #: rewards/templates/rewards_semester_reward_points_view.html:14
 #: staff/templates/staff_user_index.html:22
-#: student/templates/student_index.html:46
+#: student/templates/student_index.html:44
 msgid "Name"
 msgstr "Name"
 
-#: contributor/templates/contributor_index.html:42
-#: student/templates/student_index.html:47
+#: contributor/templates/contributor_index.html:40
+#: student/templates/student_index.html:45
 msgid "State"
 msgstr "Zustand"
 
-#: contributor/templates/contributor_index.html:43
+#: contributor/templates/contributor_index.html:41
 #: staff/templates/staff_semester_todo.html:30
-#: student/templates/student_index.html:48
+#: student/templates/student_index.html:46
 msgid "Evaluation Period"
 msgstr "Abstimmungszeitraum"
 
-#: contributor/templates/contributor_index.html:44
+#: contributor/templates/contributor_index.html:42
 #: staff/templates/staff_semester_view_course.html:84
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: contributor/templates/contributor_index.html:56
+#: contributor/templates/contributor_index.html:54
 msgid ""
 "You are seeing this course because you are a delegate of a lecturer who can "
 "edit the course."
@@ -224,13 +224,13 @@ msgstr ""
 "Sie sehen diese Veranstaltung, weil Sie Stellvertreter eines Mitwirkenden "
 "sind, der die Veranstaltung bearbeiten kann."
 
-#: contributor/templates/contributor_index.html:56
+#: contributor/templates/contributor_index.html:54
 #: staff/templates/staff_semester_todo.html:17
 msgid "Delegate"
 msgstr "Stellvertreter"
 
-#: contributor/templates/contributor_index.html:70
-#: grades/templates/grades_course_view.html:32
+#: contributor/templates/contributor_index.html:68
+#: grades/templates/grades_course_view.html:34
 #: rewards/templates/rewards_reward_point_redemption_events.html:42
 #: rewards/templates/rewards_reward_point_redemption_events.html:79
 #: staff/templates/staff_faq_index.html:41
@@ -242,18 +242,18 @@ msgstr "Stellvertreter"
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: contributor/templates/contributor_index.html:71
-#: contributor/templates/contributor_index.html:74
+#: contributor/templates/contributor_index.html:69
+#: contributor/templates/contributor_index.html:72
 #: staff/templates/staff_questionnaire_index_list.html:34
 #: staff/templates/staff_semester_view_course.html:94
 msgid "Preview"
 msgstr "Vorschau"
 
-#: contributor/templates/contributor_index.html:73
+#: contributor/templates/contributor_index.html:71
 msgid "View"
 msgstr "Anzeigen"
 
-#: contributor/templates/contributor_index.html:78
+#: contributor/templates/contributor_index.html:76
 msgid ""
 "The results are not yet available. You will receive an email once they are "
 "published."
@@ -261,12 +261,12 @@ msgstr ""
 "Die Ergebnisse sind noch nicht verfügbar. Sie erhalten eine E-Mail, sobald "
 "sie veröffentlicht werden."
 
-#: contributor/templates/contributor_index.html:78
-#: contributor/templates/contributor_index.html:81 results/exporters.py:93
+#: contributor/templates/contributor_index.html:76
+#: contributor/templates/contributor_index.html:79 results/exporters.py:93
 #: results/templates/results_base.html:5 results/templates/results_base.html:9
 #: staff/templates/staff_semester_view_course.html:103
-#: student/templates/student_index.html:117
-#: student/templates/student_index.html:119 templates/base.html:99
+#: student/templates/student_index.html:106
+#: student/templates/student_index.html:108 templates/base.html:97
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -291,11 +291,11 @@ msgstr "Profil speichern"
 msgid "Successfully updated your profile."
 msgstr "Profil erfolgreich aktualisiert."
 
-#: contributor/views.py:100
+#: contributor/views.py:99
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: contributor/views.py:102 staff/views.py:437
+#: contributor/views.py:101 staff/views.py:437
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -708,8 +708,8 @@ msgid "all contributors"
 msgstr "alle Mitwirkenden"
 
 #: evaluation/templates/faq.html:5 evaluation/templates/faq.html.py:9
-#: staff/templates/staff_index.html:66 templates/base.html:93
-#: templates/base.html.py:166
+#: staff/templates/staff_index.html:66 templates/base.html:91
+#: templates/base.html.py:164
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -768,16 +768,20 @@ msgstr "Schlüssel zusenden"
 
 #: evaluation/templates/legal_notice.html:5
 #: evaluation/templates/legal_notice.html:9
-#: evaluation/templates/legal_notice.html:13 templates/base.html:161
+#: evaluation/templates/legal_notice.html:13 templates/base.html:159
 msgid "Legal Notice"
 msgstr "Impressum"
 
-#: evaluation/templates/result_bar.html:25
+#: evaluation/templates/result_bar.html:7
+msgid "Only a few participants answered this question."
+msgstr "Nur wenige Teilnehmer haben diese Frage beantwortet."
+
+#: evaluation/templates/result_bar.html:30
 #: results/templates/results_course_detail.html:72
 #: results/templates/results_course_detail.html:73
-#: results/templates/results_semester_detail.html:38
-#: results/templates/results_semester_detail.html:52
+#: results/templates/results_semester_detail.html:39
 #: results/templates/results_semester_detail.html:53
+#: results/templates/results_semester_detail.html:54
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen"
 
@@ -958,8 +962,8 @@ msgstr ""
 "genutzt."
 
 #: grades/models.py:13 results/templates/results_course_detail.html:85
-#: results/templates/results_semester_detail.html:23
-#: results/templates/results_semester_detail.html:67
+#: results/templates/results_semester_detail.html:24
+#: results/templates/results_semester_detail.html:68
 #: staff/templates/staff_semester_todo.html:28
 msgid "Course"
 msgstr "Veranstaltung"
@@ -992,7 +996,8 @@ msgstr "Noten-Dokument"
 msgid "Grade Documents"
 msgstr "Noten-Dokumente"
 
-#: grades/templates/grades_base.html:6 grades/templates/grades_base.html:10
+#: grades/templates/grades_base.html:6 grades/templates/grades_base.html:11
+#: grades/templates/grades_base.html:13
 msgid "Grade publishing"
 msgstr "Noten-Veröffentlichung"
 
@@ -1003,8 +1008,8 @@ msgstr "Hochgeladene Noten-Dokumente"
 #: grades/templates/grades_course_view.html:20
 #: grades/templates/grades_semester_view.html:30
 #: results/templates/results_course_detail.html:52
-#: results/templates/results_semester_detail.html:24
-#: results/templates/results_semester_detail.html:68
+#: results/templates/results_semester_detail.html:25
+#: results/templates/results_semester_detail.html:69
 msgid "Type"
 msgstr "Typ"
 
@@ -1016,7 +1021,11 @@ msgstr "Zuletzt verändert"
 msgid "by"
 msgstr "von"
 
-#: grades/templates/grades_course_view.html:33
+#: grades/templates/grades_course_view.html:32
+msgid "Download"
+msgstr "Herunterladen"
+
+#: grades/templates/grades_course_view.html:35
 #: rewards/templates/rewards_reward_point_redemption_events.html:44
 #: rewards/templates/rewards_reward_point_redemption_events.html:46
 #: rewards/templates/rewards_reward_point_redemption_events.html:81
@@ -1031,15 +1040,15 @@ msgstr "von"
 msgid "Delete"
 msgstr "Löschen"
 
-#: grades/templates/grades_course_view.html:40
+#: grades/templates/grades_course_view.html:43
 msgid "No grade documents have been uploaded yet"
 msgstr "Es wurden noch keine Noten-Dokumente hochgeladen"
 
-#: grades/templates/grades_course_view.html:44
+#: grades/templates/grades_course_view.html:48
 msgid "Upload new midterm grades"
 msgstr "Neue Zwischennoten hochladen"
 
-#: grades/templates/grades_course_view.html:45
+#: grades/templates/grades_course_view.html:49
 msgid "Upload new final grades"
 msgstr "Neue Endnoten hochladen"
 
@@ -1073,11 +1082,11 @@ msgid "No"
 msgstr "Nein"
 
 #: grades/templates/grades_index.html:6
-#: grades/templates/grades_semester_base.html:20
+#: grades/templates/grades_semester_base.html:21
 #: results/templates/results_index.html:8 staff/templates/staff_index.html:8
 #: staff/templates/staff_semester_base.html:7
 #: staff/templates/staff_semester_base.html:21 templates/base.html:65
-#: templates/base.html.py:85
+#: templates/base.html.py:84
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1098,8 +1107,8 @@ msgstr "Veranstaltungen"
 
 #: grades/templates/grades_semester_view.html:28
 #: results/templates/results_course_detail.html:53
-#: results/templates/results_semester_detail.html:25
-#: results/templates/results_semester_detail.html:69 staff/forms.py:112
+#: results/templates/results_semester_detail.html:26
+#: results/templates/results_semester_detail.html:70 staff/forms.py:112
 #: staff/templates/staff_course_form.html:28
 #: staff/templates/staff_user_labels.html:17
 msgid "Responsible"
@@ -1111,20 +1120,31 @@ msgid "Degree"
 msgstr "Studiengang"
 
 #: grades/templates/grades_semester_view.html:31
-#: grades/templates/grades_semester_view.html:52
-msgid "Final grades"
-msgstr "Endnoten"
+msgid "Number of midterm/final grade documents"
+msgstr "Anzahl Zwischennoten-/Endnoten-Dokumente"
 
-#: grades/templates/grades_semester_view.html:49
+#: grades/templates/grades_semester_view.html:47
+msgid "Number of midterm grade documents"
+msgstr "Anzahl Zwischennoten-Dokumente"
+
+#: grades/templates/grades_semester_view.html:52
+msgid "Number of final grade documents"
+msgstr "Anzahl Endnoten-Dokumente"
+
+#: grades/templates/grades_semester_view.html:58
 #: grades/templates/grades_upload_form.html:25
 msgid "Upload grades"
 msgstr "Noten hochladen"
 
-#: grades/templates/grades_semester_view.html:51
+#: grades/templates/grades_semester_view.html:60
 msgid "Midterm grades"
 msgstr "Zwischennoten"
 
 #: grades/templates/grades_semester_view.html:61
+msgid "Final grades"
+msgstr "Endnoten"
+
+#: grades/templates/grades_semester_view.html:70
 msgid "No courses have been created yet"
 msgstr "Es wurden noch keine Lehrveranstaltungen angelegt"
 
@@ -1157,15 +1177,15 @@ msgstr "Endnoten für %(course)s (%(semester)s) hochladen"
 msgid "Upload midterm grades for %(course)s (%(semester)s)"
 msgstr "Zwischennoten für %(course)s (%(semester)s) hochladen"
 
-#: grades/views.py:86
+#: grades/views.py:92
 msgid "Successfully uploaded grades."
 msgstr "Noten erfolgreich hochgeladen."
 
-#: grades/views.py:119
+#: grades/views.py:125
 msgid "Successfully updated grades."
 msgstr "Noten erfolgreich aktualisiert."
 
-#: grades/views.py:139
+#: grades/views.py:145
 msgid "Successfully deleted grade document."
 msgstr "Noten-Dokument erfolgreich gelöscht."
 
@@ -1219,48 +1239,38 @@ msgstr "Zu öffentlicher Ansicht wechseln"
 
 #: results/templates/results_course_detail.html:35
 #: staff/templates/staff_semester_view.html:25 templates/base.html:64
-#: templates/base.html.py:84
+#: templates/base.html.py:83
 msgid "Overview"
 msgstr "Übersicht"
 
 #: results/templates/results_course_detail.html:38
-#: student/templates/student_index.html:95
-#: student/templates/student_index.html:103
-#: student/templates/student_index.html:107
+#: student/templates/student_index.html:92
+#: student/templates/student_index.html:101
 msgid "Download grades"
 msgstr "Noten herunterladen"
 
 #: results/templates/results_course_detail.html:54
-#: results/templates/results_semester_detail.html:26
+#: results/templates/results_semester_detail.html:27
 msgid "Average Grade"
 msgstr "Durchschnittsnote"
 
 #: results/templates/results_course_detail.html:55
-#: results/templates/results_semester_detail.html:27
-#: results/templates/results_semester_detail.html:70
+#: results/templates/results_semester_detail.html:28
 msgid "Standard Deviation"
 msgstr "Standardabweichung"
 
 #: results/templates/results_course_detail.html:56
-#: results/templates/results_semester_detail.html:28
+#: results/templates/results_semester_detail.html:29
 #: staff/templates/staff_semester_view_course.html:51
 #: staff/templates/staff_semester_view_course.html:76
 msgid "Voters"
 msgstr "Abstimmende"
 
-#: results/templates/results_course_detail_questionnaires.html:12
+#: results/templates/results_course_detail_questionnaires.html:11
 msgid "Only a few participants answered these questions."
 msgstr "Nur wenige Teilnehmer haben diese Fragen beantwortet."
 
-#: results/templates/results_course_detail_questionnaires.html:23
-msgid "Answers given: "
-msgstr "Erhaltene Antworten: "
-
-#: results/templates/results_course_detail_questionnaires.html:26
-msgid "Only a few participants answered this question."
-msgstr "Nur wenige Teilnehmer haben diese Frage beantwortet."
-
-#: results/templates/results_course_detail_questionnaires.html:38
+#: results/templates/results_course_detail_questionnaires.html:30
 msgid ""
 "This answer is only visible to you. Other contributors and your delegates "
 "can not see it."
@@ -1276,11 +1286,11 @@ msgstr "Es sind noch keine Ergebnisse verfügbar."
 msgid "Result"
 msgstr "Ergebnis"
 
-#: results/templates/results_semester_detail.html:100
+#: results/templates/results_semester_detail.html:93
 msgid "Export semester as Excel table"
 msgstr "Semester als Excel-Tabelle exportieren"
 
-#: results/templates/results_semester_detail.html:101
+#: results/templates/results_semester_detail.html:94
 msgid "Export semester as Excel table (GF)"
 msgstr "Semester als Excel-Tabelle exportieren (GF)"
 
@@ -1335,11 +1345,11 @@ msgstr "Einlösezeitpunkt"
 msgid "Evaluation"
 msgstr "Bewertung"
 
-#: rewards/templates/rewards_index.html:10 templates/base.html:77
+#: rewards/templates/rewards_index.html:10 templates/base.html:76
 msgid "Rewards"
 msgstr "Belohnungen"
 
-#: rewards/templates/rewards_index.html:18
+#: rewards/templates/rewards_index.html:17
 msgid ""
 "You will get reward points once you evaluated all your courses in one "
 "semester. These points can be redeemed for many events at HPI. You will "
@@ -1352,33 +1362,33 @@ msgstr ""
 "Veranstaltungen, die du unten auswählst. Wir werden dich über alle "
 "Veranstaltungen informieren, bei denen du Belohnungspunkte einlösen kannst."
 
-#: rewards/templates/rewards_index.html:24
-#: rewards/templates/rewards_index.html:39
+#: rewards/templates/rewards_index.html:22
+#: rewards/templates/rewards_index.html:37
 msgid "Redeem points"
 msgstr "Punkte einlösen"
 
-#: rewards/templates/rewards_index.html:27
+#: rewards/templates/rewards_index.html:25
 msgid "Total points available"
 msgstr "Insgesamt verfügbare Punkte"
 
-#: rewards/templates/rewards_index.html:36
-#: rewards/templates/rewards_index.html:80
+#: rewards/templates/rewards_index.html:34
+#: rewards/templates/rewards_index.html:78
 msgid "Date"
 msgstr "Datum"
 
-#: rewards/templates/rewards_index.html:37
+#: rewards/templates/rewards_index.html:35
 msgid "Event"
 msgstr "Veranstaltung"
 
-#: rewards/templates/rewards_index.html:38
+#: rewards/templates/rewards_index.html:36
 msgid "Available until"
 msgstr "Verfügbar bis"
 
-#: rewards/templates/rewards_index.html:60
+#: rewards/templates/rewards_index.html:58
 msgid "Redeem"
 msgstr "Einlösen"
 
-#: rewards/templates/rewards_index.html:63
+#: rewards/templates/rewards_index.html:61
 msgid ""
 "Currently there are no events available for which you can redeem points. "
 "We'll send you a message when this changes."
@@ -1386,27 +1396,27 @@ msgstr ""
 "Im Moment gibt es keine Veranstaltungen, für die du Belohnungspunkte "
 "einlösen kannst. Wir informieren dich, sobald sich das ändert."
 
-#: rewards/templates/rewards_index.html:66
+#: rewards/templates/rewards_index.html:64
 msgid "You don't have any reward points that you could redeem."
 msgstr "Du hast keine Belohnungspunkte, die du einlösen könntest."
 
-#: rewards/templates/rewards_index.html:73
+#: rewards/templates/rewards_index.html:71
 msgid "Reward points history"
 msgstr "Verlauf der Belohnungspunkte"
 
-#: rewards/templates/rewards_index.html:81
+#: rewards/templates/rewards_index.html:79
 msgid "Action"
 msgstr "Aktion"
 
-#: rewards/templates/rewards_index.html:82
+#: rewards/templates/rewards_index.html:80
 msgid "Granted points"
 msgstr "Vergebene Punkte"
 
-#: rewards/templates/rewards_index.html:83
+#: rewards/templates/rewards_index.html:81
 msgid "Redeemed points"
 msgstr "Eingelöste Punkte"
 
-#: rewards/templates/rewards_index.html:98
+#: rewards/templates/rewards_index.html:96
 msgid "No reward points earned yet."
 msgstr "Noch keine Belohnungspunkte verdient."
 
@@ -1801,7 +1811,7 @@ msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
 #: staff/templates/staff_base.html:6 staff/templates/staff_base.html.py:11
-#: staff/templates/staff_base.html:13 templates/base.html:82
+#: staff/templates/staff_base.html:13 templates/base.html:81
 msgid "Manage"
 msgstr "Verwaltung"
 
@@ -1914,7 +1924,7 @@ msgid "Confirm"
 msgstr "Bestätigen"
 
 #: staff/templates/staff_degree_index.html:9
-#: staff/templates/staff_index.html:46 templates/base.html:89
+#: staff/templates/staff_index.html:46 templates/base.html:87
 msgid "Degrees"
 msgstr "Studiengänge"
 
@@ -1994,7 +2004,7 @@ msgid "All degrees"
 msgstr "Alle Studiengänge"
 
 #: staff/templates/staff_index.html:50 staff/templates/staff_user_form.html:10
-#: staff/templates/staff_user_index.html:10 templates/base.html:90
+#: staff/templates/staff_user_index.html:10 templates/base.html:88
 msgid "Users"
 msgstr "Benutzer"
 
@@ -2002,12 +2012,12 @@ msgstr "Benutzer"
 msgid "All users"
 msgstr "Alle Benutzer"
 
-#: staff/templates/staff_index.html:56 templates/base.html:91
+#: staff/templates/staff_index.html:56 templates/base.html:89
 msgid "Reward point redemption events"
 msgstr "Veranstaltungen zum Einlösen von Belohnungspunkten"
 
 #: staff/templates/staff_index.html:58
-#: staff/templates/staff_template_form.html:8 templates/base.html:92
+#: staff/templates/staff_template_form.html:8 templates/base.html:90
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
@@ -2219,17 +2229,17 @@ msgid "Single result"
 msgstr "Einzelergebnis"
 
 #: staff/templates/staff_semester_view_course.html:40
-#: student/templates/student_index.html:76
+#: student/templates/student_index.html:74
 msgid "ends today"
 msgstr "endet heute"
 
 #: staff/templates/staff_semester_view_course.html:42
-#: student/templates/student_index.html:78
+#: student/templates/student_index.html:76
 msgid "ends tomorrow"
 msgstr "endet morgen"
 
 #: staff/templates/staff_semester_view_course.html:44
-#: student/templates/student_index.html:80
+#: student/templates/student_index.html:78
 #, python-format
 msgid "%(days)s days left"
 msgstr "noch %(days)s Tage"
@@ -2519,11 +2529,11 @@ msgstr "FAQ-Abschnitte erfolgreich geändert."
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
-#: student/templates/student_index.html:22
+#: student/templates/student_index.html:21
 msgid "Anonymity"
 msgstr "Anonymität"
 
-#: student/templates/student_index.html:23
+#: student/templates/student_index.html:22
 msgid ""
 "Your votes and comments can't be related to you. But you should be aware "
 "that your style of writing might allow lecturers to guess who wrote the "
@@ -2534,15 +2544,15 @@ msgstr ""
 "insbesondere in kleinen Veranstaltungen an deinem Schreibstil erkennen "
 "könnten."
 
-#: student/templates/student_index.html:24
+#: student/templates/student_index.html:23
 msgid "FAQ/Anonymity"
 msgstr "FAQ/Anonymität"
 
-#: student/templates/student_index.html:26
+#: student/templates/student_index.html:25
 msgid "References to other answers"
 msgstr "Verweise auf andere Antworten"
 
-#: student/templates/student_index.html:27
+#: student/templates/student_index.html:26
 msgid ""
 "Lecturers can't see completed questionnaires as a whole. If you would write "
 "\"see above\", the lecturer can't find the respective answer."
@@ -2551,11 +2561,11 @@ msgstr ""
 "Kommentar schreibst \"wie oben schon erwähnt\", kann der Dozent die "
 "zugehörige Antwort nicht finden."
 
-#: student/templates/student_index.html:28
+#: student/templates/student_index.html:27
 msgid "FAQ/Reference"
 msgstr "FAQ/Verweise"
 
-#: student/templates/student_index.html:31
+#: student/templates/student_index.html:30
 msgid ""
 "Your comments will be shown to the person whom you evaluated and to the "
 "person responsible for the course – after the grades of all the course's "
@@ -2570,24 +2580,24 @@ msgstr ""
 "anderen Nutzern der Plattform angezeigt, sofern mindestens 20 Prozent der "
 "Teilnehmer abgestimmt haben."
 
-#: student/templates/student_index.html:63
+#: student/templates/student_index.html:61
 msgid "You did not evaluate this course"
 msgstr "Du hast diese Veranstaltung nicht evaluiert"
 
-#: student/templates/student_index.html:87
+#: student/templates/student_index.html:85
 msgid "You already evaluated this course"
 msgstr "Du hast diese Veranstaltung schon evaluiert"
 
+#: student/templates/student_index.html:85
 #: student/templates/student_index.html:87
-#: student/templates/student_index.html:89
 msgid "Evaluate"
 msgstr "Evaluieren"
 
-#: student/templates/student_index.html:103
+#: student/templates/student_index.html:101
 msgid "No grades have been uploaded yet."
 msgstr "Es wurden noch keine Noten hochgeladen."
 
-#: student/templates/student_index.html:119
+#: student/templates/student_index.html:108
 msgid "We did not receive enough votes to publish the results of this course"
 msgstr ""
 "Es gab nicht genügend Teilnehmer, um die Ergebnisse dieser Veranstaltung zu "
@@ -2679,46 +2689,46 @@ msgstr "Meine Veranstaltungen"
 msgid "Publish grades"
 msgstr "Noten veröffentlichen"
 
-#: templates/base.html:73
+#: templates/base.html:72
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:108
+#: templates/base.html:106
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:110
+#: templates/base.html:108
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:111
+#: templates/base.html:109
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:115
+#: templates/base.html:113
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:128
+#: templates/base.html:126
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:158
+#: templates/base.html:156
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:169
+#: templates/base.html:167
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:171
+#: templates/base.html:169
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
-#: templates/base.html:230
+#: templates/base.html:228
 msgid "Please select..."
 msgstr "Bitte auswählen..."
 
-#: templates/base.html:258
+#: templates/base.html:256
 msgid "Are you sure you want to leave?"
 msgstr "Sind Sie sicher, dass Sie diese Seite verlassen wollen?"
