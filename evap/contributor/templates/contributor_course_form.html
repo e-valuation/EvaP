@@ -11,7 +11,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal multiselect-form" id="course-form">
+    <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
         {% csrf_token %}
         <fieldset>
             <legend>{{ course.name }} ({{ course.semester.name }})</legend>
@@ -39,7 +39,7 @@
                             <tr><td colspan="100">{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
 
-                        <tr class="contribution sortable">
+                        <tr class="contribution select2tr sortable">
                             <td style="width: 10px; cursor: move;"><span style="font-size: 16px; top: 8px;" class="glyphicon glyphicon-move"></span></td>
                             <td>
                                 {% for field in form_element.hidden_fields %}

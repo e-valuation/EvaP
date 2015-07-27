@@ -1,21 +1,26 @@
 {% load morefilters %}
 {% load i18n %}
 
-{% if show_grades and result.count > 0 %}
+{% if show_grades and result.total_count > 0 %}
     {% spaceless %}
     <span data-toggle="tooltip" data-placement="left"
-        title="{% for answer, rel in result.distribution.items %}
-            {% if result.question.is_likert_question %}{{ answer|likertname }}{% else %}{{ answer }}{% endif %}: {{ rel|floatformat }}%{% if not forloop.last %}</br>{% endif %}
+        title="{% if questionnaire_warning or result.warning %}{% trans "Only a few participants answered this question." %}</br></br>{% endif %}
+        {% for answer, count in result.counts.items %}
+            {% if result.question.is_likert_question %}{{ answer|likertname }}{% else %}{{ answer }}{% endif %}: {{ count }}/{{ result.total_count }} ({{ count|percentage_one_decimal:result.total_count }}){% if not forloop.last %}</br>{% endif %}
         {% endfor %}">
         
+        <div class="grade-bg-result-bar-count text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}">
+            <span class="glyphicon glyphicon-user small"></span> {{ result.total_count }}
+        </div>
+
         <div class="grade-bg-result-bar text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="background-color: {{ result.average|gradecolor }}">
             {{ result.average|floatformat:1 }}
         </div>
 
         <div class="distribution-bar">
-            {% for answer, rel in result.distribution.items %}
-                {% if rel != 0 %}
-                    <div class="vote-bg-{{ answer }} {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="width: {% widthratio rel 100 100 %}%;">&nbsp;</div>
+            {% for answer, count in result.counts.items %}
+                {% if count != 0 %}
+                    <div class="vote-bg-{{ answer }} {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="width: {% widthratio count result.total_count 100 %}%;">&nbsp;</div>
                 {% endif %}
             {% endfor %}
         </div>

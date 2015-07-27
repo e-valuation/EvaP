@@ -119,6 +119,15 @@ td.vote-question.text-field {
     margin-left: 10px;
 }
 
+.grade-bg-result-bar-count {
+    float: left;
+    border-radius: 3px;
+    width: 50px;
+    margin-right: 20px;
+    background-color: #31708f;
+    color: #ffffff;
+}
+
 .grade-bg-disabled {
     background-color: #ddd;
 }
@@ -384,7 +393,7 @@ div.disabled-tooltip {
 }
 
 .tooltip-inner {
-    max-width: 350px;
+    max-width: 250px;
 }
 
 .grade-course-table tr {
