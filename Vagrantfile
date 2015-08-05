@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 # needed for the hyper-v stuff
-Vagrant.require_version ">= 1.7.0"
+Vagrant.require_version ">= 1.7.4"
 
 Vagrant.configure("2") do |config|
   config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
@@ -29,8 +29,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision :puppet do |puppet|
-    puppet.module_path = "deployment/modules"
-    puppet.manifests_path = "deployment"
-    puppet.manifest_file = "site.pp"
+    puppet.environment_path = "deployment"
+    puppet.environment = "testing_environment"
   end
 end
