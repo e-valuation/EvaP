@@ -15,5 +15,9 @@ class evap ($db_connector) {
         provider    => shell,
         command     => 'python3 manage.py loaddata test_data.json',
         cwd         => '/vagrant'
+    } -> exec { 'evap-createcachetable':
+        provider    => shell,
+        command     => 'python3 manage.py createcachetable',
+        cwd         => '/vagrant'
     }
 }
