@@ -6,6 +6,7 @@ Vagrant.require_version ">= 1.7.4"
 
 Vagrant.configure("2") do |config|
   config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
+  config.vm.box_version = "= 1.0.2"
 
   # port forwarding for the http server and for pycharm
   config.vm.network :forwarded_port, guest: 80, host: 8000
