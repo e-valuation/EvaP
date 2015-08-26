@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer, Degree, GradeAnswerCounter
+                                   EmailTemplate, TextAnswer, Degree, RatingAnswerCounter
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 
@@ -159,7 +159,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
         for i in range(1,6):
             count = {'count': self.cleaned_data['answer_'+str(i)]}
-            answer_counter, created = GradeAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
+            answer_counter, created = RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
 
         # change state to "reviewed"
         # works only for single_results so the course and its contribution must be saved first
