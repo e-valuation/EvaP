@@ -6,7 +6,10 @@ from evap.evaluation.models import Course, UserProfile, Questionnaire
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.staff.forms import ContributionFormSet
 
+import logging
 import datetime
+
+logger = logging.getLogger(__name__)
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
@@ -58,6 +61,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
+        logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))
 
     def validate_unique(self):
         # see staff.forms.CourseForm for an explanation

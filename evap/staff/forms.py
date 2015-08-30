@@ -10,6 +10,10 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
                                    EmailTemplate, TextAnswer, Degree, RatingAnswerCounter
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class ImportForm(forms.Form, BootstrapMixin):
     vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True)
@@ -91,6 +95,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
+        logger.info('Course "{}" (id {}) was edited by staff member {}.'.format(self.instance, self.instance.id, user.username))
 
     def validate_unique(self):
         # semester is not in the fields list but needs to be validated as well

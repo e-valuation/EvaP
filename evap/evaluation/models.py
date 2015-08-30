@@ -3,13 +3,13 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Count
-from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
 from django_fsm import FSMField, transition
+from django_fsm.signals import post_transition
 import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
@@ -19,6 +19,8 @@ from evap.evaluation.meta import LocalizeModelBase, Translate
 import datetime
 import random
 import logging
+
+logger = logging.getLogger(__name__)
 
 # for converting state into student_state
 STUDENT_STATES_NAMES = {
@@ -455,6 +457,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def update_courses(cls):
+        logger.info("update_courses called. Processing courses now.")
         from evap.evaluation.tools import send_publish_notifications
         today = datetime.date.today()
 
@@ -476,10 +479,19 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                             evaluation_results_courses.append(course)
                     course.save()
             except Exception:
-                logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
+                logger.exception(('An error occured when updating the state of course "{}" (id {}).').format(course, course.id))
 
         EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
         send_publish_notifications(evaluation_results_courses=evaluation_results_courses)
+        logger.info("update_courses finished.")
+
+@receiver(post_transition, sender=Course)
+def log_state_transition(sender, **kwargs):
+    course = kwargs['instance']
+    transition_name = kwargs['name']
+    source_state = kwargs['source']
+    target_state = kwargs['target']
+    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(course, course.id, source_state, target_state, transition_name))
 
 
 class Contribution(models.Model):
@@ -935,7 +947,7 @@ class EmailTemplate(models.Model):
     @classmethod
     def __send_to_user(cls, user, template, subject_params, body_params, cc):
         if not user.email:
-            logging.getLogger(__name__).warning("{} has no email address defined. Could not send email.".format(user.username))
+            logger.warning("{} has no email address defined. Could not send email.".format(user.username))
             return
 
         if cc:
@@ -957,8 +969,9 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
+            logger.info(('Sent email "{}" to {}.').format(subject, user.username))
         except Exception:
-            logging.getLogger(__name__).exception(('An error occured when sending email "{}" to {}.').format(subject, user.username))
+            logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
 
     @classmethod
