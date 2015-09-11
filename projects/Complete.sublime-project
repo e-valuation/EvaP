@@ -8,6 +8,7 @@
             [
                 "evap/static_collected",
                 "evap/static/js",
+                "evap/static/bootstrap",
                 "htmlcov",
                 "deployment/testing_environment/modules/apache",
                 "deployment/testing_environment/modules/apt",
