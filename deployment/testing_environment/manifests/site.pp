@@ -16,6 +16,17 @@ node default {
     package { ['python3', 'python3-dev', 'python3-pip', 'libxslt1-dev', 'zlib1g-dev', 'gettext']:
         ensure => installed,
     } ->
+    package { ['nodejs', 'npm']:
+        ensure => installed,
+    } ->
+    exec { "node-symlink":
+        provider => shell,
+        command => 'ln -f -s /usr/bin/nodejs /usr/bin/node'
+    } ->
+    exec { "install less":
+        provider => shell,
+        command => 'npm install -g less'
+    }
 
 
     class { 'postgresql::globals':

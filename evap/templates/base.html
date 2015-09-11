@@ -5,6 +5,7 @@
 {% load grades_templatetags %}
 {% load results_templatetags %}
 {% load cache %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html>
@@ -12,7 +13,9 @@
     {% block header %}
     <title>{% block title %}EvaP{% endblock %}</title>
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css">
-    <link rel="stylesheet" href="{% get_static_prefix %}bootstrap/dist/css/bootstrap.min.css">
+    {% compress css %}
+        <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}bootstrap/less/bootstrap.less">
+    {% endcompress %}
     <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
     <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
     <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.dataTables.min.css" />
