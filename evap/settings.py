@@ -73,7 +73,8 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
-ALLOWED_HOSTS = []
+# localhost is listed for easier development. Remove it in production environments.
+ALLOWED_HOSTS = ["localhost"]
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
