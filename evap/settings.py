@@ -192,7 +192,6 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR, "templates"),
         ],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 "django.contrib.auth.context_processors.auth",
@@ -206,16 +205,15 @@ TEMPLATES = [
                 "evap.context_processors.legal_notice_active",
                 "evap.context_processors.tracker_url",
             ],
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
+            ],
         },
     },
 ]
-
-TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )),
-)
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
