@@ -60,6 +60,11 @@ node default {
         wsgi_daemon_process_options => { processes => '2', threads => '15', display-name => '%{GROUP}' },
         wsgi_process_group          => 'wsgi',
         wsgi_script_aliases         => { '/' => '/vagrant/evap/wsgi.py' }
+    } -> class { 'apache::mod::expires':
+        expires_by_type => [
+            { 'text/css' => 'access plus 1 year' },
+            { 'text/javascript' => 'access plus 1 year' },
+        ]
     }
 
     exec { 'auto_cd_vagrant':
