@@ -330,3 +330,9 @@ def get_deviation_color(deviation):
     capped_deviation = min(deviation, 2.0) # values above that are very uncommon in practice
     val = int(255 - capped_deviation * 60) # tweaked to look good
     return (val, val, val)
+
+def sort_formset(request, formset):
+    if request.POST: # if not, there will be no cleaned_data and the models should already be sorted anyways
+        formset.is_valid() # make sure all forms have cleaned_data
+        formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
+

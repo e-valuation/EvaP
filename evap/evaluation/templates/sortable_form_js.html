@@ -36,11 +36,6 @@
                 tolerance: tolerance
             });
 
-            var tbody = $("#contribution_table_body");
-
-            function getOrderValue(el) {return $(el).find('input[id$=-order]').val();}
-
-            tbody.append(tbody.children().detach().sort(function(a, b) {return getOrderValue(a) > getOrderValue(b);}))
 
             $('form').submit(function() {
                 apply_ordering();
