@@ -58,6 +58,13 @@ node default {
     # apache environment
     class { 'apache':
         default_vhost => false
+    } ->
+    exec {"fix apache's locale":
+        provider => shell,
+        # this comments in some line in some apache config file to fix the locale.
+        # see https://github.com/fsr-itse/EvaP/issues/626
+        # and https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/modwsgi/#if-you-get-a-unicodeencodeerror
+        command => "sed -i s,#.\\ /etc/default/locale,.\\ /etc/default/locale,g /etc/apache2/envvars"
     }
     class { 'apache::mod::wsgi':
         wsgi_python_path            => '/vagrant'
