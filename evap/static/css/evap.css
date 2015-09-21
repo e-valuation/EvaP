@@ -16,6 +16,10 @@ body {
     padding: 0;
 }
 
+.navbar-brand-image {
+    height: 50px;
+}
+
 /* Wrapper for page content to push down footer */
 #wrap {
     min-height: 100%;
@@ -146,14 +150,55 @@ td.vote-question.text-field {
 }
 
 @media print {
+    .no-break {
+        page-break-inside: avoid;
+    }
     body {
         padding: 0;
     }
-    div.topbar {
+    div.container {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .print-brand-image {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        height: 40px;
+    }
+    nav, #footer, .breadcrumb, .close {
         display: none;
     }
-    footer {
-        display: none;
+    td, th, p {
+        font-size: 80%;
+        page-break-after: avoid;
+    }
+    h2 {
+        font-size: 20px;
+        page-break-after: avoid;
+    }
+    h4 {
+        font-size: 12px;
+        page-break-after: avoid;
+    }
+    .panel-title {
+        font-size: 12px;
+    }
+    .panel-heading {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .grade-bg-result-bar-count {
+        width: 35px;
+    }
+    .grade-bg {
+        width: 30px;
+    }
+    .deviation-bg {
+        width: 30px;
+    }
+    .alert {
+        padding: 5px;
     }
 }
 
