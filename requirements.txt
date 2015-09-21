@@ -8,3 +8,4 @@ WebTest>=2.0.18
 model_mommy == 1.2.4
 django-extensions >= 1.5.5
 django-sendfile >= 0.3.6
+git+git://github.com/karyon/django-compressor.git@ec43c6ad8a8ee20cbfc008cdeac1ef69af1334ce#egg=django_compressor

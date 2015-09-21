@@ -10,3 +10,6 @@
 [submodule "puppetlabs-postgresql"]
 	path = deployment/testing_environment/modules/postgresql
     url = https://github.com/karyon/puppetlabs-postgresql.git
+[submodule "evap/static/bootstrap"]
+	path = evap/static/bootstrap
+	url = https://github.com/twbs/bootstrap.git

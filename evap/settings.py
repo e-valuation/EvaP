@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'evap.contributor',
     'evap.rewards',
     'evap.grades',
+    'compressor',
     'django_extensions',
 )
 
@@ -275,6 +276,12 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
+)
+
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
@@ -291,7 +298,16 @@ MEDIA_URL = '/media/'
 # see https://github.com/johnsensible/django-sendfile for further information
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
+
 ### Other
+
+# django-compressor settings
+COMPRESS_ENABLED = not DEBUG
+COMPRESS_OFFLINE = False
+COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
+)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
 
 # Apply the correct bootstrap css class to django's error messages
 MESSAGE_TAGS = {
