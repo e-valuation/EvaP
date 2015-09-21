@@ -150,6 +150,9 @@ td.vote-question.text-field {
 }
 
 @media print {
+    .no-break {
+        page-break-inside: avoid;
+    }
     body {
         padding: 0;
     }
@@ -168,12 +171,15 @@ td.vote-question.text-field {
     }
     td, th, p {
         font-size: 80%;
+        page-break-after: avoid;
     }
     h2 {
         font-size: 20px;
+        page-break-after: avoid;
     }
     h4 {
         font-size: 12px;
+        page-break-after: avoid;
     }
     .panel-title {
         font-size: 12px;
