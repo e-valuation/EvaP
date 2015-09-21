@@ -326,12 +326,14 @@ try:
 except ImportError:
     pass
 
-# speed up tests by using sqlite
-if 'test' in sys.argv:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+TESTING = 'test' in sys.argv
+
+# speed up tests
+if TESTING:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'} # use sqlite
+    COMPRESS_PRECOMPILERS = () # disable compressor completely
 
 # Django debug toolbar settings
-TESTING = 'test' in sys.argv
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ('debug_toolbar',)
