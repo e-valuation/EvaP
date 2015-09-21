@@ -13,13 +13,13 @@
     {% block header %}
         <title>{% block title %}EvaP{% endblock %}</title>
         {% compress css %}
-            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css">
-            <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.less">
-            <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css">
+            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css" />
+            <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.less" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.dataTables.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
+            <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css" />
         {% endcompress %}
         <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}
