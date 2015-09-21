@@ -21,8 +21,8 @@ def index(request):
     return render(request, "grades_index.html", template_data)
 
 
-def get_graded_courses_with_prefetched_data(semester):
-    courses = semester.course_set.filter(is_graded=True).exclude(state='new').prefetch_related(
+def get_grade_courses_with_prefetched_data(semester):
+    courses = semester.course_set.exclude(state='new').prefetch_related(
         Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contribution"),
         "degrees")
 
@@ -42,7 +42,7 @@ def get_graded_courses_with_prefetched_data(semester):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = get_graded_courses_with_prefetched_data(semester)
+    courses = get_grade_courses_with_prefetched_data(semester)
 
     template_data = dict(
         semester=semester,
