@@ -19,7 +19,7 @@
                 {% endblocktrans %}
             {% endif %}
         </p>
-        <input type="submit" value="{% trans "Confirm" %}" class="btn btn-danger"/>
+        <input type="submit" value="{% trans "Confirm" %}" class="btn btn-primary"/>
         <a href="{% url "grades:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
     </form>
 {% endblock %}
