@@ -22,10 +22,10 @@
 
     {% if staff or contributor %}
         {% if public_view %}
-            <div class="alert alert-info">{% trans "This is the public view. Users who are neither contributors of this course nor their delegates can only see the results below." %}</div>
-            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=false" class="pull-right btn btn-sm btn-primary">{% trans "Show my view" %}</a>
+            <div class="alert alert-info hidden-print">{% trans "This is the public view. Users who are neither contributors of this course nor their delegates can only see the results below." %}</div>
+            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=false" class="pull-right btn btn-sm btn-primary hidden-print">{% trans "Show my view" %}</a>
         {% else %}
-            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=true" class="pull-right btn btn-sm btn-default">{% trans "Show public view" %}</a>
+            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=true" class="pull-right btn btn-sm btn-default hidden-print">{% trans "Show public view" %}</a>
         {% endif %}
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
@@ -35,7 +35,7 @@
             <span class="panel-title">{% trans "Overview" %}</span>
             {% if course.grade_documents.count > 0 and can_download_grades %}
                 <div class="pull-right btn-group">
-                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle hidden-print" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
                     <ul class="dropdown-menu" role="menu">
                         {% for grade_document in course.grade_documents.all %}
                             <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
@@ -48,12 +48,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-1">{% trans "Degree" %}</th>
-                        <th class="col-sm-2">{% trans "Type" %}</th>
-                        <th class="col-sm-3">{% trans "Responsible" %}</th>
-                        <th class="col-sm-2">{% trans "Average Grade" %}</th>
-                        <th class="col-sm-2">{% trans "Standard Deviation" %}</th>
-                        <th class="col-sm-2">{% if course.is_single_result|is_false %}{% trans "Voters" %}{% endif %}</th>
+                        <th class="col-xs-1">{% trans "Degree" %}</th>
+                        <th class="col-xs-2">{% trans "Type" %}</th>
+                        <th class="col-xs-3">{% trans "Responsible" %}</th>
+                        <th class="col-xs-2">{% trans "Average Grade" %}</th>
+                        <th class="col-xs-2">{% trans "Standard Deviation" %}</th>
+                        <th class="col-xs-2">{% if course.is_single_result|is_false %}{% trans "Voters" %}{% endif %}</th>
                     </tr>
                 </thead>
                 <tbody>

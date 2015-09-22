@@ -11,9 +11,17 @@ class evap ($db_connector) {
         provider    => shell,
         command     => 'python3 manage.py collectstatic --noinput',
         cwd         => '/vagrant'
+    } -> exec { 'django-compilemessages':
+        provider    => shell,
+        command     => 'python3 manage.py compilemessages',
+        cwd         => '/vagrant'
     } -> exec { 'evap-load-testdata':
         provider    => shell,
         command     => 'python3 manage.py loaddata test_data.json',
+        cwd         => '/vagrant'
+    } -> exec { 'evap-createcachetable':
+        provider    => shell,
+        command     => 'python3 manage.py createcachetable',
         cwd         => '/vagrant'
     }
 }

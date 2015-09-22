@@ -16,31 +16,33 @@
     <table class="table table-striped">
         <tbody>
             {% for result in results %}
-                <tr>
-                {% if result.question.is_likert_question or result.question.is_grade_question %}
-                    <td colspan="2">{{ result.question.text }}</td>
-                    <td>
-                        {% include_result_bar result show_grades questionnaire_warning %}
-                    </td>
+                {% if result.question.is_rating_question %}
+                    <tr class="no-break">
+                        <td colspan="2">{{ result.question.text }}</td>
+                        <td>
+                            {% include_result_bar result show_grades questionnaire_warning %}
+                        </td>
+                    </tr>
                 {% elif result.question.is_text_question %}
-                    <td>{{ result.question.text }}</td>
-                    <td colspan="3">
-                        <ul>
-                        {% for answer in result.answers %}
-                            <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
-                        {% endfor %}
-                        </ul>
-                    </td>
+                    <tr>
+                        <td>{{ result.question.text }}</td>
+                        <td colspan="3">
+                            <ul>
+                            {% for answer in result.answers %}
+                                <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
+                            {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
                 {% endif %}
-                </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <!-- empty zero-height cells, necessary to make the overlapped colspans work -->
             <tr>
-                <th class="col-sm-3" style="padding: 0px;"></th>
-                <th class="col-sm-5" style="padding: 0px;"></th>
-                <th class="col-sm-4" style="padding: 0px;"></th>
+                <th class="col-xs-3" style="padding: 0px;"></th>
+                <th class="col-xs-4" style="padding: 0px;"></th>
+                <th class="col-xs-5" style="padding: 0px;"></th>
             </tr>
         </tfoot>
     </table>

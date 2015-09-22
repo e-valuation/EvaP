@@ -21,8 +21,8 @@ def index(request):
     return render(request, "grades_index.html", template_data)
 
 
-def get_graded_courses_with_prefetched_data(semester):
-    courses = semester.course_set.filter(is_graded=True).exclude(state='new').prefetch_related(
+def prefetch_data(courses):
+    courses = courses.prefetch_related(
         Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contribution"),
         "degrees")
 
@@ -42,7 +42,8 @@ def get_graded_courses_with_prefetched_data(semester):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = get_graded_courses_with_prefetched_data(semester)
+    courses = semester.course_set.exclude(state='new')
+    courses = prefetch_data(courses)
 
     template_data = dict(
         semester=semester,
@@ -100,6 +101,32 @@ def upload_grades(request, semester_id, course_id):
             show_automated_publishing_info=final_grades,
         )
         return render(request, "grades_upload_form.html", template_data)
+
+
+@grade_publisher_required
+def toggle_no_grades(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        course.gets_no_grade_documents = not course.gets_no_grade_documents
+        course.save()
+        
+        if course.gets_no_grade_documents:
+            if course.state == 'reviewed':
+                course.publish()
+                course.save()
+                send_publish_notifications(evaluation_results_courses=[course])
+            messages.success(request, _("Successfully confirmed that no grade documents will be provided."))
+        else:
+            messages.success(request, _("Successfully confirmed that grade documents will be provided later on."))
+        return redirect('grades:semester_view', semester_id)
+    else:
+        template_data = dict(
+            semester=semester,
+            course=course,
+        )
+        return render(request, "toggle_no_grades.html", template_data)
 
 
 @grade_downloader_required

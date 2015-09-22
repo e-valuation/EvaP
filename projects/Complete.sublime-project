@@ -8,12 +8,13 @@
             [
                 "evap/static_collected",
                 "evap/static/js",
+                "evap/static/bootstrap",
                 "htmlcov",
-                "deployment/modules/apache",
-                "deployment/modules/apt",
-                "deployment/modules/concat",
-                "deployment/modules/postgresql",
-                "deployment/modules/stdlib",
+                "deployment/testing_environment/modules/apache",
+                "deployment/testing_environment/modules/apt",
+                "deployment/testing_environment/modules/concat",
+                "deployment/testing_environment/modules/postgresql",
+                "deployment/testing_environment/modules/stdlib",
             ],
             "file_exclude_patterns":
             [
@@ -39,7 +40,7 @@
                 },
                 {
                     "name": "vagrant test",
-                    "cmd": ["vagrant", "ssh", "-c", "\"cd /vagrant && python manage.py test\""]
+                    "cmd": ["vagrant", "ssh", "-c", "\"cd /vagrant && python3 manage.py test\""]
                 }
             ]
         }

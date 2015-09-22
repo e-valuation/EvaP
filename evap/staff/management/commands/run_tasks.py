@@ -1,10 +1,13 @@
 import datetime
 import operator
+import logging
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from evap.evaluation.models import Course, EmailTemplate
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -16,6 +19,7 @@ class Command(BaseCommand):
         Course.update_courses()
 
     def check_reminders(self):
+        logger.info("check_reminders called.")
         check_dates = []
         for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE:
             check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
@@ -33,6 +37,7 @@ class Command(BaseCommand):
             due_courses = sorted(due_courses.items(), key=operator.itemgetter(1))
 
             EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_courses=due_courses)
+        logger.info("check_reminders finished.")
 
     def handle(self, *args, **options):
         if len(args) > 0 and args[0] == 'daily':

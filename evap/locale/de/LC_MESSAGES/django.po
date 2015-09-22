@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-27 09:38+0200\n"
-"PO-Revision-Date: 2015-07-27 09:39+0200\n"
+"POT-Creation-Date: 2015-09-22 21:28+0200\n"
+"PO-Revision-Date: 2015-09-22 21:36+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -18,23 +18,23 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.2\n"
 
-#: contributor/forms.py:13 staff/forms.py:45
+#: contributor/forms.py:16 staff/forms.py:49
 msgid "General questions"
 msgstr "Allgemeine Fragen"
 
-#: contributor/forms.py:41 staff/forms.py:86
+#: contributor/forms.py:44 staff/forms.py:90
 msgid "The first day of evaluation must be before the last one."
 msgstr "Der erste Evaluierungstag muss vor dem letzten liegen."
 
-#: contributor/forms.py:46
+#: contributor/forms.py:49
 msgid "The first day of evaluation must be in the future."
 msgstr "Der erste Tag des Evaluierungszeitraums muss in der Zukunft liegen."
 
-#: contributor/forms.py:52
+#: contributor/forms.py:55
 msgid "The last day of evaluation must be in the future."
 msgstr "Das Ende des Evaluierungszeitraums muss in der Zukunft liegen."
 
-#: contributor/forms.py:107 staff/forms.py:388
+#: contributor/forms.py:111 staff/forms.py:393
 #, python-format
 msgid "A user with the email '%s' already exists"
 msgstr "Ein Benutzer mit der E-Mail-Adresse '%s' existiert bereits"
@@ -58,11 +58,11 @@ msgstr "Mitwirkender"
 msgid "Contributors"
 msgstr "Mitwirkende"
 
-#: contributor/templates/contributor_course_form.html:31 staff/forms.py:189
+#: contributor/templates/contributor_course_form.html:31 staff/forms.py:194
 #: staff/templates/staff_course_form.html:27
 #: staff/templates/staff_index.html:21
 #: staff/templates/staff_questionnaire_base.html:8
-#: staff/templates/staff_questionnaire_base.html:11 templates/base.html:86
+#: staff/templates/staff_questionnaire_base.html:11 templates/base.html:89
 msgid "Questionnaires"
 msgstr "Fragebögen"
 
@@ -71,7 +71,7 @@ msgid "Can edit course"
 msgstr "Kann Veranstaltung bearbeiten"
 
 #: contributor/templates/contributor_course_form.html:51
-#: evaluation/models.py:496
+#: evaluation/models.py:506
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -103,11 +103,12 @@ msgid "Back"
 msgstr "Zurück"
 
 #: contributor/templates/contributor_course_form.html:89
+#: grades/templates/toggle_no_grades.html:23
 #: staff/templates/staff_course_operation.html:27
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: contributor/templates/contributor_index.html:10 evaluation/models.py:758
+#: contributor/templates/contributor_index.html:10 evaluation/models.py:750
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -192,7 +193,7 @@ msgstr ""
 msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
-#: contributor/templates/contributor_index.html:39 evaluation/models.py:897
+#: contributor/templates/contributor_index.html:39 evaluation/models.py:889
 #: grades/templates/grades_semester_view.html:27
 #: rewards/templates/rewards_semester_reward_points_view.html:14
 #: staff/templates/staff_user_index.html:22
@@ -212,7 +213,7 @@ msgid "Evaluation Period"
 msgstr "Abstimmungszeitraum"
 
 #: contributor/templates/contributor_index.html:42
-#: staff/templates/staff_semester_view_course.html:84
+#: staff/templates/staff_semester_view_course.html:89
 msgid "Participants"
 msgstr "Teilnehmer"
 
@@ -245,7 +246,7 @@ msgstr "Bearbeiten"
 #: contributor/templates/contributor_index.html:69
 #: contributor/templates/contributor_index.html:72
 #: staff/templates/staff_questionnaire_index_list.html:34
-#: staff/templates/staff_semester_view_course.html:94
+#: staff/templates/staff_semester_view_course.html:99
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -264,9 +265,9 @@ msgstr ""
 #: contributor/templates/contributor_index.html:76
 #: contributor/templates/contributor_index.html:79 results/exporters.py:93
 #: results/templates/results_base.html:5 results/templates/results_base.html:9
-#: staff/templates/staff_semester_view_course.html:103
+#: staff/templates/staff_semester_view_course.html:108
 #: student/templates/student_index.html:106
-#: student/templates/student_index.html:108 templates/base.html:97
+#: student/templates/student_index.html:108 templates/base.html:100
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -363,353 +364,349 @@ msgstr ""
 "Es wurde kein Benutzer mit dieser E‑Mail-Adresse gefunden. Bitte verwenden "
 "Sie die E‑Mail-Adresse, die der Universitätsverwaltung bereits bekannt ist."
 
-#: evaluation/models.py:43 evaluation/models.py:92 evaluation/models.py:145
-#: evaluation/models.py:165
+#: evaluation/models.py:45 evaluation/models.py:94 evaluation/models.py:147
+#: evaluation/models.py:167
 msgid "name (german)"
 msgstr "Name (deutsch)"
 
-#: evaluation/models.py:44 evaluation/models.py:93 evaluation/models.py:146
-#: evaluation/models.py:166
+#: evaluation/models.py:46 evaluation/models.py:95 evaluation/models.py:148
+#: evaluation/models.py:168
 msgid "name (english)"
 msgstr "Name (englisch)"
 
-#: evaluation/models.py:48
+#: evaluation/models.py:50
 msgid "created at"
 msgstr "erstellt am"
 
-#: evaluation/models.py:52 evaluation/models.py:163
+#: evaluation/models.py:54 evaluation/models.py:165
 msgid "semester"
 msgstr "Semester"
 
-#: evaluation/models.py:53
+#: evaluation/models.py:55
 msgid "semesters"
 msgstr "Semester"
 
-#: evaluation/models.py:96
+#: evaluation/models.py:98
 msgid "description (german)"
 msgstr "Beschreibung (deutsch)"
 
-#: evaluation/models.py:97
+#: evaluation/models.py:99
 msgid "description (english)"
 msgstr "Beschreibung (englisch)"
 
-#: evaluation/models.py:100
+#: evaluation/models.py:102
 msgid "display name (german)"
 msgstr "Anzeigename (deutsch)"
 
-#: evaluation/models.py:101
+#: evaluation/models.py:103
 msgid "display name (english)"
 msgstr "Anzeigename (englisch)"
 
-#: evaluation/models.py:104
+#: evaluation/models.py:106
 msgid "teaser (german)"
 msgstr "Einleitung (deutsch)"
 
-#: evaluation/models.py:105
+#: evaluation/models.py:107
 msgid "teaser (english)"
 msgstr "Einleitung (englisch)"
 
-#: evaluation/models.py:108
+#: evaluation/models.py:110
 msgid "ordering index"
 msgstr "Sortierindex"
 
-#: evaluation/models.py:110
+#: evaluation/models.py:112
 msgid "is for contributors"
 msgstr "Personenfragebogen"
 
-#: evaluation/models.py:111
+#: evaluation/models.py:113
 #: staff/templates/staff_questionnaire_index_list.html:26
 msgid "obsolete"
 msgstr "obsolet"
 
-#: evaluation/models.py:115
+#: evaluation/models.py:117
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: evaluation/models.py:116 evaluation/models.py:495
+#: evaluation/models.py:118 evaluation/models.py:505
 msgid "questionnaires"
 msgstr "Fragebögen"
 
-#: evaluation/models.py:149
+#: evaluation/models.py:151
 msgid "degree order"
 msgstr "Studiengang-Reihenfolge"
 
-#: evaluation/models.py:170
+#: evaluation/models.py:172
 msgid "type"
 msgstr "Typ"
 
-#: evaluation/models.py:173
+#: evaluation/models.py:175
 msgid "degrees"
 msgstr "Studiengänge"
 
-#: evaluation/models.py:176
+#: evaluation/models.py:178
 msgid "is graded"
 msgstr "ist benotet"
 
-#: evaluation/models.py:179
+#: evaluation/models.py:181
+msgid "gets no grade documents"
+msgstr "erhält keine Noten-Dokumente"
+
+#: evaluation/models.py:184
 msgid "is required for reward"
 msgstr "wird für Belohnung benötigt"
 
-#: evaluation/models.py:182
+#: evaluation/models.py:187
 msgid "participants"
 msgstr "Teilnehmer"
 
-#: evaluation/models.py:183
+#: evaluation/models.py:188
 msgid "participant count"
 msgstr "Teilnehmeranzahl"
 
-#: evaluation/models.py:186
+#: evaluation/models.py:191
 msgid "voters"
 msgstr "Abstimmende"
 
-#: evaluation/models.py:187
+#: evaluation/models.py:192
 msgid "voter count"
 msgstr "Anzahl Abstimmende"
 
-#: evaluation/models.py:190
+#: evaluation/models.py:195
 msgid "first day of evaluation"
 msgstr "erster Evaluierungstag"
 
-#: evaluation/models.py:191
+#: evaluation/models.py:196
 msgid "last day of evaluation"
 msgstr "letzter Evaluierungstag"
 
-#: evaluation/models.py:205 evaluation/models.py:493
+#: evaluation/models.py:210 evaluation/models.py:503
 msgid "course"
 msgstr "Veranstaltung"
 
-#: evaluation/models.py:206
+#: evaluation/models.py:211
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: evaluation/models.py:393
+#: evaluation/models.py:398
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evaluation/models.py:395
+#: evaluation/models.py:400
 msgid "Not enough participants to publish results"
 msgstr "Zu wenig Teilnehmer für Veröffentlichung"
 
-#: evaluation/models.py:494
+#: evaluation/models.py:504
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evaluation/models.py:497
+#: evaluation/models.py:507
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evaluation/models.py:499
+#: evaluation/models.py:509
 msgid "contribution order"
 msgstr "Mitwirkungs-Reihenfolge"
 
-#: evaluation/models.py:521
+#: evaluation/models.py:531
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evaluation/models.py:522
+#: evaluation/models.py:532
 msgid "Likert Question"
 msgstr "Likert-Frage"
 
-#: evaluation/models.py:523
+#: evaluation/models.py:533
 msgid "Grade Question"
 msgstr "Bewertungsfrage"
 
-#: evaluation/models.py:527
+#: evaluation/models.py:537
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:528
+#: evaluation/models.py:538
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:529
+#: evaluation/models.py:539
 msgid "question type"
 msgstr "Frageart"
 
-#: evaluation/models.py:535 evaluation/models.py:701
+#: evaluation/models.py:545 evaluation/models.py:693
 msgid "question"
 msgstr "Frage"
 
-#: evaluation/models.py:536 evaluation/models.py:702
+#: evaluation/models.py:546 evaluation/models.py:694
 msgid "questions"
 msgstr "Fragen"
 
-#: evaluation/models.py:576 evaluation/models.py:584 evaluation/models.py:601
+#: evaluation/models.py:586 evaluation/models.py:593
 msgid "answer"
 msgstr "Antwort"
 
-#: evaluation/models.py:577
+#: evaluation/models.py:587
 msgid "answers"
 msgstr "Antworten"
 
-#: evaluation/models.py:585 evaluation/models.py:602
+#: evaluation/models.py:594
 msgid "count"
 msgstr "Anzahl"
 
-#: evaluation/models.py:591
-msgid "Likert answer"
-msgstr "Likert-Antwort"
-
-#: evaluation/models.py:592
-msgid "Likert answers"
-msgstr "Likert-Antworten"
-
-#: evaluation/models.py:608
-msgid "grade answer"
+#: evaluation/models.py:600
+msgid "rating answer"
 msgstr "Bewertungs-Antwort"
 
-#: evaluation/models.py:609
-msgid "grade answers"
+#: evaluation/models.py:601
+msgid "rating answers"
 msgstr "Bewertungs-Antworten"
 
-#: evaluation/models.py:619
+#: evaluation/models.py:611
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evaluation/models.py:620
+#: evaluation/models.py:612
 msgid "original answer"
 msgstr "Originale Antwort"
 
-#: evaluation/models.py:627
+#: evaluation/models.py:619
 msgid "hidden"
 msgstr "versteckt"
 
-#: evaluation/models.py:628 evaluation/tools.py:46 evaluation/tools.py:66
+#: evaluation/models.py:620 evaluation/tools.py:46 evaluation/tools.py:66
 msgid "published"
 msgstr "veröffentlicht"
 
-#: evaluation/models.py:629
+#: evaluation/models.py:621
 #: staff/templates/staff_course_comments_section.html:35
 msgid "private"
 msgstr "privat"
 
-#: evaluation/models.py:630
+#: evaluation/models.py:622
 msgid "not reviewed"
 msgstr "nicht überprüft"
 
-#: evaluation/models.py:632
+#: evaluation/models.py:624
 msgid "state of answer"
 msgstr "Zustand der Antwort"
 
-#: evaluation/models.py:635
+#: evaluation/models.py:627
 msgid "text answer"
 msgstr "Text-Antwort"
 
-#: evaluation/models.py:636
+#: evaluation/models.py:628
 msgid "text answers"
 msgstr "Text-Antworten"
 
-#: evaluation/models.py:672
+#: evaluation/models.py:664
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:674
+#: evaluation/models.py:666
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evaluation/models.py:675
+#: evaluation/models.py:667
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evaluation/models.py:680
+#: evaluation/models.py:672
 msgid "section"
 msgstr "Abschnitt"
 
-#: evaluation/models.py:681
+#: evaluation/models.py:673
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evaluation/models.py:689
+#: evaluation/models.py:681
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evaluation/models.py:691
+#: evaluation/models.py:683
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evaluation/models.py:692
+#: evaluation/models.py:684
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evaluation/models.py:695 evaluation/models.py:696
+#: evaluation/models.py:687 evaluation/models.py:688
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evaluation/models.py:708
+#: evaluation/models.py:700
 msgid "Users must have a username"
 msgstr "Benutzer müssen einen Benutzernamen haben"
 
-#: evaluation/models.py:751
+#: evaluation/models.py:743
 msgid "username"
 msgstr "Benutzername"
 
-#: evaluation/models.py:752
+#: evaluation/models.py:744
 msgid "email address"
 msgstr "E‑Mail-Adresse"
 
-#: evaluation/models.py:753
+#: evaluation/models.py:745
 msgid "Title"
 msgstr "Titel"
 
-#: evaluation/models.py:754
+#: evaluation/models.py:746
 msgid "first name"
 msgstr "Vorname"
 
-#: evaluation/models.py:755
+#: evaluation/models.py:747
 msgid "last name"
 msgstr "Nachname"
 
-#: evaluation/models.py:761
+#: evaluation/models.py:753
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evaluation/models.py:766 staff/templates/staff_user_labels.html:20
+#: evaluation/models.py:758 staff/templates/staff_user_labels.html:20
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evaluation/models.py:767
+#: evaluation/models.py:759
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evaluation/models.py:771
+#: evaluation/models.py:763
 msgid "user"
 msgstr "Benutzer"
 
-#: evaluation/models.py:772
+#: evaluation/models.py:764
 msgid "users"
 msgstr "Benutzer"
 
-#: evaluation/models.py:899 staff/forms.py:205
+#: evaluation/models.py:891 staff/forms.py:210
 msgid "Subject"
 msgstr "Betreff"
 
-#: evaluation/models.py:900
+#: evaluation/models.py:892
 msgid "Body"
 msgstr "Text"
 
-#: evaluation/models.py:911
+#: evaluation/models.py:903
 msgid "all participants"
 msgstr "Alle Teilnehmer"
 
-#: evaluation/models.py:912
+#: evaluation/models.py:904
 msgid "due participants"
 msgstr "Ausstehende Teilnehmer"
 
-#: evaluation/models.py:913
+#: evaluation/models.py:905
 msgid "responsible person"
 msgstr "verantwortliche Person"
 
-#: evaluation/models.py:914
+#: evaluation/models.py:906
 msgid "all editors"
 msgstr "alle Bearbeiter"
 
-#: evaluation/models.py:915
+#: evaluation/models.py:907
 msgid "all contributors"
 msgstr "alle Mitwirkenden"
 
 #: evaluation/templates/faq.html:5 evaluation/templates/faq.html.py:9
-#: staff/templates/staff_index.html:66 templates/base.html:91
-#: templates/base.html.py:164
+#: staff/templates/staff_index.html:66 templates/base.html:94
+#: templates/base.html.py:170
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -768,7 +765,7 @@ msgstr "Schlüssel zusenden"
 
 #: evaluation/templates/legal_notice.html:5
 #: evaluation/templates/legal_notice.html:9
-#: evaluation/templates/legal_notice.html:13 templates/base.html:159
+#: evaluation/templates/legal_notice.html:13 templates/base.html:165
 msgid "Legal Notice"
 msgstr "Impressum"
 
@@ -946,11 +943,11 @@ msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 msgid "Description"
 msgstr "Beschreibung"
 
-#: grades/forms.py:25 staff/forms.py:51 staff/forms.py:109
+#: grades/forms.py:25 staff/forms.py:55 staff/forms.py:114
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: grades/forms.py:26 staff/forms.py:52 staff/forms.py:110
+#: grades/forms.py:26 staff/forms.py:56 staff/forms.py:115
 #: staff/templates/staff_semester_todo.html:31
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
@@ -1006,7 +1003,6 @@ msgid "Uploaded grade documents"
 msgstr "Hochgeladene Noten-Dokumente"
 
 #: grades/templates/grades_course_view.html:20
-#: grades/templates/grades_semester_view.html:30
 #: results/templates/results_course_detail.html:52
 #: results/templates/results_semester_detail.html:25
 #: results/templates/results_semester_detail.html:69
@@ -1034,7 +1030,7 @@ msgstr "Herunterladen"
 #: staff/templates/staff_questionnaire_index_list.html:37
 #: staff/templates/staff_questionnaire_index_list.html:39
 #: staff/templates/staff_semester_view.html:18
-#: staff/templates/staff_semester_view_course.html:100
+#: staff/templates/staff_semester_view_course.html:105
 #: staff/templates/staff_user_index.html:37
 #: staff/templates/staff_user_index.html:39
 msgid "Delete"
@@ -1085,8 +1081,8 @@ msgstr "Nein"
 #: grades/templates/grades_semester_base.html:21
 #: results/templates/results_index.html:8 staff/templates/staff_index.html:8
 #: staff/templates/staff_semester_base.html:7
-#: staff/templates/staff_semester_base.html:21 templates/base.html:65
-#: templates/base.html.py:84
+#: staff/templates/staff_semester_base.html:21 templates/base.html:68
+#: templates/base.html.py:87
 msgid "Semesters"
 msgstr "Semester"
 
@@ -1108,43 +1104,74 @@ msgstr "Veranstaltungen"
 #: grades/templates/grades_semester_view.html:28
 #: results/templates/results_course_detail.html:53
 #: results/templates/results_semester_detail.html:26
-#: results/templates/results_semester_detail.html:70 staff/forms.py:112
+#: results/templates/results_semester_detail.html:70 staff/forms.py:117
 #: staff/templates/staff_course_form.html:28
 #: staff/templates/staff_user_labels.html:17
 msgid "Responsible"
 msgstr "Verantwortlicher"
 
 #: grades/templates/grades_semester_view.html:29
-#: results/templates/results_course_detail.html:51
-msgid "Degree"
-msgstr "Studiengang"
+msgid "Evaluation completed"
+msgstr "Evaluierung beendet"
+
+#: grades/templates/grades_semester_view.html:30
+msgid "Midterm grade documents"
+msgstr "Zwischennoten-Dokumente"
 
 #: grades/templates/grades_semester_view.html:31
-msgid "Number of midterm/final grade documents"
-msgstr "Anzahl Zwischennoten-/Endnoten-Dokumente"
+msgid "Final grade documents"
+msgstr "Endnoten-Dokumente"
 
-#: grades/templates/grades_semester_view.html:47
-msgid "Number of midterm grade documents"
-msgstr "Anzahl Zwischennoten-Dokumente"
+#: grades/templates/grades_semester_view.html:32
+#: rewards/templates/rewards_reward_point_redemption_events.html:30
+#: rewards/templates/rewards_reward_point_redemption_events.html:67
+#: staff/templates/staff_faq_index.html:25
+#: staff/templates/staff_faq_section.html:25
+#: staff/templates/staff_questionnaire_index_list.html:14
+#: staff/templates/staff_semester_view.html:58
+#: staff/templates/staff_user_index.html:25
+msgid "Actions"
+msgstr "Aktionen"
 
-#: grades/templates/grades_semester_view.html:52
-msgid "Number of final grade documents"
-msgstr "Anzahl Endnoten-Dokumente"
+#: grades/templates/grades_semester_view.html:44
+#: staff/templates/staff_semester_view_course.html:27
+msgid "graded"
+msgstr "benotet"
+
+#: grades/templates/grades_semester_view.html:44
+#: staff/templates/staff_semester_view_course.html:27
+msgid "not graded"
+msgstr "unbenotet"
 
 #: grades/templates/grades_semester_view.html:58
+msgid "Grade documents for this course will not be uploaded. Click to change."
+msgstr ""
+"Noten-Dokumente für diese Veranstaltung werden nicht hochgeladen. Klicken "
+"zum Ändern."
+
+#: grades/templates/grades_semester_view.html:65
+msgid "Confirm that final grades have been submitted but will not be uploaded"
+msgstr ""
+"Bestätigen, dass Endnoten eingereicht wurden, aber nicht hochgeladen werden"
+
+#: grades/templates/grades_semester_view.html:70
 #: grades/templates/grades_upload_form.html:25
 msgid "Upload grades"
 msgstr "Noten hochladen"
 
-#: grades/templates/grades_semester_view.html:60
+#: grades/templates/grades_semester_view.html:76
 msgid "Midterm grades"
 msgstr "Zwischennoten"
 
-#: grades/templates/grades_semester_view.html:61
+#: grades/templates/grades_semester_view.html:77
 msgid "Final grades"
 msgstr "Endnoten"
 
-#: grades/templates/grades_semester_view.html:70
+#: grades/templates/grades_semester_view.html:82
+msgid "Change grade document"
+msgstr "Noten-Dokument bearbeiten"
+
+#: grades/templates/grades_semester_view.html:95
 msgid "No courses have been created yet"
 msgstr "Es wurden noch keine Lehrveranstaltungen angelegt"
 
@@ -1177,15 +1204,55 @@ msgstr "Endnoten für %(course)s (%(semester)s) hochladen"
 msgid "Upload midterm grades for %(course)s (%(semester)s)"
 msgstr "Zwischennoten für %(course)s (%(semester)s) hochladen"
 
-#: grades/views.py:92
+#: grades/templates/toggle_no_grades.html:11
+#, python-format
+msgid ""
+"\n"
+"                    Please confirm that a grade document for the course "
+"%(course)s (%(semester)s)\n"
+"                    <b>will be uploaded later on</b>.\n"
+"                "
+msgstr ""
+"\n"
+"Bitte bestätigen Sie, dass Noten-Dokumente dür die Veranstaltung %(course)s "
+"(%(semester)s) <b>noch hochgeladen werden</b>."
+
+#: grades/templates/toggle_no_grades.html:16
+#, python-format
+msgid ""
+"\n"
+"                    Please confirm that the <b>final grades have been "
+"submitted</b> but <b>will not be uploaded</b>\n"
+"                    for the course %(course)s (%(semester)s).\n"
+"                "
+msgstr ""
+"\n"
+"Bitte bestätigen Sie, dass die Endnoten für die Veranstaltung %(course)s "
+"(%(semester)s) <b>eingegangen sind, aber nicht hochgeladen werden</b>."
+
+#: grades/templates/toggle_no_grades.html:22
+#: staff/templates/staff_course_operation.html:26
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: grades/views.py:93
 msgid "Successfully uploaded grades."
 msgstr "Noten erfolgreich hochgeladen."
 
-#: grades/views.py:125
+#: grades/views.py:120
+msgid "Successfully confirmed that no grade documents will be provided."
+msgstr "Erfolgreich bestätigt, dass Noten-Dokumente nicht hochgeladen werden."
+
+#: grades/views.py:122
+msgid "Successfully confirmed that grade documents will be provided later on."
+msgstr ""
+"Erfolgreich bestätigt, dass die Notendokumente noch hochgeladen werden."
+
+#: grades/views.py:152
 msgid "Successfully updated grades."
 msgstr "Noten erfolgreich aktualisiert."
 
-#: grades/views.py:145
+#: grades/views.py:172
 msgid "Successfully deleted grade document."
 msgstr "Noten-Dokument erfolgreich gelöscht."
 
@@ -1238,8 +1305,8 @@ msgid "Show public view"
 msgstr "Zu öffentlicher Ansicht wechseln"
 
 #: results/templates/results_course_detail.html:35
-#: staff/templates/staff_semester_view.html:25 templates/base.html:64
-#: templates/base.html.py:83
+#: staff/templates/staff_semester_view.html:25 templates/base.html:67
+#: templates/base.html.py:86
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -1248,6 +1315,10 @@ msgstr "Übersicht"
 #: student/templates/student_index.html:101
 msgid "Download grades"
 msgstr "Noten herunterladen"
+
+#: results/templates/results_course_detail.html:51
+msgid "Degree"
+msgstr "Studiengang"
 
 #: results/templates/results_course_detail.html:54
 #: results/templates/results_semester_detail.html:27
@@ -1262,7 +1333,7 @@ msgstr "Standardabweichung"
 #: results/templates/results_course_detail.html:56
 #: results/templates/results_semester_detail.html:29
 #: staff/templates/staff_semester_view_course.html:51
-#: staff/templates/staff_semester_view_course.html:76
+#: staff/templates/staff_semester_view_course.html:81
 msgid "Voters"
 msgstr "Abstimmende"
 
@@ -1270,7 +1341,7 @@ msgstr "Abstimmende"
 msgid "Only a few participants answered these questions."
 msgstr "Nur wenige Teilnehmer haben diese Fragen beantwortet."
 
-#: results/templates/results_course_detail_questionnaires.html:30
+#: results/templates/results_course_detail_questionnaires.html:32
 msgid ""
 "This answer is only visible to you. Other contributors and your delegates "
 "can not see it."
@@ -1345,7 +1416,7 @@ msgstr "Einlösezeitpunkt"
 msgid "Evaluation"
 msgstr "Bewertung"
 
-#: rewards/templates/rewards_index.html:10 templates/base.html:76
+#: rewards/templates/rewards_index.html:10 templates/base.html:79
 msgid "Rewards"
 msgstr "Belohnungen"
 
@@ -1453,7 +1524,7 @@ msgstr "Anstehende Veranstaltungen"
 
 #: rewards/templates/rewards_reward_point_redemption_events.html:26
 #: rewards/templates/rewards_reward_point_redemption_events.html:63
-#: staff/forms.py:111
+#: staff/forms.py:116
 msgid "Event date"
 msgstr "Veranstaltungsdatum"
 
@@ -1466,16 +1537,6 @@ msgstr "Ende des Einlösezeitraums"
 #: rewards/templates/rewards_reward_point_redemption_events.html:65
 msgid "Event name"
 msgstr "Veranstaltungsname"
-
-#: rewards/templates/rewards_reward_point_redemption_events.html:30
-#: rewards/templates/rewards_reward_point_redemption_events.html:67
-#: staff/templates/staff_faq_index.html:25
-#: staff/templates/staff_faq_section.html:25
-#: staff/templates/staff_questionnaire_index_list.html:14
-#: staff/templates/staff_semester_view.html:58
-#: staff/templates/staff_user_index.html:25
-msgid "Actions"
-msgstr "Aktionen"
 
 #: rewards/templates/rewards_reward_point_redemption_events.html:41
 #: rewards/templates/rewards_reward_point_redemption_events.html:78
@@ -1547,57 +1608,57 @@ msgstr "Veranstaltung erfolgreich geändert."
 msgid "RewardPoints"
 msgstr "Belohnungspunkte"
 
-#: staff/forms.py:15
+#: staff/forms.py:19
 msgid "First day of evaluation"
 msgstr "Erster Evaluierungstag"
 
-#: staff/forms.py:16
+#: staff/forms.py:20
 msgid "Last day of evaluation"
 msgstr "Letzter Evaluierungstag"
 
-#: staff/forms.py:18 staff/forms.py:22
+#: staff/forms.py:22 staff/forms.py:26
 msgid "Excel file"
 msgstr "Exceldatei"
 
-#: staff/forms.py:113
+#: staff/forms.py:118
 msgid "# very good"
 msgstr "# sehr gut"
 
-#: staff/forms.py:114
+#: staff/forms.py:119
 msgid "# good"
 msgstr "# gut"
 
-#: staff/forms.py:115
+#: staff/forms.py:120
 msgid "# neutral"
 msgstr "# neutral"
 
-#: staff/forms.py:116
+#: staff/forms.py:121
 msgid "# bad"
 msgstr "# schlecht"
 
-#: staff/forms.py:117
+#: staff/forms.py:122
 msgid "# very bad"
 msgstr "# sehr schlecht"
 
-#: staff/forms.py:204
+#: staff/forms.py:209
 msgid "Send email to"
 msgstr "E‑Mail senden an"
 
-#: staff/forms.py:206
+#: staff/forms.py:211
 msgid "Message"
 msgstr "Nachricht"
 
-#: staff/forms.py:217
+#: staff/forms.py:222
 msgid "No recipient selected. Choose at least one group of recipients."
 msgstr ""
 "Kein Empfänger ausgewählt. Bitte wählen Sie wenigstens eine Empfängergruppe "
 "aus."
 
-#: staff/forms.py:251
+#: staff/forms.py:256
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: staff/forms.py:287
+#: staff/forms.py:292
 msgid ""
 "Please select the name of each added contributor. Remove empty rows if "
 "necessary."
@@ -1605,13 +1666,13 @@ msgstr ""
 "Bitte wählen Sie die Namen aller hinzugefügten Mitwirkenden aus. Entfernen "
 "Sie leere Zeilen, falls notwendig."
 
-#: staff/forms.py:289
+#: staff/forms.py:294
 msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr ""
 "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben "
 "werden."
 
-#: staff/forms.py:297
+#: staff/forms.py:302
 msgid ""
 "No responsible contributor found. Each course must have exactly one "
 "responsible contributor."
@@ -1619,7 +1680,7 @@ msgstr ""
 "Kein Verantwortlicher gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
-#: staff/forms.py:299
+#: staff/forms.py:304
 msgid ""
 "Too many responsible contributors found. Each course must have exactly one "
 "responsible contributor."
@@ -1627,20 +1688,20 @@ msgstr ""
 "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
-#: staff/forms.py:338
+#: staff/forms.py:343
 msgid "Responsible contributor"
 msgstr "Verantwortlicher Dozent"
 
-#: staff/forms.py:362
+#: staff/forms.py:367
 msgid "Courses participating in (active semester)"
 msgstr "Teilnehmer in (aktuelles Semester)"
 
-#: staff/forms.py:376
+#: staff/forms.py:381
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: staff/forms.py:406
+#: staff/forms.py:411
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
@@ -1811,7 +1872,7 @@ msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
 
 #: staff/templates/staff_base.html:6 staff/templates/staff_base.html.py:11
-#: staff/templates/staff_base.html:13 templates/base.html:81
+#: staff/templates/staff_base.html:13 templates/base.html:84
 msgid "Manage"
 msgstr "Verwaltung"
 
@@ -1919,12 +1980,8 @@ msgstr ""
 "%(current_state_name)s</strong> zu <strong>%(new_state_name)s</strong> "
 "ändern?"
 
-#: staff/templates/staff_course_operation.html:26
-msgid "Confirm"
-msgstr "Bestätigen"
-
 #: staff/templates/staff_degree_index.html:9
-#: staff/templates/staff_index.html:46 templates/base.html:87
+#: staff/templates/staff_index.html:46 templates/base.html:90
 msgid "Degrees"
 msgstr "Studiengänge"
 
@@ -2004,7 +2061,7 @@ msgid "All degrees"
 msgstr "Alle Studiengänge"
 
 #: staff/templates/staff_index.html:50 staff/templates/staff_user_form.html:10
-#: staff/templates/staff_user_index.html:10 templates/base.html:88
+#: staff/templates/staff_user_index.html:10 templates/base.html:91
 msgid "Users"
 msgstr "Benutzer"
 
@@ -2012,12 +2069,12 @@ msgstr "Benutzer"
 msgid "All users"
 msgstr "Alle Benutzer"
 
-#: staff/templates/staff_index.html:56 templates/base.html:89
+#: staff/templates/staff_index.html:56 templates/base.html:92
 msgid "Reward point redemption events"
 msgstr "Veranstaltungen zum Einlösen von Belohnungspunkten"
 
 #: staff/templates/staff_index.html:58
-#: staff/templates/staff_template_form.html:8 templates/base.html:90
+#: staff/templates/staff_template_form.html:8 templates/base.html:93
 msgid "Templates"
 msgstr "E‑Mail-Vorlagen"
 
@@ -2216,14 +2273,6 @@ msgstr "Zurückziehen"
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
-#: staff/templates/staff_semester_view_course.html:27
-msgid "graded"
-msgstr "benotet"
-
-#: staff/templates/staff_semester_view_course.html:27
-msgid "not graded"
-msgstr "unbenotet"
-
 #: staff/templates/staff_semester_view_course.html:29
 msgid "Single result"
 msgstr "Einzelergebnis"
@@ -2261,11 +2310,19 @@ msgstr "Notendokumente (Zwischennoten, Endnoten)"
 msgid "M: %(midterm)s, F: %(final)s"
 msgstr "Z: %(midterm)s, E: %(final)s"
 
-#: staff/templates/staff_semester_view_course.html:92
+#: staff/templates/staff_semester_view_course.html:74
+msgid "Final grades have been uploaded"
+msgstr "Endnoten wurden hochgeladen"
+
+#: staff/templates/staff_semester_view_course.html:76
+msgid "It was confirmed that final grades have been submitted"
+msgstr "Es wurde bestätigt, dass Endnoten eingegangen sind"
+
+#: staff/templates/staff_semester_view_course.html:97
 msgid "Email"
 msgstr "E‑Mail"
 
-#: staff/templates/staff_semester_view_course.html:97
+#: staff/templates/staff_semester_view_course.html:102
 msgid "Preview results"
 msgstr "Ergebnis-Vorschau"
 
@@ -2438,7 +2495,7 @@ msgstr ""
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: staff/views.py:401 staff/views.py:458
+#: staff/views.py:401 staff/views.py:459
 msgid "Successfully created single result."
 msgstr "Einzelergebnis erfolgreich erstellt."
 
@@ -2446,23 +2503,23 @@ msgstr "Einzelergebnis erfolgreich erstellt."
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: staff/views.py:472
+#: staff/views.py:473
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Die Veranstaltung '%s' kann nicht gelöscht werden, da sie noch in Verwendung "
 "ist."
 
-#: staff/views.py:477
+#: staff/views.py:478
 msgid "Successfully deleted course."
 msgstr "Veranstaltung erfolgreich gelöscht."
 
-#: staff/views.py:494
+#: staff/views.py:495
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: staff/views.py:496
+#: staff/views.py:497
 #, python-brace-format
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
@@ -2472,60 +2529,60 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: staff/views.py:629 staff/views.py:671
+#: staff/views.py:630 staff/views.py:672
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: staff/views.py:644
+#: staff/views.py:645
 msgid "Questionnaires that are already used cannot be edited."
 msgstr ""
 "Fragebögen, die bereits verwendet werden, können nicht bearbeitet werden."
 
-#: staff/views.py:651
+#: staff/views.py:652
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: staff/views.py:692
+#: staff/views.py:693
 msgid "Successfully deleted questionnaire."
 msgstr "Fragebogen erfolgreich gelöscht."
 
-#: staff/views.py:697
+#: staff/views.py:698
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: staff/views.py:721
+#: staff/views.py:722
 msgid "Successfully updated the degrees."
 msgstr "Studiengänge erfolgreich geändert."
 
-#: staff/views.py:748
+#: staff/views.py:749
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: staff/views.py:782
+#: staff/views.py:783
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: staff/views.py:795
+#: staff/views.py:796
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: staff/views.py:800
+#: staff/views.py:801
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: staff/views.py:812
+#: staff/views.py:813
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: staff/views.py:828
+#: staff/views.py:829
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: staff/views.py:845
+#: staff/views.py:846
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -2669,66 +2726,66 @@ msgstr ""
 "Irgendetwas ist schief gelaufen. Die Administratoren wurden informiert und "
 "werden ggf. nachfragen."
 
-#: templates/base.html:45
+#: templates/base.html:48 templates/base.html.py:124
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: templates/base.html:52
+#: templates/base.html:55
 msgid "My courses (student)"
 msgstr "Meine Veranstaltungen (Student)"
 
-#: templates/base.html:53
+#: templates/base.html:56
 msgid "My courses (contributor)"
 msgstr "Meine Veranstaltungen (Mitwirkender)"
 
-#: templates/base.html:55 templates/base.html.py:57
+#: templates/base.html:58 templates/base.html.py:60
 msgid "My courses"
 msgstr "Meine Veranstaltungen"
 
-#: templates/base.html:62
+#: templates/base.html:65
 msgid "Publish grades"
 msgstr "Noten veröffentlichen"
 
-#: templates/base.html:72
+#: templates/base.html:75
 msgid "My profile"
 msgstr "Profil"
 
-#: templates/base.html:106
+#: templates/base.html:109
 msgid "Language"
 msgstr "Sprache"
 
-#: templates/base.html:108
+#: templates/base.html:111
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: templates/base.html:109
+#: templates/base.html:112
 msgid "English"
 msgstr "English"
 
-#: templates/base.html:113
+#: templates/base.html:116
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:126
+#: templates/base.html:132
 msgid "EvaP"
 msgstr "EvaP"
 
-#: templates/base.html:156
+#: templates/base.html:162
 msgid "EvaP evaluation platform"
 msgstr "EvaP Evaluierungsplattform"
 
-#: templates/base.html:167
+#: templates/base.html:173
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: templates/base.html:169
+#: templates/base.html:175
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
-#: templates/base.html:228
+#: templates/base.html:237
 msgid "Please select..."
 msgstr "Bitte auswählen..."
 
-#: templates/base.html:256
+#: templates/base.html:265
 msgid "Are you sure you want to leave?"
 msgstr "Sind Sie sicher, dass Sie diese Seite verlassen wollen?"

@@ -14,7 +14,7 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
-                                  TextResult, send_publish_notifications
+                                  TextResult, send_publish_notifications, sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
@@ -437,6 +437,7 @@ def helper_course_edit(request, semester, course):
         messages.success(request, _("Successfully updated course."))
         return custom_redirect('staff:semester_view', semester.id)
     else:
+        sort_formset(request, formset)
         template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
         return render(request, "staff_course_form.html", template_data)
 
@@ -445,7 +446,7 @@ def helper_course_edit(request, semester, course):
 def helper_single_result_edit(request, semester, course):
     initial = {'responsible': course.responsible_contributor}
     answer_counts = defaultdict(int)
-    for answer_counter in course.gradeanswer_counters:
+    for answer_counter in course.ratinganswer_counters:
         answer_counts[answer_counter.answer] = answer_counter.count
     for i in range(1,6):
         initial['answer_' + str(i)] = answer_counts[i]

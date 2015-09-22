@@ -2,6 +2,7 @@ language: python
 python:
   - "3.4"
 install:
+  - npm install -g less
   - pip install -r requirements.txt
   - pip install coveralls
 script:

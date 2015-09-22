@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required, contributor_or_delegate_required
-from evap.evaluation.tools import STATES_ORDERED
+from evap.evaluation.tools import STATES_ORDERED, sort_formset
 from evap.contributor.forms import CourseForm, UserForm
 from evap.staff.forms import ContributionForm
 from evap.contributor.forms import EditorContributionFormSet
@@ -102,6 +102,7 @@ def course_edit(request, course_id):
 
         return redirect('contributor:index')
     else:
+        sort_formset(request, formset)
         template_data = dict(form=course_form, formset=formset, course=course, edit=True, responsible=course.responsible_contributor.username)
         return render(request, "contributor_course_form.html", template_data)
 

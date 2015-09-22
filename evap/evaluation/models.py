@@ -3,13 +3,13 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Count
-from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
 from django_fsm import FSMField, transition
+from django_fsm.signals import post_transition
 import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
@@ -19,6 +19,8 @@ from evap.evaluation.meta import LocalizeModelBase, Translate
 import datetime
 import random
 import logging
+
+logger = logging.getLogger(__name__)
 
 # for converting state into student_state
 STUDENT_STATES_NAMES = {
@@ -175,6 +177,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
 
+    # graders can set this to True, then the course will be handled as if final grades have already been uploaded
+    gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
+
     # whether participants must vote to qualify for reward points
     is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
 
@@ -265,7 +270,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_publish_grades(self):
         from evap.evaluation.tools import get_sum_of_answer_counters
         if self.is_single_result():
-            return get_sum_of_answer_counters(self.gradeanswer_counters) > 0
+            return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
@@ -419,14 +424,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.reviewed_textanswer_set.count()
 
     @property
-    def likertanswer_counters(self):
-        """Pseudo relationship to all Likert answers for this course"""
-        return LikertAnswerCounter.objects.filter(contribution__course=self)
-
-    @property
-    def gradeanswer_counters(self):
-        """Pseudo relationship to all grade answers for this course"""
-        return GradeAnswerCounter.objects.filter(contribution__course=self)
+    def ratinganswer_counters(self):
+        """Pseudo relationship to all rating answers for this course"""
+        return RatingAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
         """Should be called only via Semester.archive"""
@@ -460,6 +460,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def update_courses(cls):
+        logger.info("update_courses called. Processing courses now.")
         from evap.evaluation.tools import send_publish_notifications
         today = datetime.date.today()
 
@@ -476,15 +477,24 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     course.evaluation_end()
                     if course.is_fully_reviewed():
                         course.review_finished()
-                        if not course.is_graded or course.final_grade_documents.exists():
+                        if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
                     course.save()
             except Exception:
-                logging.getLogger(__name__).exception(('An error occured when updating the state of course "{}".').format(course.name))
+                logger.exception(('An error occured when updating the state of course "{}" (id {}).').format(course, course.id))
 
         EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
         send_publish_notifications(evaluation_results_courses=evaluation_results_courses)
+        logger.info("update_courses finished.")
+
+@receiver(post_transition, sender=Course)
+def log_state_transition(sender, **kwargs):
+    course = kwargs['instance']
+    transition_name = kwargs['name']
+    source_state = kwargs['source']
+    target_state = kwargs['target']
+    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(course, course.id, source_state, target_state, transition_name))
 
 
 class Contribution(models.Model):
@@ -537,26 +547,26 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def answer_class(self):
-        if self.type == "T":
+        if self.is_text_question:
             return TextAnswer
-        elif self.type == "L":
-            return LikertAnswerCounter
-        elif self.type == "G":
-            return GradeAnswerCounter
+        elif self.is_likert_question:
+            return RatingAnswerCounter
+        elif self.is_grade_question:
+            return RatingAnswerCounter
         else:
             raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):
-        return self.answer_class == LikertAnswerCounter
+        return self.type == "L"
 
     @property
     def is_text_question(self):
-        return self.answer_class == TextAnswer
+        return self.type == "T"
 
     @property
     def is_grade_question(self):
-        return self.answer_class == GradeAnswerCounter
+        return self.type == "G"
 
     @property
     def is_rating_question(self):
@@ -565,8 +575,8 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `LikertAnswerCounter`,
-    `TextAnswer` and `GradeAnswerCounter`."""
+    user ist not stored in the object. Concrete subclasses are `RatingAnswerCounter`,
+    and `TextAnswer`."""
 
     question = models.ForeignKey(Question)
     contribution = models.ForeignKey(Contribution, related_name="%(class)s_set")
@@ -577,9 +587,8 @@ class Answer(models.Model):
         verbose_name_plural = _("answers")
 
 
-class LikertAnswerCounter(Answer):
-    """A Likert-scale answer counter to a question with answer `1` being *strongly agree*
-    and `5` being *strongly disagree*."""
+class RatingAnswerCounter(Answer):
+    """A rating answer counter to a question. A lower answer is better or indicates more agreement."""
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
@@ -588,25 +597,8 @@ class LikertAnswerCounter(Answer):
         unique_together = (
             ('question', 'contribution', 'answer'),
         )
-        verbose_name = _("Likert answer")
-        verbose_name_plural = _("Likert answers")
-
-    def add_vote(self):
-        self.count += 1
-
-
-class GradeAnswerCounter(Answer):
-    """A grade answer counter to a question with answer `1` being best and `5` being worst."""
-
-    answer = models.IntegerField(verbose_name=_("answer"))
-    count = models.IntegerField(verbose_name=_("count"), default=0)
-
-    class Meta:
-        unique_together = (
-            ('question', 'contribution', 'answer'),
-        )
-        verbose_name = _("grade answer")
-        verbose_name_plural = _("grade answers")
+        verbose_name = _("rating answer")
+        verbose_name_plural = _("rating answers")
 
     def add_vote(self):
         self.count += 1
@@ -958,7 +950,7 @@ class EmailTemplate(models.Model):
     @classmethod
     def __send_to_user(cls, user, template, subject_params, body_params, cc):
         if not user.email:
-            logging.getLogger(__name__).warning("{} has no email address defined. Could not send email.".format(user.username))
+            logger.warning("{} has no email address defined. Could not send email.".format(user.username))
             return
 
         if cc:
@@ -980,8 +972,9 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
+            logger.info(('Sent email "{}" to {}.').format(subject, user.username))
         except Exception:
-            logging.getLogger(__name__).exception(('An error occured when sending email "{}" to {}.').format(subject, user.username))
+            logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
 
     @classmethod

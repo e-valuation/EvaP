@@ -7,8 +7,12 @@ from django.core.exceptions import ValidationError
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer, Degree, GradeAnswerCounter
+                                   EmailTemplate, TextAnswer, Degree, RatingAnswerCounter
 from evap.staff.fields import ToolTipModelMultipleChoiceField
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -91,6 +95,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
         self.instance.last_modified_user = user
         self.instance.save()
+        logger.info('Course "{}" (id {}) was edited by staff member {}.'.format(self.instance, self.instance.id, user.username))
 
     def validate_unique(self):
         # semester is not in the fields list but needs to be validated as well
@@ -159,7 +164,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
         for i in range(1,6):
             count = {'count': self.cleaned_data['answer_'+str(i)]}
-            answer_counter, created = GradeAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
+            answer_counter, created = RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
 
         # change state to "reviewed"
         # works only for single_results so the course and its contribution must be saved first

@@ -992,6 +992,46 @@ class ContributionFormsetTests(TestCase):
         self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
 
 
+class ContributionFormsetWebTests(WebTest):
+    csrf_checks = False
+
+    def test_form_ordering(self):
+        """
+            Asserts that the contribution formset is correctly sorted,
+            and that an ordering changed by the user survives the reload
+            when the user submits the form with errors.
+            Regression test for #456.
+        """
+        course = mommy.make(Course, pk=1, state="prepared")
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire], order=1)
+        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, questionnaires=[questionnaire], order=2)
+
+        # almost everything is missing in this set of data,
+        # so we're guaranteed to have some errors
+        data = {
+            "contributions-TOTAL_FORMS": 2,
+            "contributions-INITIAL_FORMS": 2,
+            "contributions-MIN_NUM_FORMS": 0,
+            "contributions-MAX_NUM_FORMS": 1000,
+            "contributions-0-id": contribution1.id,
+            "contributions-1-id": contribution2.id,
+            "operation": "save"
+        }
+
+        data["contributions-0-order"] = 1
+        data["contributions-1-order"] = 2
+        response = str(self.app.post("/contributor/course/1/edit", data, user=user1))
+        self.assertTrue(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
+
+        data["contributions-0-order"] = 2
+        data["contributions-1-order"] = 1
+        response = str(self.app.post("/contributor/course/1/edit", data, user=user1))
+        self.assertFalse(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
+
+
 class ArchivingTests(WebTest):
     fixtures = ['minimal_test_data']
 

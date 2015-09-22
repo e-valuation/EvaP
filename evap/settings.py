@@ -73,7 +73,8 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
-ALLOWED_HOSTS = []
+# localhost is listed for easier development. Remove it in production environments.
+ALLOWED_HOSTS = ["localhost"]
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
@@ -125,8 +126,11 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'class': 'logging.FileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + '/logs/evap.log',
+            'maxBytes': 1024*1024*10,
+            'backupCount': 5,
             'formatter': 'default',
         },
         'mail_admins': {
@@ -137,12 +141,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'WARNING',
+            'level': 'INFO',
             'propagate': True,
         },
         'evap': {
             'handlers': ['file', 'mail_admins'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'propagate': True,
         },
     },
@@ -168,6 +172,7 @@ INSTALLED_APPS = (
     'evap.contributor',
     'evap.rewards',
     'evap.grades',
+    'compressor',
     'django_extensions',
 )
 
@@ -206,13 +211,15 @@ TEMPLATES = [
         },
     },
 ]
-
-TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )),
-)
+# enable cached template loader when DEBUG == False
+if not DEBUG:
+    TEMPLATES[0]['APP_DIRS'] = False
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]
 
 AUTHENTICATION_BACKENDS = (
     'evap.evaluation.auth.RequestAuthUserBackend',
@@ -269,6 +276,12 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
+)
+
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
@@ -285,7 +298,16 @@ MEDIA_URL = '/media/'
 # see https://github.com/johnsensible/django-sendfile for further information
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
+
 ### Other
+
+# django-compressor settings
+COMPRESS_ENABLED = not DEBUG
+COMPRESS_OFFLINE = False
+COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
+)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
 
 # Apply the correct bootstrap css class to django's error messages
 MESSAGE_TAGS = {
@@ -304,12 +326,14 @@ try:
 except ImportError:
     pass
 
-# speed up tests by using sqlite
-if 'test' in sys.argv:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+TESTING = 'test' in sys.argv
+
+# speed up tests
+if TESTING:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'} # use sqlite
+    COMPRESS_PRECOMPILERS = () # disable compressor completely
 
 # Django debug toolbar settings
-TESTING = 'test' in sys.argv
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ('debug_toolbar',)
