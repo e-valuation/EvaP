@@ -70,6 +70,11 @@
                 <span class="glyphicon glyphicon-file"></span>
                 <span>{% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}</span>
             </a>
+            {% if course.final_grade_documents %}
+                <span class="glyphicon glyphicon-ok" data-toggle="tooltip" data-placement="top" title="{% trans "Final grades have been uploaded" %}"></span>
+            {% elif course.gets_no_grade_documents %}
+                <span class="glyphicon glyphicon-ok" data-toggle="tooltip" data-placement="top" title="{% trans "It was confirmed that final grades have been submitted" %}"></span>
+            {% endif %}
         </td>
     {% else %}
         <td class="minimize">
