@@ -177,6 +177,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
 
+    # graders can set this to True, then the course will be handled as if final grades have already been uploaded
+    gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
+
     # whether participants must vote to qualify for reward points
     is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
 
@@ -474,7 +477,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     course.evaluation_end()
                     if course.is_fully_reviewed():
                         course.review_finished()
-                        if not course.is_graded or course.final_grade_documents.exists():
+                        if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
                     course.save()

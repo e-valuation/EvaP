@@ -45,11 +45,22 @@ class GradeUploadTests(WebTest):
             for grade_document in course.grade_documents.all():
                 grade_document.file.delete()
 
+    def get_assert_200(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
     def get_assert_403(self, url, user):
         try:
             self.app.get(url, user=user, status=403)
         except AppError as e:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def get_submit_assert_302(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
 
     def helper_upload_grades(self, course, final_grades):
         f = tempfile.SpooledTemporaryFile()
@@ -135,3 +146,39 @@ class GradeUploadTests(WebTest):
         course.publish()
         course.save()
         self.helper_check_final_grade_upload(course, course.num_participants)
+
+    def test_toggle_no_grades(self):
+        course = mommy.make(Course,
+            name_en="Toggle",
+            vote_start_date=datetime.date.today(),
+            state="reviewed",
+            participants=[
+                UserProfile.objects.get(username="student"),
+                UserProfile.objects.get(username="student2"),
+                UserProfile.objects.get(username="student3"),
+            ],
+            voters=[
+                UserProfile.objects.get(username="student"),
+                UserProfile.objects.get(username="student2"),
+            ]
+        )
+        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True)
+        contribution.save()
+        contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
+
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+
+        toggle_url = "/grades/semester/"+str(course.semester.id)+"/course/"+str(course.id)+"/togglenogrades"
+        
+        self.assertFalse(course.gets_no_grade_documents)
+        
+        self.get_submit_assert_302(toggle_url, "grade_publisher")
+        course = Course.objects.get(id=course.id)
+        self.assertTrue(course.gets_no_grade_documents)
+        # course should get published here
+        self.assertEqual(course.state, "published")
+        self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
+
+        self.get_submit_assert_302(toggle_url, "grade_publisher")
+        course = Course.objects.get(id=course.id)
+        self.assertFalse(course.gets_no_grade_documents)
