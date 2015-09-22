@@ -421,6 +421,11 @@ Side notes for calling out things
     opacity: 0.4;
 }
 
+.light-link {
+    opacity: 0.2;
+    color: black;
+}
+
 .panel table:last-child,
 .panel div:last-child {
     margin-bottom: 0px;
