@@ -20,21 +20,22 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-    $('.questionnaire-table').sortable({
-                items: '.questionnaire',
-                handle: 'td:first',
-                tolerance: 'pointer',
-                update: function( event, ui ) {
-                    // update indices of all questionnaires in the table
-                    var questionnaires = ui.item.parent().children();
-                    var updatedIndices = {};
-                    for (var i = 0; i < questionnaires.length; i++) {
-                        var questionnaire = $(questionnaires[i]);
-                        questionnaire.attr('data-index', i);
-                        updatedIndices[questionnaire.attr('data-id')] = i;
-                    }
-                    $.post('{% url "staff:questionnaire_update_indices" %}', updatedIndices);
-                }
+
+    var tbody = $('.questionnaire-table tbody').get(0);
+    Sortable.create(tbody, {
+        handle: ".glyphicon-move",
+        draggable: ".sortable",
+        onUpdate: function( event ) {
+            // update indices of all questionnaires in the table
+            var questionnaires = $(event.item).parent().children();
+            var updatedIndices = {};
+            for (var i = 0; i < questionnaires.length; i++) {
+                var questionnaire = $(questionnaires[i]);
+                questionnaire.attr('data-index', i);
+                updatedIndices[questionnaire.attr('data-id')] = i;
+            }
+            $.post('{% url "staff:questionnaire_update_indices" %}', updatedIndices);
+        }
     });
     </script>
 {% endblock %}

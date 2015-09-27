@@ -30,10 +30,11 @@
                 formTemplate: (uses_template ? ".form-template" : null)
             });
 
-            $('tbody').sortable({
-                items: '.sortable',
-                handle: 'td:first',
-                tolerance: tolerance
+
+            var tbody = $('#' + table_id + " tbody").get(0);
+            Sortable.create(tbody, {
+                handle: ".glyphicon-move",
+                draggable: ".sortable"
             });
 
 

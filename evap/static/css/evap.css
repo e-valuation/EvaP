@@ -453,3 +453,11 @@ div.disabled-tooltip {
 li.menu-indent {
     padding-left: 20px;
 }
+
+.sortable-ghost {
+    background: #F0F0F0;
+}
+
+.table-striped tbody tr.sortable-ghost {
+    background: #E5E5E5;
+}
