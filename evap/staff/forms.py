@@ -183,16 +183,25 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
 
 
 class ContributionForm(forms.ModelForm, BootstrapMixin):
+    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
+
     class Meta:
         model = Contribution
-        fields = "__all__"
+        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
+        if self.instance.responsible:
+            self.initial['responsibility'] = Contribution.IS_RESPONSIBLE
+        elif self.instance.can_edit:
+            self.initial['responsibility'] = Contribution.IS_EDITOR
+        else:
+            self.initial['responsibility'] = Contribution.IS_CONTRIBUTOR
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
         self.fields['order'].widget = forms.HiddenInput()
+        self.fields['comment_visibility'].widget = forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)
 
     def validate_unique(self):
         # see CourseForm for an explanation
@@ -203,6 +212,14 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:
             self._update_errors(e)
+
+    def save(self, *args, **kwargs):
+        responsibility = self.cleaned_data['responsibility']
+        self.instance.responsible = responsibility == Contribution.IS_RESPONSIBLE
+        self.instance.can_edit = (responsibility == Contribution.IS_RESPONSIBLE) or (responsibility == Contribution.IS_EDITOR)
+        if responsibility == Contribution.IS_RESPONSIBLE:
+            self.instance.comment_visibility = Contribution.ALL_COMMENTS
+        return super().save(*args, **kwargs)
 
 
 class CourseEmailForm(forms.Form, BootstrapMixin):
@@ -295,7 +312,7 @@ class ContributionFormSet(AtLeastOneFormSet):
             elif contributor:
                 found_contributor.add(contributor)
 
-            if form.cleaned_data.get('responsible'):
+            if form.cleaned_data.get('responsibility') == 'RESPONSIBLE':
                 count_responsible += 1
 
         if count_responsible < 1:

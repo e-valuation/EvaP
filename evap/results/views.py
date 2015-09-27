@@ -5,7 +5,7 @@ from django.utils.translation import get_language
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.auth import staff_required
-from evap.evaluation.models import Semester, Degree
+from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult
 
 from evap.results.exporters import ExcelExporter
@@ -134,6 +134,11 @@ def user_can_see_text_answer(user, text_answer, public_view=False):
         if contributor == user or contributor in user.represented_users.all():
             return True
         if text_answer.contribution.course.is_user_responsible_or_delegate(user):
+            return True        
+        if text_answer.contribution.course.contributions.filter(contributor=user, comment_visibility=Contribution.ALL_COMMENTS).exists():
+            return True
+        if text_answer.contribution.is_general and \
+            text_answer.contribution.course.contributions.filter(contributor=user, comment_visibility=Contribution.COURSE_COMMENTS).exists():
             return True
 
     return False

@@ -28,43 +28,60 @@
                     <tr>
                         <th></th>
                         <th class="col-sm-4">{% trans "Contributor" %}</th>
-                        <th class="col-sm-5">{% trans "Questionnaires" %}</th>
-                        <th class="col-sm-2">{% trans "Can edit course" %}</th>
+                        <th class="col-sm-4">{% trans "Questionnaires" %}</th>
+                        <th class="col-sm-3">{% trans "Options" %}</th>
                         <th class="col-sm-1"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for form_element in formset %}
-                        {% if form_element.non_field_errors %}
-                            <tr><td colspan="100">{{ form_element.non_field_errors }}</td></tr>
-                        {% endif %}
-
-                        <tr class="contribution select2tr sortable">
-                            <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move;" class="glyphicon glyphicon-move"></span></td>
+                    {% for form in formset %}
+                    {% if form.non_field_errors %}
+                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
+                    {% endif %}
+                    <tr class="contribution select2tr sortable">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor:move;" class="glyphicon glyphicon-move"></span></td>
                             <td>
-                                {% for field in form_element.hidden_fields %}
-                                    {{ field }}
-                                {% endfor %}
-                                {{ form_element.responsible.as_hidden }}
-                                {{ form_element.contributor.errors }}
-                                {% if form_element.responsible.value == True %}
+                                {{ form.contributor.errors }}
+                                {% if form.responsibility.value == "RESPONSIBLE" %}
                                     <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
-                                    {{ form_element.contributor.as_hidden }}
+                                    {{ form.contributor.as_hidden }}
                                 {% else %}
-                                    {{ form_element.contributor }}
+                                    {{ form.contributor }}
                                 {% endif %}
                             </td>
-                            <td>{{ form_element.questionnaires.errors }} {{ form_element.questionnaires }}</td>
-                            <td>
-                                {{ form_element.can_edit.errors }}
-                                {% if form_element.responsible.value == True %}
-                                    <input type="checkbox" checked disabled />
-                                    {{ form_element.can_edit.as_hidden }}
-                                {% else %}
-                                    {{ form_element.can_edit }}
-                                {% endif %}
+                            <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
+                            <td>                        
+                                {% trans "Responsibility" %}:
+                                <div class="btn-group" data-toggle="buttons">
+                                    {% for choice in form.responsibility %}
+                                        <label class="btn btn-sm btn-option{% if form.responsibility.value == "RESPONSIBLE" %} disabled{% endif %}{% if form.responsibility.value == choice.choice_value %} active{% endif %}{% if form.responsibility.errors %} choice-error{% endif %}" name="{{ choice.name }}" data-toggle="tooltip" data-placement="top" title=
+                                        {% if choice.choice_value == "CONTRIBUTOR" %}"{% trans "Default value. No special rights." %}"
+                                        {% elif choice.choice_value == "EDITOR" %}"{% trans "Able to edit the course to prepare the evaluation." %}"
+                                        {% elif choice.choice_value == "RESPONSIBLE" %}"{% trans "Name will be shown next to course. Able to see all comments about all contributors of this course. Every course has exactly one responsible person." %}"
+                                        {% endif %}>
+                                            <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if form.responsibility.value == choice.choice_value %}checked{% endif %} />
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    {% endfor %}
+                                </div><br /><br />
+                                {% trans "Comment availability" %}:
+                                <div class="btn-group" data-toggle="buttons">
+                                    {% for choice in form.comment_visibility %}
+                                        <label class="btn btn-sm btn-option{% if form.responsibility.value == "RESPONSIBLE" %} disabled{% endif %}{% if form.comment_visibility.value == choice.choice_value %} active{% endif %}{% if form.comment_visibility.errors %} choice-error{% endif %}" name="{{ choice.name }}" data-toggle="tooltip" data-placement="top" title=
+                                        {% if choice.choice_value == "OWN" %}"{% trans "Default value. Will only see own comments." %}"
+                                        {% elif choice.choice_value == "COURSE" %}"{% trans "Will see own comments and comments about the course." %}"
+                                        {% elif choice.choice_value == "ALL" %}"{% trans "Will see all comments about the course and about all contributors." %}"
+                                        {% endif %}>
+                                            <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if form.comment_visibility.value == choice.choice_value %}checked{% endif %} />
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
                             </td>
-                            <td>{% if not form_element.responsible.value == True %}{{ form_element.DELETE }}{% endif %}</td>
+                            <td>{% if not form.responsibility.value == "RESPONSIBLE" %}{{ form.DELETE }}{% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

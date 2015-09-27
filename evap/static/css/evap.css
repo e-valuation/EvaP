@@ -319,6 +319,19 @@ Side notes for calling out things
     background-color: #31708f;
 }
 
+.btn-option {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+}
+.btn-option.active {
+    background-color: #31708f;
+    color: #ffffff;
+}
+.btn-option.disabled {
+    opacity: 0.6;
+}
+
 .participants-warning {
     opacity: 0.4;
 }
