@@ -212,7 +212,7 @@
             $('#topbar').dropdown();
 
             // activate tooltips
-            $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]'});
+            $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]', trigger: 'hover'});
 
             // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
             if ($.fn.button.noConflict != undefined) {

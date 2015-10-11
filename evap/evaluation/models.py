@@ -500,11 +500,29 @@ def log_state_transition(sender, **kwargs):
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
+    OWN_COMMENTS = 'OWN'
+    COURSE_COMMENTS = 'COURSE'
+    ALL_COMMENTS = 'ALL'
+    COMMENT_VISIBILITY_CHOICES = (
+        (OWN_COMMENTS, _('Own')),
+        (COURSE_COMMENTS, _('Course')),
+        (ALL_COMMENTS, _('All')),
+    )
+    IS_CONTRIBUTOR = 'CONTRIBUTOR'
+    IS_EDITOR = 'EDITOR'
+    IS_RESPONSIBLE = 'RESPONSIBLE'
+    RESPONSIBILITY_CHOICES = (
+        (IS_CONTRIBUTOR, _('Contributor')),
+        (IS_EDITOR, _('Editor')),
+        (IS_RESPONSIBLE, _('Responsible')),
+    )
+
     course = models.ForeignKey(Course, verbose_name=_("course"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
+    comment_visibility = models.CharField(max_length=10, choices=COMMENT_VISIBILITY_CHOICES, verbose_name=_('comment visibility'), default=OWN_COMMENTS)
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 

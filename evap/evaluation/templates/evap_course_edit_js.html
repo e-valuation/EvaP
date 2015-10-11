@@ -2,48 +2,91 @@
 {% load evaluation_templatetags %}
 
 <script type="text/javascript">
-         function makeClickHandler(i, contributorCount) {
-            return function () {
-                // if the responsible checkbox is selected
-                if($("#id_contributions-" + i + "-responsible").is(":checked")) {
-                    // uncheck and enable all
-                    for(var j = 0; j < contributorCount; j++){
-                        $("#id_contributions-" + j + "-responsible").prop("checked", false);
-                        $("#id_contributions-" + j + "-can_edit").prop("disabled", false);
-                    }
+    function makeClickHandler(i, contributorCount, responsibility) {
+        return function () {
+            // don't do anything on disabled buttons
+            if ($(this).hasClass("disabled"))
+                return false;
 
-                    // check self
-                    $("#id_contributions-" + i + "-responsible").prop("checked", true);
+            // if the responsible button is selected
+            if(responsibility == "RESPONSIBLE") {
+                // uncheck all buttons
+                uncheckButtons("input[name=contributions-" + i + "-comment_visibility]");
+                uncheckButtons("input[name=contributions-" + i + "-responsibility]");
 
-                    // check and disable can-edit
-                    $("#id_contributions-" + i + "-can_edit").prop("checked", true);
-                    $("#id_contributions-" + i + "-can_edit").prop("disabled", true);
+                // check "all comments" and disable comment buttons
+                checkButtons("input[name=contributions-" + i + "-comment_visibility][value=ALL]");
+                disableButtons("input[name=contributions-" + i + "-comment_visibility]");
+
+                // disable all other responsible buttons
+                for(var j = 0; j < contributorCount; j++){
+                    if (j != i)
+                        disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
                 }
-                // if the responsible checkbox is deselected
-                else {
-                    // enable can-edit
-                    $("#id_contributions-" + i + "-can_edit").prop("disabled", false);
+            }
+            // if the responsible button is deselected
+            else if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")){
+                // enable comment buttons
+                enableButtons("input[name=contributions-" + i + "-comment_visibility]");
+                // enable all responsible buttons
+                for(var j = 0; j < contributorCount; j++){
+                    enableButtons("input[name=contributions-" + j + "-responsibility]");
                 }
-            };
+            }
         }
+    }
 
-        function getContributorCount() {
-            return $("#contribution_table select").length;
+    function makeDisabledClickHandler() {
+        return function () {
+            // suppress toggling disabled buttons
+            if ($(this).hasClass("disabled"))
+                return false;
         }
+    }
 
-        function assignClickHandlers() {
-            for(var i = 0; i < getContributorCount(); i++)
-                $("#id_contributions-" + i + "-responsible").click(makeClickHandler(i, getContributorCount()));
+    function uncheckButtons(selector){
+        $(selector).prop("checked", false);
+        $(selector).parent().removeClass("active");
+    }
+    function checkButtons(selector){
+        $(selector).prop("checked", true);
+        $(selector).parent().addClass("active");
+    }
+    function disableButtons(selector){
+        $(selector).parent().addClass("disabled");
+    }
+    function enableButtons(selector){
+        $(selector).parent().removeClass("disabled");
+    }
+
+    function getContributorCount() {
+        return $("#contribution_table select").length;
+    }
+
+    function assignClickHandlers() {
+        var count = getContributorCount();
+        for(var i = 0; i < count; i++)
+        {
+            $("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").parent().click(makeClickHandler(i, count, 'RESPONSIBLE'));
+            $("input[name=contributions-" + i + "-responsibility][value=EDITOR]").parent().click(makeClickHandler(i, count, 'EDITOR'));
+            $("input[name=contributions-" + i + "-responsibility][value=CONTRIBUTOR]").parent().click(makeClickHandler(i, count, 'CONTRIBUTOR'));
+            $("input[name=contributions-" + i + "-comment_visibility]").parent().click(makeDisabledClickHandler());
         }
+    }
 
     $(document).ready(function() {
-        assignClickHandlers()
+        assignClickHandlers();
 
         // apply initial settings
         for(var i = 0; i < getContributorCount(); i++){
-            if($("#id_contributions-" + i + "-responsible").is(":checked")) {
-                $("#id_contributions-" + i + "-can_edit").prop("checked", true);
-                $("#id_contributions-" + i + "-can_edit").prop("disabled", true);
+            if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
+                // disable comment buttons for responsible contributor
+                disableButtons("input[name=contributions-" + i + "-comment_visibility]");
+                // disable all other responsible buttons
+                for(var j = 0; j < getContributorCount(); j++){
+                    if (j != i)
+                        disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
+                }
             }
         }
     });

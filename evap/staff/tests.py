@@ -234,9 +234,9 @@ class UsecaseTests(WebTest):
         page = page.click(contribution.course.semester.name_en, index=0)
         page = page.click(contribution.course.name_en)
 
-        # remove responsibility in contributor's checkbox
+        # remove responsibility
         form = lastform(page)
-        form['contributions-0-responsible'] = False
+        form['contributions-0-responsibility'] = "CONTRIBUTOR"
         page = form.submit()
 
         self.assertIn("No responsible contributor found", page)
@@ -568,7 +568,8 @@ class URLTests(WebTest):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': [1],
             'contributions-0-order': 0,
-            'contributions-0-responsible': "on",
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
         }
         # no contributor and no responsible
         self.assertFalse(ContributionFormset(instance=course, data=data.copy()).is_valid())
@@ -584,7 +585,7 @@ class URLTests(WebTest):
         self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
         # two responsibles
         data['contributions-1-contributor'] = 2
-        data['contributions-1-responsible'] = "on"
+        data['contributions-1-responsibility'] = "RESPONSIBLE"
         self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
 
     def test_semester_deletion(self):
@@ -666,7 +667,8 @@ class URLTests(WebTest):
         form['contributions-0-contributor'] = 6
         form['contributions-0-questionnaires'] = [1]
         form['contributions-0-order'] = 0
-        form['contributions-0-responsible'] = "on"
+        form['contributions-0-responsibility'] = "RESPONSIBLE"
+        form['contributions-0-comment_visibility'] = "ALL"
 
         form.submit()
         self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
@@ -904,17 +906,21 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 0,
-            'contributions-0-responsible': "on",
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': [questionnaire.pk],
             'contributions-1-order': 0,
-            'contributions-1-responsible': "on",
+            'contributions-1-responsibility': "RESPONSIBLE",
+            'contributions-1-comment_visibility': "ALL",
             'contributions-1-contributor': user2.pk,
             'contributions-2-course': course.pk,
             'contributions-2-questionnaires': [],
             'contributions-2-order': 1,
+            'contributions-2-responsibility': "NONE",
+            'contributions-2-comment_visibility': "OWN",
             'contributions-2-contributor': user2.pk,
             'contributions-2-DELETE': 'on',
         }
@@ -943,13 +949,15 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 0,
-            'contributions-0-responsible': "on",
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': [questionnaire.pk],
             'contributions-1-order': 0,
-            'contributions-1-responsible': "on",
+            'contributions-1-responsibility': "RESPONSIBLE",
+            'contributions-1-comment_visibility': "ALL",
             'contributions-1-contributor': user1.pk ,
         }
 
@@ -977,7 +985,8 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': [questionnaire.pk],
             'contributions-0-order': 1,
-            'contributions-0-responsible': "on",
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
             'contributions-0-contributor': user1.pk,
         }
 
