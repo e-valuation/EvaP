@@ -36,11 +36,11 @@
                 <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>
-                        <th class="col-sm-5">{% trans "Name" %}</th>
+                        <th class="col-sm-4">{% trans "Name" %}</th>
                         <th class="col-sm-2">{% trans "State" %}</th>
                         <th class="col-sm-2">{% trans "Evaluation Period" %}</th>
                         <th class="col-sm-1">{% trans "Participants" %}</th>
-                        <th class="col-sm-2"></th>
+                        <th class="col-sm-3"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,7 +62,7 @@
                             <td>
                                 {% if course.is_single_result %}&mdash;{% else %}{{ course.num_participants }}{% endif %}
                             </td>
-                            <td>
+                            <td class="text-right">
                                 {% if course|is_user_editor_or_delegate:user %}
                                     {% if course.state == 'prepared' %}
                                         <a href="{% url "contributor:course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
@@ -72,10 +72,9 @@
                                         <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                                     {% endif %}
                                 {% endif %}
-                                {% if course.state == 'inEvaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
+                                {% if course.state != 'published' %}
                                     <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-default" disabled>{% trans "Results" %}</a></div>
-                                {% endif %}
-                                {% if course.state == 'published' %}
+                                {% else %}
                                     <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% endif %}
                             </td>
