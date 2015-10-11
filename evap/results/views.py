@@ -134,11 +134,13 @@ def user_can_see_text_answer(user, text_answer, public_view=False):
         if contributor == user or contributor in user.represented_users.all():
             return True
         if text_answer.contribution.course.is_user_responsible_or_delegate(user):
-            return True        
-        if text_answer.contribution.course.contributions.filter(contributor=user, comment_visibility=Contribution.ALL_COMMENTS).exists():
+            return True
+        represented_users = list(user.represented_users.all())
+        represented_users.append(user)
+        if text_answer.contribution.course.contributions.filter(contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
             return True
         if text_answer.contribution.is_general and \
-            text_answer.contribution.course.contributions.filter(contributor=user, comment_visibility=Contribution.COURSE_COMMENTS).exists():
+            text_answer.contribution.course.contributions.filter(contributor__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
             return True
 
     return False

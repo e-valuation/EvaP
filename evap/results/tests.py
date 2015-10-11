@@ -67,6 +67,36 @@ class UsecaseTests(WebTest):
         self.assertIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
 
+    def test_textanswer_visibility_for_contributor_course_comments(self):
+        page = self.app.get("/results/semester/1/course/1", user='contributor_course_comments')
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+
+    def test_textanswer_visibility_for_contributor_all_comments(self):
+        page = self.app.get("/results/semester/1/course/1", user='contributor_all_comments')
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+
     def test_textanswer_visibility_for_student(self):
         page = self.app.get("/results/semester/1/course/1", user='student')
         self.assertNotIn(".course_orig_published.", page)
