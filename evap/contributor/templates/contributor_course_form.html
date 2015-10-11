@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load static %}
 {% load morefilters %}
+{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -54,32 +55,11 @@
                             </td>
                             <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
                             <td>                        
-                                {% trans "Responsibility" %}:
-                                <div class="btn-group" data-toggle="buttons">
-                                    {% for choice in form.responsibility %}
-                                        <label class="btn btn-sm btn-option{% if form.responsibility.value == "RESPONSIBLE" %} disabled{% endif %}{% if form.responsibility.value == choice.choice_value %} active{% endif %}{% if form.responsibility.errors %} choice-error{% endif %}" name="{{ choice.name }}" data-toggle="tooltip" data-placement="top" title=
-                                        {% if choice.choice_value == "CONTRIBUTOR" %}"{% trans "Default value. No special rights." %}"
-                                        {% elif choice.choice_value == "EDITOR" %}"{% trans "Able to edit the course to prepare the evaluation." %}"
-                                        {% elif choice.choice_value == "RESPONSIBLE" %}"{% trans "Name will be shown next to course. Able to see all comments about all contributors of this course. Every course has exactly one responsible person." %}"
-                                        {% endif %}>
-                                            <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if form.responsibility.value == choice.choice_value %}checked{% endif %} />
-                                            {{ choice.choice_label }}
-                                        </label>
-                                    {% endfor %}
-                                </div><br /><br />
-                                {% trans "Comment availability" %}:
-                                <div class="btn-group" data-toggle="buttons">
-                                    {% for choice in form.comment_visibility %}
-                                        <label class="btn btn-sm btn-option{% if form.responsibility.value == "RESPONSIBLE" %} disabled{% endif %}{% if form.comment_visibility.value == choice.choice_value %} active{% endif %}{% if form.comment_visibility.errors %} choice-error{% endif %}" name="{{ choice.name }}" data-toggle="tooltip" data-placement="top" title=
-                                        {% if choice.choice_value == "OWN" %}"{% trans "Default value. Will only see own comments." %}"
-                                        {% elif choice.choice_value == "COURSE" %}"{% trans "Will see own comments and comments about the course." %}"
-                                        {% elif choice.choice_value == "ALL" %}"{% trans "Will see all comments about the course and about all contributors." %}"
-                                        {% endif %}>
-                                            <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}" autocomplete="off" {% if form.comment_visibility.value == choice.choice_value %}checked{% endif %} />
-                                            {{ choice.choice_label }}
-                                        </label>
-                                    {% endfor %}
-                                </div>
+                                {% trans "Responsibility" %}:<br />
+                                {% include_responsibility_buttons form %}
+                                <br /><br />
+                                {% trans "Comment availability" %}:<br />
+                                {% include_comment_visibility_buttons form %}
                             </td>
                             <td>{% if not form.responsibility.value == "RESPONSIBLE" %}{{ form.DELETE }}{% endif %}</td>
                         </tr>
