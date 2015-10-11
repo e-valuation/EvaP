@@ -24,7 +24,7 @@
                         disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
                 }
             }
-            // unchecked responsible right now
+            // if the responsible button is deselected
             else if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")){
                 // enable comment buttons
                 enableButtons("input[name=contributions-" + i + "-comment_visibility]");
@@ -38,7 +38,7 @@
 
     function makeDisabledClickHandler() {
         return function () {
-            // don't do anything on disabled buttons
+            // suppress toggling disabled buttons
             if ($(this).hasClass("disabled"))
                 return false;
         }
@@ -64,11 +64,12 @@
     }
 
     function assignClickHandlers() {
-        for(var i = 0; i < getContributorCount(); i++)
+        var count = getContributorCount();
+        for(var i = 0; i < count; i++)
         {
-            $("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").parent().click(makeClickHandler(i, getContributorCount(), 'RESPONSIBLE'));
-            $("input[name=contributions-" + i + "-responsibility][value=EDITOR]").parent().click(makeClickHandler(i, getContributorCount(), 'EDITOR'));
-            $("input[name=contributions-" + i + "-responsibility][value=CONTRIBUTOR]").parent().click(makeClickHandler(i, getContributorCount(), 'CONTRIBUTOR'));
+            $("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").parent().click(makeClickHandler(i, count, 'RESPONSIBLE'));
+            $("input[name=contributions-" + i + "-responsibility][value=EDITOR]").parent().click(makeClickHandler(i, count, 'EDITOR'));
+            $("input[name=contributions-" + i + "-responsibility][value=CONTRIBUTOR]").parent().click(makeClickHandler(i, count, 'CONTRIBUTOR'));
             $("input[name=contributions-" + i + "-comment_visibility]").parent().click(makeDisabledClickHandler());
         }
     }
@@ -78,7 +79,7 @@
 
         // apply initial settings
         for(var i = 0; i < getContributorCount(); i++){
-            if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").is(":checked")) {
+            if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
                 // disable comment buttons for responsible contributor
                 disableButtons("input[name=contributions-" + i + "-comment_visibility]");
                 // disable all other responsible buttons

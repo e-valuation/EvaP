@@ -194,11 +194,11 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
 
         if self.instance.responsible:
-            self.initial['responsibility'] = Contribution.IS_RESPONSIBLE
+            self.fields['responsibility'].initial = Contribution.IS_RESPONSIBLE
         elif self.instance.can_edit:
-            self.initial['responsibility'] = Contribution.IS_EDITOR
+            self.fields['responsibility'].initial = Contribution.IS_EDITOR
         else:
-            self.initial['responsibility'] = Contribution.IS_CONTRIBUTOR
+            self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
         self.fields['order'].widget = forms.HiddenInput()
         self.fields['comment_visibility'].widget = forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)
