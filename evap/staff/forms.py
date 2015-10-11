@@ -215,9 +215,11 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
-        self.instance.responsible = responsibility == Contribution.IS_RESPONSIBLE
-        self.instance.can_edit = (responsibility == Contribution.IS_RESPONSIBLE) or (responsibility == Contribution.IS_EDITOR)
-        if responsibility == Contribution.IS_RESPONSIBLE:
+        is_responsible = responsibility == Contribution.IS_RESPONSIBLE
+        is_editor = responsibility == Contribution.IS_EDITOR
+        self.instance.responsible = is_responsible
+        self.instance.can_edit = is_responsible or is_editor
+        if is_responsible:
             self.instance.comment_visibility = Contribution.ALL_COMMENTS
         return super().save(*args, **kwargs)
 

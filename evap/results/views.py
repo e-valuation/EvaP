@@ -75,11 +75,14 @@ def course_detail(request, semester_id, course_id):
     public_view = request.GET.get('public_view', 'false') # default: show own view
     public_view = {'true': True, 'false': False}.get(public_view.lower()) # convert parameter to boolean
 
+    represented_users = list(request.user.represented_users.all())
+    represented_users.append(request.user)
+
     for section in sections:
         results = []
         for result in section.results:
             if isinstance(result, TextResult):
-                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, answer, public_view)]
+                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
                 if answers:
                     results.append(TextResult(question=result.question, answers=answers))
             else:
@@ -122,7 +125,7 @@ def course_detail(request, semester_id, course_id):
             public_view=public_view)
     return render(request, "results_course_detail.html", template_data)
 
-def user_can_see_text_answer(user, text_answer, public_view=False):
+def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
     if public_view:
         return False
     if user.is_staff:
@@ -131,12 +134,8 @@ def user_can_see_text_answer(user, text_answer, public_view=False):
     if text_answer.is_private:
         return contributor == user
     if text_answer.is_published:
-        if contributor == user or contributor in user.represented_users.all():
+        if contributor in represented_users:
             return True
-        if text_answer.contribution.course.is_user_responsible_or_delegate(user):
-            return True
-        represented_users = list(user.represented_users.all())
-        represented_users.append(user)
         if text_answer.contribution.course.contributions.filter(contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
             return True
         if text_answer.contribution.is_general and \
