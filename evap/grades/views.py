@@ -42,7 +42,7 @@ def prefetch_data(courses):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.exclude(state='new')
+    courses = semester.course_set.filter(is_graded=True).exclude(state='new')
     courses = prefetch_data(courses)
 
     template_data = dict(
