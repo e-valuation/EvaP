@@ -57,7 +57,7 @@
                                     </div>
                                     <span class="label label-default">{{ course.type }}</span>
                                     {% if course not in voted_courses %}
-                                        {% if course.state == 'evaluated' or course.state == 'published' %}
+                                        {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
                                             <span class="label label-info">{% trans "You did not evaluate this course" %}</span>
                                         {% endif %}
                                     {% endif %}

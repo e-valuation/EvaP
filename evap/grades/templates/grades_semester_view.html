@@ -41,7 +41,6 @@
                                         <span class="label label-default">{{ degree }}</span>
                                     {% endfor %}
                                     <span class="label label-info">{{ course.type }}</span>
-                                    <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
                                 </td>
                                 <td>{{ course.responsible_contributor.full_name }}</td>
                                 <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="glyphicon glyphicon-ok"></span>{% endif %}

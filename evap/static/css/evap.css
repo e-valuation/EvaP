@@ -319,6 +319,19 @@ Side notes for calling out things
     background-color: #31708f;
 }
 
+.btn-option {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+}
+.btn-option.active {
+    background-color: #31708f;
+    color: #ffffff;
+}
+.btn-option.disabled {
+    opacity: 0.6;
+}
+
 .participants-warning {
     opacity: 0.4;
 }
@@ -452,4 +465,12 @@ div.disabled-tooltip {
 
 li.menu-indent {
     padding-left: 20px;
+}
+
+.sortable-ghost {
+    background: #F0F0F0;
+}
+
+.table-striped tbody tr.sortable-ghost {
+    background: #E5E5E5;
 }

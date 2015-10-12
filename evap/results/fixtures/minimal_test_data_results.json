@@ -304,6 +304,40 @@
   }
 },
 {
+  "pk": 7, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "username": "contributor_course_comments", 
+    "first_name": "contributor_course_comments", 
+    "last_name": "user", 
+    "last_login": "2014-09-16T22:53:02.506", 
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=", 
+    "email": "contributor_course_comments@example.com", 
+    "title": "", 
+    "cc_users": [], 
+    "delegates": [], 
+    "login_key_valid_until": null, 
+    "login_key": null
+  }
+},
+{
+  "pk": 8, 
+  "model": "evaluation.userprofile", 
+  "fields": {
+    "username": "contributor_all_comments", 
+    "first_name": "contributor_all_comments", 
+    "last_name": "user", 
+    "last_login": "2014-09-16T22:53:02.506", 
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=", 
+    "email": "contributor_all_comments@example.com", 
+    "title": "", 
+    "cc_users": [], 
+    "delegates": [],
+    "login_key_valid_until": null, 
+    "login_key": null
+  }
+},
+{
   "pk": 1, 
   "model": "evaluation.contribution", 
   "fields": {
@@ -313,7 +347,8 @@
     "questionnaires": [
       2
     ], 
-    "can_edit": false
+    "can_edit": false,
+    "comment_visibility": "OWN"
   }
 },
 {
@@ -326,7 +361,8 @@
     "questionnaires": [
       1
     ], 
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -339,7 +375,36 @@
     "questionnaires": [
       1
     ], 
-    "can_edit": false
+    "can_edit": false,
+    "comment_visibility": "OWN"
+  }
+},
+{
+  "pk": 4, 
+  "model": "evaluation.contribution", 
+  "fields": {
+    "contributor": 7, 
+    "course": 1, 
+    "responsible": false, 
+    "questionnaires": [
+      1
+    ], 
+    "can_edit": false,
+    "comment_visibility": "COURSE"
+  }
+},
+{
+  "pk": 5, 
+  "model": "evaluation.contribution", 
+  "fields": {
+    "contributor": 8, 
+    "course": 1, 
+    "responsible": false, 
+    "questionnaires": [
+      1
+    ], 
+    "can_edit": false,
+    "comment_visibility": "ALL"
   }
 },
 {
