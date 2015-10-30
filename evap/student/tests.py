@@ -22,9 +22,9 @@ class VoteTests(WebTest):
 
         response = get_vote_page(contributor1)
 
-        for contributor, _, _ in response.context['contributor_form_groups']:
+        for contributor, _, _, _ in response.context['contributor_form_groups']:
             self.assertNotEqual(contributor, contributor1, "Contributor should not see the questionnaire about themselves")
 
         response = get_vote_page(student)
-        self.assertTrue(any(contributor == contributor1 for contributor, _, _ in response.context['contributor_form_groups']),
+        self.assertTrue(any(contributor == contributor1 for contributor, _, _, _ in response.context['contributor_form_groups']),
             "Regular students should see the questionnaire about a contributor")
