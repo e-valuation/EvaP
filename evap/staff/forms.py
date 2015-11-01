@@ -187,11 +187,12 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Contribution
-        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility')
+        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
+        self.fields['label'].widget.attrs['class'] = 'form-control'
 
         if self.instance.responsible:
             self.fields['responsibility'].initial = Contribution.IS_RESPONSIBLE
