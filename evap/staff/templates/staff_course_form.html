@@ -40,15 +40,18 @@
                             {{ field }}
                         {% endfor %}
                         <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move;" class="glyphicon glyphicon-move"></span></td>
-                        
+
                         <td>{{ form.contributor.errors }} {{ form.contributor }}</td>
                         <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
-                        <td>                        
+                        <td>
                             {% trans "Responsibility" %}:<br />
                             {% include_responsibility_buttons form True %}
                             <br /><br />
                             {% trans "Comment visibility" %}:<br />
                             {% include_comment_visibility_buttons form %}
+                            <br /><br />
+                            {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                            {{ form.label.errors }} {{ form.label }}
                         </td>
                         <td>{{ form.DELETE }}</td>
                     </tr>

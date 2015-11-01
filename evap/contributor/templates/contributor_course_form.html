@@ -54,12 +54,15 @@
                                 {% endif %}
                             </td>
                             <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
-                            <td>                        
+                            <td>
                                 {% trans "Responsibility" %}:<br />
                                 {% include_responsibility_buttons form %}
                                 <br /><br />
                                 {% trans "Comment visibility" %}:<br />
                                 {% include_comment_visibility_buttons form %}
+                                <br /><br />
+                                {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                                {{ form.label.errors }} {{ form.label }}
                             </td>
                             <td>{% if not form.responsibility.value == "RESPONSIBLE" %}{{ form.DELETE }}{% endif %}</td>
                         </tr>
