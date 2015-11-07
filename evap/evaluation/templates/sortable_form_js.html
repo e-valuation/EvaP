@@ -31,8 +31,7 @@
             });
 
 
-            var tbody = $('#' + table_id + " tbody").get(0);
-            Sortable.create(tbody, {
+            $('#' + table_id + " tbody").sortable({
                 handle: ".glyphicon-move",
                 draggable: ".sortable"
             });

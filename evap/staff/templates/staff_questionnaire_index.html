@@ -21,8 +21,7 @@
 {% block additional_javascript %}
     <script type="text/javascript">
 
-    var tbody = $('.questionnaire-table tbody').get(0);
-    Sortable.create(tbody, {
+    $('.questionnaire-table tbody').sortable({
         handle: ".glyphicon-move",
         draggable: ".sortable",
         onUpdate: function( event ) {
