@@ -73,7 +73,7 @@ class ExcelExporter(object):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
             results = OrderedDict()
-            for questionnaire, contributor, data, section_warning in calculate_results(course):
+            for questionnaire, contributor, label, data, section_warning in calculate_results(course):
                 results.setdefault(questionnaire.id, []).extend(data)
             courses_with_results.append((course, results))
 

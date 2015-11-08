@@ -103,7 +103,10 @@
                     {% regroup sections by questionnaire as sections_grouped %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <span class="panel-title">{{ contributor.full_name }}</span>
+                            <span class="panel-title">
+                                {{ contributor.full_name }}
+                                {% if sections_grouped.0.list.0.label %} &ndash; <i>{{ sections_grouped.0.list.0.label }}</i>{% endif %}
+                            </span>
                         </div>
                         <div class="panel-body">
                             {% for group in sections_grouped %}
