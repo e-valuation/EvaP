@@ -87,36 +87,36 @@ class EditorContributionFormSet(ContributionFormSet):
         super().clean()
 
 
-class UserForm(forms.ModelForm, BootstrapMixin):
+class DelegatesForm(forms.ModelForm, BootstrapMixin):
+    delegate_of = forms.ModelMultipleChoiceField(None)
+    cc_user_of = forms.ModelMultipleChoiceField(None)
+
     class Meta:
         model = UserProfile
-        fields = ('title', 'first_name', 'last_name', 'email', 'delegates')
+        fields = ('delegates', 'cc_users',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # fix generated form
         self.fields['delegates'].required = False
-        self.fields['delegates'].help_text = ""
+        self.fields['cc_users'].widget.attrs['disabled'] = True
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        user_with_same_email = UserProfile.objects.filter(email__iexact=email)
+        represented_users = self.instance.represented_users.all()
+        self.fields['delegate_of'].queryset = represented_users
+        self.fields['delegate_of'].initial = represented_users
+        self.fields['delegate_of'].required = False
+        self.fields['delegate_of'].widget.attrs['disabled'] = True
 
-        # make sure we don't take the instance itself into account
-        if self.instance and self.instance.pk:
-            user_with_same_email = user_with_same_email.exclude(pk=self.instance.pk)
+        ccing_users = self.instance.ccing_users.all()
+        self.fields['cc_user_of'].queryset = ccing_users
+        self.fields['cc_user_of'].initial = ccing_users
+        self.fields['cc_user_of'].required = False
+        self.fields['cc_user_of'].widget.attrs['disabled'] = True
 
-        if user_with_same_email.exists():
-            raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
-        return email.strip().lower()
+    def clean_cc_users(self):
+        return self.instance.cc_users.all()
 
-    def clean_first_name(self):
-        return self.cleaned_data['first_name'].strip()
-
-    def clean_last_name(self):
-        return self.cleaned_data['last_name'].strip()
-
-    def clean_title(self):
-        return self.cleaned_data['title'].strip()
-
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
+        logger.info('User "{}" edited the settings.'.format(self.instance.username))

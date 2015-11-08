@@ -364,7 +364,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    courses_participating_in = forms.IntegerField()
+    courses_participating_in = forms.ModelMultipleChoiceField(None)
 
     class Meta:
         model = UserProfile
@@ -377,17 +377,13 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         # fix generated form
         self.fields['delegates'].required = False
         self.fields['delegates'].queryset = all_users
-        self.fields['delegates'].help_text = ""
         self.fields['cc_users'].required = False
         self.fields['cc_users'].queryset = all_users
-        self.fields['cc_users'].help_text = ""
         courses_of_current_semester = Course.objects.filter(semester=Semester.active_semester())
-        self.fields['courses_participating_in'] = forms.ModelMultipleChoiceField(courses_of_current_semester,
-                                                                          initial=courses_of_current_semester.filter(participants=self.instance) if self.instance.pk else (),
-                                                                          label=_("Courses participating in (active semester)"),
-                                                                          help_text="",
-                                                                          required=False)
-        self.fields['courses_participating_in'].help_text = ""
+        self.fields['courses_participating_in'].queryset = courses_of_current_semester
+        self.fields['courses_participating_in'].initial = courses_of_current_semester.filter(participants=self.instance) if self.instance.pk else ()
+        self.fields['courses_participating_in'].label = _("Courses participating in (active semester)")
+        self.fields['courses_participating_in'].required = False
 
     def clean_username(self):
         username = self.cleaned_data.get('username')

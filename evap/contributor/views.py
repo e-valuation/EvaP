@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required, contributor_or_delegate_required
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
-from evap.contributor.forms import CourseForm, UserForm
+from evap.contributor.forms import CourseForm, DelegatesForm
 from evap.staff.forms import ContributionForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.student.views import vote_preview
@@ -34,17 +34,17 @@ def index(request):
 
 
 @editor_required
-def profile_edit(request):
+def settings_edit(request):
     user = request.user
-    form = UserForm(request.POST or None, request.FILES or None, instance=user)
+    form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
 
     if form.is_valid():
         form.save()
 
-        messages.success(request, _("Successfully updated your profile."))
+        messages.success(request, _("Successfully updated your settings."))
         return redirect('contributor:index')
     else:
-        return render(request, "contributor_profile.html", dict(form=form))
+        return render(request, "contributor_settings.html", dict(form=form, user=user))
 
 
 @editor_or_delegate_required

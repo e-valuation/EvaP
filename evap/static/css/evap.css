@@ -474,3 +474,7 @@ li.menu-indent {
 .table-striped tbody tr.sortable-ghost {
     background: #E5E5E5;
 }
+
+.settings-form select {
+    width: 100%;
+}
