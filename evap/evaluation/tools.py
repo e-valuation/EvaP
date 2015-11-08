@@ -67,7 +67,7 @@ STUDENT_STATES_ORDERED = OrderedDict((
 ))
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'results', 'warning'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'is_responsible', 'results'))
 RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
@@ -212,7 +212,7 @@ def _calculate_results_impl(course):
 
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
-        sections.append(ResultSection(questionnaire, contribution.contributor, results, section_warning))
+        sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
 
     return sections
 
@@ -228,7 +228,7 @@ def calculate_average_grades_and_deviation(course):
     dev_generic_grade = []
     dev_contribution_grade = []
 
-    for questionnaire, contributor, results, warning in calculate_results(course):
+    for questionnaire, contributor, label, results, warning in calculate_results(course):
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
         deviation_likert = avg([result.deviation for result in results if result.question.is_likert_question])
         average_grade = avg([result.average for result in results if result.question.is_grade_question])

@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load static %}
 
-{% for questionnaire, contributor, results, questionnaire_warning in group.list %}
+{% for questionnaire, contributor, label, results, questionnaire_warning in group.list %}
     <div class="inline-headers">
         {% if questionnaire_warning %}
             <p class="pull-right participants-warning questionnaire-warning">
