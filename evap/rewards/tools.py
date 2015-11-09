@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Course
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation, NoPointsSelected, NotEnoughPoints
 
 @login_required
 @transaction.atomic
@@ -15,8 +15,11 @@ def save_redemptions(request, redemptions):
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
 
-    if total_points_redeemed == 0 or total_points_redeemed > total_points_available:
-        return False
+    if total_points_redeemed <= 0:
+        raise NoPointsSelected(_("You cannot redeem 0 points."))
+
+    if total_points_redeemed > total_points_available:
+        raise NotEnoughPoints(_("You don't have enough reward points."))
 
     for event_id in redemptions:
         if redemptions[event_id] > 0:
@@ -26,8 +29,6 @@ def save_redemptions(request, redemptions):
                 event=RewardPointRedemptionEvent.objects.get(id=event_id)
             )
             redemption.save()
-    return True
-
 
 def can_user_use_reward_points(user):
     return not user.is_external and user.is_participant
