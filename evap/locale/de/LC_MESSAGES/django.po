@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-01 13:43+0100\n"
-"PO-Revision-Date: 2015-11-01 13:44+0100\n"
+"POT-Creation-Date: 2015-11-11 10:15+0100\n"
+"PO-Revision-Date: 2015-11-11 10:18+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -121,7 +121,7 @@ msgid "Save and approve"
 msgstr "Speichern und bestätigen"
 
 #: contributor/templates/contributor_course_form.html:89
-#: student/templates/student_vote.html:77
+#: student/templates/student_vote.html:79
 msgid "Back"
 msgstr "Zurück"
 
@@ -1446,27 +1446,27 @@ msgstr "Vorname"
 msgid "Number of points"
 msgstr "Anzahl der Punkte"
 
-#: rewards/models.py:8
+#: rewards/models.py:15
 msgid "event name"
 msgstr "Veranstaltungsname"
 
-#: rewards/models.py:9
+#: rewards/models.py:16
 msgid "event date"
 msgstr "Veranstaltungsdatum"
 
-#: rewards/models.py:10
+#: rewards/models.py:17
 msgid "redemption end date"
 msgstr "Ende des Einlösezeitraums"
 
-#: rewards/models.py:30
+#: rewards/models.py:37
 msgid "granting time"
 msgstr "Vergabezeitpunkt"
 
-#: rewards/models.py:31 rewards/models.py:36
+#: rewards/models.py:38 rewards/models.py:43
 msgid "value"
 msgstr "Wert"
 
-#: rewards/models.py:35
+#: rewards/models.py:42
 msgid "redemption time"
 msgstr "Einlösezeitpunkt"
 
@@ -1607,7 +1607,7 @@ msgstr "Einlösungen exportieren"
 
 #: rewards/templates/rewards_reward_point_redemption_events.html:46
 #: rewards/templates/rewards_reward_point_redemption_events.html:83
-#: rewards/views.py:126
+#: rewards/views.py:127
 msgid ""
 "This event cannot be deleted because some users already redeemed points for "
 "it."
@@ -1638,7 +1638,15 @@ msgstr "Benötigte Veranstaltungen"
 msgid "Reward points earned"
 msgstr "Belohnungspunkte vergeben"
 
-#: rewards/tools.py:71
+#: rewards/tools.py:19
+msgid "You cannot redeem 0 points."
+msgstr "Du kannst nicht 0 Punkte einlösen."
+
+#: rewards/tools.py:22
+msgid "You don't have enough reward points."
+msgstr "Du hast nicht genügend Belohnungspunkte."
+
+#: rewards/tools.py:72
 msgid ""
 "You just have earned reward points for this semester because you evaluated "
 "all your courses. Thank you very much!"
@@ -1646,27 +1654,23 @@ msgstr ""
 "Du hast soeben Belohnungspunkte für dieses Semester erhalten, weil du alle "
 "deine Veranstaltungen bewertet hast. Vielen Dank!"
 
-#: rewards/views.py:29
+#: rewards/views.py:30
 msgid "You successfully redeemed your points."
 msgstr "Punkte erfolgreich eingelöst."
 
-#: rewards/views.py:31
-msgid "You don't have enough reward points."
-msgstr "Du hast nicht genügend Belohnungspunkte."
-
-#: rewards/views.py:41
+#: rewards/views.py:42
 msgid "Reward for"
 msgstr "Belohnung für"
 
-#: rewards/views.py:95
+#: rewards/views.py:96
 msgid "Successfully created event."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: rewards/views.py:109
+#: rewards/views.py:110
 msgid "Successfully updated event."
 msgstr "Veranstaltung erfolgreich geändert."
 
-#: rewards/views.py:134
+#: rewards/views.py:135
 msgid "RewardPoints"
 msgstr "Belohnungspunkte"
 
@@ -2763,11 +2767,11 @@ msgstr ""
 "Bitte bewerte alle Mitwirkenden oder klicke auf \"Ich kann diesen "
 "Mitwirkenden nicht bewerten\", um die Person zu überspringen."
 
-#: student/templates/student_vote.html:59
+#: student/templates/student_vote.html:61
 msgid "I can't give feedback about this contributor"
 msgstr "Ich kann diesen Mitwirkenden nicht bewerten"
 
-#: student/templates/student_vote.html:79
+#: student/templates/student_vote.html:81
 msgid "Submit questionnaire"
 msgstr "Fragebogen absenden"
 
@@ -2847,10 +2851,10 @@ msgstr "Angemeldet als"
 msgid "Not logged in"
 msgstr "Nicht Angemeldet"
 
-#: templates/base.html:238
+#: templates/base.html:239
 msgid "Please select..."
 msgstr "Bitte auswählen..."
 
-#: templates/base.html:266
+#: templates/base.html:267
 msgid "Are you sure you want to leave?"
 msgstr "Sind Sie sicher, dass Sie diese Seite verlassen wollen?"
