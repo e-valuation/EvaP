@@ -1,7 +1,7 @@
 EvaP - Evaluation Platform
 ==========================
 
-|build| |dependencies| |landscape| 
+|build| |dependencies| |landscape| |coveralls|
 
 What is EvaP?
 -------------
@@ -65,3 +65,6 @@ See `LICENSE.rst <LICENSE.rst>`_.
 .. |landscape| image:: https://landscape.io/github/fsr-itse/EvaP/master/landscape.png
         :alt: Code Health
         :target: https://landscape.io/github/fsr-itse/EvaP/master
+.. |coveralls| image:: https://coveralls.io/repos/fsr-itse/EvaP/badge.svg?branch=master&service=github
+        :alt: Code Coverage
+        :target: https://coveralls.io/github/fsr-itse/EvaP?branch=master
