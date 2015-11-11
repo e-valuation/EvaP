@@ -1,6 +1,6 @@
 [submodule "puppetlabs-concat"]
 	path = deployment/testing_environment/modules/concat
-    url = https://github.com/puppetlabs/puppetlabs-concat.git
+    url = https://github.com/karyon/puppetlabs-concat.git
 [submodule "puppetlabs-stdlib"]
 	path = deployment/testing_environment/modules/stdlib
     url = https://github.com/puppetlabs/puppetlabs-stdlib.git

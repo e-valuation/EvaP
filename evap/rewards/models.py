@@ -3,6 +3,13 @@ from django.db import models
 
 from collections import OrderedDict
 
+class NoPointsSelected(Exception):
+    """An attempt has been made to redeem <= 0 points."""
+    pass
+
+class NotEnoughPoints(Exception):
+    """An attempt has been made to redeem more points than available."""
+    pass
 
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))

@@ -55,7 +55,9 @@
                                     <span class="panel-title">{{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}</span>
                                 {% else %}
                                     <span class="panel-title">
-                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}</a>
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">
+                                            {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
+                                        </a>
                                         <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                                     </span>
                                 {% endif %}
