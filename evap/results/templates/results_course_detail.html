@@ -24,7 +24,7 @@
         {% if public_view %}
             <div class="alert alert-info hidden-print">{% trans "This is the public view. Users who are neither contributors of this course nor their delegates can only see the results below." %}</div>
             <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=false" class="pull-right btn btn-sm btn-primary hidden-print">{% trans "Show my view" %}</a>
-        {% else %}
+        {% elif not sufficient_votes_warning %}
             <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=true" class="pull-right btn btn-sm btn-default hidden-print">{% trans "Show public view" %}</a>
         {% endif %}
     {% endif %}
