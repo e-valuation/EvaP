@@ -10,7 +10,7 @@
         <b>{% trans "Delegates" %}</b><br />
         {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
         {% if user.is_editor %}
-            {% blocktrans %}You can assign your own delegates in your profile.{% endblocktrans %} <a href="{% url "contributor:profile_edit" %}" class="btn btn-xs btn-default">{% trans "Edit profile" %}</a><br />
+            {% blocktrans %}You can assign your own delegates on your settings page.{% endblocktrans %} <a href="{% url "contributor:settings_edit" %}" class="btn btn-xs btn-default">{% trans "Edit settings" %}</a><br />
         {% endif %}
         {% if delegated_courses %}
             {% blocktrans %}Courses from lecturers who set you as a delegate are marked with a label below.{% endblocktrans %}<br />

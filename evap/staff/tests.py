@@ -20,7 +20,6 @@ from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, Con
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.contributor.forms import CourseForm as ContributorCourseForm
-from evap.contributor.forms import UserForm as ContributorUserForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -404,8 +403,8 @@ class URLTests(WebTest):
             ("test_contributor_course_x_preview", "/contributor/course/7/preview", "editor"),
             ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
             ("test_contributor_course_x_edit", "/contributor/course/2/edit", "editor"),
-            ("test_contributor_profile", "/contributor/profile", "responsible"),
-            ("test_contributor_profile", "/contributor/profile", "editor"),
+            ("test_contributor_settings", "/contributor/settings", "responsible"),
+            ("test_contributor_settings", "/contributor/settings", "editor"),
             # rewards
             ("rewards_index", "/rewards/", "student"),
             ("reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
@@ -521,8 +520,8 @@ class URLTests(WebTest):
     def test_staff_faq_x__nodata_success(self):
         self.get_submit_assert_302("/staff/faq/1", "evap")
 
-    def test_contributor_profile(self):
-        self.get_submit_assert_302("/contributor/profile", "responsible")
+    def test_contributor_settings(self):
+        self.get_submit_assert_302("/contributor/settings", "responsible")
 
     def test_course_email_form(self):
         """
@@ -1229,19 +1228,13 @@ class UserFormTests(TestCase):
         data = {"username": "uiae", "email": user.email}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
-        form = ContributorUserForm(data=data)
-        self.assertFalse(form.is_valid())
 
         data = {"username": "uiae", "email": user.email.upper()}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
-        form = ContributorUserForm(data=data)
-        self.assertFalse(form.is_valid())
 
         data = {"username": "uiae", "email": user.email.upper()}
         form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-        form = ContributorUserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
     def test_user_with_same_username(self):
