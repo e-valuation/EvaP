@@ -229,6 +229,10 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.queryset = self.instance.contributions.exclude(contributor=None)
+
     def handle_deleted_and_added_contributions(self):
         """
             If a contributor got removed and added in the same formset, django would usually complain

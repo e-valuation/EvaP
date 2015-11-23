@@ -59,7 +59,7 @@ def course_view(request, course_id):
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course)
 
     # make everything read-only
     for cform in formset.forms + [form]:
@@ -81,7 +81,7 @@ def course_edit(request, course_id):
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1, exclude=('course',))
 
     course_form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course)
 
     operation = request.POST.get('operation')
 

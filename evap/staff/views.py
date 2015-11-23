@@ -426,7 +426,7 @@ def helper_course_edit(request, semester, course):
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course)
 
     operation = request.POST.get('operation')
 
