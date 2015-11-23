@@ -380,6 +380,8 @@ class UserForm(forms.ModelForm, BootstrapMixin):
         self.fields['cc_users'].required = False
         self.fields['cc_users'].queryset = all_users
         courses_of_current_semester = Course.objects.filter(semester=Semester.active_semester())
+        excludes = [x.id for x in courses_of_current_semester if x.is_single_result()]
+        courses_of_current_semester = courses_of_current_semester.exclude(id__in=excludes)
         self.fields['courses_participating_in'].queryset = courses_of_current_semester
         self.fields['courses_participating_in'].initial = courses_of_current_semester.filter(participants=self.instance) if self.instance.pk else ()
         self.fields['courses_participating_in'].label = _("Courses participating in (active semester)")
