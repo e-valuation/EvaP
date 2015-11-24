@@ -67,9 +67,9 @@
                 {% if form.instance.state == "new" or form.instance.state == "prepared" %}
                     <div class="alert alert-warning">{% trans "You are editing a course which has not been approved by the editor yet." %}</div>
                 {% endif %}
-                <button name="operation" value="save" type="submit" class="btn btn-primary" >{% trans "Save"%} </button>
+                <button name="operation" value="save" type="submit" class="btn btn-primary" onclick="preventAccidentalClosing = false;">{% trans "Save"%} </button>
                 {% if form.instance.state == "new" or form.instance.state == "prepared" or form.instance.state == "editorApproved" %}
-                  <button name="operation" value="approve" type="submit" class="btn btn-success" >{% trans "Save and approve"%} </button>
+                  <button name="operation" value="approve" type="submit" class="btn btn-success" onclick="preventAccidentalClosing = false;">{% trans "Save and approve"%} </button>
                 {% endif %}
             </div>
         </div>

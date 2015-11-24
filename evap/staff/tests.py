@@ -320,9 +320,9 @@ class URLTests(WebTest):
         except AppError as e:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
-    def get_submit_assert_302(self, url, user):
+    def get_submit_assert_302(self, url, user, name="", value=""):
         response = self.get_assert_200(url, user)
-        response = response.forms[2].submit("")
+        response = response.forms[2].submit(name=name, value=value)
         self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 
@@ -494,7 +494,7 @@ class URLTests(WebTest):
         self.get_submit_assert_200("/staff/semester/1/lottery", "evap")
 
     def test_staff_semester_x_course_y_edit__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
+        self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap", name="operation", value="save")
 
     def test_staff_semester_x_course_y_delete__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/delete", "evap"),
