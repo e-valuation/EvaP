@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load morefilters %}
 {% load static %}
+{% load evaluation_templatetags %}
 
 {% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'reviewed' or state == 'published' %}
     {% if info_only|is_false %}
@@ -9,7 +10,7 @@
         </td>
     {% endif %}
 {% endif %}
-<td class="maximize">
+<td style="width: 50%">
     <div>
     {% if course.can_staff_edit and info_only|is_false %}
         <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
@@ -32,8 +33,9 @@
         <span class="label label-warning">{{ warning }}</span>
     {% endfor %}
 </td>
-<td class="minimize text-center">
+<td style="width: 10%">
     {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if course.is_single_result|is_false %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
+
     {% if course.state == 'inEvaluation' %}
         <br>
         {% if course.days_left_for_evaluation <= 0 %}
@@ -47,26 +49,22 @@
 </td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if course.num_participants %}
-        <td class="minimize">
+        <td style="width: 20%" class="multi-progress-bar">
             <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                <span class="glyphicon glyphicon-user"></span>
-                <span>{{ course.num_voters }}/{{ course.num_participants }}</span>
-                <span>({{ course.num_voters|percentage:course.num_participants|default:'&madsh;' }})</span>
-            </span><br>
+                {% include_progress_bar course.num_voters course.num_participants "user"%}
+            </span>
             {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
-                <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
-                    <span class="glyphicon glyphicon-comment"></span>
-                    <span>{{ course.num_reviewed_textanswers }}/{{ course.num_textanswers }}</span>
-                    <span>({{ course.num_reviewed_textanswers|percentage:course.num_textanswers|default:'&mdash;' }})</span>
+                <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Click to review text answers" %}">
+                    {% include_progress_bar course.num_reviewed_textanswers course.num_textanswers "comment"%}
                 </a>
             {% else %}
                 <span data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
                     <span class="glyphicon glyphicon-comment"></span>
                     <span>{{ course.num_textanswers }}</span>
                 </span>
+                <br />
             {% endif %}
             {% if course.is_graded %}
-                <br>
                 <a href="{% url "grades:course_view" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Grade documents (Midterm, Final)" %}">
                     <span class="glyphicon glyphicon-file"></span>
                     <span>{% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}</span>
@@ -79,7 +77,7 @@
             {% endif %}
         </td>
     {% else %}
-        <td class="minimize">
+        <td style="width: 15%">
             <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <span>&mdash;</span>
@@ -87,7 +85,7 @@
         </td>
     {% endif %}
 {% else %}
-    <td class="minimize">
+    <td style="width: 15%">
         <p data-toggle="tooltip" data-placement="left" title="{% trans "Participants" %}">
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
@@ -95,7 +93,7 @@
     </td>
 {% endif %}
 {% if info_only|is_false %}
-    <td class="minimize">
+    <td style="width: 20%">
         <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
         {% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'approved' %}
             <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>

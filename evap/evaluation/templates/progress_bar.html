@@ -5,7 +5,12 @@
     {% spaceless %}
         <span class="evap-progress-bar-back">
             <span class="evap-progress-bar-front" style="width: {% widthratio done total 100 %}%;">&nbsp;</span>
-            <span class="evap-progress-bar-bartext">{{ done }}/{{ total }}</span>
+            <span class="evap-progress-bar-bartext">
+                {% if icon %}
+                    <small><span class="glyphicon glyphicon-{{ icon }}"></span></small>&nbsp;
+                {% endif %}
+                {{ done }}/{{ total }}
+            </span>
         </span>
     {% endspaceless %}
 </span>
