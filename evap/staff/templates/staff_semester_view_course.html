@@ -33,7 +33,7 @@
         <span class="label label-warning">{{ warning }}</span>
     {% endfor %}
 </td>
-<td style="width: 15%">
+<td style="width: 10%">
     {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if course.is_single_result|is_false %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
 
     {% if course.state == 'inEvaluation' %}
@@ -49,24 +49,22 @@
 </td>
 {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if course.num_participants %}
-        <td style="width: 15%">
+        <td style="width: 20%" class="multi-progress-bar">
             <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                <span class="glyphicon glyphicon-user"></span>
-                <span>{% include_progress_bar course.num_voters course.num_participants %}</span>
-            </span><br>
+                {% include_progress_bar course.num_voters course.num_participants "user"%}
+            </span>
             {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
-                <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left"title="{% trans "Click to review text answers" %}">
-                    <span class="glyphicon glyphicon-comment"></span>
-                    <span>{% include_progress_bar course.num_reviewed_textanswers course.num_textanswers %}</span> -->
+                <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Click to review text answers" %}">
+                    {% include_progress_bar course.num_reviewed_textanswers course.num_textanswers "comment"%}
                 </a>
             {% else %}
                 <span data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
                     <span class="glyphicon glyphicon-comment"></span>
                     <span>{{ course.num_textanswers }}</span>
                 </span>
+                <br />
             {% endif %}
             {% if course.is_graded %}
-                <br>
                 <a href="{% url "grades:course_view" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Grade documents (Midterm, Final)" %}">
                     <span class="glyphicon glyphicon-file"></span>
                     <span>{% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}</span>
