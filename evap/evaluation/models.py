@@ -220,6 +220,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if not self.general_contribution:
             self.general_contribution = self.contributions.create(contributor=None)
 
+        assert self.vote_end_date >= self.vote_end_date
+
     def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
 
@@ -537,6 +539,11 @@ class Contribution(models.Model):
         # responsible contributors can always edit
         if self.responsible:
             self.can_edit = True
+
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
+        if self.responsible and not self.course.is_single_result:
+            assert self.can_edit and self.comment_visibilty == ALL_COMMENTS
 
     @property
     def is_general(self):
