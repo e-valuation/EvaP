@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db.models import Max, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
@@ -266,7 +266,7 @@ def semester_import(request, semester_id):
     if form.is_valid():
         operation = request.POST.get('operation')
         if operation not in ('test', 'import'):
-            raise PermissionDenied
+            raise SuspiciousOperation("Invalid POST operation")
 
         # extract data from form
         excel_file = form.cleaned_data['excel_file']
@@ -432,7 +432,7 @@ def helper_course_edit(request, semester, course):
 
     if form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
-            raise PermissionDenied
+            raise SuspiciousOperation("Invalid POST operation")
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
         form.save(user=request.user)
@@ -770,7 +770,7 @@ def user_import(request):
 
     if form.is_valid():
         if operation not in ('test', 'import'):
-            raise PermissionDenied
+            raise SuspiciousOperation("Invalid POST operation")
 
         test_run = operation == 'test'
         excel_file = form.cleaned_data['excel_file']

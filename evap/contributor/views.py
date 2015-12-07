@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
@@ -87,7 +87,7 @@ def course_edit(request, course_id):
 
     if course_form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
-            raise PermissionDenied
+            raise SuspiciousOperation("Invalid POST operation")
 
         course_form.save(user=user)
         formset.save()
