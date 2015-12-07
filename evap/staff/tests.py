@@ -207,9 +207,11 @@ class UsecaseTests(WebTest):
     def test_assign_questionnaires(self):
         semester = mommy.make(Semester, name_en="Semester 1")
         mommy.make(Course, semester=semester, type="Seminar", contributions=[
-                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
+            mommy.make(Contribution, contributor=mommy.make(UserProfile),
+                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         mommy.make(Course, semester=semester, type="Vorlesung", contributions=[
-                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
+            mommy.make(Contribution, contributor=mommy.make(UserProfile),
+                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
@@ -227,7 +229,7 @@ class UsecaseTests(WebTest):
 
     def test_remove_responsibility(self):
         user = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, contributor=user, responsible=True)
+        contribution = mommy.make(Contribution, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         page = self.app.get(reverse("staff:index"), user="staff.user")
         page = page.click(contribution.course.semester.name_en, index=0)
@@ -284,7 +286,7 @@ class UnitTests(TestCase):
         self.assertEqual(course.contributions.count(), 0)
         self.assertFalse(course.has_enough_questionnaires())
 
-        responsible_contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), responsible=True)
+        responsible_contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         course = Course.objects.get()
         self.assertFalse(course.has_enough_questionnaires())
 
@@ -936,7 +938,7 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -972,7 +974,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
         EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -1014,8 +1016,8 @@ class ContributionFormsetWebTests(WebTest):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire], order=1)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, questionnaires=[questionnaire], order=2)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=1)
+        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors
