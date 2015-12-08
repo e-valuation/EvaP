@@ -164,7 +164,7 @@ class ExcelExporter(object):
 
         writen(self, _("Total Voters/Total Participants"), "bold")
         for course, results in courses_with_results:
-            percent_participants = float(course.num_voters)/float(course.num_participants)
+            percent_participants = float(course.num_voters)/float(course.num_participants) if course.num_participants > 0 else 0
             writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)
