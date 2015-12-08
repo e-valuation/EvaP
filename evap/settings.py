@@ -140,7 +140,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'mail_admins'],
             'level': 'INFO',
             'propagate': True,
         },
