@@ -72,6 +72,8 @@ class ExcelExporter(object):
     def export(self, response, ignore_not_enough_answers=False):
         courses_with_results = list()
         for course in self.semester.course_set.filter(state="published").all():
+            if course.is_single_result():
+                continue
             results = OrderedDict()
             for questionnaire, contributor, label, data, section_warning in calculate_results(course):
                 results.setdefault(questionnaire.id, []).extend(data)
