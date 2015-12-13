@@ -20,7 +20,6 @@ from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, Con
                              CourseForm, ImportForm, UserImportForm
 from evap.contributor.forms import EditorContributionFormSet
 from evap.contributor.forms import CourseForm as ContributorCourseForm
-from evap.contributor.forms import UserForm as ContributorUserForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
 
@@ -208,9 +207,11 @@ class UsecaseTests(WebTest):
     def test_assign_questionnaires(self):
         semester = mommy.make(Semester, name_en="Semester 1")
         mommy.make(Course, semester=semester, type="Seminar", contributions=[
-                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
+            mommy.make(Contribution, contributor=mommy.make(UserProfile),
+                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         mommy.make(Course, semester=semester, type="Vorlesung", contributions=[
-                            mommy.make(Contribution, contributor=mommy.make(UserProfile), responsible=True)])
+            mommy.make(Contribution, contributor=mommy.make(UserProfile),
+                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
@@ -228,7 +229,7 @@ class UsecaseTests(WebTest):
 
     def test_remove_responsibility(self):
         user = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, contributor=user, responsible=True)
+        contribution = mommy.make(Contribution, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         page = self.app.get(reverse("staff:index"), user="staff.user")
         page = page.click(contribution.course.semester.name_en, index=0)
@@ -285,7 +286,7 @@ class UnitTests(TestCase):
         self.assertEqual(course.contributions.count(), 0)
         self.assertFalse(course.has_enough_questionnaires())
 
-        responsible_contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), responsible=True)
+        responsible_contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         course = Course.objects.get()
         self.assertFalse(course.has_enough_questionnaires())
 
@@ -321,9 +322,9 @@ class URLTests(WebTest):
         except AppError as e:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
-    def get_submit_assert_302(self, url, user):
+    def get_submit_assert_302(self, url, user, name="", value=""):
         response = self.get_assert_200(url, user)
-        response = response.forms[2].submit("")
+        response = response.forms[2].submit(name=name, value=value)
         self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 
@@ -404,8 +405,8 @@ class URLTests(WebTest):
             ("test_contributor_course_x_preview", "/contributor/course/7/preview", "editor"),
             ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
             ("test_contributor_course_x_edit", "/contributor/course/2/edit", "editor"),
-            ("test_contributor_profile", "/contributor/profile", "responsible"),
-            ("test_contributor_profile", "/contributor/profile", "editor"),
+            ("test_contributor_settings", "/contributor/settings", "responsible"),
+            ("test_contributor_settings", "/contributor/settings", "editor"),
             # rewards
             ("rewards_index", "/rewards/", "student"),
             ("reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
@@ -495,7 +496,7 @@ class URLTests(WebTest):
         self.get_submit_assert_200("/staff/semester/1/lottery", "evap")
 
     def test_staff_semester_x_course_y_edit__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap")
+        self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap", name="operation", value="save")
 
     def test_staff_semester_x_course_y_delete__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/delete", "evap"),
@@ -521,8 +522,8 @@ class URLTests(WebTest):
     def test_staff_faq_x__nodata_success(self):
         self.get_submit_assert_302("/staff/faq/1", "evap")
 
-    def test_contributor_profile(self):
-        self.get_submit_assert_302("/contributor/profile", "responsible")
+    def test_contributor_settings(self):
+        self.get_submit_assert_302("/contributor/settings", "responsible")
 
     def test_course_email_form(self):
         """
@@ -937,7 +938,7 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -973,7 +974,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
         EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
 
@@ -1015,8 +1016,8 @@ class ContributionFormsetWebTests(WebTest):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, questionnaires=[questionnaire], order=1)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, questionnaires=[questionnaire], order=2)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=1)
+        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors
@@ -1229,19 +1230,13 @@ class UserFormTests(TestCase):
         data = {"username": "uiae", "email": user.email}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
-        form = ContributorUserForm(data=data)
-        self.assertFalse(form.is_valid())
 
         data = {"username": "uiae", "email": user.email.upper()}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
-        form = ContributorUserForm(data=data)
-        self.assertFalse(form.is_valid())
 
         data = {"username": "uiae", "email": user.email.upper()}
         form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-        form = ContributorUserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
     def test_user_with_same_username(self):

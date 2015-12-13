@@ -113990,7 +113990,7 @@
         2
       ],
       "is_superuser": true,
-      "last_login": "2015-11-08T14:36:00.591",
+      "last_login": "2015-11-11T16:30:17.529",
       "last_name": "evap",
       "login_key": null,
       "login_key_valid_until": "2014-02-18",
@@ -127786,7 +127786,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 173,
       "course": 34,
       "label": null,
@@ -127888,7 +127888,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 318,
       "label": null,
@@ -127924,7 +127924,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 640,
       "course": 327,
       "label": null,
@@ -127992,7 +127992,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 332,
       "label": null,
@@ -128061,7 +128061,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 93,
       "course": 334,
       "label": null,
@@ -128095,7 +128095,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2341,
       "course": 336,
       "label": null,
@@ -128233,7 +128233,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 186,
       "course": 350,
       "label": null,
@@ -128269,7 +128269,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 356,
       "label": null,
@@ -128306,7 +128306,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2086,
       "course": 358,
       "label": null,
@@ -128340,7 +128340,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2341,
       "course": 359,
       "label": null,
@@ -128375,7 +128375,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 363,
       "label": null,
@@ -128410,7 +128410,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 370,
       "label": null,
@@ -128447,7 +128447,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 249,
       "course": 372,
       "label": null,
@@ -128481,7 +128481,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 186,
       "course": 375,
       "label": null,
@@ -128540,7 +128540,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 1,
       "course": 478,
       "label": null,
@@ -128625,7 +128625,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 318,
       "course": 333,
       "label": null,
@@ -128740,7 +128740,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 93,
       "course": 482,
       "label": null,
@@ -128893,7 +128893,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 395,
       "course": 310,
       "label": null,
@@ -128942,7 +128942,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 267,
       "course": 311,
       "label": null,
@@ -128993,7 +128993,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 409,
       "course": 329,
       "label": null,
@@ -129010,7 +129010,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 993,
       "course": 345,
       "label": null,
@@ -129044,7 +129044,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 995,
       "course": 348,
       "label": null,
@@ -129191,7 +129191,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 1009,
       "course": 347,
       "label": null,
@@ -129245,7 +129245,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 641,
       "label": null,
@@ -129262,7 +129262,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 93,
       "course": 643,
       "label": null,
@@ -129319,7 +129319,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 652,
       "label": null,
@@ -129353,7 +129353,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 654,
       "label": null,
@@ -129387,7 +129387,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 655,
       "label": null,
@@ -129420,7 +129420,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 186,
       "course": 657,
       "label": null,
@@ -129454,7 +129454,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 936,
       "course": 663,
       "label": null,
@@ -129489,7 +129489,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 116,
       "course": 664,
       "label": null,
@@ -129523,7 +129523,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 1072,
       "course": 665,
       "label": null,
@@ -129558,7 +129558,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 283,
       "course": 666,
       "label": null,
@@ -129594,7 +129594,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 116,
       "course": 669,
       "label": null,
@@ -129630,7 +129630,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 648,
       "course": 675,
       "label": null,
@@ -129664,7 +129664,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 682,
       "label": null,
@@ -129697,7 +129697,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 300,
       "course": 686,
       "label": null,
@@ -129750,7 +129750,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 173,
       "course": 695,
       "label": null,
@@ -129788,7 +129788,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 222,
       "course": 697,
       "label": null,
@@ -129822,7 +129822,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 698,
       "label": null,
@@ -129856,7 +129856,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 186,
       "course": 702,
       "label": null,
@@ -129890,7 +129890,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 326,
       "course": 709,
       "label": null,
@@ -130592,7 +130592,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 251,
       "course": 648,
       "label": null,
@@ -130643,7 +130643,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 690,
       "label": null,
@@ -130863,7 +130863,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 937,
       "course": 730,
       "label": null,
@@ -130900,7 +130900,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 643,
       "course": 1454,
       "label": null,
@@ -130933,7 +130933,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1460,
       "label": null,
@@ -130966,7 +130966,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2325,
       "course": 1463,
       "label": null,
@@ -130999,7 +130999,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 648,
       "course": 1468,
       "label": null,
@@ -131035,7 +131035,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1472,
       "label": null,
@@ -131071,7 +131071,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1474,
       "label": null,
@@ -131105,7 +131105,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2341,
       "course": 1479,
       "label": null,
@@ -131142,7 +131142,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 222,
       "course": 1480,
       "label": null,
@@ -131175,7 +131175,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1485,
       "label": null,
@@ -131210,7 +131210,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 251,
       "course": 1488,
       "label": null,
@@ -131246,7 +131246,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2086,
       "course": 1494,
       "label": null,
@@ -131294,7 +131294,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1498,
       "label": null,
@@ -131325,7 +131325,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1499,
       "label": null,
@@ -131359,7 +131359,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 641,
       "course": 1500,
       "label": null,
@@ -131392,7 +131392,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2325,
       "course": 1502,
       "label": null,
@@ -131426,7 +131426,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 204,
       "course": 1503,
       "label": null,
@@ -131460,7 +131460,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 484,
       "course": 1504,
       "label": null,
@@ -131490,7 +131490,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 648,
       "course": 1506,
       "label": null,
@@ -131518,7 +131518,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1507,
       "label": null,
@@ -131551,7 +131551,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 1075,
       "course": 1508,
       "label": null,
@@ -131585,7 +131585,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1510,
       "label": null,
@@ -131621,7 +131621,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 994,
       "course": 1513,
       "label": null,
@@ -131657,7 +131657,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1514,
       "label": null,
@@ -131689,7 +131689,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1518,
       "label": null,
@@ -131721,7 +131721,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1520,
       "label": null,
@@ -131755,7 +131755,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1525,
       "label": null,
@@ -131788,7 +131788,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1531,
       "label": null,
@@ -132118,7 +132118,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1497,
       "label": null,
@@ -132544,7 +132544,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 484,
       "course": 1534,
       "label": null,
@@ -132699,7 +132699,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 648,
       "course": 1540,
       "label": null,
@@ -132734,7 +132734,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 1105,
       "course": 1544,
       "label": null,
@@ -132768,7 +132768,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 1105,
       "course": 1545,
       "label": null,
@@ -132805,7 +132805,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1547,
       "label": null,
@@ -132839,7 +132839,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1548,
       "label": null,
@@ -132906,7 +132906,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1550,
       "label": null,
@@ -132940,7 +132940,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1554,
       "label": null,
@@ -132973,7 +132973,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 283,
       "course": 1559,
       "label": null,
@@ -133010,7 +133010,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1563,
       "label": null,
@@ -133044,7 +133044,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2086,
       "course": 1564,
       "label": null,
@@ -133081,7 +133081,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 251,
       "course": 1568,
       "label": null,
@@ -133115,7 +133115,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 249,
       "course": 1569,
       "label": null,
@@ -133151,7 +133151,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 249,
       "course": 1570,
       "label": null,
@@ -133185,7 +133185,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2325,
       "course": 1571,
       "label": null,
@@ -133220,7 +133220,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1575,
       "label": null,
@@ -133256,7 +133256,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1577,
       "label": null,
@@ -133291,7 +133291,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1580,
       "label": null,
@@ -133324,7 +133324,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1583,
       "label": null,
@@ -133360,7 +133360,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1585,
       "label": null,
@@ -133429,7 +133429,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 484,
       "course": 1587,
       "label": null,
@@ -133466,7 +133466,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 204,
       "course": 1595,
       "label": null,
@@ -133537,7 +133537,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 173,
       "course": 1600,
       "label": null,
@@ -133571,7 +133571,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 173,
       "course": 1603,
       "label": null,
@@ -133605,7 +133605,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 640,
       "course": 1605,
       "label": null,
@@ -133639,7 +133639,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 937,
       "course": 1610,
       "label": null,
@@ -133674,7 +133674,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 641,
       "course": 1613,
       "label": null,
@@ -133708,7 +133708,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 641,
       "course": 1614,
       "label": null,
@@ -133742,7 +133742,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 635,
       "course": 1618,
       "label": null,
@@ -133793,7 +133793,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 33,
       "course": 1598,
       "label": null,
@@ -134184,7 +134184,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1549,
       "label": null,
@@ -134628,7 +134628,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 173,
       "course": 1624,
       "label": null,
@@ -134662,7 +134662,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1625,
       "label": null,
@@ -134697,7 +134697,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1629,
       "label": null,
@@ -134734,7 +134734,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1634,
       "label": null,
@@ -134768,7 +134768,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 204,
       "course": 1638,
       "label": null,
@@ -134802,7 +134802,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 204,
       "course": 1641,
       "label": null,
@@ -134832,7 +134832,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1646,
       "label": null,
@@ -134863,7 +134863,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1647,
       "label": null,
@@ -134901,7 +134901,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1648,
       "label": null,
@@ -134937,7 +134937,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 127,
       "course": 1649,
       "label": null,
@@ -134973,7 +134973,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1651,
       "label": null,
@@ -135003,7 +135003,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1653,
       "label": null,
@@ -135034,7 +135034,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1655,
       "label": null,
@@ -135069,7 +135069,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 234,
       "course": 1656,
       "label": null,
@@ -135105,7 +135105,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 959,
       "course": 1657,
       "label": null,
@@ -135143,7 +135143,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 222,
       "course": 1660,
       "label": null,
@@ -135179,7 +135179,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2319,
       "course": 1663,
       "label": null,
@@ -135209,7 +135209,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2319,
       "course": 1668,
       "label": null,
@@ -135277,7 +135277,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1679,
       "label": null,
@@ -135343,7 +135343,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 236,
       "course": 1683,
       "label": null,
@@ -135374,7 +135374,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 937,
       "course": 1684,
       "label": null,
@@ -135410,7 +135410,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 249,
       "course": 1687,
       "label": null,
@@ -135446,7 +135446,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 815,
       "course": 1693,
       "label": null,
@@ -135480,7 +135480,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1694,
       "label": null,
@@ -135516,7 +135516,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 310,
       "course": 1695,
       "label": null,
@@ -135552,7 +135552,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 650,
       "course": 1696,
       "label": null,
@@ -135589,7 +135589,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2324,
       "course": 1697,
       "label": null,
@@ -135622,7 +135622,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2325,
       "course": 1698,
       "label": null,
@@ -135658,7 +135658,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2326,
       "course": 1701,
       "label": null,
@@ -135695,7 +135695,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2086,
       "course": 1706,
       "label": null,
@@ -135728,7 +135728,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 2341,
       "course": 1707,
       "label": null,
@@ -135916,7 +135916,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 116,
       "course": 1710,
       "label": null,
@@ -136480,7 +136480,7 @@
   {
     "fields": {
       "can_edit": true,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 601,
       "course": 1712,
       "label": null,
@@ -136596,7 +136596,7 @@
   {
     "fields": {
       "can_edit": false,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1713,
       "label": null,
@@ -136626,7 +136626,7 @@
   {
     "fields": {
       "can_edit": false,
-      "comment_visibility": "OWN",
+      "comment_visibility": "ALL",
       "contributor": 255,
       "course": 1714,
       "label": null,

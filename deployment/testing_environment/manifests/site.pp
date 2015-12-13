@@ -57,7 +57,9 @@ node default {
 
     # apache environment
     class { 'apache':
-        default_vhost => false
+        default_vhost => false,
+        user          => 'vagrant',
+        group         => 'vagrant',
     } ->
     exec {"fix apache's locale":
         provider => shell,

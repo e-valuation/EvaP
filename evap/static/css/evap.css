@@ -430,6 +430,10 @@ Side notes for calling out things
     width: 36px;
 }
 
+.multi-progress-bar .evap-progress-bar-container {
+    padding-bottom: 5px;
+}
+
 .deactivate {
     opacity: 0.4;
 }
@@ -473,4 +477,8 @@ li.menu-indent {
 
 .table-striped tbody tr.sortable-ghost {
     background: #E5E5E5;
+}
+
+.settings-form select {
+    width: 100%;
 }

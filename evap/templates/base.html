@@ -72,7 +72,7 @@
                         {% endif %}
 
                         {% if user.is_editor %}
-                            <li><a href="{% url "contributor:profile_edit" %}">{% trans "My profile" %}</a></li>
+                            <li><a href="{% url "contributor:settings_edit" %}">{% trans "Settings" %}</a></li>
                         {% endif %}
 
                         {% if user|can_user_use_reward_points %}
@@ -239,7 +239,13 @@
                     placeholder: "{% trans "Please select..." %}",
                     minimumResultsForSearch: 15,});
             };
-            apply_select2($('select').not('.form-template select'));
+            apply_select2($('select').not('.form-template select').not('[disabled]'));
+
+            // don't use the placeholder text on disabled select2 elements
+            apply_select2_disabled = function(elem) {
+                elem.select2();
+            };
+            apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
             // run the jquery datepicker plugin
             $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
