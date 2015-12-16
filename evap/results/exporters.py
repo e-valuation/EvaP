@@ -132,7 +132,6 @@ class ExcelExporter(object):
                                 if grade_result.average:
                                     values.append(grade_result.average)
                                     deviations.append(grade_result.deviation)
-                                break
                         enough_answers = course.can_publish_grades
                         if values and (enough_answers or ignore_not_enough_answers):
                             avg = sum(values) / len(values)
