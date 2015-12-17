@@ -10,7 +10,7 @@ def helper_upload_path(instance, filename):
     return "grades/{}/{}".format(instance.course.id, filename)
 
 class GradeDocument(models.Model):
-    course = models.ForeignKey(Course, related_name='grade_documents', verbose_name=_("Course"))
+    course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("Course"))
     file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File")) #upload_to="grades/{}/".format(course.id),
 
     MIDTERM_GRADES = 'MID'
@@ -24,8 +24,8 @@ class GradeDocument(models.Model):
     description = models.TextField(max_length=255, verbose_name=_("Description"))
 
     last_modified_time = models.DateTimeField(auto_now=True, verbose_name=_("Created"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="last_modified_user+", null=True, blank=True, on_delete=models.SET_NULL)
-    
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, related_name="last_modified_user+", null=True, blank=True)
+
     class Meta:
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
