@@ -281,7 +281,8 @@ class UnitTests(TestCase):
 
     def test_has_enough_questionnaires(self):
         # manually circumvent Course's save() method to have a Course without a general contribution
-        courses = Course.objects.bulk_create([mommy.prepare(Course)])
+        # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
+        courses = Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester))])
         course = Course.objects.get()
         self.assertEqual(course.contributions.count(), 0)
         self.assertFalse(course.has_enough_questionnaires())
