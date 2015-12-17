@@ -18,7 +18,7 @@ from evap.evaluation.models import Semester, Questionnaire, Question, UserProfil
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                              CourseForm, ImportForm, UserImportForm
-from evap.contributor.forms import EditorContributionFormSet
+from evap.contributor.forms import EditorContributionForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
 from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
 from evap.rewards.tools import reward_points_of_user
@@ -977,7 +977,7 @@ class ContributionFormsetTests(TestCase):
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
-        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0, exclude=('course',))
 
         data = {
             'contributions-TOTAL_FORMS': 1,

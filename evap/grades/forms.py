@@ -10,8 +10,8 @@ from evap.grades.models import GradeDocument
 class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
     description = forms.CharField(label=_("Description"), max_length=255)
     # see CourseForm (staff/forms.py) for details, why the following two fields are needed
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
+    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
+    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
 
     class Meta:
         model = GradeDocument
@@ -30,8 +30,6 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
             self.fields['description'].initial = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION
 
         if self.instance.last_modified_user:
-            self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
-            self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
             self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
         else:

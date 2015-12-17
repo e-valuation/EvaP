@@ -8,8 +8,8 @@ from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.auth import editor_required, editor_or_delegate_required, contributor_or_delegate_required
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
 from evap.contributor.forms import CourseForm, DelegatesForm
-from evap.staff.forms import ContributionForm
-from evap.contributor.forms import EditorContributionFormSet
+from evap.staff.forms import ContributionFormSet
+from evap.contributor.forms import EditorContributionForm
 from evap.student.views import vote_preview
 
 
@@ -56,7 +56,7 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0, exclude=('course',))
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
@@ -64,7 +64,7 @@ def course_view(request, course_id):
     # make everything read-only
     for cform in formset.forms + [form]:
         for name, field in cform.fields.items():
-            field.widget.attrs['disabled'] = True
+            field.disabled = True
 
     template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributor.username)
     return render(request, "contributor_course_form.html", template_data)
@@ -78,7 +78,7 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=EditorContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1, exclude=('course',))
 
     course_form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
