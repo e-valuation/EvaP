@@ -6,6 +6,7 @@ from evap.evaluation.models import TextAnswer, EmailTemplate
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
+from functools import partial
 from math import ceil, sqrt
 
 GRADE_COLORS = {
@@ -155,17 +156,11 @@ def get_counts(answer_counters):
 
 
 def calculate_results(course):
-    if course.state == "published":
-        cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
-        prior_results = cache.get(cache_key)
-        if prior_results:
-            return prior_results
+    if course.state != "published":
+        return _calculate_results_impl(course)
 
-    results = _calculate_results_impl(course)
-
-    if course.state == "published":
-        cache.set(cache_key, results, None)
-    return results
+    cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+    return cache.get_or_set(cache_key, partial(_calculate_results_impl, course), None)
 
 
 def _calculate_results_impl(course):
@@ -335,4 +330,3 @@ def sort_formset(request, formset):
     if request.POST: # if not, there will be no cleaned_data and the models should already be sorted anyways
         formset.is_valid() # make sure all forms have cleaned_data
         formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
-
