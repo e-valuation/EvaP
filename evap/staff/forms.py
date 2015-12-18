@@ -47,6 +47,7 @@ class DegreeForm(forms.ModelForm, BootstrapMixin):
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
     # uneditable and so it can't be displayed in the model form
@@ -58,7 +59,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_required_for_reward', 'vote_start_date',
-                  'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2')
+                  'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -95,20 +96,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.save()
         logger.info('Course "{}" (id {}) was edited by staff member {}.'.format(self.instance, self.instance.id, user.username))
 
-    def validate_unique(self):
-        # semester is not in the fields list but needs to be validated as well
-        # see https://stackoverflow.com/questions/2141030/djangos-modelform-unique-together-validation
-        # and https://code.djangoproject.com/ticket/13091
-        exclude = self._get_validation_exclusions()
-        exclude.remove('semester')
-
-        try:
-            self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e:
-            self._update_errors(e)
-
 
 class SingleResultForm(forms.ModelForm, BootstrapMixin):
+    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
@@ -122,7 +112,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'type', 'degrees', 'event_date', 'responsible', 'answer_1', 'answer_2', 'answer_3', 'answer_4', 'answer_5',
-                 'last_modified_time_2', 'last_modified_user_2')
+                 'last_modified_time_2', 'last_modified_user_2', 'semester')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -167,19 +157,10 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         self.instance.single_result_created()
         self.instance.save()
 
-    def validate_unique(self):
-        # see CourseForm for an explanation
-        exclude = self._get_validation_exclusions()
-        exclude.remove('semester')
-
-        try:
-            self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e:
-            self._update_errors(e)
-
 
 class ContributionForm(forms.ModelForm, BootstrapMixin):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
+    course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Contribution
@@ -199,16 +180,6 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         self.fields['questionnaires'] = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
         self.fields['order'].widget = forms.HiddenInput()
         self.fields['comment_visibility'].widget = forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)
-
-    def validate_unique(self):
-        # see CourseForm for an explanation
-        exclude = self._get_validation_exclusions()
-        exclude.remove('course')
-
-        try:
-            self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e:
-            self._update_errors(e)
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']

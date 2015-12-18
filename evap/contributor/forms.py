@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Course, UserProfile, Questionnaire
+from evap.evaluation.models import Course, UserProfile, Questionnaire, Semester
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.staff.forms import ContributionForm
 
@@ -14,10 +14,11 @@ logger = logging.getLogger(__name__)
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'type', 'degrees', 'general_questions')
+        fields = ('name_de', 'name_en', 'vote_start_date', 'vote_end_date', 'type', 'degrees', 'general_questions', 'semester')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,16 +60,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         self.instance.last_modified_user = user
         self.instance.save()
         logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))
-
-    def validate_unique(self):
-        # see staff.forms.CourseForm for an explanation
-        exclude = self._get_validation_exclusions()
-        exclude.remove('semester')
-
-        try:
-            self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e:
-            self._update_errors(e)
 
 
 class EditorContributionForm(ContributionForm):
