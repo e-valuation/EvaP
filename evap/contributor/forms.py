@@ -55,10 +55,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kw):
         user = kw.pop("user")
+        self.instance.last_modified_user = user
         super().save(*args, **kw)
         self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
-        self.instance.last_modified_user = user
-        self.instance.save()
         logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))
 
 
@@ -73,8 +72,8 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegatesForm(forms.ModelForm, BootstrapMixin):
-    delegate_of = forms.ModelMultipleChoiceField(None)
-    cc_user_of = forms.ModelMultipleChoiceField(None)
+    delegate_of = forms.ModelMultipleChoiceField(None, required=False, disabled=True)
+    cc_user_of = forms.ModelMultipleChoiceField(None, required=False, disabled=True)
 
     class Meta:
         model = UserProfile
@@ -83,8 +82,6 @@ class DelegatesForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # fix generated form
-        self.fields['delegates'].required = False
         self.fields['cc_users'].disabled = True
 
         represented_users = self.instance.represented_users.all()
@@ -92,16 +89,12 @@ class DelegatesForm(forms.ModelForm, BootstrapMixin):
         self.fields['delegate_of'].initial = represented_users
         # work around https://code.djangoproject.com/ticket/25980
         self.fields['delegate_of'].initial = list(represented_users.values_list('pk', flat=True))
-        self.fields['delegate_of'].required = False
-        self.fields['delegate_of'].disabled = True
 
         ccing_users = self.instance.ccing_users.all()
         self.fields['cc_user_of'].queryset = ccing_users
         self.fields['cc_user_of'].initial = ccing_users
         # work around https://code.djangoproject.com/ticket/25980
         self.fields['cc_user_of'].initial = list(ccing_users.values_list('pk', flat=True))
-        self.fields['cc_user_of'].required = False
-        self.fields['cc_user_of'].disabled = True
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
