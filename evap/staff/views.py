@@ -16,7 +16,7 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
                                   TextResult, send_publish_notifications, sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
-                             IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
+                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
                              FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
@@ -686,10 +686,10 @@ def questionnaire_copy(request, questionnaire_id):
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
     else:
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
         form = QuestionnaireForm(instance=questionnaire)
-        formset = InlineQuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())
+        formset = InlineQuestionFormset(instance=questionnaire, queryset=questionnaire.question_set.all())
 
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 

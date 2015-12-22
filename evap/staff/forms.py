@@ -276,23 +276,6 @@ class ContributionFormSet(AtLeastOneFormSet):
             raise forms.ValidationError(_('Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
 
 
-class IdLessQuestionFormSet(AtLeastOneFormSet):
-    class PseudoQuerySet(list):
-        db = None
-
-    def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None):
-        self.save_as_new = save_as_new
-        self.instance = instance
-        super(BaseInlineFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset)
-
-    def get_queryset(self):
-        if not hasattr(self, '_queryset'):
-            self._queryset = IdLessQuestionFormSet.PseudoQuerySet()
-            self._queryset.extend([Question(text_de=e.text_de, text_en=e.text_en, type=e.type) for e in self.queryset.all()])
-            self._queryset.db = self.queryset.db
-        return self._queryset
-
-
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
