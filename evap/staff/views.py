@@ -371,10 +371,10 @@ def course_create(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     course = Course(semester=semester)
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     if form.is_valid() and formset.is_valid():
         form.save(user=request.user)
@@ -423,10 +423,10 @@ def course_edit(request, semester_id, course_id):
 
 @staff_required
 def helper_course_edit(request, semester, course):
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     operation = request.POST.get('operation')
 

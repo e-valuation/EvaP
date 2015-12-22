@@ -56,7 +56,7 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course)
@@ -78,10 +78,10 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
     course_form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     operation = request.POST.get('operation')
 

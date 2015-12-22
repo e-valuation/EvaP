@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
@@ -64,6 +65,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
+            Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
 
@@ -157,7 +161,14 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
 
     def __init__(self, *args, **kwargs):
+        # work around https://code.djangoproject.com/ticket/25880
+        self.course = kwargs.pop('course', None)
+        if self.course is None:
+            assert 'instance' in kwargs
+            self.course = kwargs['instance'].course
+
         super().__init__(*args, **kwargs)
+
         self.fields['contributor'].widget.attrs['class'] = 'form-control'
         self.fields['label'].widget.attrs['class'] = 'form-control'
 
@@ -167,6 +178,9 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
             self.fields['responsibility'].initial = Contribution.IS_EDITOR
         else:
             self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
+
+        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
+            Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']

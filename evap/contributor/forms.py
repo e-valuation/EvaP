@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire, Semester
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+    general_questions = QuestionnaireMultipleChoiceField(queryset=None, label=_("General questions"))
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
@@ -22,6 +23,9 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
+            (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -63,12 +67,16 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
 class EditorContributionForm(ContributionForm):
     def __init__(self, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
-        
+
         if self.instance.responsible:
             self.fields['responsibility'].disabled = True
             self.fields['contributor'].disabled = True
             self.fields['comment_visibility'].disabled = True
+
+        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
+            (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
 
 
 class DelegatesForm(forms.ModelForm, BootstrapMixin):

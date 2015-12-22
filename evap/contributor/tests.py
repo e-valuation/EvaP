@@ -44,7 +44,7 @@ class ContributionFormsetTests(TestCase):
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
-        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0, exclude=('course',))
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
         data = {
             'contributions-TOTAL_FORMS': 1,
@@ -59,15 +59,46 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-contributor': user1.pk,
         }
 
-        formset = EditorContributionFormset(instance=course, data=data.copy())
+        formset = InlineContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
 
         self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
         data["contributions-0-contributor"] = user2.pk
-        formset = EditorContributionFormset(instance=course, data=data.copy())
+        formset = InlineContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
         formset.save()
         self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+
+    def test_staff_only(self):
+        """
+            Asserts that staff_only questionnaires are shown to Editors only if
+            they are already selected for a contribution of the Course.
+            Regression test for #593.
+        """
+        course = mommy.make(Course)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
+        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
+        questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+
+        # just the normal questionnaire should be shown.
+        contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
+
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
+
+        expected = set([questionnaire])
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+
+        # now a staff member adds a staff only questionnaire, which should be shown as well
+        contribution1.questionnaires = [questionnaire_staff_only]
+
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
+
+        expected = set([questionnaire, questionnaire_staff_only])
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
 
 class ContributionFormsetWebTests(WebTest):

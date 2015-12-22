@@ -561,7 +561,7 @@ class URLTests(WebTest):
         """
         course = mommy.make(Course)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = {
             'contributions-TOTAL_FORMS': 1,
@@ -574,21 +574,21 @@ class URLTests(WebTest):
             'contributions-0-comment_visibility': "ALL",
         }
         # no contributor and no responsible
-        self.assertFalse(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
         # valid
         data['contributions-0-contributor'] = 1
-        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
         # duplicate contributor
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = 1
         data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = [1]
         data['contributions-1-order'] = 1
-        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
         data['contributions-1-contributor'] = 2
         data['contributions-1-responsibility'] = "RESPONSIBLE"
-        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
 
     def test_semester_deletion(self):
         """
@@ -898,7 +898,7 @@ class ContributionFormsetTests(TestCase):
         user3 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
         data = {
@@ -927,7 +927,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-2-DELETE': 'on',
         }
 
-        formset = ContributionFormset(instance=course, data=data)
+        formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_take_deleted_contributions_into_account(self):
@@ -941,7 +941,7 @@ class ContributionFormsetTests(TestCase):
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = {
             'contributions-TOTAL_FORMS': 2,
@@ -963,8 +963,40 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-contributor': user1.pk ,
         }
 
-        formset = ContributionFormset(instance=course, data=data)
+        formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
+
+    def test_obsolete_staff_only(self):
+        """
+            Asserts that obsolete questionnaires are shown to staff members only if
+            they are already selected for a contribution of the Course, and
+            that staff_only questionnaires are always shown.
+            Regression test for #593.
+        """
+        course = mommy.make(Course)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
+        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
+        questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+
+        # the normal and staff_only questionnaire should be shown.
+        contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
+
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
+
+        expected = set([questionnaire, questionnaire_staff_only])
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+
+        # suppose we had an obsolete questionnaire already selected, that should be shown as well
+        contribution1.questionnaires = [questionnaire_obsolete]
+
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
+
+        expected = set([questionnaire, questionnaire_staff_only, questionnaire_obsolete])
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
 
 class ArchivingTests(WebTest):
