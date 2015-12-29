@@ -69,104 +69,107 @@ class ExcelExporter(object):
     def deviation_to_style(self, deviation):
         return 'deviation_' + str(self.normalize_number(deviation))
 
-    def export(self, response, ignore_not_enough_answers=False):
-        courses_with_results = list()
-        for course in self.semester.course_set.filter(state="published").all():
-            if course.is_single_result():
-                continue
-            results = OrderedDict()
-            for questionnaire, contributor, label, data, section_warning in calculate_results(course):
-                results.setdefault(questionnaire.id, []).extend(data)
-            courses_with_results.append((course, results))
-
-        courses_with_results.sort(key=lambda cr: cr[0].type)
-
-        qn_frequencies = defaultdict(int)
-        for course, results in courses_with_results:
-            for questionnaire, results in results.items():
-                qn_frequencies[questionnaire] += 1
-
-        qn_relevant = list(qn_frequencies.items())
-        qn_relevant.sort(key=lambda t: -t[1])
-
-        questionnaires = [Questionnaire.objects.get(id=t[0]) for t in qn_relevant]
-
+    def export(self, response, course_types_list, ignore_not_enough_answers=False):
         self.workbook = xlwt.Workbook()
-        self.sheet = self.workbook.add_sheet(_("Results"))
-        self.row = 0
-        self.col = 0
-
-
         self.init_styles(self.workbook)
+        counter = 1
 
-        writec(self, _("Evaluation {0} - created on {1}").format(self.semester.name, datetime.date.today()), "headline")
-        for course, results in courses_with_results:
-            if course.state == "published":
-                writec(self, course.name, "course", cols=2)
-            else:
-                writec(self, course.name, "course_unfinished", cols=2)
+        for course_types in course_types_list:
+            self.sheet = self.workbook.add_sheet("Sheet " + str(counter))
+            counter += 1
+            self.row = 0
+            self.col = 0
 
-        writen(self)
-        for course, results in courses_with_results:
-            writec(self, "Average", "avg")
-            writec(self, "Deviation", "border_top_bottom_right")
-
-        for questionnaire in questionnaires:
-            writen(self, questionnaire.name, "bold")
-            for course, results in courses_with_results:
-                self.write_two_empty_cells_with_borders()
-
-            for question in questionnaire.question_set.all():
-                if question.is_text_question:
+            courses_with_results = list()
+            for course in self.semester.course_set.filter(state="published", type__in=course_types).all():
+                if course.is_single_result():
                     continue
+                results = OrderedDict()
+                for questionnaire, contributor, label, data, section_warning in calculate_results(course):
+                    results.setdefault(questionnaire.id, []).extend(data)
+                courses_with_results.append((course, results))
 
-                writen(self, question.text)
+            courses_with_results.sort(key=lambda cr: cr[0].type)
 
+            qn_frequencies = defaultdict(int)
+            for course, results in courses_with_results:
+                for questionnaire, results in results.items():
+                    qn_frequencies[questionnaire] += 1
+
+            qn_relevant = list(qn_frequencies.items())
+            qn_relevant.sort(key=lambda t: -t[1])
+
+            questionnaires = [Questionnaire.objects.get(id=t[0]) for t in qn_relevant]
+
+
+            writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_types)), "headline")
+            for course, results in courses_with_results:
+                if course.state == "published":
+                    writec(self, course.name, "course", cols=2)
+                else:
+                    writec(self, course.name, "course_unfinished", cols=2)
+
+            writen(self)
+            for course, results in courses_with_results:
+                writec(self, "Average", "avg")
+                writec(self, "Deviation", "border_top_bottom_right")
+
+            for questionnaire in questionnaires:
+                writen(self, questionnaire.name, "bold")
                 for course, results in courses_with_results:
-                    qn_results = results.get(questionnaire.id, None)
-                    if qn_results:
-                        values = []
-                        deviations = []
-                        for grade_result in qn_results:
-                            if grade_result.question.id == question.id:
-                                if grade_result.average:
-                                    values.append(grade_result.average)
-                                    deviations.append(grade_result.deviation)
-                        enough_answers = course.can_publish_grades
-                        if values and (enough_answers or ignore_not_enough_answers):
-                            avg = sum(values) / len(values)
-                            writec(self, avg, self.grade_to_style(avg))
+                    self.write_two_empty_cells_with_borders()
 
-                            dev = sum(deviations) / len(deviations)
-                            writec(self, dev, self.deviation_to_style(dev))
+                for question in questionnaire.question_set.all():
+                    if question.is_text_question:
+                        continue
+
+                    writen(self, question.text)
+
+                    for course, results in courses_with_results:
+                        qn_results = results.get(questionnaire.id, None)
+                        if qn_results:
+                            values = []
+                            deviations = []
+                            for grade_result in qn_results:
+                                if grade_result.question.id == question.id:
+                                    if grade_result.average:
+                                        values.append(grade_result.average)
+                                        deviations.append(grade_result.deviation)
+                            enough_answers = course.can_publish_grades
+                            if values and (enough_answers or ignore_not_enough_answers):
+                                avg = sum(values) / len(values)
+                                writec(self, avg, self.grade_to_style(avg))
+
+                                dev = sum(deviations) / len(deviations)
+                                writec(self, dev, self.deviation_to_style(dev))
+                            else:
+                                self.write_two_empty_cells_with_borders()
                         else:
                             self.write_two_empty_cells_with_borders()
-                    else:
-                        self.write_two_empty_cells_with_borders()
-            writen(self, None)
+                writen(self, None)
+                for course, results in courses_with_results:
+                    self.write_two_empty_cells_with_borders()
+
+            writen(self, _("Overall Average Grade"), "bold")
             for course, results in courses_with_results:
-                self.write_two_empty_cells_with_borders()
+                avg, dev = calculate_average_grades_and_deviation(course)
+                if avg:
+                    writec(self, avg, self.grade_to_style(avg), cols=2)
+                else:
+                    self.write_two_empty_cells_with_borders()
 
-        writen(self, _("Overall Average Grade"), "bold")
-        for course, results in courses_with_results:
-            avg, dev = calculate_average_grades_and_deviation(course)
-            if avg:
-                writec(self, avg, self.grade_to_style(avg), cols=2)
-            else:
-                self.write_two_empty_cells_with_borders()
+            writen(self, _("Overall Average Standard Deviation"), "bold")
+            for course, results in courses_with_results:
+                avg, dev = calculate_average_grades_and_deviation(course)
+                if dev is not None:
+                    writec(self, dev, self.deviation_to_style(dev), cols=2)
+                else:
+                    self.write_two_empty_cells_with_borders()
 
-        writen(self, _("Overall Average Standard Deviation"), "bold")
-        for course, results in courses_with_results:
-            avg, dev = calculate_average_grades_and_deviation(course)
-            if dev is not None:
-                writec(self, dev, self.deviation_to_style(dev), cols=2)
-            else:
-                self.write_two_empty_cells_with_borders()
-
-        writen(self, _("Total Voters/Total Participants"), "bold")
-        for course, results in courses_with_results:
-            percent_participants = float(course.num_voters)/float(course.num_participants) if course.num_participants > 0 else 0
-            writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
+            writen(self, _("Total Voters/Total Participants"), "bold")
+            for course, results in courses_with_results:
+                percent_participants = float(course.num_voters)/float(course.num_participants) if course.num_participants > 0 else 0
+                writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)
 

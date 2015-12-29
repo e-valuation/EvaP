@@ -9,6 +9,7 @@ from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceFie
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
                                    Semester, UserProfile, FaqSection, FaqQuestion, \
                                    EmailTemplate, TextAnswer, Degree, RatingAnswerCounter
+from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 import logging
@@ -414,3 +415,16 @@ class TextAnswerForm(forms.ModelForm, BootstrapMixin):
         if reviewed_answer == normalize_newlines(self.instance.original_answer) or reviewed_answer == '':
             return None
         return reviewed_answer
+
+
+class ExportSheetForm(forms.Form, BootstrapMixin):
+    def __init__(self, semester, *args, **kwargs):
+        super(ExportSheetForm, self).__init__(*args, **kwargs)
+        course_types = course_types_in_semester(semester)
+        course_types = [(course_type, course_type) for course_type in course_types]
+        self.fields['selected_course_types'] = forms.MultipleChoiceField(
+            choices=course_types,
+            required=True,
+            widget=forms.CheckboxSelectMultiple(),
+            label=_("Course types")
+        )
