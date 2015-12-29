@@ -191,8 +191,8 @@ class UsecaseTests(WebTest):
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
-        page = page.click("Seminar")
-        page = page.click("Copy")
+        page = page.click("All questionnaires")
+        page = page.click("Copy", index=1)
         questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
         questionnaire_form['name_en'] = "test questionnaire (copied)"

@@ -36,8 +36,6 @@ def raise_permission_denied_if_archived(archiveable):
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
-                         questionnaires_courses=Questionnaire.objects.filter(obsolete=False,is_for_contributors=False),
-                         questionnaire_contributors=Questionnaire.objects.filter(obsolete=False,is_for_contributors=True),
                          templates=EmailTemplate.objects.all(),
                          sections=FaqSection.objects.all(),
                          disable_breadcrumb_staff=True)
