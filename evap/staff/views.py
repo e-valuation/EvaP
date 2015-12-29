@@ -644,25 +644,48 @@ def questionnaire_create(request):
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 
-@staff_required
-def questionnaire_edit(request, questionnaire_id):
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+def make_questionnaire_edit_forms(request, questionnaire, editable):
+    if editable:
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    else:
+        question_count = questionnaire.question_set.count()
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=0, exclude=('questionnaire',),
+                                                      can_delete=False, max_num=question_count, validate_max=True, min_num=question_count, validate_min=True)
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
-    if not questionnaire.can_staff_edit:
-        messages.info(request, _("Questionnaires that are already used cannot be edited."))
-        return redirect('staff:questionnaire_index')
+
+    if not editable:
+        editable_fields =  ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
+        for name, field in form.fields.items():
+            if name not in editable_fields:
+                field.disabled = True
+        for question_form in formset.forms:
+            for name, field in question_form.fields.items():
+                if name is not 'id':
+                    field.disabled = True
+
+    return form, formset
+
+
+@staff_required
+def questionnaire_edit(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    editable = questionnaire.can_staff_edit
+
+    form, formset = make_questionnaire_edit_forms(request, questionnaire, editable)
 
     if form.is_valid() and formset.is_valid():
         form.save()
-        formset.save()
+        if editable:
+            formset.save()
 
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect('staff:questionnaire_index')
     else:
+        if not editable:
+            messages.info(request, _("Some fields are disabled as this questionnaire is already in use."))
         template_data = dict(questionnaire=questionnaire, form=form, formset=formset)
         return render(request, "staff_questionnaire_form.html", template_data)
 

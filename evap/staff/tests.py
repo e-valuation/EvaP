@@ -439,7 +439,6 @@ class URLTests(WebTest):
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
             ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/2/edit", "evap"),
             ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
             ("test_staff_semester_x_delete_fail", "/staff/semester/1/delete", "evap"),
         ]

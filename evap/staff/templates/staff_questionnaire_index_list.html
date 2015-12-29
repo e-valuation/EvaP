@@ -27,11 +27,7 @@
                             {% if questionnaire.staff_only %}<span class="label label-info">{% trans "staff only" %}</span>{% endif %}
                         </td>
                         <td>
-                            {% if questionnaire.can_staff_edit %}
-                                <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
-                            {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This questionnaire cannot be edited because it is already in use." %}"><a href="#" class="btn btn-sm btn-default" disabled>{% trans "Edit" %}</a></div>
-                            {% endif %}
+                            <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                             <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
                             <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
                             {% if questionnaire.can_staff_delete %}
