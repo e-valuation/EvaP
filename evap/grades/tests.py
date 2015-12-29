@@ -63,13 +63,12 @@ class GradeUploadTests(WebTest):
         return response
 
     def helper_upload_grades(self, course, final_grades):
-        f = tempfile.SpooledTemporaryFile()
-        f.write(b"Grades")
-        f.seek(0)
-        upload_files = [
-            ('file', 'grades.txt', f.read())
-        ]
-        f.close()
+        with tempfile.SpooledTemporaryFile() as f:
+            f.write(b"Grades")
+            f.seek(0)
+            upload_files = [
+                ('file', 'grades.txt', f.read())
+            ]
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
@@ -169,9 +168,9 @@ class GradeUploadTests(WebTest):
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
         toggle_url = "/grades/semester/"+str(course.semester.id)+"/course/"+str(course.id)+"/togglenogrades"
-        
+
         self.assertFalse(course.gets_no_grade_documents)
-        
+
         self.get_submit_assert_302(toggle_url, "grade_publisher")
         course = Course.objects.get(id=course.id)
         self.assertTrue(course.gets_no_grade_documents)

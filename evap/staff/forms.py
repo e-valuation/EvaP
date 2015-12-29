@@ -52,8 +52,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
     # uneditable and so it can't be displayed in the model form
     # see https://docs.djangoproject.com/en/dev/ref/models/fields/#datefield for details
     # last_modified_user would usually get a select widget but should here be displayed as a readonly CharField instead
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
+    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
+    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
 
     class Meta:
         model = Course
@@ -73,13 +73,11 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
-        self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
-        self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
 
         if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
-            self.fields['vote_start_date'].widget.attrs['readonly'] = True
+            self.fields['vote_start_date'].disabled = True
 
     def clean(self):
         super().clean()
@@ -111,8 +109,8 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
 
 class SingleResultForm(forms.ModelForm, BootstrapMixin):
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True)
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False)
+    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
+    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
     responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
     answer_1 = forms.IntegerField(label=_("# very good"))
@@ -133,10 +131,8 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         self.fields['degrees'].help_text = ""
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
-        self.fields['last_modified_time_2'].widget.attrs['readonly'] = True
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
-        self.fields['last_modified_user_2'].widget.attrs['readonly'] = True
 
         self.fields['answer_1'].initial = 0
         self.fields['answer_2'].initial = 0
@@ -397,7 +393,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         if user_with_same_name.exists():
             raise forms.ValidationError(_("A user with the username '%s' already exists") % username)
-        return username.strip().lower()
+        return username.lower()
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -409,16 +405,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
         if user_with_same_email.exists():
             raise forms.ValidationError(_("A user with the email '%s' already exists") % email)
-        return email.strip().lower()
-
-    def clean_first_name(self):
-        return self.cleaned_data['first_name'].strip()
-
-    def clean_last_name(self):
-        return self.cleaned_data['last_name'].strip()
-
-    def clean_title(self):
-        return self.cleaned_data['title'].strip()
+        return email.lower()
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
@@ -466,7 +453,7 @@ class FaqQuestionForm(forms.ModelForm, BootstrapMixin):
 class TextAnswerForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['original_answer'].widget.attrs['readonly'] = "True"
+        self.fields['original_answer'].disabled = "True"
 
     class Meta:
         model = TextAnswer

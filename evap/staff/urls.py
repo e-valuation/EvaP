@@ -3,6 +3,9 @@ from django.views.generic import RedirectView
 
 from evap.staff.views import *
 
+
+app_name = "staff"
+
 urlpatterns = [
     url(r"^$", index, name="index"),
 

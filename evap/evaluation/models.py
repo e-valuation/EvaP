@@ -162,7 +162,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     state = FSMField(default='new', protected=True)
 
-    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"))
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
@@ -197,7 +197,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="+", null=True, blank=True, on_delete=models.SET_NULL)
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, related_name="+", null=True, blank=True)
 
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
@@ -519,8 +519,8 @@ class Contribution(models.Model):
         (IS_RESPONSIBLE, _('Responsible')),
     )
 
-    course = models.ForeignKey(Course, verbose_name=_("course"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
+    course = models.ForeignKey(Course, models.CASCADE, verbose_name=_("course"), related_name='contributions')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
@@ -559,7 +559,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         ("G", _("Grade Question")),
     )
 
-    questionnaire = models.ForeignKey(Questionnaire)
+    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
     text_de = models.TextField(verbose_name=_("question text (german)"))
     text_en = models.TextField(verbose_name=_("question text (english)"))
     type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
@@ -604,8 +604,8 @@ class Answer(models.Model):
     user ist not stored in the object. Concrete subclasses are `RatingAnswerCounter`,
     and `TextAnswer`."""
 
-    question = models.ForeignKey(Question)
-    contribution = models.ForeignKey(Contribution, related_name="%(class)s_set")
+    question = models.ForeignKey(Question, models.PROTECT)
+    contribution = models.ForeignKey(Contribution, models.PROTECT, related_name="%(class)s_set")
 
     class Meta:
         abstract = True
@@ -702,7 +702,7 @@ class FaqSection(models.Model, metaclass=LocalizeModelBase):
 class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
     """Question and answer in the frequently asked questions"""
 
-    section = models.ForeignKey(FaqSection, related_name="questions")
+    section = models.ForeignKey(FaqSection, models.CASCADE, related_name="questions")
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
 

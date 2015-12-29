@@ -89,7 +89,6 @@ def vote(request, course_id):
                     value = questionnaire_form.cleaned_data.get(identifier)
 
                     if question.is_text_question:
-                        value = value.strip()
                         if value:
                             question.answer_class.objects.create(
                                 contribution=contribution,
