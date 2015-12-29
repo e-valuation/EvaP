@@ -2,7 +2,7 @@
 {% load morefilters %}
 
 <label class="btn btn-sm btn-option
-	{% if enabled|is_false %} disabled{% endif %}
+	{% if formelement.field.disabled %} disabled{% endif %}
 	{% if formelement.value == choice.choice_value %} active{% endif %}
     {% if formelement.errors %} choice-error{% endif %}"
 	name="{{ choice.name }}" data-toggle="tooltip" data-placement="top" title="{{ tooltip }}">

@@ -191,8 +191,8 @@ class UsecaseTests(WebTest):
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
         # create a new questionnaire
-        page = page.click("Seminar")
-        page = page.click("Copy")
+        page = page.click("All questionnaires")
+        page = page.click("Copy", index=1)
         questionnaire_form = lastform(page)
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
         questionnaire_form['name_en'] = "test questionnaire (copied)"
@@ -439,7 +439,6 @@ class URLTests(WebTest):
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
             ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_questionnaire_x_edit_fail", "/staff/questionnaire/2/edit", "evap"),
             ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
             ("test_staff_semester_x_delete_fail", "/staff/semester/1/delete", "evap"),
         ]
@@ -561,7 +560,7 @@ class URLTests(WebTest):
         """
         course = mommy.make(Course)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = {
             'contributions-TOTAL_FORMS': 1,
@@ -574,21 +573,21 @@ class URLTests(WebTest):
             'contributions-0-comment_visibility': "ALL",
         }
         # no contributor and no responsible
-        self.assertFalse(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
         # valid
         data['contributions-0-contributor'] = 1
-        self.assertTrue(ContributionFormset(instance=course, data=data.copy()).is_valid())
+        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
         # duplicate contributor
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = 1
         data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = [1]
         data['contributions-1-order'] = 1
-        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
         data['contributions-1-contributor'] = 2
         data['contributions-1-responsibility'] = "RESPONSIBLE"
-        self.assertFalse(ContributionFormset(instance=course, data=data).is_valid())
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
 
     def test_semester_deletion(self):
         """
@@ -898,7 +897,7 @@ class ContributionFormsetTests(TestCase):
         user3 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
         data = {
@@ -927,7 +926,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-2-DELETE': 'on',
         }
 
-        formset = ContributionFormset(instance=course, data=data)
+        formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_take_deleted_contributions_into_account(self):
@@ -941,7 +940,7 @@ class ContributionFormsetTests(TestCase):
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0, exclude=('course',))
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = {
             'contributions-TOTAL_FORMS': 2,
@@ -963,84 +962,40 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-contributor': user1.pk ,
         }
 
-        formset = ContributionFormset(instance=course, data=data)
+        formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_editors_cannot_change_responsible(self):
+    def test_obsolete_staff_only(self):
         """
-            Asserts that editors cannot change the responsible of a course
-            through POST-hacking. Regression test for #504.
+            Asserts that obsolete questionnaires are shown to staff members only if
+            they are already selected for a contribution of the Course, and
+            that staff_only questionnaires are always shown.
+            Regression test for #593.
         """
         course = mommy.make(Course)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
+        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
+        questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
 
-        EditorContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0, exclude=('course',))
+        # the normal and staff_only questionnaire should be shown.
+        contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
 
-        data = {
-            'contributions-TOTAL_FORMS': 1,
-            'contributions-INITIAL_FORMS': 1,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': contribution1.pk,
-            'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [questionnaire.pk],
-            'contributions-0-order': 1,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
-            'contributions-0-contributor': user1.pk,
-        }
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
 
-        formset = EditorContributionFormset(instance=course, data=data.copy())
-        self.assertTrue(formset.is_valid())
+        expected = set([questionnaire, questionnaire_staff_only])
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
-        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
-        data["contributions-0-contributor"] = user2.pk
-        formset = EditorContributionFormset(instance=course, data=data.copy())
-        self.assertTrue(formset.is_valid())
-        formset.save()
-        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
+        # suppose we had an obsolete questionnaire already selected, that should be shown as well
+        contribution1.questionnaires = [questionnaire_obsolete]
 
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
 
-class ContributionFormsetWebTests(WebTest):
-    csrf_checks = False
-
-    def test_form_ordering(self):
-        """
-            Asserts that the contribution formset is correctly sorted,
-            and that an ordering changed by the user survives the reload
-            when the user submits the form with errors.
-            Regression test for #456.
-        """
-        course = mommy.make(Course, pk=1, state="prepared")
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=1)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=2)
-
-        # almost everything is missing in this set of data,
-        # so we're guaranteed to have some errors
-        data = {
-            "contributions-TOTAL_FORMS": 2,
-            "contributions-INITIAL_FORMS": 2,
-            "contributions-MIN_NUM_FORMS": 0,
-            "contributions-MAX_NUM_FORMS": 1000,
-            "contributions-0-id": contribution1.id,
-            "contributions-1-id": contribution2.id,
-            "operation": "save"
-        }
-
-        data["contributions-0-order"] = 1
-        data["contributions-1-order"] = 2
-        response = str(self.app.post("/contributor/course/1/edit", data, user=user1))
-        self.assertTrue(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
-
-        data["contributions-0-order"] = 2
-        data["contributions-1-order"] = 1
-        response = str(self.app.post("/contributor/course/1/edit", data, user=user1))
-        self.assertFalse(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
+        expected = set([questionnaire, questionnaire_staff_only, questionnaire_obsolete])
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
 
 class ArchivingTests(WebTest):

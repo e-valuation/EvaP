@@ -36,8 +36,6 @@ def raise_permission_denied_if_archived(archiveable):
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
-                         questionnaires_courses=Questionnaire.objects.filter(obsolete=False,is_for_contributors=False),
-                         questionnaire_contributors=Questionnaire.objects.filter(obsolete=False,is_for_contributors=True),
                          templates=EmailTemplate.objects.all(),
                          sections=FaqSection.objects.all(),
                          disable_breadcrumb_staff=True)
@@ -371,10 +369,10 @@ def course_create(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     course = Course(semester=semester)
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     if form.is_valid() and formset.is_valid():
         form.save(user=request.user)
@@ -423,10 +421,10 @@ def course_edit(request, semester_id, course_id):
 
 @staff_required
 def helper_course_edit(request, semester, course):
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     operation = request.POST.get('operation')
 
@@ -644,25 +642,48 @@ def questionnaire_create(request):
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 
-@staff_required
-def questionnaire_edit(request, questionnaire_id):
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+def make_questionnaire_edit_forms(request, questionnaire, editable):
+    if editable:
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    else:
+        question_count = questionnaire.question_set.count()
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=0, exclude=('questionnaire',),
+                                                      can_delete=False, max_num=question_count, validate_max=True, min_num=question_count, validate_min=True)
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
-    if not questionnaire.can_staff_edit:
-        messages.info(request, _("Questionnaires that are already used cannot be edited."))
-        return redirect('staff:questionnaire_index')
+
+    if not editable:
+        editable_fields =  ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
+        for name, field in form.fields.items():
+            if name not in editable_fields:
+                field.disabled = True
+        for question_form in formset.forms:
+            for name, field in question_form.fields.items():
+                if name is not 'id':
+                    field.disabled = True
+
+    return form, formset
+
+
+@staff_required
+def questionnaire_edit(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    editable = questionnaire.can_staff_edit
+
+    form, formset = make_questionnaire_edit_forms(request, questionnaire, editable)
 
     if form.is_valid() and formset.is_valid():
         form.save()
-        formset.save()
+        if editable:
+            formset.save()
 
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect('staff:questionnaire_index')
     else:
+        if not editable:
+            messages.info(request, _("Some fields are disabled as this questionnaire is already in use."))
         template_data = dict(questionnaire=questionnaire, form=form, formset=formset)
         return render(request, "staff_questionnaire_form.html", template_data)
 

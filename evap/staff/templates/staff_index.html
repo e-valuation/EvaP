@@ -20,26 +20,6 @@
         <div class="col-md-3">
             <h3>{% trans "Questionnaires" %}</h3>
             <ul><li><a href="{% url "staff:questionnaire_index" %}">{% trans "All questionnaires" %}</a></li></ul>
-            <h4>{% trans "Courses" %}</h4>
-            {% if questionnaires_courses %}
-                <ul>
-                {% for questionnaire in questionnaires_courses %}
-                    <li><a href="{% url "staff:questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                {% trans "There are no questionnaires yet." %}
-            {% endif %}
-            <h4>{% trans "Contributors" %}</h4>
-            {% if questionnaire_contributors %}
-                <ul>
-                {% for questionnaire in questionnaire_contributors %}
-                    <li><a href="{% url "staff:questionnaire_view" questionnaire.id %}">{{ questionnaire.name }}</a></li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                {% trans "There are no questionnaires yet." %}
-            {% endif %}
             <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
         </div>
         <div class="col-md-3">
