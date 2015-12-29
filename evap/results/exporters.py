@@ -37,7 +37,6 @@ class ExcelExporter(object):
             'avg':           xlwt.easyxf('alignment: horiz centre; font: bold on; borders: left medium, top medium, bottom medium'),
             'headline':      xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on', num_format_str="0.0"),
             'course':        xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium'),
-            'course_unfinished': xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium; font: italic on'),
             'total_voters': xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
             'bold':          xlwt.easyxf('font: bold on'),
             'border_left':   xlwt.easyxf('borders: left medium'),
@@ -103,11 +102,9 @@ class ExcelExporter(object):
 
 
             writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_types)), "headline")
+
             for course, results in courses_with_results:
-                if course.state == "published":
-                    writec(self, course.name, "course", cols=2)
-                else:
-                    writec(self, course.name, "course_unfinished", cols=2)
+                writec(self, course.name, "course", cols=2)
 
             writen(self)
             for course, results in courses_with_results:
@@ -126,24 +123,25 @@ class ExcelExporter(object):
                     writen(self, question.text)
 
                     for course, results in courses_with_results:
-                        qn_results = results.get(questionnaire.id, None)
-                        if qn_results:
-                            values = []
-                            deviations = []
-                            for grade_result in qn_results:
-                                if grade_result.question.id == question.id:
-                                    if grade_result.average:
-                                        values.append(grade_result.average)
-                                        deviations.append(grade_result.deviation)
-                            enough_answers = course.can_publish_grades
-                            if values and (enough_answers or ignore_not_enough_answers):
-                                avg = sum(values) / len(values)
-                                writec(self, avg, self.grade_to_style(avg))
+                        if questionnaire.id not in results:
+                            self.write_two_empty_cells_with_borders()
+                            continue
+                        qn_results = results[questionnaire.id]
+                        values = []
+                        deviations = []
 
-                                dev = sum(deviations) / len(deviations)
-                                writec(self, dev, self.deviation_to_style(dev))
-                            else:
-                                self.write_two_empty_cells_with_borders()
+                        for grade_result in qn_results:
+                            if grade_result.question.id == question.id:
+                                if grade_result.average:
+                                    values.append(grade_result.average)
+                                    deviations.append(grade_result.deviation)
+                        enough_answers = course.can_publish_grades
+                        if values and (enough_answers or ignore_not_enough_answers):
+                            avg = sum(values) / len(values)
+                            writec(self, avg, self.grade_to_style(avg))
+
+                            dev = sum(deviations) / len(deviations)
+                            writec(self, dev, self.deviation_to_style(dev))
                         else:
                             self.write_two_empty_cells_with_borders()
                 writen(self, None)
