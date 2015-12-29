@@ -129,18 +129,20 @@ class ExcelExporter(object):
                         qn_results = results[questionnaire.id]
                         values = []
                         deviations = []
+                        total_count = 0
 
                         for grade_result in qn_results:
                             if grade_result.question.id == question.id:
                                 if grade_result.average:
-                                    values.append(grade_result.average)
-                                    deviations.append(grade_result.deviation)
+                                    values.append(grade_result.average * grade_result.total_count)
+                                    deviations.append(grade_result.deviation * grade_result.total_count)
+                                    total_count += grade_result.total_count
                         enough_answers = course.can_publish_grades
                         if values and (enough_answers or ignore_not_enough_answers):
-                            avg = sum(values) / len(values)
+                            avg = sum(values) / total_count
                             writec(self, avg, self.grade_to_style(avg))
 
-                            dev = sum(deviations) / len(deviations)
+                            dev = sum(deviations) / total_count
                             writec(self, dev, self.deviation_to_style(dev))
                         else:
                             self.write_two_empty_cells_with_borders()
