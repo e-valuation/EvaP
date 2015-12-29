@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Prefetch
 from django.contrib import messages
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 
@@ -79,16 +80,24 @@ def upload_grades(request, semester_id, course_id):
     final_grades = request.GET.get('final', 'false') # default: midterm grades
     final_grades = {'true': True, 'false': False}.get(final_grades.lower()) # convert parameter to boolean
 
-    form = GradeDocumentForm(request.POST or None, request.FILES or None, course=course, final_grades=final_grades, user=request.user)
+    grade_document = GradeDocument(course=course)
+    if final_grades:
+        grade_document.type = GradeDocument.FINAL_GRADES
+        grade_document.description = settings.DEFAULT_FINAL_GRADES_DESCRIPTION
+    else:
+        grade_document.type = GradeDocument.MIDTERM_GRADES
+        grade_document.description = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION
+
+    form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
     if form.is_valid():
-        form.save()
+        form.save(modifying_user=request.user)
         if final_grades and course.state == 'reviewed':
             course.publish()
             course.save()
             send_publish_notifications(grade_document_courses=[course], evaluation_results_courses=[course])
         else:
-            send_publish_notifications(grade_document_courses=[course])            
+            send_publish_notifications(grade_document_courses=[course])
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -111,7 +120,7 @@ def toggle_no_grades(request, semester_id, course_id):
     if request.method == 'POST':
         course.gets_no_grade_documents = not course.gets_no_grade_documents
         course.save()
-        
+
         if course.gets_no_grade_documents:
             if course.state == 'reviewed':
                 course.publish()
@@ -143,12 +152,11 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
-    final_grades = grade_document.type == GradeDocument.FINAL_GRADES
 
-    form = GradeDocumentForm(request.POST or None, request.FILES or None, course=course, final_grades=final_grades, instance=grade_document, user=request.user)
+    form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
     if form.is_valid():
-        form.save()
+        form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
         return redirect('grades:course_view', semester.id, course.id)
     else:
