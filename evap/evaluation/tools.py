@@ -8,6 +8,7 @@ from collections import OrderedDict, defaultdict
 from collections import namedtuple
 from functools import partial
 from math import ceil, sqrt
+from statistics import pstdev, median
 
 GRADE_COLORS = {
     1: (136, 191, 74),
@@ -84,20 +85,6 @@ def avg(iterable):
     return float(sum(items)) / len(items)
 
 
-def med(iterable):
-    """Simple arithmetic median function. Returns `None` if the length of
-    `iterable` is 0 or no items except None exist."""
-    items = [item for item in iterable if item is not None]
-    length = len(items)
-    if length == 0:
-        return None
-    sorted_items = sorted(items)
-    index = int(length / 2)
-    if length % 2 == 0:
-        return (sorted_items[index] + sorted_items[index]) / 2.0
-    return sorted_items[index]
-
-
 def mix(a, b, alpha):
     if a is None and b is None:
         return None
@@ -142,9 +129,6 @@ def get_textanswers(contribution, question, filter_states=None):
 
 
 def get_counts(answer_counters):
-    if not answer_counters:
-        return None
-
     counts = OrderedDict()
     # ensure ordering of answers
     for answer in range(1,6):
@@ -182,7 +166,7 @@ def _calculate_results_impl(course):
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
-        questionnaire_warning_thresholds[questionnaire] = settings.RESULTS_WARNING_PERCENTAGE * med(max_answers)
+        questionnaire_warning_thresholds[questionnaire] = settings.RESULTS_WARNING_PERCENTAGE * median(max_answers)
 
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
@@ -193,8 +177,8 @@ def _calculate_results_impl(course):
                 answers = get_answers_from_answer_counters(answer_counters)
 
                 total_count = len(answers)
-                average = avg(answers)
-                deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if total_count > 0 else None
+                average = avg(answers) if total_count > 0 else None
+                deviation = pstdev(answers, average) if total_count > 0 else None
                 counts = get_counts(answer_counters)
                 warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
 
