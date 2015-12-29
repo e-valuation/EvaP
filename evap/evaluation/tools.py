@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
-from evap.evaluation.models import TextAnswer, EmailTemplate
+from evap.evaluation.models import TextAnswer, EmailTemplate, Course
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
@@ -330,3 +330,6 @@ def sort_formset(request, formset):
     if request.POST: # if not, there will be no cleaned_data and the models should already be sorted anyways
         formset.is_valid() # make sure all forms have cleaned_data
         formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
+
+def course_types_in_semester(semester):
+    return Course.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()

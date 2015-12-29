@@ -355,6 +355,7 @@ class URLTests(WebTest):
             ("test_staff_semester_x_delete", "/staff/semester/2/delete", "evap"),
             ("test_staff_semester_x_course_create", "/staff/semester/1/course/create", "evap"),
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
+            ("test_staff_semester_x_export", "/staff/semester/1/export", "evap"),
             ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
             ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
             ("test_staff_semester_x_todo", "/staff/semester/1/todo", "evap"),
@@ -395,7 +396,6 @@ class URLTests(WebTest):
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "evap"),
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "contributor"),
             ("test_results_semester_x_course_y", "/results/semester/1/course/8", "responsible"),
-            ("test_results_semester_x_export", "/results/semester/1/export", "evap"),
             ("test_results_semester_x_course_y", "/results/semester/1/course/11", "evap"), # single result
             # contributor
             ("test_contributor", "/contributor/", "responsible"),

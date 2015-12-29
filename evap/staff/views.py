@@ -2,9 +2,10 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db.models import Max, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
+from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Prefetch
@@ -18,13 +19,16 @@ from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributio
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm
+                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
+                             ExportSheetForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
 from evap.rewards.tools import is_semester_activated
+
+from evap.results.exporters import ExcelExporter
 
 import random, datetime
 
@@ -280,6 +284,29 @@ def semester_import(request, semester_id):
         return redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_import.html", dict(semester=semester, form=form))
+
+
+@staff_required
+def semester_export(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    ExportSheetFormset = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
+    formset = ExportSheetFormset(request.POST or None, form_kwargs={'semester': semester})
+
+    if formset.is_valid():
+        ignore_not_enough_answers = request.POST.get('ignore_not_enough_answers') == 'on'
+        course_types_list = []
+        for form in formset:
+            if 'selected_course_types' in form.cleaned_data:
+                course_types_list.append(form.cleaned_data['selected_course_types'])
+
+        filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
+        response = HttpResponse(content_type="application/vnd.ms-excel")
+        response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+        ExcelExporter(semester).export(response, course_types_list, ignore_not_enough_answers)
+        return response
+    else:
+        return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
 
 
 @staff_required
