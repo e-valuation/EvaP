@@ -295,6 +295,7 @@ def semester_export(request, semester_id):
 
     if formset.is_valid():
         ignore_not_enough_answers = request.POST.get('ignore_not_enough_answers') == 'on'
+        include_unpublished = request.POST.get('include_unpublished') == 'on'
         course_types_list = []
         for form in formset:
             if 'selected_course_types' in form.cleaned_data:
@@ -303,7 +304,7 @@ def semester_export(request, semester_id):
         filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
         response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
-        ExcelExporter(semester).export(response, course_types_list, ignore_not_enough_answers)
+        ExcelExporter(semester).export(response, course_types_list, ignore_not_enough_answers, include_unpublished)
         return response
     else:
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))

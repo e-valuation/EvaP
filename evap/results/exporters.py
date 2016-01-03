@@ -1,5 +1,5 @@
 from evap.evaluation.models import Questionnaire
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
 
 from django.utils.translation import ugettext as _
 
@@ -25,10 +25,11 @@ class ExcelExporter(object):
         rounded_number = round(number, 1) # see #302
         return round(int(rounded_number / self.STEP + 0.0001) * self.STEP, 1)
 
-    def create_style(self, workbook, base_style, style_name, palette_index, color):
-        color_name = style_name + "_color"
+    def create_color(self, workbook, color_name, palette_index, color):
         xlwt.add_palette_colour(color_name, palette_index)
         workbook.set_colour_RGB(palette_index, *color)
+
+    def create_style(self, base_style, style_name, color_name):
         self.styles[style_name] = xlwt.easyxf(base_style.format(color_name), num_format_str="0.0")
 
     def init_styles(self, workbook):
@@ -36,14 +37,12 @@ class ExcelExporter(object):
             'default':       xlwt.Style.default_style,
             'avg':           xlwt.easyxf('alignment: horiz centre; font: bold on; borders: left medium, top medium, bottom medium'),
             'headline':      xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on', num_format_str="0.0"),
-            'course':        xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium'),
-            'total_voters': xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
+            'course':        xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium'),
+            'total_voters':  xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
             'bold':          xlwt.easyxf('font: bold on'),
             'border_left':   xlwt.easyxf('borders: left medium'),
             'border_right':  xlwt.easyxf('borders: right medium'),
             'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
-
-
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
         for i in range(0, self.NUM_GRADE_COLORS):
@@ -51,7 +50,10 @@ class ExcelExporter(object):
             color = get_grade_color(grade)
             palette_index = self.CUSTOM_COLOR_START + i
             style_name = self.grade_to_style(grade)
-            self.create_style(workbook, grade_base_style, style_name, palette_index, color)
+            color_name = style_name + "_color"
+            self.create_color(workbook, color_name, palette_index, color)
+            self.create_style(grade_base_style, style_name, color_name)
+            self.create_style(grade_base_style + ', right medium', style_name + '_total', color_name)
 
         deviation_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; borders: right medium'
         for i in range(0, self.NUM_DEVIATION_COLORS):
@@ -59,16 +61,24 @@ class ExcelExporter(object):
             color = get_deviation_color(deviation)
             palette_index = self.CUSTOM_COLOR_START + self.NUM_GRADE_COLORS + i
             style_name = self.deviation_to_style(deviation)
-            self.create_style(workbook, deviation_base_style, style_name, palette_index, color)
+            color_name = style_name + "_color"
+            self.create_color(workbook, color_name, palette_index, color)
+            self.create_style(deviation_base_style, style_name, color_name)
+            self.create_style(deviation_base_style + ', left medium', style_name + '_total', color_name)
 
+    def grade_to_style(self, grade, total=False):
+        style_name = 'grade_' + str(self.normalize_number(grade))
+        if total:
+            style_name += "_total"
+        return style_name
 
-    def grade_to_style(self, grade):
-        return 'grade_' + str(self.normalize_number(grade))
+    def deviation_to_style(self, deviation, total=False):
+        style_name = 'deviation_' + str(self.normalize_number(deviation))
+        if total:
+            style_name += "_total"
+        return style_name
 
-    def deviation_to_style(self, deviation):
-        return 'deviation_' + str(self.normalize_number(deviation))
-
-    def export(self, response, course_types_list, ignore_not_enough_answers=False):
+    def export(self, response, course_types_list, ignore_not_enough_answers=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -80,26 +90,24 @@ class ExcelExporter(object):
             self.col = 0
 
             courses_with_results = list()
-            for course in self.semester.course_set.filter(state="published", type__in=course_types).all():
+            course_states = ['published']
+            if include_unpublished:
+                course_states.extend(['evaluated', 'reviewed'])
+
+            used_questionnaires = set()
+            for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result():
                     continue
                 results = OrderedDict()
                 for questionnaire, contributor, label, data, section_warning in calculate_results(course):
+                    if has_no_rating_answers(course, contributor, questionnaire):
+                        continue
                     results.setdefault(questionnaire.id, []).extend(data)
+                    used_questionnaires.add(questionnaire)
                 courses_with_results.append((course, results))
 
             courses_with_results.sort(key=lambda cr: cr[0].type)
-
-            qn_frequencies = defaultdict(int)
-            for course, results in courses_with_results:
-                for questionnaire, results in results.items():
-                    qn_frequencies[questionnaire] += 1
-
-            qn_relevant = list(qn_frequencies.items())
-            qn_relevant.sort(key=lambda t: -t[1])
-
-            questionnaires = [Questionnaire.objects.get(id=t[0]) for t in qn_relevant]
-
+            used_questionnaires = sorted(used_questionnaires)
 
             writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_types)), "headline")
 
@@ -111,7 +119,7 @@ class ExcelExporter(object):
                 writec(self, "Average", "avg")
                 writec(self, "Deviation", "border_top_bottom_right")
 
-            for questionnaire in questionnaires:
+            for questionnaire in used_questionnaires:
                 writen(self, questionnaire.name, "bold")
                 for course, results in courses_with_results:
                     self.write_two_empty_cells_with_borders()
@@ -154,7 +162,7 @@ class ExcelExporter(object):
             for course, results in courses_with_results:
                 avg, dev = calculate_average_grades_and_deviation(course)
                 if avg:
-                    writec(self, avg, self.grade_to_style(avg), cols=2)
+                    writec(self, avg, self.grade_to_style(avg, total=True), cols=2)
                 else:
                     self.write_two_empty_cells_with_borders()
 
@@ -162,7 +170,7 @@ class ExcelExporter(object):
             for course, results in courses_with_results:
                 avg, dev = calculate_average_grades_and_deviation(course)
                 if dev is not None:
-                    writec(self, dev, self.deviation_to_style(dev), cols=2)
+                    writec(self, dev, self.deviation_to_style(dev, total=True), cols=2)
                 else:
                     self.write_two_empty_cells_with_borders()
 
@@ -172,7 +180,6 @@ class ExcelExporter(object):
                 writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)
-
 
     def write_two_empty_cells_with_borders(self):
         writec(self, None, "border_left")
@@ -185,10 +192,12 @@ def writen(exporter, label="", style_name="default"):
     exporter.row += 1
     writec(exporter, label, style_name)
 
+
 def writec(exporter, label, style_name, rows=1, cols=1):
     """Write the cell in the next column of the current line."""
     _write(exporter, label, exporter.styles[style_name], rows, cols)
     exporter.col += 1
+
 
 def _write(exporter, label, style, rows, cols):
     if rows > 1 or cols > 1:

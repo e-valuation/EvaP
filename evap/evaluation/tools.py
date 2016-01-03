@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
-from evap.evaluation.models import TextAnswer, EmailTemplate, Course
+from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
@@ -317,3 +317,8 @@ def sort_formset(request, formset):
 
 def course_types_in_semester(semester):
     return Course.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()
+
+def has_no_rating_answers(course, contributor, questionnaire):
+    questions = questionnaire.rating_questions
+    contribution = Contribution.objects.get(course=course, contributor=contributor)
+    return RatingAnswerCounter.objects.filter(question__in=questions, contribution=contribution).count() == 0

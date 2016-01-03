@@ -114,12 +114,18 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
 
     class Meta:
-        ordering = ('index', 'name_de')
+        ordering = ('is_for_contributors', 'index', 'name_de')
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
     def __str__(self):
         return self.name
+
+    def __lt__(self, other):
+        return (self.is_for_contributors, self.index) < (other.is_for_contributors, other.index)
+
+    def __gt__(self, other):
+        return (self.is_for_contributors, self.index) > (other.is_for_contributors, other.index)
 
     @property
     def can_staff_edit(self):
