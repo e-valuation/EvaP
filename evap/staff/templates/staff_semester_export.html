@@ -38,7 +38,7 @@
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                        <td>{{ form.selected_course_types.errors }} {{ form.selected_course_types }}</td>
+                        <td><div class="checkbox">{{ form.selected_course_types.errors }} {{ form.selected_course_types }}</div></td>
                         <td>{{ form.DELETE }}</td>
                     </tr>
                 {% endfor %}
