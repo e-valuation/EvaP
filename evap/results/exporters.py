@@ -1,5 +1,5 @@
 from evap.evaluation.models import Questionnaire
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
 
 from django.utils.translation import ugettext as _
 
@@ -43,8 +43,6 @@ class ExcelExporter(object):
             'border_right':  xlwt.easyxf('borders: right medium'),
             'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
 
-
-
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
         for i in range(0, self.NUM_GRADE_COLORS):
             grade = 1 + i*self.STEP
@@ -84,26 +82,20 @@ class ExcelExporter(object):
             if include_unpublished:
                 course_states.extend(['evaluated', 'reviewed'])
 
+            used_questionnaires = set()
             for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result():
                     continue
                 results = OrderedDict()
                 for questionnaire, contributor, label, data, section_warning in calculate_results(course):
+                    if has_no_rating_answers(course, contributor, questionnaire):
+                        continue
                     results.setdefault(questionnaire.id, []).extend(data)
+                    used_questionnaires.add(questionnaire)
                 courses_with_results.append((course, results))
 
             courses_with_results.sort(key=lambda cr: cr[0].type)
-
-            qn_frequencies = defaultdict(int)
-            for course, results in courses_with_results:
-                for questionnaire, results in results.items():
-                    qn_frequencies[questionnaire] += 1
-
-            qn_relevant = list(qn_frequencies.items())
-            qn_relevant.sort(key=lambda t: -t[1])
-
-            questionnaires = [Questionnaire.objects.get(id=t[0]) for t in qn_relevant]
-
+            used_questionnaires = sorted(used_questionnaires)
 
             writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_types)), "headline")
 
@@ -115,7 +107,7 @@ class ExcelExporter(object):
                 writec(self, "Average", "avg")
                 writec(self, "Deviation", "border_top_bottom_right")
 
-            for questionnaire in questionnaires:
+            for questionnaire in used_questionnaires:
                 writen(self, questionnaire.name, "bold")
                 for course, results in courses_with_results:
                     self.write_two_empty_cells_with_borders()
@@ -177,7 +169,6 @@ class ExcelExporter(object):
 
         self.workbook.save(response)
 
-
     def write_two_empty_cells_with_borders(self):
         writec(self, None, "border_left")
         writec(self, None, "border_right")
@@ -189,10 +180,12 @@ def writen(exporter, label="", style_name="default"):
     exporter.row += 1
     writec(exporter, label, style_name)
 
+
 def writec(exporter, label, style_name, rows=1, cols=1):
     """Write the cell in the next column of the current line."""
     _write(exporter, label, exporter.styles[style_name], rows, cols)
     exporter.col += 1
+
 
 def _write(exporter, label, style, rows, cols):
     if rows > 1 or cols > 1:
