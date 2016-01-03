@@ -68,7 +68,7 @@ class ExcelExporter(object):
     def deviation_to_style(self, deviation):
         return 'deviation_' + str(self.normalize_number(deviation))
 
-    def export(self, response, course_types_list, ignore_not_enough_answers=False):
+    def export(self, response, course_types_list, ignore_not_enough_answers=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -80,7 +80,11 @@ class ExcelExporter(object):
             self.col = 0
 
             courses_with_results = list()
-            for course in self.semester.course_set.filter(state="published", type__in=course_types).all():
+            course_states = ['published']
+            if include_unpublished:
+                course_states.extend(['evaluated', 'reviewed'])
+
+            for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result():
                     continue
                 results = OrderedDict()
