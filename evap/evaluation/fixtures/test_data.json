@@ -62,6 +62,7 @@
       "obsolete": true,
       "public_name_de": "",
       "public_name_en": "",
+      "staff_only": false,
       "teaser_de": null,
       "teaser_en": null
     },
@@ -79,6 +80,7 @@
       "obsolete": false,
       "public_name_de": "Vorlesungsinhalte",
       "public_name_en": "Lecture's contents",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -96,6 +98,7 @@
       "obsolete": false,
       "public_name_de": "\u00dcbung",
       "public_name_en": "Exercise",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -113,6 +116,7 @@
       "obsolete": false,
       "public_name_de": "Lehrmittel",
       "public_name_en": "Learning material",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -130,6 +134,7 @@
       "obsolete": false,
       "public_name_de": "Sonstiges",
       "public_name_en": "Miscellaneous",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -147,6 +152,7 @@
       "obsolete": false,
       "public_name_de": "Sonstiges",
       "public_name_en": "Miscellaneous",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -164,6 +170,7 @@
       "obsolete": false,
       "public_name_de": "Dozent/in",
       "public_name_en": "Lecturer",
+      "staff_only": false,
       "teaser_de": "Die Dozentin/der Dozent ...",
       "teaser_en": "The lecturer ..."
     },
@@ -181,6 +188,7 @@
       "obsolete": false,
       "public_name_de": "\u00dcbungsleiter/in",
       "public_name_en": "Exercise supervisor",
+      "staff_only": false,
       "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
       "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ..."
     },
@@ -198,6 +206,7 @@
       "obsolete": false,
       "public_name_de": "Seminar",
       "public_name_en": "Seminar",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -215,6 +224,7 @@
       "obsolete": true,
       "public_name_de": "Seminarleiter/in",
       "public_name_en": "Seminar lecturer",
+      "staff_only": false,
       "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
       "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar..."
     },
@@ -232,6 +242,7 @@
       "obsolete": false,
       "public_name_de": "Projekt",
       "public_name_en": "Project",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -249,6 +260,7 @@
       "obsolete": false,
       "public_name_de": "Projektbetreuer/in",
       "public_name_en": "Project's supervisor",
+      "staff_only": false,
       "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
       "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ..."
     },
@@ -266,6 +278,7 @@
       "obsolete": false,
       "public_name_de": "Kommentare zum Verantwortlichen",
       "public_name_en": "Remarks on the responsible person",
+      "staff_only": false,
       "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
       "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course."
     },
@@ -283,6 +296,7 @@
       "obsolete": true,
       "public_name_de": "Tutor/in",
       "public_name_en": "Tutor",
+      "staff_only": false,
       "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
       "teaser_en": "Please select \"no answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ..."
     },
@@ -300,6 +314,7 @@
       "obsolete": false,
       "public_name_de": "Kommentare zur Person",
       "public_name_en": "Personal Feedback",
+      "staff_only": false,
       "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
       "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?"
     },
@@ -317,6 +332,7 @@
       "obsolete": false,
       "public_name_de": "Kommentare zu weiteren Mitwirkenden",
       "public_name_en": "Remarks on additional contributors",
+      "staff_only": false,
       "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
       "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here."
     },
@@ -334,6 +350,7 @@
       "obsolete": false,
       "public_name_de": "Bachelorprojekt - Allgemeines",
       "public_name_en": "Bachelor's project - General questions",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -351,6 +368,7 @@
       "obsolete": false,
       "public_name_de": "Bachelorprojekt - Aufwand und Zeitplanung",
       "public_name_en": "Bachelor's project - Effort and time management",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -368,6 +386,7 @@
       "obsolete": false,
       "public_name_de": "Bachelorprojekt - Betreuung und Praxispartner",
       "public_name_en": "Bachelor's project - Supervision and business partner",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -385,6 +404,7 @@
       "obsolete": false,
       "public_name_de": "Bachelorprojekt - Bachelorarbeit",
       "public_name_en": "Bachelor's project - Bachelor's thesis",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -402,6 +422,7 @@
       "obsolete": false,
       "public_name_de": "Dozent/in",
       "public_name_en": "Lecturer",
+      "staff_only": false,
       "teaser_de": "Die Dozentin/der Dozent ...",
       "teaser_en": "The lecturer ..."
     },
@@ -419,6 +440,7 @@
       "obsolete": false,
       "public_name_de": "Masterprojekt - Allgemeines",
       "public_name_en": "Master's project - General questions",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -436,6 +458,7 @@
       "obsolete": false,
       "public_name_de": "Masterprojekt - Aufwand und Zeitplanung",
       "public_name_en": "Master's project - Effort and time management",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -453,6 +476,7 @@
       "obsolete": false,
       "public_name_de": "Masterprojekt - Betreuung",
       "public_name_en": "Master's project - Supervision",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -470,6 +494,7 @@
       "obsolete": false,
       "public_name_de": "Masterarbeit",
       "public_name_en": "Master's thesis",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -487,6 +512,7 @@
       "obsolete": false,
       "public_name_de": "Projektseminar",
       "public_name_en": "Project seminar",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -504,6 +530,7 @@
       "obsolete": false,
       "public_name_de": "D-School-Seminar",
       "public_name_en": "D-School seminar",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -521,6 +548,7 @@
       "obsolete": false,
       "public_name_de": "Studienbegleitendes Seminar",
       "public_name_en": "Seminar accompanying the first bachelor's semester",
+      "staff_only": false,
       "teaser_de": "",
       "teaser_en": ""
     },
@@ -538,6 +566,7 @@
       "obsolete": false,
       "public_name_de": "Seminarleiter/in",
       "public_name_en": "Seminar lecturer",
+      "staff_only": false,
       "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
       "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar..."
     },
@@ -555,6 +584,7 @@
       "obsolete": false,
       "public_name_de": "Coach",
       "public_name_en": "Coach",
+      "staff_only": false,
       "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
       "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe coach..."
     },
@@ -572,6 +602,7 @@
       "obsolete": false,
       "public_name_de": "Gesamtnote",
       "public_name_en": "Total grade",
+      "staff_only": false,
       "teaser_de": "1 ist die beste Note, 5 die schlechteste",
       "teaser_en": "1 is the best grade, 5 the worst"
     },
@@ -127734,9 +127765,10 @@
   {
     "fields": {
       "course": 1577,
-      "description": "Final grades",
+      "description_de": "Final grades",
+      "description_en": "Final grades",
       "file": "grades/1577/test_results_03.txt",
-      "last_modified_time": "2015-11-08T17:16:02.642",
+      "last_modified_time": "2016-01-04T21:23:28.734",
       "last_modified_user": 2370,
       "type": "FIN"
     },
@@ -127746,9 +127778,10 @@
   {
     "fields": {
       "course": 1525,
-      "description": "Midterm grades",
+      "description_de": "Midterm grades",
+      "description_en": "Midterm grades",
       "file": "grades/1525/test_results_01.txt",
-      "last_modified_time": "2015-11-08T17:15:40.074",
+      "last_modified_time": "2016-01-04T21:23:28.744",
       "last_modified_user": 2370,
       "type": "MID"
     },
@@ -127758,9 +127791,10 @@
   {
     "fields": {
       "course": 1694,
-      "description": "Midterm grades",
+      "description_de": "Midterm grades",
+      "description_en": "Midterm grades",
       "file": "grades/1694/test_results_02.txt",
-      "last_modified_time": "2015-11-08T17:15:51.492",
+      "last_modified_time": "2016-01-04T21:23:28.748",
       "last_modified_user": 2370,
       "type": "MID"
     },
