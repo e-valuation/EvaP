@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render, redirect
+﻿from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Prefetch
 from django.contrib import messages
 from django.conf import settings
@@ -83,10 +83,12 @@ def upload_grades(request, semester_id, course_id):
     grade_document = GradeDocument(course=course)
     if final_grades:
         grade_document.type = GradeDocument.FINAL_GRADES
-        grade_document.description = settings.DEFAULT_FINAL_GRADES_DESCRIPTION
+        grade_document.description_en = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN
+        grade_document.description_de = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE
     else:
         grade_document.type = GradeDocument.MIDTERM_GRADES
-        grade_document.description = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION
+        grade_document.description_en = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN
+        grade_document.description_de = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE
 
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
