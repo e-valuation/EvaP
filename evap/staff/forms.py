@@ -4,6 +4,7 @@ from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Group
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
@@ -318,7 +319,9 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
-    courses_participating_in = forms.ModelMultipleChoiceField(None)
+    is_staff = forms.BooleanField(required=False, label=_("Staff user"))
+    is_grade_user = forms.BooleanField(required=False, label=_("Grade user"))
+    courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
 
     class Meta:
         model = UserProfile
@@ -326,13 +329,14 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        courses_of_current_semester = Course.objects.filter(semester=Semester.active_semester())
-        excludes = [x.id for x in courses_of_current_semester if x.is_single_result()]
-        courses_of_current_semester = courses_of_current_semester.exclude(id__in=excludes)
-        self.fields['courses_participating_in'].queryset = courses_of_current_semester
-        self.fields['courses_participating_in'].initial = courses_of_current_semester.filter(participants=self.instance) if self.instance.pk else ()
-        self.fields['courses_participating_in'].label = _("Courses participating in (active semester)")
-        self.fields['courses_participating_in'].required = False
+        courses_in_active_semester = Course.objects.filter(semester=Semester.active_semester())
+        excludes = [x.id for x in courses_in_active_semester if x.is_single_result()]
+        courses_in_active_semester = courses_in_active_semester.exclude(id__in=excludes)
+        self.fields['courses_participating_in'].queryset = courses_in_active_semester
+        if self.instance.pk:
+            self.fields['courses_participating_in'].initial = courses_in_active_semester.filter(participants=self.instance)
+            self.fields['is_staff'].initial = self.instance.is_staff
+            self.fields['is_grade_user'].initial = self.instance.is_grade_publisher
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -361,6 +365,18 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+
+        staff_group = Group.objects.get(name="Staff")
+        grade_user_group = Group.objects.get(name="Grade publisher")
+        if self.cleaned_data.get('is_staff'):
+            self.instance.groups.add(staff_group)
+        else:
+            self.instance.groups.remove(staff_group)
+
+        if self.cleaned_data.get('is_grade_user'):
+            self.instance.groups.add(grade_user_group)
+        else:
+            self.instance.groups.remove(grade_user_group)
 
 
 class LotteryForm(forms.Form, BootstrapMixin):
