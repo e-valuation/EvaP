@@ -60,7 +60,7 @@ table#question_table textarea {
     resize: vertical;
 }
 
-ul.inputs-list {
+ul.inputs-list, .exportsheet ul {
     list-style-type: none;
     padding-left: 0px;
 }

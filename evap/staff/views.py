@@ -2,9 +2,10 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db.models import Max, Count
 from django.forms.models import inlineformset_factory, modelformset_factory
+from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Prefetch
@@ -16,15 +17,18 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
                                   TextResult, send_publish_notifications, sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
-                             IdLessQuestionFormSet, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
+                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm
+                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
+                             ExportSheetForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
 from evap.rewards.tools import is_semester_activated
+
+from evap.results.exporters import ExcelExporter
 
 import random, datetime
 
@@ -36,8 +40,6 @@ def raise_permission_denied_if_archived(archiveable):
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
-                         questionnaires_courses=Questionnaire.objects.filter(obsolete=False,is_for_contributors=False),
-                         questionnaire_contributors=Questionnaire.objects.filter(obsolete=False,is_for_contributors=True),
                          templates=EmailTemplate.objects.all(),
                          sections=FaqSection.objects.all(),
                          disable_breadcrumb_staff=True)
@@ -285,6 +287,30 @@ def semester_import(request, semester_id):
 
 
 @staff_required
+def semester_export(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    ExportSheetFormset = formset_factory(form=ExportSheetForm, can_delete=True, extra=0, min_num=1, validate_min=True)
+    formset = ExportSheetFormset(request.POST or None, form_kwargs={'semester': semester})
+
+    if formset.is_valid():
+        ignore_not_enough_answers = request.POST.get('ignore_not_enough_answers') == 'on'
+        include_unpublished = request.POST.get('include_unpublished') == 'on'
+        course_types_list = []
+        for form in formset:
+            if 'selected_course_types' in form.cleaned_data:
+                course_types_list.append(form.cleaned_data['selected_course_types'])
+
+        filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
+        response = HttpResponse(content_type="application/vnd.ms-excel")
+        response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+        ExcelExporter(semester).export(response, course_types_list, ignore_not_enough_answers, include_unpublished)
+        return response
+    else:
+        return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
+
+
+@staff_required
 def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
@@ -371,10 +397,10 @@ def course_create(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     course = Course(semester=semester)
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course)
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     if form.is_valid() and formset.is_valid():
         form.save(user=request.user)
@@ -423,10 +449,10 @@ def course_edit(request, semester_id, course_id):
 
 @staff_required
 def helper_course_edit(request, semester, course):
-    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1, exclude=('course',))
+    InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, queryset=course.contributions.exclude(contributor=None))
+    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     operation = request.POST.get('operation')
 
@@ -644,25 +670,48 @@ def questionnaire_create(request):
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 
-@staff_required
-def questionnaire_edit(request, questionnaire_id):
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+def make_questionnaire_edit_forms(request, questionnaire, editable):
+    if editable:
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    else:
+        question_count = questionnaire.question_set.count()
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=0, exclude=('questionnaire',),
+                                                      can_delete=False, max_num=question_count, validate_max=True, min_num=question_count, validate_min=True)
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
-    if not questionnaire.can_staff_edit:
-        messages.info(request, _("Questionnaires that are already used cannot be edited."))
-        return redirect('staff:questionnaire_index')
+
+    if not editable:
+        editable_fields =  ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
+        for name, field in form.fields.items():
+            if name not in editable_fields:
+                field.disabled = True
+        for question_form in formset.forms:
+            for name, field in question_form.fields.items():
+                if name is not 'id':
+                    field.disabled = True
+
+    return form, formset
+
+
+@staff_required
+def questionnaire_edit(request, questionnaire_id):
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    editable = questionnaire.can_staff_edit
+
+    form, formset = make_questionnaire_edit_forms(request, questionnaire, editable)
 
     if form.is_valid() and formset.is_valid():
         form.save()
-        formset.save()
+        if editable:
+            formset.save()
 
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect('staff:questionnaire_index')
     else:
+        if not editable:
+            messages.info(request, _("Some fields are disabled as this questionnaire is already in use."))
         template_data = dict(questionnaire=questionnaire, form=form, formset=formset)
         return render(request, "staff_questionnaire_form.html", template_data)
 
@@ -686,10 +735,10 @@ def questionnaire_copy(request, questionnaire_id):
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
     else:
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=IdLessQuestionFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
         form = QuestionnaireForm(instance=questionnaire)
-        formset = InlineQuestionFormset(instance=Questionnaire(), queryset=questionnaire.question_set.all())
+        formset = InlineQuestionFormset(instance=questionnaire, queryset=questionnaire.question_set.all())
 
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 

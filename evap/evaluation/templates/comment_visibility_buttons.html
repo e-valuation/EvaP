@@ -10,10 +10,6 @@
         {% elif choice.choice_value == "OWN" %}
             {% trans "Default value. Will only see own comments." as tooltip %}
         {% endif %}
-        {% if form.responsibility.value == "RESPONSIBLE" %}
-            {% include_choice_button form.comment_visibility choice False tooltip %}
-        {% else %}
-            {% include_choice_button form.comment_visibility choice True tooltip %}
-        {% endif %}
+        {% include_choice_button form.comment_visibility choice tooltip %}
     {% endfor %}
 </div>

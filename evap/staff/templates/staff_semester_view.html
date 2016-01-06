@@ -68,7 +68,8 @@
                 &nbsp;
                 <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Todo" %}</a>
                 &nbsp;
-
+                <a href="{% url "staff:semester_export" semester.id %}" class="btn btn-sm btn-default">{% trans "Export" %}</a>
+                &nbsp;
                 <div class="btn-group">
                     <a href="{% url "rewards:semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
                     <div class="btn-group btn-toggle">

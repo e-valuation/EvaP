@@ -2,6 +2,9 @@ from django.conf.urls import url
 
 from evap.evaluation.views import *
 
+
+app_name = "evaluation"
+
 urlpatterns = [
     url(r"^$", index, name="index"),
     url(r"^faq$", faq, name="faq"),

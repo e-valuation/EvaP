@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -14,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='semesteractivation',
             name='semester',
-            field=models.OneToOneField(to='evaluation.Semester', related_name='rewards_active'),
+            field=models.OneToOneField(to='evaluation.Semester', related_name='rewards_active', on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

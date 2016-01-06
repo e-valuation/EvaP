@@ -2,6 +2,7 @@
 
 
 from django.db import models, migrations
+import django.db.models.deletion
 import django_fsm
 import django.utils.timezone
 from django.conf import settings
@@ -47,7 +48,7 @@ class Migration(migrations.Migration):
                 ('responsible', models.BooleanField(default=False, verbose_name='responsible')),
                 ('can_edit', models.BooleanField(default=False, verbose_name='can edit')),
                 ('order', models.IntegerField(default=0, verbose_name='contribution order')),
-                ('contributor', models.ForeignKey(related_name='contributions', verbose_name='contributor', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('contributor', models.ForeignKey(related_name='contributions', verbose_name='contributor', blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['order'],
@@ -68,7 +69,7 @@ class Migration(migrations.Migration):
                 ('vote_start_date', models.DateField(null=True, verbose_name='first date to vote')),
                 ('vote_end_date', models.DateField(null=True, verbose_name='last date to vote')),
                 ('last_modified_time', models.DateTimeField(auto_now=True)),
-                ('last_modified_user', models.ForeignKey(related_name='+', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('last_modified_user', models.ForeignKey(related_name='+', blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=django.db.models.deletion.CASCADE)),
                 ('participants', models.ManyToManyField(to=settings.AUTH_USER_MODEL, verbose_name='participants', blank=True)),
             ],
             options={
@@ -127,7 +128,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('answer', models.IntegerField(verbose_name='answer')),
-                ('contribution', models.ForeignKey(to='evaluation.Contribution')),
+                ('contribution', models.ForeignKey(to='evaluation.Contribution', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'verbose_name': 'grade answer',
@@ -140,7 +141,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('answer', models.IntegerField(verbose_name='answer')),
-                ('contribution', models.ForeignKey(to='evaluation.Contribution')),
+                ('contribution', models.ForeignKey(to='evaluation.Contribution', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'verbose_name': 'Likert answer',
@@ -208,8 +209,8 @@ class Migration(migrations.Migration):
                 ('original_answer', models.TextField(verbose_name='original answer', blank=True)),
                 ('checked', models.BooleanField(default=False, verbose_name='answer checked')),
                 ('hidden', models.BooleanField(default=False, verbose_name='hide answer')),
-                ('contribution', models.ForeignKey(to='evaluation.Contribution')),
-                ('question', models.ForeignKey(to='evaluation.Question')),
+                ('contribution', models.ForeignKey(to='evaluation.Contribution', on_delete=django.db.models.deletion.CASCADE)),
+                ('question', models.ForeignKey(to='evaluation.Question', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'verbose_name': 'text answer',
@@ -220,7 +221,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='question',
             name='questionnaire',
-            field=models.ForeignKey(to='evaluation.Questionnaire'),
+            field=models.ForeignKey(to='evaluation.Questionnaire', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterOrderWithRespectTo(
@@ -230,25 +231,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='likertanswer',
             name='question',
-            field=models.ForeignKey(to='evaluation.Question'),
+            field=models.ForeignKey(to='evaluation.Question', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='gradeanswer',
             name='question',
-            field=models.ForeignKey(to='evaluation.Question'),
+            field=models.ForeignKey(to='evaluation.Question', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='faqquestion',
             name='section',
-            field=models.ForeignKey(related_name='questions', to='evaluation.FaqSection'),
+            field=models.ForeignKey(related_name='questions', to='evaluation.FaqSection', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='course',
             name='semester',
-            field=models.ForeignKey(verbose_name='semester', to='evaluation.Semester'),
+            field=models.ForeignKey(verbose_name='semester', to='evaluation.Semester', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -264,7 +265,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contribution',
             name='course',
-            field=models.ForeignKey(related_name='contributions', verbose_name='course', to='evaluation.Course'),
+            field=models.ForeignKey(related_name='contributions', verbose_name='course', to='evaluation.Course', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(max_length=3, verbose_name='grade type', choices=[('PRE', 'preliminary grades'), ('FIN', 'final grades')], default='PRE')),
                 ('description', models.TextField(verbose_name='Description', max_length=255)),
                 ('last_modified_time', models.DateTimeField(verbose_name='Created', auto_now=True)),
-                ('course', models.ForeignKey(to='evaluation.Course', related_name='grade_documents', verbose_name='Course')),
+                ('course', models.ForeignKey(to='evaluation.Course', related_name='grade_documents', verbose_name='Course', on_delete=django.db.models.deletion.CASCADE)),
                 ('last_modified_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', blank=True, to=settings.AUTH_USER_MODEL)),
             ],
             options={

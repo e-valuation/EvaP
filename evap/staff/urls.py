@@ -3,6 +3,9 @@ from django.views.generic import RedirectView
 
 from evap.staff.views import *
 
+
+app_name = "staff"
+
 urlpatterns = [
     url(r"^$", index, name="index"),
 
@@ -12,6 +15,7 @@ urlpatterns = [
     url(r"^semester/(\d+)/edit$", semester_edit, name="semester_edit"),
     url(r"^semester/(\d+)/delete$", semester_delete, name="semester_delete"),
     url(r"^semester/(\d+)/import$", semester_import, name="semester_import"),
+    url(r"^semester/(\d+)/export$", semester_export, name="semester_export"),
     url(r"^semester/(\d+)/assign$", semester_assign_questionnaires, name="semester_assign_questionnaires"),
     url(r"^semester/(\d+)/todo", semester_todo, name="semester_todo"),
     url(r"^semester/(\d+)/lottery$", semester_lottery, name="semester_lottery"),

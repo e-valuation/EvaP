@@ -28,5 +28,5 @@ def include_comment_visibility_buttons(form):
     return dict(form=form)
 
 @register.inclusion_tag("choice_button.html")
-def include_choice_button(formelement, choice, enabled, tooltip):
-    return dict(formelement=formelement, choice=choice, enabled=enabled, tooltip=tooltip)
+def include_choice_button(formelement, choice, tooltip):
+    return dict(formelement=formelement, choice=choice, tooltip=tooltip)

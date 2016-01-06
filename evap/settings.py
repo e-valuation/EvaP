@@ -69,9 +69,9 @@ DEFAULT_MIDTERM_GRADES_DESCRIPTION = "Midterm grades"
 ### Installation specific settings
 
 # People who get emails on errors.
-ADMINS = (
+ADMINS = [
     # ('Your Name', 'your_email@example.com'),
-)
+]
 
 # localhost is listed for easier development. Remove it in production environments.
 ALLOWED_HOSTS = ["localhost"]
@@ -157,7 +157,7 @@ LOGGING = {
 
 AUTH_USER_MODEL = 'evaluation.UserProfile'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -174,9 +174,9 @@ INSTALLED_APPS = (
     'evap.grades',
     'compressor',
     'django_extensions',
-)
+]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -186,7 +186,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'evap.evaluation.auth.RequestAuthMiddleware',
-)
+]
 
 TEMPLATES = [
     {
@@ -221,10 +221,10 @@ if not DEBUG:
         ]),
     ]
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',
     'django.contrib.auth.backends.ModelBackend',
-)
+]
 
 ROOT_URLCONF = 'evap.urls'
 
@@ -248,14 +248,14 @@ USE_L10N = True
 
 USE_TZ = False
 
-LOCALE_PATHS = (
+LOCALE_PATHS = [
     os.path.join(BASE_DIR, "locale"),
-)
+]
 
-LANGUAGES = (
+LANGUAGES = [
     ('en', "English"),
     ('de', "Deutsch"),
-)
+]
 
 USERNAME_REPLACEMENTS = [
     (' ', ''),
@@ -272,15 +272,15 @@ USERNAME_REPLACEMENTS = [
 STATIC_URL = '/static/'
 
 # Additional locations of static files
-STATICFILES_DIRS = (
+STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
-)
+]
 
-STATICFILES_FINDERS = (
+STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     "compressor.finders.CompressorFinder",
-)
+]
 
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
@@ -336,8 +336,8 @@ if TESTING:
 # Django debug toolbar settings
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
-    INSTALLED_APPS += ('debug_toolbar',)
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE_CLASSES = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE_CLASSES
     def show_toolbar(request):
         return True
     DEBUG_TOOLBAR_CONFIG = {

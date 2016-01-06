@@ -2,11 +2,13 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
-from evap.evaluation.models import TextAnswer, EmailTemplate
+from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
 
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
+from functools import partial
 from math import ceil, sqrt
+from statistics import pstdev, median
 
 GRADE_COLORS = {
     1: (136, 191, 74),
@@ -83,20 +85,6 @@ def avg(iterable):
     return float(sum(items)) / len(items)
 
 
-def med(iterable):
-    """Simple arithmetic median function. Returns `None` if the length of
-    `iterable` is 0 or no items except None exist."""
-    items = [item for item in iterable if item is not None]
-    length = len(items)
-    if length == 0:
-        return None
-    sorted_items = sorted(items)
-    index = int(length / 2)
-    if length % 2 == 0:
-        return (sorted_items[index] + sorted_items[index]) / 2.0
-    return sorted_items[index]
-
-
 def mix(a, b, alpha):
     if a is None and b is None:
         return None
@@ -141,9 +129,6 @@ def get_textanswers(contribution, question, filter_states=None):
 
 
 def get_counts(answer_counters):
-    if not answer_counters:
-        return None
-
     counts = OrderedDict()
     # ensure ordering of answers
     for answer in range(1,6):
@@ -155,17 +140,11 @@ def get_counts(answer_counters):
 
 
 def calculate_results(course):
-    if course.state == "published":
-        cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
-        prior_results = cache.get(cache_key)
-        if prior_results:
-            return prior_results
+    if course.state != "published":
+        return _calculate_results_impl(course)
 
-    results = _calculate_results_impl(course)
-
-    if course.state == "published":
-        cache.set(cache_key, results, None)
-    return results
+    cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+    return cache.get_or_set(cache_key, partial(_calculate_results_impl, course), None)
 
 
 def _calculate_results_impl(course):
@@ -187,7 +166,7 @@ def _calculate_results_impl(course):
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
-        questionnaire_warning_thresholds[questionnaire] = settings.RESULTS_WARNING_PERCENTAGE * med(max_answers)
+        questionnaire_warning_thresholds[questionnaire] = settings.RESULTS_WARNING_PERCENTAGE * median(max_answers)
 
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
@@ -198,8 +177,8 @@ def _calculate_results_impl(course):
                 answers = get_answers_from_answer_counters(answer_counters)
 
                 total_count = len(answers)
-                average = avg(answers)
-                deviation = sqrt(avg((average - answer) ** 2 for answer in answers)) if total_count > 0 else None
+                average = avg(answers) if total_count > 0 else None
+                deviation = pstdev(answers, average) if total_count > 0 else None
                 counts = get_counts(answer_counters)
                 warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
 
@@ -336,3 +315,10 @@ def sort_formset(request, formset):
         formset.is_valid() # make sure all forms have cleaned_data
         formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
 
+def course_types_in_semester(semester):
+    return Course.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()
+
+def has_no_rating_answers(course, contributor, questionnaire):
+    questions = questionnaire.rating_questions
+    contribution = Contribution.objects.get(course=course, contributor=contributor)
+    return RatingAnswerCounter.objects.filter(question__in=questions, contribution=contribution).count() == 0

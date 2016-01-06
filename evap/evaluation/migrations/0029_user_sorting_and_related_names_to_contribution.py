@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -18,16 +19,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='gradeanswercounter',
             name='contribution',
-            field=models.ForeignKey(related_name='gradeanswercounter_set', to='evaluation.Contribution'),
+            field=models.ForeignKey(related_name='gradeanswercounter_set', to='evaluation.Contribution', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='likertanswercounter',
             name='contribution',
-            field=models.ForeignKey(related_name='likertanswercounter_set', to='evaluation.Contribution'),
+            field=models.ForeignKey(related_name='likertanswercounter_set', to='evaluation.Contribution', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='textanswer',
             name='contribution',
-            field=models.ForeignKey(related_name='textanswer_set', to='evaluation.Contribution'),
+            field=models.ForeignKey(related_name='textanswer_set', to='evaluation.Contribution', on_delete=django.db.models.deletion.CASCADE),
         ),
     ]
