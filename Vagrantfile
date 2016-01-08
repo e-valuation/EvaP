@@ -8,9 +8,9 @@ Vagrant.configure("2") do |config|
   config.vm.box = "puppetlabs/ubuntu-14.04-64-puppet"
   config.vm.box_version = "= 1.0.2"
 
-  # port forwarding for the http server and for pycharm
-  config.vm.network :forwarded_port, guest: 80, host: 8000
-  config.vm.network :forwarded_port, guest: 8000, host: 8080
+  # port forwarding
+  config.vm.network :forwarded_port, guest: 8000, host: 8000 # django server
+  config.vm.network :forwarded_port, guest: 80, host: 8001 # apache
 
   # uncomment this to debug startup problems
   #config.vm.provider :virtualbox do |v, override|
