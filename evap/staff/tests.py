@@ -12,6 +12,7 @@ from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db.utils import IntegrityError
+from django.utils.six import StringIO
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
@@ -1149,6 +1150,32 @@ class TestDataTest(TestCase):
             call_command("loaddata", "test_data", verbosity=0)
         except Exception:
             self.fail("Test data failed to load.")
+
+
+class MergeUsersTest(TestCase):
+
+    def test_merge_users(self):
+        course1 = mommy.make(Course)
+        course2 = mommy.make(Course)
+
+        delegate1 = mommy.make(UserProfile, pk=1)
+        delegate2 = mommy.make(UserProfile, pk=2)
+
+        user1 = mommy.make(UserProfile, pk=3, username="user1", course_set=[course1], delegates=[delegate1])
+        user2 = mommy.make(UserProfile, username="user2", course_set=[course2], delegates=[delegate2])
+        course2.voters = [user2]
+
+        self.assertEqual(UserProfile.objects.count(), 4)
+        call_command("merge_users", str(user1.pk), str(user2.pk), stdout=StringIO())
+        self.assertEqual(UserProfile.objects.count(), 3)
+
+        self.assertEqual(user1.pk, 3)
+        self.assertEqual(user1.username, "user1")
+        self.assertEqual(set(user1.course_set.all()), set([course1, course2]))
+
+        # see https://github.com/fsr-itse/EvaP/issues/705
+        #self.assertEqual(set(user1.delegates.all()), set([delegate1, delegate2]))
+        #self.assertEqual(set(course2.voters.all()), set([user1]))
 
 
 class TextAnswerReviewTest(WebTest):
