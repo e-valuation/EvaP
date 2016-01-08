@@ -34,7 +34,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print("")
         print("WARNING! This will anonymize all the data in")
-        print("the database and cause IRREPERABLE DATA LOSS.")
+        print("the database and cause IRREPARABLE DATA LOSS.")
         if input("Are you sure you want to continue? (yes/no)") != "yes":
             print("Aborting...")
             return
