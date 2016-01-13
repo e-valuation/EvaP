@@ -32,15 +32,16 @@ class UserData(CommonEqualityMixin):
         self.is_responsible = is_responsible
 
     def store_in_database(self):
-        user, created = UserProfile.objects.get_or_create(username=self.username)
-        user.first_name = self.first_name
-        user.last_name = self.last_name
-        user.email = self.email
-        user.title = self.title
+        user, created = UserProfile.objects.update_or_create(username=self.username,
+                                                             defaults={
+                                                                 'first_name': self.first_name,
+                                                                 'last_name': self.last_name,
+                                                                 'email': self.email,
+                                                                 'title': self.title})
         if user.needs_login_key:
             user.refresh_login_key()
         user.save()
-        return created
+        return user, created
 
     def validate(self):
         user = UserProfile()
@@ -341,11 +342,13 @@ class UserImporter(ExcelImporter):
             Stores the read data in the database. Errors might still
             occur because of the data already in the database.
         """
+        new_participants = []
         with transaction.atomic():
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:
-                    created = user_data.store_in_database()
+                    user, created = user_data.store_in_database()
+                    new_participants.append(user)
                     if created:
                         users_count += 1
 
@@ -353,6 +356,7 @@ class UserImporter(ExcelImporter):
                     messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
                     raise
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
+        return new_participants
 
     @classmethod
     def process(cls, request, excel_file, test_run):
@@ -380,7 +384,7 @@ class UserImporter(ExcelImporter):
             if test_run:
                 messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
             else:
-                importer.save_users_to_db()
+                return importer.save_users_to_db()
         except Exception as e:
             messages.error(request, _("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
