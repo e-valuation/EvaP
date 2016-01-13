@@ -1,9 +1,7 @@
-from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
-from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult
 

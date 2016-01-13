@@ -331,7 +331,7 @@ class UserImporter(ExcelImporter):
 
     def read_one_user(self, data, sheet_name, row_id):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
-        return (user_data)
+        return user_data
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():

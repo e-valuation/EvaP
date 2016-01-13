@@ -31,7 +31,9 @@ from evap.grades.tools import are_grades_activated
 
 from evap.results.exporters import ExcelExporter
 
-import random, datetime
+import datetime
+import random
+
 
 def raise_permission_denied_if_archived(archiveable):
     if archiveable.is_archived:
@@ -181,12 +183,14 @@ def semester_course_operation(request, semester_id):
     )
     return render(request, "staff_course_operation.html", template_data)
 
+
 def helper_semester_course_operation_revert(request, courses):
     for course in courses:
         course.revert_to_new()
         course.save()
     messages.success(request, ungettext("Successfully reverted %(courses)d course to new.",
         "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
+
 
 def helper_semester_course_operation_prepare(request, courses, send_email):
     for course in courses:
@@ -197,12 +201,14 @@ def helper_semester_course_operation_prepare(request, courses, send_email):
     if send_email:
         EmailTemplate.send_review_notifications(courses)
 
+
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
         course.staff_approve()
         course.save()
     messages.success(request, ungettext("Successfully approved %(courses)d course.",
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+
 
 def helper_semester_course_operation_publish(request, courses, send_email):
     for course in courses:
@@ -212,6 +218,7 @@ def helper_semester_course_operation_publish(request, courses, send_email):
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
     if send_email:
         send_publish_notifications(evaluation_results_courses=courses)
+
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
@@ -824,8 +831,7 @@ def degree_index(request):
 
 @staff_required
 def user_index(request):
-    from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count, Sum, Case, When, IntegerField
-    from django.contrib.auth.models import Group
+    from django.db.models import  BooleanField, ExpressionWrapper, Q, Sum, Case, When, IntegerField
     users = (UserProfile.objects.all()
         # the following four annotations basically add two bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
