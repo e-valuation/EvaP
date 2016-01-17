@@ -598,7 +598,7 @@ def course_comments(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     filter = request.GET.get('filter', None)
-    if filter == None: # if no parameter is given take session value
+    if filter is None: # if no parameter is given take session value
         filter = request.session.get('filter_comments', False) # defaults to False if no session value exists
     else:
         filter = {'true': True, 'false': False}.get(filter.lower()) # convert parameter to boolean
@@ -661,7 +661,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     reviewed_answer = text_answer.reviewed_answer
-    if reviewed_answer == None:
+    if reviewed_answer is None:
         reviewed_answer = text_answer.original_answer
     form = TextAnswerForm(request.POST or None, instance=text_answer, initial={'reviewed_answer': reviewed_answer})
 
