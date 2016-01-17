@@ -38,3 +38,8 @@ class GradeDocument(models.Model):
 
     def filename(self):
         return os.path.basename(self.file.name)
+
+
+class SemesterGradeActivation(models.Model):
+    semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='grades_active')
+    is_active = models.BooleanField(default=False)

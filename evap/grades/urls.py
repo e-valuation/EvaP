@@ -15,4 +15,6 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)/edit/(\d+)$", edit_grades, name="edit_grades"),
     url(r"^semester/(\d+)/course/(\d+)/delete/(\d+)$", delete_grades, name="delete_grades"),
     url(r"^semester/(\d+)/course/(\d+)/togglenogrades$", toggle_no_grades, name="toggle_no_grades"),
+
+    url(r"^semester_grade_activation/(\d+)/(\w+)$", semester_grade_activation, name="semester_grade_activation"),
 ]

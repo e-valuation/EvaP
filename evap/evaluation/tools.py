@@ -274,9 +274,10 @@ def send_publish_notifications(grade_document_courses=None, evaluation_results_c
             publish_notifications[course.responsible_contributor].evaluation_results_courses.add(course)
     for course in grade_document_courses:
         # all participants who can download grades get a notification
-        for participant in course.participants.all():
-            if participant.can_download_grades:
-                publish_notifications[participant].grade_document_courses.add(course)
+        if course.grades_activated:
+            for participant in course.participants.all():
+                if participant.can_download_grades:
+                    publish_notifications[participant].grade_document_courses.add(course)
 
     for user, course_lists in publish_notifications.items():
         EmailTemplate.send_publish_notifications_to_user(
