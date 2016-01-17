@@ -8,6 +8,7 @@ import tempfile
 import datetime
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
+from evap.grades.models import SemesterGradeActivation
 
 
 class GradeUploadTests(WebTest):
@@ -39,6 +40,9 @@ class GradeUploadTests(WebTest):
         contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
 
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+
+        semester_grade_activation = SemesterGradeActivation(semester=course.semester, is_active=True)
+        semester_grade_activation.save()
 
     def tearDown(self):
         for course in Course.objects.all():
@@ -181,3 +185,25 @@ class GradeUploadTests(WebTest):
         self.get_submit_assert_302(toggle_url, "grade_publisher")
         course = Course.objects.get(id=course.id)
         self.assertFalse(course.gets_no_grade_documents)
+
+    def helper_grade_activation(self, semester, active):
+        try:
+            activation = SemesterGradeActivation.objects.filter(semester=semester).get()
+            activation.is_active = active
+        except SemesterGradeActivation.DoesNotExist:
+            activation = SemesterGradeActivation(semester=semester, is_active=active)
+        activation.save()
+
+    def test_grade_activation(self):
+        course = Course.objects.get(name_en="Test")
+        self.helper_grade_activation(course.semester, True) # activate grade downloads
+
+        # upload grade document
+        response = self.helper_upload_grades(course, final_grades=False)
+        self.assertGreater(course.midterm_grade_documents.count(), 0)
+
+        url = "/grades/download/"+str(course.midterm_grade_documents.first().id)
+        response = self.get_assert_200(url, "student") # grades should be downloadable
+
+        self.helper_grade_activation(course.semester, False) # deactivate grade downloads
+        response = self.get_assert_403(url, "student") # grades should not be downloadable anymore
