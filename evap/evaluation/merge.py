@@ -1,6 +1,7 @@
 from django.db import transaction
-from django.db.models import get_models, Model
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.db.models import Model
+from django.apps import apps
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 # based on https://djangosnippets.org/snippets/2283/
 
@@ -36,7 +37,7 @@ def merge_model_objects(primary_object, alias_objects, keep_old=False):
     # TODO: this is a bit of a hack, since the generics framework should provide a similar
     # method to the ForeignKey field for accessing the generic related fields.
     generic_fields = []
-    for model in get_models():
+    for model in apps.get_models():
         for field_name, field in [x for x in model.__dict__.items() if isinstance(x[1], GenericForeignKey)]:
             generic_fields.append(field)
 
@@ -45,32 +46,36 @@ def merge_model_objects(primary_object, alias_objects, keep_old=False):
     # Loop through all alias objects and migrate their data to the primary object.
     for alias_object in alias_objects:
         # Migrate all foreign key references from alias object to primary object.
-        for related_object in alias_object._meta.get_all_related_objects():
+        for related_field in alias_object._meta.get_fields():
+            if not ((related_field.one_to_many or related_field.one_to_one) and related_field.auto_created):
+                continue
             # The variable name on the alias_object model.
-            alias_varname = related_object.get_accessor_name()
+            alias_varname = related_field.get_accessor_name()
 
             # The variable name on the related model.
-            obj_varname = related_object.field.name
-            related_objects = getattr(alias_object, alias_varname)
+            obj_varname = related_field.field.name
+            related_fields = getattr(alias_object, alias_varname)
 
-            if hasattr(related_objects, 'all'):
-                for obj in related_objects.all():
+            if hasattr(related_fields, 'all'):
+                for obj in related_fields.all():
                     setattr(obj, obj_varname, primary_object)
                     obj.save()
 
         # Migrate all many to many references from alias object to primary object.
-        for related_many_object in alias_object._meta.get_all_related_many_to_many_objects():
-            alias_varname = related_many_object.get_accessor_name()
-            obj_varname = related_many_object.field.name
+        for related_many_field in alias_object._meta.get_fields(include_hidden=True):
+            if not (related_many_field.many_to_many and related_many_field.auto_created):
+                continue
+            alias_varname = related_many_field.get_accessor_name()
+            obj_varname = related_many_field.field.name
 
-            if alias_varname != "+":
+            if alias_varname != "+" and alias_varname[-1] != "+":
                 if alias_varname is not None:
                     # standard case
-                    related_many_objects = getattr(alias_object, alias_varname).all()
+                    related_many_fields = getattr(alias_object, alias_varname).all()
                 else:
                     # special case, symmetrical relation, no reverse accessor
-                    related_many_objects = getattr(alias_object, obj_varname).all()
-                for obj in related_many_objects.all():
+                    related_many_fields = getattr(alias_object, obj_varname).all()
+                for obj in related_many_fields.all():
                     getattr(obj, obj_varname).remove(alias_object)
                     getattr(obj, obj_varname).add(primary_object)
 
@@ -79,9 +84,9 @@ def merge_model_objects(primary_object, alias_objects, keep_old=False):
             filter_kwargs = {}
             filter_kwargs[field.fk_field] = alias_object._get_pk_val()
             filter_kwargs[field.ct_field] = field.get_content_type(alias_object)
-            for generic_related_object in field.model.objects.filter(**filter_kwargs):
-                setattr(generic_related_object, field.name, primary_object)
-                generic_related_object.save()
+            for generic_related_field in field.model.objects.filter(**filter_kwargs):
+                setattr(generic_related_field, field.name, primary_object)
+                generic_related_field.save()
 
         # Try to fill all missing values in primary object by values of duplicates
         filled_up = set()

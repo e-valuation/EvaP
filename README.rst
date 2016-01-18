@@ -21,6 +21,8 @@ The vagrant setup is shown here. For manual installation instructions and produc
 (1) After installing Vagrant_, run in your EvaP root directory::
 
         vagrant up
+        vagrant ssh
+        ./manage.py run
 
 (2) Open your browser::
 

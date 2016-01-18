@@ -33,7 +33,7 @@
     <div class="panel panel-info">
         <div class="panel-heading">
             <span class="panel-title">{% trans "Overview" %}</span>
-            {% if course.grade_documents.count = 1 and can_download_grades %}
+            {% if course.grade_documents.count == 1 and can_download_grades %}
                 <div class="pull-right btn-group">
                     <a href="{% url "grades:download_grades" course.grade_documents.all.first.id %}" class="btn btn-xs btn-default" role="button" aria-expanded="false">{{ course.grade_documents.all.first.description }}</a>
                 </div>    

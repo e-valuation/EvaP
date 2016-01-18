@@ -27,13 +27,13 @@ class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
 
     def clean_description_de(self):
         description_de = self.cleaned_data.get('description_de')
-        if GradeDocument.objects.filter(course=self.instance.course, description_de=description_de).exclude(id=self.instance.id).exists():
+        if GradeDocument.objects.filter(course=self.instance.course, description_de__iexact=description_de).exclude(id=self.instance.id).exists():
             raise ValidationError(_("This description for a grade document was already used for this course."))
         return description_de
 
     def clean_description_en(self):
         description_en = self.cleaned_data.get('description_en')
-        if GradeDocument.objects.filter(course=self.instance.course, description_en=description_en).exclude(id=self.instance.id).exists():
+        if GradeDocument.objects.filter(course=self.instance.course, description_en__iexact=description_en).exclude(id=self.instance.id).exists():
             raise ValidationError(_("This description for a grade document was already used for this course."))
         return description_en
 
