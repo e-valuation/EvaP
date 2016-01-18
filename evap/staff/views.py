@@ -129,7 +129,7 @@ def semester_course_operation(request, semester_id):
     if request.method == 'POST':
         course_ids = request.POST.getlist('course_ids')
         courses = Course.objects.filter(id__in=course_ids)
-        send_email = True if request.POST.get('send_email') == 'on' else False
+        send_email = request.POST.get('send_email') == 'on'
         if operation == 'revertToNew':
             helper_semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableEditorReview':
@@ -194,7 +194,8 @@ def helper_semester_course_operation_prepare(request, courses, send_email):
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-    if send_email: EmailTemplate.send_review_notifications(courses)
+    if send_email:
+        EmailTemplate.send_review_notifications(courses)
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -209,7 +210,8 @@ def helper_semester_course_operation_publish(request, courses, send_email):
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    if send_email: send_publish_notifications(evaluation_results_courses=courses)
+    if send_email:
+        send_publish_notifications(evaluation_results_courses=courses)
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
