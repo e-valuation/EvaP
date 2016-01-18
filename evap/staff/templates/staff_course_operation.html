@@ -22,7 +22,13 @@
             {% endfor %}
             </tbody>
         </table>
-
+        {% if no_email_btn %}
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" name="send_email" checked> {% trans "Send Email notification" %}
+            </label>
+        </div>
+        {% endif %}
         <button type="submit" name="operation" value="{{ operation }}" class="btn btn-primary">{% trans "Confirm" %}</button>
         <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
     </form>

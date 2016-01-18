@@ -132,11 +132,11 @@ def semester_course_operation(request, semester_id):
         if operation == 'revertToNew':
             helper_semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableEditorReview':
-            helper_semester_course_operation_prepare(request, courses)
+            helper_semester_course_operation_prepare(request, courses, request.POST.get('send_email'))
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
         elif operation == 'publish':
-            helper_semester_course_operation_publish(request, courses)
+            helper_semester_course_operation_publish(request, courses, request.POST.get('send_email'))
         elif operation == 'unpublish':
             helper_semester_course_operation_unpublish(request, courses)
 
@@ -176,6 +176,7 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
+        no_email_btn=operation in ['prepare', 'reenableEditorReview', 'publish']
     )
     return render(request, "staff_course_operation.html", template_data)
 
@@ -186,14 +187,14 @@ def helper_semester_course_operation_revert(request, courses):
     messages.success(request, ungettext("Successfully reverted %(courses)d course to new.",
         "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
 
-def helper_semester_course_operation_prepare(request, courses):
+def helper_semester_course_operation_prepare(request, courses, send_email):
     for course in courses:
         course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-
-    EmailTemplate.send_review_notifications(courses)
+    if send_email == 'on':
+        EmailTemplate.send_review_notifications(courses)
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -202,13 +203,14 @@ def helper_semester_course_operation_approve(request, courses):
     messages.success(request, ungettext("Successfully approved %(courses)d course.",
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
-def helper_semester_course_operation_publish(request, courses):
+def helper_semester_course_operation_publish(request, courses, send_email):
     for course in courses:
         course.publish()
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    send_publish_notifications(evaluation_results_courses=courses)
+    if send_email == 'on':
+        send_publish_notifications(evaluation_results_courses=courses)
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
