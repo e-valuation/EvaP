@@ -467,6 +467,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         from evap.grades.models import GradeDocument
         return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
 
+    @property
+    def grades_activated(self):
+        from evap.grades.tools import are_grades_activated
+        return are_grades_activated(self.semester)
+
     @classmethod
     def update_courses(cls):
         logger.info("update_courses called. Processing courses now.")

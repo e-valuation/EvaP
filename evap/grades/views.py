@@ -7,11 +7,13 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden
 
 from sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required
+from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required, staff_required
 from evap.evaluation.models import Semester, Contribution, Course
-from evap.grades.models import GradeDocument
+from evap.grades.models import GradeDocument, SemesterGradeDownloadActivation
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
+
+from evap.staff.views import semester_view as staff_semester_view
 
 
 @grade_publisher_required
@@ -144,6 +146,9 @@ def download_grades(request, grade_document_id):
         return HttpResponseBadRequest()
 
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
+    if not grade_document.course.grades_activated:
+        return HttpResponseForbidden()
+
     return sendfile(request, grade_document.file.path, attachment=True, attachment_filename=grade_document.filename())
 
 
@@ -186,3 +191,15 @@ def delete_grades(request, semester_id, course_id, grade_document_id):
             grade_document=grade_document,
         )
         return render(request, "grades_delete.html", template_data)
+
+
+@staff_required
+def semester_grade_activation(request, semester_id, active):
+    semester = get_object_or_404(Semester, id=semester_id)
+    active = active == 'on'
+
+    activation, created = SemesterGradeDownloadActivation.objects.update_or_create(
+        semester=semester,
+        defaults={'is_active': active})
+
+    return staff_semester_view(request=request, semester_id=semester_id)

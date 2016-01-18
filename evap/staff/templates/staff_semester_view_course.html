@@ -10,7 +10,7 @@
         </td>
     {% endif %}
 {% endif %}
-<td style="width: 50%">
+<td style="width: 55%">
     <div>
     {% if course.can_staff_edit and info_only|is_false %}
         <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
@@ -18,7 +18,7 @@
         {{ course.name }}
     {% endif %}
     </div>
-    <div style="font-style: italic">
+    <div class="course-contributor">
         {{ course.responsible_contributor.full_name }}
     </div>
     {% for degree in course.degrees.all %}
@@ -77,7 +77,7 @@
             {% endif %}
         </td>
     {% else %}
-        <td style="width: 15%">
+        <td style="width: 20%">
             <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <span>&mdash;</span>
@@ -85,7 +85,7 @@
         </td>
     {% endif %}
 {% else %}
-    <td style="width: 15%">
+    <td style="width: 20%">
         <p data-toggle="tooltip" data-placement="left" title="{% trans "Participants" %}">
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
@@ -93,19 +93,19 @@
     </td>
 {% endif %}
 {% if info_only|is_false %}
-    <td style="width: 20%">
-        <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Email" %}</a>
+    <td style="width: 12%">
+        <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>
         {% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'approved' %}
-            <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+            <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview" %}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
         {% endif %}
         {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
-            <a href="{% url "results:course_detail" semester.id course.id %}" title="{% trans "Preview results" %}" class="btn btn-sm btn-default">{% trans "Preview results" %}</a>
+            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>
         {% endif %}
         {% if course.can_staff_delete %}
-            <a href="{% url "staff:course_delete" semester.id course.id %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+            <a href="{% url "staff:course_delete" semester.id course.id %}" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
         {% endif %}
         {% if state == 'published' %}
-            <a href="{% url "results:course_detail" semester.id course.id %}" title="{% trans "Results" %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}

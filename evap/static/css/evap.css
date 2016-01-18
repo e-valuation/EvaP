@@ -431,7 +431,7 @@ Side notes for calling out things
 }
 
 .multi-progress-bar .evap-progress-bar-container {
-    padding-bottom: 5px;
+    padding-bottom: 3px;
 }
 
 .deactivate {
@@ -481,4 +481,9 @@ li.menu-indent {
 
 .settings-form select {
     width: 100%;
+}
+
+.course-contributor {
+    font-style: italic;
+    padding-bottom: 6px;
 }
