@@ -482,3 +482,6 @@ li.menu-indent {
 .settings-form select {
     width: 100%;
 }
+li {
+    word-break: break-all;
+}
