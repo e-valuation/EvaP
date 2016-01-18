@@ -8,7 +8,7 @@ import tempfile
 import datetime
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
-from evap.grades.models import SemesterGradeActivation
+from evap.grades.models import SemesterGradeDownloadActivation
 
 
 class GradeUploadTests(WebTest):
@@ -41,7 +41,7 @@ class GradeUploadTests(WebTest):
 
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
-        semester_grade_activation = SemesterGradeActivation(semester=course.semester, is_active=True)
+        semester_grade_activation = SemesterGradeDownloadActivation(semester=course.semester, is_active=True)
         semester_grade_activation.save()
 
     def tearDown(self):
@@ -187,12 +187,9 @@ class GradeUploadTests(WebTest):
         self.assertFalse(course.gets_no_grade_documents)
 
     def helper_grade_activation(self, semester, active):
-        try:
-            activation = SemesterGradeActivation.objects.filter(semester=semester).get()
-            activation.is_active = active
-        except SemesterGradeActivation.DoesNotExist:
-            activation = SemesterGradeActivation(semester=semester, is_active=active)
-        activation.save()
+        activation, created = SemesterGradeDownloadActivation.objects.update_or_create(
+            semester=semester,
+            defaults={'is_active': active})
 
     def test_grade_activation(self):
         course = Course.objects.get(name_en="Test")

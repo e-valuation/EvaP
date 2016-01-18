@@ -69,7 +69,7 @@ def get_courses_with_prefetched_data(semester):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     rewards_active = is_semester_activated(semester)
-    grades_active = are_grades_activated(semester)
+    grades_downloadable = are_grades_activated(semester)
 
     courses = get_courses_with_prefetched_data(semester)
 
@@ -103,7 +103,7 @@ def semester_view(request, semester_id):
         disable_breadcrumb_semester=True,
         disable_if_archived="disabled" if semester.is_archived else "",
         rewards_active=rewards_active,
-        grades_active=grades_active,
+        grades_downloadable=grades_downloadable,
         num_enrollments_in_evaluation=num_enrollments_in_evaluation,
         num_votes=num_votes,
         first_start=first_start,

@@ -40,6 +40,6 @@ class GradeDocument(models.Model):
         return os.path.basename(self.file.name)
 
 
-class SemesterGradeActivation(models.Model):
-    semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='grades_active')
+class SemesterGradeDownloadActivation(models.Model):
+    semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='grades_downloadable')
     is_active = models.BooleanField(default=False)

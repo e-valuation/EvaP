@@ -1,9 +1,9 @@
-from evap.grades.models import SemesterGradeActivation
+from evap.grades.models import SemesterGradeDownloadActivation
 
 
 def are_grades_activated(semester):
     try:
-        activation = SemesterGradeActivation.objects.get(semester=semester)
+        activation = SemesterGradeDownloadActivation.objects.get(semester=semester)
         return activation.is_active
-    except SemesterGradeActivation.DoesNotExist:
+    except SemesterGradeDownloadActivation.DoesNotExist:
         return False

@@ -9,7 +9,7 @@ from sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required, staff_required
 from evap.evaluation.models import Semester, Contribution, Course
-from evap.grades.models import GradeDocument, SemesterGradeActivation
+from evap.grades.models import GradeDocument, SemesterGradeDownloadActivation
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
 
@@ -195,16 +195,11 @@ def delete_grades(request, semester_id, course_id, grade_document_id):
 
 @staff_required
 def semester_grade_activation(request, semester_id, active):
-    if active == 'on':
-        active = True
-    else:
-        active = False
+    semester = get_object_or_404(Semester, id=semester_id)
+    active = active == 'on'
 
-    try:
-        activation = SemesterGradeActivation.objects.filter(semester=Semester.objects.get(id=semester_id)).get()
-        activation.is_active = active
-    except SemesterGradeActivation.DoesNotExist:
-        activation = SemesterGradeActivation(semester=Semester.objects.get(id=semester_id), is_active=active)
-    activation.save()
+    activation, created = SemesterGradeDownloadActivation.objects.update_or_create(
+        semester=semester,
+        defaults={'is_active': active})
 
     return staff_semester_view(request=request, semester_id=semester_id)
