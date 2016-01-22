@@ -14,9 +14,10 @@
 
     <h3>
         {{ semester.name }}
+        &nbsp;
         <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
-        <a href="{% url "staff:semester_delete" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.can_staff_delete %} disabled {% endif %}>{% trans "Delete" %}</a>
-        <a href="{% url "staff:semester_archive" semester.id %}" class="btn btn-xs btn-danger" {% if not semester.is_archiveable %} disabled {% endif %}>{% trans "Archive" %}</a>
+        <a href="{% url "staff:semester_delete" semester.id %}" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+        <a href="{% url "staff:semester_archive" semester.id %}" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
     </h3>
 
     {% if num_courses > 0 %}
@@ -59,22 +60,26 @@
         </div>
         <div class="panel-body">
             <div class="button-menu">
-                <a href="{% url "staff:course_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Course" %}</a>
-                <a href="{% url "staff:single_result_create" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Create Single Result" %}</a>
-                <a href="{% url "staff:semester_import" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Import Courses" %}</a>
-                <a href="{% url "staff:semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Assign Questionnaires" %}</a>
+                <a href="{% url "staff:semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
                 &nbsp;
-                <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
-                &nbsp;
-                <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Todo" %}</a>
+                <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Todo" %}</a>
                 &nbsp;
                 <a href="{% url "staff:semester_export" semester.id %}" class="btn btn-sm btn-default">{% trans "Export" %}</a>
                 &nbsp;
+                <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
                 <div class="btn-group">
                     <a href="{% url "rewards:semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
                     <div class="btn-group btn-toggle">
-                        <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}">{% trans "On" %}</a>
-                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}">{% trans "Off" %}</a>
+                        <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                    </div>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Grades downloadable" %}</a>
+                    <div class="btn-group btn-toggle">
+                        <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if grades_downloadable %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
                     </div>
                 </div>
             </div>
@@ -83,7 +88,18 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Courses" %}</h3>
+            <span class="panel-title">
+                {% trans "Courses" %}
+                &nbsp;
+                <span class="btn-group">
+                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Course" %}</a></li>
+                        <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Single Result" %}</a></li>
+                        <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import Courses" %}</a></li>
+                    </ul>
+                </span>
+            </span>
         </div>
         <div class="panel-body">
             {% if courses_by_state %}
@@ -97,7 +113,7 @@
                 {% for state, courses in courses_by_state %}
                     <div id="tab{{ forloop.counter }}" class="tab-pane">
                         <form id="form_{{ state }}" method="GET" action="{% url "staff:semester_course_operation" semester.id %}">
-                            <table class="table table-striped">
+                            <table class="table table-striped vertically-aligned">
                                 <tbody>
                                 {% for course in courses %}
                                     <tr>
