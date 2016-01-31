@@ -36,6 +36,14 @@
 <td style="width: 10%">
     {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if course.is_single_result|is_false %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
 
+    {% if course.state == 'approved' %}
+        <br>
+        {% if course.days_until_evaluation <= 1 %}
+            <span class="label label-danger">{% trans "starts tomorrow" %}</span>
+        {% elif course.days_until_evaluation <= 7 %}
+            <span class="label label-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
+        {% endif %}
+    {% endif %}
     {% if course.state == 'inEvaluation' %}
         <br>
         {% if course.days_left_for_evaluation <= 0 %}
