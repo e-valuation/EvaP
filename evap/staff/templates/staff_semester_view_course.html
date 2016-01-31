@@ -76,12 +76,19 @@
                 {% endif %}
             {% endif %}
         </td>
+    {% elif course.is_single_result %}
+        <td style="width: 20%">
+            <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+                <span class="glyphicon glyphicon-user"></span>
+                <span>{{ course.num_single_result_participants}} </span>
+            </span>
+        </td>
     {% else %}
         <td style="width: 20%">
-            <p data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+            <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <span>&mdash;</span>
-            </p>
+            </span>
         </td>
     {% endif %}
 {% else %}

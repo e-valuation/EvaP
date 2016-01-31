@@ -263,6 +263,18 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         return self.contributions.get(responsible=True).questionnaires.filter(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
 
+    def num_single_result_participants(self):
+        if not self.is_single_result:
+            return 0
+
+        num_participants = 0
+        ratinganswercounters = RatingAnswerCounter.objects.filter(
+            question=Question.objects.get(questionnaire=Questionnaire.get_single_result_questionnaire()),
+            contribution=self.contributions.get(contributor=self.responsible_contributor))
+        for counter in ratinganswercounters:
+            num_participants += counter.count
+        return num_participants
+
     @property
     def can_staff_edit(self):
         return not self.is_archived and self.state in ['new', 'prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
