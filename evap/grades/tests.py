@@ -1,4 +1,4 @@
-from django_webtest import WebTest
+﻿from django_webtest import WebTest
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import Group
@@ -77,7 +77,7 @@ class GradeUploadTests(WebTest):
         final = "?final=true" if final_grades else ""
         response = self.app.post(
             "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
-            {"description": "Grades"},
+            {"description_en": "Grades", "description_de": "Grades"},
             user="grade_publisher",
             content_type='multipart/form-data',
             upload_files=upload_files,
