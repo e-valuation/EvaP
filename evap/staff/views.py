@@ -576,6 +576,7 @@ def course_import_participants(request, semester_id, course_id):
         else:
             # Add users to course participants. * converts list into parameters.
             course.participants.add(*imported_users)
+            messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
             return redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_import_participants.html", dict(course=course, form=form))

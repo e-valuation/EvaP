@@ -6,7 +6,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        {% trans "Upload course participants data from excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing students and enroll them into the course: " %} {{ course }}
+        {% trans "Upload course participants data from excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create user accounts for all contained students and adds them as participants for the course: " %} {{ course }}
     </p>
     <form enctype="multipart/form-data" method="POST" class="form-horizontal">
        {% csrf_token %}
