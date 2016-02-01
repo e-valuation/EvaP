@@ -202,8 +202,11 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
+        self.export = kwargs.pop('export', False)
         self.template = EmailTemplate()
         super().__init__(*args, **kwargs)
+        self.fields['subject'].required = not self.export
+        self.fields['body'].required = not self.export
 
     def clean(self):
         self.recipient_groups = self.cleaned_data.get('recipients')
@@ -213,10 +216,16 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
         return self.cleaned_data
 
-    # returns the number of recepients without an email address
+    # returns the number of recipients without an email address
     def missing_email_addresses(self):
         recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
         return len([user for user in recipients if not user.email])
+
+    def email_addresses(self):
+        if self.recipient_groups is None:
+            return []
+        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
+        return set(user.email for user in recipients if user.email)
 
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')

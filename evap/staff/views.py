@@ -535,9 +535,13 @@ def course_delete(request, semester_id, course_id):
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    form = CourseEmailForm(request.POST or None, instance=course)
+    form = CourseEmailForm(request.POST or None, instance=course, export='export' in request.POST)
 
     if form.is_valid():
+        if form.export:
+            email_addresses = '; '.join(form.email_addresses())
+            messages.info(request, _('Recipients: ') + '\n' + email_addresses)
+            return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
         form.send()
 
         missing_email_addresses = form.missing_email_addresses()

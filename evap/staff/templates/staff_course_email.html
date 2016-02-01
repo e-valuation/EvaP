@@ -17,14 +17,14 @@
                     <div class="form-row">
                         {% if field.name == "recipients" %}
                             <div class="form-label vertically-aligned {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
-                            <div class="form-field btn-group" data-toggle="buttons">
+                            <div class="btn-group" data-toggle="buttons">
                                 {% for choice in field %}
                                     <label class="btn btn-sm btn-default {% if choice.choice_value in field.value %}active{% endif %} {% if field.errors %}error{% endif %}" name="{{ field.name }}" onclick="changedFieldValue('{{ field.name }}')">
                                         <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="checkbox" value="{{ choice.choice_value }}" autocomplete="off" {% if choice.choice_value in field.value %}checked{% endif %} />
                                         {{ choice.choice_label }} {{ choice.id }}
                                     </label>
                                 {% endfor %}
-                            </div>
+                            </div> <input name="export" type="submit" value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
                         {% elif field.name == "subject" %}
                             <div class="form-label {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
                             <div class="form-field"><input class="form-control {% if field.errors %}error{% endif %}" id="{{ field.id_for_label }}" name="{{ field.name }}" type="text" oninput="changedFieldValue('{{ field.name }}');"/></div>
@@ -37,7 +37,7 @@
             </div>
         </fieldset>
         <div class="well submit-area text-center">
-            <input type="submit" value="{% trans "Send email" %}" class="btn btn-primary"/>
+            <input name="send" type="submit" value="{% trans "Send email" %}" class="btn btn-primary"/>
         </div>
     </form>
 {% endblock %}
