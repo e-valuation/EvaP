@@ -84,7 +84,26 @@
             <div class="col-sm-offset-2 col-sm-6">
                 {% if edit %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
-                    <button name="operation" value="approve" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-success">{% trans "Save and approve"%}</button>
+                    <button name="operation" data-toggle="modal" value="approve" type="button" data-target="#myModal" onclick="preventAccidentalClosing = false;" class="btn btn-success">{% trans "Save and approve"%}</button>
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">{% trans "Approve Course" %}</h4>
+                          </div>
+                          <div class="modal-body">
+                            <p>{% blocktrans %}If you approve this course you won't be able to 
+                            make any additional changes afterwards, unless the student representatives reopen the course for changes.<br />
+                            <em>Please approve the course when you're done editing it.</em>{% endblocktrans %}</p>
+                          </div>
+                          <div class="modal-footer">
+                            <button id="modal_btn" type="button" class="btn btn-primary">{% trans "Approve" %}</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Cancel" %}</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit|is_false %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>
             </div>
@@ -97,4 +116,13 @@
     {% if edit %}
         <script type="text/javascript"> preventAccidentalClosing = true; </script>
     {% endif %}
+    <script type="text/javascript">
+        $('#modal_btn').click(function() {
+            var input = $("<input>")
+               .attr("type", "hidden")
+               .attr("name", "operation").val("approve");
+            $('#course-form').append($(input));
+            $('#course-form').submit();
+        });
+    </script>
 {% endblock %}
