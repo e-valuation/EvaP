@@ -1263,7 +1263,7 @@ class TestSemesterCourseImportParticipants(WebTest):
 
         reply = form.submit(name="operation", value="import")
 
-        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 1: Email address is missing.')
+        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
         self.assertEquals(UserProfile.objects.count(), original_user_count)
