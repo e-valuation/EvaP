@@ -268,7 +268,6 @@ class ContributionFormSet(AtLeastOneFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
-
     def clean(self):
         self.handle_deleted_and_added_contributions()
 

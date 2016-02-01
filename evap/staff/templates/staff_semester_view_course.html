@@ -90,11 +90,13 @@
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
         </p>
+        <a href="{% url "staff:course_import_participants" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Students" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
     </td>
 {% endif %}
 {% if info_only|is_false %}
     <td style="width: 12%">
         <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>
+
         {% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'approved' %}
             <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview" %}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
         {% endif %}
