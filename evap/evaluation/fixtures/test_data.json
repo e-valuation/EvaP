@@ -127769,8 +127769,9 @@
     "course": 1577,
     "file": "grades/1577/test_results_03.txt",
     "type": "FIN",
-    "description": "Final grades",
-    "last_modified_time": "2015-11-08T17:16:02.642",
+    "description_de": "Final grades",
+    "description_en": "Final grades",
+    "last_modified_time": "2016-02-01T21:56:14.372",
     "last_modified_user": 2370
   }
 },
@@ -127781,8 +127782,9 @@
     "course": 1525,
     "file": "grades/1525/test_results_01.txt",
     "type": "MID",
-    "description": "Midterm grades",
-    "last_modified_time": "2015-11-08T17:15:40.074",
+    "description_de": "Midterm grades",
+    "description_en": "Midterm grades",
+    "last_modified_time": "2016-02-01T21:56:14.373",
     "last_modified_user": 2370
   }
 },
@@ -127793,8 +127795,9 @@
     "course": 1694,
     "file": "grades/1694/test_results_02.txt",
     "type": "MID",
-    "description": "Midterm grades",
-    "last_modified_time": "2015-11-08T17:15:51.492",
+    "description_de": "Midterm grades",
+    "description_en": "Midterm grades",
+    "last_modified_time": "2016-02-01T21:56:14.374",
     "last_modified_user": 2370
   }
 },

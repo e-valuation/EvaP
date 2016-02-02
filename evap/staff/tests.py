@@ -2,33 +2,24 @@ from django.core.urlresolvers import reverse
 from django_webtest import WebTest
 from django.test import TestCase
 from webtest import AppError
-from django.test import Client
 from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.db.utils import IntegrityError
 from django.utils.six import StringIO
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
 from evap.evaluation.tools import calculate_average_grades_and_deviation
-from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
-                             CourseForm, ImportForm, UserImportForm
-from evap.contributor.forms import EditorContributionForm
+from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, CourseForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
-from evap.rewards.models import RewardPointRedemptionEvent, SemesterActivation
-from evap.rewards.tools import reward_points_of_user
 
 from model_mommy import mommy
 
 import os.path
-import datetime
-import unittest
 
 
 def lastform(page):
@@ -64,7 +55,7 @@ class SampleXlsTests(WebTest):
     def test_sample_xls(self):
         page = self.app.get("/staff/semester/1/import", user='user')
 
-        original_user_count = UserProfile.objects.all().count()
+        original_user_count = UserProfile.objects.count()
 
         form = lastform(page)
         form["vote_start_date"] = "2015-01-01"
@@ -77,7 +68,7 @@ class SampleXlsTests(WebTest):
     def test_sample_user_xls(self):
         page = self.app.get("/staff/user/import", user='user')
 
-        original_user_count = UserProfile.objects.all().count()
+        original_user_count = UserProfile.objects.count()
 
         form = lastform(page)
         form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xls"),)
@@ -109,7 +100,7 @@ class UsecaseTests(WebTest):
         self.assertEqual(semester.course_set.count(), 0, "New semester is not empty.")
 
         # save original user count
-        original_user_count = UserProfile.objects.all().count()
+        original_user_count = UserProfile.objects.count()
 
         # import excel file
         page = page.click("[Ii]mport")
@@ -960,7 +951,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-order': 0,
             'contributions-1-responsibility': "RESPONSIBLE",
             'contributions-1-comment_visibility': "ALL",
-            'contributions-1-contributor': user1.pk ,
+            'contributions-1-contributor': user1.pk,
         }
 
         formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
@@ -1240,3 +1231,61 @@ class UserFormTests(TestCase):
         data = {"username": user.username.upper()}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
+
+
+# New style tests
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
+class TestSemesterCourseImportParticipants(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(Semester, pk=1)
+        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
+        cls.course = mommy.make(Course, pk=1)
+
+    def test_import_valid_file(self):
+        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
+
+        original_participant_count = self.course.participants.count()
+
+        form = lastform(page)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls"),)
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(self.course.participants.count(), original_participant_count + 2)
+
+    def test_import_invalid_file(self):
+        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
+
+        original_user_count = UserProfile.objects.count()
+
+        form = lastform(page)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls"),)
+
+        reply = form.submit(name="operation", value="import")
+
+        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
+        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+
+        self.assertEquals(UserProfile.objects.count(), original_user_count)
+
+    def test_test_run(self):
+        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
+
+        original_participant_count = self.course.participants.count()
+
+        form = lastform(page)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls"),)
+        form.submit(name="operation", value="test")
+
+        self.assertEqual(self.course.participants.count(), original_participant_count)
+
+    def test_suspicious_operation(self):
+        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
+
+        form = lastform(page)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls"),)
+
+        # Should throw SuspiciousOperation Exception.
+        reply = form.submit(name="operation", value="hackit", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)

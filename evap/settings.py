@@ -62,9 +62,10 @@ IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
 
 # the default descriptions for grade documents
-DEFAULT_FINAL_GRADES_DESCRIPTION = "Final grades"
-DEFAULT_MIDTERM_GRADES_DESCRIPTION = "Midterm grades"
-
+DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
+DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
+DEFAULT_FINAL_GRADES_DESCRIPTION_DE = "Endnoten"
+DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE = "Zwischennoten"
 
 ### Installation specific settings
 

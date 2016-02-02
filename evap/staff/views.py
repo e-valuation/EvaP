@@ -31,7 +31,9 @@ from evap.grades.tools import are_grades_activated
 
 from evap.results.exporters import ExcelExporter
 
-import random, datetime
+import datetime
+import random
+
 
 def raise_permission_denied_if_archived(archiveable):
     if archiveable.is_archived:
@@ -129,14 +131,15 @@ def semester_course_operation(request, semester_id):
     if request.method == 'POST':
         course_ids = request.POST.getlist('course_ids')
         courses = Course.objects.filter(id__in=course_ids)
+        send_email = request.POST.get('send_email') == 'on'
         if operation == 'revertToNew':
             helper_semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableEditorReview':
-            helper_semester_course_operation_prepare(request, courses)
+            helper_semester_course_operation_prepare(request, courses, send_email)
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
         elif operation == 'publish':
-            helper_semester_course_operation_publish(request, courses)
+            helper_semester_course_operation_publish(request, courses, send_email)
         elif operation == 'unpublish':
             helper_semester_course_operation_unpublish(request, courses)
 
@@ -176,8 +179,10 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
+        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'publish']
     )
     return render(request, "staff_course_operation.html", template_data)
+
 
 def helper_semester_course_operation_revert(request, courses):
     for course in courses:
@@ -186,14 +191,16 @@ def helper_semester_course_operation_revert(request, courses):
     messages.success(request, ungettext("Successfully reverted %(courses)d course to new.",
         "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
 
-def helper_semester_course_operation_prepare(request, courses):
+
+def helper_semester_course_operation_prepare(request, courses, send_email):
     for course in courses:
         course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
+    if send_email:
+        EmailTemplate.send_review_notifications(courses)
 
-    EmailTemplate.send_review_notifications(courses)
 
 def helper_semester_course_operation_approve(request, courses):
     for course in courses:
@@ -202,13 +209,16 @@ def helper_semester_course_operation_approve(request, courses):
     messages.success(request, ungettext("Successfully approved %(courses)d course.",
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
-def helper_semester_course_operation_publish(request, courses):
+
+def helper_semester_course_operation_publish(request, courses, send_email):
     for course in courses:
         course.publish()
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    send_publish_notifications(evaluation_results_courses=courses)
+    if send_email:
+        send_publish_notifications(evaluation_results_courses=courses)
+
 
 def helper_semester_course_operation_unpublish(request, courses):
     for course in courses:
@@ -525,9 +535,13 @@ def course_delete(request, semester_id, course_id):
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    form = CourseEmailForm(request.POST or None, instance=course)
+    form = CourseEmailForm(request.POST or None, instance=course, export='export' in request.POST)
 
     if form.is_valid():
+        if form.export:
+            email_addresses = '; '.join(form.email_addresses())
+            messages.info(request, _('Recipients: ') + '\n' + email_addresses)
+            return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
         form.send()
 
         missing_email_addresses = form.missing_email_addresses()
@@ -538,6 +552,39 @@ def course_email(request, semester_id, course_id):
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
+
+
+@staff_required
+def course_import_participants(request, semester_id, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+    raise_permission_denied_if_archived(course)
+
+    form = UserImportForm(request.POST or None, request.FILES or None)
+
+    if form.is_valid():
+        operation = request.POST.get('operation')
+        if operation not in ('test', 'import'):
+            raise SuspiciousOperation("Invalid POST operation")
+
+        # Extract data from form.
+        excel_file = form.cleaned_data['excel_file']
+
+        test_run = operation == 'test'
+
+        # Parse table.
+        imported_users = UserImporter.process(request, excel_file, test_run)
+
+        # Test run, or an error occurred while parsing -> stay and display error.
+        if test_run or not imported_users:
+            return render(request, "staff_import_participants.html", dict(course=course, form=form))
+        else:
+            # Add users to course participants. * converts list into parameters.
+            course.participants.add(*imported_users)
+            messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
+            return redirect('staff:semester_view', semester_id)
+    else:
+        return render(request, "staff_import_participants.html", dict(course=course, form=form, semester=semester))
 
 
 @staff_required
@@ -790,8 +837,7 @@ def degree_index(request):
 
 @staff_required
 def user_index(request):
-    from django.db.models import Max, BooleanField, ExpressionWrapper, Q, Count, Sum, Case, When, IntegerField
-    from django.contrib.auth.models import Group
+    from django.db.models import  BooleanField, ExpressionWrapper, Q, Sum, Case, When, IntegerField
     users = (UserProfile.objects.all()
         # the following four annotations basically add two bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))

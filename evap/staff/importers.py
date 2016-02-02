@@ -32,15 +32,16 @@ class UserData(CommonEqualityMixin):
         self.is_responsible = is_responsible
 
     def store_in_database(self):
-        user, created = UserProfile.objects.get_or_create(username=self.username)
-        user.first_name = self.first_name
-        user.last_name = self.last_name
-        user.email = self.email
-        user.title = self.title
+        user, created = UserProfile.objects.update_or_create(username=self.username,
+                                                             defaults={
+                                                                 'first_name': self.first_name,
+                                                                 'last_name': self.last_name,
+                                                                 'email': self.email,
+                                                                 'title': self.title})
         if user.needs_login_key:
             user.refresh_login_key()
         user.save()
-        return created
+        return user, created
 
     def validate(self):
         user = UserProfile()
@@ -108,7 +109,7 @@ class ExcelImporter(object):
         for sheet in self.book.sheets():
             try:
                 for row in range(self.skip_first_n_rows, sheet.nrows):
-                    line_data = parse_row_function(sheet.row_values(row), sheet.name, row)
+                    line_data = parse_row_function(sheet.row_values(row))
                     # store data objects together with the data source location for problem tracking
                     self.associations[(sheet.name, row)] = line_data
 
@@ -121,13 +122,13 @@ class ExcelImporter(object):
     def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
         if curr_email == "":
-            self.errors.append(_('Sheet "{}", row {}: Email address is missing.').format(sheet, row))
+            self.errors.append(_('Sheet "{}", row {}: Email address is missing.').format(sheet, row+1))
             return
         if curr_email not in self.users:
             self.users[curr_email] = user_data
         else:
             if not user_data == self.users[curr_email]:
-                self.errors.append(_('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row, curr_email))
+                self.errors.append(_('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row+1, curr_email))
 
     def generate_external_usernames_if_external(self):
         for user_data in self.users.values():
@@ -213,7 +214,7 @@ class EnrollmentImporter(ExcelImporter):
         self.enrollments = []
         self.maxEnrollments = 6
 
-    def read_one_enrollment(self, data, sheet_name, row_id):
+    def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
         responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
         course_data = CourseData(name_de=data[7], name_en=data[8], type=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
@@ -225,7 +226,7 @@ class EnrollmentImporter(ExcelImporter):
             self.courses[course_id] = course_data
         else:
             if not course_data == self.courses[course_id]:
-                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row, course_data.name_en))
+                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row+1, course_data.name_en))
 
     def consolidate_enrollment_data(self):
         for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
@@ -328,9 +329,9 @@ class UserImporter(ExcelImporter):
     def __init__(self, request):
         super().__init__(request)
 
-    def read_one_user(self, data, sheet_name, row_id):
+    def read_one_user(self, data):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
-        return (user_data)
+        return user_data
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
@@ -341,18 +342,21 @@ class UserImporter(ExcelImporter):
             Stores the read data in the database. Errors might still
             occur because of the data already in the database.
         """
+        new_participants = []
         with transaction.atomic():
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:
-                    created = user_data.store_in_database()
+                    user, created = user_data.store_in_database()
+                    new_participants.append(user)
                     if created:
                         users_count += 1
 
                 except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row, sheet=sheet, error=e))
+                    messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
+        return new_participants
 
     @classmethod
     def process(cls, request, excel_file, test_run):
@@ -380,7 +384,7 @@ class UserImporter(ExcelImporter):
             if test_run:
                 messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
             else:
-                importer.save_users_to_db()
+                return importer.save_users_to_db()
         except Exception as e:
             messages.error(request, _("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
