@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-22 16:14+0100\n"
-"PO-Revision-Date: 2016-01-22 16:15+0100\n"
+"POT-Creation-Date: 2016-02-02 13:51+0100\n"
+"PO-Revision-Date: 2016-02-02 13:52+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -41,13 +41,13 @@ msgstr "Mein EvaP"
 #: evap/contributor/templates/contributor_base.html:11
 #: evap/contributor/templates/contributor_base.html:13
 #: evap/contributor/templates/contributor_course_form.html:31
-#: evap/evaluation/models.py:529 evap/staff/templates/staff_course_form.html:27
+#: evap/evaluation/models.py:533 evap/staff/templates/staff_course_form.html:27
 #: evap/staff/templates/staff_user_labels.html:14
 msgid "Contributor"
 msgstr "Mitwirkender"
 
 #: evap/contributor/templates/contributor_course_form.html:24
-#: evap/results/templates/results_course_detail.html:99
+#: evap/results/templates/results_course_detail.html:103
 #: evap/staff/templates/staff_course_form.html:17
 msgid "Contributors"
 msgstr "Mitwirkende"
@@ -67,7 +67,7 @@ msgid "Options"
 msgstr "Optionen"
 
 #: evap/contributor/templates/contributor_course_form.html:50
-#: evap/evaluation/models.py:537
+#: evap/evaluation/models.py:541
 msgid "responsible"
 msgstr "verantwortlich"
 
@@ -124,12 +124,12 @@ msgstr "Zurück"
 
 #: evap/contributor/templates/contributor_course_form.html:89
 #: evap/grades/templates/toggle_no_grades.html:23
-#: evap/staff/templates/staff_course_operation.html:27
+#: evap/staff/templates/staff_course_operation.html:33
 msgid "Cancel"
 msgstr "Abbrechen"
 
 #: evap/contributor/templates/contributor_index.html:10
-#: evap/evaluation/models.py:788
+#: evap/evaluation/models.py:792
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -215,7 +215,7 @@ msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
 #: evap/contributor/templates/contributor_index.html:39
-#: evap/evaluation/models.py:927
+#: evap/evaluation/models.py:931
 #: evap/grades/templates/grades_semester_view.html:27
 #: evap/rewards/templates/rewards_semester_reward_points_view.html:14
 #: evap/staff/templates/staff_user_index.html:22
@@ -235,7 +235,7 @@ msgid "Evaluation Period"
 msgstr "Abstimmungszeitraum"
 
 #: evap/contributor/templates/contributor_index.html:42
-#: evap/staff/templates/staff_semester_view_course.html:89
+#: evap/staff/templates/staff_semester_view_course.html:97
 msgid "Participants"
 msgstr "Teilnehmer"
 
@@ -266,7 +266,7 @@ msgstr "Bearbeiten"
 #: evap/contributor/templates/contributor_index.html:69
 #: evap/contributor/templates/contributor_index.html:72
 #: evap/staff/templates/staff_questionnaire_index_list.html:31
-#: evap/staff/templates/staff_semester_view_course.html:99
+#: evap/staff/templates/staff_semester_view_course.html:109
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -286,9 +286,9 @@ msgstr ""
 #: evap/contributor/templates/contributor_index.html:78
 #: evap/results/templates/results_base.html:5
 #: evap/results/templates/results_base.html:9
-#: evap/staff/templates/staff_semester_view_course.html:108
-#: evap/student/templates/student_index.html:106
-#: evap/student/templates/student_index.html:108 evap/templates/base.html:100
+#: evap/staff/templates/staff_semester_view_course.html:118
+#: evap/student/templates/student_index.html:108
+#: evap/student/templates/student_index.html:110 evap/templates/base.html:100
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -314,7 +314,7 @@ msgid "Username"
 msgstr "Benutzername"
 
 #: evap/contributor/templates/contributor_settings.html:30
-#: evap/evaluation/models.py:783
+#: evap/evaluation/models.py:787
 msgid "Title"
 msgstr "Titel"
 
@@ -372,11 +372,11 @@ msgstr "Änderungen speichern"
 msgid "Successfully updated your settings."
 msgstr "Einstellungen erfolgreich geändert."
 
-#: evap/contributor/views.py:99 evap/staff/views.py:474
+#: evap/contributor/views.py:99 evap/staff/views.py:484
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: evap/contributor/views.py:101 evap/staff/views.py:476
+#: evap/contributor/views.py:101 evap/staff/views.py:486
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -462,11 +462,11 @@ msgstr "Semester"
 msgid "semesters"
 msgstr "Semester"
 
-#: evap/evaluation/models.py:98
+#: evap/evaluation/models.py:98 evap/grades/models.py:25
 msgid "description (german)"
 msgstr "Beschreibung (deutsch)"
 
-#: evap/evaluation/models.py:99
+#: evap/evaluation/models.py:99 evap/grades/models.py:26
 msgid "description (english)"
 msgstr "Beschreibung (englisch)"
 
@@ -507,7 +507,7 @@ msgstr "obsolet"
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: evap/evaluation/models.py:119 evap/evaluation/models.py:536
+#: evap/evaluation/models.py:119 evap/evaluation/models.py:540
 msgid "questionnaires"
 msgstr "Fragebögen"
 
@@ -559,7 +559,7 @@ msgstr "erster Evaluierungstag"
 msgid "last day of evaluation"
 msgstr "letzter Evaluierungstag"
 
-#: evap/evaluation/models.py:217 evap/evaluation/models.py:534
+#: evap/evaluation/models.py:217 evap/evaluation/models.py:538
 msgid "course"
 msgstr "Veranstaltung"
 
@@ -567,254 +567,254 @@ msgstr "Veranstaltung"
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: evap/evaluation/models.py:407
+#: evap/evaluation/models.py:411
 msgid "Not enough questionnaires assigned"
 msgstr "Nicht ausreichend Fragebögen zugeordnet"
 
-#: evap/evaluation/models.py:409
+#: evap/evaluation/models.py:413
 msgid "Not enough participants to publish results"
 msgstr "Zu wenig Teilnehmer für Veröffentlichung"
 
-#: evap/evaluation/models.py:521
+#: evap/evaluation/models.py:525
 msgid "Own"
 msgstr "Eigene"
 
-#: evap/evaluation/models.py:522 evap/grades/models.py:13
-#: evap/results/templates/results_course_detail.html:85
+#: evap/evaluation/models.py:526 evap/grades/models.py:14
+#: evap/results/templates/results_course_detail.html:89
 #: evap/results/templates/results_semester_detail.html:24
 #: evap/results/templates/results_semester_detail.html:65
 #: evap/staff/templates/staff_semester_todo.html:28
 msgid "Course"
 msgstr "Veranstaltung"
 
-#: evap/evaluation/models.py:523
+#: evap/evaluation/models.py:527
 msgid "All"
 msgstr "Alle"
 
-#: evap/evaluation/models.py:530
+#: evap/evaluation/models.py:534
 msgid "Editor"
 msgstr "Bearbeiter"
 
-#: evap/evaluation/models.py:531
+#: evap/evaluation/models.py:535
 #: evap/grades/templates/grades_semester_view.html:28
-#: evap/results/templates/results_course_detail.html:53
+#: evap/results/templates/results_course_detail.html:57
 #: evap/results/templates/results_semester_detail.html:26
 #: evap/results/templates/results_semester_detail.html:67
 #: evap/staff/forms.py:106 evap/staff/templates/staff_user_labels.html.py:17
 msgid "Responsible"
 msgstr "Verantwortlicher"
 
-#: evap/evaluation/models.py:535
+#: evap/evaluation/models.py:539
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evap/evaluation/models.py:538
+#: evap/evaluation/models.py:542
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evap/evaluation/models.py:539
+#: evap/evaluation/models.py:543
 msgid "comment visibility"
 msgstr "Kommentar-Sichtbarkeit"
 
-#: evap/evaluation/models.py:540
+#: evap/evaluation/models.py:544
 msgid "label"
 msgstr "Label"
 
-#: evap/evaluation/models.py:542
+#: evap/evaluation/models.py:546
 msgid "contribution order"
 msgstr "Mitwirkungs-Reihenfolge"
 
-#: evap/evaluation/models.py:569
+#: evap/evaluation/models.py:573
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evap/evaluation/models.py:570
+#: evap/evaluation/models.py:574
 msgid "Likert Question"
 msgstr "Likert-Frage"
 
-#: evap/evaluation/models.py:571
+#: evap/evaluation/models.py:575
 msgid "Grade Question"
 msgstr "Bewertungsfrage"
 
-#: evap/evaluation/models.py:575
+#: evap/evaluation/models.py:579
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evap/evaluation/models.py:576
+#: evap/evaluation/models.py:580
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evap/evaluation/models.py:577
+#: evap/evaluation/models.py:581
 msgid "question type"
 msgstr "Frageart"
 
-#: evap/evaluation/models.py:583 evap/evaluation/models.py:731
+#: evap/evaluation/models.py:587 evap/evaluation/models.py:735
 msgid "question"
 msgstr "Frage"
 
-#: evap/evaluation/models.py:584 evap/evaluation/models.py:732
+#: evap/evaluation/models.py:588 evap/evaluation/models.py:736
 msgid "questions"
 msgstr "Fragen"
 
-#: evap/evaluation/models.py:624 evap/evaluation/models.py:631
+#: evap/evaluation/models.py:628 evap/evaluation/models.py:635
 msgid "answer"
 msgstr "Antwort"
 
-#: evap/evaluation/models.py:625
+#: evap/evaluation/models.py:629
 msgid "answers"
 msgstr "Antworten"
 
-#: evap/evaluation/models.py:632
+#: evap/evaluation/models.py:636
 msgid "count"
 msgstr "Anzahl"
 
-#: evap/evaluation/models.py:638
+#: evap/evaluation/models.py:642
 msgid "rating answer"
 msgstr "Bewertungs-Antwort"
 
-#: evap/evaluation/models.py:639
+#: evap/evaluation/models.py:643
 msgid "rating answers"
 msgstr "Bewertungs-Antworten"
 
-#: evap/evaluation/models.py:649
+#: evap/evaluation/models.py:653
 msgid "reviewed answer"
 msgstr "Überprüfte Antwort"
 
-#: evap/evaluation/models.py:650
+#: evap/evaluation/models.py:654
 msgid "original answer"
 msgstr "Originale Antwort"
 
-#: evap/evaluation/models.py:657
+#: evap/evaluation/models.py:661
 msgid "hidden"
 msgstr "versteckt"
 
-#: evap/evaluation/models.py:658 evap/evaluation/tools.py:48
+#: evap/evaluation/models.py:662 evap/evaluation/tools.py:48
 #: evap/evaluation/tools.py:68
 msgid "published"
 msgstr "veröffentlicht"
 
-#: evap/evaluation/models.py:659
+#: evap/evaluation/models.py:663
 #: evap/staff/templates/staff_course_comments_section.html:35
 msgid "private"
 msgstr "privat"
 
-#: evap/evaluation/models.py:660
+#: evap/evaluation/models.py:664
 msgid "not reviewed"
 msgstr "nicht überprüft"
 
-#: evap/evaluation/models.py:662
+#: evap/evaluation/models.py:666
 msgid "state of answer"
 msgstr "Zustand der Antwort"
 
-#: evap/evaluation/models.py:665
+#: evap/evaluation/models.py:669
 msgid "text answer"
 msgstr "Text-Antwort"
 
-#: evap/evaluation/models.py:666
+#: evap/evaluation/models.py:670
 msgid "text answers"
 msgstr "Text-Antworten"
 
-#: evap/evaluation/models.py:702
+#: evap/evaluation/models.py:706
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evap/evaluation/models.py:704
+#: evap/evaluation/models.py:708
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evap/evaluation/models.py:705
+#: evap/evaluation/models.py:709
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evap/evaluation/models.py:710
+#: evap/evaluation/models.py:714
 msgid "section"
 msgstr "Abschnitt"
 
-#: evap/evaluation/models.py:711
+#: evap/evaluation/models.py:715
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evap/evaluation/models.py:719
+#: evap/evaluation/models.py:723
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evap/evaluation/models.py:721
+#: evap/evaluation/models.py:725
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evap/evaluation/models.py:722
+#: evap/evaluation/models.py:726
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evap/evaluation/models.py:725 evap/evaluation/models.py:726
+#: evap/evaluation/models.py:729 evap/evaluation/models.py:730
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evap/evaluation/models.py:738
+#: evap/evaluation/models.py:742
 msgid "Users must have a username"
 msgstr "Benutzer müssen einen Benutzernamen haben"
 
-#: evap/evaluation/models.py:781
+#: evap/evaluation/models.py:785
 msgid "username"
 msgstr "Benutzername"
 
-#: evap/evaluation/models.py:782
+#: evap/evaluation/models.py:786
 msgid "email address"
 msgstr "E‑Mail-Adresse"
 
-#: evap/evaluation/models.py:784
+#: evap/evaluation/models.py:788
 msgid "first name"
 msgstr "Vorname"
 
-#: evap/evaluation/models.py:785
+#: evap/evaluation/models.py:789
 msgid "last name"
 msgstr "Nachname"
 
-#: evap/evaluation/models.py:791
+#: evap/evaluation/models.py:795
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evap/evaluation/models.py:796 evap/staff/templates/staff_user_labels.html:20
+#: evap/evaluation/models.py:800 evap/staff/templates/staff_user_labels.html:20
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evap/evaluation/models.py:797
+#: evap/evaluation/models.py:801
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evap/evaluation/models.py:801
+#: evap/evaluation/models.py:805
 msgid "user"
 msgstr "Benutzer"
 
-#: evap/evaluation/models.py:802
+#: evap/evaluation/models.py:806
 msgid "users"
 msgstr "Benutzer"
 
-#: evap/evaluation/models.py:929 evap/staff/forms.py:200
+#: evap/evaluation/models.py:933 evap/staff/forms.py:200
 msgid "Subject"
 msgstr "Betreff"
 
-#: evap/evaluation/models.py:930
+#: evap/evaluation/models.py:934
 msgid "Body"
 msgstr "Text"
 
-#: evap/evaluation/models.py:941
+#: evap/evaluation/models.py:945
 msgid "all participants"
 msgstr "Alle Teilnehmer"
 
-#: evap/evaluation/models.py:942
+#: evap/evaluation/models.py:946
 msgid "due participants"
 msgstr "Ausstehende Teilnehmer"
 
-#: evap/evaluation/models.py:943
+#: evap/evaluation/models.py:947
 msgid "responsible person"
 msgstr "verantwortliche Person"
 
-#: evap/evaluation/models.py:944
+#: evap/evaluation/models.py:948
 msgid "all editors"
 msgstr "alle Bearbeiter"
 
-#: evap/evaluation/models.py:945
+#: evap/evaluation/models.py:949
 msgid "all contributors"
 msgstr "alle Mitwirkenden"
 
@@ -919,8 +919,8 @@ msgid "Only a few participants answered this question."
 msgstr "Nur wenige Teilnehmer haben diese Frage beantwortet."
 
 #: evap/evaluation/templates/result_bar.html:30
-#: evap/results/templates/results_course_detail.html:72
-#: evap/results/templates/results_course_detail.html:73
+#: evap/results/templates/results_course_detail.html:76
+#: evap/results/templates/results_course_detail.html:77
 #: evap/results/templates/results_semester_detail.html:39
 #: evap/results/templates/results_semester_detail.html:50
 #: evap/results/templates/results_semester_detail.html:51
@@ -1083,51 +1083,46 @@ msgstr "Evaluierung beendet"
 msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
-#: evap/grades/forms.py:10 evap/grades/models.py:24
-#: evap/grades/templates/grades_course_view.html:19
-msgid "Description"
-msgstr "Beschreibung"
-
-#: evap/grades/forms.py:12 evap/staff/forms.py:58 evap/staff/forms.py:103
+#: evap/grades/forms.py:11 evap/staff/forms.py:58 evap/staff/forms.py:103
 msgid "Last modified"
 msgstr "Zuletzt verändert"
 
-#: evap/grades/forms.py:13 evap/staff/forms.py:60 evap/staff/forms.py:104
+#: evap/grades/forms.py:12 evap/staff/forms.py:60 evap/staff/forms.py:104
 #: evap/staff/templates/staff_semester_todo.html:31
 msgid "Last modified by"
 msgstr "Zuletzt verändert von"
 
-#: evap/grades/forms.py:32
+#: evap/grades/forms.py:31 evap/grades/forms.py:37
 msgid "This description for a grade document was already used for this course."
 msgstr ""
 "Diese Beschreibung wurde bereits für ein Noten-Dokument in diesem Kurs "
 "genutzt."
 
-#: evap/grades/models.py:14
+#: evap/grades/models.py:15
 msgid "File"
 msgstr "Datei"
 
-#: evap/grades/models.py:19
+#: evap/grades/models.py:20
 msgid "midterm grades"
 msgstr "Zwischennoten"
 
-#: evap/grades/models.py:20
+#: evap/grades/models.py:21
 msgid "final grades"
 msgstr "Endnoten"
 
-#: evap/grades/models.py:22
+#: evap/grades/models.py:23
 msgid "grade type"
 msgstr "Noten-Typ"
 
-#: evap/grades/models.py:26
+#: evap/grades/models.py:30
 msgid "Created"
 msgstr "erstellt am"
 
-#: evap/grades/models.py:30
+#: evap/grades/models.py:34
 msgid "Grade Document"
 msgstr "Noten-Dokument"
 
-#: evap/grades/models.py:31
+#: evap/grades/models.py:35
 msgid "Grade Documents"
 msgstr "Noten-Dokumente"
 
@@ -1141,8 +1136,12 @@ msgstr "Noten-Veröffentlichung"
 msgid "Uploaded grade documents"
 msgstr "Hochgeladene Noten-Dokumente"
 
+#: evap/grades/templates/grades_course_view.html:19
+msgid "Description"
+msgstr "Beschreibung"
+
 #: evap/grades/templates/grades_course_view.html:20
-#: evap/results/templates/results_course_detail.html:52
+#: evap/results/templates/results_course_detail.html:56
 #: evap/results/templates/results_semester_detail.html:25
 #: evap/results/templates/results_semester_detail.html:66
 msgid "Type"
@@ -1168,7 +1167,7 @@ msgstr "Herunterladen"
 #: evap/staff/templates/staff_questionnaire_index_list.html:34
 #: evap/staff/templates/staff_questionnaire_index_list.html:36
 #: evap/staff/templates/staff_semester_view.html:19
-#: evap/staff/templates/staff_semester_view_course.html:105
+#: evap/staff/templates/staff_semester_view_course.html:115
 #: evap/staff/templates/staff_user_index.html:37
 #: evap/staff/templates/staff_user_index.html:39
 msgid "Delete"
@@ -1351,28 +1350,28 @@ msgstr ""
 "(%(semester)s) <b>eingegangen sind, aber nicht hochgeladen werden</b>."
 
 #: evap/grades/templates/toggle_no_grades.html:22
-#: evap/staff/templates/staff_course_operation.html:26
+#: evap/staff/templates/staff_course_operation.html:32
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: evap/grades/views.py:104
+#: evap/grades/views.py:106
 msgid "Successfully uploaded grades."
 msgstr "Noten erfolgreich hochgeladen."
 
-#: evap/grades/views.py:131
+#: evap/grades/views.py:133
 msgid "Successfully confirmed that no grade documents will be provided."
 msgstr "Erfolgreich bestätigt, dass Noten-Dokumente nicht hochgeladen werden."
 
-#: evap/grades/views.py:133
+#: evap/grades/views.py:135
 msgid "Successfully confirmed that grade documents will be provided later on."
 msgstr ""
 "Erfolgreich bestätigt, dass die Notendokumente noch hochgeladen werden."
 
-#: evap/grades/views.py:165
+#: evap/grades/views.py:167
 msgid "Successfully updated grades."
 msgstr "Noten erfolgreich aktualisiert."
 
-#: evap/grades/views.py:185
+#: evap/grades/views.py:187
 msgid "Successfully deleted grade document."
 msgstr "Noten-Dokument erfolgreich gelöscht."
 
@@ -1436,30 +1435,30 @@ msgstr "Zu öffentlicher Ansicht wechseln"
 msgid "Overview"
 msgstr "Übersicht"
 
-#: evap/results/templates/results_course_detail.html:38
-#: evap/student/templates/student_index.html:92
-#: evap/student/templates/student_index.html:101
+#: evap/results/templates/results_course_detail.html:42
+#: evap/student/templates/student_index.html:94
+#: evap/student/templates/student_index.html:103
 msgid "Download grades"
 msgstr "Noten herunterladen"
 
-#: evap/results/templates/results_course_detail.html:51
+#: evap/results/templates/results_course_detail.html:55
 msgid "Degree"
 msgstr "Studiengang"
 
-#: evap/results/templates/results_course_detail.html:54
+#: evap/results/templates/results_course_detail.html:58
 #: evap/results/templates/results_semester_detail.html:27
 msgid "Average Grade"
 msgstr "Durchschnittsnote"
 
-#: evap/results/templates/results_course_detail.html:55
+#: evap/results/templates/results_course_detail.html:59
 #: evap/results/templates/results_semester_detail.html:28
 msgid "Standard Deviation"
 msgstr "Standardabweichung"
 
-#: evap/results/templates/results_course_detail.html:56
+#: evap/results/templates/results_course_detail.html:60
 #: evap/results/templates/results_semester_detail.html:29
-#: evap/staff/templates/staff_semester_view_course.html:53
-#: evap/staff/templates/staff_semester_view_course.html:81
+#: evap/staff/templates/staff_semester_view_course.html:61
+#: evap/staff/templates/staff_semester_view_course.html:89
 msgid "Voters"
 msgstr "Abstimmende"
 
@@ -1762,17 +1761,17 @@ msgstr "E‑Mail senden an"
 msgid "Message"
 msgstr "Nachricht"
 
-#: evap/staff/forms.py:212
+#: evap/staff/forms.py:215
 msgid "No recipient selected. Choose at least one group of recipients."
 msgstr ""
 "Kein Empfänger ausgewählt. Bitte wählen Sie wenigstens eine Empfängergruppe "
 "aus."
 
-#: evap/staff/forms.py:244
+#: evap/staff/forms.py:253
 msgid "You must have at least one of these."
 msgstr "Es muss mindestens eine/n geben."
 
-#: evap/staff/forms.py:284
+#: evap/staff/forms.py:292
 msgid ""
 "Please select the name of each added contributor. Remove empty rows if "
 "necessary."
@@ -1780,13 +1779,13 @@ msgstr ""
 "Bitte wählen Sie die Namen aller hinzugefügten Mitwirkenden aus. Entfernen "
 "Sie leere Zeilen, falls notwendig."
 
-#: evap/staff/forms.py:286
+#: evap/staff/forms.py:294
 msgid "Duplicate contributor found. Each contributor should only be used once."
 msgstr ""
 "Doppelte Mitwirkende gefunden. Jeder Mitwirkende sollte nur einmal angegeben "
 "werden."
 
-#: evap/staff/forms.py:294
+#: evap/staff/forms.py:302
 msgid ""
 "No responsible contributor found. Each course must have exactly one "
 "responsible contributor."
@@ -1794,7 +1793,7 @@ msgstr ""
 "Kein Verantwortlicher gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
-#: evap/staff/forms.py:296
+#: evap/staff/forms.py:304
 msgid ""
 "Too many responsible contributors found. Each course must have exactly one "
 "responsible contributor."
@@ -1802,64 +1801,64 @@ msgstr ""
 "Zu viele Verantwortliche gefunden. Jede Veranstaltung muss genau einen "
 "Verantwortlichen besitzen."
 
-#: evap/staff/forms.py:318
+#: evap/staff/forms.py:326
 msgid "Responsible contributor"
 msgstr "Verantwortlicher Dozent"
 
-#: evap/staff/forms.py:322
+#: evap/staff/forms.py:330
 msgid "Staff user"
 msgstr "Verwalter"
 
-#: evap/staff/forms.py:323
+#: evap/staff/forms.py:331
 msgid "Grade user"
 msgstr "Notenveröffentlicher"
 
-#: evap/staff/forms.py:324
+#: evap/staff/forms.py:332
 msgid "Courses participating in (active semester)"
 msgstr "Teilnehmer in (aktuelles Semester)"
 
-#: evap/staff/forms.py:350
+#: evap/staff/forms.py:358
 #, python-format
 msgid "A user with the username '%s' already exists"
 msgstr "Ein Benutzer mit dem Namen '%s' existiert bereits"
 
-#: evap/staff/forms.py:362
+#: evap/staff/forms.py:370
 #, python-format
 msgid "A user with the email '%s' already exists"
 msgstr "Ein Benutzer mit der E-Mail-Adresse '%s' existiert bereits"
 
-#: evap/staff/forms.py:383
+#: evap/staff/forms.py:391
 msgid "Number of Winners"
 msgstr "Anzahl der Gewinner"
 
-#: evap/staff/forms.py:445 evap/staff/templates/staff_semester_export.html:28
+#: evap/staff/forms.py:453 evap/staff/templates/staff_semester_export.html:28
 msgid "Course types"
 msgstr "Kurstypen"
 
-#: evap/staff/importers.py:105
+#: evap/staff/importers.py:106
 msgid "Wrong number of columns in sheet '{}'. Expected: {}, actual: {}"
 msgstr ""
 "Falsche Anzahl von Spalten in Blatt '{}'. Erwartet: {}, tatsächlich: {}"
 
-#: evap/staff/importers.py:115
+#: evap/staff/importers.py:116
 #, python-format
 msgid "Successfully read sheet '%s'."
 msgstr "Blatt '%s' erfolgreich gelesen."
 
-#: evap/staff/importers.py:117
+#: evap/staff/importers.py:118
 #, python-format
 msgid "A problem occured while reading sheet '%s'."
 msgstr "Beim Lesen des Blattes '%s' trat ein Fehler auf."
 
-#: evap/staff/importers.py:119
+#: evap/staff/importers.py:120
 msgid "Successfully read excel file."
 msgstr "Exceldatei erfolgreich gelesen."
 
-#: evap/staff/importers.py:124
+#: evap/staff/importers.py:125
 msgid "Sheet \"{}\", row {}: Email address is missing."
 msgstr "Blatt \"{}\", Reihe {}: E‑Mail-Adresse fehlt."
 
-#: evap/staff/importers.py:130
+#: evap/staff/importers.py:131
 msgid ""
 "Sheet \"{}\", row {}: The users's data (email: {}) differs from it's data in "
 "a previous row."
@@ -1867,31 +1866,31 @@ msgstr ""
 "Blatt \"{}\", Reihe {}: Die Daten des Nutzers (E-Mail: {}) unterscheiden "
 "sich von den Daten in einer vorherigen Zeile."
 
-#: evap/staff/importers.py:136
+#: evap/staff/importers.py:137
 msgid "User {}: Username must be empty for external users."
 msgstr "Nutzer {}: Bei externen Nutzern muss der Nutzername leer sein."
 
-#: evap/staff/importers.py:147
+#: evap/staff/importers.py:148
 msgid "('{}' and '{}')."
 msgstr "('{}' und '{}')."
 
-#: evap/staff/importers.py:146
+#: evap/staff/importers.py:147
 msgid "The imported data contains two email addresses with the same username "
 msgstr ""
 "Die importierten Daten enthalten zwei E-Mail-Adressen mit dem gleichen "
 "Benutzernamen "
 
-#: evap/staff/importers.py:152
+#: evap/staff/importers.py:153
 msgid "Emailaddress {}: Username cannot be empty for non-external users."
 msgstr ""
 "E-Mail-Adresse {}: Bei nicht-externen Nutzern darf der Nutzername nicht leer "
 "sein."
 
-#: evap/staff/importers.py:157
+#: evap/staff/importers.py:158
 msgid "User {}: Error when validating: {}"
 msgstr "Nutzer {}: Fehler beim Validieren: {}"
 
-#: evap/staff/importers.py:162
+#: evap/staff/importers.py:163
 msgid ""
 "User {}, username {}: Another user with the same email address and a "
 "different username ({}) already exists."
@@ -1899,41 +1898,41 @@ msgstr ""
 "Benutzer {}, Benutzername {}: Es ist bereits ein Benutzer mit der gleichen E-"
 "Mail-Adresse und einem anderen Benutzernamen ({}) vorhanden."
 
-#: evap/staff/importers.py:168
+#: evap/staff/importers.py:169
 msgid ""
 "User {}: Username cannot be longer than {} characters for non-external users."
 msgstr ""
 "Nutzer {}: Bei nicht-externen Nutzern darf der Nutzername nicht länger als "
 "{} Zeichen sein."
 
-#: evap/staff/importers.py:170
+#: evap/staff/importers.py:171
 msgid "User {}: First name is missing."
 msgstr "Nutzer {}: Vorname fehlt."
 
-#: evap/staff/importers.py:172
+#: evap/staff/importers.py:173
 msgid "User {}: Last name is missing."
 msgstr "Nutzer {}: Nachname fehlt."
 
-#: evap/staff/importers.py:182
+#: evap/staff/importers.py:183
 msgid "The existing user would be overwritten with the following data:"
 msgstr ""
 "Der vorhandene Benutzer würde mit den folgenden Daten überschrieben werden:"
 
-#: evap/staff/importers.py:184 evap/staff/importers.py:195
+#: evap/staff/importers.py:185 evap/staff/importers.py:196
 msgid " (existing)"
 msgstr "(vorhanden)"
 
-#: evap/staff/importers.py:186 evap/staff/importers.py:197
+#: evap/staff/importers.py:187 evap/staff/importers.py:198
 msgid " (new)"
 msgstr "(neu)"
 
-#: evap/staff/importers.py:192
+#: evap/staff/importers.py:193
 msgid "An existing user has the same first and last name as a new user:"
 msgstr ""
 "Ein vorhandener Benutzer hat den gleichen Vor- und Nachnamen wie ein neuer "
 "Benutzer:"
 
-#: evap/staff/importers.py:228
+#: evap/staff/importers.py:229
 msgid ""
 "Sheet \"{}\", row {}: The course's \"{}\" data differs from it's data in a "
 "previous row."
@@ -1941,52 +1940,52 @@ msgstr ""
 "Blatt \"{}\", Reihe {}: Die Daten der Veranstaltung \"{}\" unterscheiden "
 "sich von den Daten in einer vorherigen Zeile."
 
-#: evap/staff/importers.py:241
+#: evap/staff/importers.py:242
 msgid "Course {} does already exist in this semester."
 msgstr "Veranstaltung {} existiert bereits in diesem Semester."
 
-#: evap/staff/importers.py:248
+#: evap/staff/importers.py:249
 msgid ""
 "Error: The degree \"{}\" does not exist yet. Please manually create it first."
 msgstr ""
 "Fehler: Der Studiengang \"{}\" existiert noch nicht. Bitte manuell anlegen."
 
-#: evap/staff/importers.py:257
+#: evap/staff/importers.py:258
 msgid "\"is_graded\" of course {} is {}, but must be {} or {}"
 msgstr ""
 "\"is_graded\" der Lehrveranstaltung {} ist {}, muss aber {} oder {} sein"
 
-#: evap/staff/importers.py:266
+#: evap/staff/importers.py:267
 msgid "Warning: User {} has {} enrollments, which is a lot."
 msgstr "Warnung: Nutzer {} hat ungewöhnlich viele Belegungen ({})."
 
-#: evap/staff/importers.py:288
+#: evap/staff/importers.py:289
 msgid "Successfully created {} course(s), {} student(s) and {} contributor(s)."
 msgstr ""
 "{} Veranstaltungen, {} Studierende und {} Mitwirkende erfolgreich erstellt."
 
-#: evap/staff/importers.py:301 evap/staff/importers.py:368
+#: evap/staff/importers.py:302 evap/staff/importers.py:372
 msgid "The input data is malformed. No data was imported."
 msgstr ""
 "Die Eingabedaten haben ein falsches Format. Es wurden keine Daten importiert."
 
-#: evap/staff/importers.py:314 evap/staff/importers.py:378
+#: evap/staff/importers.py:315 evap/staff/importers.py:382
 msgid "Errors occurred while parsing the input data. No data was imported."
 msgstr ""
 "Beim Verarbeiten der Eingabedaten trat ein Fehler auf. Es wurden keine Daten "
 "importiert."
 
-#: evap/staff/importers.py:317 evap/staff/importers.py:381
+#: evap/staff/importers.py:318 evap/staff/importers.py:385
 msgid "The test run showed no errors. No data was imported yet."
 msgstr ""
 "Der Testlauf ergab keine Fehler. Es wurden noch keine Daten importiert."
 
-#: evap/staff/importers.py:321 evap/staff/importers.py:385
+#: evap/staff/importers.py:322 evap/staff/importers.py:389
 #, python-format
 msgid "Import finally aborted after exception: '%s'"
 msgstr "Importvorgang endgültig abgebrochen nach dem Fehler: '%s'"
 
-#: evap/staff/importers.py:353
+#: evap/staff/importers.py:356
 #, python-format
 msgid ""
 "A problem occured while writing the entries to the database. The original "
@@ -1997,7 +1996,7 @@ msgstr ""
 "Ursprungsdaten stehen in Blatt '%(sheet)s', Zeile %(row)d. Die Fehlermeldung "
 "lautete: '%(error)s'"
 
-#: evap/staff/importers.py:355
+#: evap/staff/importers.py:358
 #, python-format
 msgid "Successfully created %(users)d user(s)."
 msgstr "Erfolgreich %(users)d Benutzer erstellt."
@@ -2075,8 +2074,12 @@ msgstr ""
 "Bitte fülle alle erforderlichen Felder aus und wähle mindestens eine "
 "Empfängergruppe."
 
+#: evap/staff/templates/staff_course_email.html:27
+msgid "Show Recipients"
+msgstr "Zeige Empfänger"
+
 #: evap/staff/templates/staff_course_email.html:40
-#: evap/staff/templates/staff_semester_view_course.html:97
+#: evap/staff/templates/staff_semester_view_course.html:106
 msgid "Send email"
 msgstr "E‑Mail senden"
 
@@ -2107,6 +2110,10 @@ msgstr ""
 "Möchtest du den Zustand der folgenden Veranstaltungen von <strong>"
 "%(current_state_name)s</strong> zu <strong>%(new_state_name)s</strong> "
 "ändern?"
+
+#: evap/staff/templates/staff_course_operation.html:28
+msgid "Send email notifications"
+msgstr "E‑Mail-Benachrichtigungen senden"
 
 #: evap/staff/templates/staff_degree_index.html:9
 #: evap/staff/templates/staff_index.html:26 evap/templates/base.html.py:90
@@ -2143,6 +2150,7 @@ msgid "Upload semester data from excel file ("
 msgstr "Semester aus Excel-Tabelle importieren ("
 
 #: evap/staff/templates/staff_import.html:9
+#: evap/staff/templates/staff_import_participants.html:9
 #: evap/staff/templates/staff_user_import.html:9
 msgid "Sample File"
 msgstr "Beispieldatei"
@@ -2157,14 +2165,28 @@ msgstr ""
 "angegebenen Standardwerte für alle Veranstaltungen eingetragen."
 
 #: evap/staff/templates/staff_import.html:16
+#: evap/staff/templates/staff_import_participants.html:16
 #: evap/staff/templates/staff_user_import.html:16
 msgid "Test"
 msgstr "Testen"
 
 #: evap/staff/templates/staff_import.html:17
+#: evap/staff/templates/staff_import_participants.html:17
 #: evap/staff/templates/staff_user_import.html:17
 msgid "Import"
 msgstr "Importieren"
+
+#: evap/staff/templates/staff_import_participants.html:9
+msgid "Upload course participants data from excel file"
+msgstr "Teilnehmerdaten aus Excel-Tabelle importieren"
+
+#: evap/staff/templates/staff_import_participants.html:9
+msgid ""
+"This will create user accounts for all contained students and adds them as "
+"participants for the course."
+msgstr ""
+"Dadurch werden Benutzer-Accounts für alle enthaltenen Personen angelegt und "
+"sie werden als Teilnehmer zum Kurs hinzugefügt."
 
 #: evap/staff/templates/staff_index.html:18
 msgid "Create new semester"
@@ -2391,35 +2413,39 @@ msgstr "Einzelergebnis anlegen"
 msgid "Import Courses"
 msgstr "Veranstaltungen importieren"
 
-#: evap/staff/templates/staff_semester_view.html:127
+#: evap/staff/templates/staff_semester_view.html:123
+msgid "There are no courses in this state."
+msgstr "Es existieren keine Veranstaltungen in diesem Zustand."
+
+#: evap/staff/templates/staff_semester_view.html:129
 msgid "Select all"
 msgstr "Alle auswählen"
 
-#: evap/staff/templates/staff_semester_view.html:130
+#: evap/staff/templates/staff_semester_view.html:132
 msgid "Enable courses for editor review"
 msgstr "Zur Überprüfung durch Dozent freigeben"
 
-#: evap/staff/templates/staff_semester_view.html:133
+#: evap/staff/templates/staff_semester_view.html:135
 msgid "Revert courses to new"
 msgstr "Veranstaltungen auf neu zurücksetzen"
 
-#: evap/staff/templates/staff_semester_view.html:136
+#: evap/staff/templates/staff_semester_view.html:138
 msgid "Approve courses"
 msgstr "Veranstaltungen bestätigen"
 
-#: evap/staff/templates/staff_semester_view.html:139
+#: evap/staff/templates/staff_semester_view.html:141
 msgid "Re-enable courses for editor review"
 msgstr "Veranstaltungen erneut zur Überprüfung durch Dozent freigeben"
 
-#: evap/staff/templates/staff_semester_view.html:142
+#: evap/staff/templates/staff_semester_view.html:144
 msgid "Publish courses"
 msgstr "Veranstaltungen veröffentlichen"
 
-#: evap/staff/templates/staff_semester_view.html:145
+#: evap/staff/templates/staff_semester_view.html:147
 msgid "Unpublish"
 msgstr "Zurückziehen"
 
-#: evap/staff/templates/staff_semester_view.html:152
+#: evap/staff/templates/staff_semester_view.html:154
 msgid "There are no courses for this semester yet."
 msgstr "In diesem Semester existiert noch keine Veranstaltung."
 
@@ -2436,47 +2462,60 @@ msgid "Single result"
 msgstr "Einzelergebnis"
 
 #: evap/staff/templates/staff_semester_view_course.html:42
+msgid "starts tomorrow"
+msgstr "beginnt morgen"
+
+#: evap/staff/templates/staff_semester_view_course.html:44
+#, python-format
+msgid "in %(days)s days"
+msgstr "in %(days)s Tagen"
+
+#: evap/staff/templates/staff_semester_view_course.html:50
 #: evap/student/templates/student_index.html:74
 msgid "ends today"
 msgstr "endet heute"
 
-#: evap/staff/templates/staff_semester_view_course.html:44
+#: evap/staff/templates/staff_semester_view_course.html:52
 #: evap/student/templates/student_index.html:76
 msgid "ends tomorrow"
 msgstr "endet morgen"
 
-#: evap/staff/templates/staff_semester_view_course.html:46
+#: evap/staff/templates/staff_semester_view_course.html:54
 #: evap/student/templates/student_index.html:78
 #, python-format
 msgid "%(days)s days left"
 msgstr "noch %(days)s Tage"
 
-#: evap/staff/templates/staff_semester_view_course.html:57
+#: evap/staff/templates/staff_semester_view_course.html:65
 msgid "Click to review text answers"
 msgstr "Klicke, um Textantworten zu überprüfen"
 
-#: evap/staff/templates/staff_semester_view_course.html:61
+#: evap/staff/templates/staff_semester_view_course.html:69
 msgid "Text answers"
 msgstr "Text-Antworten"
 
-#: evap/staff/templates/staff_semester_view_course.html:68
+#: evap/staff/templates/staff_semester_view_course.html:76
 msgid "Grade documents (Midterm, Final)"
 msgstr "Notendokumente (Zwischennoten, Endnoten)"
 
-#: evap/staff/templates/staff_semester_view_course.html:70
+#: evap/staff/templates/staff_semester_view_course.html:78
 #, python-format
 msgid "M: %(midterm)s, F: %(final)s"
 msgstr "Z: %(midterm)s, E: %(final)s"
 
-#: evap/staff/templates/staff_semester_view_course.html:73
+#: evap/staff/templates/staff_semester_view_course.html:81
 msgid "Final grades have been uploaded"
 msgstr "Endnoten wurden hochgeladen"
 
-#: evap/staff/templates/staff_semester_view_course.html:75
+#: evap/staff/templates/staff_semester_view_course.html:83
 msgid "It was confirmed that final grades have been submitted"
 msgstr "Es wurde bestätigt, dass Endnoten eingegangen sind"
 
-#: evap/staff/templates/staff_semester_view_course.html:102
+#: evap/staff/templates/staff_semester_view_course.html:101
+msgid "Import Participants"
+msgstr "Teilnehmer importieren"
+
+#: evap/staff/templates/staff_semester_view_course.html:112
 msgid "Preview results"
 msgstr "Ergebnis-Vorschau"
 
@@ -2553,11 +2592,11 @@ msgstr "Extern"
 msgid "Email address missing!"
 msgstr "E‑Mail-Adresse fehlt!"
 
-#: evap/staff/views.py:126
+#: evap/staff/views.py:128
 msgid "Unsupported operation: "
 msgstr "Nicht unterstützte Operation: "
 
-#: evap/staff/views.py:161
+#: evap/staff/views.py:164
 #, python-format
 msgid ""
 "%(courses)d course can not be approved, because it has not enough "
@@ -2573,18 +2612,18 @@ msgstr[1] ""
 "ausreichend Fragebögen zugeordnet wurden. Sie wurden aus der Auswahl "
 "entfernt."
 
-#: evap/staff/views.py:170
+#: evap/staff/views.py:173
 msgid "Please select at least one course."
 msgstr "Bitte wähle mindestens eine Veranstaltung aus."
 
-#: evap/staff/views.py:186
+#: evap/staff/views.py:191
 #, python-format
 msgid "Successfully reverted %(courses)d course to new."
 msgid_plural "Successfully reverted %(courses)d courses to new."
 msgstr[0] "Erfolgreich %(courses)d Veranstaltung auf neu zurückgesetzt."
 msgstr[1] "Erfolgreich %(courses)d Veranstaltungen auf neu zurückgesetzt."
 
-#: evap/staff/views.py:193
+#: evap/staff/views.py:199
 #, python-format
 msgid "Successfully enabled %(courses)d course for editor review."
 msgid_plural "Successfully enabled %(courses)d courses for editor review."
@@ -2593,54 +2632,54 @@ msgstr[0] ""
 msgstr[1] ""
 "Erfolgreich %(courses)d Veranstaltungen als bereit für die Dozenten markiert."
 
-#: evap/staff/views.py:202
+#: evap/staff/views.py:209
 #, python-format
 msgid "Successfully approved %(courses)d course."
 msgid_plural "Successfully approved %(courses)d courses."
 msgstr[0] "Erfolgreich %(courses)d Veranstaltung bestätigt."
 msgstr[1] "Erfolgreich %(courses)d Veranstaltungen bestätigt."
 
-#: evap/staff/views.py:209
+#: evap/staff/views.py:217
 #, python-format
 msgid "Successfully published %(courses)d course."
 msgid_plural "Successfully published %(courses)d courses."
 msgstr[0] "Erfolgreich %(courses)d Veranstaltung veröffentlicht."
 msgstr[1] "Erfolgreich %(courses)d Veranstaltungen veröffentlicht."
 
-#: evap/staff/views.py:217
+#: evap/staff/views.py:227
 #, python-format
 msgid "Successfully unpublished %(courses)d course."
 msgid_plural "Successfully unpublished %(courses)d courses."
 msgstr[0] "Erfolgreich %(courses)d Veranstaltung zurückgezogen."
 msgstr[1] "Erfolgreich %(courses)d Veranstaltungen zurückgezogen."
 
-#: evap/staff/views.py:228
+#: evap/staff/views.py:238
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: evap/staff/views.py:242
+#: evap/staff/views.py:252
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: evap/staff/views.py:255
+#: evap/staff/views.py:265
 msgid "Successfully deleted semester."
 msgstr "Semester erfolgreich gelöscht."
 
-#: evap/staff/views.py:260
+#: evap/staff/views.py:270
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: evap/staff/views.py:332
+#: evap/staff/views.py:342
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: evap/staff/views.py:387
+#: evap/staff/views.py:397
 msgid "Successfully archived semester '{}'."
 msgstr "Semester '{}' erfolgreich archiviert."
 
-#: evap/staff/views.py:392
+#: evap/staff/views.py:402
 #, python-format
 msgid ""
 "The semester '%s' cannot be archived, because it already is archived or has "
@@ -2649,35 +2688,39 @@ msgstr ""
 "Das Semester '%s' kann nicht archiviert werden, weil es bereits archiviert "
 "wurde oder Veranstaltungen beinhaltet, die nicht archiviert werden können."
 
-#: evap/staff/views.py:412
+#: evap/staff/views.py:422
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: evap/staff/views.py:430 evap/staff/views.py:499
+#: evap/staff/views.py:440 evap/staff/views.py:509
 msgid "Successfully created single result."
 msgstr "Einzelergebnis erfolgreich erstellt."
 
-#: evap/staff/views.py:444
+#: evap/staff/views.py:454
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: evap/staff/views.py:513
+#: evap/staff/views.py:523
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Die Veranstaltung '%s' kann nicht gelöscht werden, da sie noch in Verwendung "
 "ist."
 
-#: evap/staff/views.py:518
+#: evap/staff/views.py:528
 msgid "Successfully deleted course."
 msgstr "Veranstaltung erfolgreich gelöscht."
 
-#: evap/staff/views.py:535
+#: evap/staff/views.py:543
+msgid "Recipients: "
+msgstr "Empfänger: "
+
+#: evap/staff/views.py:549
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: evap/staff/views.py:537
+#: evap/staff/views.py:551
 #, python-brace-format
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
@@ -2687,60 +2730,60 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: evap/staff/views.py:670 evap/staff/views.py:735
+#: evap/staff/views.py:717 evap/staff/views.py:782
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: evap/staff/views.py:713
+#: evap/staff/views.py:760
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: evap/staff/views.py:717
+#: evap/staff/views.py:764
 msgid "Some fields are disabled as this questionnaire is already in use."
 msgstr ""
 "Manche Felder sind deaktiviert, weil der Fragebogen bereits verwendet wird."
 
-#: evap/staff/views.py:756
+#: evap/staff/views.py:803
 msgid "Successfully deleted questionnaire."
 msgstr "Fragebogen erfolgreich gelöscht."
 
-#: evap/staff/views.py:761
+#: evap/staff/views.py:808
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: evap/staff/views.py:785
+#: evap/staff/views.py:832
 msgid "Successfully updated the degrees."
 msgstr "Studiengänge erfolgreich geändert."
 
-#: evap/staff/views.py:812
+#: evap/staff/views.py:858
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: evap/staff/views.py:846
+#: evap/staff/views.py:892
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: evap/staff/views.py:859
+#: evap/staff/views.py:905
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: evap/staff/views.py:864
+#: evap/staff/views.py:910
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: evap/staff/views.py:876
+#: evap/staff/views.py:922
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: evap/staff/views.py:892
+#: evap/staff/views.py:938
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: evap/staff/views.py:909
+#: evap/staff/views.py:955
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -2808,11 +2851,11 @@ msgstr "Du hast diese Veranstaltung schon evaluiert"
 msgid "Evaluate"
 msgstr "Evaluieren"
 
-#: evap/student/templates/student_index.html:101
+#: evap/student/templates/student_index.html:103
 msgid "No grades have been uploaded yet."
 msgstr "Es wurden noch keine Noten hochgeladen."
 
-#: evap/student/templates/student_index.html:108
+#: evap/student/templates/student_index.html:110
 msgid "We did not receive enough votes to publish the results of this course"
 msgstr ""
 "Es gab nicht genügend Teilnehmer, um die Ergebnisse dieser Veranstaltung zu "

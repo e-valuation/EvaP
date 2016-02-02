@@ -98,7 +98,7 @@
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
         </p>
-        <a href="{% url "staff:course_import_participants" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Students" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+        <a href="{% url "staff:course_import_participants" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Participants" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
     </td>
 {% endif %}
 {% if info_only|is_false %}

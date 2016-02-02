@@ -1,4 +1,4 @@
-{% extends "staff_semester_base.html" %}
+{% extends "staff_course_base.html" %}
 
 {% load i18n %}
 {% load static %}
@@ -6,7 +6,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        {% trans "Upload course participants data from excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create user accounts for all contained students and adds them as participants for the course: " %} {{ course }}
+        {% trans "Upload course participants data from excel file" %} (<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>). {% trans "This will create user accounts for all contained students and adds them as participants for the course." %}
     </p>
     <form enctype="multipart/form-data" method="POST" class="form-horizontal">
        {% csrf_token %}

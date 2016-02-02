@@ -557,6 +557,7 @@ def course_email(request, semester_id, course_id):
 @staff_required
 def course_import_participants(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
+    semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(course)
 
     form = UserImportForm(request.POST or None, request.FILES or None)
@@ -583,7 +584,7 @@ def course_import_participants(request, semester_id, course_id):
             messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
             return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_import_participants.html", dict(course=course, form=form))
+        return render(request, "staff_import_participants.html", dict(course=course, form=form, semester=semester))
 
 
 @staff_required
