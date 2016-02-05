@@ -917,6 +917,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def refresh_login_key(self):
         self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+        self.save()
 
 def validate_template(value):
     """Field validator which ensures that the value can be compiled into a
