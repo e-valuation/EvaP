@@ -99,9 +99,7 @@ def upload_grades(request, semester_id, course_id):
         if final_grades and course.state == 'reviewed':
             course.publish()
             course.save()
-            send_publish_notifications(grade_document_courses=[course], evaluation_results_courses=[course])
-        else:
-            send_publish_notifications(grade_document_courses=[course])
+            send_publish_notifications([course])
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -129,7 +127,7 @@ def toggle_no_grades(request, semester_id, course_id):
             if course.state == 'reviewed':
                 course.publish()
                 course.save()
-                send_publish_notifications(evaluation_results_courses=[course])
+                send_publish_notifications([course])
             messages.success(request, _("Successfully confirmed that no grade documents will be provided."))
         else:
             messages.success(request, _("Successfully confirmed that grade documents will be provided later on."))

@@ -106,39 +106,39 @@ class GradeUploadTests(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
         self.assertEqual(course.midterm_grade_documents.count(), 1)
-        self.assertEqual(len(mail.outbox), course.num_participants)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_upload_final_grades(self):
         course = Course.objects.get(name_en="Test")
         self.assertEqual(course.final_grade_documents.count(), 0)
 
         # state: new
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: prepared
         course.ready_for_editors()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: editorApproved
         course.editor_approve()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: approved
         course.staff_approve()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: inEvaluation
         course.evaluation_begin()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: evaluated
         course.evaluation_end()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: reviewed
         course.review_finished()
@@ -148,7 +148,7 @@ class GradeUploadTests(WebTest):
         # state: published
         course.publish()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants)
+        self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
         course = mommy.make(Course,
