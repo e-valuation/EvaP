@@ -271,20 +271,16 @@ def semester_edit(request, semester_id):
 
 
 @staff_required
-def semester_delete(request, semester_id):
+def semester_delete(request):
+    semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
     if semester.can_staff_delete:
-        if request.method == 'POST':
-            semester.delete()
-            delete_navbar_cache()
-            messages.success(request, _("Successfully deleted semester."))
-            return redirect('staff:index')
-        else:
-            return render(request, "staff_semester_delete.html", dict(semester=semester))
+        semester.delete()
+        delete_navbar_cache()
+        return HttpResponse() # 200 OK
     else:
-        messages.warning(request, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
-        return redirect('staff:semester_view', semester.id)
+        return HttpResponse(status=400) # 400 Bad Request
 
 
 @staff_required
@@ -404,20 +400,15 @@ def semester_todo(request, semester_id):
     return render(request, "staff_semester_todo.html", template_data)
 
 @staff_required
-def semester_archive(request, semester_id):
+def semester_archive(request):
+    semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
     if semester.is_archiveable:
-        if request.method == 'POST':
-            semester.archive()
-            messages.success(request, _("Successfully archived semester '{}'.").format(semester.name))
-            return redirect('staff:semester_view', semester.id)
-        else:
-            return render(request, "staff_semester_archive.html", dict(semester=semester))
+        semester.archive()
+        return HttpResponse() # 200 OK
     else:
-        messages.warning(request, _("The semester '%s' cannot be archived, "+
-            "because it already is archived or has courses that are not archiveable.") % semester.name)
-        return redirect('staff:semester_view', semester.id)
+        return HttpResponse(status=400) # 400 Bad Request
 
 
 @staff_required
@@ -522,22 +513,15 @@ def helper_single_result_edit(request, semester, course):
 
 
 @staff_required
-def course_delete(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def course_delete(request):
+    course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
-    raise_permission_denied_if_archived(course)
 
-    # check course state
-    if not course.can_staff_delete:
-        messages.warning(request, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
-        return redirect('staff:semester_view', semester_id)
-
-    if request.method == 'POST':
+    if course.can_staff_delete:
         course.delete()
-        messages.success(request, _("Successfully deleted course."))
-        return custom_redirect('staff:semester_view', semester_id)
+        return HttpResponse() # 200 OK
     else:
-        return render(request, "staff_course_delete.html", dict(semester=semester, course=course))
+        return HttpResponse(status=400) # 400 Bad Request
 
 
 @staff_required
@@ -803,19 +787,15 @@ def questionnaire_copy(request, questionnaire_id):
 
 
 @staff_required
-def questionnaire_delete(request, questionnaire_id):
+def questionnaire_delete(request):
+    questionnaire_id = request.POST.get("questionnaire_id")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     if questionnaire.can_staff_delete:
-        if request.method == 'POST':
-            questionnaire.delete()
-            messages.success(request, _("Successfully deleted questionnaire."))
-            return redirect('staff:questionnaire_index')
-        else:
-            return render(request, "staff_questionnaire_delete.html", dict(questionnaire=questionnaire))
+        questionnaire.delete()
+        return HttpResponse() # 200 OK
     else:
-        messages.warning(request, _("The questionnaire '%s' cannot be deleted, because it is still in use.") % questionnaire.name)
-        return redirect('staff:questionnaire_index')
+        return HttpResponse(status=400) # 400 Bad Request
 
 
 @staff_required
@@ -905,19 +885,15 @@ def user_edit(request, user_id):
 
 
 @staff_required
-def user_delete(request, user_id):
+def user_delete(request):
+    user_id = request.POST.get("user_id")
     user = get_object_or_404(UserProfile, id=user_id)
 
     if user.can_staff_delete:
-        if request.method == 'POST':
-            user.delete()
-            messages.success(request, _("Successfully deleted user."))
-            return redirect('staff:user_index')
-        else:
-            return render(request, "staff_user_delete.html", dict(user_to_delete=user))
+        user.delete()
+        return HttpResponse() # 200 OK
     else:
-        messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % user.full_name)
-        return redirect('staff:user_index')
+        return HttpResponse(status=400) # 400 Bad Request
 
 
 @staff_required

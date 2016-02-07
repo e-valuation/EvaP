@@ -114,18 +114,15 @@ def reward_point_redemption_event_edit(request, event_id):
 
 
 @staff_required
-def reward_point_redemption_event_delete(request, event_id):
+def reward_point_redemption_event_delete(request):
+    event_id = request.POST.get("event_id")
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
     if event.can_delete:
-        if request.method == 'POST':
-            event.delete()
-            return redirect('rewards:reward_point_redemption_events')
-        else:
-            return render(request, "rewards_reward_point_redemption_event_delete.html", dict(event=event))
+        event.delete()
+        return HttpResponse() # 200 OK
     else:
-        messages.warning(request, _("This event cannot be deleted because some users already redeemed points for it."))
-        return redirect('rewards:reward_point_redemption_events')
+        return HttpResponse(status=400) # 400 Bad Request
 
 
 @staff_required

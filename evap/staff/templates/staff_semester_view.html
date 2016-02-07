@@ -16,8 +16,8 @@
         {{ semester.name }}
         &nbsp;
         <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
-        <a href="{% url "staff:semester_delete" semester.id %}" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
-        <a href="{% url "staff:semester_archive" semester.id %}" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+        <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|js_name }}');" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+        <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|js_name }}');" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
     </h3>
 
     {% if num_courses > 0 %}
@@ -116,7 +116,7 @@
                             <table class="table table-striped vertically-aligned">
                                 <tbody>
                                 {% for course in courses %}
-                                    <tr>
+                                    <tr id="course-row-{{ course.id }}">
                                         {% include_staff_semester_view_course semester state course disable_if_archived %}
                                     </tr>
                                 {% empty %}
@@ -158,6 +158,55 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete semester" as title %}
+    {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete semester" as action_text %}
+    {% include_confirmation_modal "delete_semester_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_semester_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:semester_delete" %}",
+                data: {"semester_id": data_id},
+                success: function(){ location.replace("{% url "staff:index" %}"); },
+                error: function(){}
+            });
+        };
+    </script>
+    {% trans "Archive semester" as title %}
+    {% trans 'Do you really want to archive the semester <strong id="data-label"></strong>?' as question %}
+    {% trans "Archive semester" as action_text %}
+    {% include_confirmation_modal "archive_semester_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function archive_semester_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:semester_archive" %}",
+                data: {"semester_id": data_id},
+                success: function(){ location.reload(); },
+                error: function(){}
+            });
+        };
+    </script>
+    {% trans "Delete course" as title %}
+    {% trans 'Do you really want to delete the course <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete course" as action_text %}
+    {% include_confirmation_modal "delete_course_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_course_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:course_delete" %}",
+                data: {"course_id": data_id},
+                success: function(){ $('#course-row-'+data_id).hide('slow', function(){ $('#course-row-'+data_id).remove(); }); },
+                error: function(){ $('#course-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
 {% endblock %}
 
 {% block on_document_ready %}
