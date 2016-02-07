@@ -76,6 +76,7 @@ def vote(request, course_id):
                 course_form_group=course_form_group,
                 contributor_form_groups=contributor_form_groups,
                 course=course,
+                participants_warning=course.num_participants <= 5,
                 preview=False)
         return render(request, "student_vote.html", template_data)
 
