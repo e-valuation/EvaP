@@ -69,6 +69,7 @@ def course_view(request, course_id):
     template_data = dict(form=form, formset=formset, course=course, edit=False, responsible=course.responsible_contributor.username)
     return render(request, "contributor_course_form.html", template_data)
 
+
 @editor_or_delegate_required
 def course_edit(request, course_id):
     user = request.user
@@ -105,6 +106,7 @@ def course_edit(request, course_id):
         sort_formset(request, formset)
         template_data = dict(form=course_form, formset=formset, course=course, edit=True, responsible=course.responsible_contributor.username)
         return render(request, "contributor_course_form.html", template_data)
+
 
 @contributor_or_delegate_required
 def course_preview(request, course_id):
