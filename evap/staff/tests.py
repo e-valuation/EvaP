@@ -332,8 +332,6 @@ class URLTests(WebTest):
             This tests visits all URLs of evap and verifies they return a 200 for the specified user.
         """
         tests = [
-            ("test_index", "/", ""),
-            ("test_faq", "/faq", ""),
             # student pages
             ("test_student", "/student/", "student"),
             ("test_student_vote_x", "/student/vote/5", "lazy.student"),
@@ -382,24 +380,6 @@ class URLTests(WebTest):
             # faq
             ("test_staff_faq", "/staff/faq/", "evap"),
             ("test_staff_faq_x", "/staff/faq/1", "evap"),
-            # results
-            ("test_results", "/results/", "evap"),
-            ("test_results_semester_x", "/results/semester/1", "evap"),
-            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "evap"),
-            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "contributor"),
-            ("test_results_semester_x_course_y", "/results/semester/1/course/8", "responsible"),
-            ("test_results_semester_x_course_y", "/results/semester/1/course/11", "evap"), # single result
-            # contributor
-            ("test_contributor", "/contributor/", "responsible"),
-            ("test_contributor", "/contributor/", "editor"),
-            ("test_contributor_course_x", "/contributor/course/7", "responsible"),
-            ("test_contributor_course_x", "/contributor/course/7", "editor"),
-            ("test_contributor_course_x_preview", "/contributor/course/7/preview", "responsible"),
-            ("test_contributor_course_x_preview", "/contributor/course/7/preview", "editor"),
-            ("test_contributor_course_x_edit", "/contributor/course/2/edit", "responsible"),
-            ("test_contributor_course_x_edit", "/contributor/course/2/edit", "editor"),
-            ("test_contributor_settings", "/contributor/settings", "responsible"),
-            ("test_contributor_settings", "/contributor/settings", "editor"),
             # rewards
             ("rewards_index", "/rewards/", "student"),
             ("reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
@@ -1083,50 +1063,6 @@ class ArchivingTests(WebTest):
         self.get_assert_403(semester_url + "course/7/edit", "evap")
         self.get_assert_403(semester_url + "course/7/delete", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
-
-
-class RedirectionTest(WebTest):
-    fixtures = ['minimal_test_data']
-
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
-
-    def test_not_authenticated(self):
-        """
-            Asserts that an unauthorized user gets redirected to the login page.
-        """
-        url = "/contributor/course/3/edit"
-        response = self.app.get(url)
-        self.assertRedirects(response, "/?next=/contributor/course/3/edit")
-
-    def test_wrong_usergroup(self):
-        """
-            Asserts that a user who is not part of the usergroup
-            that is required for a specific view gets a 403.
-            Regression test for #483
-        """
-        url = "/contributor/course/2/edit"
-        self.get_assert_403(url, "student")
-
-    def test_wrong_state(self):
-        """
-            Asserts that a contributor attempting to edit a course
-            that is in a state where editing is not allowed gets a 403.
-        """
-        url = "/contributor/course/3/edit"
-        self.get_assert_403(url, "responsible")
-
-    def test_ok(self):
-        """
-            Asserts that an editor of a course can access
-            the edit page of that course.
-        """
-        url = "/contributor/course/2/edit"
-        response = self.app.get(url, user="responsible")
-        self.assertEqual(response.status_code, 200)
 
 
 class TestDataTest(TestCase):
