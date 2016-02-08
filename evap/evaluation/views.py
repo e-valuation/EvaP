@@ -92,5 +92,6 @@ def index(request):
 def faq(request):
     return render(request, "faq.html", dict(sections=FaqSection.objects.all()))
 
+
 def legal_notice(request):
     return render(request, "legal_notice.html", dict())
