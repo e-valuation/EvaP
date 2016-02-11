@@ -1,6 +1,6 @@
 import datetime
-from unittest.case import TestCase
 from unittest.mock import patch
+from django.test import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import Course
