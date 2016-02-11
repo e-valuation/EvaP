@@ -47,7 +47,7 @@ class TestCourses(TestCase):
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
             Course.update_courses()
 
-        mock.assert_called_once_with(evaluation_results_courses=[course])
+        mock.assert_called_once_with([course])
 
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'published')

@@ -141,7 +141,7 @@ def calculate_results(course):
     if course.state != "published":
         return _calculate_results_impl(course)
 
-    cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+    cache_key = 'evap.staff.results.tools.calculate_results-{:d}'.format(course.id)
     return cache.get_or_set(cache_key, partial(_calculate_results_impl, course), None)
 
 
