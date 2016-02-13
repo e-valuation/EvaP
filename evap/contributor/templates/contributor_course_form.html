@@ -84,6 +84,8 @@
             <div class="col-sm-offset-2 col-sm-6">
                 {% if edit %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
+                    {# webtest does not allow submission with value "approve" if no such button exists #}
+                    <button style="display: none" name="operation" value="approve" type="submit" />
                     <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit|is_false %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>

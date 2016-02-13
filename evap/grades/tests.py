@@ -175,14 +175,16 @@ class GradeUploadTests(WebTest):
 
         self.assertFalse(course.gets_no_grade_documents)
 
-        self.get_submit_assert_302(toggle_url, "grade_publisher")
+        response = self.app.post("/grades/togglenogrades", {"course_id": course.id,}, user="grade_publisher")
+        self.assertEqual(response.status_code, 200)
         course = Course.objects.get(id=course.id)
         self.assertTrue(course.gets_no_grade_documents)
         # course should get published here
         self.assertEqual(course.state, "published")
         self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
 
-        self.get_submit_assert_302(toggle_url, "grade_publisher")
+        response = self.app.post("/grades/togglenogrades", {"course_id": course.id,}, user="grade_publisher")
+        self.assertEqual(response.status_code, 200)
         course = Course.objects.get(id=course.id)
         self.assertFalse(course.gets_no_grade_documents)
 
