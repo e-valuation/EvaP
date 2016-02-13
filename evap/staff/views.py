@@ -217,7 +217,7 @@ def helper_semester_course_operation_publish(request, courses, send_email):
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
     if send_email:
-        send_publish_notifications(evaluation_results_courses=courses)
+        send_publish_notifications(courses)
 
 
 def helper_semester_course_operation_unpublish(request, courses):
