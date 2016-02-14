@@ -11,16 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = '<kind of jobs>'
-    help = 'Runs updates/tasks based on time events'
+    help = 'Sends email reminders X days before course evaluation ends.'
 
-    def update_courses(self):
-        """ Updates courses state, when evaluation time begins/ends."""
-        Course.update_courses()
-
-    def check_reminders(self):
-        logger.info("check_reminders called.")
+    def handle(self, *args, **options):
+        logger.info("send_reminders called.")
         check_dates = []
+
+        # Collect end-dates of courses whose participants need to be reminded today.
         for number_of_days in settings.REMIND_X_DAYS_AHEAD_OF_END_DATE:
             check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
 
@@ -33,14 +30,11 @@ class Command(BaseCommand):
             for course in Course.objects.filter(participants=recipient, state='inEvaluation').exclude(voters=recipient):
                 due_courses[course] = (course.vote_end_date - datetime.date.today()).days
             first_due_in_days = min(due_courses.values())
-            # sort courses by number of days left for evaluation and bring them to following format: [(course, due_in_days), ...]
+
+            # Sort courses by number of days left for evaluation and bring them to following format:
+            # [(course, due_in_days), ...]
             due_courses = sorted(due_courses.items(), key=operator.itemgetter(1))
 
             EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_courses=due_courses)
-        logger.info("check_reminders finished.")
-
-    def handle(self, *args, **options):
-        if len(args) > 0 and args[0] == 'daily':
-            self.check_reminders()
-        else:
-            self.update_courses()
+        logger.info("send_reminders finished.")
+        logger.info("sent reminders to %s people.", len(recipients))

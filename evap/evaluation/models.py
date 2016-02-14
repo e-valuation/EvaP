@@ -1018,7 +1018,6 @@ class EmailTemplate(models.Model):
         except Exception:
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
-
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_courses):
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
