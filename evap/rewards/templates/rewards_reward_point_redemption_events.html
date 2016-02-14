@@ -3,7 +3,6 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
-{% load morefilters %}
 {% load evaluation_templatetags %}
 
 {% block subtitle %}
@@ -43,7 +42,7 @@
                                 <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                                 {% if event.can_delete %}
-                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|js_name }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                                 {% else %}
                                     <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger" disabled>{% trans "Delete" %}</a></div>
                                 {% endif %}
@@ -80,7 +79,7 @@
                                 <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                                 {% if event.can_delete %}
-                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|js_name }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                                 {% else %}
                                     <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger" disabled>{% trans "Delete" %}</a></div>
                                 {% endif %}

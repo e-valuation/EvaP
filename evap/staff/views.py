@@ -9,6 +9,7 @@ from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Prefetch
+from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
@@ -270,17 +271,17 @@ def semester_edit(request, semester_id):
         return render(request, "staff_semester_form.html", dict(semester=semester, form=form))
 
 
+@require_POST
 @staff_required
 def semester_delete(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if semester.can_staff_delete:
-        semester.delete()
-        delete_navbar_cache()
-        return HttpResponse() # 200 OK
-    else:
-        return HttpResponse(status=400) # 400 Bad Request
+    if not semester.can_staff_delete:
+        raise SuspiciousOperation("Deleting semester not allowed")
+    semester.delete()
+    delete_navbar_cache()
+    return HttpResponse() # 200 OK
 
 
 @staff_required
@@ -383,6 +384,7 @@ def semester_lottery(request, semester_id):
     template_data =dict(semester=semester, form=form, eligible=eligible, winners=winners)
     return render(request, "staff_semester_lottery.html", template_data)
 
+
 @staff_required
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -399,16 +401,17 @@ def semester_todo(request, semester_id):
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_todo.html", template_data)
 
+
+@require_POST
 @staff_required
 def semester_archive(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if semester.is_archiveable:
-        semester.archive()
-        return HttpResponse() # 200 OK
-    else:
-        return HttpResponse(status=400) # 400 Bad Request
+    if not semester.is_archiveable:
+        raise SuspiciousOperation("Archiving semester not allowed")
+    semester.archive()
+    return HttpResponse() # 200 OK
 
 
 @staff_required
@@ -512,16 +515,16 @@ def helper_single_result_edit(request, semester, course):
         return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
 
 
+@require_POST
 @staff_required
 def course_delete(request):
     course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
 
-    if course.can_staff_delete:
-        course.delete()
-        return HttpResponse() # 200 OK
-    else:
-        return HttpResponse(status=400) # 400 Bad Request
+    if not course.can_staff_delete:
+        raise SuspiciousOperation("Deleting course not allowed")
+    course.delete()
+    return HttpResponse() # 200 OK
 
 
 @staff_required
@@ -611,6 +614,7 @@ def course_comments(request, semester_id, course_id):
     return render(request, "staff_course_comments.html", template_data)
 
 
+@require_POST
 @staff_required
 def course_comments_update_publish(request):
     comment_id = request.POST["id"]
@@ -786,18 +790,19 @@ def questionnaire_copy(request, questionnaire_id):
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 
+@require_POST
 @staff_required
 def questionnaire_delete(request):
     questionnaire_id = request.POST.get("questionnaire_id")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
-    if questionnaire.can_staff_delete:
-        questionnaire.delete()
-        return HttpResponse() # 200 OK
-    else:
-        return HttpResponse(status=400) # 400 Bad Request
+    if not questionnaire.can_staff_delete:
+        raise SuspiciousOperation("Deleting questionnaire not allowed")
+    questionnaire.delete()
+    return HttpResponse() # 200 OK
 
 
+@require_POST
 @staff_required
 def questionnaire_update_indices(request):
     updated_indices = request.POST
@@ -884,16 +889,16 @@ def user_edit(request, user_id):
         return render(request, "staff_user_form.html", dict(form=form, object=user, courses_contributing_to=courses_contributing_to))
 
 
+@require_POST
 @staff_required
 def user_delete(request):
     user_id = request.POST.get("user_id")
     user = get_object_or_404(UserProfile, id=user_id)
 
-    if user.can_staff_delete:
-        user.delete()
-        return HttpResponse() # 200 OK
-    else:
-        return HttpResponse(status=400) # 400 Bad Request
+    if not user.can_staff_delete:
+        raise SuspiciousOperation("Deleting user not allowed")
+    user.delete()
+    return HttpResponse() # 200 OK
 
 
 @staff_required

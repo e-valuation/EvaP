@@ -1,7 +1,6 @@
 {% extends "grades_course_base.html" %}
 
 {% load i18n %}
-{% load morefilters %}
 {% load evaluation_templatetags %}
 
 {% block content %}
@@ -34,7 +33,7 @@
                                     <a href="{% url "grades:download_grades" grade_document.id %}" class="btn btn-sm btn-default">{% trans "Download" %}</a>
                                     {% if is_grade_publisher %}
                                         <a href="{% url "grades:edit_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Edit" %}</a>
-                                        <a onclick="show_delete_gradedocument_modal({{ grade_document.id }}, '{{ grade_document.description|js_name }}');" class="btn btn-sm btn-danger" {{ disable_if_archived }}>{% trans "Delete" %}</a>
+                                        <a onclick="show_delete_gradedocument_modal({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" {{ disable_if_archived }}>{% trans "Delete" %}</a>
                                     {% endif %}
                                 </td>
                             </tr>

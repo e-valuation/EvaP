@@ -88,9 +88,3 @@ def is_choice_field(field):
 @register.filter
 def is_user_editor_or_delegate(course, user):
     return  course.is_user_editor_or_delegate(user)
-
-
-# escaping ' so that names with ' can still be used as javascript arguments
-@register.filter
-def js_name(name):
-    return name.replace("'", "\\'")

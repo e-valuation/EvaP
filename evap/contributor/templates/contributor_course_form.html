@@ -97,7 +97,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans "Approve course" as title %}
-    {% trans "If you approve this course you won't be able to make any additional changes afterwards, unless the student representatives reopen the course for changes.<br /><strong>Please approve the course when you're done editing it.</strong>" as question %}
+    {% trans "Do you want to approve this course? This will allow the student representatives to proceed with the preparation, but you won't be able to make any further changes." as question %}
     {% trans "Approve course" as action_text %}
     {% include_confirmation_modal "approve_course_modal" title question action_text "primary" %}
     <script type="text/javascript">

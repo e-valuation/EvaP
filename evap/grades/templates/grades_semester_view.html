@@ -3,7 +3,6 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
-{% load morefilters %}
 {% load evaluation_templatetags %}
 
 {% block content %}
@@ -55,7 +54,7 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="glyphicon glyphicon-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                        <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|js_name }}');" {{ disable_if_archived }}>
+                                        <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" {{ disable_if_archived }}>
                                             <span class="glyphicon glyphicon-remove light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}">
                                         </a>
                                     {% endif %}
@@ -64,7 +63,7 @@
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
                                             <span data-toggle="tooltip" data-placement="top" title="{% trans "Confirm that final grades have been submitted but will not be uploaded" %}">
-                                                <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|js_name }}');" class="btn btn-sm btn-default" {{ disable_if_archived }}>
+                                                <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-default" {{ disable_if_archived }}>
                                                     <span class="glyphicon glyphicon-remove"></span>
                                                 </a>
                                             </span>
@@ -122,13 +121,7 @@
     {% include_confirmation_modal "confirm_laterupload_modal" title question action_text "primary" %}
     <script type="text/javascript">
         function confirm_laterupload_modal_action(data_id) {
-            $.ajax({
-                type: "POST",
-                url: "{% url "grades:toggle_no_grades" %}",
-                data: {"course_id": data_id},
-                success: function(){ location.reload(); },
-                error: function(){}
-            });
+            confirm_noupload_modal_action(data_id);
         };
     </script>
 {% endblock %}
