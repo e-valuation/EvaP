@@ -44,8 +44,9 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-
     name = Translate
+
+    is_archived = models.BooleanField(default=False, verbose_name=_("is archived"))
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 

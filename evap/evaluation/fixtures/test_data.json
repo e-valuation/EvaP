@@ -21,6 +21,7 @@
   "fields": {
     "name_de": "Wintersemester 2012/2013",
     "name_en": "Winter term 2012/2013",
+    "is_archived": true,
     "created_at": "2013-01-24"
   }
 },
@@ -30,6 +31,7 @@
   "fields": {
     "name_de": "Sommersemester 2013",
     "name_en": "Summer term 2013",
+    "is_archived": false,
     "created_at": "2013-04-22"
   }
 },
@@ -39,6 +41,7 @@
   "fields": {
     "name_de": "Wintersemester 2013/2014",
     "name_en": "Winter term 2013/2014",
+    "is_archived": false,
     "created_at": "2014-01-08"
   }
 },
@@ -48,6 +51,7 @@
   "fields": {
     "name_de": "Sommersemester 2014",
     "name_en": "Summer term 2014",
+    "is_archived": false,
     "created_at": "2014-06-02"
   }
 },
@@ -114014,8 +114018,8 @@
   "model": "evaluation.userprofile",
   "pk": 815,
   "fields": {
-    "password": "pbkdf2_sha256$20000$TuHP6W5gUOIq$Q5mhHuNVwo9gBgJHwPgzYnPi4E5+nME9RMZ84+m5GAg=",
-    "last_login": "2015-11-11T16:30:17.529",
+    "password": "pbkdf2_sha256$24000$s28R2krK96OU$oVriyPL9Sg7Ekvab87UeMmTqUwmaJwHX8rWCmyE+tXc=",
+    "last_login": "2016-02-07T19:43:19.065",
     "is_superuser": true,
     "username": "evap",
     "email": "evap@hpi.uni-potsdam.de",
