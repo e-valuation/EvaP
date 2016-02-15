@@ -30,7 +30,7 @@
     </small>
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
-    <form method="POST" class="form-horizontal">
+    <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
         <div class="panel panel-info">
@@ -88,7 +88,10 @@
 {% endblock %}
 
 {% block additional_javascript %}
+    <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+        var sisyphus = {};
+
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
             $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
@@ -101,11 +104,29 @@
             // hide questionnaire for contributor
             $("#" + contributorId).collapse("hide");
             $("a[href=#" + contributorId + "]").addClass("collapsed");
+
+            // setting the 'checked' prop does not trigger a change event, so manually save all data here
+            sisyphus.saveAllData()
         }
         function selectedAnswer(fieldName) {
             // remove error highlighting when an answer was selected
             $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
         preventAccidentalClosing = true;
+
+        $(function() {
+            sisyphus = $("#student-vote-form").sisyphus({
+                locationBased: true,
+                excludeFields: $("input[type=hidden]"), // exclude the csrf token
+                onRestore: function () {
+                    // If the form contains errors, is submitted, then changes are made and the page is reloaded,
+                    // some labels will have been set active by the server but the underlying checkbox is no longer
+                    // checked because it has been updated by sisyphus
+                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
+                    // Now ensure that the labels of checkboxes which where checked by sisyphus are set to active
+                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
+                }
+            });
+        });
     </script>
 {% endblock %}
