@@ -73,7 +73,7 @@
                                     {% endif %}
                                 {% endif %}
                                 {% if course.state != 'published' %}
-                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-default" disabled>{% trans "Results" %}</a></div>
+                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-default disabled">{% trans "Results" %}</a></div>
                                 {% else %}
                                     <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
                                 {% endif %}

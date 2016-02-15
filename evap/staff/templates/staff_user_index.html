@@ -36,11 +36,10 @@
                 <td>
                     <a href="{% url "staff:user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.can_staff_delete %}
-                        <btn class="btn btn-danger btn-sm" onclick="show_delete_modal({{ user.id }}, '{{ user.full_name|escapejs }}');">{% trans "Delete" %}</a>
+                        <a class="btn btn-danger btn-sm" onclick="show_delete_modal({{ user.id }}, '{{ user.full_name|escapejs }}');">{% trans "Delete" %}</a>
                     {% else %}
-                        <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
-                                title="{% trans "This user cannot be deleted because he is a contributor to a course or participates in a course that hasn't been archived yet" %}">
-                            <a class="btn btn-sm btn-danger" disabled> {% trans "Delete" %} </a>
+                        <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This user cannot be deleted because he is a contributor to a course or participates in a course that hasn't been archived yet" %}">
+                            <a class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a>
                         </div>
                     {% endif %}
                 </td>

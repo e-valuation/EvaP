@@ -28,27 +28,25 @@
     {% if object.pk %}
         <fieldset>
             <legend>{% trans "Represented Users" %}</legend>
-            <ul>
-                {% include_user_list_with_links form.instance.represented_users.all %}
-            </ul>
+            {% include_user_list_with_links form.instance.represented_users.all %}
         </fieldset>
         <fieldset>
             <legend>{% trans "CC-User for" %}</legend>
-            <ul>
-                {% include_user_list_with_links form.instance.ccing_users.all %}
-            </ul>
+            {% include_user_list_with_links form.instance.ccing_users.all %}
         </fieldset>
         <fieldset>
             <legend>{% trans "Courses contributing to (active semester)" %}</legend>
-            <ul>
-                {% if courses_contributing_to %}
+            {% if courses_contributing_to %}
+                <ul>
                     {% for course in courses_contributing_to %}
                         <li>{{ course.name }}</li>
                     {% endfor %}
-                {% else %}
+                </ul>
+            {% else %}
+                <p>
                     <i>{% trans "No courses" %}</i>
-                {% endif %}
-            </ul>
+                </p>
+            {% endif %}
         </fieldset>
     {% endif %}
     <div class="form-group well">

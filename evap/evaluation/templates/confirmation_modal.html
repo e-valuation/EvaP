@@ -1,7 +1,7 @@
 {% load morefilters %}
 {% load i18n %}
 
-<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}-label">
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -26,6 +26,6 @@
         // put the data_label text in the right place
         $('#{{ modal_id }} #data-label').text(data_label);
         // show modal
-        $('#{{ modal_id }}').modal()
+        $('#{{ modal_id }}').modal();
     }
 </script>

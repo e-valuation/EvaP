@@ -9,14 +9,14 @@
     <p>
         <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
     </p>
-    <p>
     {% if course_questionnaires or contributor_questionnaires %}
         {% include_staff_questionnaire_index_list course_questionnaires "Course questionnaires" %}
         {% include_staff_questionnaire_index_list contributor_questionnaires "Contributor questionnaires" %}
     {% else %}
-        {% trans "There are no questionnaires yet." %}
+        <p>
+            {% trans "There are no questionnaires yet." %}
+        </p>
     {% endif %}
-    </p>
 {% endblock %}
 
 {% block modals %}
