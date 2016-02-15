@@ -33,6 +33,7 @@ from evap.results.exporters import ExcelExporter
 
 import datetime
 import random
+from collections import OrderedDict, defaultdict
 
 
 def raise_permission_denied_if_archived(archiveable):
@@ -80,24 +81,39 @@ def semester_view(request, semester_id):
         this_courses = [course for course in courses if course.state == state]
         courses_by_state.append((state, this_courses))
 
-    # semester statistics
-    num_enrollments_in_evaluation = 0
-    num_votes = 0
-    num_courses_evaluated = 0
-    num_comments = 0
-    num_comments_reviewed = 0
-    first_start = datetime.date(9999, 1, 1)
-    last_end = datetime.date(2000, 1, 1)
+    # semester statistics (per degree)
+    class Stats:
+        def __init__(self):
+            self.num_enrollments_in_evaluation = 0
+            self.num_votes = 0
+            self.num_courses_evaluated = 0
+            self.num_courses = 0
+            self.num_comments = 0
+            self.num_comments_reviewed = 0
+            self.first_start = datetime.date(9999, 1, 1)
+            self.last_end = datetime.date(2000, 1, 1)
+
+    degree_stats = defaultdict(Stats)
+    total_stats = Stats()
     for course in courses:
-        if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
-            num_enrollments_in_evaluation += course.num_participants
-            num_votes += course.num_voters
-            num_comments += course.num_textanswers
-            num_comments_reviewed += course.num_reviewed_textanswers
-        if course.state in ['evaluated', 'reviewed', 'published']:
-            num_courses_evaluated += 1
-        first_start = min(first_start, course.vote_start_date)
-        last_end = max(last_end, course.vote_end_date)
+        if course.is_single_result():
+            continue
+        degrees = course.degrees.all()
+        stats_objects = [degree_stats[degree] for degree in degrees]
+        stats_objects += [total_stats]
+        for stats in stats_objects:
+            if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
+                stats.num_enrollments_in_evaluation += course.num_participants
+                stats.num_votes += course.num_voters
+                stats.num_comments += course.num_textanswers
+                stats.num_comments_reviewed += course.num_reviewed_textanswers
+            if course.state in ['evaluated', 'reviewed', 'published']:
+                stats.num_courses_evaluated += 1
+            stats.num_courses += 1
+            stats.first_start = min(stats.first_start, course.vote_start_date)
+            stats.last_end = max(stats.last_end, course.vote_end_date)
+    degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
+    degree_stats['total'] = total_stats
 
     template_data = dict(
         semester=semester,
@@ -106,14 +122,8 @@ def semester_view(request, semester_id):
         disable_if_archived="disabled" if semester.is_archived else "",
         rewards_active=rewards_active,
         grades_downloadable=grades_downloadable,
-        num_enrollments_in_evaluation=num_enrollments_in_evaluation,
-        num_votes=num_votes,
-        first_start=first_start,
-        last_end=last_end,
         num_courses=len(courses),
-        num_courses_evaluated=num_courses_evaluated,
-        num_comments=num_comments,
-        num_comments_reviewed=num_comments_reviewed,
+        degree_stats=degree_stats
     )
     return render(request, "staff_semester_view.html", template_data)
 

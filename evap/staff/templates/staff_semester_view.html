@@ -23,31 +23,41 @@
     {% if num_courses > 0 %}
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Overview" %}</h3>
+            <span class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" href="#accordion"  onclick="saveCollapseState()">
+                    {% trans "Overview" %}
+                </a>
+            </span>
         </div>
-        <div class="panel-body">
+        <div class="panel-collapse in" id="accordion">
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-3">{% trans "Evaluation period" %}</th>
-                        <th class="col-sm-3">{% trans "Evaluated courses" %}</th>
-                        <th class="col-sm-3">{% trans "Reviewed comments" %}</th>
+                        <th class="col-sm-3">{% trans "Degree" %}</th>
+                        <th class="col-sm-2">{% trans "Evaluation period" %}</th>
+                        <th class="col-sm-2">{% trans "Evaluated courses" %}</th>
+                        <th class="col-sm-2">{% trans "Reviewed comments" %}</th>
                         <th class="col-sm-3">{% trans "Participation" %}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>{{ first_start|date:"SHORT_DATE_FORMAT" }} - {{ last_end|date:"SHORT_DATE_FORMAT" }}</td>
+                    {% for degree, stats in degree_stats.items %}
+                    <tr {% if degree == 'total' %} class="total-stats" {% endif %}>
                         <td>
-                            {% include_progress_bar num_courses_evaluated num_courses %}
+                            {% if degree == 'total' %}{% trans "Total" %}{% else %}{{ degree }}{% endif %}
+                        </td>
+                        <td>{{ stats.first_start|date:"SHORT_DATE_FORMAT" }} - {{ stats.last_end|date:"SHORT_DATE_FORMAT" }}</td>
+                        <td>
+                            {% include_progress_bar stats.num_courses_evaluated stats.num_courses %}
                         </td>
                         <td>
-                            {% include_progress_bar num_comments_reviewed num_comments %}
+                            {% include_progress_bar stats.num_comments_reviewed stats.num_comments %}
                         </td>
                         <td>
-                            {% include_progress_bar num_votes num_enrollments_in_evaluation %}
+                            {% include_progress_bar stats.num_votes stats.num_enrollments_in_evaluation %}
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -248,4 +258,17 @@
         }
         $(this).find('.btn').toggleClass('btn-default');
     });
+
+    if (localStorage['collapse_overview'] === 'true') {
+        $('#accordion').collapse()
+    }
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function saveCollapseState() {
+            var state = window.localStorage['collapse_overview'] === 'true';
+            localStorage['collapse_overview'] = (!state).toString();
+        }
+    </script>
 {% endblock %}
