@@ -503,7 +503,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 logger.exception(('An error occured when updating the state of course "{}" (id {}).').format(course, course.id))
 
         EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
-        send_publish_notifications(evaluation_results_courses=evaluation_results_courses)
+        send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
 @receiver(post_transition, sender=Course)
@@ -1018,7 +1018,6 @@ class EmailTemplate(models.Model):
         except Exception:
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
-
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_courses):
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
@@ -1036,23 +1035,10 @@ class EmailTemplate(models.Model):
         cls.__send_to_user(user, template, subject_params, body_params, cc=False)
 
     @classmethod
-    def send_publish_notifications_to_user(cls, user, grade_document_courses=[], evaluation_results_courses=[]):
+    def send_publish_notifications_to_user(cls, user, courses):
         template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
-
-        grade_documents_exist = len(grade_document_courses) > 0
-        evaluation_results_exist = len(evaluation_results_courses) > 0
-
-        subject_params = {
-                'grade_documents_exist': grade_documents_exist,
-                'evaluation_results_exist': evaluation_results_exist
-            }
-        body_params = {
-                'user': user,
-                'grade_documents_exist': grade_documents_exist,
-                'evaluation_results_exist': evaluation_results_exist,
-                'grade_document_courses': grade_document_courses,
-                'evaluation_results_courses': evaluation_results_courses
-            }
+        subject_params = {}
+        body_params = {'user': user, 'courses': courses}
 
         cls.__send_to_user(user, template, subject_params, body_params, cc=True)
 

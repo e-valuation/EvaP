@@ -294,12 +294,12 @@ Side notes for calling out things
 
 /* Themes for different contexts */
 .bs-callout-danger {
-    background-color: #fcf2f2;
-    border-color: #dFb5b4;
+    background-color: #fce4e4;
+    border-color: #eb595a;
 }
 .bs-callout-warning {
-    background-color: #fefbed;
-    border-color: #f1e7bc;
+    background-color: #fbf7d0;
+    border-color: #efe258;
 }
 .bs-callout-info {
     background-color: #d9edf7;

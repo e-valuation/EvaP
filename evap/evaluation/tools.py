@@ -7,7 +7,7 @@ from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contributi
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
 from functools import partial
-from math import ceil, sqrt
+from math import ceil
 from statistics import pstdev, median
 
 GRADE_COLORS = {
@@ -74,7 +74,6 @@ CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', '
 RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
-CourseLists = namedtuple('CourseLists', ('grade_document_courses', 'evaluation_results_courses'))
 
 def avg(iterable):
     """Simple arithmetic average function. Returns `None` if the length of
@@ -143,7 +142,7 @@ def calculate_results(course):
     if course.state != "published":
         return _calculate_results_impl(course)
 
-    cache_key = str.format('evap.staff.results.tools.calculate_results-{:d}', course.id)
+    cache_key = 'evap.staff.results.tools.calculate_results-{:d}'.format(course.id)
     return cache.get_or_set(cache_key, partial(_calculate_results_impl, course), None)
 
 
@@ -252,39 +251,26 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def send_publish_notifications(grade_document_courses=None, evaluation_results_courses=None):
-    grade_document_courses = grade_document_courses or []
-    evaluation_results_courses = evaluation_results_courses or []
+def send_publish_notifications(courses):
+    publish_notifications = defaultdict(set)
 
-    publish_notifications = defaultdict(lambda: CourseLists(set(), set()))
-
-    for course in evaluation_results_courses:
+    for course in courses:
         # for published courses all contributors and participants get a notification
         if course.can_publish_grades:
             for participant in course.participants.all():
-                publish_notifications[participant].evaluation_results_courses.add(course)
+                publish_notifications[participant].add(course)
             for contribution in course.contributions.all():
                 if contribution.contributor:
-                    publish_notifications[contribution.contributor].evaluation_results_courses.add(course)
+                    publish_notifications[contribution.contributor].add(course)
         # if a course was not published notifications are only sent for contributors who can see comments
         elif len(course.textanswer_set) > 0:
             for textanswer in course.textanswer_set:
                 if textanswer.contribution.contributor:
-                    publish_notifications[textanswer.contribution.contributor].evaluation_results_courses.add(course)
-            publish_notifications[course.responsible_contributor].evaluation_results_courses.add(course)
-    for course in grade_document_courses:
-        # all participants who can download grades get a notification
-        if course.grades_activated:
-            for participant in course.participants.all():
-                if participant.can_download_grades:
-                    publish_notifications[participant].grade_document_courses.add(course)
+                    publish_notifications[textanswer.contribution.contributor].add(course)
+            publish_notifications[course.responsible_contributor].add(course)
 
-    for user, course_lists in publish_notifications.items():
-        EmailTemplate.send_publish_notifications_to_user(
-            user,
-            grade_document_courses=list(course_lists.grade_document_courses),
-            evaluation_results_courses=list(course_lists.evaluation_results_courses)
-        )
+    for user, course_set in publish_notifications.items():
+        EmailTemplate.send_publish_notifications_to_user(user, list(course_set))
 
 
 def color_mix(color1, color2, fraction):
@@ -311,13 +297,16 @@ def get_deviation_color(deviation):
     val = int(255 - capped_deviation * 60) # tweaked to look good
     return (val, val, val)
 
+
 def sort_formset(request, formset):
     if request.POST: # if not, there will be no cleaned_data and the models should already be sorted anyways
         formset.is_valid() # make sure all forms have cleaned_data
         formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
 
+
 def course_types_in_semester(semester):
     return Course.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()
+
 
 def has_no_rating_answers(course, contributor, questionnaire):
     questions = questionnaire.rating_questions

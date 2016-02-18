@@ -22,7 +22,7 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
                              ExportSheetForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect
+from evap.staff.tools import custom_redirect, delete_navbar_cache
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
@@ -217,7 +217,7 @@ def helper_semester_course_operation_publish(request, courses, send_email):
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
     if send_email:
-        send_publish_notifications(evaluation_results_courses=courses)
+        send_publish_notifications(courses)
 
 
 def helper_semester_course_operation_unpublish(request, courses):
@@ -234,6 +234,7 @@ def semester_create(request):
 
     if form.is_valid():
         semester = form.save()
+        delete_navbar_cache()
 
         messages.success(request, _("Successfully created semester."))
         return redirect('staff:semester_view', semester.id)
@@ -262,6 +263,7 @@ def semester_delete(request, semester_id):
     if semester.can_staff_delete:
         if request.method == 'POST':
             semester.delete()
+            delete_navbar_cache()
             messages.success(request, _("Successfully deleted semester."))
             return redirect('staff:index')
         else:

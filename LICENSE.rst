@@ -4,17 +4,16 @@ License
 The software is licensed under the MIT license. The source code includes other
 components in whole or in part; namely jQuery, jQuery UI, jQuery UI Multiselect
 and jQuery Formset. These components are used under the MIT resp. BSD licenses.
-It also uses symbols of the Silk icon set from famfamfam.com, which is licensed
-under a Creative Commons Attribution 2.5 License.
 
 The source repository may include logos, names or other trademarks of the
-Hasso Plattner Institute or other entities; potential usage restrictions for
-these elements still apply and are not touched by the software license.
+Hasso Plattner Institute, the Fachschaftsrat IT-Systems Engineering or other
+entities; potential usage restrictions for these elements still apply and are
+not touched by the software license.
 
 ::
 
   EvaP - Evaluation Platform
-  Copyright (C) 2011-2015 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf
+  Copyright (C) 2011-2016 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal

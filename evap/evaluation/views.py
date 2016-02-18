@@ -2,13 +2,14 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import resolve, Resolver404
 
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
 
 
 def index(request):
-    """Main entry page into EvaP providing all the login options available. THe username/password
+    """Main entry page into EvaP providing all the login options available. The username/password
        login is thought to be used for internal users, e.g. by connecting to a LDAP directory.
        The login key mechanism is meant to be used to include external participants, e.g. visiting
        students or visiting contributors.
@@ -68,7 +69,12 @@ def index(request):
                 if user.is_participant:
                     return redirect(redirect_to)
             else:
-                return redirect(redirect_to)
+                try:
+                    resolve(redirect_to)
+                except Resolver404:
+                    pass
+                else:
+                    return redirect(redirect_to)
 
         # redirect user to appropriate start page
         if request.user.is_staff:
@@ -85,6 +91,7 @@ def index(request):
 
 def faq(request):
     return render(request, "faq.html", dict(sections=FaqSection.objects.all()))
+
 
 def legal_notice(request):
     return render(request, "legal_notice.html", dict())

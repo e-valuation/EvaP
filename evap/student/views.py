@@ -76,6 +76,7 @@ def vote(request, course_id):
                 course_form_group=course_form_group,
                 contributor_form_groups=contributor_form_groups,
                 course=course,
+                participants_warning=course.num_participants <= 5,
                 preview=False)
         return render(request, "student_vote.html", template_data)
 
@@ -112,11 +113,13 @@ def vote(request, course_id):
 def helper_create_form_group(request, contribution):
     return list(QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in contribution.questionnaires.all())
 
+
 def helper_create_voting_form_groups(request, contributions):
     form_groups = OrderedDict()
     for contribution in contributions:
         form_groups[contribution] = helper_create_form_group(request, contribution)
     return form_groups
+
 
 def helper_has_errors(form_group):
     return any(form.errors for form in form_group)
