@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-02 13:51+0100\n"
-"PO-Revision-Date: 2016-02-02 13:52+0100\n"
+"POT-Creation-Date: 2016-02-18 10:44+0100\n"
+"PO-Revision-Date: 2016-02-18 10:47+0100\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.6\n"
+"X-Generator: Poedit 1.8.7\n"
 
 #: evap/contributor/forms.py:17 evap/staff/forms.py:52
 msgid "General questions"
@@ -118,7 +118,7 @@ msgid "Save and approve"
 msgstr "Speichern und bestätigen"
 
 #: evap/contributor/templates/contributor_course_form.html:89
-#: evap/student/templates/student_vote.html:79
+#: evap/student/templates/student_vote.html:82
 msgid "Back"
 msgstr "Zurück"
 
@@ -372,11 +372,11 @@ msgstr "Änderungen speichern"
 msgid "Successfully updated your settings."
 msgstr "Einstellungen erfolgreich geändert."
 
-#: evap/contributor/views.py:99 evap/staff/views.py:484
+#: evap/contributor/views.py:100 evap/staff/views.py:486
 msgid "Successfully updated and approved course."
 msgstr "Veranstaltung erfolgreich geändert and bestätigt."
 
-#: evap/contributor/views.py:101 evap/staff/views.py:486
+#: evap/contributor/views.py:102 evap/staff/views.py:488
 msgid "Successfully updated course."
 msgstr "Veranstaltung erfolgreich geändert."
 
@@ -1079,7 +1079,7 @@ msgstr "in Vorbereitung"
 msgid "evaluation finished"
 msgstr "Evaluierung beendet"
 
-#: evap/evaluation/views.py:33
+#: evap/evaluation/views.py:34
 msgid "Successfully sent email with new login key."
 msgstr "Email mit neuem Anmeldeschlüssel erfolgreich versendet."
 
@@ -1354,24 +1354,24 @@ msgstr ""
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: evap/grades/views.py:106
+#: evap/grades/views.py:104
 msgid "Successfully uploaded grades."
 msgstr "Noten erfolgreich hochgeladen."
 
-#: evap/grades/views.py:133
+#: evap/grades/views.py:131
 msgid "Successfully confirmed that no grade documents will be provided."
 msgstr "Erfolgreich bestätigt, dass Noten-Dokumente nicht hochgeladen werden."
 
-#: evap/grades/views.py:135
+#: evap/grades/views.py:133
 msgid "Successfully confirmed that grade documents will be provided later on."
 msgstr ""
 "Erfolgreich bestätigt, dass die Notendokumente noch hochgeladen werden."
 
-#: evap/grades/views.py:167
+#: evap/grades/views.py:165
 msgid "Successfully updated grades."
 msgstr "Noten erfolgreich aktualisiert."
 
-#: evap/grades/views.py:187
+#: evap/grades/views.py:185
 msgid "Successfully deleted grade document."
 msgstr "Noten-Dokument erfolgreich gelöscht."
 
@@ -2653,33 +2653,33 @@ msgid_plural "Successfully unpublished %(courses)d courses."
 msgstr[0] "Erfolgreich %(courses)d Veranstaltung zurückgezogen."
 msgstr[1] "Erfolgreich %(courses)d Veranstaltungen zurückgezogen."
 
-#: evap/staff/views.py:238
+#: evap/staff/views.py:239
 msgid "Successfully created semester."
 msgstr "Semester erfolgreich erstellt."
 
-#: evap/staff/views.py:252
+#: evap/staff/views.py:253
 msgid "Successfully updated semester."
 msgstr "Semester erfolgreich geändert."
 
-#: evap/staff/views.py:265
+#: evap/staff/views.py:267
 msgid "Successfully deleted semester."
 msgstr "Semester erfolgreich gelöscht."
 
-#: evap/staff/views.py:270
+#: evap/staff/views.py:272
 #, python-format
 msgid "The semester '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Das Semester '%s' kann nicht gelöscht werden, da es noch in Verwendung ist."
 
-#: evap/staff/views.py:342
+#: evap/staff/views.py:344
 msgid "Successfully assigned questionnaires."
 msgstr "Erfolgreich Fragebögen zugeordnet."
 
-#: evap/staff/views.py:397
+#: evap/staff/views.py:399
 msgid "Successfully archived semester '{}'."
 msgstr "Semester '{}' erfolgreich archiviert."
 
-#: evap/staff/views.py:402
+#: evap/staff/views.py:404
 #, python-format
 msgid ""
 "The semester '%s' cannot be archived, because it already is archived or has "
@@ -2688,39 +2688,39 @@ msgstr ""
 "Das Semester '%s' kann nicht archiviert werden, weil es bereits archiviert "
 "wurde oder Veranstaltungen beinhaltet, die nicht archiviert werden können."
 
-#: evap/staff/views.py:422
+#: evap/staff/views.py:424
 msgid "Successfully created course."
 msgstr "Veranstaltung erfolgreich erstellt."
 
-#: evap/staff/views.py:440 evap/staff/views.py:509
+#: evap/staff/views.py:442 evap/staff/views.py:511
 msgid "Successfully created single result."
 msgstr "Einzelergebnis erfolgreich erstellt."
 
-#: evap/staff/views.py:454
+#: evap/staff/views.py:456
 msgid "Editing not possible in current state."
 msgstr "Bearbeiten ist im aktuellen Zustand nicht möglich."
 
-#: evap/staff/views.py:523
+#: evap/staff/views.py:525
 #, python-format
 msgid "The course '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Die Veranstaltung '%s' kann nicht gelöscht werden, da sie noch in Verwendung "
 "ist."
 
-#: evap/staff/views.py:528
+#: evap/staff/views.py:530
 msgid "Successfully deleted course."
 msgstr "Veranstaltung erfolgreich gelöscht."
 
-#: evap/staff/views.py:543
+#: evap/staff/views.py:545
 msgid "Recipients: "
 msgstr "Empfänger: "
 
-#: evap/staff/views.py:549
+#: evap/staff/views.py:551
 #, python-format
 msgid "Successfully sent emails for '%s'."
 msgstr "Emails für '%s' wurden erfolgreich versendet."
 
-#: evap/staff/views.py:551
+#: evap/staff/views.py:553
 #, python-brace-format
 msgid ""
 "Successfully sent some emails for '{course}', but {count} could not be "
@@ -2730,60 +2730,60 @@ msgstr ""
 "konnten {count} Personen nicht erreicht werden, da sie keine E‑Mail-Adresse "
 "haben."
 
-#: evap/staff/views.py:717 evap/staff/views.py:782
+#: evap/staff/views.py:719 evap/staff/views.py:784
 msgid "Successfully created questionnaire."
 msgstr "Fragebogen erfolgreich erstellt."
 
-#: evap/staff/views.py:760
+#: evap/staff/views.py:762
 msgid "Successfully updated questionnaire."
 msgstr "Fragebogen erfolgreich geändert."
 
-#: evap/staff/views.py:764
+#: evap/staff/views.py:766
 msgid "Some fields are disabled as this questionnaire is already in use."
 msgstr ""
 "Manche Felder sind deaktiviert, weil der Fragebogen bereits verwendet wird."
 
-#: evap/staff/views.py:803
+#: evap/staff/views.py:805
 msgid "Successfully deleted questionnaire."
 msgstr "Fragebogen erfolgreich gelöscht."
 
-#: evap/staff/views.py:808
+#: evap/staff/views.py:810
 #, python-format
 msgid "The questionnaire '%s' cannot be deleted, because it is still in use."
 msgstr ""
 "Der Fragebogen '%s' kann nicht gelöscht werden, da er noch in Verwendung ist."
 
-#: evap/staff/views.py:832
+#: evap/staff/views.py:834
 msgid "Successfully updated the degrees."
 msgstr "Studiengänge erfolgreich geändert."
 
-#: evap/staff/views.py:858
+#: evap/staff/views.py:860
 msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
-#: evap/staff/views.py:892
+#: evap/staff/views.py:894
 msgid "Successfully updated user."
 msgstr "Benutzer erfolgreich geändert."
 
-#: evap/staff/views.py:905
+#: evap/staff/views.py:907
 msgid "Successfully deleted user."
 msgstr "Nutzer erfolgreich gelöscht."
 
-#: evap/staff/views.py:910
+#: evap/staff/views.py:912
 #, python-format
 msgid "The user '%s' cannot be deleted, because he lectures courses."
 msgstr ""
 "Der Nutzer '%s' kann nicht gelöscht werden, da er Veranstaltungen lehrt."
 
-#: evap/staff/views.py:922
+#: evap/staff/views.py:924
 msgid "Successfully updated template."
 msgstr "Vorlage erfolgreich geändert."
 
-#: evap/staff/views.py:938
+#: evap/staff/views.py:940
 msgid "Successfully updated the FAQ sections."
 msgstr "FAQ-Abschnitte erfolgreich geändert."
 
-#: evap/staff/views.py:955
+#: evap/staff/views.py:957
 msgid "Successfully updated the FAQ questions."
 msgstr "FAQ-Fragen erfolgreich geändert."
 
@@ -2870,11 +2870,23 @@ msgstr ""
 "Mitwirkenden nicht bewerten\" klicken, um die Fragen zu einer Person zu "
 "überspringen."
 
-#: evap/student/templates/student_vote.html:24
+#: evap/student/templates/student_vote.html:22
+msgid ""
+"This course has only a small number of participants. Please remember that "
+"your comments will be visible for the responsible person and the "
+"contributors you're evaluating. If two or more people evaluate the course, "
+"the results of all voting questions will also be published."
+msgstr ""
+"Diese Veranstaltung hat nur wenige Teilnehmer. Bitte denke daran, dass alle "
+"Kommentare für den Verantwortlichen und die bewertete Person sichtbar sein "
+"werden. Wenn zwei oder mehr Teilnehmer die Veranstaltung bewerten, werden "
+"außerdem die Ergebnisse aller Bewertungsfragen veröffentlicht."
+
+#: evap/student/templates/student_vote.html:27
 msgid "Questionnaire Preview"
 msgstr "Fragebogen-Vorschau"
 
-#: evap/student/templates/student_vote.html:25
+#: evap/student/templates/student_vote.html:28
 msgid ""
 "This is a preview of the questionnaire for the course. Students will see the "
 "questions below when participating in the evaluation."
@@ -2883,15 +2895,15 @@ msgstr ""
 "Studierenden werden die untenstehenden Fragen sehen, wenn sie an der "
 "Evaluierung teilnehmen."
 
-#: evap/student/templates/student_vote.html:35
+#: evap/student/templates/student_vote.html:38
 msgid "Questions about the course"
 msgstr "Fragen zur Lehrveranstaltung"
 
-#: evap/student/templates/student_vote.html:42
+#: evap/student/templates/student_vote.html:45
 msgid "Questions about the contributors"
 msgstr "Fragen zu den Mitwirkenden"
 
-#: evap/student/templates/student_vote.html:47
+#: evap/student/templates/student_vote.html:50
 msgid ""
 "Please vote for all contributors you worked with. Click on \"I can't give "
 "feedback\" to skip a person."
@@ -2899,15 +2911,15 @@ msgstr ""
 "Bitte bewerte alle Mitwirkenden oder klicke auf \"Ich kann diesen "
 "Mitwirkenden nicht bewerten\", um die Person zu überspringen."
 
-#: evap/student/templates/student_vote.html:61
+#: evap/student/templates/student_vote.html:64
 msgid "I can't give feedback about this contributor"
 msgstr "Ich kann diesen Mitwirkenden nicht bewerten"
 
-#: evap/student/templates/student_vote.html:81
+#: evap/student/templates/student_vote.html:84
 msgid "Submit questionnaire"
 msgstr "Fragebogen absenden"
 
-#: evap/student/views.py:108
+#: evap/student/views.py:109
 msgid "Your vote was recorded."
 msgstr "Deine Antworten wurden gespeichert."
 
