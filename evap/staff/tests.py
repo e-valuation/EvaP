@@ -14,7 +14,8 @@ from django.utils.six import StringIO
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
 from evap.evaluation.tools import calculate_average_grades_and_deviation
-from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, CourseForm
+from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
+                            CourseForm, SingleResultForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
 
 from model_mommy import mommy
@@ -357,6 +358,7 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff semester single_result
+            ("test_staff_semester_x_single_result_create", "/staff/semester/1/singleresult/create", "evap"),
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
             ("test_staff_semester_x_single_result_y_delete", "/staff/semester/1/course/11/delete", "evap"),
             # staff questionnaires
@@ -854,6 +856,33 @@ class CourseFormTests(TestCase):
         # staff: but start date must be < end date
         self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
 
+
+class SingleResultFormTests(TestCase):
+
+    def test_single_result_form_saves_participant_and_voter_count(self):
+        responsible = mommy.make(UserProfile)
+        form_data = {
+            "name_de": "qwertz",
+            "name_en": "qwertz",
+            "type": "a type",
+            "degrees": ["1"],
+            "event_date": "02/1/2014",
+            "responsible": responsible.pk,
+            "answer_1": 6,
+            "answer_2": 0,
+            "answer_3": 2,
+            "answer_4": 0,
+            "answer_5": 2,
+        }
+        course = Course(semester=mommy.make(Semester))
+        form = SingleResultForm(form_data, instance=course)
+        self.assertTrue(form.is_valid())
+
+        form.save(user=mommy.make(UserProfile))
+
+        course = Course.objects.first()
+        self.assertEqual(course.num_participants, 10)
+        self.assertEqual(course.num_voters, 10)
 
 class ContributionFormsetTests(TestCase):
 
