@@ -1,0 +1,23 @@
+{% extends "staff_base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
+    <li>{% trans "Merge users" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        {% trans "Select the users you want to merge." %}
+    </p>
+    <form method="POST" class="form-horizontal">
+       {% csrf_token %}
+       {{ form.as_div }}
+        <div class="well submit-area text-center">
+            <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
+        </div>
+    </form>
+{% endblock %}

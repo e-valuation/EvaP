@@ -50,6 +50,8 @@ urlpatterns = [
     url(r"^user/(\d+)/edit$", user_edit, name="user_edit"),
 
     url(r"^user/delete$", user_delete, name="user_delete"),
+    url(r"^user/merge$", user_merge_selection, name="user_merge_selection"),
+    url(r"^user/(\d+)/merge/(\d+)$", user_merge, name="user_merge"),
 
     url(r"^template/$", RedirectView.as_view(url='/staff/', permanent=True)),
     url(r"^template/(\d+)$", template_edit, name="template_edit"),

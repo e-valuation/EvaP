@@ -917,6 +917,16 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
+    def get_sorted_contributions(self):
+        return Contribution.objects.filter(contributor=self).order_by('course__semester__created_at', 'course__name_de')
+
+    def get_sorted_courses_participating_in(self):
+        return Course.objects.filter(participants=self).order_by('semester__created_at', 'name_de')
+
+    def get_sorted_courses_voted_for(self):
+        return Course.objects.filter(voters=self).order_by('semester__created_at', 'name_de')
+
+
 def validate_template(value):
     """Field validator which ensures that the value can be compiled into a
     Django Template."""

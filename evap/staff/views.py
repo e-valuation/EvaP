@@ -20,9 +20,9 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
                              FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
-                             ExportSheetForm
+                             ExportSheetForm, UserMergeSelectionForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
@@ -907,6 +907,35 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     return HttpResponse() # 200 OK
+
+
+@staff_required
+def user_merge_selection(request):
+    form = UserMergeSelectionForm(request.POST or None, request.FILES or None)
+
+    if form.is_valid():
+        main_user = form.cleaned_data['main_user']
+        other_user = form.cleaned_data['other_user']
+        return redirect('staff:user_merge', main_user.id, other_user.id)
+    else:
+        return render(request, "staff_user_merge_selection.html", dict(form=form))
+
+
+@staff_required
+def user_merge(request, main_user_id, other_user_id):
+    main_user = get_object_or_404(UserProfile, id=main_user_id)
+    other_user = get_object_or_404(UserProfile, id=other_user_id)
+
+    if request.method == 'POST':
+        merged_user, errors = merge_users(main_user, other_user)
+        if not errors:
+            messages.success(request, _("Successfully merged users."))
+        else:
+            messages.error(request, _("Merging the users failed. No data was changed."))
+        return redirect('staff:user_index')
+    else:
+        merged_user, errors = merge_users(main_user, other_user, preview=True)
+        return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors))
 
 
 @staff_required

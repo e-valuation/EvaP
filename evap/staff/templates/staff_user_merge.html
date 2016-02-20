@@ -1,0 +1,267 @@
+{% extends "staff_base.html" %}
+
+{% load i18n %}
+{% load morefilters %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
+    <li>{% trans "Merge users" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h2>{% trans "Merge users" %}</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="col-sm-3"></th>
+                <th class="col-sm-3">{% trans "Main user" %}</th>
+                <th class="col-sm-3">{% trans "Other user" %}</th>
+                <th class="col-sm-3">{% trans "Merged user" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>{% trans "Username" %}</strong></td>
+                <td{% if main_user.username == merged_user.username %} class="info"{% endif %}>{{ main_user.username }}</td>
+                <td{% if other_user.username == merged_user.username %} class="info"{% endif %}>{{ other_user.username }}</td>
+                <td{% if merged_user.username %} class="success"{% endif %}>{{ merged_user.username }}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "Title" %}</strong></td>
+                <td{% if main_user.title == merged_user.title %} class="info"{% endif %}>{{ main_user.title }}</td>
+                <td{% if other_user.title == merged_user.title %} class="info"{% endif %}>{{ other_user.title }}</td>
+                <td{% if merged_user.title %} class="success"{% endif %}>{{ merged_user.title }}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "First name" %}</strong></td>
+                <td{% if main_user.first_name == merged_user.first_name %} class="info"{% endif %}>{{ main_user.first_name }}</td>
+                <td{% if other_user.first_name == merged_user.first_name %} class="info"{% endif %}>{{ other_user.first_name }}</td>
+                <td{% if merged_user.first_name %} class="success"{% endif %}>{{ merged_user.first_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "Last name" %}</strong></td>
+                <td{% if main_user.last_name == merged_user.last_name %} class="info"{% endif %}>{{ main_user.last_name }}</td>
+                <td{% if other_user.last_name == merged_user.last_name %} class="info"{% endif %}>{{ other_user.last_name }}</td>
+                <td{% if merged_user.last_name %} class="success"{% endif %}>{{ merged_user.last_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "Email" %}</strong></td>
+                <td{% if main_user.email == merged_user.email %} class="info"{% endif %}>{{ main_user.email }}</td>
+                <td{% if other_user.email == merged_user.email %} class="info"{% endif %}>{{ other_user.email }}</td>
+                <td{% if merged_user.email %} class="success"{% endif %}>{{ merged_user.email }}</td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "Groups" %}</strong></td>
+                <td{% if main_user.groups.all %} class="info"{% endif %}>
+                    {% for group in main_user.groups.all %}
+                        <span class="label label-default">{{ group.name }}</span>
+                    {% endfor %}
+                </td>
+                <td{% if other_user.groups.all %} class="info"{% endif %}>
+                    {% for group in other_user.groups.all %}
+                        <span class="label label-default">{{ group.name }}</span>
+                    {% endfor %}
+                </td>
+                <td{% if merged_user.groups %} class="success"{% endif %}>
+                    {% for group in merged_user.groups %}
+                        <span class="label label-default">{{ group }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "Delegates" %}</strong></td>
+                <td{% if main_user.delegates.all %} class="info"{% endif %}>
+                    {% for user in main_user.delegates.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if other_user.delegates.all %} class="info"{% endif %}>
+                    {% for user in other_user.delegates.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if merged_user.delegates %} class="success"{% endif %}>
+                    {% for user in merged_user.delegates %}
+                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "Represented users" %}</strong></td>
+                <td{% if main_user.represented_users.all %} class="info"{% endif %}>
+                    {% for user in main_user.represented_users.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if other_user.represented_users.all %} class="info"{% endif %}>
+                    {% for user in other_user.represented_users.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if merged_user.represented_users %} class="success"{% endif %}>
+                    {% for user in merged_user.represented_users %}
+                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "CC users" %}</strong></td>
+                <td{% if main_user.cc_users.all %} class="info"{% endif %}>
+                    {% for user in main_user.cc_users.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if other_user.cc_users.all %} class="info"{% endif %}>
+                    {% for user in other_user.cc_users.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if merged_user.cc_users %} class="success"{% endif %}>
+                    {% for user in merged_user.cc_users %}
+                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{% trans "CC'ing users" %}</strong></td>
+                <td{% if main_user.ccing_users.all %} class="info"{% endif %}>
+                    {% for user in main_user.ccing_users.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if other_user.ccing_users.all %} class="info"{% endif %}>
+                    {% for user in other_user.ccing_users.all %}
+                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+                <td{% if merged_user.ccing_users %} class="success"{% endif %}>
+                    {% for user in merged_user.ccing_users %}
+                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr{% if "contributions" in errors %} class="danger"{% endif %}>
+                <td><strong>{% trans "Contributions" %}</strong></td>
+                {% regroup main_user.get_sorted_contributions by course.semester as contribution_list %}
+                <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
+                    {% for contributions in contribution_list %}
+                        {{ contributions.grouper }}
+                        <ul>
+                            {% for contribution in contributions.list %}
+                                <li>{{ contribution.course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+                {% regroup other_user.get_sorted_contributions by course.semester as contribution_list %}
+                <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
+                    {% for contributions in contribution_list %}
+                        {{ contributions.grouper }}
+                        <ul>
+                            {% for contribution in contributions.list %}
+                                <li>{{ contribution.course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+                {% regroup merged_user.contributions by course.semester as contribution_list %}
+                <td{% if contribution_list|length > 0 %} class="success"{% endif %}>
+                    {% for contributions in contribution_list %}
+                        {{ contributions.grouper }}
+                        <ul>
+                            {% for contribution in contributions.list %}
+                                <li>{{ contribution.course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr{% if "participant_in" in errors %} class="danger"{% endif %}>
+                <td><strong>{% trans "Participated in" %}</strong></td>
+                {% regroup main_user.get_sorted_courses_participating_in by semester as participation_list %}
+                <td{% if participation_list|length > 0 %} class="info"{% endif %}>
+                    {% for courses in participation_list %}
+                        {{ courses.grouper }}
+                        <ul>
+                            {% for course in courses.list %}
+                                <li>{{ course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+                {% regroup other_user.get_sorted_courses_participating_in by semester as participation_list %}
+                <td{% if participation_list|length > 0 %} class="info"{% endif %}>
+                    {% for courses in participation_list %}
+                        {{ courses.grouper }}
+                        <ul>
+                            {% for course in courses.list %}
+                                <li>{{ course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+                {% regroup merged_user.participant_in by semester as participation_list %}
+                <td{% if participation_list|length > 0 %} class="success"{% endif %}>
+                    {% for courses in participation_list %}
+                        {{ courses.grouper }}
+                        <ul>
+                            {% for course in courses.list %}
+                                <li>{{ course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr{% if "voted_for" in errors %} class="danger"{% endif %}>
+                <td><strong>{% trans "Voted for" %}</strong></td>
+                {% regroup main_user.get_sorted_courses_voted_for by semester as voting_list %}
+                <td{% if voting_list|length > 0 %} class="info"{% endif %}>
+                    {% for courses in voting_list %}
+                        {{ courses.grouper }}
+                        <ul>
+                            {% for course in courses.list %}
+                                <li>{{ course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+                {% regroup other_user.get_sorted_courses_voted_for by semester as voting_list %}
+                <td{% if voting_list|length > 0 %} class="info"{% endif %}>
+                    {% for courses in voting_list %}
+                        {{ courses.grouper }}
+                        <ul>
+                            {% for course in courses.list %}
+                                <li>{{ course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+                {% regroup merged_user.voted_for by semester as voting_list %}
+                <td{% if voting_list|length > 0 %} class="success"{% endif %}>
+                    {% for courses in voting_list %}
+                        {{ courses.grouper }}
+                        <ul>
+                            {% for course in courses.list %}
+                                <li>{{ course.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form method="POST" class="form-horizontal">
+        {% csrf_token %}
+        <div class="well submit-area text-center">
+            {% if errors %}
+                {% trans "The users can't be merged, because either contributions or participations for the same course exist." %}
+            {% else %}
+                <button type="submit" class="btn btn-primary">{% trans "Merge users" %}</button>
+            {% endif %}
+        </div>
+    </form>
+{% endblock %}

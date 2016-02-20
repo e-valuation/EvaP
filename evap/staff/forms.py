@@ -402,6 +402,11 @@ class UserForm(forms.ModelForm, BootstrapMixin):
             self.instance.groups.remove(grade_user_group)
 
 
+class UserMergeSelectionForm(forms.Form, BootstrapMixin):
+    main_user = forms.ModelChoiceField(UserProfile.objects.all())
+    other_user = forms.ModelChoiceField(UserProfile.objects.all())
+
+
 class LotteryForm(forms.Form, BootstrapMixin):
     number_of_winners = forms.IntegerField(label=_("Number of Winners"), initial=3)
 
