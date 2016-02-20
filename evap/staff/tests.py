@@ -1059,6 +1059,26 @@ class ArchivingTests(WebTest):
         self.get_assert_403(semester_url + "course/7/delete", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
 
+    def test_course_is_not_archived_if_participant_count_is_set(self):
+        course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)
+        self.assertFalse(course.is_archived)
+        self.assertTrue(course.is_archiveable)
+
+    def test_archiving_doesnt_change_single_results_participant_count(self):
+        responsible = mommy.make(UserProfile)
+        course = mommy.make(Course, state="published")
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True)
+        contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+        self.assertTrue(course.is_single_result())
+
+        course._participant_count = 5
+        course._voter_count = 5
+        course.save()
+
+        course._archive()
+        self.assertEqual(course._participant_count, 5)
+        self.assertEqual(course._voter_count, 5)
+
 
 class TestDataTest(TestCase):
 
