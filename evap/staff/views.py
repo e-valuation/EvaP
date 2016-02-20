@@ -9,7 +9,6 @@ from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Prefetch
-from collections import defaultdict
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
@@ -511,14 +510,7 @@ def helper_course_edit(request, semester, course):
 
 @staff_required
 def helper_single_result_edit(request, semester, course):
-    initial = {'responsible': course.responsible_contributor}
-    answer_counts = defaultdict(int)
-    for answer_counter in course.ratinganswer_counters:
-        answer_counts[answer_counter.answer] = answer_counter.count
-    for i in range(1,6):
-        initial['answer_' + str(i)] = answer_counts[i]
-
-    form = SingleResultForm(request.POST or None, instance=course, initial=initial)
+    form = SingleResultForm(request.POST or None, instance=course)
 
     if form.is_valid():
         form.save(user=request.user)
