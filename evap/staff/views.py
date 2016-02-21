@@ -61,7 +61,7 @@ def get_courses_with_prefetched_data(semester):
         course.general_contribution = course.general_contribution[0]
         course.responsible_contributor = course.responsible_contribution[0].contributor
         course.num_textanswers = textanswer_count
-        if not semester.is_archived:
+        if course._participant_count is None:
             course.num_voters = voter_count
             course.num_participants = participant_count
     return courses
