@@ -124,7 +124,7 @@ def semester_course_operation(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     operation = request.GET.get('operation')
-    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'publish', 'unpublish']:
+    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'startEvaluation', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
         return custom_redirect('staff:semester_view', semester_id)
 
@@ -138,6 +138,8 @@ def semester_course_operation(request, semester_id):
             helper_semester_course_operation_prepare(request, courses, send_email)
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
+        elif operation == 'startEvaluation':
+            helper_semester_course_operation_start(request, courses, send_email)
         elif operation == 'publish':
             helper_semester_course_operation_publish(request, courses, send_email)
         elif operation == 'unpublish':
@@ -164,6 +166,8 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
+        elif operation == 'startEvaluation':
+            new_state_name = STATES_ORDERED['inEvaluation']
         elif operation == 'publish':
             new_state_name = STATES_ORDERED['published']
         elif operation == 'unpublish':
@@ -179,7 +183,7 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
-        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'publish']
+        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'startEvaluation', 'publish']
     )
     return render(request, "staff_course_operation.html", template_data)
 
@@ -208,6 +212,17 @@ def helper_semester_course_operation_approve(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully approved %(courses)d course.",
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+
+
+def helper_semester_course_operation_start(request, courses, send_email):
+    for course in courses:
+        course.vote_start_date = datetime.date.today()
+        course.evaluation_begin()
+        course.save()
+    messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
+        "Successfully started evaluation for %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+    if send_email:
+        EmailTemplate.send_evaluation_started_notifications(courses)
 
 
 def helper_semester_course_operation_publish(request, courses, send_email):

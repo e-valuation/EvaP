@@ -125,7 +125,7 @@
                                 </tbody>
                             </table>
 
-                            {% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'reviewed' or state == 'published' %}
+                            {% if state == 'new' or state == 'prepared' or state == 'editorApproved'  or state == 'approved' or state == 'reviewed' or state == 'published' %}
                                 <button type="button" class="btn btn-default" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</button>
                             {% endif %}
                             {% ifequal state "new" %}
@@ -139,6 +139,9 @@
                             {% endif %}
                             {% ifequal state "editorApproved" %}
                                 <button name="operation" value="reenableEditorReview" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "approved" %}
+                                <button name="operation" value="startEvaluation" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
                             {% endifequal %}
                             {% ifequal state "reviewed" %}
                                 <button name="operation" value="publish" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
