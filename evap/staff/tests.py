@@ -1023,7 +1023,7 @@ class ArchivingTests(WebTest):
 
         self.semester.archive()
 
-        self.assertEqual(list(some_participant.course_set.all()), [self.course])
+        self.assertEqual(list(some_participant.courses_participating_in.all()), [self.course])
 
     def test_is_archived(self):
         """
@@ -1152,6 +1152,8 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(errors, ['contributions', 'courses_participating_in'])
 
         # assert that nothing has changed
+        self.main_user.refresh_from_db()
+        self.other_user.refresh_from_db()
         self.assertEqual(self.main_user.username, "main_user")
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")
@@ -1183,7 +1185,9 @@ class MergeUsersTest(TestCase):
         self.contribution2.delete()
 
         merged_user, errors = merge_users(self.main_user, self.other_user)  # merge should succeed
+        self.assertEqual(errors, [])
 
+        self.main_user.refresh_from_db()
         self.assertEqual(self.main_user.username, "main_user")
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")

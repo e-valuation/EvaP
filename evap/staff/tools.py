@@ -56,14 +56,14 @@ def merge_users(main_user, other_user, preview=False):
     merged_user['courses_voted_for'] = Course.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
 
     if preview or errors:
-        return (merged_user, errors)
+        return merged_user, errors
 
 
     # update last_modified_user for courses and grade documents
     Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 
-    # email must not exist twice
+    # email must not exist twice. other user can't be deleted before contributions have been changed
     other_user.email = ""
     other_user.save()
 
@@ -75,4 +75,4 @@ def merge_users(main_user, other_user, preview=False):
     # delete other user
     other_user.delete()
 
-    return (merged_user, errors)
+    return merged_user, errors
