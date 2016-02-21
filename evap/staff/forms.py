@@ -143,16 +143,23 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         self.instance.is_graded = False
         super().save(*args, **kw)
 
+        single_result_questionnaire = Questionnaire.get_single_result_questionnaire()
+        single_result_question = single_result_questionnaire.question_set.first()
+
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
             contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True)
             contribution.save()
-            contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+            contribution.questionnaires.add(single_result_questionnaire)
 
         # set answers
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
+        total_votes = 0
         for i in range(1,6):
-            count = {'count': self.cleaned_data['answer_'+str(i)]}
-            answer_counter, created = RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
+            count = self.cleaned_data['answer_'+str(i)]
+            total_votes += count
+            RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=single_result_question, answer=i, defaults={'count': count})
+        self.instance._participant_count = total_votes
+        self.instance._voter_count = total_votes
 
         # change state to "reviewed"
         # works only for single_results so the course and its contribution must be saved first

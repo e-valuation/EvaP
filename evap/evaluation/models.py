@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -44,8 +44,9 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-
     name = Translate
+
+    is_archived = models.BooleanField(default=False, verbose_name=_("is archived"))
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
@@ -63,21 +64,16 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_archiveable(self):
-        return all(course.is_archiveable for course in self.course_set.all())
+        return not self.is_archived and all(course.is_archiveable for course in self.course_set.all())
 
-    @cached_property
-    def is_archived(self):
-        if self.course_set.count() == 0:
-            return False
-        first_course_is_archived = self.course_set.first().is_archived
-        assert(all(course.is_archived == first_course_is_archived for course in self.course_set.all()))
-        return first_course_is_archived
-
+    @transaction.atomic
     def archive(self):
         if not self.is_archiveable:
             raise NotArchiveable()
         for course in self.course_set.all():
             course._archive()
+        self.is_archived = True
+        self.save()
 
     @classmethod
     def get_all_with_published_courses(cls):
@@ -445,14 +441,16 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Should be called only via Semester.archive"""
         if not self.is_archiveable:
             raise NotArchiveable()
-        self._participant_count = self.participants.count()
-        self._voter_count = self.voters.count()
+        self._participant_count = self.num_participants
+        self._voter_count = self.num_voters
         self.save()
 
     @property
     def is_archived(self):
-        assert((self._participant_count is None) == (self._voter_count is None))
-        return self._participant_count is not None
+        semester_is_archived = self.semester.is_archived
+        if semester_is_archived:
+            assert self._participant_count is not None and self._voter_count is not None
+        return semester_is_archived
 
     @property
     def is_archiveable(self):

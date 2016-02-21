@@ -14,7 +14,8 @@ from django.utils.six import StringIO
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
 from evap.evaluation.tools import calculate_average_grades_and_deviation
-from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, CourseForm
+from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
+                            CourseForm, SingleResultForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
 
 from model_mommy import mommy
@@ -357,6 +358,7 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff semester single_result
+            ("test_staff_semester_x_single_result_create", "/staff/semester/1/singleresult/create", "evap"),
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
             ("test_staff_semester_x_single_result_y_delete", "/staff/semester/1/course/11/delete", "evap"),
             # staff questionnaires
@@ -855,6 +857,33 @@ class CourseFormTests(TestCase):
         self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
 
 
+class SingleResultFormTests(TestCase):
+
+    def test_single_result_form_saves_participant_and_voter_count(self):
+        responsible = mommy.make(UserProfile)
+        form_data = {
+            "name_de": "qwertz",
+            "name_en": "qwertz",
+            "type": "a type",
+            "degrees": ["1"],
+            "event_date": "02/1/2014",
+            "responsible": responsible.pk,
+            "answer_1": 6,
+            "answer_2": 0,
+            "answer_3": 2,
+            "answer_4": 0,
+            "answer_5": 2,
+        }
+        course = Course(semester=mommy.make(Semester))
+        form = SingleResultForm(form_data, instance=course)
+        self.assertTrue(form.is_valid())
+
+        form.save(user=mommy.make(UserProfile))
+
+        course = Course.objects.first()
+        self.assertEqual(course.num_participants, 10)
+        self.assertEqual(course.num_voters, 10)
+
 class ContributionFormsetTests(TestCase):
 
     def test_dont_validate_deleted_contributions(self):
@@ -1058,6 +1087,26 @@ class ArchivingTests(WebTest):
         self.get_assert_403(semester_url + "course/7/edit", "evap")
         self.get_assert_403(semester_url + "course/7/delete", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
+
+    def test_course_is_not_archived_if_participant_count_is_set(self):
+        course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)
+        self.assertFalse(course.is_archived)
+        self.assertTrue(course.is_archiveable)
+
+    def test_archiving_doesnt_change_single_results_participant_count(self):
+        responsible = mommy.make(UserProfile)
+        course = mommy.make(Course, state="published")
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True)
+        contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+        self.assertTrue(course.is_single_result())
+
+        course._participant_count = 5
+        course._voter_count = 5
+        course.save()
+
+        course._archive()
+        self.assertEqual(course._participant_count, 5)
+        self.assertEqual(course._voter_count, 5)
 
 
 class TestDataTest(TestCase):
