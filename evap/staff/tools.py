@@ -47,62 +47,32 @@ def merge_users(main_user, other_user, preview=False):
     if any(contribution.course in [contribution.course for contribution in main_user.get_sorted_contributions()] for contribution in other_user.get_sorted_contributions()):
         errors.append('contributions')
     if any(course in main_user.get_sorted_courses_participating_in() for course in other_user.get_sorted_courses_participating_in()):
-        errors.append('participant_in')
+        errors.append('courses_participating_in')
     if any(course in main_user.get_sorted_courses_voted_for() for course in other_user.get_sorted_courses_voted_for()):
-        errors.append('voted_for')
+        errors.append('courses_voted_for')
 
     merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('course__semester__created_at', 'course__name_de')
-    merged_user['participant_in'] = Course.objects.filter(participants__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
-    merged_user['voted_for'] = Course.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
+    merged_user['courses_participating_in'] = Course.objects.filter(participants__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
+    merged_user['courses_voted_for'] = Course.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
 
     if preview or errors:
         return (merged_user, errors)
 
 
-    # update last_modified_user for course
-    for course in Course.objects.filter(last_modified_user=other_user):
-        course.last_modified_user = main_user
-        course.save()
+    # update last_modified_user for courses and grade documents
+    Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
+    GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 
-    # update last_modified_user for grade documents
-    for grade_document in GradeDocument.objects.filter(last_modified_user=other_user):
-        grade_document.last_modified_user = main_user
-        grade_document.save()
+    # email must not exist twice
+    other_user.email = ""
+    other_user.save()
 
-    # add all groups of other user
-    for group in merged_user['groups']:
-        main_user.groups.add(group)
-
-    # add all delegates and represented users from other user
-    for delegate in merged_user['delegates']:
-        main_user.delegates.add(delegate)
-    for represented_user in merged_user['represented_users']:
-        main_user.represented_users.add(represented_user)
-
-    # add all cc users and cc'ing users from other user
-    for cc_user in merged_user['cc_users']:
-        main_user.cc_users.add(cc_user)
-    for ccing_user in merged_user['ccing_users']:
-        main_user.ccing_users.add(ccing_user)
-
-    # add all participations and votings
-    for course in merged_user['participant_in']:
-        course.participants.add(main_user)
-    for course in merged_user['voted_for']:
-        course.voters.add(main_user)
-
-    # add all contributions
-    for contribution in merged_user['contributions']:
-        contribution.contributor = main_user
-        contribution.save()
-
-    other_user.delete()
-
-    main_user.username = merged_user['username']
-    main_user.title = merged_user['title']
-    main_user.first_name = merged_user['first_name']
-    main_user.last_name = merged_user['last_name']
-    main_user.email = merged_user['email']
+    # update values for main user
+    for key, value in merged_user.items():
+        setattr(main_user, key, value)
     main_user.save()
+
+    # delete other user
+    other_user.delete()
 
     return (merged_user, errors)

@@ -179,14 +179,14 @@
                     {% endfor %}
                 </td>
             </tr>
-            <tr{% if "participant_in" in errors %} class="danger"{% endif %}>
+            <tr{% if "courses_participating_in" in errors %} class="danger"{% endif %}>
                 <td><strong>{% trans "Participated in" %}</strong></td>
                 {% regroup main_user.get_sorted_courses_participating_in by semester as participation_list %}
                 <td{% if participation_list|length > 0 %} class="info"{% endif %}>
-                    {% for courses in participation_list %}
-                        {{ courses.grouper }}
+                    {% for semester in participation_list %}
+                        {{ semester.grouper }}
                         <ul>
-                            {% for course in courses.list %}
+                            {% for course in semester.list %}
                                 <li>{{ course.name }}</li>
                             {% endfor %}
                         </ul>
@@ -194,35 +194,35 @@
                 </td>
                 {% regroup other_user.get_sorted_courses_participating_in by semester as participation_list %}
                 <td{% if participation_list|length > 0 %} class="info"{% endif %}>
-                    {% for courses in participation_list %}
-                        {{ courses.grouper }}
+                    {% for semester in participation_list %}
+                        {{ semester.grouper }}
                         <ul>
-                            {% for course in courses.list %}
+                            {% for course in semester.list %}
                                 <li>{{ course.name }}</li>
                             {% endfor %}
                         </ul>
                     {% endfor %}
                 </td>
-                {% regroup merged_user.participant_in by semester as participation_list %}
+                {% regroup merged_user.courses_participating_in by semester as participation_list %}
                 <td{% if participation_list|length > 0 %} class="success"{% endif %}>
-                    {% for courses in participation_list %}
-                        {{ courses.grouper }}
+                    {% for semester in participation_list %}
+                        {{ semester.grouper }}
                         <ul>
-                            {% for course in courses.list %}
+                            {% for course in semester.list %}
                                 <li>{{ course.name }}</li>
                             {% endfor %}
                         </ul>
                     {% endfor %}
                 </td>
             </tr>
-            <tr{% if "voted_for" in errors %} class="danger"{% endif %}>
+            <tr{% if "courses_voted_for" in errors %} class="danger"{% endif %}>
                 <td><strong>{% trans "Voted for" %}</strong></td>
                 {% regroup main_user.get_sorted_courses_voted_for by semester as voting_list %}
                 <td{% if voting_list|length > 0 %} class="info"{% endif %}>
-                    {% for courses in voting_list %}
-                        {{ courses.grouper }}
+                    {% for semester in voting_list %}
+                        {{ semester.grouper }}
                         <ul>
-                            {% for course in courses.list %}
+                            {% for course in semester.list %}
                                 <li>{{ course.name }}</li>
                             {% endfor %}
                         </ul>
@@ -230,21 +230,21 @@
                 </td>
                 {% regroup other_user.get_sorted_courses_voted_for by semester as voting_list %}
                 <td{% if voting_list|length > 0 %} class="info"{% endif %}>
-                    {% for courses in voting_list %}
-                        {{ courses.grouper }}
+                    {% for semester in voting_list %}
+                        {{ semester.grouper }}
                         <ul>
-                            {% for course in courses.list %}
+                            {% for course in semester.list %}
                                 <li>{{ course.name }}</li>
                             {% endfor %}
                         </ul>
                     {% endfor %}
                 </td>
-                {% regroup merged_user.voted_for by semester as voting_list %}
+                {% regroup merged_user.courses_voted_for by semester as voting_list %}
                 <td{% if voting_list|length > 0 %} class="success"{% endif %}>
-                    {% for courses in voting_list %}
-                        {{ courses.grouper }}
+                    {% for semester in voting_list %}
+                        {{ semester.grouper }}
                         <ul>
-                            {% for course in courses.list %}
+                            {% for course in semester.list %}
                                 <li>{{ course.name }}</li>
                             {% endfor %}
                         </ul>

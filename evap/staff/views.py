@@ -377,7 +377,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in UserProfile.objects.all():
-            courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
+            courses = user.courses_participating_in.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not participating in any course in this semester
                 continue
@@ -846,7 +846,7 @@ def user_index(request):
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'course_set'))
+        .prefetch_related('contributions', 'courses_participating_in'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 

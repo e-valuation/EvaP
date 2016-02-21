@@ -187,11 +187,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
 
     # students that are allowed to vote
-    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
     # students that already voted
-    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='+')
+    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='courses_voted_for')
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
@@ -849,13 +849,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @property
     def can_staff_delete(self):
         states_with_votes = ["inEvaluation", "reviewed", "evaluated", "published"]
-        if any(course.state in states_with_votes and not course.is_archived for course in self.course_set.all()):
+        if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
         return not self.is_contributor
 
     @property
     def is_participant(self):
-        return self.course_set.exists()
+        return self.courses_participating_in.exists()
 
     @property
     def is_contributor(self):
@@ -918,13 +918,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         self.save()
 
     def get_sorted_contributions(self):
-        return Contribution.objects.filter(contributor=self).order_by('course__semester__created_at', 'course__name_de')
+        return self.contributions.order_by('course__semester__created_at', 'course__name_de')
 
     def get_sorted_courses_participating_in(self):
-        return Course.objects.filter(participants=self).order_by('semester__created_at', 'name_de')
+        return self.courses_participating_in.order_by('semester__created_at', 'name_de')
 
     def get_sorted_courses_voted_for(self):
-        return Course.objects.filter(voters=self).order_by('semester__created_at', 'name_de')
+        return self.courses_voted_for.order_by('semester__created_at', 'name_de')
 
 
 def validate_template(value):

@@ -1116,89 +1116,89 @@ class MergeUsersTest(TestCase):
         cls.user3 = mommy.make(UserProfile, username="test3")
         cls.group1 = mommy.make(Group, name="group1")
         cls.group2 = mommy.make(Group, name="group2")
-        cls.mainuser = mommy.make(UserProfile,
-            username="main",
+        cls.main_user = mommy.make(UserProfile,
+            username="main_user",
             title="Dr.",
             first_name="Main",
             last_name="",
-            email="main@test.com",
+            email="",  # test that merging works when taking the email from other user (UniqueConstraint)
             groups=[cls.group1],
             delegates=[cls.user1, cls.user2],
             represented_users=[cls.user3],
             cc_users=[cls.user1],
             ccing_users=[]
         )
-        cls.mergeuser = mommy.make(UserProfile,
-            username="merge",
+        cls.other_user = mommy.make(UserProfile,
+            username="other_user",
             title="",
-            first_name="Merge",
+            first_name="Other",
             last_name="User",
-            email="merge@test.com",
+            email="other@test.com",
             groups=[cls.group2],
             delegates=[cls.user3],
             represented_users=[cls.user1],
             cc_users=[],
             ccing_users=[cls.user1, cls.user2]
         )
-        cls.course1 = mommy.make(Course, name="course1", participants=[cls.mainuser, cls.mergeuser])  # this should make the merge fail
-        cls.course2 = mommy.make(Course, name="course2", participants=[cls.mainuser], voters=[cls.mainuser])
-        cls.course3 = mommy.make(Course, name="course3", participants=[cls.mergeuser], voters=[cls.mergeuser])
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.mainuser, course=cls.course1)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.mergeuser, course=cls.course1)  # this should make the merge fail
-        cls.contribution3 = mommy.make(Contribution, contributor=cls.mergeuser, course=cls.course2)
+        cls.course1 = mommy.make(Course, name="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.course2 = mommy.make(Course, name="course2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.course3 = mommy.make(Course, name="course3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, course=cls.course1)
+        cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course1)  # this should make the merge fail
+        cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course2)
 
     def test_merge_users(self):
-        merged_user, errors = merge_users(self.mainuser, self.mergeuser)  # merge should fail
-        self.assertSequenceEqual(errors, ['contributions', 'participant_in'])
+        merged_user, errors = merge_users(self.main_user, self.other_user)  # merge should fail
+        self.assertSequenceEqual(errors, ['contributions', 'courses_participating_in'])
 
         # assert that nothing has changed
-        self.assertEqual(self.mainuser.username, "main")
-        self.assertEqual(self.mainuser.title, "Dr.")
-        self.assertEqual(self.mainuser.first_name, "Main")
-        self.assertEqual(self.mainuser.last_name, "")
-        self.assertEqual(self.mainuser.email, "main@test.com")
-        self.assertSequenceEqual(self.mainuser.groups.all(), [self.group1])
-        self.assertSequenceEqual(self.mainuser.delegates.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.mainuser.represented_users.all(), [self.user3])
-        self.assertSequenceEqual(self.mainuser.cc_users.all(), [self.user1])
-        self.assertSequenceEqual(self.mainuser.ccing_users.all(), [])
-        self.assertEqual(self.mergeuser.username, "merge")
-        self.assertEqual(self.mergeuser.title, "")
-        self.assertEqual(self.mergeuser.first_name, "Merge")
-        self.assertEqual(self.mergeuser.last_name, "User")
-        self.assertEqual(self.mergeuser.email, "merge@test.com")
-        self.assertSequenceEqual(self.mergeuser.groups.all(), [self.group2])
-        self.assertSequenceEqual(self.mergeuser.delegates.all(), [self.user3])
-        self.assertSequenceEqual(self.mergeuser.represented_users.all(), [self.user1])
-        self.assertSequenceEqual(self.mergeuser.cc_users.all(), [])
-        self.assertSequenceEqual(self.mergeuser.ccing_users.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.course1.participants.all(), [self.mainuser, self.mergeuser])
-        self.assertSequenceEqual(self.course2.participants.all(), [self.mainuser])
-        self.assertSequenceEqual(self.course2.voters.all(), [self.mainuser])
-        self.assertSequenceEqual(self.course3.participants.all(), [self.mergeuser])
-        self.assertSequenceEqual(self.course3.voters.all(), [self.mergeuser])
+        self.assertEqual(self.main_user.username, "main_user")
+        self.assertEqual(self.main_user.title, "Dr.")
+        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.last_name, "")
+        self.assertEqual(self.main_user.email, "")
+        self.assertSequenceEqual(self.main_user.groups.all(), [self.group1])
+        self.assertSequenceEqual(self.main_user.delegates.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user3])
+        self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
+        self.assertSequenceEqual(self.main_user.ccing_users.all(), [])
+        self.assertEqual(self.other_user.username, "other_user")
+        self.assertEqual(self.other_user.title, "")
+        self.assertEqual(self.other_user.first_name, "Other")
+        self.assertEqual(self.other_user.last_name, "User")
+        self.assertEqual(self.other_user.email, "other@test.com")
+        self.assertSequenceEqual(self.other_user.groups.all(), [self.group2])
+        self.assertSequenceEqual(self.other_user.delegates.all(), [self.user3])
+        self.assertSequenceEqual(self.other_user.represented_users.all(), [self.user1])
+        self.assertSequenceEqual(self.other_user.cc_users.all(), [])
+        self.assertSequenceEqual(self.other_user.ccing_users.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.course1.participants.all(), [self.main_user, self.other_user])
+        self.assertSequenceEqual(self.course2.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.participants.all(), [self.other_user])
+        self.assertSequenceEqual(self.course3.voters.all(), [self.other_user])
 
         # fix data
-        self.course1.participants = [self.mainuser]
+        self.course1.participants = [self.main_user]
         self.contribution2.delete()
 
-        merged_user, errors = merge_users(self.mainuser, self.mergeuser)  # merge should succeed
+        merged_user, errors = merge_users(self.main_user, self.other_user)  # merge should succeed
 
-        self.assertEqual(self.mainuser.username, "main")
-        self.assertEqual(self.mainuser.title, "Dr.")
-        self.assertEqual(self.mainuser.first_name, "Main")
-        self.assertEqual(self.mainuser.last_name, "User")
-        self.assertEqual(self.mainuser.email, "main@test.com")
-        self.assertSequenceEqual(self.mainuser.groups.all(), [self.group1, self.group2])
-        self.assertSequenceEqual(self.mainuser.delegates.all(), [self.user1, self.user2, self.user3])
-        self.assertSequenceEqual(self.mainuser.represented_users.all(), [self.user1, self.user3])
-        self.assertSequenceEqual(self.mainuser.cc_users.all(), [self.user1])
-        self.assertSequenceEqual(self.mainuser.ccing_users.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.course1.participants.all(), [self.mainuser])
-        self.assertSequenceEqual(self.course2.participants.all(), [self.mainuser])
-        self.assertSequenceEqual(self.course2.voters.all(), [self.mainuser])
-        self.assertSequenceEqual(self.course3.participants.all(), [self.mainuser])
-        self.assertSequenceEqual(self.course3.voters.all(), [self.mainuser])
+        self.assertEqual(self.main_user.username, "main_user")
+        self.assertEqual(self.main_user.title, "Dr.")
+        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.last_name, "User")
+        self.assertEqual(self.main_user.email, "other@test.com")
+        self.assertSequenceEqual(self.main_user.groups.all(), [self.group1, self.group2])
+        self.assertSequenceEqual(self.main_user.delegates.all(), [self.user1, self.user2, self.user3])
+        self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user1, self.user3])
+        self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
+        self.assertSequenceEqual(self.main_user.ccing_users.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.course1.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.voters.all(), [self.main_user])
 
 
 class TextAnswerReviewTest(WebTest):
