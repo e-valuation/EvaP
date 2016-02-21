@@ -40,7 +40,6 @@ class UserData(CommonEqualityMixin):
                                                                  'title': self.title})
         if user.needs_login_key:
             user.refresh_login_key()
-        user.save()
         return user, created
 
     def validate(self):

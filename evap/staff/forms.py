@@ -127,6 +127,14 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         if self.instance.vote_start_date:
             self.fields['event_date'].initial = self.instance.vote_start_date
 
+        if self.instance.pk:
+            self.fields['responsible'].initial = self.instance.responsible_contributor
+            answer_counts = dict()
+            for answer_counter in self.instance.ratinganswer_counters:
+                answer_counts[answer_counter.answer] = answer_counter.count
+            for i in range(1,6):
+                self.fields['answer_' + str(i)].initial = answer_counts[i]
+
     def save(self, *args, **kw):
         user = kw.pop("user")
         self.instance.last_modified_user = user
