@@ -970,76 +970,73 @@ class ContributionFormsetTests(TestCase):
 
 
 class ArchivingTests(WebTest):
-    fixtures = ['minimal_test_data']
 
     @classmethod
     def setUpTestData(cls):
-        new_semester = mommy.make(Semester)
-        course1 = Course.objects.get(pk=7)
-        course1.publish()
-        course1.semester = new_semester
-        course1.save()
-        course2 = Course.objects.get(pk=8)
-        course2.semester = new_semester
-        course2.save()
-        cls.test_semester = new_semester
+        cls.semester = mommy.make(Semester)
+        cls.course = mommy.make(Course, pk=7, state="published", semester=cls.semester)
+
+        users = mommy.make(UserProfile, _quantity=3)
+        cls.course.participants = users
+        cls.course.voters = users[:2]
+
+    def refresh_course(self):
+        """ refresh_from_db does not work with courses"""
+        self.course = self.semester.course_set.first()
+
+    def setUp(self):
+        self.semester.refresh_from_db()
+        self.refresh_course()
 
     def test_counts_dont_change(self):
         """
             Asserts that course.num_voters course.num_participants don't change after archiving.
         """
-        semester = ArchivingTests.test_semester
+        voter_count = self.course.num_voters
+        participant_count = self.course.num_participants
 
-        voters_counts = {}
-        participant_counts = {}
-        for course in semester.course_set.all():
-            voters_counts[course] = course.num_voters
-            participant_counts[course] = course.num_participants
-        some_participant = semester.course_set.first().participants.first()
-        course_count = some_participant.course_set.count()
+        self.semester.archive()
+        self.refresh_course()
 
-        semester.archive()
+        self.assertEqual(voter_count, self.course.num_voters)
+        self.assertEqual(participant_count, self.course.num_participants)
 
-        for course in semester.course_set.all():
-            self.assertEqual(voters_counts[course], course.num_voters)
-            self.assertEqual(participant_counts[course], course.num_participants)
-        # participants should not loose courses, as they should see all of them
-        self.assertEqual(course_count, some_participant.course_set.count())
+    def test_participants_do_not_loose_courses(self):
+        """
+            Asserts that participants still participate in their courses after they get archived.
+        """
+        some_participant = self.course.participants.first()
+
+        self.semester.archive()
+
+        self.assertEqual(list(some_participant.course_set.all()), [self.course])
 
     def test_is_archived(self):
         """
             Tests whether is_archived returns True on archived semesters and courses.
         """
-        semester = ArchivingTests.test_semester
+        self.assertFalse(self.course.is_archived)
 
-        for course in semester.course_set.all():
-            self.assertFalse(course.is_archived)
+        self.semester.archive()
+        self.refresh_course()
 
-        semester.archive()
-
-        for course in semester.course_set.all():
-            self.assertTrue(course.is_archived)
+        self.assertTrue(self.course.is_archived)
 
     def test_archiving_does_not_change_results(self):
-        semester = ArchivingTests.test_semester
+        results = calculate_average_grades_and_deviation(self.course)
 
-        results = {}
-        for course in semester.course_set.all():
-            results[course] = calculate_average_grades_and_deviation(course)
-
-        semester.archive()
+        self.semester.archive()
+        self.refresh_course()
         cache.clear()
 
-        for course in semester.course_set.all():
-            self.assertTrue(calculate_average_grades_and_deviation(course) == results[course])
+        self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
 
     def test_archiving_twice_raises_exception(self):
-        semester = ArchivingTests.test_semester
-        semester.archive()
+        self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            semester.archive()
+            self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            semester.course_set.first()._archive()
+            self.semester.course_set.first()._archive()
 
     def get_assert_403(self, url, user):
         try:
@@ -1051,10 +1048,9 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        semester = ArchivingTests.test_semester
-        semester.archive()
+        self.semester.archive()
 
-        semester_url = "/staff/semester/{}/".format(semester.pk)
+        semester_url = "/staff/semester/{}/".format(self.semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")
