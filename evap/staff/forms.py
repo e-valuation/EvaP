@@ -13,7 +13,6 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
 from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
-from collections import defaultdict
 import logging
 
 logger = logging.getLogger(__name__)
@@ -130,7 +129,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
 
         if self.instance.pk:
             self.fields['responsible'].initial = self.instance.responsible_contributor
-            answer_counts = defaultdict(int)
+            answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
                 answer_counts[answer_counter.answer] = answer_counter.count
             for i in range(1,6):

@@ -303,7 +303,7 @@
   }
 },
 {
-  "pk": 1,
+  "pk": 13,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 17,
@@ -313,7 +313,7 @@
   }
 },
 {
-  "pk": 2,
+  "pk": 14,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 21,
@@ -323,7 +323,7 @@
   }
 },
 {
-  "pk": 3,
+  "pk": 15,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 25,
@@ -333,12 +333,72 @@
   }
 },
 {
-  "pk": 4,
+  "pk": 16,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 29,
     "question": 5,
     "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 17,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 1,
+    "count": 5
+  }
+},
+{
+  "pk": 18,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 19,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 3,
+    "count": 1
+  }
+},
+{
+  "pk": 20,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 4,
+    "count": 1
+  }
+},
+{
+  "pk": 21,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 5,
+    "count": 1
+  }
+},
+{
+  "pk": 22,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 6,
     "count": 1
   }
 },
