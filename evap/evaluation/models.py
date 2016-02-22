@@ -200,7 +200,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, related_name="+", null=True, blank=True)
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
