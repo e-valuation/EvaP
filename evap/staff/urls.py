@@ -30,9 +30,9 @@ urlpatterns = [
 
     url(r"^semester/delete$", semester_delete, name="semester_delete"),
     url(r"^semester/archive$", semester_archive, name="semester_archive"),
-    url(r"^semester/coursedelete$", course_delete, name="course_delete"),
+    url(r"^semester/course_delete$", course_delete, name="course_delete"),
 
-    url(r"^comments/updatepublish$", course_comments_update_publish, name="course_comments_update_publish"),
+    url(r"^comments/update_publish$", course_comments_update_publish, name="course_comments_update_publish"),
 
     url(r"^questionnaire/$", questionnaire_index, name="questionnaire_index"),
     url(r"^questionnaire/create$", questionnaire_create, name="questionnaire_create"),
@@ -40,7 +40,7 @@ urlpatterns = [
     url(r"^questionnaire/(\d+)/edit$", questionnaire_edit, name="questionnaire_edit"),
     url(r"^questionnaire/(\d+)/copy$", questionnaire_copy, name="questionnaire_copy"),
     url(r"^questionnaire/delete$", questionnaire_delete, name="questionnaire_delete"),
-    url(r"^questionnaire/updateindices$", questionnaire_update_indices, name="questionnaire_update_indices"),
+    url(r"^questionnaire/update_indices$", questionnaire_update_indices, name="questionnaire_update_indices"),
 
     url(r"^degrees/$", degree_index, name="degree_index"),
 
