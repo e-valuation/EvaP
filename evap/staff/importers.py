@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Course, UserProfile, Degree, Contribution
+from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
 
 import xlrd
@@ -56,10 +56,10 @@ class CourseData(CommonEqualityMixin):
     """
         Holds information about a course, retrieved from the Excel file.
     """
-    def __init__(self, name_de, name_en, type, degree_names, is_graded, responsible_email):
+    def __init__(self, name_de, name_en, type_name, degree_names, is_graded, responsible_email):
         self.name_de = name_de.strip()
         self.name_en = name_en.strip()
-        self.type = type.strip()
+        self.type_name = type_name.strip()
         self.is_graded = is_graded.strip()
         self.responsible_email = responsible_email
 
@@ -69,9 +69,10 @@ class CourseData(CommonEqualityMixin):
         self.degree_names = degree_names
 
     def store_in_database(self, vote_start_date, vote_end_date, semester):
+        course_type = CourseType.objects.get(name_de=self.type_name)
         course = Course(name_de=self.name_de,
                         name_en=self.name_en,
-                        type=self.type,
+                        type=course_type,
                         is_graded=self.is_graded,
                         vote_start_date=vote_start_date,
                         vote_end_date=vote_end_date,
@@ -216,7 +217,7 @@ class EnrollmentImporter(ExcelImporter):
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
         responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
-        course_data = CourseData(name_de=data[7], name_en=data[8], type=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
+        course_data = CourseData(name_de=data[7], name_en=data[8], type_name=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, course_data)
 
     def process_course(self, course_data, sheet, row):
@@ -246,6 +247,14 @@ class EnrollmentImporter(ExcelImporter):
         for degree_name in degree_names:
             if not Degree.objects.filter(name_de=degree_name).exists():
                 self.errors.append(_("Error: The degree \"{}\" does not exist yet. Please manually create it first.").format(degree_name))
+
+        course_type_names = set()
+        for course_data in self.courses.values():
+            course_type_names.add(course_data.type_name)
+        for course_type_name in course_type_names:
+            if not CourseType.objects.filter(name_de=course_type_name).exists():
+                self.errors.append(_("Error: The course type \"{}\" does not exist yet. Please manually create it first.").format(course_type_name))
+
 
     def process_graded_column(self):
         for course_data in self.courses.values():

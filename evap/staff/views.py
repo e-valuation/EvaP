@@ -13,14 +13,14 @@ from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
                                   TextResult, send_publish_notifications, sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
-                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
-                             QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
-                             ExportSheetForm, UserMergeSelectionForm
+                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
+                             SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
+                             UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
+                             UserMergeSelectionForm, CourseTypeForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users
 from evap.student.views import vote_preview
@@ -349,13 +349,13 @@ def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
-    course_types = courses.values_list('type', flat=True).order_by().distinct()
+    course_types = CourseType.objects.filter(courses__in=courses)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
     if form.is_valid():
         for course in courses:
-            if form.cleaned_data[course.type]:
-                course.general_contribution.questionnaires = form.cleaned_data[course.type]
+            if form.cleaned_data[course.type.name]:
+                course.general_contribution.questionnaires = form.cleaned_data[course.type.name]
             if form.cleaned_data['Responsible contributor']:
                 course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()
@@ -835,6 +835,22 @@ def degree_index(request):
         return custom_redirect('staff:degree_index')
     else:
         return render(request, "staff_degree_index.html", dict(formset=formset, degrees=degrees))
+
+
+@staff_required
+def course_type_index(request):
+    course_types = CourseType.objects.all()
+
+    course_type_FS = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=0)
+    formset = course_type_FS(request.POST or None, queryset=course_types)
+
+    if formset.is_valid():
+        formset.save()
+
+        messages.success(request, _("Successfully updated the course types."))
+        return custom_redirect('staff:course_type_index')
+    else:
+        return render(request, "staff_course_type_index.html", dict(formset=formset))
 
 
 @staff_required

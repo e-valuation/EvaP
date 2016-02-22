@@ -160,6 +160,23 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
 
+class CourseType(models.Model, metaclass=LocalizeModelBase):
+    """Model for the type of a course, e.g. a lecture"""
+
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
+    name = Translate
+
+    class Meta:
+        ordering = ['name_de', ]
+
+    def __str__(self):
+        return self.name
+
+    def can_delete(self):
+        return not self.courses.all().exists()
+
+
 class Course(models.Model, metaclass=LocalizeModelBase):
     """Models a single course, e.g. the Math 101 course of 2002."""
 
@@ -172,7 +189,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     name = Translate
 
     # type of course: lecture, seminar, project
-    type = models.CharField(max_length=1024, verbose_name=_("type"))
+    type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
 
     # e.g. Bachelor, Master
     degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"))
