@@ -17,24 +17,16 @@ class RewardTests(WebTest):
     def test_delete_redemption_events(self):
         """
             Submits a request that tries to delete an event where users already redeemed points -> should not work.
-            Secondly it issues a GET Request and asserts that the page for deleting events is returned.
-            Last it submits a request that should delete the event.
+            It also submits a request that should delete the event.
         """
         # try to delete event that can not be deleted, because people already redeemed points
-        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete", args=[1]), user="evap")
-        self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
-        response = response.follow()
-        self.assertContains(response, "cannot be deleted")
-        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
-
-        # make sure that a GET Request does not delete an event
-        response = self.app.get(reverse("rewards:reward_point_redemption_event_delete", args=[2]), user="evap")
-        self.assertTemplateUsed(response, "rewards_reward_point_redemption_event_delete.html")
+        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 1,}, user="evap", expect_errors=True)
+        self.assertEqual(response.status_code, 400)
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
 
         # now delete for real
-        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete", args=[2]), user="evap")
-        self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
+        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 2,}, user="evap")
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
 
     def test_redeem_reward_points(self):

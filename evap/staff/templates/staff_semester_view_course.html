@@ -98,7 +98,9 @@
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
         </p>
-        <a href="{% url "staff:course_import_participants" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Participants" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+        {% if info_only|is_false %}
+            <a href="{% url "staff:course_import_participants" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Participants" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+        {% endif %}
     </td>
 {% endif %}
 {% if info_only|is_false %}
@@ -112,7 +114,7 @@
             <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>
         {% endif %}
         {% if course.can_staff_delete %}
-            <a href="{% url "staff:course_delete" semester.id course.id %}" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+            <a onclick="show_delete_course_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
         {% endif %}
         {% if state == 'published' %}
             <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>

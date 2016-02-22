@@ -13,8 +13,9 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)$", course_view, name="course_view"),
     url(r"^semester/(\d+)/course/(\d+)/upload$", upload_grades, name="upload_grades"),
     url(r"^semester/(\d+)/course/(\d+)/edit/(\d+)$", edit_grades, name="edit_grades"),
-    url(r"^semester/(\d+)/course/(\d+)/delete/(\d+)$", delete_grades, name="delete_grades"),
-    url(r"^semester/(\d+)/course/(\d+)/togglenogrades$", toggle_no_grades, name="toggle_no_grades"),
+    
+    url(r"^delete_grades$", delete_grades, name="delete_grades"),
+    url(r"^toggle_no_grades$", toggle_no_grades, name="toggle_no_grades"),
 
     url(r"^semester/(\d+)/grade_activation/(\w+)$", semester_grade_activation, name="semester_grade_activation"),
 ]

@@ -33,6 +33,8 @@
     {% endif %}
 </head>
 <body>
+{% block modals %}
+{% endblock %}
 <div id="wrap">
 {% get_current_language as LANGUAGE_CODE %}
 {% cache 3600 navbar request.user.username LANGUAGE_CODE %}

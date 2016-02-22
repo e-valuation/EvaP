@@ -84,12 +84,28 @@
             <div class="col-sm-offset-2 col-sm-6">
                 {% if edit %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
-                    <button name="operation" value="approve" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-success">{% trans "Save and approve"%}</button>
+                    {# webtest does not allow submission with value "approve" if no such button exists #}
+                    <button style="display: none" name="operation" value="approve" type="submit" />
+                    <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit|is_false %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>
             </div>
         </div>
     </form>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Approve course" as title %}
+    {% trans "Do you want to approve this course? This will allow the student representatives to proceed with the preparation, but you won't be able to make any further changes." as question %}
+    {% trans "Approve course" as action_text %}
+    {% include_confirmation_modal "approve_course_modal" title question action_text "primary" %}
+    <script type="text/javascript">
+        function approve_course_modal_action(data_id) {
+            $('#course-form').append('<input type="hidden" name="operation" value="approve">');
+            $('#course-form').submit();
+        };
+    </script>
 {% endblock %}
 
 {% block additional_javascript %}

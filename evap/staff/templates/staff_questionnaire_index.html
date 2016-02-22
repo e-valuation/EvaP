@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load staff_templatetags %}
+{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -16,6 +17,25 @@
         {% trans "There are no questionnaires yet." %}
     {% endif %}
     </p>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete questionnaire" as title %}
+    {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete questionnaire" as action_text %}
+    {% include_confirmation_modal "delete_questionnaire_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_questionnaire_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:questionnaire_delete" %}",
+                data: {"questionnaire_id": data_id},
+                success: function(){ $('#questionnaire-row-'+data_id).hide('slow', function(){ $('#questionnaire-row-'+data_id).remove(); }); },
+                error: function(){ $('#questionnaire-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
 {% endblock %}
 
 {% block additional_javascript %}

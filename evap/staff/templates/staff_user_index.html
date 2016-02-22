@@ -4,6 +4,7 @@
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
 {% load staff_templatetags %}
+{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -27,14 +28,14 @@
         </thead>
         <tbody>
         {% for user in users %}
-            <tr>
+            <tr id="user-row-{{ user.id }}">
                 <td>{{ user.full_name }}</td>
                 <td>{{ user.username }}</td>
                 <td>{% include_staff_user_labels user %}</td>
                 <td>
                     <a href="{% url "staff:user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.can_staff_delete %}
-                        <a href="{% url "staff:user_delete" user.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                        <btn class="btn btn-danger btn-sm" onclick="show_delete_modal({{ user.id }}, '{{ user.full_name|escapejs }}');">{% trans "Delete" %}</a>
                     {% else %}
                         <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
                                 title="{% trans "This user cannot be deleted because he is a contributor to a course or participates in a course that hasn't been archived yet" %}">
@@ -46,6 +47,25 @@
         {% endfor %}
         </tbody>
     </table>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete user" as title %}
+    {% trans 'Do you really want to delete the user <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete user" as action_text %}
+    {% include_confirmation_modal "delete_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:user_delete" %}",
+                data: {"user_id": data_id},
+                success: function(){ $('#user-row-'+data_id).hide('slow', function(){ $('#user-row-'+data_id).remove(); }); },
+                error: function(){ $('#user-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
 {% endblock %}
 
 {% block additional_javascript %}

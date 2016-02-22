@@ -3,6 +3,7 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
+{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -32,7 +33,7 @@
                 </thead>
                 <tbody>
                     {% for event in upcoming_events %}
-                        <tr>
+                        <tr id="event-row-{{ event.id }}">
                             <td>{{ event.date }}</td>
                             <td>{{ event.redeem_end_date }}</td>
                             <td>{{ event.name }}</td>
@@ -41,7 +42,7 @@
                                 <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                                 {% if event.can_delete %}
-                                    <a href="{% url "rewards:reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                                 {% else %}
                                     <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger" disabled>{% trans "Delete" %}</a></div>
                                 {% endif %}
@@ -69,7 +70,7 @@
                 </thead>
                 <tbody>
                     {% for event in past_events %}
-                        <tr>
+                        <tr id="event-row-{{ event.id }}">
                             <td>{{ event.date }}</td>
                             <td>{{ event.redeem_end_date }}</td>
                             <td>{{ event.name }}</td>
@@ -78,7 +79,7 @@
                                 <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
                                 <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                                 {% if event.can_delete %}
-                                    <a href="{% url "rewards:reward_point_redemption_event_delete" event.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
                                 {% else %}
                                     <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger" disabled>{% trans "Delete" %}</a></div>
                                 {% endif %}
@@ -89,4 +90,23 @@
             </table>
         </div>
     </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete event" as title %}
+    {% trans 'Do you really want to delete the event <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete event" as action_text %}
+    {% include_confirmation_modal "delete_event_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_event_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "rewards:reward_point_redemption_event_delete" %}",
+                data: {"event_id": data_id},
+                success: function(){ $('#event-row-'+data_id).hide('slow', function(){ $('#event-row-'+data_id).remove(); }); },
+                error: function(){ $('#event-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
 {% endblock %}

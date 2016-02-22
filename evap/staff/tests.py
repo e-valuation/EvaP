@@ -298,6 +298,7 @@ class UnitTests(TestCase):
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
+    csrf_checks = False
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -342,7 +343,6 @@ class URLTests(WebTest):
             ("test_staff_semester_x", "/staff/semester/1", "evap"),
             ("test_staff_semester_x", "/staff/semester/1?tab=asdf", "evap"),
             ("test_staff_semester_x_edit", "/staff/semester/1/edit", "evap"),
-            ("test_staff_semester_x_delete", "/staff/semester/2/delete", "evap"),
             ("test_staff_semester_x_course_create", "/staff/semester/1/course/create", "evap"),
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
             ("test_staff_semester_x_export", "/staff/semester/1/export", "evap"),
@@ -355,26 +355,22 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
             ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
-            ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff semester single_result
             ("test_staff_semester_x_single_result_create", "/staff/semester/1/singleresult/create", "evap"),
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
-            ("test_staff_semester_x_single_result_y_delete", "/staff/semester/1/course/11/delete", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
             ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
             ("test_staff_questionnaire_x_edit", "/staff/questionnaire/3/edit", "evap"),
             ("test_staff_questionnaire_x", "/staff/questionnaire/2", "evap"),
             ("test_staff_questionnaire_x_copy", "/staff/questionnaire/2/copy", "evap"),
-            ("test_staff_questionnaire_x_delete", "/staff/questionnaire/3/delete", "evap"),
             ("test_staff_questionnaire_delete", "/staff/questionnaire/create", "evap"),
             # staff user
             ("test_staff_user", "/staff/user/", "evap"),
             ("test_staff_user_import", "/staff/user/import", "evap"),
             ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
             ("test_staff_user_create", "/staff/user/create", "evap"),
-            ("test_staff_user_x_delete", "/staff/user/4/delete", "evap"),
             ("test_staff_user_x_edit", "/staff/user/4/edit", "evap"),
             # staff template
             ("test_staff_template_x", "/staff/template/1", "evap"),
@@ -411,9 +407,6 @@ class URLTests(WebTest):
         """
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
-            ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
-            ("test_staff_semester_x_delete_fail", "/staff/semester/1/delete", "evap"),
         ]
 
         for _, url, user in tests:
@@ -459,9 +452,6 @@ class URLTests(WebTest):
     def test_staff_semester_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/edit", "evap")
 
-    def test_staff_semester_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/2/delete", "evap")
-
     def test_staff_semester_x_assign__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/assign", "evap")
 
@@ -471,17 +461,8 @@ class URLTests(WebTest):
     def test_staff_semester_x_course_y_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap", name="operation", value="save")
 
-    def test_staff_semester_x_course_y_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/1/delete", "evap"),
-
     def test_staff_questionnaire_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/questionnaire/3/edit", "evap")
-
-    def test_staff_questionnaire_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap"),
-
-    def test_staff_user_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/user/4/delete", "evap"),
 
     def test_staff_user_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/user/4/edit", "evap")
@@ -564,17 +545,17 @@ class URLTests(WebTest):
 
     def test_semester_deletion(self):
         """
-            Tries to delete two semesters via the respective view,
+            Tries to delete two semesters via the respective post request,
             only the second attempt should succeed.
         """
         self.assertFalse(Semester.objects.get(pk=1).can_staff_delete)
-        self.client.login(username='evap', password='evap')
-        response = self.client.get("/staff/semester/1/delete", follow=True)
-        self.assertIn("cannot be deleted", list(response.context['messages'])[0].message)
+        response = self.app.post("/staff/semester/delete", {"semester_id": 1,}, user="evap", expect_errors=True)
+        self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
         self.assertTrue(Semester.objects.get(pk=2).can_staff_delete)
-        self.get_submit_assert_302("/staff/semester/2/delete", "evap")
+        response = self.app.post("/staff/semester/delete", {"semester_id": 2,}, user="evap")
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
     def helper_semester_state_views(self, course_ids, old_state, new_state, operation):
@@ -691,17 +672,17 @@ class URLTests(WebTest):
 
     def test_questionnaire_deletion(self):
         """
-            Tries to delete two questionnaires via the respective view,
+            Tries to delete two questionnaires via the respective post request,
             only the second attempt should succeed.
         """
         self.assertFalse(Questionnaire.objects.get(pk=2).can_staff_delete)
-        self.client.login(username='evap', password='evap')
-        page = self.client.get("/staff/questionnaire/2/delete", follow=True)
-        self.assertIn("cannot be deleted", list(page.context['messages'])[0].message)
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2,}, user="evap", expect_errors=True)
+        self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=3).can_staff_delete)
-        self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap")
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3,}, user="evap")
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 
     def test_create_user(self):
@@ -1085,7 +1066,6 @@ class ArchivingTests(WebTest):
         self.get_assert_403(semester_url + "assign", "evap")
         self.get_assert_403(semester_url + "course/create", "evap")
         self.get_assert_403(semester_url + "course/7/edit", "evap")
-        self.get_assert_403(semester_url + "course/7/delete", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
 
     def test_course_is_not_archived_if_participant_count_is_set(self):
@@ -1159,7 +1139,7 @@ class TextAnswerReviewTest(WebTest):
 
     def helper(self, old_state, expected_new_state, action):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post("/staff/comments/updatepublish", {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        response = self.app.post("/staff/comments/update_publish", {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
         textanswer.refresh_from_db()
         self.assertEqual(textanswer.state, expected_new_state)
