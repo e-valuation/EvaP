@@ -1305,6 +1305,22 @@
 },
 {
   "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master project"
+  }
+},
+{
+  "pk": 1,
   "model": "evaluation.course",
   "fields": {
     "name_de": "a new course",
@@ -1322,7 +1338,7 @@
     ],
     "vote_end_date": "2099-12-31",
     "name_en": "a course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1345,7 +1361,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "a prepared course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1368,7 +1384,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "an editor approved course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1391,7 +1407,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "an approved course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1416,7 +1432,7 @@
     ],
     "vote_end_date": "2099-09-30",
     "name_en": "an in evaluation course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1441,7 +1457,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "an evaluated course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1466,7 +1482,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "a reviewed course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1491,7 +1507,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "a published course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1511,7 +1527,7 @@
         "participants": [5],
         "vote_end_date": "2099-11-20",
         "name_en": "dadas",
-        "type": "Masterprojekt",
+        "type": 2,
         "vote_start_date": "2014-11-07"
     }
 },
@@ -1534,7 +1550,7 @@
     ],
     "vote_end_date": "2099-12-31",
     "name_en": "another new course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1554,7 +1570,7 @@
     "participants": [],
     "vote_end_date": "2014-09-10",
     "name_en": "single result course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
