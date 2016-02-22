@@ -168,6 +168,14 @@ def semester_course_operation(request, semester_id):
                     difference) % {'courses': difference})
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['inEvaluation']
+            # remove courses with vote_end_date in the past
+            courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.date.today()]
+            difference = len(courses) - len(courses_end_in_future)
+            if difference:
+                courses = courses_end_in_future
+                messages.warning(request, ungettext("%(courses)d course can not be approved, because it's evaluation end date lies in the past. It was removed from the selection.",
+                    "%(courses)d courses can not be approved, because their evaluation end dates lie in the past. They were removed from the selection.",
+                    difference) % {'courses': difference})
         elif operation == 'publish':
             new_state_name = STATES_ORDERED['published']
         elif operation == 'unpublish':
