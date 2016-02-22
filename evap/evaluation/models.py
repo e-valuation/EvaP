@@ -159,6 +159,9 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
     def __str__(self):
         return self.name
 
+    def can_delete(self):
+        return not self.courses.all().exists()
+
 
 class CourseType(models.Model, metaclass=LocalizeModelBase):
     """Model for the type of a course, e.g. a lecture"""
@@ -192,7 +195,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
 
     # e.g. Bachelor, Master
-    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"))
+    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
 
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
