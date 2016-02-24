@@ -38,12 +38,14 @@ def merge_users(main_user, other_user, preview=False):
     merged_user['email'] = main_user.email if main_user.email else other_user.email or ""
 
     merged_user['groups'] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
+    merged_user['is_superuser'] = main_user.is_superuser or other_user.is_superuser
     merged_user['delegates'] = UserProfile.objects.filter(represented_users__in=[main_user, other_user]).distinct()
     merged_user['represented_users'] = UserProfile.objects.filter(delegates__in=[main_user, other_user]).distinct()
     merged_user['cc_users'] = UserProfile.objects.filter(ccing_users__in=[main_user, other_user]).distinct()
     merged_user['ccing_users'] = UserProfile.objects.filter(cc_users__in=[main_user, other_user]).distinct()
 
     errors = []
+    warnings = []
     if any(contribution.course in [contribution.course for contribution in main_user.get_sorted_contributions()] for contribution in other_user.get_sorted_contributions()):
         errors.append('contributions')
     if any(course in main_user.get_sorted_courses_participating_in() for course in other_user.get_sorted_courses_participating_in()):
@@ -51,12 +53,18 @@ def merge_users(main_user, other_user, preview=False):
     if any(course in main_user.get_sorted_courses_voted_for() for course in other_user.get_sorted_courses_voted_for()):
         errors.append('courses_voted_for')
 
+    if main_user.reward_point_grantings.all().exists() and other_user.reward_point_grantings.all().exists():
+        warnings.append('rewards')
+
     merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('course__semester__created_at', 'course__name_de')
     merged_user['courses_participating_in'] = Course.objects.filter(participants__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
     merged_user['courses_voted_for'] = Course.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
 
+    merged_user['reward_point_grantings'] = main_user.reward_point_grantings.all() if main_user.reward_point_grantings.all().exists() else other_user.reward_point_grantings.all()
+    merged_user['reward_point_redemptions'] = main_user.reward_point_redemptions.all() if main_user.reward_point_redemptions.all().exists() else other_user.reward_point_redemptions.all()
+
     if preview or errors:
-        return merged_user, errors
+        return merged_user, errors, warnings
 
 
     # update last_modified_user for courses and grade documents
@@ -72,7 +80,11 @@ def merge_users(main_user, other_user, preview=False):
         setattr(main_user, key, value)
     main_user.save()
 
+    # delete rewards
+    other_user.reward_point_grantings.all().delete()
+    other_user.reward_point_redemptions.all().delete()
+
     # delete other user
     other_user.delete()
 
-    return merged_user, errors
+    return merged_user, errors, warnings

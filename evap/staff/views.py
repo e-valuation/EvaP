@@ -927,15 +927,15 @@ def user_merge(request, main_user_id, other_user_id):
     other_user = get_object_or_404(UserProfile, id=other_user_id)
 
     if request.method == 'POST':
-        merged_user, errors = merge_users(main_user, other_user)
+        merged_user, errors, warnings = merge_users(main_user, other_user)
         if not errors:
             messages.success(request, _("Successfully merged users."))
         else:
             messages.error(request, _("Merging the users failed. No data was changed."))
         return redirect('staff:user_index')
     else:
-        merged_user, errors = merge_users(main_user, other_user, preview=True)
-        return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors))
+        merged_user, errors, warnings = merge_users(main_user, other_user, preview=True)
+        return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
 
 
 @staff_required

@@ -18,6 +18,7 @@ from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, Con
                             CourseForm, SingleResultForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
 from evap.staff.tools import merge_users
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
 
 from model_mommy import mommy
 
@@ -1138,7 +1139,8 @@ class MergeUsersTest(TestCase):
             delegates=[cls.user3],
             represented_users=[cls.user1],
             cc_users=[],
-            ccing_users=[cls.user1, cls.user2]
+            ccing_users=[cls.user1, cls.user2],
+            is_superuser=True
         )
         cls.course1 = mommy.make(Course, name="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
         cls.course2 = mommy.make(Course, name="course2", participants=[cls.main_user], voters=[cls.main_user])
@@ -1146,6 +1148,10 @@ class MergeUsersTest(TestCase):
         cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, course=cls.course1)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course1)  # this should make the merge fail
         cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course2)
+        cls.rewardpointgranting_main = mommy.make(RewardPointGranting, user_profile=cls.main_user)
+        cls.rewardpointgranting_other = mommy.make(RewardPointGranting, user_profile=cls.other_user)
+        cls.rewardpointredemption_main = mommy.make(RewardPointRedemption, user_profile=cls.main_user)
+        cls.rewardpointredemption_other = mommy.make(RewardPointRedemption, user_profile=cls.other_user)
 
     def test_merge_handles_all_attributes(self):
         user1 = mommy.make(UserProfile)
@@ -1175,7 +1181,7 @@ class MergeUsersTest(TestCase):
         expected_attrs = set(all_attrs) - ignored_attrs
 
         # actual merge happens here
-        merged_user, errors = merge_users(user1, user2)
+        merged_user, errors, warnings = merge_users(user1, user2)
         handled_attrs = set(merged_user.keys())
 
         # attributes that are handled in the merge method but that are not present in the merged_user dict
@@ -1190,8 +1196,9 @@ class MergeUsersTest(TestCase):
         self.assertEqual(expected_attrs, actual_attrs)
 
     def test_merge_users(self):
-        merged_user, errors = merge_users(self.main_user, self.other_user)  # merge should fail
+        merged_user, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
         self.assertSequenceEqual(errors, ['contributions', 'courses_participating_in'])
+        self.assertSequenceEqual(warnings, ['rewards'])
 
         # assert that nothing has changed
         self.main_user.refresh_from_db()
@@ -1206,6 +1213,9 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user3])
         self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
         self.assertSequenceEqual(self.main_user.ccing_users.all(), [])
+        self.assertFalse(self.main_user.is_superuser)
+        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
+        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
         self.assertEqual(self.other_user.username, "other_user")
         self.assertEqual(self.other_user.title, "")
         self.assertEqual(self.other_user.first_name, "Other")
@@ -1221,13 +1231,16 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
         self.assertSequenceEqual(self.course3.participants.all(), [self.other_user])
         self.assertSequenceEqual(self.course3.voters.all(), [self.other_user])
+        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
+        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
         # fix data
         self.course1.participants = [self.main_user]
         self.contribution2.delete()
 
-        merged_user, errors = merge_users(self.main_user, self.other_user)  # merge should succeed
+        merged_user, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
         self.assertEqual(errors, [])
+        self.assertSequenceEqual(warnings, ['rewards']) # rewards warning is still there
 
         self.main_user.refresh_from_db()
         self.assertEqual(self.main_user.username, "main_user")
@@ -1245,6 +1258,11 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
         self.assertSequenceEqual(self.course3.participants.all(), [self.main_user])
         self.assertSequenceEqual(self.course3.voters.all(), [self.main_user])
+        self.assertTrue(self.main_user.is_superuser)
+        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
+        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
+        self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
 
 class TextAnswerReviewTest(WebTest):
