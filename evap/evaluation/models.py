@@ -858,6 +858,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.courses_participating_in.exists()
 
     @property
+    def is_student(self):
+        """
+            A UserProfile is not considered to be a student anymore if the
+            newest contribution is newer than the newest participation.
+        """
+        if not self.is_participant:
+            return False
+
+        if not self.is_contributor:
+            return True
+
+        last_semester_participated = Semester.objects.filter(course__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(course__contributions__contributor=self).order_by("-created_at").first()
+
+        return last_semester_participated.created_at >= last_semester_contributed.created_at
+
+    @property
     def is_contributor(self):
         return self.contributions.exists()
 
