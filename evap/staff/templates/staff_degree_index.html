@@ -42,7 +42,7 @@
                         </td>
                         <td>
                             {{ form.DELETE.errors }}
-                            {% if form.instance.can_delete %}
+                            {% if form.instance.can_staff_delete %}
                                 {{ form.DELETE }}
                             {% else %}
                                 <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"

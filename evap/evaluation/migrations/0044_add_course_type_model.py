@@ -17,7 +17,7 @@ def addCourseTypes(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0042_populate_single_result_participant_count'),
+        ('evaluation', '0043_auto_20160221_1543'),
     ]
 
     operations = [

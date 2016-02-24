@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+from django.core.exceptions import SuspiciousOperation
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
@@ -46,6 +47,11 @@ class DegreeForm(forms.ModelForm, BootstrapMixin):
         model = Degree
         fields = "__all__"
 
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+            raise SuspiciousOperation("Deleting degree not allowed")
+
 
 class CourseTypeForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
@@ -57,6 +63,12 @@ class CourseTypeForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = CourseType
         fields = "__all__"
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+            raise SuspiciousOperation("Deleting course type not allowed")
+
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):

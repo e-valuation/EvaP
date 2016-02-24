@@ -248,9 +248,7 @@ class EnrollmentImporter(ExcelImporter):
             if not Degree.objects.filter(name_de=degree_name).exists():
                 self.errors.append(_("Error: The degree \"{}\" does not exist yet. Please manually create it first.").format(degree_name))
 
-        course_type_names = set()
-        for course_data in self.courses.values():
-            course_type_names.add(course_data.type_name)
+        course_type_names = set(course_data.type_name for course_data in self.courses.values())
         for course_type_name in course_type_names:
             if not CourseType.objects.filter(name_de=course_type_name).exists():
                 self.errors.append(_("Error: The course type \"{}\" does not exist yet. Please manually create it first.").format(course_type_name))

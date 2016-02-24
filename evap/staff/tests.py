@@ -855,10 +855,10 @@ class SingleResultFormTests(TestCase):
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
-            "type": course_type.id,
+            "type": course_type.pk,
             "degrees": ["1"],
             "event_date": "02/1/2014",
-            "responsible": responsible.id,
+            "responsible": responsible.pk,
             "answer_1": 6,
             "answer_2": 0,
             "answer_3": 2,

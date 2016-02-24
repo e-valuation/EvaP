@@ -159,7 +159,7 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
     def __str__(self):
         return self.name
 
-    def can_delete(self):
+    def can_staff_delete(self):
         return not self.courses.all().exists()
 
 
@@ -176,7 +176,7 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
     def __str__(self):
         return self.name
 
-    def can_delete(self):
+    def can_staff_delete(self):
         return not self.courses.all().exists()
 
 
