@@ -20,9 +20,9 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
                              QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
                              FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
-                             ExportSheetForm
+                             ExportSheetForm, UserMergeSelectionForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
@@ -377,7 +377,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in UserProfile.objects.all():
-            courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
+            courses = user.courses_participating_in.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not participating in any course in this semester
                 continue
@@ -846,7 +846,7 @@ def user_index(request):
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'course_set'))
+        .prefetch_related('contributions', 'courses_participating_in'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 
@@ -907,6 +907,35 @@ def user_delete(request):
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     return HttpResponse() # 200 OK
+
+
+@staff_required
+def user_merge_selection(request):
+    form = UserMergeSelectionForm(request.POST or None, request.FILES or None)
+
+    if form.is_valid():
+        main_user = form.cleaned_data['main_user']
+        other_user = form.cleaned_data['other_user']
+        return redirect('staff:user_merge', main_user.id, other_user.id)
+    else:
+        return render(request, "staff_user_merge_selection.html", dict(form=form))
+
+
+@staff_required
+def user_merge(request, main_user_id, other_user_id):
+    main_user = get_object_or_404(UserProfile, id=main_user_id)
+    other_user = get_object_or_404(UserProfile, id=other_user_id)
+
+    if request.method == 'POST':
+        merged_user, errors, warnings = merge_users(main_user, other_user)
+        if not errors:
+            messages.success(request, _("Successfully merged users."))
+        else:
+            messages.error(request, _("Merging the users failed. No data was changed."))
+        return redirect('staff:user_index')
+    else:
+        merged_user, errors, warnings = merge_users(main_user, other_user, preview=True)
+        return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
 
 
 @staff_required

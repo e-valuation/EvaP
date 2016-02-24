@@ -387,7 +387,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+        self.instance.courses_participating_in = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
 
         staff_group = Group.objects.get(name="Staff")
         grade_user_group = Group.objects.get(name="Grade publisher")
@@ -400,6 +400,11 @@ class UserForm(forms.ModelForm, BootstrapMixin):
             self.instance.groups.add(grade_user_group)
         else:
             self.instance.groups.remove(grade_user_group)
+
+
+class UserMergeSelectionForm(forms.Form, BootstrapMixin):
+    main_user = forms.ModelChoiceField(UserProfile.objects.all())
+    other_user = forms.ModelChoiceField(UserProfile.objects.all())
 
 
 class LotteryForm(forms.Form, BootstrapMixin):
