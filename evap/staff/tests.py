@@ -9,7 +9,6 @@ from django.core.cache import cache
 from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.utils.six import StringIO
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree, CourseType
@@ -18,7 +17,7 @@ from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, Con
                             CourseForm, SingleResultForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
 from evap.staff.tools import merge_users
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 
 from model_mommy import mommy
 
@@ -28,10 +27,12 @@ import os.path
 def lastform(page):
     return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
 
+
 def get_form_data_from_instance(FormClass, instance):
     assert FormClass._meta.model == type(instance)
     form = FormClass(instance=instance)
     return {field.html_name: field.value() for field in form}
+
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
 class FuzzyInt(int):
@@ -46,6 +47,7 @@ class FuzzyInt(int):
 
     def __repr__(self):
         return "[%d..%d]" % (self.lowest, self.highest)
+
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class SampleXlsTests(WebTest):

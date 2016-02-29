@@ -9,7 +9,6 @@ import itertools
 import random
 
 
-
 class Command(BaseCommand):
     args = ''
     help = 'Anonymizes all the data'
@@ -25,11 +24,9 @@ class Command(BaseCommand):
     new_institution_domain = ''
     new_external_domain = 'external.com'
 
-
     def lorem(self, text, lorem_ipsum):
         word_count = len(text.split(' '))
         return ' '.join(itertools.islice(itertools.cycle(lorem_ipsum), word_count))
-
 
     def handle(self, *args, **options):
         print("")
