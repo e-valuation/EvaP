@@ -43,6 +43,7 @@ urlpatterns = [
     url(r"^questionnaire/update_indices$", questionnaire_update_indices, name="questionnaire_update_indices"),
 
     url(r"^degrees/$", degree_index, name="degree_index"),
+    url(r"^course_types/$", course_type_index, name="course_type_index"),
 
     url(r"^user/$", user_index, name="user_index"),
     url(r"^user/create$", user_create, name="user_create"),

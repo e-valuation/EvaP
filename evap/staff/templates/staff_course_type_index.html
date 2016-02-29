@@ -6,7 +6,7 @@
 
 {% block subtitle %}
     {{ block.super }}
-    <li>{% trans "Degrees" %}</li>
+    <li>{% trans "Course types" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -16,24 +16,20 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <table id="degree_table" class="table">
+        <table id="course_types_table" class="table">
             <thead>
                 <tr>
-                    <th class="movable">&nbsp;</th>
-                    {% for field in formset.0.visible_fields %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
+                    <th>Name (German)</th>
+                    <th>Name (English)</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
                 {% for form in formset %}
-                    <tr class="sortable">
-                        <td class="movable">
-                            {% for hidden in form.hidden_fields %}
-                                {{ hidden }}
-                            {% endfor %}
-                            <span class="movable-icon glyphicon glyphicon-move"></span>
-                        </td>
+                    <tr>
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
                         <td>
                             {{ form.name_de.errors }}{{ form.name_de }}
                         </td>
@@ -46,7 +42,7 @@
                                 {{ form.DELETE }}
                             {% else %}
                                 <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"
-                                title="{% trans "This degree cannot be deleted because it is used for at least one course." %}">
+                                title="{% trans "This course type cannot be deleted because it is used for at least one course." %}">
                                     {% trans "remove" %}
                                 </div>
                             {% endif %}
@@ -57,24 +53,17 @@
         </table>
         <div class="form-group well">
             <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save degrees" %}" class="btn btn-primary"/>
+                <input type="submit" value="{% trans "Save course types" %}" class="btn btn-primary"/>
             </div>
         </div>
     </form>
 {% endblock %}
 
-{% block additional_javascript %}
-    {% include_sortable_form_js %}
-
-    <script type="text/javascript">
-        row_changed = function(row) {
-            name_de = $(row.find('input[id$=-name_de]')).val();
-            name_en = $(row.find('input[id$=-name_en]')).val();
-            return name_de || name_en
-        };
-        row_added = function(row) {
-            row.find('a.btn-default').remove();
-        };
-        make_form_sortable("degree_table", "form", row_changed, row_added, "", true, false);
-    </script>
+{% block on_document_ready %}
+    $('#course_types_table tbody tr').formset({
+        prefix: 'form',
+        deleteCssClass: 'btn btn-danger btn-sm',
+        deleteText: '{% trans "remove" %}',
+        addText: '{% trans "add another" %}'
+    });
 {% endblock %}

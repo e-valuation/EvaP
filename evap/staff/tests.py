@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 from django.utils.six import StringIO
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
-                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
+                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree, CourseType
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
                             CourseForm, SingleResultForm
@@ -54,6 +54,8 @@ class SampleXlsTests(WebTest):
     def setUpTestData(cls):
         mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
 
     def test_sample_xls(self):
         page = self.app.get("/staff/semester/1/import", user='user')
@@ -85,6 +87,8 @@ class UsecaseTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
 
     def test_import(self):
         page = self.app.get(reverse("staff:index"), user='staff.user')
@@ -200,10 +204,10 @@ class UsecaseTests(WebTest):
 
     def test_assign_questionnaires(self):
         semester = mommy.make(Semester, name_en="Semester 1")
-        mommy.make(Course, semester=semester, type="Seminar", contributions=[
+        mommy.make(Course, semester=semester, type=CourseType.objects.get(name_de="Seminar"), contributions=[
             mommy.make(Contribution, contributor=mommy.make(UserProfile),
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
-        mommy.make(Course, semester=semester, type="Vorlesung", contributions=[
+        mommy.make(Course, semester=semester, type=CourseType.objects.get(name_de="Vorlesung"), contributions=[
             mommy.make(Contribution, contributor=mommy.make(UserProfile),
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         questionnaire = mommy.make(Questionnaire)
@@ -276,7 +280,7 @@ class UnitTests(TestCase):
     def test_has_enough_questionnaires(self):
         # manually circumvent Course's save() method to have a Course without a general contribution
         # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
-        courses = Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester))])
+        courses = Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))])
         course = Course.objects.get()
         self.assertEqual(course.contributions.count(), 0)
         self.assertFalse(course.has_enough_questionnaires())
@@ -389,7 +393,11 @@ class URLTests(WebTest):
             ("reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
             ("reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
             ("reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
-            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),]
+            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
+            # degrees
+            ("degree_index", "/staff/degrees/", "evap"),
+            # course types
+            ("course_type_index", "/staff/course_types/", "evap")]
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
@@ -608,13 +616,13 @@ class URLTests(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        data = dict(name_de="asdf", name_en="asdf", type="asdf", degrees=["1"],
+        data = dict(name_de="asdf", name_en="asdf", type=1, degrees=["1"],
                     vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/staff/semester/1/course/create", "evap")
         form = lastform(response)
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
-        form["type"] = "a type"
+        form["type"] = 1
         form["degrees"] = ["1"]
         form["vote_start_date"] = "02/1/2099"
         form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
@@ -647,7 +655,7 @@ class URLTests(WebTest):
         form = lastform(response)
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
-        form["type"] = "a type"
+        form["type"] = 1
         form["degrees"] = ["1"]
         form["event_date"] = "02/1/2014"
         form["answer_1"] = 6
@@ -775,6 +783,34 @@ class URLTests(WebTest):
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
+    def test_course_type_form(self):
+        """
+            Adds a course type via the staff form and verifies that the type was created in the db.
+        """
+        page = self.get_assert_200("/staff/course_types/", user="evap")
+        form = lastform(page)
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
+
+    def test_degree_form(self):
+        """
+            Adds a degree via the staff form and verifies that the degree was created in the db.
+        """
+        page = self.get_assert_200("/staff/degrees/", user="evap")
+        form = lastform(page)
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
+
 
 class CourseFormTests(TestCase):
 
@@ -847,10 +883,11 @@ class SingleResultFormTests(TestCase):
 
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
+        course_type = mommy.make(CourseType)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
-            "type": "a type",
+            "type": course_type.pk,
             "degrees": ["1"],
             "event_date": "02/1/2014",
             "responsible": responsible.pk,

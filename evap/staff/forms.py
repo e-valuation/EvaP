@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+from django.core.exceptions import SuspiciousOperation
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
@@ -7,9 +8,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer, Degree, RatingAnswerCounter
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
+                                   FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
 from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
@@ -47,6 +47,29 @@ class DegreeForm(forms.ModelForm, BootstrapMixin):
         model = Degree
         fields = "__all__"
 
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+            raise SuspiciousOperation("Deleting degree not allowed")
+
+
+class CourseTypeForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
+
+    class Meta:
+        model = CourseType
+        fields = "__all__"
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+            raise SuspiciousOperation("Deleting course type not allowed")
+
+
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
@@ -70,8 +93,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
-
-        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
 
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
@@ -337,7 +358,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
+            self.fields[course_type.name] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
 

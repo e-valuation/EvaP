@@ -29,7 +29,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['vote_start_date'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
         self.fields['degrees'].disabled = True
         self.fields['degrees'].help_text = ""
 

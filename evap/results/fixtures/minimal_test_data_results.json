@@ -1,7 +1,7 @@
 [
 {
   "pk": 1,
-  "model": "evaluation.semester", 
+  "model": "evaluation.semester",
   "fields": {
     "created_at": "2014-09-16",
     "is_archived": false,
@@ -410,6 +410,14 @@
 },
 {
   "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 1,
   "model": "evaluation.course",
   "fields": {
     "name_de": "a new course",
@@ -424,7 +432,7 @@
     "participants": [],
     "vote_end_date": "2014-09-30",
     "name_en": "a course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },

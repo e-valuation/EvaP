@@ -172,6 +172,22 @@
 },
 {
   "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master project"
+  }
+},
+{
+  "pk": 1,
   "model": "evaluation.course",
   "fields": {
     "name_de": "a new course",
@@ -186,29 +202,29 @@
     "participants": [5],
     "vote_end_date": "2014-09-30",
     "name_en": "a course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
 {
-    "pk": 9,
-    "model": "evaluation.course",
-    "fields": {
-        "name_de": "dasdadsadas",
-        "_participant_count": null,
-        "degrees": [1],
-        "voters": [],
-        "semester": 3,
-        "last_modified_time": "2014-11-16T17:28:28.457",
-        "_voter_count": null,
-        "state": "inEvaluation",
-        "last_modified_user": 1,
-        "participants": [5],
-        "vote_end_date": "2099-11-20",
-        "name_en": "dadas",
-        "type": "Masterprojekt",
-        "vote_start_date": "2014-11-07"
-    }
+  "pk": 9,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "dasdadsadas",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 3,
+    "last_modified_time": "2014-11-16T17:28:28.457",
+    "_voter_count": null,
+    "state": "inEvaluation",
+    "last_modified_user": 1,
+    "participants": [5],
+    "vote_end_date": "2099-11-20",
+    "name_en": "dadas",
+    "type": 2,
+    "vote_start_date": "2014-11-07"
+  }
 },
 {
   "pk": 1,
