@@ -825,7 +825,7 @@ def questionnaire_update_indices(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=0)
+    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
     formset = degreeFS(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
@@ -841,7 +841,7 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    course_type_FS = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=0)
+    course_type_FS = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
     formset = course_type_FS(request.POST or None, queryset=course_types)
 
     if formset.is_valid():

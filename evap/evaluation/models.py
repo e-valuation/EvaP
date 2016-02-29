@@ -151,7 +151,7 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = Translate
 
-    order = models.IntegerField(verbose_name=_("degree order"), default=0)
+    order = models.IntegerField(verbose_name=_("degree order"), default=-1)
 
     class Meta:
         ordering = ['order', ]
@@ -160,6 +160,8 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def can_staff_delete(self):
+        if self.pk == None:
+            return True
         return not self.courses.all().exists()
 
 
@@ -177,6 +179,8 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def can_staff_delete(self):
+        if self.pk == None:
+            return True
         return not self.courses.all().exists()
 
 
