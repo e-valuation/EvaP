@@ -1,11 +1,13 @@
 import datetime
-from django.utils.six import StringIO
+import os
 
+from django.conf import settings
+from django.utils.six import StringIO
 from django.core import management, mail
-from unittest.mock import patch
 from django.test import TestCase
 from django.test.utils import override_settings
 from model_mommy import mommy
+from unittest.mock import patch
 
 from evap.evaluation.models import UserProfile, Course
 
@@ -24,7 +26,16 @@ class TestUpdateCourseStatesCommand(TestCase):
         with patch('evap.evaluation.models.Course.update_courses') as mock:
             management.call_command('update_course_states')
 
-        self.assertEquals(mock.call_count, 1)
+        self.assertEqual(mock.call_count, 1)
+
+
+class TestDumpTestDataCommand(TestCase):
+    def test_dumpdata_called(self):
+        with patch('evap.evaluation.management.commands.dump_testdata.call_command') as mock:
+            management.call_command('dump_testdata')
+
+        outfile_name = os.path.join(settings.BASE_DIR, "evaluation", "fixtures", "test_data.json")
+        mock.assert_called_once_with("dumpdata", "auth.group", "evaluation", "rewards", "grades", indent=2, output=outfile_name)
 
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
