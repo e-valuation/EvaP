@@ -88,18 +88,18 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <span class="panel-title">
+            <div class="panel-title">
                 {% trans "Courses" %}
                 &nbsp;
-                <span class="btn-group">
+                <div class="btn-group">
                     <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Course" %}</a></li>
                         <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Single Result" %}</a></li>
                         <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import Courses" %}</a></li>
                     </ul>
-                </span>
-            </span>
+                </div>
+            </div>
         </div>
         <div class="panel-body">
             {% if courses_by_state %}

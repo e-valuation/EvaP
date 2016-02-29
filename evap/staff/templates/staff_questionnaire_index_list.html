@@ -17,7 +17,7 @@
                 <tbody>
                 {% for questionnaire in questionnaires %}
                     <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
-                        <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move" class="glyphicon glyphicon-move"></span></td>
+                        <td class="movable"><span class="movable-icon glyphicon glyphicon-move"></span></td>
                         <td>
                             <strong>{{ questionnaire.name }}</strong>
                             <br>
@@ -33,7 +33,7 @@
                             {% if questionnaire.can_staff_delete %}
                                 <a onclick="show_delete_questionnaire_modal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This questionnaire cannot be deleted because it is already in use." %}"><a href="#" class="btn btn-sm btn-danger" disabled>{% trans "Delete" %}</a></div>
+                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This questionnaire cannot be deleted because it is already in use." %}"><a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
                             {% endif %}
                         </td>
                     </tr>

@@ -36,15 +36,15 @@
                 </thead>
                 <tbody>
                     {% for form in formset %}
-                    {% if form.non_field_errors %}
-                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
-                    {% endif %}
-                    <tr class="contribution select2tr sortable">
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
-                        <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor:move;" class="glyphicon glyphicon-move"></span></td>
+                        {% if form.non_field_errors %}
+                            <tr><td colspan="100">{{ form.non_field_errors }}</td></tr>
+                        {% endif %}
+                        <tr class="contribution select2tr sortable">
+                            <td class="movable"><span class="movable-icon glyphicon glyphicon-move"></span></td>
                             <td>
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
                                 {{ form.contributor.errors }}
                                 {% if form.responsibility.value == "RESPONSIBLE" %}
                                     <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>

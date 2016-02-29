@@ -19,18 +19,22 @@
         <div class="col-sm-offset-1">
         <table id="degree_table" class="table">
             <thead>
-                <th style="width: 10px;">&nbsp;</th>
-                {% for field in formset.0.visible_fields %}
-                    <th>{{ field.label }}</th>
-                {% endfor %}
+                <tr>
+                    <th class="movable">&nbsp;</th>
+                    {% for field in formset.0.visible_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                </tr>
             </thead>
             <tbody>
             {% for form in formset %}
                 <tr class="sortable">
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move;" class="glyphicon glyphicon-move"></span></td>
+                    <td class="movable">
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        <span class="movable-icon glyphicon glyphicon-move"></span>
+                    </td>
                     {% for field in form.visible_fields %}
                         <td>
                             {{ field.errors }}

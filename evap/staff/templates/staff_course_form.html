@@ -39,7 +39,7 @@
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                        <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move;" class="glyphicon glyphicon-move"></span></td>
+                        <td class="movable"><span class="movable-icon glyphicon glyphicon-move"></span></td>
 
                         <td>{{ form.contributor.errors }} {{ form.contributor }}</td>
                         <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>

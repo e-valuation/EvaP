@@ -20,18 +20,20 @@
     {% else %}
     <p>
         {% trans "The lottery was performed and the winners are:" %}
-        <ul>
-            {% for user in winners %}
-                <li>
-                    {{ user.full_name }}
-                    {% if user.email %}
-                        (<a href="mailto:{{ user.email }}">{{ user.email }}</a>)
-                    {% endif %}
-                </li>
-            {% empty %}
-                <li>None</li>
-            {% endfor %}
-        </ul>
+    </p>
+    <ul>
+        {% for user in winners %}
+            <li>
+                {{ user.full_name }}
+                {% if user.email %}
+                    (<a href="mailto:{{ user.email }}">{{ user.email }}</a>)
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>None</li>
+        {% endfor %}
+    </ul>
+    <p>
         {{ eligible|length }} {% trans "users were eligible for the lottery." %}
     </p>
     {% endif %}

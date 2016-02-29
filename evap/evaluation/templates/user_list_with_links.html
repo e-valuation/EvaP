@@ -1,9 +1,13 @@
 {% load i18n %}
 
 {% if users %}
-	{% for user in users %}
-	    <li><a href="{% url "staff:user_edit" user.id %}">{{ user.full_name }}</a></li>
-	{% endfor %}
+    <ul>
+        {% for user in users %}
+            <li><a href="{% url "staff:user_edit" user.id %}">{{ user.full_name }}</a></li>
+        {% endfor %}
+    </ul>
 {% else %}
-	<i>{% trans "Nobody" %}</i>
+    <p>
+        <i>{% trans "Nobody" %}</i>
+    </p>
 {% endif %}
