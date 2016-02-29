@@ -393,7 +393,11 @@ class URLTests(WebTest):
             ("reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
             ("reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
             ("reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
-            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),]
+            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
+            # degrees
+            ("degree_index", "/staff/degrees/", "evap"),
+            # course types
+            ("course_type_index", "/staff/course_types/", "evap")]
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
@@ -778,6 +782,34 @@ class URLTests(WebTest):
         response = form.submit()
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
+
+    def test_course_type_form(self):
+        """
+            Adds a course type via the staff form and verifies that the type was created in the db.
+        """
+        page = self.get_assert_200("/staff/course_types/", user="evap")
+        form = lastform(page)
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
+
+    def test_degree_form(self):
+        """
+            Adds a degree via the staff form and verifies that the degree was created in the db.
+        """
+        page = self.get_assert_200("/staff/degrees/", user="evap")
+        form = lastform(page)
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
 
 
 class CourseFormTests(TestCase):
