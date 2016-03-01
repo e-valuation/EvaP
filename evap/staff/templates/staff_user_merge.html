@@ -294,12 +294,14 @@
                     {% endif %}
                 </td>
                 <td{% if merged_user.reward_point_grantings %} class="success"{% endif %}>
-                    {% trans "Grantings" %}:
-                    <ul>
-                        {% for reward_point_granting in merged_user.reward_point_grantings %}
-                            <li>{{ reward_point_granting.semester.name }} ({{ reward_point_granting.value }})</li>
-                        {% endfor %}
-                    </ul>
+                    {% if merged_user.reward_point_grantings.all %}
+                        {% trans "Grantings" %}:
+                        <ul>
+                            {% for reward_point_granting in merged_user.reward_point_grantings %}
+                                <li>{{ reward_point_granting.semester.name }} ({{ reward_point_granting.value }})</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                     {% if merged_user.reward_point_redemptions %}
                         {% trans "Redemptions" %}:
                         <ul>
