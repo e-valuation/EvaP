@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+from django.core.exceptions import SuspiciousOperation
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
@@ -7,9 +8,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, \
-                                   Semester, UserProfile, FaqSection, FaqQuestion, \
-                                   EmailTemplate, TextAnswer, Degree, RatingAnswerCounter
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
+                                   FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
 from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
@@ -47,6 +47,29 @@ class DegreeForm(forms.ModelForm, BootstrapMixin):
         model = Degree
         fields = "__all__"
 
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+            raise SuspiciousOperation("Deleting degree not allowed")
+
+
+class CourseTypeForm(forms.ModelForm, BootstrapMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
+
+    class Meta:
+        model = CourseType
+        fields = "__all__"
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+            raise SuspiciousOperation("Deleting course type not allowed")
+
+
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
@@ -70,8 +93,6 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
-
-        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
 
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
@@ -127,6 +148,14 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         if self.instance.vote_start_date:
             self.fields['event_date'].initial = self.instance.vote_start_date
 
+        if self.instance.pk:
+            self.fields['responsible'].initial = self.instance.responsible_contributor
+            answer_counts = dict()
+            for answer_counter in self.instance.ratinganswer_counters:
+                answer_counts[answer_counter.answer] = answer_counter.count
+            for i in range(1,6):
+                self.fields['answer_' + str(i)].initial = answer_counts[i]
+
     def save(self, *args, **kw):
         user = kw.pop("user")
         self.instance.last_modified_user = user
@@ -135,16 +164,23 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         self.instance.is_graded = False
         super().save(*args, **kw)
 
+        single_result_questionnaire = Questionnaire.get_single_result_questionnaire()
+        single_result_question = single_result_questionnaire.question_set.first()
+
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
             contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True)
             contribution.save()
-            contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+            contribution.questionnaires.add(single_result_questionnaire)
 
         # set answers
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
+        total_votes = 0
         for i in range(1,6):
-            count = {'count': self.cleaned_data['answer_'+str(i)]}
-            answer_counter, created = RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=contribution.questionnaires.first().question_set.first(), answer=i, defaults=count)
+            count = self.cleaned_data['answer_'+str(i)]
+            total_votes += count
+            RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=single_result_question, answer=i, defaults={'count': count})
+        self.instance._participant_count = total_votes
+        self.instance._voter_count = total_votes
 
         # change state to "reviewed"
         # works only for single_results so the course and its contribution must be saved first
@@ -322,7 +358,7 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
+            self.fields[course_type.name] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
 
 
@@ -372,7 +408,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        self.instance.course_set = list(self.instance.course_set.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+        self.instance.courses_participating_in = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
 
         staff_group = Group.objects.get(name="Staff")
         grade_user_group = Group.objects.get(name="Grade publisher")
@@ -385,6 +421,11 @@ class UserForm(forms.ModelForm, BootstrapMixin):
             self.instance.groups.add(grade_user_group)
         else:
             self.instance.groups.remove(grade_user_group)
+
+
+class UserMergeSelectionForm(forms.Form, BootstrapMixin):
+    main_user = forms.ModelChoiceField(UserProfile.objects.all())
+    other_user = forms.ModelChoiceField(UserProfile.objects.all())
 
 
 class LotteryForm(forms.Form, BootstrapMixin):

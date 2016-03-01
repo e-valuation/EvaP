@@ -81,6 +81,8 @@ def index(request):
             return redirect('staff:index')
         elif request.user.is_grade_publisher:
             return redirect('grades:semester_view', Semester.active_semester().id)
+        elif user.is_student:
+            return redirect('student:index')
         elif user.is_contributor_or_delegate:
             return redirect('contributor:index')
         elif user.is_participant:

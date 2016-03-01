@@ -3,7 +3,8 @@ from django.db.models import Prefetch
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.views.decorators.http import require_POST
 
 from sendfile import sendfile
 
@@ -114,30 +115,21 @@ def upload_grades(request, semester_id, course_id):
         return render(request, "grades_upload_form.html", template_data)
 
 
+@require_POST
 @grade_publisher_required
-def toggle_no_grades(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def toggle_no_grades(request):
+    course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
 
-    if request.method == 'POST':
-        course.gets_no_grade_documents = not course.gets_no_grade_documents
-        course.save()
+    course.gets_no_grade_documents = not course.gets_no_grade_documents
+    course.save()
+    if course.gets_no_grade_documents:
+        if course.state == 'reviewed':
+            course.publish()
+            course.save()
+            send_publish_notifications([course])
 
-        if course.gets_no_grade_documents:
-            if course.state == 'reviewed':
-                course.publish()
-                course.save()
-                send_publish_notifications([course])
-            messages.success(request, _("Successfully confirmed that no grade documents will be provided."))
-        else:
-            messages.success(request, _("Successfully confirmed that grade documents will be provided later on."))
-        return redirect('grades:semester_view', semester_id)
-    else:
-        template_data = dict(
-            semester=semester,
-            course=course,
-        )
-        return render(request, "toggle_no_grades.html", template_data)
+    return HttpResponse() # 200 OK
 
 
 @grade_downloader_required
@@ -174,23 +166,14 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
         return render(request, "grades_upload_form.html", template_data)
 
 
+@require_POST
 @grade_publisher_required
-def delete_grades(request, semester_id, course_id, grade_document_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+def delete_grades(request):
+    grade_document_id = request.POST.get("grade_document_id")
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
 
-    if request.method == 'POST':
-        grade_document.delete()
-        messages.success(request, _("Successfully deleted grade document."))
-        return redirect('grades:course_view', semester_id, course_id)
-    else:
-        template_data = dict(
-            semester=semester,
-            course=course,
-            grade_document=grade_document,
-        )
-        return render(request, "grades_delete.html", template_data)
+    grade_document.delete()
+    return HttpResponse() # 200 OK
 
 
 @staff_required

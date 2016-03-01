@@ -4,6 +4,7 @@
   "model": "evaluation.semester",
   "fields": {
     "created_at": "2014-09-16",
+    "is_archived": false,
     "name_de": "testsemester",
     "name_en": "testsemester"
   }
@@ -13,6 +14,7 @@
   "model": "evaluation.semester",
   "fields": {
     "created_at": "2014-09-16",
+    "is_archived": false,
     "name_de": "empty_semester",
     "name_en": "emtpy_semester"
   }
@@ -22,6 +24,7 @@
     "model": "evaluation.semester",
     "fields": {
         "created_at": "2014-11-16",
+        "is_archived": false,
         "name_de": "Test2",
         "name_en": "Test2"
     }
@@ -303,7 +306,7 @@
   }
 },
 {
-  "pk": 1,
+  "pk": 13,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 17,
@@ -313,7 +316,7 @@
   }
 },
 {
-  "pk": 2,
+  "pk": 14,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 21,
@@ -323,7 +326,7 @@
   }
 },
 {
-  "pk": 3,
+  "pk": 15,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 25,
@@ -333,12 +336,72 @@
   }
 },
 {
-  "pk": 4,
+  "pk": 16,
   "model": "evaluation.ratinganswercounter",
   "fields": {
     "contribution": 29,
     "question": 5,
     "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 17,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 1,
+    "count": 5
+  }
+},
+{
+  "pk": 18,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 19,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 3,
+    "count": 1
+  }
+},
+{
+  "pk": 20,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 4,
+    "count": 1
+  }
+},
+{
+  "pk": 21,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 5,
+    "count": 1
+  }
+},
+{
+  "pk": 22,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 6,
     "count": 1
   }
 },
@@ -1242,6 +1305,22 @@
 },
 {
   "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master project"
+  }
+},
+{
+  "pk": 1,
   "model": "evaluation.course",
   "fields": {
     "name_de": "a new course",
@@ -1259,7 +1338,7 @@
     ],
     "vote_end_date": "2099-12-31",
     "name_en": "a course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1282,7 +1361,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "a prepared course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1305,7 +1384,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "an editor approved course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1328,7 +1407,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "an approved course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1353,7 +1432,7 @@
     ],
     "vote_end_date": "2099-09-30",
     "name_en": "an in evaluation course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1378,7 +1457,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "an evaluated course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1403,7 +1482,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "a reviewed course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1428,7 +1507,7 @@
     ],
     "vote_end_date": "2014-09-30",
     "name_en": "a published course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1448,7 +1527,7 @@
         "participants": [5],
         "vote_end_date": "2099-11-20",
         "name_en": "dadas",
-        "type": "Masterprojekt",
+        "type": 2,
         "vote_start_date": "2014-11-07"
     }
 },
@@ -1471,7 +1550,7 @@
     ],
     "vote_end_date": "2099-12-31",
     "name_en": "another new course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
@@ -1491,7 +1570,7 @@
     "participants": [],
     "vote_end_date": "2014-09-10",
     "name_en": "single result course",
-    "type": "a type",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },

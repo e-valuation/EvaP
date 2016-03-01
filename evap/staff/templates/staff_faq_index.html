@@ -19,22 +19,26 @@
         <div class="col-sm-offset-1">
         <table id="section_table" class="table">
             <thead>
-                <th style="width: 10px;">&nbsp;</th>
-                {% for field in formset.0.visible_fields %}
-                    {% if forloop.last %}
-                        <th>{% trans "Actions" %}</th>
-                    {% else %}
-                        <th>{{ field.label }}</th>
-                    {% endif %}
-                {% endfor %}
+                <tr>
+                    <th class="movable">&nbsp;</th>
+                    {% for field in formset.0.visible_fields %}
+                        {% if forloop.last %}
+                            <th>{% trans "Actions" %}</th>
+                        {% else %}
+                            <th>{{ field.label }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
             </thead>
             <tbody>
             {% for form in formset %}
                 <tr class="sortable">
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move;" class="glyphicon glyphicon-move"></span></td>
+                    <td class="movable">
+                        <span class="movable-icon glyphicon glyphicon-move"></span>
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    </td>
                     {% for field in form.visible_fields %}
                         <td>
                             {% if forloop.last and form.instance.id %}

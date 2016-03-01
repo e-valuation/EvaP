@@ -3,6 +3,7 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
+{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -36,7 +37,7 @@
                         {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
                                 <td>
-                                    <a href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>{{ course.name }}</a></br>
+                                    <a href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>{{ course.name }}</a><br/>
                                     {% for degree in course.degrees.all %}
                                         <span class="label label-default">{{ degree }}</span>
                                     {% endfor %}
@@ -53,8 +54,8 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="glyphicon glyphicon-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                        <a href="{% url "grades:toggle_no_grades" semester.id course.id %}" {{ disable_if_archived }}>
-                                            <span class="glyphicon glyphicon-remove light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}">
+                                        <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" {{ disable_if_archived }}>
+                                            <span class="glyphicon glyphicon-remove light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}"></span>
                                         </a>
                                     {% endif %}
                                 </td>
@@ -62,11 +63,11 @@
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
                                             <span data-toggle="tooltip" data-placement="top" title="{% trans "Confirm that final grades have been submitted but will not be uploaded" %}">
-                                                <a class="btn btn-sm btn-default" href="{% url "grades:toggle_no_grades" semester.id course.id %}" {{ disable_if_archived }}>
+                                                <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-default" {{ disable_if_archived }}>
                                                     <span class="glyphicon glyphicon-remove"></span>
                                                 </a>
                                             </span>
-                                            <span data-toggle="tooltip" data-placement="top" title="{% trans "Upload grades" %}">
+                                            <div class="inline" data-toggle="tooltip" data-placement="top" title="{% trans "Upload grades" %}">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>
                                                         <span class="glyphicon glyphicon-arrow-up"></span>
@@ -76,7 +77,7 @@
                                                         <li><a href="{% url "grades:upload_grades" semester.id course.id %}?final=true">{% trans "Final grades" %}</a></li>
                                                     </ul>
                                                 </div>
-                                            </span>
+                                            </div>
                                         {% else %}
                                             <span data-toggle="tooltip" data-placement="top" title="{% trans "Change grade document" %}">
                                                 <a class="btn btn-sm btn-default" href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>
@@ -95,6 +96,34 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Have final grades been submitted?" as title %}
+    {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
+    {% trans "Confirm" as action_text %}
+    {% include_confirmation_modal "confirm_noupload_modal" title question action_text "primary" %}
+    <script type="text/javascript">
+        function confirm_noupload_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "grades:toggle_no_grades" %}",
+                data: {"course_id": data_id},
+                success: function(){ location.reload(); },
+                error: function(){}
+            });
+        };
+    </script>
+    {% trans "Will final grades be uploaded?" as title %}
+    {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
+    {% trans "Confirm" as action_text %}
+    {% include_confirmation_modal "confirm_laterupload_modal" title question action_text "primary" %}
+    <script type="text/javascript">
+        function confirm_laterupload_modal_action(data_id) {
+            confirm_noupload_modal_action(data_id);
+        };
+    </script>
 {% endblock %}
 
 {% block additional_javascript %}

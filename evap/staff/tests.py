@@ -12,10 +12,13 @@ from django.contrib.auth.models import Group
 from django.utils.six import StringIO
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
-                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree
+                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree, CourseType
 from evap.evaluation.tools import calculate_average_grades_and_deviation
-from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, CourseForm
+from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
+                            CourseForm, SingleResultForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
+from evap.staff.tools import merge_users
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent
 
 from model_mommy import mommy
 
@@ -51,6 +54,8 @@ class SampleXlsTests(WebTest):
     def setUpTestData(cls):
         mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
 
     def test_sample_xls(self):
         page = self.app.get("/staff/semester/1/import", user='user')
@@ -82,6 +87,8 @@ class UsecaseTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
 
     def test_import(self):
         page = self.app.get(reverse("staff:index"), user='staff.user')
@@ -133,7 +140,6 @@ class UsecaseTests(WebTest):
 
         user = mommy.make(UserProfile)
         user.generate_login_key()
-        user.save()
 
         url_with_key = reverse("results:index") + "?userkey=%s" % user.login_key
         self.app.get(url_with_key)
@@ -198,10 +204,10 @@ class UsecaseTests(WebTest):
 
     def test_assign_questionnaires(self):
         semester = mommy.make(Semester, name_en="Semester 1")
-        mommy.make(Course, semester=semester, type="Seminar", contributions=[
+        mommy.make(Course, semester=semester, type=CourseType.objects.get(name_de="Seminar"), contributions=[
             mommy.make(Contribution, contributor=mommy.make(UserProfile),
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
-        mommy.make(Course, semester=semester, type="Vorlesung", contributions=[
+        mommy.make(Course, semester=semester, type=CourseType.objects.get(name_de="Vorlesung"), contributions=[
             mommy.make(Contribution, contributor=mommy.make(UserProfile),
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         questionnaire = mommy.make(Questionnaire)
@@ -274,7 +280,7 @@ class UnitTests(TestCase):
     def test_has_enough_questionnaires(self):
         # manually circumvent Course's save() method to have a Course without a general contribution
         # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
-        courses = Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester))])
+        courses = Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))])
         course = Course.objects.get()
         self.assertEqual(course.contributions.count(), 0)
         self.assertFalse(course.has_enough_questionnaires())
@@ -298,6 +304,7 @@ class UnitTests(TestCase):
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
+    csrf_checks = False
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
@@ -342,7 +349,6 @@ class URLTests(WebTest):
             ("test_staff_semester_x", "/staff/semester/1", "evap"),
             ("test_staff_semester_x", "/staff/semester/1?tab=asdf", "evap"),
             ("test_staff_semester_x_edit", "/staff/semester/1/edit", "evap"),
-            ("test_staff_semester_x_delete", "/staff/semester/2/delete", "evap"),
             ("test_staff_semester_x_course_create", "/staff/semester/1/course/create", "evap"),
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
             ("test_staff_semester_x_export", "/staff/semester/1/export", "evap"),
@@ -355,26 +361,25 @@ class URLTests(WebTest):
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
             ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
-            ("test_staff_semester_x_course_y_delete", "/staff/semester/1/course/1/delete", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff semester single_result
+            ("test_staff_semester_x_single_result_create", "/staff/semester/1/singleresult/create", "evap"),
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
-            ("test_staff_semester_x_single_result_y_delete", "/staff/semester/1/course/11/delete", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
             ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
             ("test_staff_questionnaire_x_edit", "/staff/questionnaire/3/edit", "evap"),
             ("test_staff_questionnaire_x", "/staff/questionnaire/2", "evap"),
             ("test_staff_questionnaire_x_copy", "/staff/questionnaire/2/copy", "evap"),
-            ("test_staff_questionnaire_x_delete", "/staff/questionnaire/3/delete", "evap"),
             ("test_staff_questionnaire_delete", "/staff/questionnaire/create", "evap"),
             # staff user
             ("test_staff_user", "/staff/user/", "evap"),
             ("test_staff_user_import", "/staff/user/import", "evap"),
             ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
             ("test_staff_user_create", "/staff/user/create", "evap"),
-            ("test_staff_user_x_delete", "/staff/user/4/delete", "evap"),
             ("test_staff_user_x_edit", "/staff/user/4/edit", "evap"),
+            ("test_staff_user_merge", "/staff/user/merge", "evap"),
+            ("test_staff_user_x_merge_x", "/staff/user/4/merge/5", "evap"),
             # staff template
             ("test_staff_template_x", "/staff/template/1", "evap"),
             # faq
@@ -388,7 +393,11 @@ class URLTests(WebTest):
             ("reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
             ("reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
             ("reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
-            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),]
+            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
+            # degrees
+            ("degree_index", "/staff/degrees/", "evap"),
+            # course types
+            ("course_type_index", "/staff/course_types/", "evap")]
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
@@ -410,9 +419,6 @@ class URLTests(WebTest):
         """
         tests = [
             ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
-            ("test_staff_semester_x_course_y_delete_fail", "/staff/semester/1/course/8/delete", "evap"),
-            ("test_staff_user_x_delete_fail", "/staff/user/2/delete", "evap"),
-            ("test_staff_semester_x_delete_fail", "/staff/semester/1/delete", "evap"),
         ]
 
         for _, url, user in tests:
@@ -429,6 +435,7 @@ class URLTests(WebTest):
             ("/staff/semester/1/import", "evap"),
             ("/staff/questionnaire/create", "evap"),
             ("/staff/user/create", "evap"),
+            ("/staff/user/merge", "evap"),
         ]
         for form in forms:
             response = self.get_submit_assert_200(form[0], form[1])
@@ -458,9 +465,6 @@ class URLTests(WebTest):
     def test_staff_semester_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/edit", "evap")
 
-    def test_staff_semester_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/2/delete", "evap")
-
     def test_staff_semester_x_assign__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/assign", "evap")
 
@@ -470,17 +474,8 @@ class URLTests(WebTest):
     def test_staff_semester_x_course_y_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/semester/1/course/1/edit", "evap", name="operation", value="save")
 
-    def test_staff_semester_x_course_y_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/semester/1/course/1/delete", "evap"),
-
     def test_staff_questionnaire_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/questionnaire/3/edit", "evap")
-
-    def test_staff_questionnaire_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap"),
-
-    def test_staff_user_x_delete__nodata_success(self):
-        self.get_submit_assert_302("/staff/user/4/delete", "evap"),
 
     def test_staff_user_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/user/4/edit", "evap")
@@ -563,17 +558,17 @@ class URLTests(WebTest):
 
     def test_semester_deletion(self):
         """
-            Tries to delete two semesters via the respective view,
+            Tries to delete two semesters via the respective post request,
             only the second attempt should succeed.
         """
         self.assertFalse(Semester.objects.get(pk=1).can_staff_delete)
-        self.client.login(username='evap', password='evap')
-        response = self.client.get("/staff/semester/1/delete", follow=True)
-        self.assertIn("cannot be deleted", list(response.context['messages'])[0].message)
+        response = self.app.post("/staff/semester/delete", {"semester_id": 1,}, user="evap", expect_errors=True)
+        self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
         self.assertTrue(Semester.objects.get(pk=2).can_staff_delete)
-        self.get_submit_assert_302("/staff/semester/2/delete", "evap")
+        response = self.app.post("/staff/semester/delete", {"semester_id": 2,}, user="evap")
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
     def helper_semester_state_views(self, course_ids, old_state, new_state, operation):
@@ -621,13 +616,13 @@ class URLTests(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        data = dict(name_de="asdf", name_en="asdf", type="asdf", degrees=["1"],
+        data = dict(name_de="asdf", name_en="asdf", type=1, degrees=["1"],
                     vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/staff/semester/1/course/create", "evap")
         form = lastform(response)
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
-        form["type"] = "a type"
+        form["type"] = 1
         form["degrees"] = ["1"]
         form["vote_start_date"] = "02/1/2099"
         form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
@@ -660,7 +655,7 @@ class URLTests(WebTest):
         form = lastform(response)
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
-        form["type"] = "a type"
+        form["type"] = 1
         form["degrees"] = ["1"]
         form["event_date"] = "02/1/2014"
         form["answer_1"] = 6
@@ -690,17 +685,17 @@ class URLTests(WebTest):
 
     def test_questionnaire_deletion(self):
         """
-            Tries to delete two questionnaires via the respective view,
+            Tries to delete two questionnaires via the respective post request,
             only the second attempt should succeed.
         """
         self.assertFalse(Questionnaire.objects.get(pk=2).can_staff_delete)
-        self.client.login(username='evap', password='evap')
-        page = self.client.get("/staff/questionnaire/2/delete", follow=True)
-        self.assertIn("cannot be deleted", list(page.context['messages'])[0].message)
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2,}, user="evap", expect_errors=True)
+        self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=3).can_staff_delete)
-        self.get_submit_assert_302("/staff/questionnaire/3/delete", "evap")
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3,}, user="evap")
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 
     def test_create_user(self):
@@ -788,6 +783,34 @@ class URLTests(WebTest):
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
+    def test_course_type_form(self):
+        """
+            Adds a course type via the staff form and verifies that the type was created in the db.
+        """
+        page = self.get_assert_200("/staff/course_types/", user="evap")
+        form = lastform(page)
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
+
+    def test_degree_form(self):
+        """
+            Adds a degree via the staff form and verifies that the degree was created in the db.
+        """
+        page = self.get_assert_200("/staff/degrees/", user="evap")
+        form = lastform(page)
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
+
 
 class CourseFormTests(TestCase):
 
@@ -855,6 +878,34 @@ class CourseFormTests(TestCase):
         # staff: but start date must be < end date
         self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
 
+
+class SingleResultFormTests(TestCase):
+
+    def test_single_result_form_saves_participant_and_voter_count(self):
+        responsible = mommy.make(UserProfile)
+        course_type = mommy.make(CourseType)
+        form_data = {
+            "name_de": "qwertz",
+            "name_en": "qwertz",
+            "type": course_type.pk,
+            "degrees": ["1"],
+            "event_date": "02/1/2014",
+            "responsible": responsible.pk,
+            "answer_1": 6,
+            "answer_2": 0,
+            "answer_3": 2,
+            "answer_4": 0,
+            "answer_5": 2,
+        }
+        course = Course(semester=mommy.make(Semester))
+        form = SingleResultForm(form_data, instance=course)
+        self.assertTrue(form.is_valid())
+
+        form.save(user=mommy.make(UserProfile))
+
+        course = Course.objects.first()
+        self.assertEqual(course.num_participants, 10)
+        self.assertEqual(course.num_voters, 10)
 
 class ContributionFormsetTests(TestCase):
 
@@ -971,76 +1022,73 @@ class ContributionFormsetTests(TestCase):
 
 
 class ArchivingTests(WebTest):
-    fixtures = ['minimal_test_data']
 
     @classmethod
     def setUpTestData(cls):
-        new_semester = mommy.make(Semester)
-        course1 = Course.objects.get(pk=7)
-        course1.publish()
-        course1.semester = new_semester
-        course1.save()
-        course2 = Course.objects.get(pk=8)
-        course2.semester = new_semester
-        course2.save()
-        cls.test_semester = new_semester
+        cls.semester = mommy.make(Semester)
+        cls.course = mommy.make(Course, pk=7, state="published", semester=cls.semester)
+
+        users = mommy.make(UserProfile, _quantity=3)
+        cls.course.participants = users
+        cls.course.voters = users[:2]
+
+    def refresh_course(self):
+        """ refresh_from_db does not work with courses"""
+        self.course = self.semester.course_set.first()
+
+    def setUp(self):
+        self.semester.refresh_from_db()
+        self.refresh_course()
 
     def test_counts_dont_change(self):
         """
             Asserts that course.num_voters course.num_participants don't change after archiving.
         """
-        semester = ArchivingTests.test_semester
+        voter_count = self.course.num_voters
+        participant_count = self.course.num_participants
 
-        voters_counts = {}
-        participant_counts = {}
-        for course in semester.course_set.all():
-            voters_counts[course] = course.num_voters
-            participant_counts[course] = course.num_participants
-        some_participant = semester.course_set.first().participants.first()
-        course_count = some_participant.course_set.count()
+        self.semester.archive()
+        self.refresh_course()
 
-        semester.archive()
+        self.assertEqual(voter_count, self.course.num_voters)
+        self.assertEqual(participant_count, self.course.num_participants)
 
-        for course in semester.course_set.all():
-            self.assertEqual(voters_counts[course], course.num_voters)
-            self.assertEqual(participant_counts[course], course.num_participants)
-        # participants should not loose courses, as they should see all of them
-        self.assertEqual(course_count, some_participant.course_set.count())
+    def test_participants_do_not_loose_courses(self):
+        """
+            Asserts that participants still participate in their courses after they get archived.
+        """
+        some_participant = self.course.participants.first()
+
+        self.semester.archive()
+
+        self.assertEqual(list(some_participant.courses_participating_in.all()), [self.course])
 
     def test_is_archived(self):
         """
             Tests whether is_archived returns True on archived semesters and courses.
         """
-        semester = ArchivingTests.test_semester
+        self.assertFalse(self.course.is_archived)
 
-        for course in semester.course_set.all():
-            self.assertFalse(course.is_archived)
+        self.semester.archive()
+        self.refresh_course()
 
-        semester.archive()
-
-        for course in semester.course_set.all():
-            self.assertTrue(course.is_archived)
+        self.assertTrue(self.course.is_archived)
 
     def test_archiving_does_not_change_results(self):
-        semester = ArchivingTests.test_semester
+        results = calculate_average_grades_and_deviation(self.course)
 
-        results = {}
-        for course in semester.course_set.all():
-            results[course] = calculate_average_grades_and_deviation(course)
-
-        semester.archive()
+        self.semester.archive()
+        self.refresh_course()
         cache.clear()
 
-        for course in semester.course_set.all():
-            self.assertTrue(calculate_average_grades_and_deviation(course) == results[course])
+        self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
 
     def test_archiving_twice_raises_exception(self):
-        semester = ArchivingTests.test_semester
-        semester.archive()
+        self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            semester.archive()
+            self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            semester.course_set.first()._archive()
+            self.semester.course_set.first()._archive()
 
     def get_assert_403(self, url, user):
         try:
@@ -1052,17 +1100,35 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        semester = ArchivingTests.test_semester
-        semester.archive()
+        self.semester.archive()
 
-        semester_url = "/staff/semester/{}/".format(semester.pk)
+        semester_url = "/staff/semester/{}/".format(self.semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")
         self.get_assert_403(semester_url + "course/create", "evap")
         self.get_assert_403(semester_url + "course/7/edit", "evap")
-        self.get_assert_403(semester_url + "course/7/delete", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
+
+    def test_course_is_not_archived_if_participant_count_is_set(self):
+        course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)
+        self.assertFalse(course.is_archived)
+        self.assertTrue(course.is_archiveable)
+
+    def test_archiving_doesnt_change_single_results_participant_count(self):
+        responsible = mommy.make(UserProfile)
+        course = mommy.make(Course, state="published")
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True)
+        contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+        self.assertTrue(course.is_single_result())
+
+        course._participant_count = 5
+        course._voter_count = 5
+        course.save()
+
+        course._archive()
+        self.assertEqual(course._participant_count, 5)
+        self.assertEqual(course._voter_count, 5)
 
 
 class TestDataTest(TestCase):
@@ -1081,28 +1147,159 @@ class TestDataTest(TestCase):
 
 class MergeUsersTest(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.user1 = mommy.make(UserProfile, username="test1")
+        cls.user2 = mommy.make(UserProfile, username="test2")
+        cls.user3 = mommy.make(UserProfile, username="test3")
+        cls.group1 = mommy.make(Group, name="group1")
+        cls.group2 = mommy.make(Group, name="group2")
+        cls.main_user = mommy.make(UserProfile,
+            username="main_user",
+            title="Dr.",
+            first_name="Main",
+            last_name="",
+            email="",  # test that merging works when taking the email from other user (UniqueConstraint)
+            groups=[cls.group1],
+            delegates=[cls.user1, cls.user2],
+            represented_users=[cls.user3],
+            cc_users=[cls.user1],
+            ccing_users=[]
+        )
+        cls.other_user = mommy.make(UserProfile,
+            username="other_user",
+            title="",
+            first_name="Other",
+            last_name="User",
+            email="other@test.com",
+            groups=[cls.group2],
+            delegates=[cls.user3],
+            represented_users=[cls.user1],
+            cc_users=[],
+            ccing_users=[cls.user1, cls.user2],
+            is_superuser=True
+        )
+        cls.course1 = mommy.make(Course, name="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.course2 = mommy.make(Course, name="course2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.course3 = mommy.make(Course, name="course3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, course=cls.course1)
+        cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course1)  # this should make the merge fail
+        cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course2)
+        cls.rewardpointgranting_main = mommy.make(RewardPointGranting, user_profile=cls.main_user)
+        cls.rewardpointgranting_other = mommy.make(RewardPointGranting, user_profile=cls.other_user)
+        cls.rewardpointredemption_main = mommy.make(RewardPointRedemption, user_profile=cls.main_user)
+        cls.rewardpointredemption_other = mommy.make(RewardPointRedemption, user_profile=cls.other_user)
+
+    def test_merge_handles_all_attributes(self):
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+
+        all_attrs = list(field.name for field in UserProfile._meta.get_fields(include_hidden=True))
+
+        # these are relations to intermediate models generated by django for m2m relations.
+        # we can safely ignore these since the "normal" fields of the m2m relations are present as well.
+        all_attrs = list(attr for attr in all_attrs if not attr.startswith("UserProfile_"))
+
+        # equally named fields are not supported, sorry
+        self.assertEqual(len(all_attrs), len(set(all_attrs)))
+
+        # some attributes we don't care about when merging
+        ignored_attrs = set([
+            'id', # nothing to merge here
+            'password', # not used in production
+            'last_login', # something to really not care about
+            'user_permissions', # we don't use permissions
+            'logentry', # wtf
+            'login_key', # we decided to discard other_user's login key
+            'login_key_valid_until', # not worth dealing with
+            'Course_voters+', # some more intermediate models, for an explanation see above
+            'Course_participants+', # intermediate model
+        ])
+        expected_attrs = set(all_attrs) - ignored_attrs
+
+        # actual merge happens here
+        merged_user, errors, warnings = merge_users(user1, user2)
+        handled_attrs = set(merged_user.keys())
+
+        # attributes that are handled in the merge method but that are not present in the merged_user dict
+        # add attributes here only if you're actually dealing with them in merge_users().
+        additional_handled_attrs = set([
+            'grades_last_modified_user+',
+            'course_last_modified_user+',
+        ])
+
+        actual_attrs = handled_attrs | additional_handled_attrs
+
+        self.assertEqual(expected_attrs, actual_attrs)
+
     def test_merge_users(self):
-        course1 = mommy.make(Course)
-        course2 = mommy.make(Course)
+        merged_user, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
+        self.assertSequenceEqual(errors, ['contributions', 'courses_participating_in'])
+        self.assertSequenceEqual(warnings, ['rewards'])
 
-        delegate1 = mommy.make(UserProfile, pk=1)
-        delegate2 = mommy.make(UserProfile, pk=2)
+        # assert that nothing has changed
+        self.main_user.refresh_from_db()
+        self.other_user.refresh_from_db()
+        self.assertEqual(self.main_user.username, "main_user")
+        self.assertEqual(self.main_user.title, "Dr.")
+        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.last_name, "")
+        self.assertEqual(self.main_user.email, "")
+        self.assertSequenceEqual(self.main_user.groups.all(), [self.group1])
+        self.assertSequenceEqual(self.main_user.delegates.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user3])
+        self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
+        self.assertSequenceEqual(self.main_user.ccing_users.all(), [])
+        self.assertFalse(self.main_user.is_superuser)
+        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
+        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
+        self.assertEqual(self.other_user.username, "other_user")
+        self.assertEqual(self.other_user.title, "")
+        self.assertEqual(self.other_user.first_name, "Other")
+        self.assertEqual(self.other_user.last_name, "User")
+        self.assertEqual(self.other_user.email, "other@test.com")
+        self.assertSequenceEqual(self.other_user.groups.all(), [self.group2])
+        self.assertSequenceEqual(self.other_user.delegates.all(), [self.user3])
+        self.assertSequenceEqual(self.other_user.represented_users.all(), [self.user1])
+        self.assertSequenceEqual(self.other_user.cc_users.all(), [])
+        self.assertSequenceEqual(self.other_user.ccing_users.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.course1.participants.all(), [self.main_user, self.other_user])
+        self.assertSequenceEqual(self.course2.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.participants.all(), [self.other_user])
+        self.assertSequenceEqual(self.course3.voters.all(), [self.other_user])
+        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
+        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
-        user1 = mommy.make(UserProfile, pk=3, username="user1", course_set=[course1], delegates=[delegate1])
-        user2 = mommy.make(UserProfile, username="user2", course_set=[course2], delegates=[delegate2])
-        course2.voters = [user2]
+        # fix data
+        self.course1.participants = [self.main_user]
+        self.contribution2.delete()
 
-        self.assertEqual(UserProfile.objects.count(), 4)
-        call_command("merge_users", str(user1.pk), str(user2.pk), stdout=StringIO())
-        self.assertEqual(UserProfile.objects.count(), 3)
+        merged_user, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
+        self.assertEqual(errors, [])
+        self.assertSequenceEqual(warnings, ['rewards']) # rewards warning is still there
 
-        self.assertEqual(user1.pk, 3)
-        self.assertEqual(user1.username, "user1")
-        self.assertEqual(set(user1.course_set.all()), set([course1, course2]))
-
-        # see https://github.com/fsr-itse/EvaP/issues/705
-        #self.assertEqual(set(user1.delegates.all()), set([delegate1, delegate2]))
-        #self.assertEqual(set(course2.voters.all()), set([user1]))
+        self.main_user.refresh_from_db()
+        self.assertEqual(self.main_user.username, "main_user")
+        self.assertEqual(self.main_user.title, "Dr.")
+        self.assertEqual(self.main_user.first_name, "Main")
+        self.assertEqual(self.main_user.last_name, "User")
+        self.assertEqual(self.main_user.email, "other@test.com")
+        self.assertSequenceEqual(self.main_user.groups.all(), [self.group1, self.group2])
+        self.assertSequenceEqual(self.main_user.delegates.all(), [self.user1, self.user2, self.user3])
+        self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user1, self.user3])
+        self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
+        self.assertSequenceEqual(self.main_user.ccing_users.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.course1.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.voters.all(), [self.main_user])
+        self.assertTrue(self.main_user.is_superuser)
+        self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
+        self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
+        self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
 
 class TextAnswerReviewTest(WebTest):
@@ -1115,7 +1312,7 @@ class TextAnswerReviewTest(WebTest):
 
     def helper(self, old_state, expected_new_state, action):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post("/staff/comments/updatepublish", {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        response = self.app.post("/staff/comments/update_publish", {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
         textanswer.refresh_from_db()
         self.assertEqual(textanswer.state, expected_new_state)

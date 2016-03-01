@@ -19,18 +19,22 @@
 
         <table id="question_table" class="table">
             <thead>
-                <th style="width: 10px;">&nbsp;</th>
-                <th>{% trans "Question/Answer (german)" %}</th>
-                <th>{% trans "Question/Answer (english)" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <tr>
+                    <th class="movable">&nbsp;</th>
+                    <th>{% trans "Question/Answer (german)" %}</th>
+                    <th>{% trans "Question/Answer (english)" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
             </thead>
             <tbody>
             {% for form in formset %}
                 <tr class="sortable">
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-                    <td style="width: 10px;"><span style="font-size: 16px; top: 8px; cursor: move;" class="glyphicon glyphicon-move"></span></td>
+                    <td class="movable">
+                        <span class="movable-icon glyphicon glyphicon-move"></span>
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    </td>
                     <td>
                         {{ form.question_de.errors }}
                         {{ form.question_de }}

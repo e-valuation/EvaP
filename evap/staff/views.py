@@ -9,20 +9,20 @@ from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Prefetch
-from collections import defaultdict
+from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
                                   TextResult, send_publish_notifications, sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
-                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, \
-                             QuestionnairesAssignForm, SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, \
-                             FaqQuestionForm, UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, \
-                             ExportSheetForm
+                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
+                             SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
+                             UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
+                             UserMergeSelectionForm, CourseTypeForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
@@ -62,7 +62,7 @@ def get_courses_with_prefetched_data(semester):
         course.general_contribution = course.general_contribution[0]
         course.responsible_contributor = course.responsible_contribution[0].contributor
         course.num_textanswers = textanswer_count
-        if not semester.is_archived:
+        if course._participant_count is None:
             course.num_voters = voter_count
             course.num_participants = participant_count
     return courses
@@ -124,7 +124,7 @@ def semester_course_operation(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     operation = request.GET.get('operation')
-    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'publish', 'unpublish']:
+    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'startEvaluation', 'publish', 'unpublish']:
         messages.error(request, _("Unsupported operation: ") + str(operation))
         return custom_redirect('staff:semester_view', semester_id)
 
@@ -138,6 +138,8 @@ def semester_course_operation(request, semester_id):
             helper_semester_course_operation_prepare(request, courses, send_email)
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
+        elif operation == 'startEvaluation':
+            helper_semester_course_operation_start(request, courses, send_email)
         elif operation == 'publish':
             helper_semester_course_operation_publish(request, courses, send_email)
         elif operation == 'unpublish':
@@ -164,6 +166,16 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
+        elif operation == 'startEvaluation':
+            new_state_name = STATES_ORDERED['inEvaluation']
+            # remove courses with vote_end_date in the past
+            courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.date.today()]
+            difference = len(courses) - len(courses_end_in_future)
+            if difference:
+                courses = courses_end_in_future
+                messages.warning(request, ungettext("%(courses)d course can not be approved, because it's evaluation end date lies in the past. It was removed from the selection.",
+                    "%(courses)d courses can not be approved, because their evaluation end dates lie in the past. They were removed from the selection.",
+                    difference) % {'courses': difference})
         elif operation == 'publish':
             new_state_name = STATES_ORDERED['published']
         elif operation == 'unpublish':
@@ -179,7 +191,7 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
-        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'publish']
+        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'startEvaluation', 'publish']
     )
     return render(request, "staff_course_operation.html", template_data)
 
@@ -208,6 +220,17 @@ def helper_semester_course_operation_approve(request, courses):
         course.save()
     messages.success(request, ungettext("Successfully approved %(courses)d course.",
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+
+
+def helper_semester_course_operation_start(request, courses, send_email):
+    for course in courses:
+        course.vote_start_date = datetime.date.today()
+        course.evaluation_begin()
+        course.save()
+    messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
+        "Successfully started evaluation for %(courses)d courses.", len(courses)) % {'courses': len(courses)})
+    if send_email:
+        EmailTemplate.send_evaluation_started_notifications(courses)
 
 
 def helper_semester_course_operation_publish(request, courses, send_email):
@@ -256,21 +279,17 @@ def semester_edit(request, semester_id):
         return render(request, "staff_semester_form.html", dict(semester=semester, form=form))
 
 
+@require_POST
 @staff_required
-def semester_delete(request, semester_id):
+def semester_delete(request):
+    semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if semester.can_staff_delete:
-        if request.method == 'POST':
-            semester.delete()
-            delete_navbar_cache()
-            messages.success(request, _("Successfully deleted semester."))
-            return redirect('staff:index')
-        else:
-            return render(request, "staff_semester_delete.html", dict(semester=semester))
-    else:
-        messages.warning(request, _("The semester '%s' cannot be deleted, because it is still in use.") % semester.name)
-        return redirect('staff:semester_view', semester.id)
+    if not semester.can_staff_delete:
+        raise SuspiciousOperation("Deleting semester not allowed")
+    semester.delete()
+    delete_navbar_cache()
+    return HttpResponse() # 200 OK
 
 
 @staff_required
@@ -330,13 +349,13 @@ def semester_assign_questionnaires(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
-    course_types = courses.values_list('type', flat=True).order_by().distinct()
+    course_types = CourseType.objects.filter(courses__in=courses)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
     if form.is_valid():
         for course in courses:
-            if form.cleaned_data[course.type]:
-                course.general_contribution.questionnaires = form.cleaned_data[course.type]
+            if form.cleaned_data[course.type.name]:
+                course.general_contribution.questionnaires = form.cleaned_data[course.type.name]
             if form.cleaned_data['Responsible contributor']:
                 course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()
@@ -358,7 +377,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in UserProfile.objects.all():
-            courses = user.course_set.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
+            courses = user.courses_participating_in.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not participating in any course in this semester
                 continue
@@ -372,6 +391,7 @@ def semester_lottery(request, semester_id):
 
     template_data =dict(semester=semester, form=form, eligible=eligible, winners=winners)
     return render(request, "staff_semester_lottery.html", template_data)
+
 
 @staff_required
 def semester_todo(request, semester_id):
@@ -389,21 +409,17 @@ def semester_todo(request, semester_id):
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_todo.html", template_data)
 
+
+@require_POST
 @staff_required
-def semester_archive(request, semester_id):
+def semester_archive(request):
+    semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if semester.is_archiveable:
-        if request.method == 'POST':
-            semester.archive()
-            messages.success(request, _("Successfully archived semester '{}'.").format(semester.name))
-            return redirect('staff:semester_view', semester.id)
-        else:
-            return render(request, "staff_semester_archive.html", dict(semester=semester))
-    else:
-        messages.warning(request, _("The semester '%s' cannot be archived, "+
-            "because it already is archived or has courses that are not archiveable.") % semester.name)
-        return redirect('staff:semester_view', semester.id)
+    if not semester.is_archiveable:
+        raise SuspiciousOperation("Archiving semester not allowed")
+    semester.archive()
+    return HttpResponse() # 200 OK
 
 
 @staff_required
@@ -496,14 +512,7 @@ def helper_course_edit(request, semester, course):
 
 @staff_required
 def helper_single_result_edit(request, semester, course):
-    initial = {'responsible': course.responsible_contributor}
-    answer_counts = defaultdict(int)
-    for answer_counter in course.ratinganswer_counters:
-        answer_counts[answer_counter.answer] = answer_counter.count
-    for i in range(1,6):
-        initial['answer_' + str(i)] = answer_counts[i]
-
-    form = SingleResultForm(request.POST or None, instance=course, initial=initial)
+    form = SingleResultForm(request.POST or None, instance=course)
 
     if form.is_valid():
         form.save(user=request.user)
@@ -514,23 +523,16 @@ def helper_single_result_edit(request, semester, course):
         return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
 
 
+@require_POST
 @staff_required
-def course_delete(request, semester_id, course_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+def course_delete(request):
+    course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
-    raise_permission_denied_if_archived(course)
 
-    # check course state
     if not course.can_staff_delete:
-        messages.warning(request, _("The course '%s' cannot be deleted, because it is still in use.") % course.name)
-        return redirect('staff:semester_view', semester_id)
-
-    if request.method == 'POST':
-        course.delete()
-        messages.success(request, _("Successfully deleted course."))
-        return custom_redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_course_delete.html", dict(semester=semester, course=course))
+        raise SuspiciousOperation("Deleting course not allowed")
+    course.delete()
+    return HttpResponse() # 200 OK
 
 
 @staff_required
@@ -620,6 +622,7 @@ def course_comments(request, semester_id, course_id):
     return render(request, "staff_course_comments.html", template_data)
 
 
+@require_POST
 @staff_required
 def course_comments_update_publish(request):
     comment_id = request.POST["id"]
@@ -795,22 +798,19 @@ def questionnaire_copy(request, questionnaire_id):
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 
+@require_POST
 @staff_required
-def questionnaire_delete(request, questionnaire_id):
+def questionnaire_delete(request):
+    questionnaire_id = request.POST.get("questionnaire_id")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
-    if questionnaire.can_staff_delete:
-        if request.method == 'POST':
-            questionnaire.delete()
-            messages.success(request, _("Successfully deleted questionnaire."))
-            return redirect('staff:questionnaire_index')
-        else:
-            return render(request, "staff_questionnaire_delete.html", dict(questionnaire=questionnaire))
-    else:
-        messages.warning(request, _("The questionnaire '%s' cannot be deleted, because it is still in use.") % questionnaire.name)
-        return redirect('staff:questionnaire_index')
+    if not questionnaire.can_staff_delete:
+        raise SuspiciousOperation("Deleting questionnaire not allowed")
+    questionnaire.delete()
+    return HttpResponse() # 200 OK
 
 
+@require_POST
 @staff_required
 def questionnaire_update_indices(request):
     updated_indices = request.POST
@@ -825,7 +825,7 @@ def questionnaire_update_indices(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=0)
+    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
     formset = degreeFS(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
@@ -838,6 +838,22 @@ def degree_index(request):
 
 
 @staff_required
+def course_type_index(request):
+    course_types = CourseType.objects.all()
+
+    course_type_FS = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
+    formset = course_type_FS(request.POST or None, queryset=course_types)
+
+    if formset.is_valid():
+        formset.save()
+
+        messages.success(request, _("Successfully updated the course types."))
+        return custom_redirect('staff:course_type_index')
+    else:
+        return render(request, "staff_course_type_index.html", dict(formset=formset))
+
+
+@staff_required
 def user_index(request):
     from django.db.models import  BooleanField, ExpressionWrapper, Q, Sum, Case, When, IntegerField
     users = (UserProfile.objects.all()
@@ -846,7 +862,7 @@ def user_index(request):
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'course_set'))
+        .prefetch_related('contributions', 'courses_participating_in'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 
@@ -897,20 +913,45 @@ def user_edit(request, user_id):
         return render(request, "staff_user_form.html", dict(form=form, object=user, courses_contributing_to=courses_contributing_to))
 
 
+@require_POST
 @staff_required
-def user_delete(request, user_id):
+def user_delete(request):
+    user_id = request.POST.get("user_id")
     user = get_object_or_404(UserProfile, id=user_id)
 
-    if user.can_staff_delete:
-        if request.method == 'POST':
-            user.delete()
-            messages.success(request, _("Successfully deleted user."))
-            return redirect('staff:user_index')
-        else:
-            return render(request, "staff_user_delete.html", dict(user_to_delete=user))
+    if not user.can_staff_delete:
+        raise SuspiciousOperation("Deleting user not allowed")
+    user.delete()
+    return HttpResponse() # 200 OK
+
+
+@staff_required
+def user_merge_selection(request):
+    form = UserMergeSelectionForm(request.POST or None, request.FILES or None)
+
+    if form.is_valid():
+        main_user = form.cleaned_data['main_user']
+        other_user = form.cleaned_data['other_user']
+        return redirect('staff:user_merge', main_user.id, other_user.id)
     else:
-        messages.warning(request, _("The user '%s' cannot be deleted, because he lectures courses.") % user.full_name)
+        return render(request, "staff_user_merge_selection.html", dict(form=form))
+
+
+@staff_required
+def user_merge(request, main_user_id, other_user_id):
+    main_user = get_object_or_404(UserProfile, id=main_user_id)
+    other_user = get_object_or_404(UserProfile, id=other_user_id)
+
+    if request.method == 'POST':
+        merged_user, errors, warnings = merge_users(main_user, other_user)
+        if not errors:
+            messages.success(request, _("Successfully merged users."))
+        else:
+            messages.error(request, _("Merging the users failed. No data was changed."))
         return redirect('staff:user_index')
+    else:
+        merged_user, errors, warnings = merge_users(main_user, other_user, preview=True)
+        return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
 
 
 @staff_required

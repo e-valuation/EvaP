@@ -30,3 +30,7 @@ def include_comment_visibility_buttons(form):
 @register.inclusion_tag("choice_button.html")
 def include_choice_button(formelement, choice, tooltip):
     return dict(formelement=formelement, choice=choice, tooltip=tooltip)
+
+@register.inclusion_tag("confirmation_modal.html")
+def include_confirmation_modal(modal_id, title, question, action_text, btn_type):
+    return dict(modal_id=modal_id, title=title, question=question, action_text=action_text, btn_type=btn_type)

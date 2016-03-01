@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -44,8 +44,9 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-
     name = Translate
+
+    is_archived = models.BooleanField(default=False, verbose_name=_("is archived"))
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
@@ -63,21 +64,16 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_archiveable(self):
-        return all(course.is_archiveable for course in self.course_set.all())
+        return not self.is_archived and all(course.is_archiveable for course in self.course_set.all())
 
-    @cached_property
-    def is_archived(self):
-        if self.course_set.count() == 0:
-            return False
-        first_course_is_archived = self.course_set.first().is_archived
-        assert(all(course.is_archived == first_course_is_archived for course in self.course_set.all()))
-        return first_course_is_archived
-
+    @transaction.atomic
     def archive(self):
         if not self.is_archiveable:
             raise NotArchiveable()
         for course in self.course_set.all():
             course._archive()
+        self.is_archived = True
+        self.save()
 
     @classmethod
     def get_all_with_published_courses(cls):
@@ -155,13 +151,37 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = Translate
 
-    order = models.IntegerField(verbose_name=_("degree order"), default=0)
+    order = models.IntegerField(verbose_name=_("degree order"), default=-1)
 
     class Meta:
         ordering = ['order', ]
 
     def __str__(self):
         return self.name
+
+    def can_staff_delete(self):
+        if self.pk == None:
+            return True
+        return not self.courses.all().exists()
+
+
+class CourseType(models.Model, metaclass=LocalizeModelBase):
+    """Model for the type of a course, e.g. a lecture"""
+
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
+    name = Translate
+
+    class Meta:
+        ordering = ['name_de', ]
+
+    def __str__(self):
+        return self.name
+
+    def can_staff_delete(self):
+        if self.pk == None:
+            return True
+        return not self.courses.all().exists()
 
 
 class Course(models.Model, metaclass=LocalizeModelBase):
@@ -176,10 +196,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     name = Translate
 
     # type of course: lecture, seminar, project
-    type = models.CharField(max_length=1024, verbose_name=_("type"))
+    type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
 
     # e.g. Bachelor, Master
-    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"))
+    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
 
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
@@ -191,11 +211,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
 
     # students that are allowed to vote
-    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
     # students that already voted
-    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='+')
+    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='courses_voted_for')
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
@@ -204,7 +224,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, related_name="+", null=True, blank=True)
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
     course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
 
@@ -445,14 +465,16 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Should be called only via Semester.archive"""
         if not self.is_archiveable:
             raise NotArchiveable()
-        self._participant_count = self.participants.count()
-        self._voter_count = self.voters.count()
+        self._participant_count = self.num_participants
+        self._voter_count = self.num_voters
         self.save()
 
     @property
     def is_archived(self):
-        assert((self._participant_count is None) == (self._voter_count is None))
-        return self._participant_count is not None
+        semester_is_archived = self.semester.is_archived
+        if semester_is_archived:
+            assert self._participant_count is not None and self._voter_count is not None
+        return semester_is_archived
 
     @property
     def is_archiveable(self):
@@ -851,13 +873,30 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @property
     def can_staff_delete(self):
         states_with_votes = ["inEvaluation", "reviewed", "evaluated", "published"]
-        if any(course.state in states_with_votes and not course.is_archived for course in self.course_set.all()):
+        if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
         return not self.is_contributor
 
     @property
     def is_participant(self):
-        return self.course_set.exists()
+        return self.courses_participating_in.exists()
+
+    @property
+    def is_student(self):
+        """
+            A UserProfile is not considered to be a student anymore if the
+            newest contribution is newer than the newest participation.
+        """
+        if not self.is_participant:
+            return False
+
+        if not self.is_contributor:
+            return True
+
+        last_semester_participated = Semester.objects.filter(course__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(course__contributions__contributor=self).order_by("-created_at").first()
+
+        return last_semester_participated.created_at >= last_semester_contributed.created_at
 
     @property
     def is_contributor(self):
@@ -917,6 +956,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def refresh_login_key(self):
         self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+        self.save()
+
+    def get_sorted_contributions(self):
+        return self.contributions.order_by('course__semester__created_at', 'course__name_de')
+
+    def get_sorted_courses_participating_in(self):
+        return self.courses_participating_in.order_by('semester__created_at', 'name_de')
+
+    def get_sorted_courses_voted_for(self):
+        return self.courses_voted_for.order_by('semester__created_at', 'name_de')
+
 
 def validate_template(value):
     """Field validator which ensures that the value can be compiled into a

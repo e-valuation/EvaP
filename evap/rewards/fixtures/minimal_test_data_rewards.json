@@ -1,10 +1,11 @@
 [
 {
-  "pk": 1, 
-  "model": "evaluation.semester", 
+  "pk": 1,
+  "model": "evaluation.semester",
   "fields": {
-    "created_at": "2014-09-16", 
-    "name_de": "testsemester", 
+    "created_at": "2014-09-16",
+    "is_archived": false,
+    "name_de": "testsemester",
     "name_en": "testsemester"
   }
 },
@@ -13,113 +14,114 @@
     "model": "evaluation.semester",
     "fields": {
         "created_at": "2014-11-16",
+        "is_archived": false,
         "name_de": "Test2",
         "name_en": "Test2"
     }
 },
 {
-  "pk": 1, 
-  "model": "evaluation.questionnaire", 
+  "pk": 1,
+  "model": "evaluation.questionnaire",
   "fields": {
-    "public_name_de": "the person", 
-    "is_for_contributors": true, 
-    "teaser_en": "answer questions regarding a person here", 
-    "index": 0, 
-    "teaser_de": "answer questions regarding a person here", 
-    "public_name_en": "the person", 
-    "description_en": "person_questionnaire description", 
-    "obsolete": false, 
-    "name_de": "person_questionnaire", 
-    "description_de": "person_questionnaire description", 
+    "public_name_de": "the person",
+    "is_for_contributors": true,
+    "teaser_en": "answer questions regarding a person here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a person here",
+    "public_name_en": "the person",
+    "description_en": "person_questionnaire description",
+    "obsolete": false,
+    "name_de": "person_questionnaire",
+    "description_de": "person_questionnaire description",
     "name_en": "person_questionnaire"
   }
 },
 {
-  "pk": 2, 
-  "model": "evaluation.questionnaire", 
+  "pk": 2,
+  "model": "evaluation.questionnaire",
   "fields": {
-    "public_name_de": "the course", 
-    "is_for_contributors": false, 
-    "teaser_en": "answer questions regarding a course here", 
-    "index": 0, 
-    "teaser_de": "answer questions regarding a course here", 
-    "public_name_en": "the course", 
-    "description_en": "course_questionnaire description", 
-    "obsolete": false, 
-    "name_de": "course_questionnaire", 
-    "description_de": "course_questionnaire description", 
+    "public_name_de": "the course",
+    "is_for_contributors": false,
+    "teaser_en": "answer questions regarding a course here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a course here",
+    "public_name_en": "the course",
+    "description_en": "course_questionnaire description",
+    "obsolete": false,
+    "name_de": "course_questionnaire",
+    "description_de": "course_questionnaire description",
     "name_en": "course_questionnaire"
   }
 },
 {
-  "pk": 1, 
-  "model": "evaluation.question", 
+  "pk": 1,
+  "model": "evaluation.question",
   "fields": {
-    "questionnaire": 1, 
-    "_order": 0, 
-    "text_en": "how?", 
-    "text_de": "how?", 
+    "questionnaire": 1,
+    "_order": 0,
+    "text_en": "how?",
+    "text_de": "how?",
     "type": "T"
   }
 },
 {
-  "pk": 2, 
-  "model": "evaluation.question", 
+  "pk": 2,
+  "model": "evaluation.question",
   "fields": {
-    "questionnaire": 1, 
-    "_order": 1, 
-    "text_en": "how much?", 
-    "text_de": "how much?", 
+    "questionnaire": 1,
+    "_order": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
     "type": "L"
   }
 },
 {
-  "pk": 3, 
-  "model": "evaluation.question", 
+  "pk": 3,
+  "model": "evaluation.question",
   "fields": {
-    "questionnaire": 2, 
-    "_order": 0, 
-    "text_en": "how?", 
-    "text_de": "how?", 
+    "questionnaire": 2,
+    "_order": 0,
+    "text_en": "how?",
+    "text_de": "how?",
     "type": "T"
   }
 },
 {
-  "pk": 4, 
-  "model": "evaluation.question", 
+  "pk": 4,
+  "model": "evaluation.question",
   "fields": {
-    "questionnaire": 2, 
-    "_order": 1, 
-    "text_en": "how much?", 
-    "text_de": "how much?", 
+    "questionnaire": 2,
+    "_order": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
     "type": "L"
   }
 },
 {
-  "pk": 5, 
-  "model": "evaluation.question", 
+  "pk": 5,
+  "model": "evaluation.question",
   "fields": {
-    "questionnaire": 2, 
-    "_order": 1, 
-    "text_en": "your grade", 
-    "text_de": "your grade", 
+    "questionnaire": 2,
+    "_order": 1,
+    "text_en": "your grade",
+    "text_de": "your grade",
     "type": "G"
   }
 },
 {
-  "pk": 5, 
-  "model": "evaluation.userprofile", 
+  "pk": 5,
+  "model": "evaluation.userprofile",
   "fields": {
-    "username": "student", 
-    "first_name": "student", 
-    "last_name": "user", 
-    "last_login": "2014-09-16T22:52:46.611", 
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=", 
+    "username": "student",
+    "first_name": "student",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:46.611",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
     "email": "student@student.hpi.uni-potsdam.de",
-    "title": "", 
-    "cc_users": [], 
-    "delegates": [], 
-    "login_key_valid_until": null, 
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
     "login_key": null
   }
 },
@@ -169,44 +171,60 @@
   }
 },
 {
-  "pk": 1, 
-  "model": "evaluation.course", 
+  "pk": 1,
+  "model": "evaluation.coursetype",
   "fields": {
-    "name_de": "a new course", 
-    "_participant_count": null, 
-    "degrees": [1], 
-    "voters": [], 
-    "semester": 1, 
-    "last_modified_time": "2014-09-16T23:01:13.059", 
-    "_voter_count": null, 
-    "state": "new", 
-    "last_modified_user": 1, 
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master project"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a new course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "new",
+    "last_modified_user": 1,
     "participants": [5],
-    "vote_end_date": "2014-09-30", 
-    "name_en": "a course", 
-    "type": "a type", 
+    "vote_end_date": "2014-09-30",
+    "name_en": "a course",
+    "type": 1,
     "vote_start_date": "2014-09-10"
   }
 },
 {
-    "pk": 9,
-    "model": "evaluation.course",
-    "fields": {
-        "name_de": "dasdadsadas",
-        "_participant_count": null,
-        "degrees": [1],
-        "voters": [],
-        "semester": 3,
-        "last_modified_time": "2014-11-16T17:28:28.457",
-        "_voter_count": null,
-        "state": "inEvaluation",
-        "last_modified_user": 1,
-        "participants": [5],
-        "vote_end_date": "2099-11-20",
-        "name_en": "dadas",
-        "type": "Masterprojekt",
-        "vote_start_date": "2014-11-07"
-    }
+  "pk": 9,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "dasdadsadas",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 3,
+    "last_modified_time": "2014-11-16T17:28:28.457",
+    "_voter_count": null,
+    "state": "inEvaluation",
+    "last_modified_user": 1,
+    "participants": [5],
+    "vote_end_date": "2099-11-20",
+    "name_en": "dadas",
+    "type": 2,
+    "vote_start_date": "2014-11-07"
+  }
 },
 {
   "pk": 1,

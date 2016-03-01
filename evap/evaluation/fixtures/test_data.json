@@ -21,6 +21,7 @@
   "fields": {
     "name_de": "Wintersemester 2012/2013",
     "name_en": "Winter term 2012/2013",
+    "is_archived": true,
     "created_at": "2013-01-24"
   }
 },
@@ -30,6 +31,7 @@
   "fields": {
     "name_de": "Sommersemester 2013",
     "name_en": "Summer term 2013",
+    "is_archived": false,
     "created_at": "2013-04-22"
   }
 },
@@ -39,6 +41,7 @@
   "fields": {
     "name_de": "Wintersemester 2013/2014",
     "name_en": "Winter term 2013/2014",
+    "is_archived": false,
     "created_at": "2014-01-08"
   }
 },
@@ -48,6 +51,7 @@
   "fields": {
     "name_de": "Sommersemester 2014",
     "name_en": "Summer term 2014",
+    "is_archived": false,
     "created_at": "2014-06-02"
   }
 },
@@ -634,6 +638,46 @@
     "name_de": "Sonstige",
     "name_en": "Other",
     "order": 3
+  }
+},
+{
+  "model": "evaluation.coursetype",
+  "pk": 1,
+  "fields": {
+    "name_de": "Projektseminar",
+    "name_en": "Project seminar"
+  }
+},
+{
+  "model": "evaluation.coursetype",
+  "pk": 2,
+  "fields": {
+    "name_de": "Vorlesung",
+    "name_en": "Lecture"
+  }
+},
+{
+  "model": "evaluation.coursetype",
+  "pk": 3,
+  "fields": {
+    "name_de": "Seminar",
+    "name_en": "Seminar"
+  }
+},
+{
+  "model": "evaluation.coursetype",
+  "pk": 4,
+  "fields": {
+    "name_de": "Bachelorprojekt",
+    "name_en": "Bachelor's project"
+  }
+},
+{
+  "model": "evaluation.coursetype",
+  "pk": 5,
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master's project"
   }
 },
 {
@@ -114014,8 +114058,8 @@
   "model": "evaluation.userprofile",
   "pk": 815,
   "fields": {
-    "password": "pbkdf2_sha256$20000$TuHP6W5gUOIq$Q5mhHuNVwo9gBgJHwPgzYnPi4E5+nME9RMZ84+m5GAg=",
-    "last_login": "2015-11-11T16:30:17.529",
+    "password": "pbkdf2_sha256$24000$s28R2krK96OU$oVriyPL9Sg7Ekvab87UeMmTqUwmaJwHX8rWCmyE+tXc=",
+    "last_login": "2016-02-22T22:09:42.393",
     "is_superuser": true,
     "username": "evap",
     "email": "evap@hpi.uni-potsdam.de",
@@ -136681,7 +136725,7 @@
     "semester": 19,
     "name_de": "Analyse & Visualisierung von 3D-Punktwolken",
     "name_en": "Analysis and Visualization of 3D Point Clouds",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136689,7 +136733,7 @@
     "_voter_count": null,
     "vote_start_date": "2007-02-01",
     "vote_end_date": "2014-06-02",
-    "last_modified_time": "2014-06-02T16:59:56.191",
+    "last_modified_time": "2016-02-22T22:08:19.699",
     "last_modified_user": null,
     "degrees": [
       1
@@ -136720,7 +136764,7 @@
     "semester": 19,
     "name_de": "Modellierung I",
     "name_en": "Modeling I",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136728,7 +136772,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2012-02-17T15:28:00.616",
+    "last_modified_time": "2016-02-22T22:08:19.833",
     "last_modified_user": null,
     "degrees": [
       1
@@ -136761,7 +136805,7 @@
     "semester": 18,
     "name_de": "Software Adaption",
     "name_en": "Software Adaption",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136769,7 +136813,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2012-02-17T15:28:00.616",
+    "last_modified_time": "2016-02-22T22:08:19.886",
     "last_modified_user": null,
     "degrees": [
       2
@@ -136796,7 +136840,7 @@
     "semester": 18,
     "name_de": "Grafikprogrammierung mit OpenGL und C++",
     "name_en": "Graphics Programming with OpenGL and C++",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136804,7 +136848,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-03-01",
-    "last_modified_time": "2014-01-08T06:49:18.493",
+    "last_modified_time": "2016-02-22T22:08:19.780",
     "last_modified_user": null,
     "degrees": [
       1
@@ -136842,7 +136886,7 @@
     "semester": 19,
     "name_de": "Kliniksystemaufsatz basierend auf In-Memory-Technologie",
     "name_en": "Prototypical clinical information system based on in-memroy technology",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136850,7 +136894,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2014-01-08T06:50:22.604",
+    "last_modified_time": "2016-02-22T22:08:19.815",
     "last_modified_user": null,
     "degrees": [
       1
@@ -136897,7 +136941,7 @@
     "semester": 18,
     "name_de": "Telemedicine",
     "name_en": "Telemedicine",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136905,7 +136949,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-03-01",
     "vote_end_date": "2012-03-18",
-    "last_modified_time": "2012-03-26T20:57:52.892",
+    "last_modified_time": "2016-02-22T22:08:19.905",
     "last_modified_user": 1,
     "degrees": [
       1
@@ -136940,7 +136984,7 @@
     "semester": 19,
     "name_de": "Projektentwicklung und -management (ohne Kolloquium)",
     "name_en": "Project Development and Management (without Colloquium)",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136948,7 +136992,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-29",
     "vote_end_date": "2012-03-07",
-    "last_modified_time": "2014-01-08T06:48:17.455",
+    "last_modified_time": "2016-02-22T22:08:19.854",
     "last_modified_user": 1,
     "degrees": [
       1
@@ -136982,7 +137026,7 @@
     "semester": 19,
     "name_de": "Mathematik I - Diskrete Strukturen und Logik",
     "name_en": "Discrete Structures and Logic",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -136990,7 +137034,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-03-12",
     "vote_end_date": "2012-03-31",
-    "last_modified_time": "2012-04-01T00:17:02.280",
+    "last_modified_time": "2016-02-22T22:08:19.827",
     "last_modified_user": null,
     "degrees": [
       1
@@ -137013,7 +137057,7 @@
     "semester": 18,
     "name_de": "Seminar des Forschungskollegs",
     "name_en": "Research School Seminar",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137021,7 +137065,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2012-02-17T15:28:00.616",
+    "last_modified_time": "2016-02-22T22:08:19.881",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137111,7 +137155,7 @@
     "semester": 19,
     "name_de": "Virtuelle Maschinen und Ausf\u00fchrungsumgebungen",
     "name_en": "Virtuelle Maschinen und Ausf\u00fchrungsumgebungen",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137119,7 +137163,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2012-03-13T15:37:39.394",
+    "last_modified_time": "2016-02-22T22:08:19.921",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137153,7 +137197,7 @@
     "semester": 19,
     "name_de": "IT-Entrepreneurship",
     "name_en": "IT-Entrepreneurship",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137161,7 +137205,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2012-03-13T15:37:39.371",
+    "last_modified_time": "2016-02-22T22:08:19.807",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137208,7 +137252,7 @@
     "semester": 21,
     "name_de": "Einf\u00fchrung in das Design Thinking (MA)",
     "name_en": "Introduction Design Thinking (MA)",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137216,7 +137260,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-05-01",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2014-06-02T18:21:56.683",
+    "last_modified_time": "2016-02-22T22:08:19.750",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137256,7 +137300,7 @@
     "semester": 21,
     "name_de": "Softwarearchitektur",
     "name_en": "Software Architecture",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137264,7 +137308,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-05-01",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2014-06-02T23:37:25.422",
+    "last_modified_time": "2016-02-22T22:08:19.888",
     "last_modified_user": null,
     "degrees": [
       1
@@ -137300,7 +137344,7 @@
     "semester": 18,
     "name_de": "Softwarevisualisierungsverfahren",
     "name_en": "Software Visualization Techniques",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137308,7 +137352,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2012-04-18T23:14:54.985",
+    "last_modified_time": "2016-02-22T22:08:19.902",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137341,7 +137385,7 @@
     "semester": 17,
     "name_de": "\u00dcberzeugend Pr\u00e4sentieren I",
     "name_en": "Effective Presentations I",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137349,7 +137393,7 @@
     "_voter_count": 35,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2015-01-25T11:58:07.324",
+    "last_modified_time": "2016-02-22T22:08:19.915",
     "last_modified_user": null,
     "degrees": [
       1
@@ -137465,7 +137509,7 @@
     "semester": 18,
     "name_de": "Interactive Representations of Data Structures and Algorithms",
     "name_en": "Interactive Representations of Data Structures and Algorithms",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137473,7 +137517,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-09",
-    "last_modified_time": "2012-06-05T22:27:47.370",
+    "last_modified_time": "2016-02-22T22:08:19.798",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137606,7 +137650,7 @@
     "semester": 19,
     "name_de": "Automated Analysis of Formal Models",
     "name_en": "Automated Analysis of Formal Models",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137614,7 +137658,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-04-12",
     "vote_end_date": "2012-04-26",
-    "last_modified_time": "2014-01-08T06:45:29.764",
+    "last_modified_time": "2016-02-22T22:08:19.702",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137683,7 +137727,7 @@
     "semester": 18,
     "name_de": "Evolving Applications: Object -migration with Ruby and GemStone",
     "name_en": "Evolving Applications: Object -migration with Ruby and GemStone",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137691,7 +137735,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-03-27",
     "vote_end_date": "2012-04-04",
-    "last_modified_time": "2014-01-08T06:43:09.990",
+    "last_modified_time": "2016-02-22T22:08:19.755",
     "last_modified_user": null,
     "degrees": [
       1
@@ -137722,7 +137766,7 @@
     "semester": 19,
     "name_de": "Design Thinking Basic Track",
     "name_en": "Design Thinking Basic Track",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137730,7 +137774,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-01-30",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2014-01-08T06:46:36.485",
+    "last_modified_time": "2016-02-22T22:08:19.738",
     "last_modified_user": null,
     "degrees": [
       2
@@ -137869,7 +137913,7 @@
     "semester": 19,
     "name_de": "C\u00b3: Consistent Car Clustering",
     "name_en": "C\u00b3: Konsistente Fahrzeug Gruppierung",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -137877,7 +137921,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2014-01-08T06:46:09.927",
+    "last_modified_time": "2016-02-22T22:08:19.716",
     "last_modified_user": null,
     "degrees": [
       1
@@ -138024,7 +138068,7 @@
     "semester": 17,
     "name_de": "Global Team-Based Product Innovation & Engineering I, ME 310",
     "name_en": "Global Team-Based Product Innovation & Engineering I, ME 310",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138032,7 +138076,7 @@
     "_voter_count": 11,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2015-01-25T11:58:07.358",
+    "last_modified_time": "2016-02-22T22:08:19.776",
     "last_modified_user": null,
     "degrees": [
       2
@@ -138077,7 +138121,7 @@
     "semester": 19,
     "name_de": "Explorative Erstellung von Visualisierungen in einem Interaktiven Programmiersystem",
     "name_en": "Exploratory Authoring of Interative Content in a Live Environment",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138085,7 +138129,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-01-22",
     "vote_end_date": "2012-01-23",
-    "last_modified_time": "2012-02-17T15:28:00.616",
+    "last_modified_time": "2016-02-22T22:08:19.756",
     "last_modified_user": null,
     "degrees": [
       1
@@ -138114,7 +138158,7 @@
     "semester": 18,
     "name_de": "F\u00fchrungskompetenz",
     "name_en": "Leadership Competence",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138122,7 +138166,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-02-02",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2012-02-17T15:28:00.616",
+    "last_modified_time": "2016-02-22T22:08:19.764",
     "last_modified_user": null,
     "degrees": [
       2
@@ -138259,7 +138303,7 @@
     "semester": 17,
     "name_de": "Computergrafik II",
     "name_en": "Computer Graphics II",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138267,7 +138311,7 @@
     "_voter_count": 27,
     "vote_start_date": "2012-07-09",
     "vote_end_date": "2012-07-29",
-    "last_modified_time": "2015-01-25T11:58:07.266",
+    "last_modified_time": "2016-02-22T22:08:19.720",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -138387,7 +138431,7 @@
     "semester": 17,
     "name_de": "Business Etikette - HPI Charm School",
     "name_en": "Business Etiquette - HPI Charm School",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138395,7 +138439,7 @@
     "_voter_count": 32,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2015-01-25T11:58:07.336",
+    "last_modified_time": "2016-02-22T22:08:19.713",
     "last_modified_user": 93,
     "degrees": [
       2
@@ -138528,7 +138572,7 @@
     "semester": 19,
     "name_de": "Advanced Data Profiling",
     "name_en": "Advanced Data Profiling",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138536,7 +138580,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2014-01-08T06:39:34.809",
+    "last_modified_time": "2016-02-22T22:08:19.696",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -138695,7 +138739,7 @@
     "semester": 18,
     "name_de": "Management Essentials",
     "name_en": "Management Essentials",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138703,7 +138747,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-11",
-    "last_modified_time": "2012-11-22T16:34:09.142",
+    "last_modified_time": "2016-02-22T22:08:19.825",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -138832,7 +138876,7 @@
     "semester": 17,
     "name_de": "HCI Project: Underwater Motion Capture using Depth Cameras",
     "name_en": "HCI Project: Underwater Motion Capture using Depth Cameras",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138840,7 +138884,7 @@
     "_voter_count": 10,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2015-01-25T11:58:07.363",
+    "last_modified_time": "2016-02-22T22:08:19.789",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -138895,7 +138939,7 @@
     "semester": 18,
     "name_de": "Global Team-Based Product Innovation & Engineering II, ME 310",
     "name_en": "Global Team-Based Product Innovation & Engineering II, ME 310",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138903,7 +138947,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:09.132",
+    "last_modified_time": "2016-02-22T22:08:19.774",
     "last_modified_user": 482,
     "degrees": [
       2
@@ -138942,7 +138986,7 @@
     "semester": 18,
     "name_de": "Trends and Concepts in the Software Industry I: Inner Mechanics of In-Memory Databases",
     "name_en": "Trends and Concepts in the Software Industry I: Inner Mechanics of In-Memory Databases",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138950,7 +138994,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:09.115",
+    "last_modified_time": "2016-02-22T22:08:19.908",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -138983,7 +139027,7 @@
     "semester": 18,
     "name_de": "Physical Interaction across touch-sensitive rooms",
     "name_en": "Physical Interaction across touch-sensitive rooms",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -138991,7 +139035,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:09.003",
+    "last_modified_time": "2016-02-22T22:08:19.843",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -139041,7 +139085,7 @@
     "semester": 17,
     "name_de": "Social Reputation",
     "name_en": "Social Reputation",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139049,7 +139093,7 @@
     "_voter_count": 14,
     "vote_start_date": "2012-07-05",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2015-01-25T11:58:07.425",
+    "last_modified_time": "2016-02-22T22:08:19.884",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139109,7 +139153,7 @@
     "semester": 18,
     "name_de": "Pr\u00e4sentationsdesign und visuelle Kommunikation",
     "name_en": "Pr\u00e4sentationsdesign und visuelle Kommunikation",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139117,7 +139161,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:08.955",
+    "last_modified_time": "2016-02-22T22:08:19.847",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -139158,7 +139202,7 @@
     "semester": 19,
     "name_de": "Eingebettete Betriebssysteme",
     "name_en": "Embedded Operating Systems",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139166,7 +139210,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-12",
-    "last_modified_time": "2012-11-22T16:34:08.947",
+    "last_modified_time": "2016-02-22T22:08:19.752",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139213,7 +139257,7 @@
     "semester": 19,
     "name_de": "Global Team-Based Product Innovation & Engineering I, ME 310",
     "name_en": "Global Team-Based Product Innovation & Engineering I, ME 310",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139221,7 +139265,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-05",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:08.923",
+    "last_modified_time": "2016-02-22T22:08:19.778",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139278,7 +139322,7 @@
     "semester": 17,
     "name_de": "Modellgetriebene Softwareentwicklung",
     "name_en": "Model-driven Software Development",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139286,7 +139330,7 @@
     "_voter_count": 5,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2015-01-25T11:58:07.301",
+    "last_modified_time": "2016-02-22T22:08:19.832",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -139317,7 +139361,7 @@
     "semester": 19,
     "name_de": "Modern Computer-aided Software Engineering",
     "name_en": "Modern Computer-aided Software Engineering",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139325,7 +139369,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:09.452",
+    "last_modified_time": "2016-02-22T22:08:19.837",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -139362,7 +139406,7 @@
     "semester": 17,
     "name_de": "Internet-Security - Weaknesses and Targets",
     "name_en": "Internet-Security - Weaknesses and Targets",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139370,7 +139414,7 @@
     "_voter_count": 8,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2015-01-25T11:58:07.291",
+    "last_modified_time": "2016-02-22T22:08:19.803",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -139420,7 +139464,7 @@
     "semester": 18,
     "name_de": "Software-as-a-Service and Multi-tenancy",
     "name_en": "Software-as-a-Service and Multi-tenancy",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139428,7 +139472,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2014-01-08T06:37:48.763",
+    "last_modified_time": "2016-02-22T22:08:19.891",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139461,7 +139505,7 @@
     "semester": 18,
     "name_de": "Software Profiling",
     "name_en": "Software Profiling",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139469,7 +139513,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:09.081",
+    "last_modified_time": "2016-02-22T22:08:19.897",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139490,7 +139534,7 @@
     "semester": 19,
     "name_de": "Creating Interactive Web-based Apps in the Context of eLearning",
     "name_en": "Creating Interactive Web-based Apps in the Context of eLearning",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139498,7 +139542,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-06",
     "vote_end_date": "2012-07-19",
-    "last_modified_time": "2012-11-22T16:34:09.072",
+    "last_modified_time": "2016-02-22T22:08:19.723",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -139529,7 +139573,7 @@
     "semester": 19,
     "name_de": "Joint Data Profiling",
     "name_en": "Joint Data Profiling",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139537,7 +139581,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-06",
     "vote_end_date": "2012-07-19",
-    "last_modified_time": "2012-11-22T16:34:09.089",
+    "last_modified_time": "2016-02-22T22:08:19.814",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -139562,7 +139606,7 @@
     "semester": 18,
     "name_de": "Design Thinking Advanced Track",
     "name_en": "Design Thinking Advanced Track",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139570,7 +139614,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:08.987",
+    "last_modified_time": "2016-02-22T22:08:19.735",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139600,7 +139644,7 @@
     "semester": 19,
     "name_de": "HCI Project Seminar on Interactive Fabrication and Muscle Interfaces",
     "name_en": "HCI Project Seminar on Interactive Fabrication and Muscle Interfaces",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139608,7 +139652,7 @@
     "_voter_count": null,
     "vote_start_date": "2012-07-01",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2012-11-22T16:34:08.915",
+    "last_modified_time": "2016-02-22T22:08:19.783",
     "last_modified_user": 482,
     "degrees": [
       2
@@ -139636,7 +139680,7 @@
     "semester": 17,
     "name_de": "IT-Entrepreneurship I",
     "name_en": "IT-Entrepreneurship I",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139644,7 +139688,7 @@
     "_voter_count": 2,
     "vote_start_date": "2012-08-17",
     "vote_end_date": "2012-08-24",
-    "last_modified_time": "2015-01-25T11:58:07.381",
+    "last_modified_time": "2016-02-22T22:08:19.808",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139682,7 +139726,7 @@
     "semester": 18,
     "name_de": "Security Testing and Surveillance for Large-Scale Software",
     "name_en": "Security Testing and Surveillance for Large-Scale Software",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139690,7 +139734,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.483",
+    "last_modified_time": "2016-02-22T22:08:19.876",
     "last_modified_user": 643,
     "degrees": [
       1
@@ -139804,7 +139848,7 @@
     "semester": 19,
     "name_de": "Data Mining and Probabilistic Reasoning",
     "name_en": "Data Mining and Probabilistic Reasoning",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139812,7 +139856,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.649",
+    "last_modified_time": "2016-02-22T22:08:19.726",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -139834,7 +139878,7 @@
     "semester": 19,
     "name_de": "Computergrafik II",
     "name_en": "Computer Graphics II",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139842,7 +139886,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.660",
+    "last_modified_time": "2016-02-22T22:08:19.721",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -139882,7 +139926,7 @@
     "semester": 18,
     "name_de": "Algorithmen und Techniken der Geovisualisierung",
     "name_en": "Algorithms and Techniques for Geovisualization",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139890,7 +139934,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.561",
+    "last_modified_time": "2016-02-22T22:08:19.698",
     "last_modified_user": 963,
     "degrees": [
       2
@@ -139916,7 +139960,7 @@
     "semester": 19,
     "name_de": "Trends und Konzepte in der Software Industrie II - Next Generation Clinical Information Systems",
     "name_en": "Trends and Concepts in Software Industry II - Next Generation Clinical Information Systems",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -139924,7 +139968,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.830",
+    "last_modified_time": "2016-02-22T22:08:19.911",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140028,7 +140072,7 @@
     "semester": 19,
     "name_de": "Professionalisierte Lerntechniken",
     "name_en": "Professionalized Learning Techniques",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140036,7 +140080,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.874",
+    "last_modified_time": "2016-02-22T22:08:19.850",
     "last_modified_user": 1124,
     "degrees": [
       1
@@ -140064,7 +140108,7 @@
     "semester": 19,
     "name_de": "Drug Response Analysis on In-Memory Technology",
     "name_en": "Drug Response Analysis on In-Memory Technology",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140072,7 +140116,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-04-01",
     "vote_end_date": "2013-04-14",
-    "last_modified_time": "2013-05-30T19:22:00.937",
+    "last_modified_time": "2016-02-22T22:08:19.744",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140128,7 +140172,7 @@
     "semester": 18,
     "name_de": "Automated Analysis of Formal Models",
     "name_en": "Automated Analysis of Formal Models",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140136,7 +140180,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2013-05-30T19:22:00.413",
+    "last_modified_time": "2016-02-22T22:08:19.701",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140183,7 +140227,7 @@
     "semester": 19,
     "name_de": "Designing Interactive Systems",
     "name_en": "Designing Interactive Systems",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140191,7 +140235,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.449",
+    "last_modified_time": "2016-02-22T22:08:19.734",
     "last_modified_user": 591,
     "degrees": [
       1
@@ -140229,7 +140273,7 @@
     "semester": 17,
     "name_de": "Cloud Computing Technologien",
     "name_en": "Cloud Computing Technologies",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140237,7 +140281,7 @@
     "_voter_count": 27,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-14",
-    "last_modified_time": "2015-01-25T11:58:07.342",
+    "last_modified_time": "2016-02-22T22:08:19.717",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140363,7 +140407,7 @@
     "semester": 17,
     "name_de": "Designing Interactive Systems",
     "name_en": "Designing Interactive Systems",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140371,7 +140415,7 @@
     "_voter_count": 37,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.272",
+    "last_modified_time": "2016-02-22T22:08:19.732",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140511,7 +140555,7 @@
     "semester": 19,
     "name_de": "Softwarearchitektur",
     "name_en": "Software Architecture",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140519,7 +140563,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.750",
+    "last_modified_time": "2016-02-22T22:08:19.889",
     "last_modified_user": 591,
     "degrees": [
       1
@@ -140564,7 +140608,7 @@
     "semester": 19,
     "name_de": "Game Programming",
     "name_en": "Game Programming",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140572,7 +140616,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-01-24T17:14:22.900",
+    "last_modified_time": "2016-02-22T22:08:19.767",
     "last_modified_user": null,
     "degrees": [
       1
@@ -140597,7 +140641,7 @@
     "semester": 21,
     "name_de": "3D-Computergrafik I",
     "name_en": "3D-Computer Graphic I",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140605,7 +140649,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-08-01",
     "vote_end_date": "2014-08-31",
-    "last_modified_time": "2014-06-03T09:06:39.220",
+    "last_modified_time": "2016-02-22T22:08:19.692",
     "last_modified_user": null,
     "degrees": [
       1
@@ -140631,7 +140675,7 @@
     "semester": 18,
     "name_de": "In-Memory Data Management for Enhanced ERP",
     "name_en": "In-Memory Data Management for Enhanced ERP",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140639,7 +140683,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2014-03-20T23:39:24.540",
+    "last_modified_time": "2016-02-22T22:08:19.797",
     "last_modified_user": 2,
     "degrees": [
       1
@@ -140668,7 +140712,7 @@
     "semester": 18,
     "name_de": "Mathematik II",
     "name_en": "Mathematics II",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140676,7 +140720,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.504",
+    "last_modified_time": "2016-02-22T22:08:19.828",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140712,7 +140756,7 @@
     "semester": 21,
     "name_de": "Projektentwicklung und -management",
     "name_en": "Project Development and Management",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140720,7 +140764,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-05-01",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2014-06-02T23:46:42.294",
+    "last_modified_time": "2016-02-22T22:08:19.852",
     "last_modified_user": null,
     "degrees": [
       2
@@ -140745,7 +140789,7 @@
     "semester": 17,
     "name_de": "Konflikt- und Kommunikationsmanagement",
     "name_en": "Conflict and Communication managment",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140753,7 +140797,7 @@
     "_voter_count": 6,
     "vote_start_date": "2013-02-04",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2015-01-25T11:58:07.392",
+    "last_modified_time": "2016-02-22T22:08:19.819",
     "last_modified_user": 484,
     "degrees": [
       2
@@ -140789,7 +140833,7 @@
     "semester": 19,
     "name_de": "Prozessorientierte Informationssysteme I",
     "name_en": "Process oriented Information Systems I",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140797,7 +140841,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-01-24T17:14:23.037",
+    "last_modified_time": "2016-02-22T22:08:19.859",
     "last_modified_user": null,
     "degrees": [
       1
@@ -140819,7 +140863,7 @@
     "semester": 19,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140827,7 +140871,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-01-24T17:14:23.044",
+    "last_modified_time": "2016-02-22T22:08:19.810",
     "last_modified_user": null,
     "degrees": [
       2
@@ -140851,7 +140895,7 @@
     "semester": 17,
     "name_de": "Design Thinking Basic Track",
     "name_en": "Design Thinking Basic Track",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140859,7 +140903,7 @@
     "_voter_count": 9,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.353",
+    "last_modified_time": "2016-02-22T22:08:19.743",
     "last_modified_user": 1075,
     "degrees": [
       2
@@ -140914,7 +140958,7 @@
     "semester": 19,
     "name_de": "Interaktionen auf 10.000 m\u00b2-Fu\u00dfb\u00f6den",
     "name_en": "Interaction on 10.000m\u00b2 interactive floors",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140922,7 +140966,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-28",
-    "last_modified_time": "2013-05-30T19:22:00.818",
+    "last_modified_time": "2016-02-22T22:08:19.800",
     "last_modified_user": 1124,
     "degrees": [
       1
@@ -140955,7 +140999,7 @@
     "semester": 19,
     "name_de": "Software-Analyse und Visualisierung",
     "name_en": "Software Analysis and Visualization",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -140963,7 +141007,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.972",
+    "last_modified_time": "2016-02-22T22:08:19.887",
     "last_modified_user": 650,
     "degrees": [
       1
@@ -141017,7 +141061,7 @@
     "semester": 17,
     "name_de": "Software-Design",
     "name_en": "Software Design",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141025,7 +141069,7 @@
     "_voter_count": 20,
     "vote_start_date": "2013-01-26",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.432",
+    "last_modified_time": "2016-02-22T22:08:19.892",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -141127,7 +141171,7 @@
     "semester": 17,
     "name_de": "Trends und Konzepte in der Software-Industrie II - Hauptspeicherdatenbanken f\u00fcr Gesch\u00e4ftsanwendungen.",
     "name_en": "Trends and Concepts in the Software Industry II - Main Memory Databases for Enterprise Applications.",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141135,7 +141179,7 @@
     "_voter_count": 4,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-03-20",
-    "last_modified_time": "2015-01-25T11:58:07.438",
+    "last_modified_time": "2016-02-22T22:08:19.909",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -141175,7 +141219,7 @@
     "semester": 18,
     "name_de": "BPMN Models to SQL Queries",
     "name_en": "BPMN Models to SQL Queries",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141183,7 +141227,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.544",
+    "last_modified_time": "2016-02-22T22:08:19.707",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -141257,7 +141301,7 @@
     "semester": 21,
     "name_de": "Datenbanksysteme I",
     "name_en": "Database Systems I",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141265,7 +141309,7 @@
     "_voter_count": null,
     "vote_start_date": "2099-12-01",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2014-06-02T18:28:48.503",
+    "last_modified_time": "2016-02-22T22:08:19.731",
     "last_modified_user": null,
     "degrees": [
       2
@@ -141288,7 +141332,7 @@
     "semester": 18,
     "name_de": "Geovisualisierung",
     "name_en": "Geo-Visualization",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141296,7 +141340,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-02-02",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2013-05-30T19:22:00.852",
+    "last_modified_time": "2016-02-22T22:08:19.773",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -141353,7 +141397,7 @@
     "semester": 17,
     "name_de": "Einf\u00fchrung in das Design Thinking (BA)",
     "name_en": "Introduction of Design Thinking (BA)",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141361,7 +141405,7 @@
     "_voter_count": 9,
     "vote_start_date": "2013-02-25",
     "vote_end_date": "2013-03-03",
-    "last_modified_time": "2015-01-25T11:58:07.278",
+    "last_modified_time": "2016-02-22T22:08:19.749",
     "last_modified_user": 484,
     "degrees": [
       1
@@ -141429,7 +141473,7 @@
     "semester": 19,
     "name_de": "Sicherheit in komplexen IT-Landschaften",
     "name_en": "Security in complex-IT-landscapes",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141437,7 +141481,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-06-28",
     "vote_end_date": "2013-07-04",
-    "last_modified_time": "2013-09-23T19:15:40.177",
+    "last_modified_time": "2016-02-22T22:08:19.883",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -141485,7 +141529,7 @@
     "semester": 19,
     "name_de": "Internet-Security - Weaknesses and Targets",
     "name_en": "Internet-Security - Weaknesses and Targets",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141493,7 +141537,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-09-22",
-    "last_modified_time": "2014-01-28T11:18:12.839",
+    "last_modified_time": "2016-02-22T22:08:19.804",
     "last_modified_user": 1105,
     "degrees": [
       1
@@ -141523,7 +141567,7 @@
     "semester": 21,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141531,7 +141575,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-08-01",
     "vote_end_date": "2014-08-31",
-    "last_modified_time": "2014-06-03T08:43:04.712",
+    "last_modified_time": "2016-02-22T22:08:19.812",
     "last_modified_user": null,
     "degrees": [
       2
@@ -141561,7 +141605,7 @@
     "semester": 18,
     "name_de": "HCI Project: Underwater Interaction",
     "name_en": "HCI Project: Underwater Interaction",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141569,7 +141613,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-21",
-    "last_modified_time": "2013-09-23T19:15:40.140",
+    "last_modified_time": "2016-02-22T22:08:19.787",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -141708,7 +141752,7 @@
     "semester": 19,
     "name_de": "Software Engineering for Embedded Systems",
     "name_en": "Software Engineering for Embedded Systems",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141716,7 +141760,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-09-30",
-    "last_modified_time": "2013-11-08T05:33:56.554",
+    "last_modified_time": "2016-02-22T22:08:19.895",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -141742,7 +141786,7 @@
     "semester": 18,
     "name_de": "Data Profiling and Data Cleansing",
     "name_en": "Data Profiling and Data Cleansing",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141750,7 +141794,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-21",
-    "last_modified_time": "2014-01-08T06:32:43.745",
+    "last_modified_time": "2016-02-22T22:08:19.728",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -141793,7 +141837,7 @@
     "semester": 19,
     "name_de": "Semantische Erschlie\u00dfung des tele-TASK-Archivs",
     "name_en": "Semantische Erschlie\u00dfung des tele-TASK-Archivs",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141801,7 +141845,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-09-23T19:15:40.261",
+    "last_modified_time": "2016-02-22T22:08:19.880",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -141838,7 +141882,7 @@
     "semester": 17,
     "name_de": "Konzepte und Techniken der 3D-Visualisierung",
     "name_en": "Concepts and Techniques of 3D Visualization",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141846,7 +141890,7 @@
     "_voter_count": 2,
     "vote_start_date": "2013-09-01",
     "vote_end_date": "2013-09-15",
-    "last_modified_time": "2015-01-25T11:58:07.397",
+    "last_modified_time": "2016-02-22T22:08:19.822",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -141870,7 +141914,7 @@
     "semester": 17,
     "name_de": "Grundlagen digitaler Systeme",
     "name_en": "Foundations of Digital Systems",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141878,7 +141922,7 @@
     "_voter_count": 5,
     "vote_start_date": "2013-08-12",
     "vote_end_date": "2013-08-23",
-    "last_modified_time": "2015-01-25T11:58:07.284",
+    "last_modified_time": "2016-02-22T22:08:19.782",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -141934,7 +141978,7 @@
     "semester": 19,
     "name_de": "Studienbegleitendes Seminar",
     "name_en": "Accompanying Seminar",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -141942,7 +141986,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-06-24",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-09-13T05:33:54.750",
+    "last_modified_time": "2016-02-22T22:08:19.903",
     "last_modified_user": 408,
     "degrees": [
       1
@@ -141970,7 +142014,7 @@
     "semester": 21,
     "name_de": "Modellierung I",
     "name_en": "Modeling I",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": true,
     "is_required_for_reward": true,
@@ -141978,7 +142022,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-05-01",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2015-11-08T12:32:08.566",
+    "last_modified_time": "2016-02-22T22:08:19.835",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142000,7 +142044,7 @@
     "semester": 18,
     "name_de": "Implementierung einer Mehrschichtenarchitektur f\u00fcr das Tumor-Dokumentationssystem GTDS",
     "name_en": "An implementation of a multi tier architecture for cancer documentation system GTDS",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142008,7 +142052,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-18",
-    "last_modified_time": "2013-09-23T19:15:40.238",
+    "last_modified_time": "2016-02-22T22:08:19.791",
     "last_modified_user": 251,
     "degrees": [
       1
@@ -142160,7 +142204,7 @@
     "semester": 19,
     "name_de": "Softwaretechnik II",
     "name_en": "Software Technology II",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142168,7 +142212,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-09-23T19:13:52.996",
+    "last_modified_time": "2016-02-22T22:08:19.900",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142208,7 +142252,7 @@
     "semester": 18,
     "name_de": "From Creative Ideas to Well-Founded Engineering",
     "name_en": "From Creative Ideas to Well-Founded Engineering",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142216,7 +142260,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-10-07T18:18:43.255",
+    "last_modified_time": "2016-02-22T22:08:19.763",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142346,7 +142390,7 @@
     "semester": 19,
     "name_de": "Business Process Compliance",
     "name_en": "Business Process Compliance",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142354,7 +142398,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-10-07T18:18:43.234",
+    "last_modified_time": "2016-02-22T22:08:19.714",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142411,7 +142455,7 @@
     "semester": 17,
     "name_de": "Knowledge-intensive Business Processes",
     "name_en": "Knowledge-intensive Business Processes",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142419,7 +142463,7 @@
     "_voter_count": 4,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2015-01-25T11:58:07.386",
+    "last_modified_time": "2016-02-22T22:08:19.817",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142451,7 +142495,7 @@
     "semester": 21,
     "name_de": "Betriebssysteme I",
     "name_en": "Operating Systems I",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142459,7 +142503,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-05-01",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2014-06-03T08:45:35.342",
+    "last_modified_time": "2016-02-22T22:08:19.705",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142513,7 +142557,7 @@
     "semester": 17,
     "name_de": "Modulsysteme",
     "name_en": "Modulsystems",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142521,7 +142565,7 @@
     "_voter_count": 5,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2015-01-25T11:58:07.402",
+    "last_modified_time": "2016-02-22T22:08:19.839",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142555,7 +142599,7 @@
     "semester": 18,
     "name_de": "Fachspezifisches Englisch (Level 2)",
     "name_en": "Subject-specific English (Level 2)",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142563,7 +142607,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-09-23T19:15:40.215",
+    "last_modified_time": "2016-02-22T22:08:19.760",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142593,7 +142637,7 @@
     "semester": 17,
     "name_de": "Projektentwicklung und -management (ohne Kolloquium)",
     "name_en": "Project Development and Management (without Colloquium)",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142601,7 +142645,7 @@
     "_voter_count": 1,
     "vote_start_date": "2013-06-24",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2015-01-25T11:58:07.308",
+    "last_modified_time": "2016-02-22T22:08:19.856",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142625,7 +142669,7 @@
     "semester": 21,
     "name_de": "Information Retrieval",
     "name_en": "Information Retrieval",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142633,7 +142677,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2015-11-08T12:12:00.725",
+    "last_modified_time": "2016-02-22T22:08:19.794",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142659,7 +142703,7 @@
     "semester": 18,
     "name_de": "Business Etikette - HPI Charm School",
     "name_en": "Business Etiquette - HPI Charm School",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142667,7 +142711,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-12",
     "vote_end_date": "2013-07-29",
-    "last_modified_time": "2013-09-23T19:13:52.973",
+    "last_modified_time": "2016-02-22T22:08:19.711",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142697,7 +142741,7 @@
     "semester": 19,
     "name_de": "Privacy and Security in IPv6",
     "name_en": "Privacy and Security in IPv6",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142705,7 +142749,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-06-24",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-09-13T05:32:03.990",
+    "last_modified_time": "2016-02-22T22:08:19.849",
     "last_modified_user": 204,
     "degrees": [
       2
@@ -142736,7 +142780,7 @@
     "semester": 19,
     "name_de": "\u00dcberzeugend Pr\u00e4sentieren - der erste Eindruck z\u00e4hlt",
     "name_en": "Presenting Succesfully - First Impression Counts",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142744,7 +142788,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-06-24",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-09-13T05:32:47.294",
+    "last_modified_time": "2016-02-22T22:08:19.912",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -142771,7 +142815,7 @@
     "semester": 21,
     "name_de": "Fachspezifisches Englisch (Level 2)",
     "name_en": "Subject-specific English (Level 2)",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142779,7 +142823,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-05-01",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2014-06-02T23:46:42.275",
+    "last_modified_time": "2016-02-22T22:08:19.759",
     "last_modified_user": null,
     "degrees": [
       1
@@ -142811,7 +142855,7 @@
     "semester": 18,
     "name_de": "HCI Project Seminar on Motion Capture, On-Body Interaction & Fabrication",
     "name_en": "HCI Project Seminar on Motion Capture, On-Body Interaction & Fabrication",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142819,7 +142863,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2014-03-20T23:36:17.100",
+    "last_modified_time": "2016-02-22T22:08:19.786",
     "last_modified_user": 812,
     "degrees": [
       1
@@ -142838,7 +142882,7 @@
     "semester": 19,
     "name_de": "Fachspezifisches Englisch (Level 1)",
     "name_en": "Subject-specific English (Level 1)",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142846,7 +142890,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-10-22T20:32:10.265",
+    "last_modified_time": "2016-02-22T22:08:19.757",
     "last_modified_user": 640,
     "degrees": [
       1
@@ -142874,7 +142918,7 @@
     "semester": 18,
     "name_de": "Large Scale Duplicate Detection",
     "name_en": "Large Scale Duplicate Detection",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142882,7 +142926,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2014-03-20T23:36:17.078",
+    "last_modified_time": "2016-02-22T22:08:19.823",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -142924,7 +142968,7 @@
     "semester": 17,
     "name_de": "Pers\u00f6nlichkeits- und Selbstmanagement",
     "name_en": "Personality and Selfmanagement",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142932,7 +142976,7 @@
     "_voter_count": 0,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2015-01-25T11:58:07.407",
+    "last_modified_time": "2016-02-22T22:08:19.842",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142952,7 +142996,7 @@
     "semester": 21,
     "name_de": "Gamification f\u00fcr openHPI",
     "name_en": "Gamification f\u00fcr openHPI",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142960,7 +143004,7 @@
     "_voter_count": null,
     "vote_start_date": "2099-12-01",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2014-06-03T09:05:53.036",
+    "last_modified_time": "2016-02-22T22:08:19.768",
     "last_modified_user": null,
     "degrees": [
       2
@@ -142980,7 +143024,7 @@
     "semester": 18,
     "name_de": "Recht f\u00fcr Ingenieure I",
     "name_en": "Law for Engineers I",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -142988,7 +143032,7 @@
     "_voter_count": null,
     "vote_start_date": "2013-07-01",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2013-10-28T23:19:36.599",
+    "last_modified_time": "2016-02-22T22:08:19.869",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -143020,7 +143064,7 @@
     "semester": 18,
     "name_de": "Real-time Analysis of Genome Data",
     "name_en": "Real-time Analysis of Genome Data",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143028,7 +143072,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-03-31",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2014-05-02T13:45:05.001",
+    "last_modified_time": "2016-02-22T22:08:19.867",
     "last_modified_user": 173,
     "degrees": [
       1
@@ -143052,7 +143096,7 @@
     "semester": 19,
     "name_de": "Piggyback Profiling: Metadata for Query Results",
     "name_en": "Piggyback Profiling: Metadata for Query Results",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143060,7 +143104,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-05-02T13:45:04.988",
+    "last_modified_time": "2016-02-22T22:08:19.845",
     "last_modified_user": 591,
     "degrees": [
       2
@@ -143084,7 +143128,7 @@
     "semester": 19,
     "name_de": "Theoretische Informatik I",
     "name_en": "Theoretical Computer Science I",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143092,7 +143136,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-03-31",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2014-04-07T00:17:02.985",
+    "last_modified_time": "2016-02-22T22:08:19.906",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -143117,7 +143161,7 @@
     "semester": 21,
     "name_de": "Beautiful Data",
     "name_en": "Beautiful Data",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143125,7 +143169,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-06-02T18:13:32.229",
+    "last_modified_time": "2016-02-22T22:08:19.704",
     "last_modified_user": null,
     "degrees": [
       1
@@ -143148,7 +143192,7 @@
     "semester": 18,
     "name_de": "\u00dcberzeugend Pr\u00e4sentieren - der erste Eindruck z\u00e4hlt",
     "name_en": "Presenting Succesfully - First Impression Counts",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143156,7 +143200,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-04-11T15:43:33.212",
+    "last_modified_time": "2016-02-22T22:08:19.914",
     "last_modified_user": 204,
     "degrees": [
       1
@@ -143192,7 +143236,7 @@
     "semester": 17,
     "name_de": "Recognizing Cross-cutting Concerns by Revealing Task Contexts",
     "name_en": "Recognizing Cross-cutting Concerns by Revealing Task Contexts",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143200,7 +143244,7 @@
     "_voter_count": 3,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.414",
+    "last_modified_time": "2016-02-22T22:08:19.871",
     "last_modified_user": 204,
     "degrees": [
       2
@@ -143228,7 +143272,7 @@
     "semester": 17,
     "name_de": "\u00dcberzeugend Pr\u00e4sentieren II",
     "name_en": "Effective Presentations II",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143236,7 +143280,7 @@
     "_voter_count": 0,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.443",
+    "last_modified_time": "2016-02-22T22:08:19.917",
     "last_modified_user": null,
     "degrees": [
       2
@@ -143258,7 +143302,7 @@
     "semester": 19,
     "name_de": "Geovisualisierung",
     "name_en": "Geo-Visualization",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143266,7 +143310,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-03-30T15:43:26.661",
+    "last_modified_time": "2016-02-22T22:08:19.771",
     "last_modified_user": 18,
     "degrees": [
       2
@@ -143294,7 +143338,7 @@
     "semester": 17,
     "name_de": "Cybersecurity for the Masses",
     "name_en": "Cybersecurity for the Masses",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143302,7 +143346,7 @@
     "_voter_count": 4,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-16",
-    "last_modified_time": "2015-01-25T11:58:07.348",
+    "last_modified_time": "2016-02-22T22:08:19.724",
     "last_modified_user": 169,
     "degrees": [
       2
@@ -143332,7 +143376,7 @@
     "semester": 18,
     "name_de": "Visualisierungswerkzeug f\u00fcr Systemevolution",
     "name_en": "A Visualization Tool for Software System Evolution",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143340,7 +143384,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-03-31",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2014-05-02T13:45:05.020",
+    "last_modified_time": "2016-02-22T22:08:19.923",
     "last_modified_user": 169,
     "degrees": [
       1
@@ -143363,7 +143407,7 @@
     "semester": 17,
     "name_de": "Wirtschaftliche Grundlagen",
     "name_en": "Economic Basis",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143371,7 +143415,7 @@
     "_voter_count": 17,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.329",
+    "last_modified_time": "2016-02-22T22:08:19.926",
     "last_modified_user": 234,
     "degrees": [
       1
@@ -143445,7 +143489,7 @@
     "semester": 18,
     "name_de": "Interaktive 3D-Modelle auf mobilen Ger\u00e4ten",
     "name_en": "Interactive 3D Models on mobile Devices",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143453,7 +143497,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-01-10T02:34:32.121",
+    "last_modified_time": "2016-02-22T22:08:19.801",
     "last_modified_user": null,
     "degrees": [
       1
@@ -143475,7 +143519,7 @@
     "semester": 19,
     "name_de": "Konzepte paralleler Programmierung",
     "name_en": "Parallel Programming Concepts",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143483,7 +143527,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-04-23T10:35:13.420",
+    "last_modified_time": "2016-02-22T22:08:19.820",
     "last_modified_user": 234,
     "degrees": [
       2
@@ -143507,7 +143551,7 @@
     "semester": 17,
     "name_de": "Investigating Practical MDE-Approches",
     "name_en": "Investigating Practical MDE-Approches",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143515,7 +143559,7 @@
     "_voter_count": 3,
     "vote_start_date": "2014-03-31",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2015-01-25T11:58:07.376",
+    "last_modified_time": "2016-02-22T22:08:19.805",
     "last_modified_user": 234,
     "degrees": [
       2
@@ -143543,7 +143587,7 @@
     "semester": 17,
     "name_de": "Requirements Engineering: Elicitation and Negotiation",
     "name_en": "Requirements Engineering: Elicitation and Negotiation",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143551,7 +143595,7 @@
     "_voter_count": 1,
     "vote_start_date": "2014-02-11",
     "vote_end_date": "2014-02-16",
-    "last_modified_time": "2015-01-25T11:58:07.419",
+    "last_modified_time": "2016-02-22T22:08:19.874",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -143581,7 +143625,7 @@
     "semester": 19,
     "name_de": "Model-Based Adaption for Embedded Systems",
     "name_en": "Model-Based Adaption for Embedded Systems",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143589,7 +143633,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-01-28",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-03-30T15:43:26.558",
+    "last_modified_time": "2016-02-22T22:08:19.830",
     "last_modified_user": 419,
     "degrees": [
       2
@@ -143639,7 +143683,7 @@
     "semester": 17,
     "name_de": "Indoor Visualization & Software Visualization",
     "name_en": "Indoor Visualization & Software Visualization",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143647,7 +143691,7 @@
     "_voter_count": 8,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.370",
+    "last_modified_time": "2016-02-22T22:08:19.792",
     "last_modified_user": 2319,
     "degrees": [
       2
@@ -143698,7 +143742,7 @@
     "semester": 21,
     "name_de": "HCI Project Seminar on Kinect, Multitouch and Arduino",
     "name_en": "HCI Project Seminar on Kinect, Multitouch and Arduino",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143706,7 +143750,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-06-02T18:04:47.844",
+    "last_modified_time": "2016-02-22T22:08:19.785",
     "last_modified_user": null,
     "degrees": [
       1
@@ -143730,7 +143774,7 @@
     "semester": 21,
     "name_de": "\u00dcberzeugend Pr\u00e4sentieren - noch besser auftreten",
     "name_en": "Presenting Succesfully - How to Make an Even Better Impression",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143738,7 +143782,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-06-01",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2015-11-08T12:12:50.232",
+    "last_modified_time": "2016-02-22T22:08:19.918",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -143769,7 +143813,7 @@
     "semester": 18,
     "name_de": "Einf\u00fchrung in das Design Thinking",
     "name_en": "Introduction Design Thinking",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143777,7 +143821,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-05",
-    "last_modified_time": "2014-04-05T15:11:35.224",
+    "last_modified_time": "2016-02-22T22:08:19.747",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -143931,7 +143975,7 @@
     "semester": 21,
     "name_de": "Semantic Web Technologien",
     "name_en": "Semantic Web Technologien",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143939,7 +143983,7 @@
     "_voter_count": null,
     "vote_start_date": "2015-01-01",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2015-11-08T12:43:31.400",
+    "last_modified_time": "2016-02-22T22:08:19.878",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -143965,7 +144009,7 @@
     "semester": 21,
     "name_de": "Softwaretechnik I",
     "name_en": "Software Technology I",
-    "type": "Bachelorprojekt",
+    "type": 4,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -143973,7 +144017,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-06-02T18:09:05.064",
+    "last_modified_time": "2016-02-22T22:08:19.898",
     "last_modified_user": null,
     "degrees": [
       1
@@ -143996,7 +144040,7 @@
     "semester": 18,
     "name_de": "Informationssicherheit",
     "name_en": "Information Security",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144004,7 +144048,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-03-07",
     "vote_end_date": "2014-03-16",
-    "last_modified_time": "2014-03-30T15:43:26.691",
+    "last_modified_time": "2016-02-22T22:08:19.795",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -144052,7 +144096,7 @@
     "semester": 18,
     "name_de": "Fachspezifisches Englisch (Level 3)",
     "name_en": "Subject-Specific English (Level 3)",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144060,7 +144104,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-07",
-    "last_modified_time": "2014-04-11T15:43:33.241",
+    "last_modified_time": "2016-02-22T22:08:19.762",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -144188,7 +144232,7 @@
     "semester": 21,
     "name_de": "Network Security in Practice",
     "name_en": "Network Security in Practice",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144196,7 +144240,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-08-01",
     "vote_end_date": "2014-08-31",
-    "last_modified_time": "2014-06-03T09:06:23.939",
+    "last_modified_time": "2016-02-22T22:08:19.840",
     "last_modified_user": null,
     "degrees": [
       2
@@ -144222,7 +144266,7 @@
     "semester": 21,
     "name_de": "Modellierung II",
     "name_en": "Modeling II",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144230,7 +144274,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-06-01",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2014-06-03T08:43:16.349",
+    "last_modified_time": "2016-02-22T22:08:19.836",
     "last_modified_user": null,
     "degrees": [
       1
@@ -144254,7 +144298,7 @@
     "semester": 19,
     "name_de": "Recht f\u00fcr Ingenieure II",
     "name_en": "Law for Engineers II",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144262,7 +144306,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-04",
     "vote_end_date": "2014-02-16",
-    "last_modified_time": "2014-04-05T15:11:35.284",
+    "last_modified_time": "2016-02-22T22:08:19.870",
     "last_modified_user": 310,
     "degrees": [
       1
@@ -144346,7 +144390,7 @@
     "semester": 18,
     "name_de": "Semantic Multimedia",
     "name_en": "Semantic Multimedia",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144354,7 +144398,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-05",
     "vote_end_date": "2014-02-12",
-    "last_modified_time": "2014-05-02T13:45:05.029",
+    "last_modified_time": "2016-02-22T22:08:19.877",
     "last_modified_user": 650,
     "degrees": [
       2
@@ -144399,7 +144443,7 @@
     "semester": 18,
     "name_de": "Entwurf und Implementierung digitaler Schaltungen mit VHDL",
     "name_en": "Digital Circuit Design using VHDL",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144407,7 +144451,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-03-30T15:43:26.572",
+    "last_modified_time": "2016-02-22T22:08:19.753",
     "last_modified_user": 2324,
     "degrees": [
       1
@@ -144534,7 +144578,7 @@
     "semester": 17,
     "name_de": "Prozessorientierte Informationssysteme I",
     "name_en": "Process oriented Information Systems I",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144542,7 +144586,7 @@
     "_voter_count": 5,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2015-01-25T11:58:07.317",
+    "last_modified_time": "2016-02-22T22:08:19.857",
     "last_modified_user": 812,
     "degrees": [
       1
@@ -144578,7 +144622,7 @@
     "semester": 19,
     "name_de": "Bring your own project: IT-Projekte erfolgreich planen und managen",
     "name_en": "Bring Your Own Project: How to plan and manage IT-projects successfully",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144586,7 +144630,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-03-30T15:43:26.624",
+    "last_modified_time": "2016-02-22T22:08:19.709",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -144649,7 +144693,7 @@
     "semester": 19,
     "name_de": "Design Thinking Advanced Track",
     "name_en": "Design Thinking Advanced Track",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144657,7 +144701,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2014-04-23T10:35:13.268",
+    "last_modified_time": "2016-02-22T22:08:19.736",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -144796,7 +144840,7 @@
     "semester": 18,
     "name_de": "Cloud und Virtualisierung",
     "name_en": "Cloud and Virtualization",
-    "type": "Projektseminar",
+    "type": 1,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144804,7 +144848,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-04-06",
     "vote_end_date": "2014-04-13",
-    "last_modified_time": "2014-05-08T23:52:57.233",
+    "last_modified_time": "2016-02-22T22:08:19.719",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -144880,7 +144924,7 @@
     "semester": 18,
     "name_de": "VIP 2.0: Celebrity Exploration",
     "name_en": "VIP 2.0: Celebrity Exploration",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -144888,7 +144932,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-02-01",
     "vote_end_date": "2014-02-14",
-    "last_modified_time": "2014-03-30T15:43:26.580",
+    "last_modified_time": "2016-02-22T22:08:19.920",
     "last_modified_user": 116,
     "degrees": [
       1
@@ -145029,7 +145073,7 @@
     "semester": 21,
     "name_de": "Game Programming",
     "name_en": "Game Programming",
-    "type": "Vorlesung",
+    "type": 2,
     "is_graded": true,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
@@ -145037,7 +145081,7 @@
     "_voter_count": null,
     "vote_start_date": "2014-08-01",
     "vote_end_date": "2014-08-31",
-    "last_modified_time": "2014-06-03T09:05:37.216",
+    "last_modified_time": "2016-02-22T22:08:19.766",
     "last_modified_user": null,
     "degrees": [
       1
@@ -145067,15 +145111,15 @@
     "semester": 21,
     "name_de": "Wer spricht wor\u00fcber?",
     "name_en": "Who talks about what?",
-    "type": "Seminar",
+    "type": 3,
     "is_graded": false,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 31,
+    "_voter_count": 31,
     "vote_start_date": "2015-11-01",
     "vote_end_date": "2015-11-01",
-    "last_modified_time": "2015-11-08T12:21:18.424",
+    "last_modified_time": "2016-02-22T22:08:19.924",
     "last_modified_user": 815,
     "degrees": [
       3
@@ -145092,15 +145136,15 @@
     "semester": 21,
     "name_de": "Effizienz und Langeweile",
     "name_en": "Efficiency and Boredom",
-    "type": "Masterprojekt",
+    "type": 5,
     "is_graded": false,
     "gets_no_grade_documents": false,
     "is_required_for_reward": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 50,
+    "_voter_count": 50,
     "vote_start_date": "2015-10-01",
     "vote_end_date": "2015-10-01",
-    "last_modified_time": "2015-11-08T12:21:09.120",
+    "last_modified_time": "2016-02-22T22:08:19.746",
     "last_modified_user": 815,
     "degrees": [
       3
