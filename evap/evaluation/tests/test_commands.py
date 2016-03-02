@@ -12,6 +12,15 @@ from unittest.mock import patch
 from evap.evaluation.models import UserProfile, Course
 
 
+class TestRunCommand(TestCase):
+    def test_calls_runserver(self):
+        args = ["manage.py", "runserver", "0.0.0.0:8000"]
+        with patch('django.core.management.execute_from_command_line') as mock:
+            management.call_command('run', stdout=StringIO())
+
+        mock.assert_called_once_with(args)
+
+
 class TestReloadTestdataCommand(TestCase):
     @patch('builtins.input')
     @patch('evap.evaluation.management.commands.reload_testdata.call_command')
