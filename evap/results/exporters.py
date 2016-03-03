@@ -4,8 +4,6 @@ from evap.evaluation.tools import calculate_results, calculate_average_grades_an
 from django.utils.translation import ugettext as _
 
 from collections import OrderedDict
-from collections import defaultdict
-import datetime
 import xlwt
 
 
@@ -16,9 +14,9 @@ class ExcelExporter(object):
         self.styles = dict()
 
         self.CUSTOM_COLOR_START = 8
-        self.NUM_GRADE_COLORS = 21 # 1.0 to 5.0 in 0.2 steps
-        self.NUM_DEVIATION_COLORS = 13 # 0.0 to 2.4 in 0.2 steps
-        self.STEP = 0.2 # we only have a limited number of custom colors
+        self.NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
+        self.NUM_DEVIATION_COLORS = 13  # 0.0 to 2.4 in 0.2 steps
+        self.STEP = 0.2  # we only have a limited number of custom colors
 
     def normalize_number(self, number):
         """ floors 'number' to a multiply of self.STEP """

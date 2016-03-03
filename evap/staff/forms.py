@@ -10,7 +10,6 @@ from django.contrib.auth.models import Group
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 import logging
