@@ -1,4 +1,4 @@
-from evap.evaluation.models import Questionnaire
+from evap.evaluation.models import CourseType
 from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
 
 from django.utils.translation import ugettext as _
@@ -109,7 +109,8 @@ class ExcelExporter(object):
             courses_with_results.sort(key=lambda cr: cr[0].type)
             used_questionnaires = sorted(used_questionnaires)
 
-            writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_types)), "headline")
+            course_type_names = [ct.name for ct in CourseType.objects.filter(pk__in=course_types)]
+            writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_type_names)), "headline")
 
             for course, results in courses_with_results:
                 writec(self, course.name, "course", cols=2)
