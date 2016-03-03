@@ -178,8 +178,11 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
     def __str__(self):
         return self.name
 
+    def __lt__(self, other):
+        return self.name_de < other.name_de
+
     def can_staff_delete(self):
-        if self.pk == None:
+        if not self.pk:
             return True
         return not self.courses.all().exists()
 

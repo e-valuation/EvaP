@@ -10,7 +10,6 @@ from django.contrib.auth.models import Group
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 import logging
@@ -485,10 +484,10 @@ class TextAnswerForm(forms.ModelForm, BootstrapMixin):
 class ExportSheetForm(forms.Form, BootstrapMixin):
     def __init__(self, semester, *args, **kwargs):
         super(ExportSheetForm, self).__init__(*args, **kwargs)
-        course_types = course_types_in_semester(semester)
-        course_types = [(course_type, course_type) for course_type in course_types]
+        course_types = CourseType.objects.filter(courses__semester=semester).distinct()
+        course_type_tuples = [(ct.pk, ct.name) for ct in course_types]
         self.fields['selected_course_types'] = forms.MultipleChoiceField(
-            choices=course_types,
+            choices=course_type_tuples,
             required=True,
             widget=forms.CheckboxSelectMultiple(),
             label=_("Course types")
