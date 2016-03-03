@@ -1,23 +1,9 @@
-from model_mommy import mommy
 from webtest.app import AppError
 
-from evap.evaluation.models import Course, Contribution, UserProfile
-from evap.evaluation.tests.test_utils import ViewTest
-
+from evap.evaluation.models import Course
+from evap.evaluation.tests.test_utils import ViewTest, course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
-
-
-def course_with_responsible_and_editor():
-    contributor = mommy.make(UserProfile, username='responsible')
-    editor = mommy.make(UserProfile, username='editor')
-
-    course = mommy.make(Course, state='prepared', id=TESTING_COURSE_ID)
-
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True)
-    mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
-
-    return course
 
 
 class TestContributorView(ViewTest):
@@ -43,7 +29,7 @@ class TestContributorCourseView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        course_with_responsible_and_editor(course_id=2)
 
 
 class TestContributorCoursePreviewView(ViewTest):
@@ -52,7 +38,7 @@ class TestContributorCoursePreviewView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        course_with_responsible_and_editor(course_id=2)
 
 
 class TestContributorCourseEditView(ViewTest):
@@ -61,7 +47,7 @@ class TestContributorCourseEditView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        course_with_responsible_and_editor(course_id=2)
 
     def get_assert_403(self, url, user):
         try:

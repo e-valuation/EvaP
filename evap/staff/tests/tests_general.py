@@ -1,7 +1,6 @@
 from django.core.urlresolvers import reverse
 from django_webtest import WebTest
 from django.test import TestCase
-from webtest import AppError
 from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
@@ -12,26 +11,16 @@ from django.contrib.auth.models import Group
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree, CourseType
+from evap.evaluation.tests.test_utils import lastform
 from evap.evaluation.tools import calculate_average_grades_and_deviation
-from evap.staff.forms import CourseEmailForm, UserForm, ContributionFormSet, ContributionForm, \
-                            CourseForm, SingleResultForm
-from evap.contributor.forms import CourseForm as ContributorCourseForm
+from evap.staff.forms import ContributionFormSet, ContributionForm
 from evap.staff.tools import merge_users
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 
 from model_mommy import mommy
+from webtest import AppError
 
 import os.path
-
-
-def lastform(page):
-    return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
-
-
-def get_form_data_from_instance(FormClass, instance):
-    assert FormClass._meta.model == type(instance)
-    form = FormClass(instance=instance)
-    return {field.html_name: field.value() for field in form}
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
@@ -116,8 +105,8 @@ class UsecaseTests(WebTest):
         upload_form = lastform(page)
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
-        upload_form['excel_file'] = (os.path.join(os.path.dirname(__file__), "fixtures", "test_enrolment_data.xls"),)
-        page = upload_form.submit(name="operation", value="import").follow()
+        upload_form['excel_file'] = (os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrolment_data.xls"),)
+        upload_form.submit(name="operation", value="import").follow()
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
@@ -160,7 +149,7 @@ class UsecaseTests(WebTest):
         questionnaire_form['question_set-0-text_en'] = "Question 1"
         questionnaire_form['question_set-0-type'] = "T"
         questionnaire_form['index'] = 0
-        page = questionnaire_form.submit().follow()
+        questionnaire_form.submit().follow()
 
         # retrieve new questionnaire
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
@@ -208,10 +197,10 @@ class UsecaseTests(WebTest):
         semester = mommy.make(Semester, name_en="Semester 1")
         mommy.make(Course, semester=semester, type=CourseType.objects.get(name_de="Seminar"), contributions=[
             mommy.make(Contribution, contributor=mommy.make(UserProfile),
-                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
+                       responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         mommy.make(Course, semester=semester, type=CourseType.objects.get(name_de="Vorlesung"), contributions=[
             mommy.make(Contribution, contributor=mommy.make(UserProfile),
-                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
+                       responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)])
         questionnaire = mommy.make(Questionnaire)
         page = self.app.get(reverse("staff:index"), user="staff.user")
 
@@ -256,51 +245,6 @@ class PerformanceTests(WebTest):
 
         with self.assertNumQueries(FuzzyInt(0, num_users-1)):
             self.app.get("/staff/user/", user="staff.user")
-
-
-class UnitTests(TestCase):
-
-    def test_users_are_deletable(self):
-        user = mommy.make(UserProfile)
-        course = mommy.make(Course, participants=[user], state="new")
-        self.assertTrue(user.can_staff_delete)
-
-        user2 = mommy.make(UserProfile)
-        course2 = mommy.make(Course, participants=[user2], state="inEvaluation")
-        self.assertFalse(user2.can_staff_delete)
-
-        contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, contributor=contributor)
-        self.assertFalse(contributor.can_staff_delete)
-
-    def test_deleting_last_modified_user_does_not_delete_course(self):
-        user = mommy.make(UserProfile);
-        course = mommy.make(Course, last_modified_user=user);
-        user.delete()
-        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
-
-    def test_has_enough_questionnaires(self):
-        # manually circumvent Course's save() method to have a Course without a general contribution
-        # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
-        courses = Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))])
-        course = Course.objects.get()
-        self.assertEqual(course.contributions.count(), 0)
-        self.assertFalse(course.has_enough_questionnaires())
-
-        responsible_contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        course = Course.objects.get()
-        self.assertFalse(course.has_enough_questionnaires())
-
-        general_contribution = mommy.make(Contribution, course=course, contributor=None)
-        course = Course.objects.get() # refresh because of cached properties
-        self.assertFalse(course.has_enough_questionnaires())
-
-        q = mommy.make(Questionnaire)
-        general_contribution.questionnaires.add(q)
-        self.assertFalse(course.has_enough_questionnaires())
-
-        responsible_contribution.questionnaires.add(q)
-        self.assertTrue(course.has_enough_questionnaires())
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
@@ -494,35 +438,6 @@ class URLTests(WebTest):
     def test_contributor_settings(self):
         self.get_submit_assert_302("/contributor/settings", "responsible")
 
-    def test_course_email_form(self):
-        """
-            Tests the CourseEmailForm with one valid and one invalid input dataset.
-        """
-        course = Course.objects.get(pk="1")
-        data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
-        form = CourseEmailForm(instance=course, data=data)
-        self.assertTrue(form.is_valid())
-        self.assertTrue(form.missing_email_addresses() == 0)
-        form.send()
-
-        data = {"body": "wat", "subject": "some subject"}
-        form = CourseEmailForm(instance=course, data=data)
-        self.assertFalse(form.is_valid())
-
-    def test_user_form(self):
-        """
-            Tests the UserForm with one valid and one invalid input dataset.
-        """
-        user = UserProfile.objects.get(pk=1)
-        another_user = UserProfile.objects.get(pk=2)
-        data = {"username": "mklqoep50x2", "email": "a@b.ce"}
-        form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-
-        data = {"username": another_user.username, "email": "a@b.c"}
-        form = UserForm(instance=user, data=data)
-        self.assertFalse(form.is_valid())
-
     def test_contributor_form_set(self):
         """
             Tests the ContributionFormset with various input data sets.
@@ -627,7 +542,7 @@ class URLTests(WebTest):
         form["type"] = 1
         form["degrees"] = ["1"]
         form["vote_start_date"] = "02/1/2099"
-        form["vote_end_date"] = "02/1/2014" # wrong order to get the validation error
+        form["vote_end_date"] = "02/1/2014"  # wrong order to get the validation error
         form["general_questions"] = ["2"]
 
         form['contributions-TOTAL_FORMS'] = 1
@@ -644,7 +559,7 @@ class URLTests(WebTest):
         self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
 
         form["vote_start_date"] = "02/1/2014"
-        form["vote_end_date"] = "02/1/2099" # now do it right
+        form["vote_end_date"] = "02/1/2099"  # now do it right
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
@@ -723,12 +638,12 @@ class URLTests(WebTest):
         form = lastform(page)
         form["subject"] = "subject: mflkd862xmnbo5"
         form["body"] = "body: mflkd862xmnbo5"
-        response = form.submit()
+        form.submit()
 
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
 
         form["body"] = " invalid tag: {{}}"
-        response = form.submit()
+        form.submit()
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
 
     def test_contributor_course_edit(self):
@@ -780,8 +695,8 @@ class URLTests(WebTest):
         self.assertEqual(form["question_19_1_1"].value, "some more text")
         self.assertEqual(form["question_19_1_2"].value, "1")
         self.assertEqual(form["question_20_1_1"].value, "and the last text")
-        form["question_20_1_2"] = 1 # give missing answer
-        response = form.submit()
+        form["question_20_1_2"] = 1  # give missing answer
+        form.submit()
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
@@ -812,215 +727,6 @@ class URLTests(WebTest):
         self.assertIn("Successfully", str(response))
 
         self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
-
-
-class CourseFormTests(TestCase):
-
-    def helper_test_course_form_same_name(self, CourseFormClass):
-        courses = Course.objects.all()
-
-        form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
-        form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
-
-        form = CourseForm(form_data, instance=courses[0])
-        self.assertTrue(form.is_valid())
-        form_data['name_de'] = courses[1].name_de
-        form = CourseForm(form_data, instance=courses[0])
-        self.assertFalse(form.is_valid())
-
-    def test_course_form_same_name(self):
-        """
-            Test whether giving a course the same name as another course
-            in the same semester in the course edit form is invalid.
-        """
-        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
-        courses[0].general_contribution.questionnaires = [mommy.make(Questionnaire)]
-        courses[1].general_contribution.questionnaires = [mommy.make(Questionnaire)]
-
-        self.helper_test_course_form_same_name(CourseForm)
-        self.helper_test_course_form_same_name(ContributorCourseForm)
-
-    def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
-        course = Course.objects.get()
-
-        form_data = get_form_data_from_instance(CourseFormClass, course)
-        form_data["vote_start_date"] = start_date
-        form_data["vote_end_date"] = end_date
-
-        form = CourseFormClass(form_data, instance=course)
-        self.assertEqual(form.is_valid(), expected_result)
-
-    def test_contributor_course_form_date_validation(self):
-        """
-            Tests validity of various start/end date combinations in
-            the two course edit forms.
-        """
-        course = mommy.make(Course, degrees=[mommy.make(Degree)])
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
-
-        # contributors: start date must be in the future
-        self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
-
-        # contributors: end date must be in the future
-        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/1999", False)
-
-        # contributors: start date must be < end date
-        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/2098", False)
-
-        # contributors: valid data
-        self.helper_date_validation(ContributorCourseForm, "02/1/2098", "02/1/2099", True)
-
-        # staff: neither end nor start date must be in the future
-        self.helper_date_validation(CourseForm, "02/1/1998", "02/1/1999", True)
-
-        # staff: valid data in the future
-        self.helper_date_validation(CourseForm, "02/1/2098", "02/1/2099", True)
-
-        # staff: but start date must be < end date
-        self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
-
-
-class SingleResultFormTests(TestCase):
-
-    def test_single_result_form_saves_participant_and_voter_count(self):
-        responsible = mommy.make(UserProfile)
-        course_type = mommy.make(CourseType)
-        form_data = {
-            "name_de": "qwertz",
-            "name_en": "qwertz",
-            "type": course_type.pk,
-            "degrees": ["1"],
-            "event_date": "02/1/2014",
-            "responsible": responsible.pk,
-            "answer_1": 6,
-            "answer_2": 0,
-            "answer_3": 2,
-            "answer_4": 0,
-            "answer_5": 2,
-        }
-        course = Course(semester=mommy.make(Semester))
-        form = SingleResultForm(form_data, instance=course)
-        self.assertTrue(form.is_valid())
-
-        form.save(user=mommy.make(UserProfile))
-
-        course = Course.objects.first()
-        self.assertEqual(course.num_participants, 10)
-        self.assertEqual(course.num_voters, 10)
-
-class ContributionFormsetTests(TestCase):
-
-    def test_dont_validate_deleted_contributions(self):
-        """
-            Tests whether contributions marked for deletion are validated.
-            Regression test for #415 and #244
-        """
-        course = mommy.make(Course)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        user3 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
-
-        # here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
-        data = {
-            'contributions-TOTAL_FORMS': 3,
-            'contributions-INITIAL_FORMS': 0,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [questionnaire.pk],
-            'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
-            'contributions-0-contributor': user1.pk,
-            'contributions-0-DELETE': 'on',
-            'contributions-1-course': course.pk,
-            'contributions-1-questionnaires': [questionnaire.pk],
-            'contributions-1-order': 0,
-            'contributions-1-responsibility': "RESPONSIBLE",
-            'contributions-1-comment_visibility': "ALL",
-            'contributions-1-contributor': user2.pk,
-            'contributions-2-course': course.pk,
-            'contributions-2-questionnaires': [],
-            'contributions-2-order': 1,
-            'contributions-2-responsibility': "NONE",
-            'contributions-2-comment_visibility': "OWN",
-            'contributions-2-contributor': user2.pk,
-            'contributions-2-DELETE': 'on',
-        }
-
-        formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
-        self.assertTrue(formset.is_valid())
-
-    def test_take_deleted_contributions_into_account(self):
-        """
-            Tests whether contributions marked for deletion are properly taken into account
-            when the same contributor got added again in the same formset.
-            Regression test for #415
-        """
-        course = mommy.make(Course)
-        user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
-
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
-
-        data = {
-            'contributions-TOTAL_FORMS': 2,
-            'contributions-INITIAL_FORMS': 1,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': contribution1.pk,
-            'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [questionnaire.pk],
-            'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
-            'contributions-0-contributor': user1.pk,
-            'contributions-0-DELETE': 'on',
-            'contributions-1-course': course.pk,
-            'contributions-1-questionnaires': [questionnaire.pk],
-            'contributions-1-order': 0,
-            'contributions-1-responsibility': "RESPONSIBLE",
-            'contributions-1-comment_visibility': "ALL",
-            'contributions-1-contributor': user1.pk,
-        }
-
-        formset = ContributionFormset(instance=course, form_kwargs={'course': course}, data=data)
-        self.assertTrue(formset.is_valid())
-
-    def test_obsolete_staff_only(self):
-        """
-            Asserts that obsolete questionnaires are shown to staff members only if
-            they are already selected for a contribution of the Course, and
-            that staff_only questionnaires are always shown.
-            Regression test for #593.
-        """
-        course = mommy.make(Course)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
-        questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
-
-        # the normal and staff_only questionnaire should be shown.
-        contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
-
-        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
-        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
-
-        expected = set([questionnaire, questionnaire_staff_only])
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
-
-        # suppose we had an obsolete questionnaire already selected, that should be shown as well
-        contribution1.questionnaires = [questionnaire_obsolete]
-
-        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
-        formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
-
-        expected = set([questionnaire, questionnaire_staff_only, questionnaire_obsolete])
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
 
 class ArchivingTests(WebTest):
@@ -1206,17 +912,17 @@ class MergeUsersTest(TestCase):
         self.assertEqual(len(all_attrs), len(set(all_attrs)))
 
         # some attributes we don't care about when merging
-        ignored_attrs = set([
-            'id', # nothing to merge here
-            'password', # not used in production
-            'last_login', # something to really not care about
-            'user_permissions', # we don't use permissions
-            'logentry', # wtf
-            'login_key', # we decided to discard other_user's login key
-            'login_key_valid_until', # not worth dealing with
-            'Course_voters+', # some more intermediate models, for an explanation see above
-            'Course_participants+', # intermediate model
-        ])
+        ignored_attrs = {
+            'id',  # nothing to merge here
+            'password',  # not used in production
+            'last_login',  # something to really not care about
+            'user_permissions',  # we don't use permissions
+            'logentry',  # wtf
+            'login_key',  # we decided to discard other_user's login key
+            'login_key_valid_until',  # not worth dealing with
+            'Course_voters+',  # some more intermediate models, for an explanation see above
+            'Course_participants+',  # intermediate model
+        }
         expected_attrs = set(all_attrs) - ignored_attrs
 
         # actual merge happens here
@@ -1225,10 +931,10 @@ class MergeUsersTest(TestCase):
 
         # attributes that are handled in the merge method but that are not present in the merged_user dict
         # add attributes here only if you're actually dealing with them in merge_users().
-        additional_handled_attrs = set([
+        additional_handled_attrs = {
             'grades_last_modified_user+',
             'course_last_modified_user+',
-        ])
+        }
 
         actual_attrs = handled_attrs | additional_handled_attrs
 
@@ -1324,103 +1030,3 @@ class TextAnswerReviewTest(WebTest):
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")
         self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
-
-
-class UserFormTests(TestCase):
-
-    def test_user_with_same_email(self):
-        """
-            Tests whether the user form correctly handles email adresses
-            that already exist in the database
-            Regression test for #590
-        """
-        user = mommy.make(UserProfile, email="uiae@example.com")
-
-        data = {"username": "uiae", "email": user.email}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": "uiae", "email": user.email.upper()}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": "uiae", "email": user.email.upper()}
-        form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_user_with_same_username(self):
-        """
-            Tests whether the user form correctly handles usernames
-            that already exist in the database
-        """
-        user = mommy.make(UserProfile)
-
-        data = {"username": user.username}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": user.username.upper()}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": user.username.upper()}
-        form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-
-
-# New style tests
-@override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
-class TestSemesterCourseImportParticipants(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        mommy.make(Semester, pk=1)
-        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course, pk=1)
-
-    def test_import_valid_file(self):
-        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
-
-        original_participant_count = self.course.participants.count()
-
-        form = lastform(page)
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls"),)
-        form.submit(name="operation", value="import")
-
-        self.assertEqual(self.course.participants.count(), original_participant_count + 2)
-
-    def test_import_invalid_file(self):
-        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
-
-        original_user_count = UserProfile.objects.count()
-
-        form = lastform(page)
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls"),)
-
-        reply = form.submit(name="operation", value="import")
-
-        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
-        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
-
-        self.assertEquals(UserProfile.objects.count(), original_user_count)
-
-    def test_test_run(self):
-        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
-
-        original_participant_count = self.course.participants.count()
-
-        form = lastform(page)
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls"),)
-        form.submit(name="operation", value="test")
-
-        self.assertEqual(self.course.participants.count(), original_participant_count)
-
-    def test_suspicious_operation(self):
-        page = self.app.get("/staff/semester/1/course/1/importparticipants", user='user')
-
-        form = lastform(page)
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls"),)
-
-        # Should throw SuspiciousOperation Exception.
-        reply = form.submit(name="operation", value="hackit", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
