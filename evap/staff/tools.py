@@ -41,7 +41,8 @@ def bulk_delete_users(request, username_file, test_run):
     if test_run:
         messages.info(request, 'No Users were deleted in this test run.')
     else:
-        [u.delete() for u in deletable_users]
+        for user in deletable_users:
+            user.delete()
         messages.info(request, '{} users have been deleted'.format(len(deletable_users)))
 
 
