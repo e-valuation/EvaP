@@ -54,8 +54,8 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course)
 
-    public_view = request.GET.get('public_view', 'false') # default: show own view
-    public_view = {'true': True, 'false': False}.get(public_view.lower()) # convert parameter to boolean
+    public_view = request.GET.get('public_view', 'false')  # default: show own view
+    public_view = {'true': True, 'false': False}.get(public_view.lower())  # convert parameter to boolean
 
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
@@ -80,7 +80,10 @@ def course_detail(request, semester_id, course_id):
         if section.contributor is None:
             course_sections.append(section)
         else:
-            contributor_sections.setdefault(section.contributor, []).append(section)
+            contributor_sections.setdefault(section.contributor,
+                                            {'total_votes': 0, 'sections': []})['sections'].append(section)
+            # Sum up all Sections for this contributor.
+            contributor_sections[section.contributor]['total_votes'] += sum([s.total_count for s in section.results])
 
     # show a warning if course is still in evaluation (for staff preview)
     evaluation_warning = course.state != 'published'
@@ -106,6 +109,7 @@ def course_detail(request, semester_id, course_id):
             can_download_grades=request.user.can_download_grades,
             public_view=public_view)
     return render(request, "results_course_detail.html", template_data)
+
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
     if public_view:

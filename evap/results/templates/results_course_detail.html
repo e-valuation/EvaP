@@ -103,19 +103,26 @@
                 <span class="panel-title">{% trans "Contributors" %}</span>
             </div>
             <div class="panel-body">
-                {% for contributor,sections in contributor_sections.items %}
-                    {% regroup sections by questionnaire as sections_grouped %}
+                {% for contributor, contributor_data in contributor_sections.items %}
+                    {% regroup contributor_data.sections by questionnaire as sections_grouped %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <span class="panel-title">
-                                {{ contributor.full_name }}
-                                {% if sections_grouped.0.list.0.label %} &ndash; <i>{{ sections_grouped.0.list.0.label }}</i>{% endif %}
+                                 <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">
+                                {{ contributor.full_name }}{% if sections_grouped.0.list.0.label %} &ndash; <i>{{ sections_grouped.0.list.0.label }}</i>{% endif %}</a>
                             </span>
                         </div>
-                        <div class="panel-body">
-                            {% for group in sections_grouped %}
-                                {% include "results_course_detail_questionnaires.html" %}
-                            {% endfor %}
+                        <div id="{{ contributor.id }}" class="panel-collapse
+                            {% if contributor_data.total_votes == 0 %}
+                                collapse
+                            {% else %}
+                                in
+                            {% endif %}">
+                            <div class="panel-body">
+                                {% for group in sections_grouped %}
+                                    {% include "results_course_detail_questionnaires.html" %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
