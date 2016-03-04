@@ -20,9 +20,9 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
                              UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
-                             UserMergeSelectionForm, CourseTypeForm
+                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
@@ -922,7 +922,27 @@ def user_delete(request):
     if not user.can_staff_delete:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
+
+
+@staff_required
+def user_bulk_delete(request):
+    form = UserBulkDeleteForm(request.POST or None, request.FILES or None)
+    operation = request.POST.get('operation')
+
+    if form.is_valid():
+        if operation not in ('test', 'bulk_delete'):
+            raise SuspiciousOperation("Invalid POST operation")
+
+        test_run = operation == 'test'
+        username_file = form.cleaned_data['username_file']
+        bulk_delete_users(request, username_file, test_run)
+
+        if test_run:
+            return render(request, "staff_user_bulk_delete.html", dict(form=form))
+        return redirect('staff:user_index')
+    else:
+        return render(request, "staff_user_bulk_delete.html", dict(form=form))
 
 
 @staff_required

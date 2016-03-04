@@ -28,6 +28,10 @@ class UserImportForm(forms.Form, BootstrapMixin):
     excel_file = forms.FileField(label=_("Excel file"))
 
 
+class UserBulkDeleteForm(forms.Form, BootstrapMixin):
+    username_file = forms.FileField(label=_("Username file"))
+
+
 class SemesterForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Semester
