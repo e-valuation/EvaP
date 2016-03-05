@@ -2,10 +2,10 @@ from django.conf import settings
 from django_webtest import WebTest
 from evap.evaluation.models import Course
 from evap.evaluation.models import UserProfile
+from evap.evaluation.tests.test_utils import lastform
 from evap.rewards.models import SemesterActivation
 from evap.rewards.models import RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
-from evap.staff.tests import lastform
 from django.core.urlresolvers import reverse
 from model_mommy import mommy
 
