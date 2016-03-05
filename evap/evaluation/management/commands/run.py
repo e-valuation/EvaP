@@ -9,6 +9,6 @@ class Command(BaseCommand):
     help = 'Execute "runserver 0.0.0.0:80"'
 
     def handle(self, *args, **options):
-        print('Executing "manage.py runserver 0.0.0.0:8000"')
+        self.stdout.write('Executing "manage.py runserver 0.0.0.0:8000"')
         sys.argv = ["manage.py", "runserver", "0.0.0.0:8000"]
         execute_from_command_line(sys.argv)
