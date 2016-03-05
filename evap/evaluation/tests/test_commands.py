@@ -9,7 +9,17 @@ from django.test.utils import override_settings
 from model_mommy import mommy
 from unittest.mock import patch
 
-from evap.evaluation.models import UserProfile, Course
+from evap.evaluation.models import UserProfile, Course, Semester
+
+
+class TestAnonymizeCommand(TestCase):
+    @patch('builtins.input')
+    def test_anonymize_does_not_crash(self, mock_input):
+        semester = mommy.make(Semester)
+        mommy.make(Course, semester=semester)
+        mock_input.return_value = 'yes'
+
+        management.call_command('anonymize', stdout=StringIO())
 
 
 class TestRunCommand(TestCase):

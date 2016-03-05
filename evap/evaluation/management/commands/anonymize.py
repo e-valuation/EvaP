@@ -116,7 +116,7 @@ class Command(BaseCommand):
 
             for i, course in enumerate(semester.course_set.all()):
                 course.semester = shuffled_courses[i].semester
-                course.degrees = shuffled_courses[i].degrees
+                course.degrees = shuffled_courses[i].degrees.all()
                 course.name_de = shuffled_courses[i].name_de + " "  # add a space to avoid name collisions
                 course.name_en = shuffled_courses[i].name_en + " "
                 course.save()
