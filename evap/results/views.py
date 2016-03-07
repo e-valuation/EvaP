@@ -3,8 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult
-
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult
 
 from collections import OrderedDict, namedtuple
 
@@ -21,7 +20,7 @@ def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     courses = list(semester.course_set.filter(state="published").prefetch_related("degrees"))
 
-    # annotate each course object with its grades
+    # Annotate each course object with its grades.
     for course in courses:
         course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
@@ -54,8 +53,8 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course)
 
-    public_view = request.GET.get('public_view', 'false')  # default: show own view
-    public_view = {'true': True, 'false': False}.get(public_view.lower())  # convert parameter to boolean
+    public_view = request.GET.get('public_view', 'false')  # Default: show own view.
+    public_view = {'true': True, 'false': False}.get(public_view.lower())  # Convert parameter to boolean.
 
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
@@ -71,7 +70,7 @@ def course_detail(request, semester_id, course_id):
                 results.append(result)
         section.results[:] = results
 
-    # filter empty sections and group by contributor
+    # Filter empty sections and group by contributor.
     course_sections = []
     contributor_sections = OrderedDict()
     for section in sections:
@@ -82,15 +81,19 @@ def course_detail(request, semester_id, course_id):
         else:
             contributor_sections.setdefault(section.contributor,
                                             {'total_votes': 0, 'sections': []})['sections'].append(section)
-            # Sum up all Sections for this contributor.
-            contributor_sections[section.contributor]['total_votes'] += sum([s.total_count for s in section.results])
 
-    # show a warning if course is still in evaluation (for staff preview)
+            # Sum up all Sections for this contributor.
+            # If section is not a RatingResult:
+            # Add 1 as we assume it is a TextResult or something similar that should be displayed.
+            contributor_sections[section.contributor]['total_votes'] +=\
+                sum([s.total_count if isinstance(s, RatingResult) else 1 for s in section.results])
+
+    # Show a warning if course is still in evaluation (for staff preview).
     evaluation_warning = course.state != 'published'
 
-    # results for a course might not be visible because there are not enough answers
+    # Results for a course might not be visible because there are not enough answers
     # but it can still be "published" e.g. to show the comment results to contributors.
-    # users who can open the results page see a warning message in this case
+    # Users who can open the results page see a warning message in this case.
     sufficient_votes_warning = not course.can_publish_grades
 
     show_grades = request.user.is_staff or course.can_publish_grades
@@ -122,10 +125,11 @@ def user_can_see_text_answer(user, represented_users, text_answer, public_view=F
     if text_answer.is_published:
         if contributor in represented_users:
             return True
-        if text_answer.contribution.course.contributions.filter(contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
+        if text_answer.contribution.course.contributions.filter(
+                contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
             return True
-        if text_answer.contribution.is_general and \
-            text_answer.contribution.course.contributions.filter(contributor__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
+        if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(
+                contributor__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
             return True
 
     return False

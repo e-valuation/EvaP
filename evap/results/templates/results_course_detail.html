@@ -103,29 +103,41 @@
                 <span class="panel-title">{% trans "Contributors" %}</span>
             </div>
             <div class="panel-body">
+                <div class="panel-group">
                 {% for contributor, contributor_data in contributor_sections.items %}
                     {% regroup contributor_data.sections by questionnaire as sections_grouped %}
                     <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <span class="panel-title">
-                                 <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">
-                                {{ contributor.full_name }}{% if sections_grouped.0.list.0.label %} &ndash; <i>{{ sections_grouped.0.list.0.label }}</i>{% endif %}</a>
-                            </span>
-                        </div>
-                        <div id="{{ contributor.id }}" class="panel-collapse
-                            {% if contributor_data.total_votes == 0 %}
-                                collapse
-                            {% else %}
-                                in
-                            {% endif %}">
-                            <div class="panel-body">
-                                {% for group in sections_grouped %}
-                                    {% include "results_course_detail_questionnaires.html" %}
-                                {% endfor %}
+                        {% comment %} Logic for collapsing Contributor Sections with no votes. {% endcomment %}
+                        {% if contributor_data.total_votes == 0 %}
+                            <div class="panel-heading">
+                                <span class="panel-title">
+                                    <div class="inline-headers">
+                                        <p class="pull-right participants-warning">
+                                            <span class="glyphicon glyphicon-warning-sign"></span>
+                                            {% trans "There are no results for this contributor" %}
+                                        </p>
+                                    </div>
+                                     <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}{% if sections_grouped.0.list.0.label %} &ndash; <i>{{ sections_grouped.0.list.0.label }}</i>{% endif %}</a>
+                                </span>
                             </div>
-                        </div>
+                            <div id="{{ contributor.id }}" class="panel-collapse collapse">
+                        {% else %}
+                            <div class="panel-heading">
+                                <span class="panel-title">
+                                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}{% if sections_grouped.0.list.0.label %} &ndash; <i>{{ sections_grouped.0.list.0.label }}</i>{% endif %}</a>
+                                </span>
+                            </div>
+                            <div id="{{ contributor.id }}" class="panel-collapse in">
+                        {% endif %}
+                                <div class="panel-body">
+                                    {% for group in sections_grouped %}
+                                        {% include "results_course_detail_questionnaires.html" %}
+                                    {% endfor %}
+                                </div>
+                            </div>
                     </div>
                 {% endfor %}
+                </div>
             </div>
         </div>
     {% endif %}
