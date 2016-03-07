@@ -878,7 +878,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         states_with_votes = ["inEvaluation", "reviewed", "evaluated", "published"]
         if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
-        return not self.is_contributor
+        return not (self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser)
 
     @property
     def is_participant(self):
