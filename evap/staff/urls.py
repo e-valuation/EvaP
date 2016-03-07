@@ -51,6 +51,7 @@ urlpatterns = [
     url(r"^user/(\d+)/edit$", user_edit, name="user_edit"),
 
     url(r"^user/delete$", user_delete, name="user_delete"),
+    url(r"^user/bulk_delete$", user_bulk_delete, name="user_bulk_delete"),
     url(r"^user/merge$", user_merge_selection, name="user_merge_selection"),
     url(r"^user/(\d+)/merge/(\d+)$", user_merge, name="user_merge"),
 

@@ -14,8 +14,9 @@
 {% block content %}
     {{ block.super }}
     <div>
-        <a href="{% url "staff:user_import" %}" class="btn btn-sm btn-default">{% trans "Import Users" %}</a>
+        <a href="{% url "staff:user_import" %}" class="btn btn-sm btn-default">{% trans "Import users" %}</a>
         <a href="{% url "staff:user_merge_selection" %}" class="btn btn-sm btn-default">{% trans "Merge users" %}</a>
+        <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-default">{% trans "Bulk delete users" %}</a>
         <a href="{% url "staff:user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
     </div>
     <table class="table table-striped user-table">
