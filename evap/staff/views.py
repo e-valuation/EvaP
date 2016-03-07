@@ -490,7 +490,7 @@ def helper_course_edit(request, semester, course):
     if form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
-        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
+        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period():
             course.reopen_evaluation()
         form.save(user=request.user)
         formset.save()

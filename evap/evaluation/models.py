@@ -268,7 +268,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return (self.state == "inEvaluation"
-            and self.is_in_evaluation_period
+            and self.is_in_evaluation_period()
             and user in self.participants.all()
             and user not in self.voters.all())
 
