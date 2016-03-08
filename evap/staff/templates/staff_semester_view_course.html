@@ -12,7 +12,7 @@
 {% endif %}
 <td style="width: 55%">
     <div>
-    {% if course.can_staff_edit and info_only|is_false %}
+    {% if info_only|is_false %}
         <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}

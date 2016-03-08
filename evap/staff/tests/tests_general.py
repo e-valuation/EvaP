@@ -364,7 +364,6 @@ class URLTests(WebTest):
             do not return 200 but redirect somewhere else.
         """
         tests = [
-            ("test_staff_semester_x_course_y_edit_fail", "/staff/semester/1/course/8/edit", "evap"),
         ]
 
         for _, url, user in tests:
@@ -815,7 +814,6 @@ class ArchivingTests(WebTest):
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")
         self.get_assert_403(semester_url + "course/create", "evap")
-        self.get_assert_403(semester_url + "course/7/edit", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
 
     def test_course_is_not_archived_if_participant_count_is_set(self):

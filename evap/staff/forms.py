@@ -17,6 +17,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def disable_all_fields(form):
+    for field in form.fields.values():
+        field.disabled = True
+
+
 class ImportForm(forms.Form, BootstrapMixin):
     vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True)
     vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True)
@@ -107,6 +112,10 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].disabled = True
 
+        if not self.instance.can_staff_edit:
+            # form is used as read-only course view
+            disable_all_fields(self)
+
     def clean(self):
         super().clean()
         vote_start_date = self.cleaned_data.get('vote_start_date')
@@ -150,6 +159,9 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
 
         if self.instance.vote_start_date:
             self.fields['event_date'].initial = self.instance.vote_start_date
+
+        if not self.instance.can_staff_edit:
+            disable_all_fields(self)
 
         if self.instance.pk:
             self.fields['responsible'].initial = self.instance.responsible_contributor
@@ -222,6 +234,10 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
+        
+        if not self.course.can_staff_edit:
+            # form is used as read-only course view
+            disable_all_fields(self)
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
