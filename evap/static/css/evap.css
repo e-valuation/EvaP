@@ -509,3 +509,12 @@ li.menu-indent {
 .no-padding {
     padding: 0;
 }
+
+/*feedback form + button*/
+
+#feedback_button{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    border: none;
+}
