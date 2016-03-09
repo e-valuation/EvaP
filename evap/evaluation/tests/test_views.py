@@ -1,11 +1,45 @@
+from django.contrib.auth.models import Group
 from django.core import mail
 from django.contrib.auth.hashers import make_password
-from evap.evaluation.models import UserProfile
+from django_webtest import WebTest
+
+from evap.evaluation.models import UserProfile, Feedback
 from model_mommy import mommy
 
 from datetime import date, timedelta
 
 from evap.evaluation.tests.test_utils import ViewTest
+
+
+class TestFeedbackCreateView(WebTest):
+    csrf_checks = False
+
+    def test_creates(self):
+        mommy.make(UserProfile, username='evap')
+        self.assertFalse(Feedback.objects.filter(sender_email='unique@mail.de').exists())
+        self.app.post('/feedback/create', {'message': 'feedback message', 'sender_email': 'unique@mail.de'}, user='evap')
+        self.assertTrue(Feedback.objects.filter(sender_email='unique@mail.de').exists())
+
+
+class TestFeedbackDeleteView(WebTest):
+    def test_deletes(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        feedback_obj = mommy.make(Feedback)
+        self.assertTrue(Feedback.objects.get(id=feedback_obj.id))
+
+        self.app.get('/feedback/{}/delete'.format(feedback_obj.id), user='staff')
+
+        self.assertFalse(Feedback.objects.filter(id=feedback_obj.id).exists())
+
+    def test_non_staff_cant_delete(self):
+        mommy.make(UserProfile, username='non_staff')
+        feedback_obj = mommy.make(Feedback)
+        self.assertTrue(Feedback.objects.get(id=feedback_obj.id))
+
+        response = self.app.get('/feedback/{}/delete'.format(feedback_obj.id), user='non_staff', expect_errors=True)
+
+        self.assertTrue(Feedback.objects.get(id=feedback_obj.id))
+        self.assertEquals(response.status_code, 403)  # FORBIDDEN
 
 
 class TestIndexView(ViewTest):
