@@ -2,7 +2,7 @@ from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, UserProfile
-
+import heapq
 
 class ViewTest(WebTest):
     url = "/"
@@ -15,7 +15,8 @@ class ViewTest(WebTest):
 
 
 def lastform(page):
-    return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
+    # Hacky hack to ignore the feedback form. We take the second biggest numeric index.
+    return page.forms[heapq.nlargest(2, [key for key in page.forms.keys() if isinstance(key, int)])[1]]
 
 
 def get_form_data_from_instance(FormClass, instance):
