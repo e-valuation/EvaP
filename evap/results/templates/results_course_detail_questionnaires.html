@@ -5,7 +5,7 @@
 
 {% for questionnaire, contributor, label, results, questionnaire_warning in group.list %}
     <div class="inline-headers">
-        {% if questionnaire_warning %}
+        {% if questionnaire_warning and not contributor_data.total_votes == 0 %}
             <p class="pull-right participants-warning questionnaire-warning">
                 <span class="glyphicon glyphicon-warning-sign"></span>
                 {% trans "Only a few participants answered these questions." %}
