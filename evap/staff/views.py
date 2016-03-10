@@ -465,12 +465,6 @@ def single_result_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    raise_permission_denied_if_archived(course)
-
-    # check course state
-    if not course.can_staff_edit:
-        messages.warning(request, _("Editing not possible in current state."))
-        return redirect('staff:semester_view', semester_id)
 
     if course.is_single_result():
         return helper_single_result_edit(request, semester, course)
@@ -490,7 +484,11 @@ def helper_course_edit(request, semester, course):
     if form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
-        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
+
+        if not course.can_staff_edit or course.is_archived:
+            raise SuspiciousOperation("Modifying this course is not allowed.")
+
+        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period():
             course.reopen_evaluation()
         form.save(user=request.user)
         formset.save()
@@ -506,7 +504,7 @@ def helper_course_edit(request, semester, course):
         return custom_redirect('staff:semester_view', semester.id)
     else:
         sort_formset(request, formset)
-        template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
+        template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True, state=course.state)
         return render(request, "staff_course_form.html", template_data)
 
 
@@ -515,6 +513,9 @@ def helper_single_result_edit(request, semester, course):
     form = SingleResultForm(request.POST or None, instance=course)
 
     if form.is_valid():
+        if not course.can_staff_edit or course.is_archived:
+            raise SuspiciousOperation("Modifying this course is not allowed.")
+
         form.save(user=request.user)
 
         messages.success(request, _("Successfully created single result."))
