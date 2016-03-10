@@ -117,5 +117,6 @@ def feedback_create(request):
 def feedback_delete(request, feedback_id):
     feedback = get_object_or_404(klass=Feedback, id=feedback_id)
     feedback.delete()
+    request.build_absolute_uri()
 
     return HttpResponse()

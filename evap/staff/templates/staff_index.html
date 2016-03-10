@@ -56,6 +56,10 @@
                     <li><a href="{% url "staff:faq_section" section.id %}">{{ section.title }}</a></li>
                 {% endfor %}
             </ul>
+            <h3>{% trans "Feedback" %}</h3>
+            <ul>
+                <li><a href="{% url "staff:view_feedback" %}">{% trans "View Feedback" %}</a></li>
+            </ul>
         </div>
     </div>
 {% endblock %}
