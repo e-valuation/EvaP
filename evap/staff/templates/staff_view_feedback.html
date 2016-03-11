@@ -24,12 +24,13 @@
                 <td>{{ feedback.message }}</td>
                 <td>{{ feedback.sender_email }}</td>
                 <td>{{ feedback.created_at }}</td>
-                <td>
-                    {% if feedback.state == 0 %} {{ states.0.1 }}
-                    {% else %} {{ states.1.1 }}
+                <td class="state_div">
+                    {% if feedback.state == 0 %} <span class="glyphicon glyphicon-unchecked"></span>
+                    {% else %} <span class="glyphicon glyphicon-check"></span>
                     {% endif %}
                 </td>
-                <td class="col-sm-1">
+                <td class="col-sm-2">
+                    <a class="btn btn-success btn-sm" onclick="set_feedback_processing_state({{ feedback.id }});">{% trans "Process" %}</a>
                     <a class="btn btn-danger btn-sm" onclick="show_delete_modal({{ feedback.id }}, '{{ feedback.email|escapejs }}');">{% trans "Delete" %}</a>
                 </td>
             </tr>
@@ -49,9 +50,19 @@
             $.ajax({
                 type: "POST",
                 url: "{{ request.scheme }}://{{ request.get_host }}/feedback/" + data_id + "/delete",
-                data: {"feedback_id": data_id},
                 success: function(){ $('#feedback-row-'+data_id).hide('slow', function(){ $('#feedback-row-'+data_id).remove(); }); },
                 error: function(){ $('#feedback-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+        function set_feedback_processing_state(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{{ request.scheme }}://{{ request.get_host }}/feedback/" + data_id + "/process",
+                success: function(){
+                    $('#feedback-row-' + data_id).effect("highlight", {color:"#59eb5a"}, 2000);
+                    $('#feedback-row-' + data_id).children('.state_div').html('<span class="glyphicon glyphicon-check"></span>');
+                },
+                error: function(){ $('#feedback-row-' + data_id).effect("highlight", {color:"#eb595a"}, 2000); }
             });
         };
     </script>

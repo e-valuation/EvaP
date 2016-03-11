@@ -7,6 +7,7 @@ from django.core.urlresolvers import resolve, Resolver404
 from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import staff_required
+from evap.evaluation.constants import FEEDBACK_CLOSED
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester, Feedback
 
@@ -117,6 +118,14 @@ def feedback_create(request):
 def feedback_delete(request, feedback_id):
     feedback = get_object_or_404(klass=Feedback, id=feedback_id)
     feedback.delete()
-    request.build_absolute_uri()
+
+    return HttpResponse()
+
+
+@staff_required
+def feedback_process(request, feedback_id):
+    feedback = get_object_or_404(klass=Feedback, id=feedback_id)
+    feedback.state = FEEDBACK_CLOSED
+    feedback.save()
 
     return HttpResponse()
