@@ -3,6 +3,7 @@ from django.core import mail
 from django.contrib.auth.hashers import make_password
 from django_webtest import WebTest
 
+from evap.evaluation.constants import FEEDBACK_OPEN, FEEDBACK_CLOSED
 from evap.evaluation.models import UserProfile, Feedback
 from model_mommy import mommy
 
@@ -39,6 +40,27 @@ class TestFeedbackDeleteView(WebTest):
         response = self.app.get('/feedback/{}/delete'.format(feedback_obj.id), user='non_staff', expect_errors=True)
 
         self.assertTrue(Feedback.objects.get(id=feedback_obj.id))
+        self.assertEquals(response.status_code, 403)  # FORBIDDEN
+
+
+class TestFeedbackProcessView(WebTest):
+    def test_changes_state(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        feedback_obj = mommy.make(Feedback)
+        self.assertEqual(Feedback.objects.get(id=feedback_obj.id).state, FEEDBACK_OPEN)
+
+        self.app.get('/feedback/{}/process'.format(feedback_obj.id), user='staff')
+
+        self.assertEqual(Feedback.objects.get(id=feedback_obj.id).state, FEEDBACK_CLOSED)
+
+    def test_non_staff_cant_change_state(self):
+        mommy.make(UserProfile, username='non_staff')
+        feedback_obj = mommy.make(Feedback)
+        self.assertEqual(Feedback.objects.get(id=feedback_obj.id).state, FEEDBACK_OPEN)
+
+        response = self.app.get('/feedback/{}/process'.format(feedback_obj.id), user='non_staff', expect_errors=True)
+
+        self.assertEqual(Feedback.objects.get(id=feedback_obj.id).state, FEEDBACK_OPEN)
         self.assertEquals(response.status_code, 403)  # FORBIDDEN
 
 
