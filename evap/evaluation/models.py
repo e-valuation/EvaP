@@ -14,6 +14,7 @@ import django.dispatch
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
 # see evaluation.meta for the use of Translate in this file
+from evap.evaluation.constants import FEEDBACK_STATES, FEEDBACK_OPEN
 from evap.evaluation.meta import LocalizeModelBase, Translate
 
 import datetime
@@ -1104,3 +1105,12 @@ class EmailTemplate(models.Model):
     def send_evaluation_started_notifications(cls, courses):
         template = cls.objects.get(name=cls.EVALUATION_STARTED)
         cls.send_to_users_in_courses(template, courses, ['all_participants'])
+
+
+class Feedback(models.Model):
+    message = models.CharField(max_length=10000)
+    sender_email = models.EmailField(null=True, blank=True)
+
+    state = models.IntegerField(choices=FEEDBACK_STATES, default=FEEDBACK_OPEN)
+
+    created_at = models.DateTimeField(verbose_name=_("created at"), auto_now_add=True)

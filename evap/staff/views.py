@@ -12,8 +12,10 @@ from django.db.models import Prefetch
 from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import staff_required
+from evap.evaluation.constants import FEEDBACK_STATES
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
+                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType, \
+    Feedback
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
                                   TextResult, send_publish_notifications, sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
@@ -1021,3 +1023,9 @@ def faq_section(request, section_id):
     else:
         template_data = dict(formset=formset, section=section, questions=questions)
         return render(request, "staff_faq_section.html", template_data)
+
+
+@staff_required
+def view_feedback(request):
+    all_feedback = Feedback.objects.order_by('-created_at')
+    return render(request, "staff_view_feedback.html", dict(all_feedback=all_feedback, states=FEEDBACK_STATES))

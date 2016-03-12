@@ -60,4 +60,5 @@ urlpatterns = [
 
     url(r"faq/$", faq_index, name="faq_index"),
     url(r"faq/(\d+)$", faq_section, name="faq_section"),
+    url(r"view_feedback/$", view_feedback, name="view_feedback"),
 ]

@@ -1,0 +1,69 @@
+{% extends "staff_base.html" %}
+
+{% load i18n %}
+{% load evaluation_templatetags %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Feedback" %}</li>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped course-table vertically-aligned">
+        <thead>
+            <tr>
+                <th>{% trans "Feedback" %}</th>
+                <th>{% trans "Email" %}</th>
+                <th>{% trans "Created At" %}</th>
+                <th>{% trans "State" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for feedback in all_feedback %}
+            <tr id="feedback-row-{{ feedback.id }}">
+                <td>{{ feedback.message }}</td>
+                <td>{{ feedback.sender_email }}</td>
+                <td>{{ feedback.created_at }}</td>
+                <td class="state_div">
+                    {% if feedback.state == 0 %} <span class="glyphicon glyphicon-unchecked"></span>
+                    {% else %} <span class="glyphicon glyphicon-check"></span>
+                    {% endif %}
+                </td>
+                <td class="col-sm-2">
+                    <a class="btn btn-success btn-sm" onclick="set_feedback_processing_state({{ feedback.id }});">{% trans "Process" %}</a>
+                    <a class="btn btn-danger btn-sm" onclick="show_delete_modal({{ feedback.id }}, '{{ feedback.email|escapejs }}');">{% trans "Delete" %}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete Feedback" as title %}
+    {% trans 'Do you really want to delete the feedback by <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete Feedback" as action_text %}
+    {% include_confirmation_modal "delete_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{{ request.scheme }}://{{ request.get_host }}/feedback/" + data_id + "/delete",
+                success: function(){ $('#feedback-row-'+data_id).hide('slow', function(){ $('#feedback-row-'+data_id).remove(); }); },
+                error: function(){ $('#feedback-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+        function set_feedback_processing_state(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{{ request.scheme }}://{{ request.get_host }}/feedback/" + data_id + "/process",
+                success: function(){
+                    $('#feedback-row-' + data_id).effect("highlight", {color:"#59eb5a"}, 2000);
+                    $('#feedback-row-' + data_id).children('.state_div').html('<span class="glyphicon glyphicon-check"></span>');
+                },
+                error: function(){ $('#feedback-row-' + data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
+{% endblock %}

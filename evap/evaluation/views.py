@@ -1,11 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
-from django.shortcuts import redirect, render
+from django.http import HttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
+from django.views.decorators.http import require_POST
 
+from evap.evaluation.auth import staff_required
+from evap.evaluation.constants import FEEDBACK_CLOSED
 from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
+from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester, Feedback
 
 
 def index(request):
@@ -97,3 +101,31 @@ def faq(request):
 
 def legal_notice(request):
     return render(request, "legal_notice.html", dict())
+
+
+@require_POST
+def feedback_create(request):
+    sender_email = request.POST.get("sender_email")
+    message = request.POST.get("message")
+
+    if message:
+        Feedback(message=message, sender_email=sender_email).save()
+
+    return HttpResponse()
+
+
+@staff_required
+def feedback_delete(request, feedback_id):
+    feedback = get_object_or_404(klass=Feedback, id=feedback_id)
+    feedback.delete()
+
+    return HttpResponse()
+
+
+@staff_required
+def feedback_process(request, feedback_id):
+    feedback = get_object_or_404(klass=Feedback, id=feedback_id)
+    feedback.state = FEEDBACK_CLOSED
+    feedback.save()
+
+    return HttpResponse()
