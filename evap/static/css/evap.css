@@ -509,3 +509,7 @@ li.menu-indent {
 .no-padding {
     padding: 0;
 }
+
+.text-answer li,a {
+    word-break: break-word;
+}

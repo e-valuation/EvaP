@@ -21,7 +21,7 @@
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
                                 <td>{{ answer.id }}</td>
-                                <td>
+                                <td class="text-answer">
                                     {% if answer.reviewed_answer %}
                                         <a class="comment-link" href="{% url "staff:course_comment_edit" semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
                                         <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
