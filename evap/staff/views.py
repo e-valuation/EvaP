@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.db.models import Max, Count
+from django.db import transaction, IntegrityError
+from django.db.models import Max, Count, Q
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
@@ -783,6 +784,17 @@ def questionnaire_edit(request, questionnaire_id):
         return render(request, "staff_questionnaire_form.html", template_data)
 
 
+def get_identical_form_and_formset(questionnaire):
+    """
+    Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
+    specified in questionnaire_id. Used for copying and creating of new versions.
+    """
+    inline_question_formset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+
+    form = QuestionnaireForm(instance=questionnaire)
+    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_set.all())
+
+
 @staff_required
 def questionnaire_copy(request, questionnaire_id):
     if request.method == "POST":
@@ -802,11 +814,61 @@ def questionnaire_copy(request, questionnaire_id):
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
     else:
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+        form, formset = get_identical_form_and_formset(questionnaire)
+        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
+
+
+def find_questionnaire_name(old_questionnaire):
+    timestamp = datetime.date.today()
+    new_name_de = '{} (until {})'.format(old_questionnaire.name_de, str(timestamp))
+    new_name_en = '{} (until {})'.format(old_questionnaire.name_en, str(timestamp))
+
+    if Questionnaire.objects.filter(Q(name_de=new_name_de) | Q(name_en=new_name_en)):
+        return None, None
+    return new_name_de, new_name_en
+
+
+@staff_required
+def questionnaire_new_version(request, questionnaire_id):
+    if request.method == "POST":
+        questionnaire = Questionnaire()
         InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
-        form = QuestionnaireForm(instance=questionnaire)
-        formset = InlineQuestionFormset(instance=questionnaire, queryset=questionnaire.question_set.all())
+        form = QuestionnaireForm(request.POST, instance=questionnaire)
+        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
 
+        old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
+        # Find new title for old Questionnaire.
+        new_name_de, new_name_en = find_questionnaire_name(old_questionnaire)
+
+        try:
+            with transaction.atomic():
+                # Change old name before checking Form.
+                old_questionnaire.name_de = new_name_de
+                old_questionnaire.name_en = new_name_en
+                old_questionnaire.save()
+
+                if form.is_valid() and formset.is_valid():
+                    form.save()
+                    formset.save()
+                    messages.success(request, _("Successfully created questionnaire."))
+                    return redirect('staff:questionnaire_index')
+                else:
+                    raise IntegrityError
+        except IntegrityError:
+            return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
+    else:
+        # Check if name with todays timestamp already exists. If it does, show error message and redirect.
+        old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+        new_name_de, new_name_en = find_questionnaire_name(old_questionnaire)
+        if not new_name_de:
+            messages.error(request, _("Questionnaire creation aborted. One version was already created today, why not"
+                                      " edit that one?"))
+            return redirect('staff:questionnaire_index')
+
+        questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+        form, formset = get_identical_form_and_formset(questionnaire)
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 

@@ -38,6 +38,7 @@ urlpatterns = [
     url(r"^questionnaire/create$", questionnaire_create, name="questionnaire_create"),
     url(r"^questionnaire/(\d+)$", questionnaire_view, name="questionnaire_view"),
     url(r"^questionnaire/(\d+)/edit$", questionnaire_edit, name="questionnaire_edit"),
+    url(r"^questionnaire/(\d+)/new_version", questionnaire_new_version, name="questionnaire_new_version"),
     url(r"^questionnaire/(\d+)/copy$", questionnaire_copy, name="questionnaire_copy"),
     url(r"^questionnaire/delete$", questionnaire_delete, name="questionnaire_delete"),
     url(r"^questionnaire/update_indices$", questionnaire_update_indices, name="questionnaire_update_indices"),
