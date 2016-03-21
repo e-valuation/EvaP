@@ -31,7 +31,8 @@ def index(request):
 
             EmailTemplate.send_login_key_to_user(new_key_form.get_user())
 
-            messages.success(request, _("Successfully sent email with new login key."))
+            messages.success(request, _("We sent you an email with your new login key. Please check your inbox."))
+            return redirect('evaluation:index')
         elif login_key_form.is_valid():
             # user would like to login with a login key and passed key test
             auth_login(request, login_key_form.get_user())

@@ -9,14 +9,15 @@
     {{ block.super }}
     <h1>{% trans "Welcome to the evaluation platform!" %}</h1>
 
-    <p>{% trans "You are currently not logged in." %}</p>
+    <i>{% trans "You are currently not logged in." %}</i>
+    <br /><br />
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-5">
             <h2>{% trans "HPI student or lecturer" %}</h2>
 
             <div class="well">
-                <p>{% trans "As an HPI student or lecturer please log in using your usual HPI credentials." %}</p>
+                <p>{% trans "Log in using your usual HPI credentials." %}</p>
                 <form class="form-horizontal" role="form" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="login_username" />
@@ -24,7 +25,7 @@
                     {% for field in login_username_form %}
                         <div class="form-group{% if field.errors %} has-error{% endif %}">
                             <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-9">
                                 {{ field|add_class:"form-control" }}
                                 {% if field.errors %}
                                     <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
@@ -33,65 +34,49 @@
                         </div>
                     {% endfor %}
                     <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-6">
-                            <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <input class="btn btn-primary" type="submit" value="{% trans "Login" %}">
                         </div>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-7">
             <h2>{% trans "External student or lecturer" %}</h2>
             <div class="well">
-                <p>{% trans "As an external student or lecturer please log in using your login key or generate a new one below." %}</p>
+                <p>{% trans "Please enter your email address to request a login key and then use this key to login." %}</p><br />
 
-                <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_type" value="login_key" />
-
-                    <fieldset>
-                        {% for field in login_key_form %}
-                             <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                <div class="col-sm-6">
-                                    {{ field|add_class:"form-control" }}
-                                    {% if field.errors %}
-                                        <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </fieldset>
-                    <div class="form-group">
-                        <div class="col-sm-offset-4 col-sm-6">
-                            <input class="btn btn-success" type="submit" value="{% trans "Login" %}">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="well">
-                <h3>{% trans "Don't have a key or lost it?" %}</h3>
-                <p>{% trans "Please enter your email address to get a new login key." %}</p>
                 <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
-                    <fieldset>
-                        {% for field in new_key_form %}
-                            <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                <label class="col-sm-4 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                                <div class="col-sm-6">
-                                    {{ field|add_class:"form-control" }}
-                                    {% if field.errors %}
-                                        <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </fieldset>
-                    <div class="form-group">
-                        <div class="col-sm-offset-4 col-sm-6">
-                            <input class="btn btn-success" type="submit" value="{% trans "Send Key" %}">
+                    <div class="form-group{% if new_key_form.email.errors %} has-error{% endif %}">
+                        <label class="col-sm-3 control-label" for="{{ new_key_form.email.auto_id }}">{{ new_key_form.email.label }}</label>
+                        <div class="col-sm-5">
+                            {{ new_key_form.email|add_class:"form-control" }}
+                            {% if new_key_form.email.errors %}
+                                <span class="help-block">{% for error in new_key_form.email.errors %}{{ error }}{% endfor %}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            <input class="btn btn-default" type="submit" value="{% trans "Request key" %}">
+                        </div>
+                    </div>
+                </form>
+                <hr />
+                <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="login_key" />
+                    <div class="form-group{% if login_key_form.login_key.errors %} has-error{% endif %}">
+                        <label class="col-sm-3 control-label" for="{{ login_key_form.login_key.auto_id }}">{{ login_key_form.login_key.label }}</label>
+                        <div class="col-sm-5">
+                            {{ login_key_form.login_key|add_class:"form-control" }}
+                            {% if login_key_form.login_key.errors %}
+                                <span class="help-block">{% for error in login_key_form.login_key.errors %}{{ error }}{% endfor %}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            <input class="btn btn-primary" type="submit" value="{% trans "Login" %}">
                         </div>
                     </div>
                 </form>

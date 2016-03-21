@@ -513,3 +513,7 @@ li.menu-indent {
 .text-answer li,a {
     word-break: break-word;
 }
+
+div.well hr {
+    border-color: #d2d2d2;
+}
