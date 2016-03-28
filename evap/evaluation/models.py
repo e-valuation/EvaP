@@ -588,7 +588,7 @@ class Contribution(models.Model):
 
     @property
     def is_general(self):
-        return self.contributor == None
+        return self.contributor is None
 
 
 class Question(models.Model, metaclass=LocalizeModelBase):
@@ -859,7 +859,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return self.username
 
     def __str__(self):
-        return self.full_name;
+        return self.full_name
 
     @property
     def is_active(self):

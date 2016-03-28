@@ -177,7 +177,7 @@ class ExcelImporter(object):
             try:
                 user = UserProfile.objects.get(username=user_data.username)
                 if (user.email != user_data.email
-                        or (user.title != None and user.title != user_data.title)
+                        or (user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
                     self.warnings.append(_("The existing user would be overwritten with the following data:") +
