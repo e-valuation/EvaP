@@ -90,7 +90,15 @@
 {% block additional_javascript %}
     <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var sisyphus = {};
+        var sisyphus = $("#student-vote-form").sisyphus({
+                locationBased: true,
+                excludeFields: $("input[type=hidden]"), // exclude the csrf token
+                onRestore: function () {
+                    // update vote button states
+                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
+                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
+                }
+            });
 
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
@@ -113,20 +121,5 @@
             $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
         preventAccidentalClosing = true;
-
-        $(function() {
-            sisyphus = $("#student-vote-form").sisyphus({
-                locationBased: true,
-                excludeFields: $("input[type=hidden]"), // exclude the csrf token
-                onRestore: function () {
-                    // If the form contains errors, is submitted, then changes are made and the page is reloaded,
-                    // some labels will have been set active by the server but the underlying checkbox is no longer
-                    // checked because it has been updated by sisyphus
-                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
-                    // Now ensure that the labels of checkboxes which where checked by sisyphus are set to active
-                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
-                }
-            });
-        });
     </script>
 {% endblock %}
