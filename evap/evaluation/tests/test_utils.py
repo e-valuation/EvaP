@@ -1,4 +1,4 @@
-from django_webtest import WebTest
+from django_webtest import WebTest as DjangoWebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
@@ -11,7 +11,6 @@ class FuzzyInt(int):
         obj.lowest = lowest
         obj.highest = highest
         return obj
-
     def __eq__(self, other):
         return other >= self.lowest and other <= self.highest
 
@@ -19,14 +18,40 @@ class FuzzyInt(int):
         return "[%d..%d]" % (self.lowest, self.highest)
 
 
-class ViewTest(WebTest):
-    url = "/"
-    test_users = []
+class WebTest(DjangoWebTest):
 
     def get_assert_200(self, url, user):
         response = self.app.get(url, user=user)
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
         return response
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def get_assert_302(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_submit_assert_302(self, url, user, name="", value=""):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit(name=name, value=value)
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_submit_assert_200(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+
+class ViewTest(WebTest):
+    url = "/"
+    test_users = []
 
     def test_check_response_code_200(self):
         for user in self.test_users:

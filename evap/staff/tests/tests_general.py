@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-from django_webtest import WebTest
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
@@ -10,7 +9,7 @@ from django.contrib.auth.models import Group
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             Contribution, EmailTemplate, Degree, CourseType
-from evap.evaluation.tests.test_utils import lastform
+from evap.evaluation.tests.test_utils import WebTest, lastform
 from evap.staff.forms import ContributionFormSet, ContributionForm
 from evap.staff.tools import merge_users
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
@@ -219,34 +218,6 @@ class UsecaseTests(WebTest):
 class URLTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
-
-    def get_assert_200(self, url, user):
-        response = self.app.get(url, user=user)
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
-
-    def get_assert_302(self, url, user):
-        response = self.app.get(url, user=user)
-        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
-
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
-
-    def get_submit_assert_302(self, url, user, name="", value=""):
-        response = self.get_assert_200(url, user)
-        response = response.forms[2].submit(name=name, value=value)
-        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
-
-    def get_submit_assert_200(self, url, user):
-        response = self.get_assert_200(url, user)
-        response = response.forms[2].submit("")
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
 
     def test_all_urls(self):
         """

@@ -49,12 +49,6 @@ class TestContributorCourseEditView(ViewTest):
     def setUpTestData(cls):
         course_with_responsible_and_editor(course_id=2)
 
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
-
     def test_not_authenticated(self):
         """
             Asserts that an unauthorized user gets redirected to the login page.

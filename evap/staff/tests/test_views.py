@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
-from django_webtest import WebTest
 from model_mommy import mommy
 import xlrd
 
@@ -189,12 +188,6 @@ class ArchivingTests(WebTest):
         users = mommy.make(UserProfile, _quantity=3)
         cls.course.participants = users
         cls.course.voters = users[:2]
-
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
 
     def test_raise_403(self):
         """

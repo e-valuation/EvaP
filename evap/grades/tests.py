@@ -1,4 +1,3 @@
-﻿from django_webtest import WebTest
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import Group
@@ -8,6 +7,7 @@ import tempfile
 import datetime
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
+from evap.evaluation.tests.test_utils import WebTest
 from evap.grades.models import SemesterGradeDownloadActivation
 
 
@@ -48,23 +48,6 @@ class GradeUploadTests(WebTest):
         for course in Course.objects.all():
             for grade_document in course.grade_documents.all():
                 grade_document.file.delete()
-
-    def get_assert_200(self, url, user):
-        response = self.app.get(url, user=user)
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
-
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
-
-    def get_submit_assert_302(self, url, user):
-        response = self.get_assert_200(url, user)
-        response = response.forms[2].submit("")
-        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
 
     def helper_upload_grades(self, course, final_grades):
         with tempfile.SpooledTemporaryFile() as f:
