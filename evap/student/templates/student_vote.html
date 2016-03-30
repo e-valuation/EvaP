@@ -30,7 +30,7 @@
     </small>
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
-    <form method="POST" class="form-horizontal">
+    <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
         <div class="panel panel-info">
@@ -81,14 +81,56 @@
             {% if preview %}
                 <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
             {% else %}
-                <input type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
+                <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
+                <p id="submit-error-warning" style="display: none">
+                    <span class="glyphicon glyphicon-warning-sign"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
+                </p>
             {% endif %}
         </div>
     </form>
 {% endblock %}
 
 {% block additional_javascript %}
+    <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+        var sisyphus = $("#student-vote-form").sisyphus({
+            locationBased: true,
+            excludeFields: $("input[type=hidden]"), // exclude the csrf token
+            autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
+            onRestore: function () {
+                // update vote button states
+                $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
+                $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
+            }
+        });
+        // save all data after loading the page
+        // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
+        sisyphus.saveAllData();
+
+        var form = $('#student-vote-form');
+        form.submit(function (event) {
+            event.preventDefault(); // don't use the default submission
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (data) {
+                    sisyphus.manuallyReleaseData(); // delete the data from local storage
+                    // replace the html with the response data
+                    document.open();
+                    document.write(data);
+                    document.close();
+                    $('html,body').scrollTop(0); // scroll to the top of the page
+                },
+                error: function(data) {
+                    // show a warning if the post isn't successful
+                    $('#vote-submit-btn').effect("highlight", {color:"#eb595a"}, 2000);
+                    document.getElementById('submit-error-warning').style.display = 'block';
+                }
+            });
+            return false;
+        });
+
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
             $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
@@ -101,6 +143,9 @@
             // hide questionnaire for contributor
             $("#" + contributorId).collapse("hide");
             $("a[href=#" + contributorId + "]").addClass("collapsed");
+
+            // setting the 'checked' prop does not trigger a change event, so manually save all data here
+            sisyphus.saveAllData()
         }
         function selectedAnswer(fieldName) {
             // remove error highlighting when an answer was selected
