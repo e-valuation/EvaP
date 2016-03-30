@@ -4,15 +4,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
-from django.core.cache import cache
 from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth.models import Group
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
-                            Contribution, TextAnswer, EmailTemplate, NotArchiveable, Degree, CourseType
+                            Contribution, EmailTemplate, Degree, CourseType
 from evap.evaluation.tests.test_utils import lastform
-from evap.evaluation.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import ContributionFormSet, ContributionForm
 from evap.staff.tools import merge_users
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
@@ -21,21 +19,6 @@ from model_mommy import mommy
 from webtest import AppError
 
 import os.path
-
-
-# taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
-class FuzzyInt(int):
-    def __new__(cls, lowest, highest):
-        obj = super().__new__(cls, highest)
-        obj.lowest = lowest
-        obj.highest = highest
-        return obj
-
-    def __eq__(self, other):
-        return other >= self.lowest and other <= self.highest
-
-    def __repr__(self):
-        return "[%d..%d]" % (self.lowest, self.highest)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
@@ -230,21 +213,6 @@ class UsecaseTests(WebTest):
         page = form.submit()
 
         self.assertIn("No responsible contributor found", page)
-
-
-class PerformanceTests(WebTest):
-
-    def test_num_queries_user_list(self):
-        """
-            ensures that the number of queries in the user list is constant
-            and not linear to the number of users
-        """
-        num_users = 50
-        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
-        mommy.make(UserProfile, _quantity=num_users)
-
-        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
-            self.app.get("/staff/user/", user="staff.user")
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
@@ -649,26 +617,6 @@ class URLTests(WebTest):
         form.submit()
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
 
-    def test_contributor_course_edit(self):
-        """
-            Tests whether the "save" button in the contributor's course edit view does not
-            change the course's state, and that the "approve" button does that.
-        """
-        page = self.get_assert_200("/contributor/course/2/edit", user="responsible")
-        form = lastform(page)
-        form["vote_start_date"] = "02/1/2098"
-        form["vote_end_date"] = "02/1/2099"
-
-        form.submit(name="operation", value="save")
-        self.assertEqual(Course.objects.get(pk=2).state, "prepared")
-
-        form.submit(name="operation", value="approve")
-        self.assertEqual(Course.objects.get(pk=2).state, "editorApproved")
-
-        # test what happens if the operation is not specified correctly
-        response = form.submit(expect_errors=True)
-        self.assertEqual(response.status_code, 403)
-
     def test_student_vote(self):
         """
             Submits a student vote for coverage, verifies that an error message is
@@ -750,115 +698,6 @@ class URLTests(WebTest):
         self.assertEqual(Course.objects.filter(type=main_type).count(), num_courses_with_main_type + 1)
         for course in courses_with_other_type:
             self.assertTrue(course.type == main_type)
-
-
-class ArchivingTests(WebTest):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.semester = mommy.make(Semester)
-        cls.course = mommy.make(Course, pk=7, state="published", semester=cls.semester)
-
-        users = mommy.make(UserProfile, _quantity=3)
-        cls.course.participants = users
-        cls.course.voters = users[:2]
-
-    def refresh_course(self):
-        """ refresh_from_db does not work with courses"""
-        self.course = self.semester.course_set.first()
-
-    def setUp(self):
-        self.semester.refresh_from_db()
-        self.refresh_course()
-
-    def test_counts_dont_change(self):
-        """
-            Asserts that course.num_voters course.num_participants don't change after archiving.
-        """
-        voter_count = self.course.num_voters
-        participant_count = self.course.num_participants
-
-        self.semester.archive()
-        self.refresh_course()
-
-        self.assertEqual(voter_count, self.course.num_voters)
-        self.assertEqual(participant_count, self.course.num_participants)
-
-    def test_participants_do_not_loose_courses(self):
-        """
-            Asserts that participants still participate in their courses after they get archived.
-        """
-        some_participant = self.course.participants.first()
-
-        self.semester.archive()
-
-        self.assertEqual(list(some_participant.courses_participating_in.all()), [self.course])
-
-    def test_is_archived(self):
-        """
-            Tests whether is_archived returns True on archived semesters and courses.
-        """
-        self.assertFalse(self.course.is_archived)
-
-        self.semester.archive()
-        self.refresh_course()
-
-        self.assertTrue(self.course.is_archived)
-
-    def test_archiving_does_not_change_results(self):
-        results = calculate_average_grades_and_deviation(self.course)
-
-        self.semester.archive()
-        self.refresh_course()
-        cache.clear()
-
-        self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
-
-    def test_archiving_twice_raises_exception(self):
-        self.semester.archive()
-        with self.assertRaises(NotArchiveable):
-            self.semester.archive()
-        with self.assertRaises(NotArchiveable):
-            self.semester.course_set.first()._archive()
-
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
-
-    def test_raise_403(self):
-        """
-            Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
-        """
-        self.semester.archive()
-
-        semester_url = "/staff/semester/{}/".format(self.semester.pk)
-
-        self.get_assert_403(semester_url + "import", "evap")
-        self.get_assert_403(semester_url + "assign", "evap")
-        self.get_assert_403(semester_url + "course/create", "evap")
-        self.get_assert_403(semester_url + "courseoperation", "evap")
-
-    def test_course_is_not_archived_if_participant_count_is_set(self):
-        course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)
-        self.assertFalse(course.is_archived)
-        self.assertTrue(course.is_archiveable)
-
-    def test_archiving_doesnt_change_single_results_participant_count(self):
-        responsible = mommy.make(UserProfile)
-        course = mommy.make(Course, state="published")
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True)
-        contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
-        self.assertTrue(course.is_single_result())
-
-        course._participant_count = 5
-        course._voter_count = 5
-        course.save()
-
-        course._archive()
-        self.assertEqual(course._participant_count, 5)
-        self.assertEqual(course._voter_count, 5)
 
 
 class TestDataTest(TestCase):
@@ -1030,25 +869,3 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
         self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
-
-
-class TextAnswerReviewTest(WebTest):
-    csrf_checks = False
-
-    @classmethod
-    def setUpTestData(cls):
-        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
-        mommy.make(Course, pk=1)
-
-    def helper(self, old_state, expected_new_state, action):
-        textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post(reverse("staff:course_comments_update_publish"), {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
-        self.assertEqual(response.status_code, 200)
-        textanswer.refresh_from_db()
-        self.assertEqual(textanswer.state, expected_new_state)
-
-    def test_review_actions(self):
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")
-        self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")

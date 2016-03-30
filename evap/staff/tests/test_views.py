@@ -1,14 +1,31 @@
 import os
 
-import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django_webtest import WebTest
 from model_mommy import mommy
+import xlrd
 
-from evap.evaluation.models import Semester, UserProfile, Course, CourseType, Contribution
-from evap.evaluation.tests.test_utils import lastform, ViewTest
+from evap.evaluation.models import Semester, UserProfile, Course, CourseType, \
+                                   TextAnswer, Contribution
+from evap.evaluation.tests.test_utils import FuzzyInt, lastform, WebTest, ViewTest
+
+
+class PerformanceTests(WebTest):
+
+    def test_num_queries_user_list(self):
+        """
+            ensures that the number of queries in the user list is constant
+            and not linear to the number of users
+        """
+        num_users = 50
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(UserProfile, _quantity=num_users)
+
+        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+            self.app.get("/staff/user/", user="staff.user")
 
 
 class TestUserBulkDeleteView(ViewTest):
@@ -138,3 +155,56 @@ class TestSemesterCourseImportParticipantsView(WebTest):
         reply = form.submit(name="operation", value="hackit", expect_errors=True)
 
         self.assertEqual(reply.status_code, 400)
+
+
+class TestCourseCommentsUpdatePublishView(WebTest):
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(Course, pk=1)
+
+    def helper(self, old_state, expected_new_state, action):
+        textanswer = mommy.make(TextAnswer, state=old_state)
+        response = self.app.post(reverse("staff:course_comments_update_publish"), {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        self.assertEqual(response.status_code, 200)
+        textanswer.refresh_from_db()
+        self.assertEqual(textanswer.state, expected_new_state)
+
+    def test_review_actions(self):
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")
+        self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
+
+
+class ArchivingTests(WebTest):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester)
+        cls.course = mommy.make(Course, pk=7, state="published", semester=cls.semester)
+
+        users = mommy.make(UserProfile, _quantity=3)
+        cls.course.participants = users
+        cls.course.voters = users[:2]
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def test_raise_403(self):
+        """
+            Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
+        """
+        self.semester.archive()
+
+        semester_url = "/staff/semester/{}/".format(self.semester.pk)
+
+        self.get_assert_403(semester_url + "import", "evap")
+        self.get_assert_403(semester_url + "assign", "evap")
+        self.get_assert_403(semester_url + "course/create", "evap")
+        self.get_assert_403(semester_url + "courseoperation", "evap")
