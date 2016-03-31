@@ -78,6 +78,15 @@ class CourseTypeForm(forms.ModelForm, BootstrapMixin):
             raise SuspiciousOperation("Deleting course type not allowed")
 
 
+class CourseTypeMergeSelectionForm(forms.Form, BootstrapMixin):
+    main_type = forms.ModelChoiceField(CourseType.objects.all())
+    other_type = forms.ModelChoiceField(CourseType.objects.all())
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('main_type') == self.cleaned_data.get('other_type'):
+            raise ValidationError(_("You must select two different course types."))
+
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))

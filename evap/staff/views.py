@@ -20,7 +20,7 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
                              UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
-                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm
+                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
@@ -855,6 +855,35 @@ def course_type_index(request):
 
 
 @staff_required
+def course_type_merge_selection(request):
+    form = CourseTypeMergeSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        main_type = form.cleaned_data['main_type']
+        other_type = form.cleaned_data['other_type']
+        return redirect('staff:course_type_merge', main_type.id, other_type.id)
+    else:
+        return render(request, "staff_course_type_merge_selection.html", dict(form=form))
+
+
+@staff_required
+def course_type_merge(request, main_type_id, other_type_id):
+    main_type = get_object_or_404(CourseType, id=main_type_id)
+    other_type = get_object_or_404(CourseType, id=other_type_id)
+
+    if request.method == 'POST':
+        Course.objects.filter(type=other_type).update(type=main_type)
+        other_type.delete()
+        messages.success(request, _("Successfully merged course types."))
+        return redirect('staff:course_type_index')
+    else:
+        courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
+        return render(request, "staff_course_type_merge.html",
+            dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
+
+
+
+@staff_required
 def user_index(request):
     from django.db.models import  BooleanField, ExpressionWrapper, Q, Sum, Case, When, IntegerField
     users = (UserProfile.objects.all()
@@ -948,7 +977,7 @@ def user_bulk_delete(request):
 
 @staff_required
 def user_merge_selection(request):
-    form = UserMergeSelectionForm(request.POST or None, request.FILES or None)
+    form = UserMergeSelectionForm(request.POST or None)
 
     if form.is_valid():
         main_user = form.cleaned_data['main_user']

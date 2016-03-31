@@ -332,18 +332,21 @@ class URLTests(WebTest):
             ("test_staff_faq", "/staff/faq/", "evap"),
             ("test_staff_faq_x", "/staff/faq/1", "evap"),
             # rewards
-            ("rewards_index", "/rewards/", "student"),
-            ("reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
-            ("reward_points_redemption_event_create", "/rewards/reward_point_redemption_event/create", "evap"),
-            ("reward_points_redemption_event_edit", "/rewards/reward_point_redemption_event/1/edit", "evap"),
-            ("reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
-            ("reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
-            ("reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
-            ("reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
+            ("test_staff_rewards_index", "/rewards/", "student"),
+            ("test_staff_reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
+            ("test_staff_reward_points_redemption_event_create", "/rewards/reward_point_redemption_event/create", "evap"),
+            ("test_staff_reward_points_redemption_event_edit", "/rewards/reward_point_redemption_event/1/edit", "evap"),
+            ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
+            ("test_staff_reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
+            ("test_staff_reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
+            ("test_staff_reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
             # degrees
-            ("degree_index", "/staff/degrees/", "evap"),
+            ("test_staff_degree_index", "/staff/degrees/", "evap"),
             # course types
-            ("course_type_index", "/staff/course_types/", "evap")]
+            ("test_staff_course_type_index", "/staff/course_types/", "evap"),
+            ("test_staff_course_type_merge", "/staff/course_types/merge", "evap"),
+            ("test_staff_course_type_x_merge_x", "/staff/course_types/2/merge/3", "evap"),
+        ]
         for _, url, user in tests:
             self.get_assert_200(url, user)
 
@@ -381,6 +384,7 @@ class URLTests(WebTest):
             ("/staff/questionnaire/create", "evap"),
             ("/staff/user/create", "evap"),
             ("/staff/user/merge", "evap"),
+            ("/staff/course_types/merge", "evap"),
         ]
         for form in forms:
             response = self.get_submit_assert_200(form[0], form[1])
@@ -726,6 +730,26 @@ class URLTests(WebTest):
         self.assertIn("Successfully", str(response))
 
         self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
+
+    def test_course_type_merge(self):
+        """
+            Tests that the merging of course types works as expected.
+        """
+        main_type = CourseType.objects.get(name_en="Master project")
+        other_type = CourseType.objects.get(name_en="Obsolete course type")
+        num_courses_with_main_type = Course.objects.filter(type=main_type).count()
+        courses_with_other_type = Course.objects.filter(type=other_type)
+        self.assertGreater(courses_with_other_type.count(), 0)
+
+        page = self.get_assert_200("/staff/course_types/" + str(main_type.pk) + "/merge/" + str(other_type.pk), user="evap")
+        form = lastform(page)
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
+        self.assertEqual(Course.objects.filter(type=main_type).count(), num_courses_with_main_type + 1)
+        for course in courses_with_other_type:
+            self.assertTrue(course.type == main_type)
 
 
 class ArchivingTests(WebTest):
