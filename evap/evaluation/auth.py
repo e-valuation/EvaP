@@ -5,9 +5,9 @@ from django.contrib.auth.views import redirect_to_login
 from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import UserProfile, EmailTemplate
 
-from datetime import date
+from datetime import date, timedelta
 from functools import wraps
 
 
@@ -41,16 +41,22 @@ class RequestAuthMiddleware(object):
             # AuthenticationMiddleware).
             return
 
-        # We are seeing this user for the first time in this session, attempt
-        # to authenticate the user.
+        # We are seeing this user for the first time in this session, attempt to authenticate the user.
         user = auth.authenticate(key=key)
-        if user:
-            # User is valid.  Set request.user and persist user in the session
-            # by logging the user in.
+        if user and user.login_key_valid_until >= date.today():
+            # User is valid. Set request.user and persist user in the session by logging the user in.
             request.user = user
             auth.login(request, user)
+            # Invalidate the login key (set to yesterday).
+            user.login_key_valid_until = date.today() - timedelta(1)
+            user.save()
+        elif user:
+            # A user exists, but the login key is not valid anymore. Send the user a new one.
+            user.generate_login_key()
+            EmailTemplate.send_login_key_to_user(user)
+            messages.warning(request, _("The login URL was already used. We sent you a new one to your email address."))
         else:
-            messages.warning(request, _("Invalid login key"))
+            messages.warning(request, _("Invalid login URL. Please request a new one to your email address."))
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -66,7 +72,7 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
         try:
-            return UserProfile.objects.get(login_key=key, login_key_valid_until__gte=date.today())
+            return UserProfile.objects.get(login_key=key)
         except UserProfile.DoesNotExist:
             return None
 
