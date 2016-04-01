@@ -77,6 +77,9 @@ ADMINS = [
 # localhost is listed for easier development. Remove it in production environments.
 ALLOWED_HOSTS = ["localhost"]
 
+# The page URL that is used for links in email templates.
+PAGE_URL = "localhost:8000"
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
 
