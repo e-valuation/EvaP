@@ -892,7 +892,7 @@ def user_index(request):
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'courses_participating_in'))
+        .prefetch_related('contributions', 'courses_participating_in', 'courses_participating_in__semester'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 
