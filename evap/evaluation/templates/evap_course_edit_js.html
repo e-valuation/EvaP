@@ -93,7 +93,7 @@
 </script>
 
 
-{% if edit or staff %}
+{% if editable %}
     {% include_sortable_form_js %}
     <script type="text/javascript">
         row_changed = function(row) {
@@ -105,8 +105,6 @@
             assignClickHandlers();
             apply_select2(row.find("select"));
         }
-        {% if course.can_staff_edit %}
-            make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false, true);
-        {% endif %}
+        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false, true);
     </script>
 {% endif %}

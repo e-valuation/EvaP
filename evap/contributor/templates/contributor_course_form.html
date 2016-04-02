@@ -82,7 +82,7 @@
         </fieldset>
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
-                {% if edit %}
+                {% if editable %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit" />
@@ -110,7 +110,7 @@
 
 {% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
-    {% if edit %}
+    {% if editable %}
         <script type="text/javascript"> preventAccidentalClosing = true; </script>
     {% endif %}
 {% endblock %}
