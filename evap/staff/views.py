@@ -20,9 +20,9 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
                              UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
-                             UserMergeSelectionForm, CourseTypeForm
+                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 
@@ -440,7 +440,7 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True))
+        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True, editable=True, state=""))
 
 
 @staff_required
@@ -465,12 +465,6 @@ def single_result_create(request, semester_id):
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
-    raise_permission_denied_if_archived(course)
-
-    # check course state
-    if not course.can_staff_edit:
-        messages.warning(request, _("Editing not possible in current state."))
-        return redirect('staff:semester_view', semester_id)
 
     if course.is_single_result():
         return helper_single_result_edit(request, semester, course)
@@ -484,13 +478,18 @@ def helper_course_edit(request, semester, course):
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
+    editable = course.can_staff_edit
 
     operation = request.POST.get('operation')
 
     if form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
-        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
+
+        if not course.can_staff_edit or course.is_archived:
+            raise SuspiciousOperation("Modifying this course is not allowed.")
+
+        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period():
             course.reopen_evaluation()
         form.save(user=request.user)
         formset.save()
@@ -506,7 +505,7 @@ def helper_course_edit(request, semester, course):
         return custom_redirect('staff:semester_view', semester.id)
     else:
         sort_formset(request, formset)
-        template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True)
+        template_data = dict(semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
         return render(request, "staff_course_form.html", template_data)
 
 
@@ -515,6 +514,9 @@ def helper_single_result_edit(request, semester, course):
     form = SingleResultForm(request.POST or None, instance=course)
 
     if form.is_valid():
+        if not course.can_staff_edit or course.is_archived:
+            raise SuspiciousOperation("Modifying this course is not allowed.")
+
         form.save(user=request.user)
 
         messages.success(request, _("Successfully created single result."))
@@ -597,7 +599,7 @@ def course_comments(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     filter = request.GET.get('filter', None)
-    if filter == None: # if no parameter is given take session value
+    if filter is None: # if no parameter is given take session value
         filter = request.session.get('filter_comments', False) # defaults to False if no session value exists
     else:
         filter = {'true': True, 'false': False}.get(filter.lower()) # convert parameter to boolean
@@ -660,7 +662,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
     reviewed_answer = text_answer.reviewed_answer
-    if reviewed_answer == None:
+    if reviewed_answer is None:
         reviewed_answer = text_answer.original_answer
     form = TextAnswerForm(request.POST or None, instance=text_answer, initial={'reviewed_answer': reviewed_answer})
 
@@ -854,6 +856,35 @@ def course_type_index(request):
 
 
 @staff_required
+def course_type_merge_selection(request):
+    form = CourseTypeMergeSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        main_type = form.cleaned_data['main_type']
+        other_type = form.cleaned_data['other_type']
+        return redirect('staff:course_type_merge', main_type.id, other_type.id)
+    else:
+        return render(request, "staff_course_type_merge_selection.html", dict(form=form))
+
+
+@staff_required
+def course_type_merge(request, main_type_id, other_type_id):
+    main_type = get_object_or_404(CourseType, id=main_type_id)
+    other_type = get_object_or_404(CourseType, id=other_type_id)
+
+    if request.method == 'POST':
+        Course.objects.filter(type=other_type).update(type=main_type)
+        other_type.delete()
+        messages.success(request, _("Successfully merged course types."))
+        return redirect('staff:course_type_index')
+    else:
+        courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
+        return render(request, "staff_course_type_merge.html",
+            dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
+
+
+
+@staff_required
 def user_index(request):
     from django.db.models import  BooleanField, ExpressionWrapper, Q, Sum, Case, When, IntegerField
     users = (UserProfile.objects.all()
@@ -862,7 +893,7 @@ def user_index(request):
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'courses_participating_in'))
+        .prefetch_related('contributions', 'courses_participating_in', 'courses_participating_in__semester'))
 
     return render(request, "staff_user_index.html", dict(users=users))
 
@@ -922,12 +953,32 @@ def user_delete(request):
     if not user.can_staff_delete:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
+
+
+@staff_required
+def user_bulk_delete(request):
+    form = UserBulkDeleteForm(request.POST or None, request.FILES or None)
+    operation = request.POST.get('operation')
+
+    if form.is_valid():
+        if operation not in ('test', 'bulk_delete'):
+            raise SuspiciousOperation("Invalid POST operation")
+
+        test_run = operation == 'test'
+        username_file = form.cleaned_data['username_file']
+        bulk_delete_users(request, username_file, test_run)
+
+        if test_run:
+            return render(request, "staff_user_bulk_delete.html", dict(form=form))
+        return redirect('staff:user_index')
+    else:
+        return render(request, "staff_user_bulk_delete.html", dict(form=form))
 
 
 @staff_required
 def user_merge_selection(request):
-    form = UserMergeSelectionForm(request.POST or None, request.FILES or None)
+    form = UserMergeSelectionForm(request.POST or None)
 
     if form.is_valid():
         main_user = form.cleaned_data['main_user']

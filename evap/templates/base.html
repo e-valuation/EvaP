@@ -90,10 +90,9 @@
                                     <li><a href="{% url "staff:index" %}">{% trans "Semesters" %}</a></li>
                                     {% include_staff_semester_menu %}
                                     <li><a href="{% url "staff:questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+                                    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
                                     <li><a href="{% url "staff:degree_index" %}">{% trans "Degrees" %}</a></li>
                                     <li><a href="{% url "staff:course_type_index" %}">{% trans "Course types" %}</a></li>
-                                    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
-                                    <li class="menu-indent"><a href="{% url "staff:user_merge_selection" %}">{% trans "Merge users" %}</a></li>
                                     <li><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
                                     <li><a href="{% url "staff:index" %}">{% trans "Templates" %}</a></li>
                                     <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ" %}</a></li>

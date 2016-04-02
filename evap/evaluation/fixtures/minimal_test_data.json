@@ -1320,6 +1320,14 @@
   }
 },
 {
+  "pk": 3,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Obsoleter Kurstyp",
+    "name_en": "Obsolete course type"
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.course",
   "fields": {
@@ -1527,7 +1535,7 @@
         "participants": [5],
         "vote_end_date": "2099-11-20",
         "name_en": "dadas",
-        "type": 2,
+        "type": 3,
         "vote_start_date": "2014-11-07"
     }
 },

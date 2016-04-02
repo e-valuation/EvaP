@@ -10,12 +10,16 @@ from django.contrib.auth.models import Group
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-from evap.evaluation.tools import course_types_in_semester
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def disable_all_fields(form):
+    for field in form.fields.values():
+        field.disabled = True
 
 
 class ImportForm(forms.Form, BootstrapMixin):
@@ -27,6 +31,10 @@ class ImportForm(forms.Form, BootstrapMixin):
 
 class UserImportForm(forms.Form, BootstrapMixin):
     excel_file = forms.FileField(label=_("Excel file"))
+
+
+class UserBulkDeleteForm(forms.Form, BootstrapMixin):
+    username_file = forms.FileField(label=_("Username file"))
 
 
 class SemesterForm(forms.ModelForm, BootstrapMixin):
@@ -70,6 +78,15 @@ class CourseTypeForm(forms.ModelForm, BootstrapMixin):
             raise SuspiciousOperation("Deleting course type not allowed")
 
 
+class CourseTypeMergeSelectionForm(forms.Form, BootstrapMixin):
+    main_type = forms.ModelChoiceField(CourseType.objects.all())
+    other_type = forms.ModelChoiceField(CourseType.objects.all())
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('main_type') == self.cleaned_data.get('other_type'):
+            raise ValidationError(_("You must select two different course types."))
+
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
     general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
@@ -103,6 +120,10 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
         if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].disabled = True
+
+        if not self.instance.can_staff_edit:
+            # form is used as read-only course view
+            disable_all_fields(self)
 
     def clean(self):
         super().clean()
@@ -139,14 +160,15 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['type'].widget = forms.Select(choices=[(a, a) for a in Course.objects.values_list('type', flat=True).order_by().distinct()])
-
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.vote_start_date:
             self.fields['event_date'].initial = self.instance.vote_start_date
+
+        if not self.instance.can_staff_edit:
+            disable_all_fields(self)
 
         if self.instance.pk:
             self.fields['responsible'].initial = self.instance.responsible_contributor
@@ -220,6 +242,10 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
         self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
 
+        if not self.course.can_staff_edit:
+            # form is used as read-only course view
+            disable_all_fields(self)
+
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
         is_responsible = responsibility == Contribution.IS_RESPONSIBLE
@@ -266,7 +292,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True)
 
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
@@ -485,10 +511,10 @@ class TextAnswerForm(forms.ModelForm, BootstrapMixin):
 class ExportSheetForm(forms.Form, BootstrapMixin):
     def __init__(self, semester, *args, **kwargs):
         super(ExportSheetForm, self).__init__(*args, **kwargs)
-        course_types = course_types_in_semester(semester)
-        course_types = [(course_type, course_type) for course_type in course_types]
+        course_types = CourseType.objects.filter(courses__semester=semester).distinct()
+        course_type_tuples = [(ct.pk, ct.name) for ct in course_types]
         self.fields['selected_course_types'] = forms.MultipleChoiceField(
-            choices=course_types,
+            choices=course_type_tuples,
             required=True,
             widget=forms.CheckboxSelectMultiple(),
             label=_("Course types")

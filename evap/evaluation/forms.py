@@ -113,37 +113,6 @@ class LoginUsernameForm(forms.Form):
         return self.user_cache
 
 
-class LoginKeyForm(forms.Form):
-    """Form encapsulating the login with a login key. It works together with the
-       evaluation.auth.RequestAuthUserBackend.
-    """
-
-    INVALID_CODE_MESSAGE = _("Please enter a correct login key. Be aware that login keys are automatically invalidated after seven months.")
-
-    login_key = forms.IntegerField(label=_("Login key"), error_messages={'invalid': INVALID_CODE_MESSAGE}, widget=forms.TextInput)
-
-    def __init__(self, *args, **kwargs):
-        self.user_cache = None
-        super().__init__(*args, **kwargs)
-
-    def clean_login_key(self):
-        login_key = self.cleaned_data.get('login_key')
-
-        if login_key:
-            self.user_cache = authenticate(key=login_key)
-            if self.user_cache is None:
-                raise forms.ValidationError(LoginKeyForm.INVALID_CODE_MESSAGE)
-        return login_key
-
-    def get_user_id(self):
-        if self.user_cache:
-            return self.user_cache.id
-        return None
-
-    def get_user(self):
-        return self.user_cache
-
-
 class NewKeyForm(forms.Form):
     email = forms.EmailField(label=_("Email address"))
 

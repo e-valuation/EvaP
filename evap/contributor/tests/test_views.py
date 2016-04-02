@@ -1,23 +1,9 @@
-from model_mommy import mommy
 from webtest.app import AppError
 
-from evap.evaluation.models import Course, Contribution, UserProfile
-from evap.evaluation.tests.test_utils import ViewTest
-
+from evap.evaluation.models import Course, Questionnaire
+from evap.evaluation.tests.test_utils import ViewTest, course_with_responsible_and_editor, lastform
 
 TESTING_COURSE_ID = 2
-
-
-def course_with_responsible_and_editor():
-    contributor = mommy.make(UserProfile, username='responsible')
-    editor = mommy.make(UserProfile, username='editor')
-
-    course = mommy.make(Course, state='prepared', id=TESTING_COURSE_ID)
-
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True)
-    mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
-
-    return course
 
 
 class TestContributorView(ViewTest):
@@ -43,7 +29,7 @@ class TestContributorCourseView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        course_with_responsible_and_editor(course_id=2)
 
 
 class TestContributorCoursePreviewView(ViewTest):
@@ -52,7 +38,7 @@ class TestContributorCoursePreviewView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        course_with_responsible_and_editor(course_id=2)
 
 
 class TestContributorCourseEditView(ViewTest):
@@ -61,13 +47,7 @@ class TestContributorCourseEditView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
-
-    def get_assert_403(self, url, user):
-        try:
-            self.app.get(url, user=user, status=403)
-        except AppError as e:
-            self.fail('url "{}" failed with user "{}"'.format(url, user))
+        course_with_responsible_and_editor(course_id=2)
 
     def test_not_authenticated(self):
         """
@@ -95,3 +75,25 @@ class TestContributorCourseEditView(ViewTest):
         course.save()
 
         self.get_assert_403(self.url, 'responsible')
+
+    def test_contributor_course_edit(self):
+        """
+            Tests whether the "save" button in the contributor's course edit view does not
+            change the course's state, and that the "approve" button does that.
+        """
+        course = Course.objects.get(pk=TESTING_COURSE_ID)
+
+        page = self.get_assert_200("/contributor/course/{}/edit".format(TESTING_COURSE_ID), user="responsible")
+        form = lastform(page)
+        form["vote_start_date"] = "02/1/2098"
+        form["vote_end_date"] = "02/1/2099"
+
+        response = form.submit(name="operation", value="save")
+        self.assertEqual(Course.objects.get(pk=TESTING_COURSE_ID).state, "prepared")
+
+        form.submit(name="operation", value="approve")
+        self.assertEqual(Course.objects.get(pk=TESTING_COURSE_ID).state, "editorApproved")
+
+        # test what happens if the operation is not specified correctly
+        response = form.submit(expect_errors=True)
+        self.assertEqual(response.status_code, 403)

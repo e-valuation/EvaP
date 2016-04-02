@@ -23,32 +23,18 @@ class TestIndexView(ViewTest):
         password_form['password'] = 'evap'
         self.assertEqual(password_form.submit().status_code, 302)
 
-    def test_loginkey_login(self):
-        """ Tests whether entering a wrong, an expired and a correct login key
-            results in the correct return codes. """
-        mommy.make(UserProfile, login_key=12345, login_key_valid_until=date.today() + timedelta(1))
-        mommy.make(UserProfile, login_key=12346, login_key_valid_until=date.today() - timedelta(1))
-        response = self.app.get("/")
-        login_key_form = response.forms[3]
-        login_key_form['login_key'] = 1111111
-        self.assertEqual(login_key_form.submit().status_code, 200)
-        login_key_form['login_key'] = 12346
-        self.assertEqual(login_key_form.submit().status_code, 200)
-        login_key_form['login_key'] = 12345
-        self.assertEqual(login_key_form.submit().status_code, 302)
-
     def test_send_new_loginkey(self):
         """ Tests whether requesting a new login key is only possible for existing users,
             shows the expected success message and sends only one email to the requesting
             user without people in cc even if the user has delegates and cc users. """
         mommy.make(UserProfile, email='asdf@example.com')
         response = self.app.get("/")
-        email_form = response.forms[4]
+        email_form = response.forms[3]
         email_form['email'] = "doesnotexist@example.com"
         self.assertIn("No user with this email address was found", email_form.submit())
         email = "asdf@example.com"
         email_form['email'] = email
-        self.assertIn("Successfully sent", email_form.submit())
+        self.assertIn("We sent you", email_form.submit().follow())
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(mail.outbox[0].to == [email])
         self.assertEqual(len(mail.outbox[0].cc), 0)

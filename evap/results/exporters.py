@@ -1,11 +1,9 @@
-from evap.evaluation.models import Questionnaire
+from evap.evaluation.models import CourseType
 from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
 
 from django.utils.translation import ugettext as _
 
 from collections import OrderedDict
-from collections import defaultdict
-import datetime
 import xlwt
 
 
@@ -16,9 +14,9 @@ class ExcelExporter(object):
         self.styles = dict()
 
         self.CUSTOM_COLOR_START = 8
-        self.NUM_GRADE_COLORS = 21 # 1.0 to 5.0 in 0.2 steps
-        self.NUM_DEVIATION_COLORS = 13 # 0.0 to 2.4 in 0.2 steps
-        self.STEP = 0.2 # we only have a limited number of custom colors
+        self.NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
+        self.NUM_DEVIATION_COLORS = 13  # 0.0 to 2.4 in 0.2 steps
+        self.STEP = 0.2  # we only have a limited number of custom colors
 
     def normalize_number(self, number):
         """ floors 'number' to a multiply of self.STEP """
@@ -109,7 +107,8 @@ class ExcelExporter(object):
             courses_with_results.sort(key=lambda cr: cr[0].type)
             used_questionnaires = sorted(used_questionnaires)
 
-            writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_types)), "headline")
+            course_type_names = [ct.name for ct in CourseType.objects.filter(pk__in=course_types)]
+            writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_type_names)), "headline")
 
             for course, results in courses_with_results:
                 writec(self, course.name, "course", cols=2)

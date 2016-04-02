@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
@@ -24,6 +25,25 @@ def delete_navbar_cache():
         cache.delete(key)
         key = make_template_fragment_key('navbar', [user.username, 'en'])
         cache.delete(key)
+
+
+def bulk_delete_users(request, username_file, test_run):
+    usernames = [u.strip() for u in username_file.readlines()]
+    users = UserProfile.objects.filter(username__in=usernames)
+    deletable_users = [u for u in users if u.can_staff_delete]
+
+    messages.info(request, 'The uploaded text file contains {} usernames. {} users have been found in the database. '
+                           '{} of those can be deleted.'
+                  .format(len(usernames), len(users), len(deletable_users)))
+    messages.info(request, 'Users to be deleted are:\n{}'
+                  .format('\n'.join([u.username for u in deletable_users])))
+
+    if test_run:
+        messages.info(request, 'No Users were deleted in this test run.')
+    else:
+        for user in deletable_users:
+            user.delete()
+        messages.info(request, '{} users have been deleted'.format(len(deletable_users)))
 
 
 @transaction.atomic

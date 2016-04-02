@@ -19,8 +19,18 @@
         </div>
         <div class="col-md-3">
             <h3>{% trans "Questionnaires" %}</h3>
-            <ul><li><a href="{% url "staff:questionnaire_index" %}">{% trans "All questionnaires" %}</a></li></ul>
+            <ul>
+                <li><a href="{% url "staff:questionnaire_index" %}">{% trans "All questionnaires" %}</a></li>
+            </ul>
             <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
+            <h3>{% trans "Users" %}</h3>
+            <ul>
+                <li><a href="{% url "staff:user_index" %}">{% trans "All users" %}</a></li>
+                <li><a href="{% url "staff:user_import" %}">{% trans "Import users" %}</a></li>
+                <li><a href="{% url "staff:user_merge_selection" %}">{% trans "Merge users" %}</a></li>
+                <li><a href="{% url "staff:user_bulk_delete" %}">{% trans "Delete users" %}</a></li>
+            </ul>
+            <a href="{% url "staff:user_create" %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
         </div>
         <div class="col-md-3">
             <h3>{% trans "Degrees" %}</h3>
@@ -30,11 +40,7 @@
             <h3>{% trans "Course types" %}</h3>
             <ul>
                 <li><a href="{% url "staff:course_type_index" %}">{% trans "All course types" %}</a></li>
-            </ul>
-            <h3>{% trans "Users" %}</h3>
-            <ul>
-                <li><a href="{% url "staff:user_index" %}">{% trans "All users" %}</a></li>
-                <li><a href="{% url "staff:user_merge_selection" %}">{% trans "Merge users" %}</a></li>
+                <li><a href="{% url "staff:course_type_merge_selection" %}">{% trans "Merge course types" %}</a></li>
             </ul>
             <h3>{% trans "Reward Points" %}</h3>
             <ul>

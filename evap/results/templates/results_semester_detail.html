@@ -76,7 +76,7 @@
                             {% with responsible=single_result.responsible_contributor %}
                                 <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                             {% endwith %}
-                            <td>{% include_result_bar result True %}</td>
+                            <td data-order="{{ result.average|default:'0' }}">{% include_result_bar result True %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

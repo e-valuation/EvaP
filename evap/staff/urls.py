@@ -43,7 +43,10 @@ urlpatterns = [
     url(r"^questionnaire/update_indices$", questionnaire_update_indices, name="questionnaire_update_indices"),
 
     url(r"^degrees/$", degree_index, name="degree_index"),
+
     url(r"^course_types/$", course_type_index, name="course_type_index"),
+    url(r"^course_types/merge$", course_type_merge_selection, name="course_type_merge_selection"),
+    url(r"^course_types/(\d+)/merge/(\d+)$", course_type_merge, name="course_type_merge"),
 
     url(r"^user/$", user_index, name="user_index"),
     url(r"^user/create$", user_create, name="user_create"),
@@ -51,6 +54,7 @@ urlpatterns = [
     url(r"^user/(\d+)/edit$", user_edit, name="user_edit"),
 
     url(r"^user/delete$", user_delete, name="user_delete"),
+    url(r"^user/bulk_delete$", user_bulk_delete, name="user_bulk_delete"),
     url(r"^user/merge$", user_merge_selection, name="user_merge_selection"),
     url(r"^user/(\d+)/merge/(\d+)$", user_merge, name="user_merge"),
 
