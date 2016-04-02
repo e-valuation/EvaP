@@ -40,7 +40,7 @@ class UserBulkDeleteForm(forms.Form, BootstrapMixin):
 class SemesterForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Semester
-        fields = "__all__"
+        fields = ("name_de", "name_en")
 
 
 class DegreeForm(forms.ModelForm, BootstrapMixin):
