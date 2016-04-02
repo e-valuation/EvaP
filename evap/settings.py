@@ -77,7 +77,7 @@ ADMINS = [
 # localhost is listed for easier development. Remove it in production environments.
 ALLOWED_HOSTS = ["localhost"]
 
-# The page URL that is used for links in email templates.
+# The page URL that is used in email templates.
 PAGE_URL = "localhost:8000"
 
 # Make this unique, and don't share it with anybody.

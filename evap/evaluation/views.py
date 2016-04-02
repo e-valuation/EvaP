@@ -28,7 +28,7 @@ def index(request):
             profile.generate_login_key()
             profile.save()
 
-            EmailTemplate.send_login_key_to_user(new_key_form.get_user())
+            EmailTemplate.send_login_url_to_user(new_key_form.get_user())
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect('evaluation:index')

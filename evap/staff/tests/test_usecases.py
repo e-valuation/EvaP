@@ -70,7 +70,7 @@ class UsecaseTests(WebTest):
         user = mommy.make(UserProfile)
         user.generate_login_key()
 
-        url_with_key = reverse("results:index") + "?userkey=%s" % user.login_key
+        url_with_key = reverse("results:index") + "?loginkey=%s" % user.login_key
         self.app.get(url_with_key)
 
     def test_create_questionnaire(self):

@@ -16,12 +16,12 @@ class RequestAuthMiddleware(object):
     Middleware for utilizing request-based authentication.
 
     If request.user is not authenticated, then this middleware attempts to
-    authenticate a user with the ``userkey`` URL variable.
+    authenticate a user with the ``loginkey`` URL variable.
     If authentication is successful, the user is automatically logged in to
     persist the user in the session.
     """
 
-    field_name = "userkey"
+    field_name = "loginkey"
 
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
@@ -53,10 +53,10 @@ class RequestAuthMiddleware(object):
         elif user:
             # A user exists, but the login key is not valid anymore. Send the user a new one.
             user.generate_login_key()
-            EmailTemplate.send_login_key_to_user(user)
+            EmailTemplate.send_login_url_to_user(user)
             messages.warning(request, _("The login URL was already used. We sent you a new one to your email address."))
         else:
-            messages.warning(request, _("Invalid login URL. Please request a new one to your email address."))
+            messages.warning(request, _("Invalid login URL. Please request a new one below."))
 
 
 class RequestAuthUserBackend(ModelBackend):

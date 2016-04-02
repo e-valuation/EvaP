@@ -292,7 +292,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True)
 
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
