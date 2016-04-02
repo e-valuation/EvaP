@@ -440,7 +440,7 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True))
+        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True, editable=True, state=""))
 
 
 @staff_required
@@ -478,6 +478,7 @@ def helper_course_edit(request, semester, course):
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
+    editable = course.can_staff_edit
 
     operation = request.POST.get('operation')
 
@@ -504,7 +505,7 @@ def helper_course_edit(request, semester, course):
         return custom_redirect('staff:semester_view', semester.id)
     else:
         sort_formset(request, formset)
-        template_data = dict(semester=semester, course=course, form=form, formset=formset, staff=True, state=course.state)
+        template_data = dict(semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
         return render(request, "staff_course_form.html", template_data)
 
 

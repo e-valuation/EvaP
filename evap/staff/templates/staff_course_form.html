@@ -35,12 +35,12 @@
                     {% if form.non_field_errors %}
                         <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
                     {% endif %}
-                    <tr class="contribution select2tr {% if course.can_staff_edit %} sortable {% endif %}">
+                    <tr class="contribution select2tr {% if editable %} sortable {% endif %}">
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
                         <td class="movable">
-                            {% if course.can_staff_edit %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
+                            {% if editable %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
                         </td>
 
                         <td>{{ form.contributor.errors }} {{ form.contributor }}</td>
@@ -55,13 +55,13 @@
                             {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
                             {{ form.label.errors }} {{ form.label }}
                         </td>
-                        {% if course.can_staff_edit %}<td>{{ form.DELETE }}</td>{% endif %}
+                        {% if editable %}<td>{{ form.DELETE }}</td>{% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        {% if course.can_staff_edit %}
+        {% if editable %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
                 {% if state == "inEvaluation" %}
@@ -85,7 +85,7 @@
 
 {% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
-    {% if course.can_staff_edit  %}
+    {% if editable %}
         <script type="text/javascript"> preventAccidentalClosing = true; </script>
     {% endif %}
 {% endblock %}
