@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-02 18:33+0200\n"
-"PO-Revision-Date: 2016-04-02 18:50+0200\n"
+"POT-Creation-Date: 2016-04-02 19:59+0200\n"
+"PO-Revision-Date: 2016-04-02 20:00+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -409,14 +409,27 @@ msgstr "Passwort bestätigen"
 msgid "Passwords don't match"
 msgstr "Die Passwörter stimmen nicht überein"
 
-#: evap/evaluation/auth.py:57
+#: evap/evaluation/auth.py:51
+msgid ""
+"Another user is currently logged in. Please logout first and then use the "
+"login URL again."
+msgstr ""
+"Ein anderer Benutzer ist bereits angemeldet. Bitte melden Sie sich zuerst ab "
+"und klicken Sie dann erneut auf den Anmeldelink."
+
+#: evap/evaluation/auth.py:58
+#, python-format
+msgid "Logged in as %s."
+msgstr "Angemeldet als %s."
+
+#: evap/evaluation/auth.py:66
 msgid ""
 "The login URL was already used. We sent you a new one to your email address."
 msgstr ""
 "Der Anmeldelink wurde bereits verwendet. Wir haben Ihnen einen neuen Link an "
 "Ihre E-Mail-Adresse gesendet."
 
-#: evap/evaluation/auth.py:59
+#: evap/evaluation/auth.py:68
 msgid "Invalid login URL. Please request a new one below."
 msgstr "Ungültiger Anmeldelink. Bitte fordern Sie unten einen neuen an."
 

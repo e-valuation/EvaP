@@ -55,6 +55,7 @@ class RequestAuthMiddleware(object):
             # User is valid. Set request.user and persist user in the session by logging the user in.
             request.user = user
             auth.login(request, user)
+            messages.success(request, _("Logged in as %s.") % user.full_name)
             # Invalidate the login key (set to yesterday).
             user.login_key_valid_until = date.today() - timedelta(1)
             user.save()
