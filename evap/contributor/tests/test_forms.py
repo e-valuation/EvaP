@@ -1,11 +1,10 @@
 from django.forms.models import inlineformset_factory
-from django_webtest import WebTest
 from django.test import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
 from evap.contributor.forms import DelegatesForm, EditorContributionForm
-from evap.evaluation.tests.test_utils import get_form_data_from_instance
+from evap.evaluation.tests.test_utils import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
 
 

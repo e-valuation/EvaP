@@ -1,7 +1,52 @@
-from django_webtest import WebTest
+from django_webtest import WebTest as DjangoWebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import Contribution, Course, UserProfile
+from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
+
+
+# taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
+class FuzzyInt(int):
+    def __new__(cls, lowest, highest):
+        obj = super().__new__(cls, highest)
+        obj.lowest = lowest
+        obj.highest = highest
+        return obj
+    def __eq__(self, other):
+        return other >= self.lowest and other <= self.highest
+
+    def __repr__(self):
+        return "[%d..%d]" % (self.lowest, self.highest)
+
+
+class WebTest(DjangoWebTest):
+
+    def get_assert_200(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_assert_403(self, url, user):
+        try:
+            self.app.get(url, user=user, status=403)
+        except AppError as e:
+            self.fail('url "{}" failed with user "{}"'.format(url, user))
+
+    def get_assert_302(self, url, user):
+        response = self.app.get(url, user=user)
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_submit_assert_302(self, url, user, name="", value=""):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit(name=name, value=value)
+        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
+
+    def get_submit_assert_200(self, url, user):
+        response = self.get_assert_200(url, user)
+        response = response.forms[2].submit("")
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
+        return response
 
 
 class ViewTest(WebTest):
@@ -10,8 +55,7 @@ class ViewTest(WebTest):
 
     def test_check_response_code_200(self):
         for user in self.test_users:
-            response = self.app.get(self.url, user=user)
-            self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(self.url, user))
+            self.get_assert_200(self.url, user)
 
 
 def lastform(page):
@@ -29,11 +73,12 @@ def course_with_responsible_and_editor(course_id=None):
     editor = mommy.make(UserProfile, username='editor')
 
     if course_id:
-        course = mommy.make(Course, state='prepared', id=course_id)
+        course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)], id=course_id)
     else:
-        course = mommy.make(Course, state='prepared')
+        course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)])
 
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True)
-    mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
+    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
+    mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
+    course.general_contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=False)]
 
     return course
