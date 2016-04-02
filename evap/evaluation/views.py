@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
 
-from evap.evaluation.forms import NewKeyForm, LoginKeyForm, LoginUsernameForm
+from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
 
 
@@ -18,7 +18,6 @@ def index(request):
     # parse the form data into the respective form
     submit_type = request.POST.get("submit_type", "no_submit")
     new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None)
-    login_key_form = LoginKeyForm(request.POST if submit_type == "login_key" else None)
     login_username_form = LoginUsernameForm(request, request.POST if submit_type == "login_username" else None)
 
     # process form data
@@ -31,10 +30,8 @@ def index(request):
 
             EmailTemplate.send_login_key_to_user(new_key_form.get_user())
 
-            messages.success(request, _("Successfully sent email with new login key."))
-        elif login_key_form.is_valid():
-            # user would like to login with a login key and passed key test
-            auth_login(request, login_key_form.get_user())
+            messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
+            return redirect('evaluation:index')
         elif login_username_form.is_valid():
             # user would like to login with username and password and passed password test
             auth_login(request, login_username_form.get_user())
@@ -48,7 +45,7 @@ def index(request):
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
-        template_data = dict(new_key_form=new_key_form, login_key_form=login_key_form, login_username_form=login_username_form)
+        template_data = dict(new_key_form=new_key_form, login_username_form=login_username_form)
         return render(request, "index.html", template_data)
     else:
         user, created = UserProfile.objects.get_or_create(username=request.user.username)
