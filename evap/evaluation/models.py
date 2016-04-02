@@ -961,6 +961,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
+    @property
+    def login_url(self):
+        if not self.needs_login_key:
+            return ""
+        return settings.PAGE_URL + "?loginkey=" + str(self.login_key)
+
     def get_sorted_contributions(self):
         return self.contributions.order_by('course__semester__created_at', 'course__name_de')
 
@@ -1028,31 +1034,47 @@ class EmailTemplate(models.Model):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     @classmethod
-    def send_to_users_in_courses(self, template, courses, recipient_groups):
+    def send_to_users_in_courses(self, template, courses, recipient_groups, use_cc):
         user_course_map = {}
         for course in courses:
+            # Collect recipients for all courses.
+            # Don't include delegates and CC users of the responsible person of a course to the recipient list of this
+            # course, because they will get the notification in CC anyway.
             responsible = course.responsible_contributor
-            for user in self.recipient_list_for_course(course, recipient_groups):
-                if user not in responsible.cc_users.all() and user not in responsible.delegates.all():
-                    user_course_map.setdefault(user, []).append(course)
+            all_recipients = self.recipient_list_for_course(course, recipient_groups)
+            cc_recipients = []
+            if responsible in all_recipients and use_cc:
+                cc_recipients.extend(responsible.cc_users.all())
+                cc_recipients.extend(responsible.delegates.all())
+            recipients = [recipient for recipient in all_recipients if recipient not in cc_recipients]
+            for user in recipients:
+                user_course_map.setdefault(user, []).append(course)
 
         for user, courses in user_course_map.items():
             subject_params = {}
             body_params = {'user': user, 'courses': courses}
-            self.__send_to_user(user, template, subject_params, body_params, cc=True)
-
+            self.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc)
 
     @classmethod
-    def __send_to_user(cls, user, template, subject_params, body_params, cc):
+    def __send_to_user(cls, user, template, subject_params, body_params, use_cc):
         if not user.email:
             logger.warning("{} has no email address defined. Could not send email.".format(user.username))
             return
 
-        if cc:
+        if use_cc:
             cc_users = set(user.delegates.all() | user.cc_users.all())
             cc_addresses = [p.email for p in cc_users if p.email]
         else:
             cc_addresses = []
+
+        send_separate_login_url = False
+        body_params['login_url'] = ""
+        if user.needs_login_key:
+            user.generate_login_key()
+            if not cc_addresses:
+                body_params['login_url'] = user.login_url
+            else:
+                send_separate_login_url = True
 
         subject = cls.__render_string(template.subject, subject_params)
         body = cls.__render_string(template.body, body_params)
@@ -1068,6 +1090,8 @@ class EmailTemplate(models.Model):
         try:
             mail.send(False)
             logger.info(('Sent email "{}" to {}.').format(subject, user.username))
+            if send_separate_login_url:
+                cls.send_login_url_to_user(user)
         except Exception:
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
@@ -1077,15 +1101,16 @@ class EmailTemplate(models.Model):
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_courses': due_courses}
 
-        cls.__send_to_user(user, template, subject_params, body_params, cc=False)
+        cls.__send_to_user(user, template, subject_params, body_params, use_cc=False)
 
     @classmethod
-    def send_login_key_to_user(cls, user):
+    def send_login_url_to_user(cls, user):
         template = cls.objects.get(name=cls.LOGIN_KEY_CREATED)
         subject_params = {}
-        body_params = {'user': user}
+        body_params = {'user': user, 'login_url': user.login_url}
 
-        cls.__send_to_user(user, template, subject_params, body_params, cc=False)
+        cls.__send_to_user(user, template, subject_params, body_params, use_cc=False)
+        logger.info(('Sent login url to {}.').format(user.username))
 
     @classmethod
     def send_publish_notifications_to_user(cls, user, courses):
@@ -1093,14 +1118,14 @@ class EmailTemplate(models.Model):
         subject_params = {}
         body_params = {'user': user, 'courses': courses}
 
-        cls.__send_to_user(user, template, subject_params, body_params, cc=True)
+        cls.__send_to_user(user, template, subject_params, body_params, use_cc=True)
 
     @classmethod
     def send_review_notifications(cls, courses):
         template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
-        cls.send_to_users_in_courses(template, courses, ['editors'])
+        cls.send_to_users_in_courses(template, courses, ['editors'], use_cc=True)
 
     @classmethod
     def send_evaluation_started_notifications(cls, courses):
         template = cls.objects.get(name=cls.EVALUATION_STARTED)
-        cls.send_to_users_in_courses(template, courses, ['all_participants'])
+        cls.send_to_users_in_courses(template, courses, ['all_participants'], use_cc=False)

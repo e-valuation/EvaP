@@ -3,11 +3,12 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.core.cache import cache
+from django.core import mail
 
 from model_mommy import mommy
 
 from evap.evaluation.models import Course, UserProfile, Contribution, Semester, \
-                                   Questionnaire, CourseType, NotArchiveable
+                                   Questionnaire, CourseType, NotArchiveable, EmailTemplate
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 
 
@@ -222,3 +223,50 @@ class ArchivingTests(TestCase):
         course._archive()
         self.assertEqual(course._participant_count, 5)
         self.assertEqual(course._voter_count, 5)
+
+
+class TestEmails(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.other_user = mommy.make(UserProfile, email="other@extern.com")
+        cls.user = mommy.make(UserProfile, email="extern@extern.com")
+        cls.user.generate_login_key()
+
+        cls.course = mommy.make(Course)
+        contribution = mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True)
+
+        cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
+
+        EmailTemplate.objects.filter(name="Login Key Created").update(body="{{ user.login_url }}")
+
+    def test_no_login_url_when_delegates_in_cc(self):
+        self.user.delegates.add(self.other_user)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=True)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
+        self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
+        self.assertEqual(len(mail.outbox[1].cc), 0)
+        self.assertEqual(mail.outbox[1].to, [self.user.email])
+
+    def test_no_login_url_when_cc_users_in_cc(self):
+        self.user.cc_users.add(self.other_user)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=True)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
+        self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
+        self.assertEqual(len(mail.outbox[1].cc), 0)
+        self.assertEqual(mail.outbox[1].to, [self.user.email])
+
+    def test_login_url_when_nobody_in_cc(self):
+        # message is not sent to others in cc
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=True)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+
+    def test_login_url_when_use_cc_is_false(self):
+        # message is not sent to others in cc
+        self.user.delegates.add(self.other_user)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url

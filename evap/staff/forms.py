@@ -241,7 +241,7 @@ class ContributionForm(forms.ModelForm, BootstrapMixin):
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
-        
+
         if not self.course.can_staff_edit:
             # form is used as read-only course view
             disable_all_fields(self)
@@ -292,7 +292,7 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
     def send(self):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True)
 
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
