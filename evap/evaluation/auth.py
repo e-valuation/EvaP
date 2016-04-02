@@ -43,6 +43,14 @@ class RequestAuthMiddleware(object):
 
         # We are seeing this user for the first time in this session, attempt to authenticate the user.
         user = auth.authenticate(key=key)
+
+        # If we already have an authenticated user don't try to login a new user. Show an error message if another user
+        # tries to login with a URL in this situation.
+        if request.user.is_authenticated():
+            if user != request.user:
+                messages.error(request, _("Another user is currently logged in. Please logout first and then use the login URL again."))
+            return
+
         if user and user.login_key_valid_until >= date.today():
             # User is valid. Set request.user and persist user in the session by logging the user in.
             request.user = user
