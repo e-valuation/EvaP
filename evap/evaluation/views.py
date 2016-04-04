@@ -1,11 +1,18 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
+from django.views.decorators.http import require_POST
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -94,3 +101,26 @@ def faq(request):
 
 def legal_notice(request):
     return render(request, "legal_notice.html", dict())
+
+
+@require_POST
+def feedback_send(request):
+    sender_email = request.user.email
+    message = request.POST.get("message")
+    subject = "Feedback from {}".format(sender_email)
+
+    if message:
+        mail = EmailMessage(
+            from_email=sender_email,
+            subject=subject,
+            body=message,
+            to=[settings.FEEDBACK_EMAIL])
+
+        try:
+            mail.send()
+            logger.info(('Sent feedback email: \n{}\n').format(mail.message()))
+
+        except Exception:
+            logger.exception('An exception occurred when sending the following feedback email:\n{}\n'.format(mail.message()))
+
+    return HttpResponse()

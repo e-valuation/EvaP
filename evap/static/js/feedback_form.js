@@ -7,7 +7,7 @@ $('#feedback-form').on('submit', function(event){
     message = $('#message-text').val();
 
     $.ajax({
-        url : "/feedback/create",
+        url : "/feedback/send",
         type : "POST",
         data : { sender_email : email, message: message },
 
