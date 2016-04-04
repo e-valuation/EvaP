@@ -7,7 +7,7 @@
     {{ block.super }}
     <p>{% blocktrans %}Do you want to change the states of the following courses from <strong>{{ current_state_name }}</strong> to <strong>{{ new_state_name }}</strong>?{% endblocktrans %}</p>
 
-    <form method="POST">
+    <form id="course-operation-form" method="POST">
         {% csrf_token %}
         {% for course in courses %}
             <input type="hidden" name="course_ids" value="{{ course.id }}" />

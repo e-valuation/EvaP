@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, CourseType
-from evap.evaluation.tests.test_utils import WebTest, lastform
+from evap.evaluation.tests.test_utils import WebTest
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
@@ -27,7 +27,7 @@ class SampleXlsTests(WebTest):
 
         original_user_count = UserProfile.objects.count()
 
-        form = lastform(page)
+        form = page.forms["semester-import-form"]
         form["vote_start_date"] = "2015-01-01"
         form["vote_end_date"] = "2099-01-01"
         form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xls"),)
@@ -40,7 +40,7 @@ class SampleXlsTests(WebTest):
 
         original_user_count = UserProfile.objects.count()
 
-        form = lastform(page)
+        form = page.forms["user-import-form"]
         form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xls"),)
         form.submit(name="operation", value="import")
 

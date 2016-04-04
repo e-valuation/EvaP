@@ -10,7 +10,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal">
+    <form id="reward-point-redemption-event-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {{ form.as_div }}
         <div class="form-group well">

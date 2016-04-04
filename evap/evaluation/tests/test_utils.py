@@ -58,10 +58,6 @@ class ViewTest(WebTest):
             self.get_assert_200(self.url, user)
 
 
-def lastform(page):
-    return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
-
-
 def get_form_data_from_instance(FormClass, instance):
     assert FormClass._meta.model == type(instance)
     form = FormClass(instance=instance)

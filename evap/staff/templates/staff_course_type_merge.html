@@ -25,7 +25,7 @@
         {% endfor %}
     </ul>
 
-    <form method="POST" class="form-horizontal">
+    <form id="course-type-merge-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         <div class="well submit-area text-center">
             <button type="submit" class="btn btn-primary">{% trans "Merge course types" %}</button>

@@ -8,7 +8,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                             CourseType, Contribution
-from evap.evaluation.tests.test_utils import WebTest, lastform
+from evap.evaluation.tests.test_utils import WebTest
 
 
 class UsecaseTests(WebTest):
@@ -24,7 +24,7 @@ class UsecaseTests(WebTest):
 
         # create a new semester
         page = page.click("[Cc]reate [Nn]ew [Ss]emester")
-        semester_form = lastform(page)
+        semester_form = page.forms["semester-form"]
         semester_form['name_de'] = "Testsemester"
         semester_form['name_en'] = "test semester"
         page = semester_form.submit().follow()
@@ -40,7 +40,7 @@ class UsecaseTests(WebTest):
 
         # import excel file
         page = page.click("[Ii]mport")
-        upload_form = lastform(page)
+        upload_form = page.forms["semester-import-form"]
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
         upload_form['excel_file'] = (os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrolment_data.xls"),)
@@ -78,7 +78,7 @@ class UsecaseTests(WebTest):
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
-        questionnaire_form = lastform(page)
+        questionnaire_form = page.forms["questionnaire-form"]
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
@@ -98,7 +98,7 @@ class UsecaseTests(WebTest):
 
         # create a new questionnaire
         page = page.click("[Cc]reate [Nn]ew [Qq]uestionnaire")
-        questionnaire_form = lastform(page)
+        questionnaire_form = page.forms["questionnaire-form"]
         questionnaire_form['name_de'] = "Test Fragebogen"
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
@@ -120,7 +120,7 @@ class UsecaseTests(WebTest):
         # create a new questionnaire
         page = page.click("All questionnaires")
         page = page.click("Copy", index=1)
-        questionnaire_form = lastform(page)
+        questionnaire_form = page.forms["questionnaire-form"]
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
         questionnaire_form['name_en'] = "test questionnaire (copied)"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen (kopiert)"
@@ -145,7 +145,7 @@ class UsecaseTests(WebTest):
         # assign questionnaire to courses
         page = page.click("Semester 1", index=0)
         page = page.click("Assign Questionnaires")
-        assign_form = lastform(page)
+        assign_form = page.forms["questionnaire-assign-form"]
         assign_form['Seminar'] = [questionnaire.pk]
         assign_form['Vorlesung'] = [questionnaire.pk]
         page = assign_form.submit().follow()
@@ -163,7 +163,7 @@ class UsecaseTests(WebTest):
         page = page.click(contribution.course.name_en)
 
         # remove responsibility
-        form = lastform(page)
+        form = page.forms["course-form"]
         form['contributions-0-responsibility'] = "CONTRIBUTOR"
         page = form.submit()
 

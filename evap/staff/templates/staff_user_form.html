@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <form method="POST" class="form-horizontal multiselect-form" enctype="multipart/form-data">
+    <form id="user-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
     {% csrf_token %}
     {{ form.as_div }}
 

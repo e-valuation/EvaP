@@ -12,7 +12,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+    <form id="degree-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
 
