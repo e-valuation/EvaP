@@ -70,7 +70,7 @@
         </div>
         <div class="panel-body">
             <div class="button-menu">
-                <a href="{% url "staff:semester_assign_questionnaires" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
+                <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
                 &nbsp;
                 <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Todo" %}</a>
                 &nbsp;

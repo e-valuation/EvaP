@@ -108,7 +108,7 @@ class TestSemesterExportView(ViewTest):
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class TestSemesterCourseImportParticipantsView(ViewTest):
-    url = "/staff/semester/1/course/1/importparticipants"
+    url = "/staff/semester/1/course/1/participant_import"
     test_users = ["staff"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")

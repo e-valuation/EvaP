@@ -324,10 +324,10 @@ def semester_import(request, semester_id):
         # parse table
         EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
         if test_run:
-            return render(request, "staff_import.html", dict(semester=semester, form=form))
+            return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
         return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_import.html", dict(semester=semester, form=form))
+        return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
 
 
 @staff_required
@@ -355,7 +355,7 @@ def semester_export(request, semester_id):
 
 
 @staff_required
-def semester_assign_questionnaires(request, semester_id):
+def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
     courses = semester.course_set.filter(state='new')
@@ -373,7 +373,7 @@ def semester_assign_questionnaires(request, semester_id):
         messages.success(request, _("Successfully assigned questionnaires."))
         return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_semester_assign_questionnaires.html", dict(semester=semester, form=form))
+        return render(request, "staff_semester_questionnaire_assign_form.html", dict(semester=semester, form=form))
 
 
 @staff_required
@@ -571,7 +571,7 @@ def course_email(request, semester_id, course_id):
 
 
 @staff_required
-def course_import_participants(request, semester_id, course_id):
+def course_participant_import(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(course)
@@ -593,14 +593,14 @@ def course_import_participants(request, semester_id, course_id):
 
         # Test run, or an error occurred while parsing -> stay and display error.
         if test_run or not imported_users:
-            return render(request, "staff_import_participants.html", dict(course=course, form=form))
+            return render(request, "staff_course_participant_import.html", dict(course=course, form=form))
         else:
             # Add users to course participants. * converts list into parameters.
             course.participants.add(*imported_users)
             messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
             return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_import_participants.html", dict(course=course, form=form, semester=semester))
+        return render(request, "staff_course_participant_import.html", dict(course=course, form=form, semester=semester))
 
 
 @staff_required
