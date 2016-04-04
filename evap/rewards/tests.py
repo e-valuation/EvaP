@@ -5,7 +5,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Course
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.test_utils import WebTest, lastform
+from evap.evaluation.tests.test_utils import WebTest
 from evap.rewards.models import SemesterActivation
 from evap.rewards.models import RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
@@ -39,7 +39,7 @@ class RewardTests(WebTest):
         self.assertEqual(response.status_code, 200)
 
         user = UserProfile.objects.get(pk=5)
-        form = lastform(response)
+        form = response.forms["reward-redemption-form"]
         form.set("points-1", reward_points_of_user(user))
         response = form.submit()
         self.assertEqual(response.status_code, 200)
@@ -57,7 +57,7 @@ class RewardTests(WebTest):
         """
         response = self.app.get(reverse("rewards:reward_point_redemption_event_create"), user="evap")
 
-        form = lastform(response)
+        form = response.forms["reward-point-redemption-event-form"]
         form.set('name', 'Test3Event')
         form.set('date', '2014-12-10')
         form.set('redeem_end_date', '2014-11-20')
@@ -72,7 +72,7 @@ class RewardTests(WebTest):
         """
         response = self.app.get(reverse("rewards:reward_point_redemption_event_edit", args=[2]), user="evap")
 
-        form = lastform(response)
+        form = response.forms["reward-point-redemption-event-form"]
         name = form.get('name').value
         form.set('name', 'new name')
 
@@ -89,7 +89,7 @@ class RewardTests(WebTest):
         reward_points_before_end = reward_points_of_user(user)
         response = self.app.get(reverse("student:vote", args=[9]), user="student")
 
-        form = lastform(response)
+        form = response.forms["student-vote-form"]
         for key, value in form.fields.items():
             if key is not None and "question" in key:
                 form.set(key, 6)

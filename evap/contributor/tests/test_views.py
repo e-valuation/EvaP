@@ -1,7 +1,7 @@
 from webtest.app import AppError
 
 from evap.evaluation.models import Course, Questionnaire
-from evap.evaluation.tests.test_utils import ViewTest, course_with_responsible_and_editor, lastform
+from evap.evaluation.tests.test_utils import ViewTest, course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
 
@@ -84,7 +84,7 @@ class TestContributorCourseEditView(ViewTest):
         course = Course.objects.get(pk=TESTING_COURSE_ID)
 
         page = self.get_assert_200("/contributor/course/{}/edit".format(TESTING_COURSE_ID), user="responsible")
-        form = lastform(page)
+        form = page.forms["course-form"]
         form["vote_start_date"] = "02/1/2098"
         form["vote_end_date"] = "02/1/2099"
 

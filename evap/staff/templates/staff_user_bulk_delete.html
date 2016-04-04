@@ -8,7 +8,7 @@
     <p>
         {% trans "Upload a text file containing one username per line. This will delete all identified users that can be deleted." %}
     </p>
-    <form enctype="multipart/form-data" method="POST" class="form-horizontal">
+    <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
        {% csrf_token %}
        {{ form.as_div }}
         <div class="form-group well">

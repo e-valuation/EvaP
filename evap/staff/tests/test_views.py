@@ -9,7 +9,7 @@ import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, \
                                    TextAnswer, Contribution
-from evap.evaluation.tests.test_utils import FuzzyInt, lastform, WebTest, ViewTest
+from evap.evaluation.tests.test_utils import FuzzyInt, WebTest, ViewTest
 
 
 class TestUserIndexView(ViewTest):
@@ -43,7 +43,7 @@ class TestUserBulkDeleteView(ViewTest):
 
     def test_testrun_deletes_no_users(self):
         page = self.app.get(self.url, user='staff')
-        form = lastform(page)
+        form = page.forms["user-bulk-delete-form"]
 
         form["username_file"] = (self.filename,)
 
@@ -62,7 +62,7 @@ class TestUserBulkDeleteView(ViewTest):
         contribution = mommy.make(Contribution)
         mommy.make(UserProfile, username='contributor', contributions=[contribution])
         page = self.app.get(self.url, user='staff')
-        form = lastform(page)
+        form = page.forms["user-bulk-delete-form"]
 
         form["username_file"] = (self.filename,)
 
@@ -93,7 +93,7 @@ class TestSemesterExportView(ViewTest):
 
     def test_view_downloads_excel_file(self):
         page = self.app.get(self.url, user='staff')
-        form = lastform(page)
+        form = page.forms["semester-export-form"]
 
         # Check one course type.
         form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
@@ -124,7 +124,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
         original_participant_count = self.course.participants.count()
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
         form.submit(name="operation", value="import")
 
@@ -135,7 +135,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
         original_user_count = UserProfile.objects.count()
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="import")
@@ -150,7 +150,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
         original_participant_count = self.course.participants.count()
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
         form.submit(name="operation", value="test")
 
@@ -159,7 +159,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
 
         # Should throw SuspiciousOperation Exception.

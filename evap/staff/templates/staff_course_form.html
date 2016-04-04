@@ -6,7 +6,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
+    <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>

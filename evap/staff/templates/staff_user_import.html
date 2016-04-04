@@ -8,7 +8,7 @@
     <p>
         {% trans "Upload user data from excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
     </p>
-    <form enctype="multipart/form-data" method="POST" class="form-horizontal">
+    <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
        {% csrf_token %}
        {{ form.as_div }}
         <div class="form-group well">

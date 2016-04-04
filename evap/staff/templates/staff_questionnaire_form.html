@@ -5,7 +5,7 @@
 
 {% block content %}
     {{ block.super }}
-    <form method="POST" class="form-horizontal select2form">
+    <form id="questionnaire-form" method="POST" class="form-horizontal select2form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
