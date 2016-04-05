@@ -1,5 +1,7 @@
 from django.core import mail
 from django.contrib.auth.hashers import make_password
+from django_webtest import WebTest
+
 from evap.evaluation.models import UserProfile
 from model_mommy import mommy
 
@@ -48,3 +50,15 @@ class TestLegalNoticeView(ViewTest):
 class TestFAQView(ViewTest):
     url = '/faq'
     test_users = ['']
+
+
+class TestSendFeedbackView(ViewTest):
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='evap')
+
+    def test_sends_mail(self):
+        self.app.post('/feedback/send', {'message': 'feedback message', 'sender_email': 'unique@mail.de'}, user='evap')
+        self.assertEqual(len(mail.outbox), 1)
