@@ -824,6 +824,9 @@ def questionnaire_copy(request, questionnaire_id):
 def questionnaire_new_version(request, questionnaire_id):
     old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
+    if old_questionnaire.obsolete:
+        raise PermissionDenied
+
     # Check if we can use the old name with the current time stamp.
     timestamp = datetime.date.today()
     new_name_de = '{} (until {})'.format(old_questionnaire.name_de, str(timestamp))
