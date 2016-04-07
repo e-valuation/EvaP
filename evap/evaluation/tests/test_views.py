@@ -1,13 +1,10 @@
 from django.core import mail
 from django.contrib.auth.hashers import make_password
-from django_webtest import WebTest
 
 from evap.evaluation.models import UserProfile
-from model_mommy import mommy
-
-from datetime import date, timedelta
-
 from evap.evaluation.tests.test_utils import ViewTest
+
+from model_mommy import mommy
 
 
 class TestIndexView(ViewTest):

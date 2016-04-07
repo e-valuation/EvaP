@@ -511,7 +511,7 @@ li.menu-indent {
 }
 
 .text-answer li,a {
-    word-break: break-word;
+    word-wrap: break-word;
 }
 
 .total-stats {
