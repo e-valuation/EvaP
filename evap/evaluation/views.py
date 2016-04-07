@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -104,6 +105,7 @@ def legal_notice(request):
 
 
 @require_POST
+@login_required
 def feedback_send(request):
     sender_email = request.user.email
     message = request.POST.get("message")

@@ -161,6 +161,7 @@
     </div>
 </div>
 
+{% if user.is_authenticated and not user.is_staff %}
 <button id="feedback-button" type="button" class="btn btn-warning" data-toggle="modal" data-target="#feedback-modal">?</button>
 
 <div id="feedback-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedback-div">
@@ -189,6 +190,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
     <div id="footer">
         <div class="container">
