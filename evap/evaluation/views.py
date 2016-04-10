@@ -113,16 +113,15 @@ def feedback_send(request):
 
     if message:
         mail = EmailMessage(
-            from_email=sender_email,
             subject=subject,
             body=message,
             to=[settings.FEEDBACK_EMAIL])
 
         try:
             mail.send()
-            logger.info(('Sent feedback email: \n{}\n').format(mail.message()))
+            logger.info('Sent feedback email: \n%s\n', mail.message())
 
         except Exception:
-            logger.exception('An exception occurred when sending the following feedback email:\n{}\n'.format(mail.message()))
+            logger.exception('An exception occurred when sending the following feedback email:\n%s\n', mail.message())
 
     return HttpResponse()
