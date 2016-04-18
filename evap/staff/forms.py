@@ -334,13 +334,39 @@ class ContributionFormSet(AtLeastOneFormSet):
                     continue
                 if not deleted_form.cleaned_data['contributor'] == form_with_errors.cleaned_data['contributor']:
                     continue
-                form_with_errors.cleaned_data['id'] = deleted_form.cleaned_data['id']
                 form_with_errors.instance = deleted_form.instance
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
+    def handle_moved_contributors(self):
+        """
+            Work around https://code.djangoproject.com/ticket/25139
+            Basically, if the user moved contributors around, this moves the contributions with them.
+        """
+        for form in self.forms:
+            if 'id' not in form.cleaned_data or form.cleaned_data['id'] is None or form.instance.contributor is None:
+                continue
+
+            # find the contribution that the contributor had before the user messed with it
+            previous_instance = form.instance.contributor.contributions.get(course=form.instance.course)
+            current_instance = form.instance
+
+            if previous_instance == current_instance:
+                continue
+
+            # find the form with that previous contribution and then swap the contributions
+            for form2 in self.forms:
+                if form2.instance == previous_instance:
+                    form.instance = form2.instance
+                    form2.instance = current_instance
+                    form.full_clean()
+                    form2.full_clean()
+                    continue
+
+
     def clean(self):
         self.handle_deleted_and_added_contributions()
+        self.handle_moved_contributors()
 
         super().clean()
 

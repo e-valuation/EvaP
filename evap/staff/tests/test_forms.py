@@ -145,7 +145,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-2-course': course.pk,
             'contributions-2-questionnaires': [],
             'contributions-2-order': 1,
-            'contributions-2-responsibility': "NONE",
+            'contributions-2-responsibility': "CONTRIBUTOR",
             'contributions-2-comment_visibility': "OWN",
             'contributions-2-contributor': user2.pk,
             'contributions-2-DELETE': 'on',
@@ -188,6 +188,50 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-contributor': user1.pk,
         }
 
+        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        self.assertTrue(formset.is_valid())
+
+    def test_swapping_contributors(self):
+        """
+            Asserts that the user can swap the contributors of two contributions.
+            Regression test for #775
+        """
+        course = mommy.make(Course, name_en="some course")
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution1 = mommy.make(Contribution, responsible=True, contributor=user1, course=course)
+        contribution2 = mommy.make(Contribution, contributor=user2, course=course)
+
+        contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+
+        data = {
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 2,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': contribution1.pk,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': [questionnaire.pk],
+            'contributions-0-order': 0,
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-contributor': user1.pk,
+            'contributions-1-id': contribution2.pk,
+            'contributions-1-course': course.pk,
+            'contributions-1-questionnaires': [questionnaire.pk],
+            'contributions-1-order': 0,
+            'contributions-1-responsibility': "CONTRIBUTOR",
+            'contributions-1-comment_visibility': "ALL",
+            'contributions-1-contributor': user2.pk,
+        }
+
+        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        self.assertTrue(formset.is_valid())
+
+        # swap contributors, should still be valid
+        data['contributions-0-contributor'] = user2.pk
+        data['contributions-1-contributor'] = user1.pk
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
