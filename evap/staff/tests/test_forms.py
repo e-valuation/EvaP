@@ -235,6 +235,17 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
+        # now just move contributor2 to the first contribution and delete the second one
+        # after saving, only one contribution should exist and have the contributor2
+        data['contributions-0-contributor'] = user2.pk
+        data['contributions-1-contributor'] = user2.pk
+        data['contributions-1-DELETE'] = 'on'
+        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        self.assertTrue(formset.is_valid())
+        formset.save()
+        self.assertTrue(Contribution.objects.filter(contributor=user2, course=course).exists())
+        self.assertFalse(Contribution.objects.filter(contributor=user1, course=course).exists())
+
     def test_obsolete_staff_only(self):
         """
             Asserts that obsolete questionnaires are shown to staff members only if
