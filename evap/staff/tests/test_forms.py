@@ -207,7 +207,7 @@ class ContributionFormsetTests(TestCase):
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = {
-            'contributions-TOTAL_FORMS': 2,
+            'contributions-TOTAL_FORMS': 3,
             'contributions-INITIAL_FORMS': 2,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-id': contribution1.pk,
@@ -224,6 +224,10 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-responsibility': "CONTRIBUTOR",
             'contributions-1-comment_visibility': "ALL",
             'contributions-1-contributor': user2.pk,
+            'contributions-2-id': "", # the extra form triggers another edge case
+            'contributions-2-order': -1,
+            'contributions-2-responsibility': "CONTRIBUTOR",
+            'contributions-2-comment_visibility': "OWN",
         }
 
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)

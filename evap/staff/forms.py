@@ -355,12 +355,12 @@ class ContributionFormSet(AtLeastOneFormSet):
                 continue
 
             # find the form with that previous contribution and then swap the contributions
-            for form2 in self.forms:
-                if form2.cleaned_data['id'] == previous_instance:
+            for other_form in self.forms:
+                if 'id' in other_form.cleaned_data and other_form.cleaned_data['id'] == previous_instance:
                     form.instance = previous_instance
-                    form2.instance = current_instance
+                    other_form.instance = current_instance
                     form.full_clean()
-                    form2.full_clean()
+                    other_form.full_clean()
                     continue
 
 
