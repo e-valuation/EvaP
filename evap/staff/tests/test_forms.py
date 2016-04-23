@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
@@ -296,7 +294,6 @@ class ContributionFormset775RegressionTests(TestCase):
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         self.assertTrue(formset.is_valid())
 
-    @skip("isn't fixed yet...")
     def test_swap_contributors_with_extra_form(self):
         # moving a contributor to an extra form should work.
         # here, the second contributor is deleted and removed from self.data first
@@ -311,8 +308,8 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-1-comment_visibility'] = "OWN"
 
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
-        formset.is_valid()
         self.assertTrue(formset.is_valid())
+
 
 class CourseFormTests(TestCase):
     def helper_test_course_form_same_name(self, CourseFormClass):

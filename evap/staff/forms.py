@@ -316,8 +316,9 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data=None, *args, **kwargs):
+        data = self.handle_moved_contributors(data, *args, **kwargs)
+        super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
 
     def handle_deleted_and_added_contributions(self):
@@ -338,41 +339,49 @@ class ContributionFormSet(AtLeastOneFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
-    def handle_moved_contributors(self):
+    def handle_moved_contributors(self, data, *args, **kwargs):
         """
             Work around https://code.djangoproject.com/ticket/25139
-            Basically, if the user moved contributors around, this moves the contributions with them.
+            Basically, if the user assigns a contributor who already has a contribution to a new contribution,
+            this moves the contributor (and all the data of the new form they got assigned to) back to the original contribution.
         """
-        for form in self.forms:
-            if 'contributor' not in form.cleaned_data or form.cleaned_data['contributor'] is None or not form.cleaned_data['contributor'].contributions.exists():
-                continue
+        if data is None or 'instance' not in kwargs:
+            return data
 
+        course = kwargs['instance']
+        total_forms = int(data['contributions-TOTAL_FORMS'])
+        for i in range(0, total_forms):
+            prefix = "contributions-" + str(i) + "-"
+            current_id = data.get(prefix + 'id', '')
+            contributor = data.get(prefix + 'contributor', '')
+            if contributor == '':
+                continue
             # find the contribution that the contributor had before the user messed with it
             try:
-                previous_instance = form.cleaned_data['contributor'].contributions.get(course=self.instance)
+                previous_id = Contribution.objects.get(contributor=contributor, course=course).id
             except Contribution.DoesNotExist:
                 continue
-            current_instance = form.cleaned_data['id']
 
-            if previous_instance == current_instance:
+            if current_id == previous_id:
                 continue
 
             # find the form with that previous contribution and then swap the contributions
-            for other_form in self.forms:
-                if 'id' in other_form.cleaned_data and other_form.cleaned_data['id'] == previous_instance:
-                    form.instance = previous_instance
-                    form.is_bound = True
-                    other_form.instance = current_instance
-                    if other_form.instance is None:
-                        other_form.is_bound = False
-                    form.full_clean()
-                    other_form.full_clean()
+            for j in range(0, total_forms):
+                other_prefix = "contributions-" + str(j) + "-"
+                other_id = data[other_prefix + 'id']
+                if other_id == previous_id:
+                    # swap all the data. the contribution's ids stay in place.
+                    data2 = data.copy()
+                    data = dict()
+                    for key, value in data2.items():
+                        if not key.endswith('id'):
+                            key = key.replace(prefix, '%temp%').replace(other_prefix, prefix).replace('%temp%', other_prefix)
+                        data[key] = value
                     break
-
+        return data
 
     def clean(self):
         self.handle_deleted_and_added_contributions()
-        self.handle_moved_contributors()
 
         super().clean()
 
