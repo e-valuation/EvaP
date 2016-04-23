@@ -4,6 +4,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
+from django.http.request import QueryDict
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
@@ -358,7 +359,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 continue
             # find the contribution that the contributor had before the user messed with it
             try:
-                previous_id = Contribution.objects.get(contributor=contributor, course=course).id
+                previous_id = str(Contribution.objects.get(contributor=contributor, course=course).id)
             except Contribution.DoesNotExist:
                 continue
 
@@ -372,11 +373,11 @@ class ContributionFormSet(AtLeastOneFormSet):
                 if other_id == previous_id:
                     # swap all the data. the contribution's ids stay in place.
                     data2 = data.copy()
-                    data = dict()
-                    for key, value in data2.items():
-                        if not key.endswith('id'):
+                    data = QueryDict(mutable=True)
+                    for key, value in data2.lists():
+                        if not key.endswith('-id'):
                             key = key.replace(prefix, '%temp%').replace(other_prefix, prefix).replace('%temp%', other_prefix)
-                        data[key] = value
+                        data.setlist(key, value)
                     break
         return data
 

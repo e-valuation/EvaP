@@ -4,7 +4,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
 from evap.contributor.forms import DelegatesForm, EditorContributionForm
-from evap.evaluation.tests.test_utils import WebTest, get_form_data_from_instance
+from evap.evaluation.tests.test_utils import WebTest, get_form_data_from_instance, to_querydict
 from evap.staff.forms import ContributionFormSet
 
 
@@ -45,18 +45,18 @@ class ContributionFormsetTests(TestCase):
 
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
-        data = {
+        data = to_querydict({
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-id': contribution1.pk,
             'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [questionnaire.pk],
+            'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 1,
             'contributions-0-responsibility': "RESPONSIBLE",
             'contributions-0-comment_visibility': "ALL",
             'contributions-0-contributor': user1.pk,
-        }
+        })
 
         formset = InlineContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())

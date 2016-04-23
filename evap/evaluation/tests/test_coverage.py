@@ -4,7 +4,7 @@ from django.core import mail
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, \
                             EmailTemplate, Degree, CourseType, Contribution
-from evap.evaluation.tests.test_utils import WebTest
+from evap.evaluation.tests.test_utils import WebTest, to_querydict
 from evap.staff.forms import ContributionFormSet, ContributionForm
 
 from model_mommy import mommy
@@ -181,16 +181,16 @@ class URLTests(WebTest):
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        data = {
+        data = to_querydict({
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [1],
+            'contributions-0-questionnaires': 1,
             'contributions-0-order': 0,
             'contributions-0-responsibility': "RESPONSIBLE",
             'contributions-0-comment_visibility': "ALL",
-        }
+        })
         # no contributor and no responsible
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
         # valid
@@ -200,7 +200,7 @@ class URLTests(WebTest):
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = 1
         data['contributions-1-course'] = course.pk
-        data['contributions-1-questionnaires'] = [1]
+        data['contributions-1-questionnaires'] = 1
         data['contributions-1-order'] = 1
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
