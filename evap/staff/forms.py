@@ -344,12 +344,15 @@ class ContributionFormSet(AtLeastOneFormSet):
             Basically, if the user moved contributors around, this moves the contributions with them.
         """
         for form in self.forms:
-            if 'id' not in form.cleaned_data or form.cleaned_data['id'] is None or form.cleaned_data['contributor'] is None:
+            if 'contributor' not in form.cleaned_data or form.cleaned_data['contributor'] is None or not form.cleaned_data['contributor'].contributions.exists():
                 continue
 
             # find the contribution that the contributor had before the user messed with it
+            try:
+                previous_instance = form.cleaned_data['contributor'].contributions.get(course=self.instance)
+            except Contribution.DoesNotExist:
+                continue
             current_instance = form.cleaned_data['id']
-            previous_instance = form.cleaned_data['contributor'].contributions.get(course=current_instance.course)
 
             if previous_instance == current_instance:
                 continue
@@ -358,10 +361,13 @@ class ContributionFormSet(AtLeastOneFormSet):
             for other_form in self.forms:
                 if 'id' in other_form.cleaned_data and other_form.cleaned_data['id'] == previous_instance:
                     form.instance = previous_instance
+                    form.is_bound = True
                     other_form.instance = current_instance
+                    if other_form.instance is None:
+                        other_form.is_bound = False
                     form.full_clean()
                     other_form.full_clean()
-                    continue
+                    break
 
 
     def clean(self):

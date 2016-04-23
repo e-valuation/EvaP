@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
@@ -191,65 +193,6 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_swapping_contributors(self):
-        """
-            Asserts that the user can swap the contributors of two contributions.
-            Regression test for #775
-        """
-        course = mommy.make(Course, name_en="some course")
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, responsible=True, contributor=user1, course=course)
-        contribution2 = mommy.make(Contribution, contributor=user2, course=course)
-
-        contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
-
-        data = {
-            'contributions-TOTAL_FORMS': 3,
-            'contributions-INITIAL_FORMS': 2,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': contribution1.pk,
-            'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [questionnaire.pk],
-            'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
-            'contributions-0-contributor': user1.pk,
-            'contributions-1-id': contribution2.pk,
-            'contributions-1-course': course.pk,
-            'contributions-1-questionnaires': [questionnaire.pk],
-            'contributions-1-order': 0,
-            'contributions-1-responsibility': "CONTRIBUTOR",
-            'contributions-1-comment_visibility': "ALL",
-            'contributions-1-contributor': user2.pk,
-            'contributions-2-id': "", # the extra form triggers another edge case
-            'contributions-2-order': -1,
-            'contributions-2-responsibility': "CONTRIBUTOR",
-            'contributions-2-comment_visibility': "OWN",
-        }
-
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
-        self.assertTrue(formset.is_valid())
-
-        # swap contributors, should still be valid
-        data['contributions-0-contributor'] = user2.pk
-        data['contributions-1-contributor'] = user1.pk
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
-        self.assertTrue(formset.is_valid())
-
-        # now just move contributor2 to the first contribution and delete the second one
-        # after saving, only one contribution should exist and have the contributor2
-        data['contributions-0-contributor'] = user2.pk
-        data['contributions-1-contributor'] = user2.pk
-        data['contributions-1-DELETE'] = 'on'
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
-        self.assertTrue(formset.is_valid())
-        formset.save()
-        self.assertTrue(Contribution.objects.filter(contributor=user2, course=course).exists())
-        self.assertFalse(Contribution.objects.filter(contributor=user1, course=course).exists())
-
     def test_obsolete_staff_only(self):
         """
             Asserts that obsolete questionnaires are shown to staff members only if
@@ -282,6 +225,94 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
+class ContributionFormset775RegressionTests(TestCase):
+    """
+        Various regression tests for #775
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.course = mommy.make(Course, name_en="some course")
+        cls.user1 = mommy.make(UserProfile)
+        cls.user2 = mommy.make(UserProfile)
+        mommy.make(UserProfile)
+        cls.questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course)
+        cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
+
+        cls.contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+
+    def setUp(self):
+        self.data = {
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 2,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-id': self.contribution1.pk,
+            'contributions-0-course': self.course.pk,
+            'contributions-0-questionnaires': [self.questionnaire.pk],
+            'contributions-0-order': 0,
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-contributor': self.user1.pk,
+            'contributions-1-id': self.contribution2.pk,
+            'contributions-1-course': self.course.pk,
+            'contributions-1-questionnaires': [self.questionnaire.pk],
+            'contributions-1-order': 0,
+            'contributions-1-responsibility': "CONTRIBUTOR",
+            'contributions-1-comment_visibility': "OWN",
+            'contributions-1-contributor': self.user2.pk,
+        }
+
+    def test_swap_contributors(self):
+        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        self.assertTrue(formset.is_valid())
+
+        # swap contributors, should still be valid
+        self.data['contributions-0-contributor'] = self.user2.pk
+        self.data['contributions-1-contributor'] = self.user1.pk
+        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        self.assertTrue(formset.is_valid())
+
+    def test_move_and_delete(self):
+        # move contributor2 to the first contribution and delete the second one
+        # after saving, only one contribution should exist and have the contributor2
+        self.data['contributions-0-contributor'] = self.user2.pk
+        self.data['contributions-1-contributor'] = self.user2.pk
+        self.data['contributions-1-DELETE'] = 'on'
+        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        self.assertTrue(formset.is_valid())
+        formset.save()
+        self.assertTrue(Contribution.objects.filter(contributor=self.user2, course=self.course).exists())
+        self.assertFalse(Contribution.objects.filter(contributor=self.user1, course=self.course).exists())
+
+    def test_extra_form(self):
+        # make sure nothing crashes when an extra form is present.
+        self.data['contributions-0-contributor'] = self.user2.pk
+        self.data['contributions-1-contributor'] = self.user1.pk
+        self.data['contributions-2-TOTAL_FORMS'] = 3
+        self.data['contributions-2-id'] = ""
+        self.data['contributions-2-order'] = -1
+        self.data['contributions-2-responsibility'] = "CONTRIBUTOR"
+        self.data['contributions-2-comment_visibility'] = "OWN"
+        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        self.assertTrue(formset.is_valid())
+
+    @skip("isn't fixed yet...")
+    def test_swap_contributors_with_extra_form(self):
+        # moving a contributor to an extra form should work.
+        # here, the second contributor is deleted and removed from self.data first
+        self.contribution2.delete()
+        self.data['contributions-TOTAL_FORMS'] = 2
+        self.data['contributions-INITIAL_FORMS'] = 1
+        self.data['contributions-0-contributor'] = self.user2.pk
+        self.data['contributions-1-contributor'] = self.user1.pk
+        self.data['contributions-1-id'] = ""
+        self.data['contributions-1-order'] = -1
+        self.data['contributions-1-responsibility'] = "CONTRIBUTOR"
+        self.data['contributions-1-comment_visibility'] = "OWN"
+
+        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset.is_valid()
+        self.assertTrue(formset.is_valid())
 
 class CourseFormTests(TestCase):
     def helper_test_course_form_same_name(self, CourseFormClass):
