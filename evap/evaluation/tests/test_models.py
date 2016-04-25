@@ -212,7 +212,7 @@ class ArchivingTests(TestCase):
     def test_archiving_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, state="published")
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True)
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
         self.assertTrue(course.is_single_result())
 
@@ -234,7 +234,7 @@ class TestEmails(TestCase):
         cls.user.generate_login_key()
 
         cls.course = mommy.make(Course)
-        contribution = mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True)
+        contribution = mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 

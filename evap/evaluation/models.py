@@ -583,8 +583,8 @@ class Contribution(models.Model):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        if self.responsible and not self.course.is_single_result:
-            assert self.can_edit and self.comment_visibilty == ALL_COMMENTS
+        if self.responsible and not self.course.is_single_result():
+            assert self.can_edit and self.comment_visibility == self.ALL_COMMENTS
 
     @property
     def is_general(self):

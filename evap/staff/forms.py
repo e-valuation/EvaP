@@ -191,7 +191,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         single_result_question = single_result_questionnaire.question_set.first()
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
-            contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True)
+            contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
             contribution.save()
             contribution.questionnaires.add(single_result_questionnaire)
 

@@ -235,7 +235,7 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         cls.questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course)
+        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
 
         cls.contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
