@@ -23,5 +23,9 @@ class evap ($db_connector) {
         provider    => shell,
         command     => 'python3 manage.py createcachetable',
         cwd         => '/vagrant'
+    } -> exec { 'evap-cache-warmup':
+        provider    => shell,
+        command     => 'python3 manage.py refresh_results_cache',
+        cwd         => '/vagrant'
     }
 }

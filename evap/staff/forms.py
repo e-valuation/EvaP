@@ -4,6 +4,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import normalize_newlines
+from django.http.request import QueryDict
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
@@ -316,8 +317,9 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data=None, *args, **kwargs):
+        data = self.handle_moved_contributors(data, *args, **kwargs)
+        super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
 
     def handle_deleted_and_added_contributions(self):
@@ -334,10 +336,50 @@ class ContributionFormSet(AtLeastOneFormSet):
                     continue
                 if not deleted_form.cleaned_data['contributor'] == form_with_errors.cleaned_data['contributor']:
                     continue
-                form_with_errors.cleaned_data['id'] = deleted_form.cleaned_data['id']
                 form_with_errors.instance = deleted_form.instance
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
+
+    def handle_moved_contributors(self, data, *args, **kwargs):
+        """
+            Work around https://code.djangoproject.com/ticket/25139
+            Basically, if the user assigns a contributor who already has a contribution to a new contribution,
+            this moves the contributor (and all the data of the new form they got assigned to) back to the original contribution.
+        """
+        if data is None or 'instance' not in kwargs:
+            return data
+
+        course = kwargs['instance']
+        total_forms = int(data['contributions-TOTAL_FORMS'])
+        for i in range(0, total_forms):
+            prefix = "contributions-" + str(i) + "-"
+            current_id = data.get(prefix + 'id', '')
+            contributor = data.get(prefix + 'contributor', '')
+            if contributor == '':
+                continue
+            # find the contribution that the contributor had before the user messed with it
+            try:
+                previous_id = str(Contribution.objects.get(contributor=contributor, course=course).id)
+            except Contribution.DoesNotExist:
+                continue
+
+            if current_id == previous_id:
+                continue
+
+            # find the form with that previous contribution and then swap the contributions
+            for j in range(0, total_forms):
+                other_prefix = "contributions-" + str(j) + "-"
+                other_id = data[other_prefix + 'id']
+                if other_id == previous_id:
+                    # swap all the data. the contribution's ids stay in place.
+                    data2 = data.copy()
+                    data = QueryDict(mutable=True)
+                    for key, value in data2.lists():
+                        if not key.endswith('-id'):
+                            key = key.replace(prefix, '%temp%').replace(other_prefix, prefix).replace('%temp%', other_prefix)
+                        data.setlist(key, value)
+                    break
+        return data
 
     def clean(self):
         self.handle_deleted_and_added_contributions()

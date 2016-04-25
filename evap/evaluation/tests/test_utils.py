@@ -1,7 +1,16 @@
+from django.http.request import QueryDict
+
 from django_webtest import WebTest as DjangoWebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
+
+
+def to_querydict(dict):
+    querydict = QueryDict(mutable=True)
+    for key, value in dict.items():
+        querydict[key] = value
+    return querydict
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
