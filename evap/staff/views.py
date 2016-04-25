@@ -628,7 +628,7 @@ def course_comments(request, semester_id, course_id):
         if not text_results:
             continue
         section_list = course_sections if contribution.is_general else contributor_sections
-        section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.responsible, text_results))
+        section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
     return render(request, "staff_course_comments.html", template_data)
