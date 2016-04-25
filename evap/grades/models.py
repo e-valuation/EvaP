@@ -1,4 +1,4 @@
-﻿from django.conf import settings
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.meta import LocalizeModelBase, Translate

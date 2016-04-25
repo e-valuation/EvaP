@@ -1,4 +1,4 @@
-﻿from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Prefetch
 from django.contrib import messages
 from django.conf import settings
