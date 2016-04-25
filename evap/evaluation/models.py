@@ -252,23 +252,27 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         assert self.vote_end_date >= self.vote_end_date
 
+    @property
     def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
 
+    @property
     def is_not_fully_reviewed(self):
         return self.open_textanswer_set.exists()
 
+    @property
     def is_in_evaluation_period(self):
         today = datetime.date.today()
         return today >= self.vote_start_date and today <= self.vote_end_date
 
+    @property
     def has_enough_questionnaires(self):
-        return self.general_contribution and (self.is_single_result() or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
+        return self.general_contribution and (self.is_single_result or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
         return (self.state == "inEvaluation"
-            and self.is_in_evaluation_period()
+            and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
 
@@ -279,6 +283,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return self.can_publish_grades or self.is_user_contributor_or_delegate(user)
         return False
 
+    @property
     def is_single_result(self):
         # early return to save some queries
         if self.vote_start_date != self.vote_end_date:
@@ -301,7 +306,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def can_publish_grades(self):
         from evap.evaluation.tools import get_sum_of_answer_counters
-        if self.is_single_result():
+        if self.is_single_result:
             return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
@@ -314,7 +319,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[has_enough_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[lambda self: self.has_enough_questionnaires])
     def staff_approve(self):
         pass
 
@@ -322,11 +327,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def revert_to_new(self):
         pass
 
-    @transition(field=state, source='approved', target='inEvaluation', conditions=[is_in_evaluation_period])
+    @transition(field=state, source='approved', target='inEvaluation', conditions=[lambda self: self.is_in_evaluation_period])
     def evaluation_begin(self):
         pass
 
-    @transition(field=state, source=['evaluated', 'reviewed'], target='inEvaluation', conditions=[is_in_evaluation_period])
+    @transition(field=state, source=['evaluated', 'reviewed'], target='inEvaluation', conditions=[lambda self: self.is_in_evaluation_period])
     def reopen_evaluation(self):
         pass
 
@@ -334,15 +339,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def evaluation_end(self):
         pass
 
-    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
+    @transition(field=state, source='evaluated', target='reviewed', conditions=[lambda self: self.is_fully_reviewed])
     def review_finished(self):
         pass
 
-    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[is_single_result])
+    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[lambda self: self.is_single_result])
     def single_result_created(self):
         pass
 
-    @transition(field=state, source='reviewed', target='evaluated', conditions=[is_not_fully_reviewed])
+    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: self.is_not_fully_reviewed])
     def reopen_review(self):
         pass
 
@@ -430,7 +435,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires():
+        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires:
             result.append(_("Not enough questionnaires assigned"))
         if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
@@ -518,7 +523,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     courses_new_in_evaluation.append(course)
                 elif course.state == "inEvaluation" and course.vote_end_date < today:
                     course.evaluation_end()
-                    if course.is_fully_reviewed():
+                    if course.is_fully_reviewed:
                         course.review_finished()
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
@@ -583,7 +588,7 @@ class Contribution(models.Model):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        if self.responsible and not self.course.is_single_result():
+        if self.responsible and not self.course.is_single_result:
             assert self.can_edit and self.comment_visibility == self.ALL_COMMENTS
 
     @property
@@ -808,7 +813,10 @@ class EmailNullField(models.EmailField):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
+
+    # null=True because users created through kerberos logins and certain external users don't have an address.
     email = EmailNullField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
+
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))

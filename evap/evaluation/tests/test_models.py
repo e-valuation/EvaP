@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from django.test import TestCase
 from django.core.cache import cache
@@ -30,7 +30,7 @@ class TestCourses(TestCase):
         course = mommy.make(Course, state='inEvaluation', vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.models.Course.is_fully_reviewed') as mock:
-            mock.return_value = False
+            mock.__get__ = Mock(return_value=False)
             Course.update_courses()
 
         course = Course.objects.get(pk=course.pk)
@@ -64,24 +64,24 @@ class TestCourses(TestCase):
         Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))])
         course = Course.objects.get()
         self.assertEqual(course.contributions.count(), 0)
-        self.assertFalse(course.has_enough_questionnaires())
+        self.assertFalse(course.has_enough_questionnaires)
 
         responsible_contribution = mommy.make(
                 Contribution, course=course, contributor=mommy.make(UserProfile),
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         course = Course.objects.get()
-        self.assertFalse(course.has_enough_questionnaires())
+        self.assertFalse(course.has_enough_questionnaires)
 
         general_contribution = mommy.make(Contribution, course=course, contributor=None)
         course = Course.objects.get()  # refresh because of cached properties
-        self.assertFalse(course.has_enough_questionnaires())
+        self.assertFalse(course.has_enough_questionnaires)
 
         q = mommy.make(Questionnaire)
         general_contribution.questionnaires.add(q)
-        self.assertFalse(course.has_enough_questionnaires())
+        self.assertFalse(course.has_enough_questionnaires)
 
         responsible_contribution.questionnaires.add(q)
-        self.assertTrue(course.has_enough_questionnaires())
+        self.assertTrue(course.has_enough_questionnaires)
 
     def test_deleting_last_modified_user_does_not_delete_course(self):
         user = mommy.make(UserProfile);
@@ -214,7 +214,7 @@ class ArchivingTests(TestCase):
         course = mommy.make(Course, state="published")
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
-        self.assertTrue(course.is_single_result())
+        self.assertTrue(course.is_single_result)
 
         course._participant_count = 5
         course._voter_count = 5

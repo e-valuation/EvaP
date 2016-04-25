@@ -98,7 +98,7 @@ def semester_view(request, semester_id):
     degree_stats = defaultdict(Stats)
     total_stats = Stats()
     for course in courses:
-        if course.is_single_result():
+        if course.is_single_result:
             continue
         degrees = course.degrees.all()
         stats_objects = [degree_stats[degree] for degree in degrees]
@@ -171,7 +171,7 @@ def semester_course_operation(request, semester_id):
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
             # remove courses without enough questionnaires
-            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires()]
+            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires]
             difference = len(courses) - len(courses_with_enough_questionnaires)
             if difference:
                 courses = courses_with_enough_questionnaires
@@ -478,7 +478,7 @@ def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id)
 
-    if course.is_single_result():
+    if course.is_single_result:
         return helper_single_result_edit(request, semester, course)
     else:
         return helper_course_edit(request, semester, course)
@@ -501,7 +501,7 @@ def helper_course_edit(request, semester, course):
         if not course.can_staff_edit or course.is_archived:
             raise SuspiciousOperation("Modifying this course is not allowed.")
 
-        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period():
+        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
         form.save(user=request.user)
         formset.save()
@@ -658,10 +658,10 @@ def course_comments_update_publish(request):
         return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
 
-    if course.state == "evaluated" and course.is_fully_reviewed():
+    if course.state == "evaluated" and course.is_fully_reviewed:
         course.review_finished()
         course.save()
-    if course.state == "reviewed" and not course.is_fully_reviewed():
+    if course.state == "reviewed" and not course.is_fully_reviewed:
         course.reopen_review()
         course.save()
 

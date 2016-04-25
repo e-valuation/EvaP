@@ -442,7 +442,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         courses_in_active_semester = Course.objects.filter(semester=Semester.active_semester())
-        excludes = [x.id for x in courses_in_active_semester if x.is_single_result()]
+        excludes = [x.id for x in courses_in_active_semester if x.is_single_result]
         courses_in_active_semester = courses_in_active_semester.exclude(id__in=excludes)
         self.fields['courses_participating_in'].queryset = courses_in_active_semester
         if self.instance.pk:

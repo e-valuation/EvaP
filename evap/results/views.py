@@ -30,7 +30,7 @@ def semester_detail(request, semester_id):
     for degree in Degree.objects.all():
         courses_by_degree[degree] = CourseTuple([], [])
     for course in courses:
-        if course.is_single_result():
+        if course.is_single_result:
             for degree in course.degrees.all():
                 section = calculate_results(course)[0]
                 result = section.results[0]

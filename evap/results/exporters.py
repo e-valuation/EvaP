@@ -94,7 +94,7 @@ class ExcelExporter(object):
 
             used_questionnaires = set()
             for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
-                if course.is_single_result():
+                if course.is_single_result:
                     continue
                 results = OrderedDict()
                 for questionnaire, contributor, label, data, section_warning in calculate_results(course):
