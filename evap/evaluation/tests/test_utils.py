@@ -2,6 +2,7 @@ from django.http.request import QueryDict
 
 from django_webtest import WebTest as DjangoWebTest
 from model_mommy import mommy
+from webtest import AppError
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
 

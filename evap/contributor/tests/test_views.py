@@ -1,6 +1,4 @@
-from webtest.app import AppError
-
-from evap.evaluation.models import Course, Questionnaire
+from evap.evaluation.models import Course
 from evap.evaluation.tests.test_utils import ViewTest, course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2

@@ -511,10 +511,19 @@ li.menu-indent {
 }
 
 .text-answer li,a {
-    word-break: break-word;
+    word-wrap: break-word;
 }
 
 .total-stats {
     font-weight: bold;
     background-color: #F0F0F0;
+}
+
+/* feedback form + button */
+
+#feedback-button{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    border: none;
 }
