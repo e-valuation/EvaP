@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from django.conf import settings
@@ -7,8 +8,8 @@ from django.test.utils import override_settings
 from model_mommy import mommy
 import xlrd
 
-from evap.evaluation.models import Semester, UserProfile, Course, CourseType, \
-                                   TextAnswer, Contribution
+from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, Questionnaire, \
+                                   Question
 from evap.evaluation.tests.test_utils import FuzzyInt, WebTest, ViewTest
 
 
@@ -204,3 +205,44 @@ class ArchivingTests(WebTest):
         self.get_assert_403(semester_url + "assign", "evap")
         self.get_assert_403(semester_url + "course/create", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
+
+
+class TestQuestionnaireNewVersionView(ViewTest):
+    url = '/staff/questionnaire/2/new_version'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.name_de_orig = 'kurzer name'
+        cls.name_en_orig = 'short name'
+        questionnaire = mommy.make(Questionnaire, id=2, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        mommy.make(Question, questionnaire=questionnaire)
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+    def test_changes_old_title(self):
+        page = self.app.get(url=self.url, user='staff')
+        form = page.forms['questionnaire-form']
+
+        form.submit()
+
+        timestamp = datetime.date.today()
+        new_name_de = '{} (until {})'.format(self.name_de_orig, str(timestamp))
+        new_name_en = '{} (until {})'.format(self.name_en_orig, str(timestamp))
+
+        self.assertTrue(Questionnaire.objects.filter(name_de=self.name_de_orig, name_en=self.name_en_orig).exists())
+        self.assertTrue(Questionnaire.objects.filter(name_de=new_name_de, name_en=new_name_en).exists())
+
+    def test_no_second_update(self):
+
+        # First save.
+        page = self.app.get(url=self.url, user='staff')
+        form = page.forms['questionnaire-form']
+        form.submit()
+
+        # Second try.
+        new_questionnaire = Questionnaire.objects.get(name_de=self.name_de_orig)
+        page = self.app.get(url='/staff/questionnaire/{}/new_version'.format(new_questionnaire.id), user='staff')
+
+        # We should get redirected back to the questionnaire index.
+        self.assertEqual(page.status_code, 302)  # REDIRECT
+        self.assertEqual(page.location, '/staff/questionnaire/')

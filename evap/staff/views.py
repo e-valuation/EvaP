@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.db.models import Max, Count
+from django.db import transaction, IntegrityError
+from django.db.models import Max, Count, Q, BooleanField, ExpressionWrapper, Sum, Case, When, IntegerField
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
@@ -67,6 +68,7 @@ def get_courses_with_prefetched_data(semester):
             course.num_voters = voter_count
             course.num_participants = participant_count
     return courses
+
 
 @staff_required
 def semester_view(request, semester_id):
@@ -299,7 +301,7 @@ def semester_delete(request):
         raise SuspiciousOperation("Deleting semester not allowed")
     semester.delete()
     delete_navbar_cache()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @staff_required
@@ -429,7 +431,7 @@ def semester_archive(request):
     if not semester.is_archiveable:
         raise SuspiciousOperation("Archiving semester not allowed")
     semester.archive()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @staff_required
@@ -544,7 +546,7 @@ def course_delete(request):
     if not course.can_staff_delete:
         raise SuspiciousOperation("Deleting course not allowed")
     course.delete()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @staff_required
@@ -609,11 +611,11 @@ def course_comments(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     filter = request.GET.get('filter', None)
-    if filter is None: # if no parameter is given take session value
-        filter = request.session.get('filter_comments', False) # defaults to False if no session value exists
+    if filter is None:  # if no parameter is given take session value
+        filter = request.session.get('filter_comments', False)  # defaults to False if no session value exists
     else:
-        filter = {'true': True, 'false': False}.get(filter.lower()) # convert parameter to boolean
-    request.session['filter_comments'] = filter # store value for session
+        filter = {'true': True, 'false': False}.get(filter.lower())  # convert parameter to boolean
+    request.session['filter_comments'] = filter  # store value for session
 
     filter_states = [TextAnswer.NOT_REVIEWED] if filter else None
 
@@ -653,7 +655,7 @@ def course_comments_update_publish(request):
     elif action == 'unreview':
         answer.unreview()
     else:
-        return HttpResponse(status=400) # 400 Bad Request
+        return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
 
     if course.state == "evaluated" and course.is_fully_reviewed():
@@ -663,7 +665,7 @@ def course_comments_update_publish(request):
         course.reopen_review()
         course.save()
 
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @staff_required
@@ -783,8 +785,21 @@ def questionnaire_edit(request, questionnaire_id):
         return render(request, "staff_questionnaire_form.html", template_data)
 
 
+def get_identical_form_and_formset(questionnaire):
+    """
+    Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
+    specified in questionnaire_id. Used for copying and creating of new versions.
+    """
+    inline_question_formset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+
+    form = QuestionnaireForm(instance=questionnaire)
+    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_set.all())
+
+
 @staff_required
 def questionnaire_copy(request, questionnaire_id):
+    copied_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
     if request.method == "POST":
         questionnaire = Questionnaire()
         InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
@@ -801,12 +816,55 @@ def questionnaire_copy(request, questionnaire_id):
         else:
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
     else:
-        questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        form, formset = get_identical_form_and_formset(copied_questionnaire)
+        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
-        form = QuestionnaireForm(instance=questionnaire)
-        formset = InlineQuestionFormset(instance=questionnaire, queryset=questionnaire.question_set.all())
 
+@staff_required
+def questionnaire_new_version(request, questionnaire_id):
+    old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
+    if old_questionnaire.obsolete:
+        raise PermissionDenied
+
+    # Check if we can use the old name with the current time stamp.
+    timestamp = datetime.date.today()
+    new_name_de = '{} (until {})'.format(old_questionnaire.name_de, str(timestamp))
+    new_name_en = '{} (until {})'.format(old_questionnaire.name_en, str(timestamp))
+
+    # If not, redirect back and suggest to edit the already created version.
+    if Questionnaire.objects.filter(Q(name_de=new_name_de) | Q(name_en=new_name_en)):
+        messages.error(request, _("Questionnaire creation aborted. One version was already created today, why not"
+                                  " edit that one?"))
+        return redirect('staff:questionnaire_index')
+
+    if request.method == "POST":
+        questionnaire = Questionnaire()
+        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet,
+                                                      form=QuestionForm, extra=1, exclude=('questionnaire',))
+
+        form = QuestionnaireForm(request.POST, instance=questionnaire)
+        formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
+
+        try:
+            with transaction.atomic():
+                # Change old name before checking Form.
+                old_questionnaire.name_de = new_name_de
+                old_questionnaire.name_en = new_name_en
+                old_questionnaire.obsolete = True
+                old_questionnaire.save()
+
+                if form.is_valid() and formset.is_valid():
+                    form.save()
+                    formset.save()
+                    messages.success(request, _("Successfully created questionnaire."))
+                    return redirect('staff:questionnaire_index')
+                else:
+                    raise IntegrityError
+        except IntegrityError:
+            return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
+    else:
+        form, formset = get_identical_form_and_formset(old_questionnaire)
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
 
 
@@ -819,7 +877,7 @@ def questionnaire_delete(request):
     if not questionnaire.can_staff_delete:
         raise SuspiciousOperation("Deleting questionnaire not allowed")
     questionnaire.delete()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @require_POST
@@ -896,7 +954,6 @@ def course_type_merge(request, main_type_id, other_type_id):
 
 @staff_required
 def user_index(request):
-    from django.db.models import  BooleanField, ExpressionWrapper, Q, Sum, Case, When, IntegerField
     users = (UserProfile.objects.all()
         # the following four annotations basically add two bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
