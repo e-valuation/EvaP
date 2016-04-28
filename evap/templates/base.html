@@ -183,7 +183,8 @@
                             <label for="sender-email" class="control-label">Email:</label>
                             <input type="text" class="form-control" id="sender-email" disabled value="{{ request.user.email }}">
                         </div>
-                        <textarea class="form-control" id="message-text" style="resize:vertical;"></textarea>
+                        <label for="message-text" class="control-label">Message:</label>
+                        <textarea class="form-control" id="message-text" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
