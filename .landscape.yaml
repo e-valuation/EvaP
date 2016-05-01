@@ -7,3 +7,6 @@ ignore-paths:
 test-warnings: true
 python-targets:
     - 3
+pylint:
+  options:
+    dummy-variables-rgx: _$|__$|dummy

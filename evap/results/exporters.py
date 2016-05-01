@@ -97,7 +97,7 @@ class ExcelExporter(object):
                 if course.is_single_result:
                     continue
                 results = OrderedDict()
-                for questionnaire, contributor, label, data, section_warning in calculate_results(course):
+                for questionnaire, contributor, __, data, __ in calculate_results(course):
                     if has_no_rating_answers(course, contributor, questionnaire):
                         continue
                     results.setdefault(questionnaire.id, []).extend(data)

@@ -56,7 +56,7 @@ def index(request):
         template_data = dict(new_key_form=new_key_form, login_username_form=login_username_form)
         return render(request, "index.html", template_data)
     else:
-        user, created = UserProfile.objects.get_or_create(username=request.user.username)
+        user, __ = UserProfile.objects.get_or_create(username=request.user.username)
 
         # check for redirect variable
         redirect_to = request.GET.get("next", None)

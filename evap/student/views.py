@@ -97,7 +97,7 @@ def vote(request, course_id):
                                 answer=value)
                     else:
                         if value != 6:
-                            answer_counter, created = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
+                            answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.add_vote()
                             answer_counter.save()
 

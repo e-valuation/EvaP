@@ -98,7 +98,7 @@ class MergeUsersTest(TestCase):
         self.assertEqual(expected_attrs, actual_attrs)
 
     def test_merge_users(self):
-        merged_user, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
+        __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
         self.assertSequenceEqual(errors, ['contributions', 'courses_participating_in'])
         self.assertSequenceEqual(warnings, ['rewards'])
 
@@ -140,7 +140,7 @@ class MergeUsersTest(TestCase):
         self.course1.participants = [self.main_user]
         self.contribution2.delete()
 
-        merged_user, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
+        __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
         self.assertEqual(errors, [])
         self.assertSequenceEqual(warnings, ['rewards']) # rewards warning is still there
 

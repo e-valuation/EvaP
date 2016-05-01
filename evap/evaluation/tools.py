@@ -114,7 +114,7 @@ def get_sum_of_answer_counters(answer_counters):
 def get_answers_from_answer_counters(answer_counters):
     answers = []
     for answer_counter in answer_counters:
-        for i in range(0, answer_counter.count):
+        for __ in range(0, answer_counter.count):
             answers.append(answer_counter.answer)
     return answers
 
@@ -206,7 +206,7 @@ def calculate_average_grades_and_deviation(course):
     dev_generic_grade = []
     dev_contribution_grade = []
 
-    for questionnaire, contributor, label, results, warning in calculate_results(course):
+    for __, contributor, __, results, __ in calculate_results(course):
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
         deviation_likert = avg([result.deviation for result in results if result.question.is_likert_question])
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
