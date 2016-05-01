@@ -113,6 +113,7 @@
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
                         <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
+                        <li><a href="{% url "staff:semester_participation_export" semester.id %}">{% trans "Export participation data" %}</a></li>
                     </ul>
                 </div>
             </div>

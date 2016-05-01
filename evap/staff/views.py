@@ -32,9 +32,11 @@ from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
+from evap.rewards.models import RewardPointGranting
 from evap.grades.tools import are_grades_activated
 from evap.results.exporters import ExcelExporter
-from evap.rewards.tools import is_semester_activated
+from evap.rewards.tools import is_semester_activated, can_user_use_reward_points
+from operator import attrgetter
 
 
 def raise_permission_denied_if_archived(archiveable):
@@ -376,6 +378,36 @@ def semester_raw_export(request, semester_id):
             course.avg_grade = ""
         writer.writerow([course.name, degrees, course.type.name, course.is_single_result(), course.state,
             course.num_voters, course.num_participants, len(course.textanswer_set.all()), course.avg_grade])
+
+    return response
+
+
+@staff_required
+def semester_participation_export(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    courses = Course.objects.filter(semester=semester)
+    participants = set()
+    for course in courses:
+        for participant in course.participants.all():
+            if can_user_use_reward_points(participant):
+                participants.add(participant)
+    participants = sorted(participants, key=attrgetter('username'))
+
+    filename = "Evaluation-%s-%s_participation.csv" % (semester.name, get_language())
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+
+    writer = csv.writer(response, delimiter=";")
+    writer.writerow([_('Username'), _('#Required courses voted for'), _('#Required courses'),
+        _('#Optional courses voted for'), _('#Optional courses'), _('Earned reward points')])
+    for participant in participants:
+        number_of_required_courses = Course.objects.filter(semester=semester, participants=participant, is_required_for_reward=True).count()
+        number_of_required_courses_voted_for = Course.objects.filter(semester=semester, voters=participant, is_required_for_reward=True).count()
+        number_of_optional_courses = Course.objects.filter(semester=semester, participants=participant, is_required_for_reward=False).count()
+        number_of_optional_courses_voted_for = Course.objects.filter(semester=semester, voters=participant, is_required_for_reward=False).count()
+        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
+        writer.writerow([participant.username, number_of_required_courses_voted_for, number_of_required_courses,
+            number_of_optional_courses_voted_for, number_of_optional_courses, earned_reward_points])
 
     return response
 
