@@ -2,7 +2,6 @@ from django.core import mail
 from django.contrib.auth.models import Group
 
 from model_mommy import mommy
-import tempfile
 import datetime
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
@@ -19,9 +18,9 @@ class GradeUploadTests(WebTest):
         mommy.make(UserProfile, username="student", email="student@student.hpi.de")
         mommy.make(UserProfile, username="student2", email="student2@student.hpi.de")
         mommy.make(UserProfile, username="student3", email="student3@student.hpi.de")
-        mommy.make(UserProfile, username="responsible", email="responsible@hpi.de")
+        responsible = mommy.make(UserProfile, username="responsible", email="responsible@hpi.de")
 
-        course = mommy.make(Course,
+        cls.course = mommy.make(Course,
             name_en="Test",
             vote_start_date=datetime.date.today(),
             participants=[
@@ -34,14 +33,17 @@ class GradeUploadTests(WebTest):
                 UserProfile.objects.get(username="student2"),
             ]
         )
-        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
         contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
 
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        cls.course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
-        semester_grade_activation = SemesterGradeDownloadActivation(semester=course.semester, is_active=True)
-        semester_grade_activation.save()
+        cls.activation = SemesterGradeDownloadActivation.objects.create(semester=cls.course.semester, is_active=True)
+
+    def setUp(self):
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.activation.refresh_from_db()
 
     def tearDown(self):
         for course in Course.objects.all():
@@ -49,12 +51,7 @@ class GradeUploadTests(WebTest):
                 grade_document.file.delete()
 
     def helper_upload_grades(self, course, final_grades):
-        with tempfile.SpooledTemporaryFile() as f:
-            f.write(b"Grades")
-            f.seek(0)
-            upload_files = [
-                ('file', 'grades.txt', f.read())
-            ]
+        upload_files = [('file', 'grades.txt', b"Some content")]
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
@@ -81,17 +78,16 @@ class GradeUploadTests(WebTest):
         mail.outbox.clear()
 
     def test_upload_midterm_grades(self):
-        course = Course.objects.get(name_en="Test")
-        self.assertEqual(course.midterm_grade_documents.count(), 0)
+        self.assertEqual(self.course.midterm_grade_documents.count(), 0)
 
-        response = self.helper_upload_grades(course, final_grades=False)
+        response = self.helper_upload_grades(self.course, final_grades=False)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
-        self.assertEqual(course.midterm_grade_documents.count(), 1)
+        self.assertEqual(self.course.midterm_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_upload_final_grades(self):
-        course = Course.objects.get(name_en="Test")
+        course = self.course
         self.assertEqual(course.final_grade_documents.count(), 0)
 
         # state: new
@@ -168,21 +164,17 @@ class GradeUploadTests(WebTest):
         course = Course.objects.get(id=course.id)
         self.assertFalse(course.gets_no_grade_documents)
 
-    def helper_grade_activation(self, semester, active):
-        activation, created = SemesterGradeDownloadActivation.objects.update_or_create(
-            semester=semester,
-            defaults={'is_active': active})
-
     def test_grade_activation(self):
-        course = Course.objects.get(name_en="Test")
-        self.helper_grade_activation(course.semester, True) # activate grade downloads
+        self.activation.is_active = True
+        self.activation.save()
 
         # upload grade document
-        self.helper_upload_grades(course, final_grades=False)
-        self.assertGreater(course.midterm_grade_documents.count(), 0)
+        self.helper_upload_grades(self.course, final_grades=False)
+        self.assertGreater(self.course.midterm_grade_documents.count(), 0)
 
-        url = "/grades/download/"+str(course.midterm_grade_documents.first().id)
+        url = "/grades/download/"+str(self.course.midterm_grade_documents.first().id)
         self.get_assert_200(url, "student") # grades should be downloadable
 
-        self.helper_grade_activation(course.semester, False) # deactivate grade downloads
+        self.activation.is_active = False
+        self.activation.save()
         self.get_assert_403(url, "student") # grades should not be downloadable anymore

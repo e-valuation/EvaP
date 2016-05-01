@@ -82,6 +82,8 @@ class MergeUsersTest(TestCase):
 
         # actual merge happens here
         merged_user, errors, warnings = merge_users(user1, user2)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
         handled_attrs = set(merged_user.keys())
 
         # attributes that are handled in the merge method but that are not present in the merged_user dict
