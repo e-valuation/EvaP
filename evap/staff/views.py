@@ -476,7 +476,7 @@ def single_result_create(request, semester_id):
 @staff_required
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     if course.is_single_result:
         return helper_single_result_edit(request, semester, course)
@@ -552,7 +552,7 @@ def course_delete(request):
 @staff_required
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
     form = CourseEmailForm(request.POST or None, instance=course, export='export' in request.POST)
 
     if form.is_valid():
@@ -574,8 +574,8 @@ def course_email(request, semester_id, course_id):
 
 @staff_required
 def course_participant_import(request, semester_id, course_id):
-    course = get_object_or_404(Course, id=course_id)
     semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
     raise_permission_denied_if_archived(course)
 
     form = UserImportForm(request.POST or None, request.FILES or None)
@@ -608,7 +608,7 @@ def course_participant_import(request, semester_id, course_id):
 @staff_required
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     filter = request.GET.get('filter', None)
     if filter is None:  # if no parameter is given take session value
@@ -670,9 +670,9 @@ def course_comments_update_publish(request):
 
 @staff_required
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
-    text_answer = get_object_or_404(TextAnswer, id=text_answer_id)
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
+    text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
     reviewed_answer = text_answer.reviewed_answer
     if reviewed_answer is None:
         reviewed_answer = text_answer.original_answer
@@ -691,7 +691,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
 @staff_required
 def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     return vote_preview(request, course)
 

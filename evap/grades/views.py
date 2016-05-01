@@ -61,7 +61,7 @@ def semester_view(request, semester_id):
 @grade_publisher_or_staff_required
 def course_view(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
     is_grade_publisher = request.user.is_grade_publisher
 
     template_data = dict(
@@ -78,7 +78,7 @@ def course_view(request, semester_id, course_id):
 @grade_publisher_required
 def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     final_grades = request.GET.get('final', 'false') # default: midterm grades
     final_grades = {'true': True, 'false': False}.get(final_grades.lower()) # convert parameter to boolean
@@ -147,8 +147,8 @@ def download_grades(request, grade_document_id):
 @grade_publisher_required
 def edit_grades(request, semester_id, course_id, grade_document_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
-    grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
+    grade_document = get_object_or_404(GradeDocument, id=grade_document_id, course=course)
 
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 

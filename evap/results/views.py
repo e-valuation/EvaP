@@ -46,7 +46,7 @@ def semester_detail(request, semester_id):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(semester.course_set, id=course_id)
+    course = get_object_or_404(semester.course_set, id=course_id, semester=semester)
 
     if not course.can_user_see_results(request.user):
         raise PermissionDenied

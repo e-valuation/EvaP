@@ -116,9 +116,9 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(Semester, pk=1)
+        semester = mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course, pk=1)
+        cls.course = mommy.make(Course, pk=1, semester=semester)
 
     def test_import_valid_file(self):
         page = self.app.get(self.url, user='staff')
