@@ -208,7 +208,6 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "evap.context_processors.feedback_email",
                 "evap.context_processors.legal_notice_active",
                 "evap.context_processors.tracker_url",
             ],
