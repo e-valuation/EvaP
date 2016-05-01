@@ -74,8 +74,6 @@
                 &nbsp;
                 <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Todo" %}</a>
                 &nbsp;
-                <a href="{% url "staff:semester_export" semester.id %}" class="btn btn-sm btn-default">{% trans "Export" %}</a>
-                &nbsp;
                 <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
                 <div class="btn-group">
                     <a href="{% url "rewards:semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
@@ -107,6 +105,14 @@
                         <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Course" %}</a></li>
                         <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Single Result" %}</a></li>
                         <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import Courses" %}</a></li>
+                    </ul>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
+                        <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
                     </ul>
                 </div>
             </div>

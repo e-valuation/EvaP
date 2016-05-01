@@ -1,3 +1,4 @@
+import csv
 import datetime
 import random
 from collections import OrderedDict, defaultdict
@@ -20,7 +21,8 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
-                                  TextResult, send_publish_notifications, sort_formset
+                                  TextResult, send_publish_notifications, sort_formset, \
+                                  calculate_average_grades_and_deviation
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
@@ -352,6 +354,30 @@ def semester_export(request, semester_id):
         return response
     else:
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
+
+
+@staff_required
+def semester_raw_export(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    filename = "Evaluation-%s-%s_raw.csv" % (semester.name, get_language())
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+
+    writer = csv.writer(response, delimiter=";")
+    writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
+        _('#Participants'), _('#Comments'), _('Average degree')])
+    for course in semester.course_set.all():
+        degrees = ",".join([degree.name for degree in course.degrees.all()])
+        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        if course.state in ['evaluated', 'reviewed', 'published'] and course.avg_grade is not None:
+            course.avg_grade = ('%.1f' % float(course.avg_grade)).replace('.',',')
+        else:
+            course.avg_grade = ""
+        writer.writerow([course.name, degrees, course.type.name, course.is_single_result(), course.state,
+            course.num_voters, course.num_participants, len(course.textanswer_set.all()), course.avg_grade])
+
+    return response
 
 
 @staff_required

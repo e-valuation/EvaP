@@ -15,6 +15,7 @@ urlpatterns = [
     url(r"^semester/(\d+)/edit$", semester_edit, name="semester_edit"),
     url(r"^semester/(\d+)/import$", semester_import, name="semester_import"),
     url(r"^semester/(\d+)/export$", semester_export, name="semester_export"),
+    url(r"^semester/(\d+)/raw_export$", semester_raw_export, name="semester_raw_export"),
     url(r"^semester/(\d+)/assign$", semester_questionnaire_assign, name="semester_questionnaire_assign"),
     url(r"^semester/(\d+)/todo", semester_todo, name="semester_todo"),
     url(r"^semester/(\d+)/lottery$", semester_lottery, name="semester_lottery"),
