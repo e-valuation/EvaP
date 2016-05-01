@@ -181,7 +181,7 @@ def semester_grade_activation(request, semester_id, active):
     semester = get_object_or_404(Semester, id=semester_id)
     active = active == 'on'
 
-    activation, created = SemesterGradeDownloadActivation.objects.update_or_create(
+    SemesterGradeDownloadActivation.objects.update_or_create(
         semester=semester,
         defaults={'is_active': active})
 

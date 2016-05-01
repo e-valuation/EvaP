@@ -318,7 +318,7 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 class ContributionFormSet(AtLeastOneFormSet):
     def __init__(self, data=None, *args, **kwargs):
-        data = self.handle_moved_contributors(data, *args, **kwargs)
+        data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
 
@@ -340,7 +340,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
-    def handle_moved_contributors(self, data, *args, **kwargs):
+    def handle_moved_contributors(self, data, **kwargs):
         """
             Work around https://code.djangoproject.com/ticket/25139
             Basically, if the user assigns a contributor who already has a contribution to a new contribution,

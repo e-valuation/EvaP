@@ -63,7 +63,7 @@ def course_view(request, course_id):
 
     # make everything read-only
     for cform in formset.forms + [form]:
-        for name, field in cform.fields.items():
+        for field in cform.fields.values():
             field.disabled = True
 
     template_data = dict(form=form, formset=formset, course=course, editable=False, responsible=course.responsible_contributor.username)

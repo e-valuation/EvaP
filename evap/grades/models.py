@@ -38,7 +38,7 @@ class GradeDocument(models.Model, metaclass=LocalizeModelBase):
             ('course', 'description_en')
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
     def filename(self):

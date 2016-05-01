@@ -26,7 +26,7 @@ class RewardPointRedemptionEvent(models.Model):
         redemptions = self.reward_point_redemptions.order_by('user_profile')
         redemptions_dict = OrderedDict()
         for redemption in redemptions:
-            if not redemption.user_profile in redemptions_dict:
+            if redemption.user_profile not in redemptions_dict:
                 redemptions_dict[redemption.user_profile] = 0
             redemptions_dict[redemption.user_profile] += redemption.value
         return redemptions_dict

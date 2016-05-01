@@ -160,7 +160,7 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def can_staff_delete(self):
-        if self.pk == None:
+        if self.pk is None:
             return True
         return not self.courses.all().exists()
 
@@ -248,7 +248,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         # make sure there is a general contribution
         if not self.general_contribution:
-            self.general_contribution = self.contributions.create(contributor=None)
+            self.contributions.create(contributor=None)
+            del self.general_contribution # invalidate cached property
 
         assert self.vote_end_date >= self.vote_end_date
 

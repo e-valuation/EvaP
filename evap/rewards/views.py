@@ -143,10 +143,7 @@ def reward_point_redemption_event_export(request, event_id):
 
 @staff_required
 def semester_activation(request, semester_id, active):
-    if active == 'on':
-        active = True
-    else:
-        active = False
+    active = active == 'on'
 
     try:
         activation = SemesterActivation.objects.filter(semester=Semester.objects.get(id=semester_id)).get()
