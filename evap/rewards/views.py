@@ -1,5 +1,4 @@
 from datetime import datetime
-from operator import attrgetter
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
