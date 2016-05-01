@@ -103,8 +103,8 @@ class TestSemesterExportView(ViewTest):
 
         # Load response as Excel file and check its heading for correctness.
         workbook = xlrd.open_workbook(file_contents=response.content)
-        self.assertEquals(workbook.sheets()[0].row_values(0)[0],
-                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
+        self.assertEqual(workbook.sheets()[0].row_values(0)[0],
+                         'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
@@ -144,7 +144,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
-        self.assertEquals(UserProfile.objects.count(), original_user_count)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_test_run(self):
         page = self.app.get(self.url, user='staff')

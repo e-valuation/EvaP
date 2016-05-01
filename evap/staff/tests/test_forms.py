@@ -321,7 +321,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data.appendlist('contributions-0-questionnaires', questionnaire.pk)
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         formset.save()
-        self.assertEquals(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
+        self.assertEqual(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
 
 
 class CourseFormTests(TestCase):

@@ -98,7 +98,7 @@ class TestSendRemindersCommand(TestCase):
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
 
-        self.assertEquals(mock.call_count, 1)
+        self.assertEqual(mock.call_count, 1)
         mock.assert_called_once_with(user_to_remind, first_due_in_days=2, due_courses=[(course, 2)])
 
     def test_remind_user_once_about_two_courses(self):
@@ -119,7 +119,7 @@ class TestSendRemindersCommand(TestCase):
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
 
-        self.assertEquals(mock.call_count, 1)
+        self.assertEqual(mock.call_count, 1)
         mock.assert_called_once_with(user_to_remind, first_due_in_days=0, due_courses=[(course1, 0), (course2, 2)])
 
     def test_dont_remind_already_voted(self):

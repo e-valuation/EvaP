@@ -90,7 +90,7 @@ class RewardTests(WebTest):
         response = self.app.get(reverse("student:vote", args=[9]), user="student")
 
         form = response.forms["student-vote-form"]
-        for key, value in form.fields.items():
+        for key in form.fields.keys():
             if key is not None and "question" in key:
                 form.set(key, 6)
 

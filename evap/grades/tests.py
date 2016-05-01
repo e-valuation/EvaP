@@ -1,5 +1,4 @@
 from django.core import mail
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import Group
 
 from model_mommy import mommy
@@ -154,8 +153,6 @@ class GradeUploadTests(WebTest):
 
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
-        toggle_url = "/grades/semester/"+str(course.semester.id)+"/course/"+str(course.id)+"/toggle_no_grades"
-
         self.assertFalse(course.gets_no_grade_documents)
 
         response = self.app.post("/grades/toggle_no_grades", {"course_id": course.id,}, user="grade_publisher")
@@ -181,11 +178,11 @@ class GradeUploadTests(WebTest):
         self.helper_grade_activation(course.semester, True) # activate grade downloads
 
         # upload grade document
-        response = self.helper_upload_grades(course, final_grades=False)
+        self.helper_upload_grades(course, final_grades=False)
         self.assertGreater(course.midterm_grade_documents.count(), 0)
 
         url = "/grades/download/"+str(course.midterm_grade_documents.first().id)
-        response = self.get_assert_200(url, "student") # grades should be downloadable
+        self.get_assert_200(url, "student") # grades should be downloadable
 
         self.helper_grade_activation(course.semester, False) # deactivate grade downloads
-        response = self.get_assert_403(url, "student") # grades should not be downloadable anymore
+        self.get_assert_403(url, "student") # grades should not be downloadable anymore

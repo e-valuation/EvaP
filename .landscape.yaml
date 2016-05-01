@@ -4,5 +4,6 @@ strictness: medium
 doc-warnings: no
 ignore-paths:
     - docs
+test-warnings: true
 python-targets:
     - 3

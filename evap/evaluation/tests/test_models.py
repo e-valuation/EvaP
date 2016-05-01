@@ -234,7 +234,7 @@ class TestEmails(TestCase):
         cls.user.generate_login_key()
 
         cls.course = mommy.make(Course)
-        contribution = mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 

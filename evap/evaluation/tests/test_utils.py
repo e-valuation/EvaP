@@ -38,7 +38,7 @@ class WebTest(DjangoWebTest):
     def get_assert_403(self, url, user):
         try:
             self.app.get(url, user=user, status=403)
-        except AppError as e:
+        except AppError:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
     def get_assert_302(self, url, user):

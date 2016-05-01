@@ -101,8 +101,8 @@ class URLTests(WebTest):
         self.get_assert_403("/contributor/course/7/preview", "editor_of_course_1")
         self.get_assert_403("/contributor/course/2/edit", "editor_of_course_1")
         self.get_assert_403("/student/vote/5", "student")
-        self.get_assert_403("/results/semester/1/course/8", "student"),
-        self.get_assert_403("/results/semester/1/course/7", "student"),
+        self.get_assert_403("/results/semester/1/course/8", "student")
+        self.get_assert_403("/results/semester/1/course/7", "student")
 
     def test_failing_forms(self):
         """
@@ -268,8 +268,6 @@ class URLTests(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        data = dict(name_de="asdf", name_en="asdf", type=1, degrees=["1"],
-                    vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/staff/semester/1/course/create", "evap")
         form = response.forms["course-form"]
         form["name_de"] = "lfo9e7bmxp1xi"

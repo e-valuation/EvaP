@@ -76,8 +76,9 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
         questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+        # one obsolete questionnaire that should never be shown
+        mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
 
         # just the normal questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
