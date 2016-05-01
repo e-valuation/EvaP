@@ -332,10 +332,10 @@ class CourseFormTests(TestCase):
         form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
         form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
 
-        form = CourseForm(form_data, instance=courses[0])
+        form = CourseFormClass(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
         form_data['name_de'] = courses[1].name_de
-        form = CourseForm(form_data, instance=courses[0])
+        form = CourseFormClass(form_data, instance=courses[0])
         self.assertFalse(form.is_valid())
 
     def test_course_form_same_name(self):
