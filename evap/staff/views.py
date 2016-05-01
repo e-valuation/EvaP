@@ -36,7 +36,6 @@ from evap.rewards.models import RewardPointGranting
 from evap.grades.tools import are_grades_activated
 from evap.results.exporters import ExcelExporter
 from evap.rewards.tools import is_semester_activated, can_user_use_reward_points
-from operator import attrgetter
 
 
 def raise_permission_denied_if_archived(archiveable):

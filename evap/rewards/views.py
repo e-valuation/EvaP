@@ -9,12 +9,12 @@ from django.views.decorators.http import require_POST
 from django.core.exceptions import SuspiciousOperation
 
 from evap.evaluation.auth import reward_user_required, staff_required
-from evap.evaluation.models import Semester, Course
+from evap.evaluation.models import Semester
 
 from evap.staff.views import semester_view
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation, NoPointsSelected, NotEnoughPoints
-from evap.rewards.tools import save_redemptions, reward_points_of_user, can_user_use_reward_points
+from evap.rewards.tools import save_redemptions, reward_points_of_user
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.exporters import ExcelExporter
 
@@ -54,31 +54,6 @@ def index(request):
             events=events,
             point_selection=[x for x in range(0, total_points_available + 1)])
     return render(request, "rewards_index.html", template_data)
-
-
-@staff_required
-def semester_reward_points(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-    courses = Course.objects.filter(semester=semester)
-    participants = set()
-    for course in courses:
-        for participant in course.participants.all():
-            if can_user_use_reward_points(participant):
-                participants.add(participant)
-    participants = sorted(participants, key=attrgetter('last_name', 'first_name'))
-
-    data = []
-    for participant in participants:
-        number_of_required_courses = Course.objects.filter(semester=semester, participants=participant, is_required_for_reward=True).count()
-        number_of_required_courses_voted_for = Course.objects.filter(semester=semester, voters=participant, is_required_for_reward=True).count()
-        number_of_optional_courses = Course.objects.filter(semester=semester, participants=participant, is_required_for_reward=False).count()
-        number_of_optional_courses_voted_for = Course.objects.filter(semester=semester, voters=participant, is_required_for_reward=False).count()
-        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
-        data.append((participant, number_of_required_courses_voted_for, number_of_required_courses,
-            number_of_optional_courses_voted_for, number_of_optional_courses, earned_reward_points))
-
-    template_data = dict(semester=semester, data=data, disable_breadcrumb_semester=False)
-    return render(request, "rewards_semester_reward_points_view.html", template_data)
 
 
 @staff_required

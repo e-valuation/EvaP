@@ -76,7 +76,7 @@
                 &nbsp;
                 <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
                 <div class="btn-group">
-                    <a href="{% url "rewards:semester_reward_points" semester.id %}" class="btn btn-sm btn-default">{% trans "Reward Points" %}</a>
+                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Reward points active" %}</a>
                     <div class="btn-group btn-toggle">
                         <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
                         <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
