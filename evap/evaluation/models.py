@@ -531,7 +531,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                             evaluation_results_courses.append(course)
                     course.save()
             except Exception:
-                logger.exception(('An error occured when updating the state of course "{}" (id {}).').format(course, course.id))
+                logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
         EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
         send_publish_notifications(evaluation_results_courses)

@@ -37,4 +37,4 @@ class Command(BaseCommand):
 
             EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_courses=due_courses)
         logger.info("send_reminders finished.")
-        logger.info("sent reminders to %s people.", len(recipients))
+        logger.info("sent reminders to {} people.".format(len(recipients)))

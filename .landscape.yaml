@@ -10,3 +10,5 @@ python-targets:
 pylint:
   options:
     dummy-variables-rgx: _$|__$|dummy
+  disable:
+    - logging-format-interpolation
