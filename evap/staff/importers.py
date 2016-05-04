@@ -261,7 +261,8 @@ class EnrollmentImporter(ExcelImporter):
             elif course_data.is_graded == settings.IMPORTER_GRADED_NO:
                 course_data.is_graded = False
             else:
-                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(course_data.name_en, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
+                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(
+                    course_data.name_en, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
                 course_data.is_graded = True
 
     def check_enrollment_data_sanity(self):
@@ -292,7 +293,8 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
-        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))
+        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
+            len(self.courses), students_created, responsibles_created))
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
@@ -359,7 +361,9 @@ class UserImporter(ExcelImporter):
                         users_count += 1
 
                 except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
+                    messages.error(self.request, _("A problem occured while writing the entries to the database."
+                                                   "The original data location was row %(row)d of sheet '%(sheet)s'."
+                                                   " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
         return new_participants

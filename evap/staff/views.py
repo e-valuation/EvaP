@@ -566,7 +566,8 @@ def course_email(request, semester_id, course_id):
         if missing_email_addresses == 0:
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
-            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
+            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be "
+                "reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))

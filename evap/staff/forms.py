@@ -427,7 +427,8 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
         for course_type in course_types:
             self.fields[course_type.name] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
+        contributor_questionnaires = Questionnaire.objects.filter(obsolete=False, is_for_contributors=True)
+        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
