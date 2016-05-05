@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
@@ -11,7 +13,6 @@ from django.views.decorators.http import require_POST
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
-import logging
 
 logger = logging.getLogger(__name__)
 

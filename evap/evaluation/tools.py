@@ -1,14 +1,16 @@
-from django.conf import settings
-from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
-from django.db.models import Sum
-from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
-
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
 from functools import partial
 from math import ceil
 from statistics import pstdev, median
+
+from django.conf import settings
+from django.core.cache import cache
+from django.utils.translation import ugettext_lazy as _
+from django.db.models import Sum
+
+from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
+
 
 GRADE_COLORS = {
     1: (136, 191, 74),

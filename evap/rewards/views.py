@@ -1,3 +1,6 @@
+from datetime import datetime
+from operator import attrgetter
+
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
@@ -5,8 +8,6 @@ from django.utils.translation import get_language
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.core.exceptions import SuspiciousOperation
-from datetime import datetime
-from operator import attrgetter
 
 from evap.evaluation.auth import reward_user_required, staff_required
 from evap.evaluation.models import Semester, Course

@@ -1,24 +1,25 @@
+import datetime
+import random
+import logging
+
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
 from django.db.models import Count
-from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
-from django.utils.functional import cached_property
+from django.dispatch import Signal, receiver
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
+from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
+
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-import django.dispatch
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
 
-import datetime
-import random
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -229,7 +230,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
-    course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
+    course_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
         ordering = ('name_de',)

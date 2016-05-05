@@ -1,3 +1,6 @@
+from collections import OrderedDict, defaultdict
+import xlrd
+
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -7,8 +10,6 @@ from django.core.exceptions import ValidationError
 from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
 
-import xlrd
-from collections import OrderedDict, defaultdict
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
 class CommonEqualityMixin(object):

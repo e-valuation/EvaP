@@ -1,7 +1,9 @@
+from model_mommy import mommy
+
 from django_webtest import WebTest
+
 from django.core.urlresolvers import reverse
 from evap.evaluation.models import Course, UserProfile, Contribution, Questionnaire, Question
-from model_mommy import mommy
 
 
 class VoteTests(WebTest):

@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.db.models import Q
 from django.core.exceptions import SuspiciousOperation
@@ -13,7 +15,6 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
-import logging
 
 logger = logging.getLogger(__name__)
 

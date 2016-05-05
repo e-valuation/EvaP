@@ -1,8 +1,9 @@
+import datetime
+
 from django.core import mail
 from django.contrib.auth.models import Group
 
 from model_mommy import mommy
-import datetime
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
 from evap.evaluation.tests.test_utils import WebTest

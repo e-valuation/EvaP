@@ -1,7 +1,8 @@
+from collections import OrderedDict
+
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
-from collections import OrderedDict
 
 class NoPointsSelected(Exception):
     """An attempt has been made to redeem <= 0 points."""

@@ -1,3 +1,7 @@
+import datetime
+import random
+from collections import OrderedDict, defaultdict
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction, IntegrityError
@@ -26,15 +30,9 @@ from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
-
-from evap.rewards.tools import is_semester_activated
 from evap.grades.tools import are_grades_activated
-
 from evap.results.exporters import ExcelExporter
-
-import datetime
-import random
-from collections import OrderedDict, defaultdict
+from evap.rewards.tools import is_semester_activated
 
 
 def raise_permission_denied_if_archived(archiveable):

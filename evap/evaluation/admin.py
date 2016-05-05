@@ -1,10 +1,11 @@
-from evap.evaluation.models import Contribution, Course, RatingAnswerCounter, Question, Questionnaire, Semester, TextAnswer, UserProfile
 from django.conf import settings
 from django.contrib import admin
 from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import ugettext_lazy as _
+
+from evap.evaluation.models import Contribution, Course, RatingAnswerCounter, Question, Questionnaire, Semester, TextAnswer, UserProfile
 
 
 class ContributionInline(admin.TabularInline):

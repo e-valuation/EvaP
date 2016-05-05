@@ -1,13 +1,14 @@
 import datetime
 import os
+from unittest.mock import patch
 
 from django.conf import settings
 from django.utils.six import StringIO
 from django.core import management, mail
 from django.test import TestCase
 from django.test.utils import override_settings
+
 from model_mommy import mommy
-from unittest.mock import patch
 
 from evap.evaluation.models import UserProfile, Course, Semester
 

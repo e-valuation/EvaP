@@ -1,4 +1,7 @@
+import urllib.parse
+
 from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
@@ -7,9 +10,6 @@ from django.db import transaction
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
-from django.contrib.auth.models import Group
-
-import urllib.parse
 
 
 def custom_redirect(url_name, *args, **kwargs):

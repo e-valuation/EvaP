@@ -1,10 +1,11 @@
-from evap.evaluation.models import CourseType
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
+from collections import OrderedDict
 
 from django.utils.translation import ugettext as _
 
-from collections import OrderedDict
 import xlwt
+
+from evap.evaluation.models import CourseType
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
 
 
 class ExcelExporter(object):
