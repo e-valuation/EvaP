@@ -102,7 +102,7 @@ def semester_view(request, semester_id):
         stats_objects = [degree_stats[degree] for degree in degrees]
         stats_objects += [total_stats]
         for stats in stats_objects:
-            if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
+            if course.state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
                 stats.num_enrollments_in_evaluation += course.num_participants
                 stats.num_votes += course.num_voters
                 stats.num_comments += course.num_textanswers
@@ -177,7 +177,7 @@ def semester_course_operation(request, semester_id):
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
         elif operation == 'startEvaluation':
-            new_state_name = STATES_ORDERED['inEvaluation']
+            new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
             courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.date.today()]
             difference = len(courses) - len(courses_end_in_future)
@@ -387,7 +387,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in UserProfile.objects.all():
-            courses = user.courses_participating_in.filter(semester=semester, state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
+            courses = user.courses_participating_in.filter(semester=semester, state__in=['in_evaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not participating in any course in this semester
                 continue
@@ -407,7 +407,7 @@ def semester_lottery(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['prepared', 'editorApproved']).all().prefetch_related("degrees")
+    courses = semester.course_set.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
 
     prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
     responsibles = (course.responsible_contributor for course in prepared_courses)

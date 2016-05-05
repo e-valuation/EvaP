@@ -64,7 +64,7 @@
         {% if editable %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
-                {% if state == "inEvaluation" %}
+                {% if state == "in_evaluation" %}
                     <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
                 {% endif %}
                 {% if state == "evaluated" or state == "reviewed" %}
@@ -74,7 +74,7 @@
                     <div class="alert alert-warning">{% trans "You are editing a course which has not been approved by the editor yet." %}</div>
                 {% endif %}
                 <button name="operation" value="save" type="submit" class="btn btn-primary" onclick="preventAccidentalClosing = false;">{% trans "Save"%} </button>
-                {% if state == "new" or state == "prepared" or state == "editorApproved" %}
+                {% if state == "new" or state == "prepared" or state == "editor_approved" %}
                   <button name="operation" value="approve" type="submit" class="btn btn-success" onclick="preventAccidentalClosing = false;">{% trans "Save and approve"%} </button>
                 {% endif %}
             </div>

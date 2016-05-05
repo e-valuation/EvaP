@@ -133470,7 +133470,7 @@
   "model": "evaluation.course",
   "pk": 1544,
   "fields": {
-    "state": "editorApproved",
+    "state": "editor_approved",
     "semester": 19,
     "name_de": "Internet-Security - Weaknesses and Targets",
     "name_en": "Internet-Security - Weaknesses and Targets",
@@ -133508,7 +133508,7 @@
   "model": "evaluation.course",
   "pk": 1545,
   "fields": {
-    "state": "editorApproved",
+    "state": "editor_approved",
     "semester": 21,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
@@ -135708,7 +135708,7 @@
   "model": "evaluation.course",
   "pk": 1673,
   "fields": {
-    "state": "inEvaluation",
+    "state": "in_evaluation",
     "semester": 21,
     "name_de": "\u00dcberzeugend Pr\u00e4sentieren - noch besser auftreten",
     "name_en": "Presenting Succesfully - How to Make an Even Better Impression",
@@ -135909,7 +135909,7 @@
   "model": "evaluation.course",
   "pk": 1682,
   "fields": {
-    "state": "inEvaluation",
+    "state": "in_evaluation",
     "semester": 21,
     "name_de": "Semantic Web Technologien",
     "name_en": "Semantic Web Technologien",
@@ -136199,7 +136199,7 @@
   "model": "evaluation.course",
   "pk": 1694,
   "fields": {
-    "state": "inEvaluation",
+    "state": "in_evaluation",
     "semester": 21,
     "name_de": "Modellierung II",
     "name_en": "Modeling II",

@@ -13,7 +13,7 @@ class VoteTests(WebTest):
         contributor2 = mommy.make(UserProfile)
         student = mommy.make(UserProfile)
 
-        course = mommy.make(Course, state='inEvaluation', participants=[student, contributor1])
+        course = mommy.make(Course, state='in_evaluation', participants=[student, contributor1])
         questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, questionnaire=questionnaire, type="G")
         mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])

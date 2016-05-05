@@ -252,13 +252,13 @@ class URLTests(WebTest):
         self.helper_semester_state_views([2], "prepared", "approved", "approve")
 
     def test_semester_approve_3(self):
-        self.helper_semester_state_views([3], "editorApproved", "approved", "approve")
+        self.helper_semester_state_views([3], "editor_approved", "approved", "approve")
 
     def test_semester_contributor_ready_1(self):
         self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
 
     def test_semester_contributor_ready_2(self):
-        self.helper_semester_state_views([3], "editorApproved", "prepared", "reenableEditorReview")
+        self.helper_semester_state_views([3], "editor_approved", "prepared", "reenableEditorReview")
 
     def test_semester_unpublish(self):
         self.helper_semester_state_views([8], "published", "reviewed", "unpublish")

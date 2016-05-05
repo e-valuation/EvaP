@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 STUDENT_STATES_NAMES = {
     'new': 'upcoming',
     'prepared': 'upcoming',
-    'editorApproved': 'upcoming',
+    'editor_approved': 'upcoming',
     'approved': 'upcoming',
-    'inEvaluation': 'inEvaluation',
+    'in_evaluation': 'in_evaluation',
     'evaluated': 'evaluationFinished',
     'reviewed': 'evaluationFinished',
     'published': 'published'
@@ -275,7 +275,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
-        return (self.state == "inEvaluation"
+        return (self.state == "in_evaluation"
             and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
@@ -297,7 +297,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.is_archived and self.state in ['new', 'prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
+        return not self.is_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
 
     @property
     def can_staff_delete(self):
@@ -305,7 +305,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_approve(self):
-        return self.state in ['new', 'prepared', 'editorApproved']
+        return self.state in ['new', 'prepared', 'editor_approved']
 
     @property
     def can_publish_grades(self):
@@ -315,15 +315,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
-    @transition(field=state, source=['new', 'editorApproved'], target='prepared')
+    @transition(field=state, source=['new', 'editor_approved'], target='prepared')
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source='prepared', target='editorApproved')
+    @transition(field=state, source='prepared', target='editor_approved')
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[lambda self: self.has_enough_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.has_enough_questionnaires])
     def staff_approve(self):
         pass
 
@@ -331,15 +331,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def revert_to_new(self):
         pass
 
-    @transition(field=state, source='approved', target='inEvaluation', conditions=[lambda self: self.is_in_evaluation_period])
+    @transition(field=state, source='approved', target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
     def evaluation_begin(self):
         pass
 
-    @transition(field=state, source=['evaluated', 'reviewed'], target='inEvaluation', conditions=[lambda self: self.is_in_evaluation_period])
+    @transition(field=state, source=['evaluated', 'reviewed'], target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
     def reopen_evaluation(self):
         pass
 
-    @transition(field=state, source='inEvaluation', target='evaluated')
+    @transition(field=state, source='in_evaluation', target='evaluated')
     def evaluation_end(self):
         pass
 
@@ -439,9 +439,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires:
+        if self.state in ['new', 'prepared', 'editor_approved'] and not self.has_enough_questionnaires:
             result.append(_("Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
+        if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
 
@@ -525,7 +525,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     course.evaluation_begin()
                     course.save()
                     courses_new_in_evaluation.append(course)
-                elif course.state == "inEvaluation" and course.vote_end_date < today:
+                elif course.state == "in_evaluation" and course.vote_end_date < today:
                     course.evaluation_end()
                     if course.is_fully_reviewed:
                         course.review_finished()
@@ -894,7 +894,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_staff_delete(self):
-        states_with_votes = ["inEvaluation", "reviewed", "evaluated", "published"]
+        states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
         if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
         return not (self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser)

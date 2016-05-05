@@ -19,7 +19,7 @@ def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
-    due_courses = list(set(Course.objects.filter(participants=request.user, state='inEvaluation').exclude(voters=request.user)))
+    due_courses = list(set(Course.objects.filter(participants=request.user, state='in_evaluation').exclude(voters=request.user)))
 
     sorter = lambda course: (list(STUDENT_STATES_ORDERED.keys()).index(course.student_state), course.vote_end_date, course.name)
     courses.sort(key=sorter)

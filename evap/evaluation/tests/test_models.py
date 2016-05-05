@@ -14,7 +14,7 @@ from evap.evaluation.tools import calculate_average_grades_and_deviation
 
 class TestCourses(TestCase):
 
-    def test_approved_to_inEvaluation(self):
+    def test_approved_to_in_evaluation(self):
         course = mommy.make(Course, state='approved', vote_start_date=date.today())
 
         with patch('evap.evaluation.models.EmailTemplate.send_evaluation_started_notifications') as mock:
@@ -23,10 +23,10 @@ class TestCourses(TestCase):
         mock.assert_called_once_with([course])
 
         course = Course.objects.get(pk=course.pk)
-        self.assertEqual(course.state, 'inEvaluation')
+        self.assertEqual(course.state, 'in_evaluation')
 
-    def test_inEvaluation_to_evaluated(self):
-        course = mommy.make(Course, state='inEvaluation', vote_end_date=date.today() - timedelta(days=1))
+    def test_in_evaluation_to_evaluated(self):
+        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.models.Course.is_fully_reviewed') as mock:
             mock.__get__ = Mock(return_value=False)
@@ -35,18 +35,18 @@ class TestCourses(TestCase):
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'evaluated')
 
-    def test_inEvaluation_to_reviewed(self):
+    def test_in_evaluation_to_reviewed(self):
         # Course is "fully reviewed" as no open text_answers are present by default,
-        course = mommy.make(Course, state='inEvaluation', vote_end_date=date.today() - timedelta(days=1))
+        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1))
 
         Course.update_courses()
 
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'reviewed')
 
-    def test_inEvaluation_to_published(self):
+    def test_in_evaluation_to_published(self):
         # Course is "fully reviewed" and not graded, thus gets published immediately.
-        course = mommy.make(Course, state='inEvaluation', vote_end_date=date.today() - timedelta(days=1),
+        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1),
                             is_graded=False)
 
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
@@ -126,7 +126,7 @@ class TestUserProfile(TestCase):
         self.assertTrue(user.can_staff_delete)
 
         user2 = mommy.make(UserProfile)
-        mommy.make(Course, participants=[user2], state="inEvaluation")
+        mommy.make(Course, participants=[user2], state="in_evaluation")
         self.assertFalse(user2.can_staff_delete)
 
         contributor = mommy.make(UserProfile)

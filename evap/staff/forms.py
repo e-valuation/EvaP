@@ -120,7 +120,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
 
-        if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
+        if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].disabled = True
 
         if not self.instance.can_staff_edit:

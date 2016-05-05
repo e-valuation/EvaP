@@ -91,7 +91,7 @@ class TestSendRemindersCommand(TestCase):
         user_to_remind = mommy.make(UserProfile)
         course = mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_to_remind])
@@ -106,13 +106,13 @@ class TestSendRemindersCommand(TestCase):
         user_to_remind = mommy.make(UserProfile)
         course1 = mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=0),
                 participants=[user_to_remind])
         course2 = mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_to_remind])
@@ -127,7 +127,7 @@ class TestSendRemindersCommand(TestCase):
         user_no_remind = mommy.make(UserProfile)
         mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_no_remind],

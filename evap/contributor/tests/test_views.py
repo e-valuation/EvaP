@@ -93,7 +93,7 @@ class TestContributorCourseEditView(ViewTest):
 
         form.submit(name="operation", value="approve")
         course = Course.objects.get(pk=course.pk)
-        self.assertEqual(course.state, "editorApproved")
+        self.assertEqual(course.state, "editor_approved")
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)

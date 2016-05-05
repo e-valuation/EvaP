@@ -3,7 +3,7 @@
 {% load static %}
 {% load evaluation_templatetags %}
 
-{% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
+{% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
     {% if info_only|is_false %}
         <td class="minimize">
             <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}" {{disable_if_archived}} />
@@ -44,7 +44,7 @@
             <span class="label label-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
         {% endif %}
     {% endif %}
-    {% if course.state == 'inEvaluation' %}
+    {% if course.state == 'in_evaluation' %}
         <br>
         {% if course.days_left_for_evaluation <= 0 %}
             <span class="label label-danger">{% trans "ends today" %}</span>
@@ -55,7 +55,7 @@
         {% endif %}
     {% endif %}
 </td>
-{% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+{% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if course.is_single_result|is_false %}
         <td style="width: 20%" class="multi-progress-bar">
             <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
@@ -107,10 +107,10 @@
     <td style="width: 12%">
         <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>
 
-        {% if state == 'new' or state == 'prepared' or state == 'editorApproved' or state == 'approved' %}
+        {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
             <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview" %}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
         {% endif %}
-        {% if state == 'inEvaluation' or state == 'evaluated' or state == 'reviewed' %}
+        {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' %}
             <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>
         {% endif %}
         {% if course.can_staff_delete %}

@@ -99,7 +99,7 @@ class GradeUploadTests(WebTest):
         course.save()
         self.helper_check_final_grade_upload(course, 0)
 
-        # state: editorApproved
+        # state: editor_approved
         course.editor_approve()
         course.save()
         self.helper_check_final_grade_upload(course, 0)
@@ -109,7 +109,7 @@ class GradeUploadTests(WebTest):
         course.save()
         self.helper_check_final_grade_upload(course, 0)
 
-        # state: inEvaluation
+        # state: in_evaluation
         course.evaluation_begin()
         course.save()
         self.helper_check_final_grade_upload(course, 0)
