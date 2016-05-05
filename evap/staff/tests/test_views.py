@@ -27,11 +27,12 @@ class TestUserIndexView(ViewTest):
             and not linear to the number of users
         """
         num_users = 50
-        course = mommy.make(Course, state="published") # this triggers more checks in UserProfile.can_staff_delete
+        course = mommy.make(Course, state="published")  # this triggers more checks in UserProfile.can_staff_delete
         mommy.make(UserProfile, _quantity=num_users, courses_participating_in=[course])
 
-        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+        with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
             self.app.get(self.url, user="staff")
+
 
 class TestUserBulkDeleteView(ViewTest):
     url = '/staff/user/bulk_delete'

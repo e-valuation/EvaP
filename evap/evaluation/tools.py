@@ -132,7 +132,7 @@ def get_textanswers(contribution, question, filter_states=None):
 def get_counts(answer_counters):
     counts = OrderedDict()
     # ensure ordering of answers
-    for answer in range(1,6):
+    for answer in range(1, 6):
         counts[answer] = 0
 
     for answer_counter in answer_counters:
@@ -295,15 +295,15 @@ def get_deviation_color(deviation):
     if deviation is None:
         return (255, 255, 255)
 
-    capped_deviation = min(deviation, 2.0) # values above that are very uncommon in practice
-    val = int(255 - capped_deviation * 60) # tweaked to look good
+    capped_deviation = min(deviation, 2.0)  # values above that are very uncommon in practice
+    val = int(255 - capped_deviation * 60)  # tweaked to look good
     return (val, val, val)
 
 
 def sort_formset(request, formset):
-    if request.POST: # if not, there will be no cleaned_data and the models should already be sorted anyways
-        formset.is_valid() # make sure all forms have cleaned_data
-        formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
+    if request.POST:  # if not, there will be no cleaned_data and the models should already be sorted anyways
+        formset.is_valid()  # make sure all forms have cleaned_data
+        formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001))
 
 
 def course_types_in_semester(semester):

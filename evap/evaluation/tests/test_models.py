@@ -12,11 +12,10 @@ from evap.evaluation.models import Course, UserProfile, Contribution, Semester, 
 from evap.evaluation.tools import calculate_average_grades_and_deviation
 
 
-
 class TestCourses(TestCase):
 
     def test_approved_to_inEvaluation(self):
-        course = mommy.make(Course, state='approved',  vote_start_date=date.today())
+        course = mommy.make(Course, state='approved', vote_start_date=date.today())
 
         with patch('evap.evaluation.models.EmailTemplate.send_evaluation_started_notifications') as mock:
             Course.update_courses()

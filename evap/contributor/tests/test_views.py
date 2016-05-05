@@ -21,6 +21,7 @@ class TestContributorSettingsView(ViewTest):
     def setUpTestData(cls):
         course_with_responsible_and_editor()
 
+
 class TestContributorCourseView(ViewTest):
     test_users = ['editor', 'responsible']
     url = '/contributor/course/%s' % TESTING_COURSE_ID

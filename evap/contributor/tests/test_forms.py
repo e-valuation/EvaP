@@ -20,7 +20,7 @@ class UserFormTests(TestCase):
         self.assertFalse(user.delegates.filter(username="delegate").exists())
 
         form_data = get_form_data_from_instance(DelegatesForm, user)
-        form_data["delegates"] = [delegate.pk] # add delegate
+        form_data["delegates"] = [delegate.pk]  # add delegate
 
         form = DelegatesForm(form_data, instance=user)
         self.assertTrue(form.is_valid())

@@ -120,7 +120,6 @@ def feedback_send(request):
 
         try:
             mail.send()
-
             logger.info('Sent feedback email: \n{}\n'.format(mail.message()))
         except Exception:
             logger.exception('An exception occurred when sending the following feedback email:\n{}\n'.format(mail.message()))

@@ -142,7 +142,7 @@ class MergeUsersTest(TestCase):
 
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
         self.assertEqual(errors, [])
-        self.assertSequenceEqual(warnings, ['rewards']) # rewards warning is still there
+        self.assertSequenceEqual(warnings, ['rewards'])  # rewards warning is still there
 
         self.main_user.refresh_from_db()
         self.assertEqual(self.main_user.username, "main_user")

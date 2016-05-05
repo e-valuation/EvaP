@@ -86,7 +86,6 @@ def merge_users(main_user, other_user, preview=False):
     if preview or errors:
         return merged_user, errors, warnings
 
-
     # update last_modified_user for courses and grade documents
     Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)

@@ -21,7 +21,7 @@ class ExcelExporter(object):
 
     def normalize_number(self, number):
         """ floors 'number' to a multiply of self.STEP """
-        rounded_number = round(number, 1) # see #302
+        rounded_number = round(number, 1)  # see #302
         return round(int(rounded_number / self.STEP + 0.0001) * self.STEP, 1)
 
     def create_color(self, workbook, color_name, palette_index, color):
@@ -45,7 +45,7 @@ class ExcelExporter(object):
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
         for i in range(0, self.NUM_GRADE_COLORS):
-            grade = 1 + i*self.STEP
+            grade = 1 + i * self.STEP
             color = get_grade_color(grade)
             palette_index = self.CUSTOM_COLOR_START + i
             style_name = self.grade_to_style(grade)
@@ -176,7 +176,7 @@ class ExcelExporter(object):
 
             writen(self, _("Total Voters/Total Participants"), "bold")
             for course, results in courses_with_results:
-                percent_participants = float(course.num_voters)/float(course.num_participants) if course.num_participants > 0 else 0
+                percent_participants = float(course.num_voters) / float(course.num_participants) if course.num_participants > 0 else 0
                 writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)

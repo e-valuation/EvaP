@@ -224,6 +224,7 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
+
 class ContributionFormset775RegressionTests(TestCase):
     """
         Various regression tests for #775
@@ -245,7 +246,7 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-TOTAL_FORMS': 2,
             'contributions-INITIAL_FORMS': 2,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': str(self.contribution1.pk), # browsers send strings so we should too
+            'contributions-0-id': str(self.contribution1.pk),  # browsers send strings so we should too
             'contributions-0-course': self.course.pk,
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
@@ -329,8 +330,8 @@ class CourseFormTests(TestCase):
         courses = Course.objects.all()
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
-        form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
+        form_data["vote_start_date"] = "02/1/2098"  # needed to fix the form
+        form_data["vote_end_date"] = "02/1/2099"  # needed to fix the form
 
         form = CourseFormClass(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())

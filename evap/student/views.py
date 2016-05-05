@@ -46,11 +46,11 @@ def vote_preview(request, course):
     contributor_form_groups = list((contribution.contributor, contribution.label, form_group, False) for contribution, form_group in form_groups.items())
 
     template_data = dict(
-            errors_exist=False,
-            course_form_group=course_form_group,
-            contributor_form_groups=contributor_form_groups,
-            course=course,
-            preview=True)
+        errors_exist=False,
+        course_form_group=course_form_group,
+        contributor_form_groups=contributor_form_groups,
+        course=course,
+        preview=True)
     return render(request, "student_vote.html", template_data)
 
 
@@ -73,12 +73,12 @@ def vote(request, course_id):
         contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
 
         template_data = dict(
-                errors_exist=errors_exist,
-                course_form_group=course_form_group,
-                contributor_form_groups=contributor_form_groups,
-                course=course,
-                participants_warning=course.num_participants <= 5,
-                preview=False)
+            errors_exist=errors_exist,
+            course_form_group=course_form_group,
+            contributor_form_groups=contributor_form_groups,
+            course=course,
+            participants_warning=course.num_participants <= 5,
+            preview=False)
         return render(request, "student_vote.html", template_data)
 
     # all forms are valid, begin vote operation

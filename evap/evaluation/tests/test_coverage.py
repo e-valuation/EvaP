@@ -5,7 +5,7 @@ from django.core import mail
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, \
-                            EmailTemplate, Degree, CourseType, Contribution
+                                   EmailTemplate, Degree, CourseType, Contribution
 from evap.evaluation.tests.test_utils import WebTest, to_querydict
 from evap.staff.forms import ContributionFormSet, ContributionForm
 
@@ -314,7 +314,7 @@ class URLTests(WebTest):
         form.submit()
         self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
 
-        form["responsible"] = 2 # now do it right
+        form["responsible"] = 2  # now do it right
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
@@ -325,7 +325,7 @@ class URLTests(WebTest):
         """
         page = self.get_assert_200("/staff/semester/1/course/5/email", user="evap")
         form = page.forms["course-email-form"]
-        form.get("recipients", index=0).checked = True # send to all participants
+        form.get("recipients", index=0).checked = True  # send to all participants
         form["subject"] = "asdf"
         form["body"] = "asdf"
         form.submit()

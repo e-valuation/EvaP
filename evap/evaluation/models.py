@@ -23,6 +23,7 @@ from evap.evaluation.meta import LocalizeModelBase, Translate
 
 logger = logging.getLogger(__name__)
 
+
 # for converting state into student_state
 STUDENT_STATES_NAMES = {
     'new': 'upcoming',
@@ -34,6 +35,7 @@ STUDENT_STATES_NAMES = {
     'reviewed': 'evaluationFinished',
     'published': 'published'
 }
+
 
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
@@ -250,7 +252,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         # make sure there is a general contribution
         if not self.general_contribution:
             self.contributions.create(contributor=None)
-            del self.general_contribution # invalidate cached property
+            del self.general_contribution  # invalidate cached property
 
         assert self.vote_end_date >= self.vote_end_date
 
@@ -538,6 +540,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
+
 @receiver(post_transition, sender=Course)
 def log_state_transition(sender, **kwargs):
     course = kwargs['instance']
@@ -704,12 +707,15 @@ class TextAnswer(Answer):
     @property
     def is_reviewed(self):
         return self.state != self.NOT_REVIEWED
+
     @property
     def is_hidden(self):
         return self.state == self.HIDDEN
+
     @property
     def is_private(self):
         return self.state == self.PRIVATE
+
     @property
     def is_published(self):
         return self.state == self.PUBLISHED
@@ -717,6 +723,7 @@ class TextAnswer(Answer):
     @property
     def answer(self):
         return self.reviewed_answer or self.original_answer
+
     @answer.setter
     def answer(self, value):
         self.original_answer = value
@@ -724,10 +731,13 @@ class TextAnswer(Answer):
 
     def publish(self):
         self.state = self.PUBLISHED
+
     def hide(self):
         self.state = self.HIDDEN
+
     def make_private(self):
         self.state = self.PRIVATE
+
     def unreview(self):
         self.state = self.NOT_REVIEWED
 
@@ -830,7 +840,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2**31-1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
@@ -839,7 +849,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
         verbose_name_plural = _('users')
-
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
@@ -1008,8 +1017,6 @@ class EmailTemplate(models.Model):
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
 
-
-
     EMAIL_RECIPIENTS = (
         ('all_participants', _('all participants')),
         ('due_participants', _('due participants')),
@@ -1017,7 +1024,6 @@ class EmailTemplate(models.Model):
         ('editors', _('all editors')),
         ('contributors', _('all contributors'))
     )
-
 
     @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
@@ -1037,7 +1043,6 @@ class EmailTemplate(models.Model):
             recipients += course.due_participants
 
         return recipients
-
 
     @classmethod
     def __render_string(cls, text, dictionary):
@@ -1090,12 +1095,12 @@ class EmailTemplate(models.Model):
         body = cls.__render_string(template.body, body_params)
 
         mail = EmailMessage(
-            subject = subject,
-            body = body,
-            to = [user.email],
-            cc = cc_addresses,
-            bcc = [a[1] for a in settings.MANAGERS],
-            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+            subject=subject,
+            body=body,
+            to=[user.email],
+            cc=cc_addresses,
+            bcc=[a[1] for a in settings.MANAGERS],
+            headers={'Reply-To': settings.REPLY_TO_EMAIL})
 
         try:
             mail.send(False)

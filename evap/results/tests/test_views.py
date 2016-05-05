@@ -83,7 +83,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertNotIn(".responsible_orig_hidden.", page)
         self.assertNotIn(".responsible_orig_published_changed.", page)
         self.assertIn(".responsible_changed_published.", page)
-        self.assertNotIn(".responsible_orig_private.", page) # private comment not visible
+        self.assertNotIn(".responsible_orig_private.", page)  # private comment not visible
         self.assertNotIn(".responsible_orig_notreviewed.", page)
         self.assertIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)  # private comment not visible

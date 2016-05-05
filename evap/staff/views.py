@@ -387,7 +387,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in UserProfile.objects.all():
-            courses = user.courses_participating_in.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
+            courses = user.courses_participating_in.filter(semester=semester, state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not participating in any course in this semester
                 continue
@@ -399,7 +399,7 @@ def semester_lottery(request, semester_id):
         eligible = None
         winners = None
 
-    template_data =dict(semester=semester, form=form, eligible=eligible, winners=winners)
+    template_data = dict(semester=semester, form=form, eligible=eligible, winners=winners)
     return render(request, "staff_semester_lottery.html", template_data)
 
 
@@ -412,7 +412,7 @@ def semester_todo(request, semester_id):
     prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
     responsibles = (course.responsible_contributor for course in prepared_courses)
     responsibles = list(set(responsibles))
-    responsibles.sort(key = lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
     responsible_list = [(responsible, [course for course in courses if course.responsible_contributor.id == responsible.id], responsible.delegates.all()) for responsible in responsibles]
 
@@ -749,9 +749,8 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
-
     if not editable:
-        editable_fields =  ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
+        editable_fields = ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
         for name, field in form.fields.items():
             if name not in editable_fields:
                 field.disabled = True
@@ -948,7 +947,6 @@ def course_type_merge(request, main_type_id, other_type_id):
         courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
         return render(request, "staff_course_type_merge.html",
             dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
-
 
 
 @staff_required

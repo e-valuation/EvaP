@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
-                            CourseType, Contribution
+                                   CourseType, Contribution
 from evap.evaluation.tests.test_utils import WebTest
 
 

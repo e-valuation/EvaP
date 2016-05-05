@@ -21,6 +21,7 @@ class FuzzyInt(int):
         obj.lowest = lowest
         obj.highest = highest
         return obj
+
     def __eq__(self, other):
         return other >= self.lowest and other <= self.highest
 

@@ -28,7 +28,7 @@ ENABLE_DEBUG_TOOLBAR = False
 ### EvaP logic
 
 # key authentication settings
-LOGIN_KEY_VALIDITY = 210 # days, so roughly 7 months
+LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 
 # minimum answers needed for publishing
 MIN_ANSWER_COUNT = 2
@@ -85,12 +85,12 @@ SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, 'database.sqlite3'), # Or path to database file if using sqlite3.
-        'USER': '',                             # Not used with sqlite3.
-        'PASSWORD': '',                         # Not used with sqlite3.
-        'HOST': '',                             # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                             # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',  # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': os.path.join(BASE_DIR, 'database.sqlite3'),  # Or path to database file if using sqlite3.
+        'USER': '',                              # Not used with sqlite3.
+        'PASSWORD': '',                          # Not used with sqlite3.
+        'HOST': '',                              # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                              # Set to empty string for default. Not used with sqlite3.
         'CONN_MAX_AGE': 600,
     }
 }
@@ -100,7 +100,7 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'evap_db_cache',
         'OPTIONS': {
-            'MAX_ENTRIES': 1000 # note that the results alone need one entry per course
+            'MAX_ENTRIES': 1000  # note that the results alone need one entry per course
         }
     }
 }
@@ -133,7 +133,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + '/logs/evap.log',
-            'maxBytes': 1024*1024*10,
+            'maxBytes': 1024 * 1024 * 10,
             'backupCount': 5,
             'formatter': 'default',
         },
@@ -333,8 +333,8 @@ TESTING = 'test' in sys.argv
 
 # speed up tests
 if TESTING:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'} # use sqlite
-    COMPRESS_PRECOMPILERS = () # disable compressor completely
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}  # use sqlite
+    COMPRESS_PRECOMPILERS = ()  # disable compressor completely
 
 # Django debug toolbar settings
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:

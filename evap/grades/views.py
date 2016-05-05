@@ -80,8 +80,8 @@ def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    final_grades = request.GET.get('final', 'false') # default: midterm grades
-    final_grades = {'true': True, 'false': False}.get(final_grades.lower()) # convert parameter to boolean
+    final_grades = request.GET.get('final', 'false')  # default: midterm grades
+    final_grades = {'true': True, 'false': False}.get(final_grades.lower())  # convert parameter to boolean
 
     grade_document = GradeDocument(course=course)
     if final_grades:
@@ -129,7 +129,7 @@ def toggle_no_grades(request):
             course.save()
             send_publish_notifications([course])
 
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @grade_downloader_required
@@ -173,7 +173,7 @@ def delete_grades(request):
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
 
     grade_document.delete()
-    return HttpResponse() # 200 OK
+    return HttpResponse()  # 200 OK
 
 
 @staff_required

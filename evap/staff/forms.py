@@ -177,7 +177,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
             answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
                 answer_counts[answer_counter.answer] = answer_counter.count
-            for i in range(1,6):
+            for i in range(1, 6):
                 self.fields['answer_' + str(i)].initial = answer_counts[i]
 
     def save(self, *args, **kw):
@@ -199,8 +199,8 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         # set answers
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
         total_votes = 0
-        for i in range(1,6):
-            count = self.cleaned_data['answer_'+str(i)]
+        for i in range(1, 6):
+            count = self.cleaned_data['answer_' + str(i)]
             total_votes += count
             RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=single_result_question, answer=i, defaults={'count': count})
         self.instance._participant_count = total_votes
@@ -416,8 +416,8 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
-        self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
+        self.fields['text_de'].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields['text_en'].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields['type'].widget.attrs['class'] = 'form-control'
 
 

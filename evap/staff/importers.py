@@ -19,7 +19,6 @@ class CommonEqualityMixin(object):
             and self.__dict__ == other.__dict__)
 
 
-
 class UserData(CommonEqualityMixin):
     """
         Holds information about a user, retrieved from the Excel file.
@@ -49,7 +48,7 @@ class UserData(CommonEqualityMixin):
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
-        user.password = "asdf" # clean_fields needs that...
+        user.password = "asdf"  # clean_fields needs that...
         user.clean_fields()
 
 
@@ -90,7 +89,7 @@ class ExcelImporter(object):
         self.associations = OrderedDict()
         self.request = request
         self.book = None
-        self.skip_first_n_rows = 1 # first line contains the header
+        self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
         self.warnings = []
         # this is a dictionary to not let this become O(n^2)
@@ -152,7 +151,7 @@ class ExcelImporter(object):
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
-                return # to avoid duplicate errors with validate
+                return  # to avoid duplicate errors with validate
             try:
                 user_data.validate()
             except ValidationError as e:
@@ -166,7 +165,7 @@ class ExcelImporter(object):
             except UserProfile.DoesNotExist:
                 pass
 
-            if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH :
+            if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH:
                 self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
@@ -198,7 +197,6 @@ class ExcelImporter(object):
                 warningstring += "\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
                 warningstring += _(" (new)")
                 self.warnings.append(warningstring)
-
 
     def show_errors_and_warnings(self):
         for error in self.errors:
@@ -253,7 +251,6 @@ class EnrollmentImporter(ExcelImporter):
         for course_type_name in course_type_names:
             if not CourseType.objects.filter(name_de=course_type_name).exists():
                 self.errors.append(_("Error: The course type \"{}\" does not exist yet. Please manually create it first.").format(course_type_name))
-
 
     def process_graded_column(self):
         for course_data in self.courses.values():

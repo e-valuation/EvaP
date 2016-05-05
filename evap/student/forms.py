@@ -7,6 +7,7 @@ from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES
 LIKERT_CHOICES = [(str(k), v) for k, v in LIKERT_NAMES.items()]
 GRADE_CHOICES = [(str(k), v) for k, v in GRADE_NAMES.items()]
 
+
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question. Pass the arguments
     `contribution` and `questionnaire` to the constructor.
