@@ -198,9 +198,9 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        self.semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, is_archived=True)
 
-        semester_url = "/staff/semester/{}/".format(self.semester.pk)
+        semester_url = "/staff/semester/{}/".format(semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")

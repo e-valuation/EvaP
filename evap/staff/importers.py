@@ -102,7 +102,7 @@ class ExcelImporter(object):
         for sheet in self.book.sheets():
             if sheet.nrows <= self.skip_first_n_rows:
                 continue
-            if (sheet.ncols != expected_column_count):
+            if sheet.ncols != expected_column_count:
                 self.errors.append(_("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
 
     def for_each_row_in_excel_file_do(self, parse_row_function):
@@ -211,7 +211,7 @@ class EnrollmentImporter(ExcelImporter):
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
-        self.maxEnrollments = 6
+        self.max_enrollments = 6
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -268,7 +268,7 @@ class EnrollmentImporter(ExcelImporter):
         for enrollment in self.enrollments:
             enrollments_per_user[enrollment[1].username].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
-            if len(enrollments) > self.maxEnrollments:
+            if len(enrollments) > self.max_enrollments:
                 self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):

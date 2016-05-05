@@ -1049,14 +1049,14 @@ class EmailTemplate(models.Model):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     @classmethod
-    def send_to_users_in_courses(self, template, courses, recipient_groups, use_cc):
+    def send_to_users_in_courses(cls, template, courses, recipient_groups, use_cc):
         user_course_map = {}
         for course in courses:
             # Collect recipients for all courses.
             # Don't include delegates and CC users of the responsible person of a course to the recipient list of this
             # course, because they will get the notification in CC anyway.
             responsible = course.responsible_contributor
-            all_recipients = self.recipient_list_for_course(course, recipient_groups)
+            all_recipients = cls.recipient_list_for_course(course, recipient_groups)
             cc_recipients = []
             if responsible in all_recipients and use_cc:
                 cc_recipients.extend(responsible.cc_users.all())
@@ -1068,7 +1068,7 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             subject_params = {}
             body_params = {'user': user, 'courses': courses}
-            self.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc)
+            cls.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc)
 
     @classmethod
     def __send_to_user(cls, user, template, subject_params, body_params, use_cc):

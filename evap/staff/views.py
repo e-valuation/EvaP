@@ -724,10 +724,10 @@ def questionnaire_create(request):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
-        newQuestionnaire = form.save(commit=False)
+        new_questionnaire = form.save(commit=False)
         # set index according to existing questionnaires
-        newQuestionnaire.index = Questionnaire.objects.all().aggregate(Max('index'))['index__max'] + 1
-        newQuestionnaire.save()
+        new_questionnaire.index = Questionnaire.objects.all().aggregate(Max('index'))['index__max'] + 1
+        new_questionnaire.save()
         form.save_m2m()
 
         formset.save()
@@ -893,8 +893,8 @@ def questionnaire_update_indices(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
-    formset = degreeFS(request.POST or None, queryset=degrees)
+    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
+    formset = DegreeFormset(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
         formset.save()
@@ -909,8 +909,8 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    course_type_FS = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
-    formset = course_type_FS(request.POST or None, queryset=course_types)
+    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
+    formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
     if formset.is_valid():
         formset.save()
@@ -1087,8 +1087,8 @@ def template_edit(request, template_id):
 def faq_index(request):
     sections = FaqSection.objects.all()
 
-    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
-    formset = sectionFS(request.POST or None, queryset=sections)
+    SectionFormset = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
+    formset = SectionFormset(request.POST or None, queryset=sections)
 
     if formset.is_valid():
         formset.save()

@@ -21,12 +21,12 @@ class RewardTests(WebTest):
             It also submits a request that should delete the event.
         """
         # try to delete event that can not be deleted, because people already redeemed points
-        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 1,}, user="evap", expect_errors=True)
+        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 1}, user="evap", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
 
         # now delete for real
-        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 2,}, user="evap")
+        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 2}, user="evap")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
 

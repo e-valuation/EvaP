@@ -25,7 +25,7 @@ def index(request):
     if request.method == 'POST':
         redemptions = {}
         for key, value in request.POST.items():
-            if(key.startswith('points-')):
+            if key.startswith('points-'):
                 event_id = int(key.rpartition('-')[2])
                 redemptions[event_id] = int(value)
 

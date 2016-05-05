@@ -213,12 +213,12 @@ class URLTests(WebTest):
             only the second attempt should succeed.
         """
         self.assertFalse(Semester.objects.get(pk=1).can_staff_delete)
-        response = self.app.post("/staff/semester/delete", {"semester_id": 1,}, user="evap", expect_errors=True)
+        response = self.app.post("/staff/semester/delete", {"semester_id": 1}, user="evap", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
         self.assertTrue(Semester.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/semester/delete", {"semester_id": 2,}, user="evap")
+        response = self.app.post("/staff/semester/delete", {"semester_id": 2}, user="evap")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
@@ -338,12 +338,12 @@ class URLTests(WebTest):
             only the second attempt should succeed.
         """
         self.assertFalse(Questionnaire.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2,}, user="evap", expect_errors=True)
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2}, user="evap", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=3).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3,}, user="evap")
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3}, user="evap")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 

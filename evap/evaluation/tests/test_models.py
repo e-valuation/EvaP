@@ -75,16 +75,16 @@ class TestCourses(TestCase):
         course = Course.objects.get()  # refresh because of cached properties
         self.assertFalse(course.has_enough_questionnaires)
 
-        q = mommy.make(Questionnaire)
-        general_contribution.questionnaires.add(q)
+        questionnaire = mommy.make(Questionnaire)
+        general_contribution.questionnaires.add(questionnaire)
         self.assertFalse(course.has_enough_questionnaires)
 
-        responsible_contribution.questionnaires.add(q)
+        responsible_contribution.questionnaires.add(questionnaire)
         self.assertTrue(course.has_enough_questionnaires)
 
     def test_deleting_last_modified_user_does_not_delete_course(self):
-        user = mommy.make(UserProfile);
-        course = mommy.make(Course, last_modified_user=user);
+        user = mommy.make(UserProfile)
+        course = mommy.make(Course, last_modified_user=user)
         user.delete()
         self.assertTrue(Course.objects.filter(pk=course.pk).exists())
 
