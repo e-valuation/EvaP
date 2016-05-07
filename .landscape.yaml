@@ -1,14 +1,22 @@
 uses:
     - django
-strictness: medium
-doc-warnings: no
 ignore-paths:
-    - docs
-test-warnings: true
+    - deployment
+    - evap/static
+    - evap/static_collected
+    - src
 python-targets:
     - 3
-pylint:
-  options:
-    dummy-variables-rgx: _$|__$|dummy
+test-warnings: true
+doc-warnings: no
+strictness: veryhigh
+pep8:
   disable:
-    - logging-format-interpolation
+    - E501  # line too long - we don't enforce some fixed line length but rather complain about long lines in reviews.
+    - W503  # line break before operator - looks better and PEP8 allows it
+    - E128  # hanging indents not allowed - we indent differently
+    - E126  # overindentation - we indent differently
+    - N802  # function name should be lowercase - lots of false positives in tests that pylint doesn't show
+    - N806  # variable in function should be lowercase - lots of false positives, mostly Formset classes made from factories
+    - N804  # first argument of a classmethod should be named 'cls' - one false positive and pylint does it better
+    - E266  # too many leading '#' for block comment - that's used in settings on purpose

@@ -16,7 +16,7 @@ persistent=yes
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_django
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -60,7 +60,18 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=round-builtin,old-octal-literal,no-absolute-import,map-builtin-not-iterating,long-builtin,basestring-builtin,next-method-called,execfile-builtin,file-builtin,raw_input-builtin,parameter-unpacking,unichr-builtin,coerce-builtin,reload-builtin,input-builtin,apply-builtin,filter-builtin-not-iterating,long-suffix,useless-suppression,using-cmp-argument,coerce-method,print-statement,cmp-builtin,dict-view-method,getslice-method,intern-builtin,indexing-exception,old-division,nonzero-method,zip-builtin-not-iterating,reduce-builtin,cmp-method,old-ne-operator,oct-method,range-builtin-not-iterating,hex-method,backtick,delslice-method,standarderror-builtin,buffer-builtin,suppressed-message,unicode-builtin,setslice-method,unpacking-in-except,raising-string,metaclass-assignment,xrange-builtin,old-raise-syntax,dict-iter-method,import-star-module-level
+
+# line-too-long: we don't enforce some fixed line length but rather complain about long lines in reviews.
+# cyclic-import: landscape re-reports them every time, https://github.com/PyCQA/pylint/issues/59
+# too-many-public-methods: reported for some models, that won't change
+# too-few-public-methods: noisy, e.g. exception classes, mixins etc
+# no-member, no-name-in-module: false positives, deals badly with django classes
+# pointless-string-statement: used for documentation in some test files
+# logging-format-interpolation: decided against the proposed change in favor of .format()
+# too-many-ancestors: noisy, reported for all test classes
+# bad-continuation: Over a hundred reports, we seem to indent differently, but at least consistently.
+# missing-docstring: yeah... we don't have those
+disable=line-too-long,cyclic-import,too-many-public-methods,too-few-public-methods,no-member,no-name-in-module,pointless-string-statement,logging-format-interpolation,too-many-ancestors,bad-continuation,missing-docstring,round-builtin,old-octal-literal,no-absolute-import,map-builtin-not-iterating,long-builtin,basestring-builtin,next-method-called,execfile-builtin,file-builtin,raw_input-builtin,parameter-unpacking,unichr-builtin,coerce-builtin,reload-builtin,input-builtin,apply-builtin,filter-builtin-not-iterating,long-suffix,useless-suppression,using-cmp-argument,coerce-method,print-statement,cmp-builtin,dict-view-method,getslice-method,intern-builtin,indexing-exception,old-division,nonzero-method,zip-builtin-not-iterating,reduce-builtin,cmp-method,old-ne-operator,oct-method,range-builtin-not-iterating,hex-method,backtick,delslice-method,standarderror-builtin,buffer-builtin,suppressed-message,unicode-builtin,setslice-method,unpacking-in-except,raising-string,metaclass-assignment,xrange-builtin,old-raise-syntax,dict-iter-method,import-star-module-level
 
 
 [REPORTS]
@@ -96,7 +107,7 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 bad-functions=map,filter
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,ex,Run,_
+good-names=i,j,k,ex,Run,_,__,e,app_name,logger
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,bar,baz,toto,tutu,tata
@@ -133,7 +144,7 @@ class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
 class-attribute-name-hint=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
 
 # Regular expression matching correct method names
-method-rgx=[a-z_][a-z0-9_]{2,30}$
+method-rgx=[a-z_][a-z0-9_]{2,60}$
 
 # Naming hint for method names
 method-name-hint=[a-z_][a-z0-9_]{2,30}$
@@ -145,13 +156,14 @@ class-rgx=[A-Z_][a-zA-Z0-9]+$
 class-name-hint=[A-Z_][a-zA-Z0-9]+$
 
 # Regular expression matching correct function names
-function-rgx=[a-z_][a-z0-9_]{2,30}$
+function-rgx=[a-z_][a-z0-9_]{2,60}$
 
 # Naming hint for function names
 function-name-hint=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression matching correct variable names
-variable-rgx=[a-z_][a-z0-9_]{2,30}$
+# allowing capital letters for less noise, (mostly Formset classes made from factories)
+variable-rgx=[A-Za-z_][A-Za-z0-9_]{2,60}$
 
 # Naming hint for variable names
 variable-name-hint=[a-z_][a-z0-9_]{2,30}$
@@ -290,7 +302,7 @@ init-import=no
 
 # A regular expression matching the name of dummy variables (i.e. expectedly
 # not used).
-dummy-variables-rgx=_$|dummy
+dummy-variables-rgx=_$|__$|dummy|request
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
