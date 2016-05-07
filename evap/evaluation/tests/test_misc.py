@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, CourseType
-from evap.evaluation.tests.test_utils import WebTest
+from evap.evaluation.tests.tools import WebTest
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])

@@ -6,7 +6,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, \
                                    EmailTemplate, Degree, CourseType, Contribution
-from evap.evaluation.tests.test_utils import WebTest, to_querydict
+from evap.evaluation.tests.tools import WebTest, to_querydict
 from evap.staff.forms import ContributionFormSet, ContributionForm
 
 

@@ -10,7 +10,7 @@ import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, Questionnaire, \
                                    Question
-from evap.evaluation.tests.test_utils import FuzzyInt, WebTest, ViewTest
+from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
 
 
 class TestUserIndexView(ViewTest):

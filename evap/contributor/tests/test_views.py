@@ -1,5 +1,5 @@
 from evap.evaluation.models import Course
-from evap.evaluation.tests.test_utils import ViewTest, course_with_responsible_and_editor
+from evap.evaluation.tests.tools import ViewTest, course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
 

@@ -5,7 +5,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Course
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.test_utils import WebTest
+from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import SemesterActivation
 from evap.rewards.models import RewardPointRedemptionEvent
 from evap.rewards.tools import reward_points_of_user
