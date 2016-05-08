@@ -39,7 +39,6 @@ class URLTests(WebTest):
             ("test_staff_semester_x_edit", "/staff/semester/1/edit", "evap"),
             ("test_staff_semester_x_course_create", "/staff/semester/1/course/create", "evap"),
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
-            ("test_staff_semester_x_export", "/staff/semester/1/export", "evap"),
             ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
             ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
             ("test_staff_semester_x_todo", "/staff/semester/1/todo", "evap"),
@@ -61,7 +60,6 @@ class URLTests(WebTest):
             ("test_staff_questionnaire_x_copy", "/staff/questionnaire/2/copy", "evap"),
             ("test_staff_questionnaire_delete", "/staff/questionnaire/create", "evap"),
             # staff user
-            ("test_staff_user", "/staff/user/", "evap"),
             ("test_staff_user_import", "/staff/user/import", "evap"),
             ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
             ("test_staff_user_create", "/staff/user/create", "evap"),
@@ -74,13 +72,8 @@ class URLTests(WebTest):
             ("test_staff_faq", "/staff/faq/", "evap"),
             ("test_staff_faq_x", "/staff/faq/1", "evap"),
             # rewards
-            ("test_staff_rewards_index", "/rewards/", "student"),
             ("test_staff_reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
-            ("test_staff_reward_points_redemption_event_create", "/rewards/reward_point_redemption_event/create", "evap"),
-            ("test_staff_reward_points_redemption_event_edit", "/rewards/reward_point_redemption_event/1/edit", "evap"),
             ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
-            ("test_staff_reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
-            ("test_staff_reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
             # degrees
             ("test_staff_degree_index", "/staff/degrees/", "evap"),
             # course types
