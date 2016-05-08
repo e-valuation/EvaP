@@ -81,7 +81,6 @@ class URLTests(WebTest):
             ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
             ("test_staff_reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
             ("test_staff_reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
-            ("test_staff_reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
             # degrees
             ("test_staff_degree_index", "/staff/degrees/", "evap"),
             # course types

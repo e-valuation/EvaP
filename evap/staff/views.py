@@ -1,3 +1,4 @@
+import csv
 import datetime
 import random
 from collections import OrderedDict, defaultdict
@@ -20,7 +21,8 @@ from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
-                                  TextResult, send_publish_notifications, sort_formset
+                                  TextResult, send_publish_notifications, sort_formset, \
+                                  calculate_average_grades_and_deviation
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
@@ -30,9 +32,10 @@ from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
+from evap.rewards.models import RewardPointGranting
 from evap.grades.tools import are_grades_activated
 from evap.results.exporters import ExcelExporter
-from evap.rewards.tools import is_semester_activated
+from evap.rewards.tools import is_semester_activated, can_user_use_reward_points
 
 
 def raise_permission_denied_if_archived(archiveable):
@@ -345,13 +348,64 @@ def semester_export(request, semester_id):
             if 'selected_course_types' in form.cleaned_data:
                 course_types_list.append(form.cleaned_data['selected_course_types'])
 
-        filename = "Evaluation-%s-%s.xls" % (semester.name, get_language())
+        filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+        response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
         ExcelExporter(semester).export(response, course_types_list, ignore_not_enough_answers, include_unpublished)
         return response
     else:
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
+
+
+@staff_required
+def semester_raw_export(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+
+    writer = csv.writer(response, delimiter=";")
+    writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
+        _('#Participants'), _('#Comments'), _('Average degree')])
+    for course in semester.course_set.all():
+        degrees = ", ".join([degree.name for degree in course.degrees.all()])
+        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        if course.state in ['evaluated', 'reviewed', 'published'] and course.avg_grade is not None:
+            avg_grade = "{:.1f}".format(course.avg_grade)
+        else:
+            avg_grade = ""
+        writer.writerow([course.name, degrees, course.type.name, course.is_single_result, course.state,
+            course.num_voters, course.num_participants, course.textanswer_set.count(), avg_grade])
+
+    return response
+
+
+@staff_required
+def semester_participation_export(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    participants = UserProfile.objects.filter(courses_participating_in__semester=semester).distinct().order_by("username")
+
+    filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+
+    writer = csv.writer(response, delimiter=";")
+    writer.writerow([_('Username'), _('Can use reward points'), _('#Required courses voted for'),
+        _('#Required courses'), _('#Optional courses voted for'), _('#Optional courses'), _('Earned reward points')])
+    for participant in participants:
+        number_of_required_courses = semester.course_set.filter(participants=participant, is_required_for_reward=True).count()
+        number_of_required_courses_voted_for = semester.course_set.filter(voters=participant, is_required_for_reward=True).count()
+        number_of_optional_courses = semester.course_set.filter(participants=participant, is_required_for_reward=False).count()
+        number_of_optional_courses_voted_for = semester.course_set.filter(voters=participant, is_required_for_reward=False).count()
+        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
+        writer.writerow([
+            participant.username, can_user_use_reward_points(participant), number_of_required_courses_voted_for,
+            number_of_required_courses, number_of_optional_courses_voted_for, number_of_optional_courses,
+            earned_reward_points
+        ])
+
+    return response
 
 
 @staff_required
