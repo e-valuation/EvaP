@@ -1,38 +1,41 @@
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage
-from django.db import models, transaction
-from django.db.models import Count
-from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
-from django.utils.functional import cached_property
-from django.template.base import TemplateSyntaxError, TemplateEncodingError
-from django.template import Context, Template
-from django_fsm import FSMField, transition
-from django_fsm.signals import post_transition
-import django.dispatch
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
-
-# see evaluation.meta for the use of Translate in this file
-from evap.evaluation.meta import LocalizeModelBase, Translate
-
 import datetime
 import random
 import logging
 
+from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
+from django.db import models, transaction
+from django.db.models import Count
+from django.dispatch import Signal, receiver
+from django.template.base import TemplateSyntaxError, TemplateEncodingError
+from django.template import Context, Template
+from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
+
+from django_fsm import FSMField, transition
+from django_fsm.signals import post_transition
+
+# see evaluation.meta for the use of Translate in this file
+from evap.evaluation.meta import LocalizeModelBase, Translate
+
+
 logger = logging.getLogger(__name__)
+
 
 # for converting state into student_state
 STUDENT_STATES_NAMES = {
     'new': 'upcoming',
     'prepared': 'upcoming',
-    'editorApproved': 'upcoming',
+    'editor_approved': 'upcoming',
     'approved': 'upcoming',
-    'inEvaluation': 'inEvaluation',
+    'in_evaluation': 'in_evaluation',
     'evaluated': 'evaluationFinished',
     'reviewed': 'evaluationFinished',
     'published': 'published'
 }
+
 
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
@@ -160,7 +163,7 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def can_staff_delete(self):
-        if self.pk == None:
+        if self.pk is None:
             return True
         return not self.courses.all().exists()
 
@@ -229,7 +232,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     last_modified_time = models.DateTimeField(auto_now=True)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
-    course_evaluated = django.dispatch.Signal(providing_args=['request', 'semester'])
+    course_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
         ordering = ('name_de',)
@@ -248,27 +251,32 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         # make sure there is a general contribution
         if not self.general_contribution:
-            self.general_contribution = self.contributions.create(contributor=None)
+            self.contributions.create(contributor=None)
+            del self.general_contribution  # invalidate cached property
 
         assert self.vote_end_date >= self.vote_end_date
 
+    @property
     def is_fully_reviewed(self):
         return not self.open_textanswer_set.exists()
 
+    @property
     def is_not_fully_reviewed(self):
         return self.open_textanswer_set.exists()
 
+    @property
     def is_in_evaluation_period(self):
         today = datetime.date.today()
         return today >= self.vote_start_date and today <= self.vote_end_date
 
+    @property
     def has_enough_questionnaires(self):
-        return self.general_contribution and (self.is_single_result() or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
+        return self.general_contribution and (self.is_single_result or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this course."""
-        return (self.state == "inEvaluation"
-            and self.is_in_evaluation_period()
+        return (self.state == "in_evaluation"
+            and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
 
@@ -279,6 +287,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return self.can_publish_grades or self.is_user_contributor_or_delegate(user)
         return False
 
+    @property
     def is_single_result(self):
         # early return to save some queries
         if self.vote_start_date != self.vote_end_date:
@@ -288,7 +297,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.is_archived and self.state in ['new', 'prepared', 'editorApproved', 'approved', 'inEvaluation', 'evaluated', 'reviewed']
+        return not self.is_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
 
     @property
     def can_staff_delete(self):
@@ -296,25 +305,25 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_approve(self):
-        return self.state in ['new', 'prepared', 'editorApproved']
+        return self.state in ['new', 'prepared', 'editor_approved']
 
     @property
     def can_publish_grades(self):
         from evap.evaluation.tools import get_sum_of_answer_counters
-        if self.is_single_result():
+        if self.is_single_result:
             return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 
         return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
 
-    @transition(field=state, source=['new', 'editorApproved'], target='prepared')
+    @transition(field=state, source=['new', 'editor_approved'], target='prepared')
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source='prepared', target='editorApproved')
+    @transition(field=state, source='prepared', target='editor_approved')
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editorApproved'], target='approved', conditions=[has_enough_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.has_enough_questionnaires])
     def staff_approve(self):
         pass
 
@@ -322,27 +331,27 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def revert_to_new(self):
         pass
 
-    @transition(field=state, source='approved', target='inEvaluation', conditions=[is_in_evaluation_period])
+    @transition(field=state, source='approved', target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
     def evaluation_begin(self):
         pass
 
-    @transition(field=state, source=['evaluated', 'reviewed'], target='inEvaluation', conditions=[is_in_evaluation_period])
+    @transition(field=state, source=['evaluated', 'reviewed'], target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
     def reopen_evaluation(self):
         pass
 
-    @transition(field=state, source='inEvaluation', target='evaluated')
+    @transition(field=state, source='in_evaluation', target='evaluated')
     def evaluation_end(self):
         pass
 
-    @transition(field=state, source='evaluated', target='reviewed', conditions=[is_fully_reviewed])
+    @transition(field=state, source='evaluated', target='reviewed', conditions=[lambda self: self.is_fully_reviewed])
     def review_finished(self):
         pass
 
-    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[is_single_result])
+    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[lambda self: self.is_single_result])
     def single_result_created(self):
         pass
 
-    @transition(field=state, source='reviewed', target='evaluated', conditions=[is_not_fully_reviewed])
+    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: self.is_not_fully_reviewed])
     def reopen_review(self):
         pass
 
@@ -430,9 +439,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state in ['new', 'prepared', 'editorApproved'] and not self.has_enough_questionnaires():
+        if self.state in ['new', 'prepared', 'editor_approved'] and not self.has_enough_questionnaires:
             result.append(_("Not enough questionnaires assigned"))
-        if self.state in ['inEvaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
+        if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
 
@@ -516,20 +525,21 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     course.evaluation_begin()
                     course.save()
                     courses_new_in_evaluation.append(course)
-                elif course.state == "inEvaluation" and course.vote_end_date < today:
+                elif course.state == "in_evaluation" and course.vote_end_date < today:
                     course.evaluation_end()
-                    if course.is_fully_reviewed():
+                    if course.is_fully_reviewed:
                         course.review_finished()
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
                     course.save()
             except Exception:
-                logger.exception(('An error occured when updating the state of course "{}" (id {}).').format(course, course.id))
+                logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
         EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
+
 
 @receiver(post_transition, sender=Course)
 def log_state_transition(sender, **kwargs):
@@ -584,7 +594,7 @@ class Contribution(models.Model):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         if self.responsible and not self.course.is_single_result:
-            assert self.can_edit and self.comment_visibilty == ALL_COMMENTS
+            assert self.can_edit and self.comment_visibility == self.ALL_COMMENTS
 
     @property
     def is_general(self):
@@ -697,12 +707,15 @@ class TextAnswer(Answer):
     @property
     def is_reviewed(self):
         return self.state != self.NOT_REVIEWED
+
     @property
     def is_hidden(self):
         return self.state == self.HIDDEN
+
     @property
     def is_private(self):
         return self.state == self.PRIVATE
+
     @property
     def is_published(self):
         return self.state == self.PUBLISHED
@@ -710,6 +723,7 @@ class TextAnswer(Answer):
     @property
     def answer(self):
         return self.reviewed_answer or self.original_answer
+
     @answer.setter
     def answer(self, value):
         self.original_answer = value
@@ -717,10 +731,13 @@ class TextAnswer(Answer):
 
     def publish(self):
         self.state = self.PUBLISHED
+
     def hide(self):
         self.state = self.HIDDEN
+
     def make_private(self):
         self.state = self.PRIVATE
+
     def unreview(self):
         self.state = self.NOT_REVIEWED
 
@@ -808,7 +825,10 @@ class EmailNullField(models.EmailField):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
+
+    # null=True because users created through kerberos logins and certain external users don't have an address.
     email = EmailNullField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
+
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
@@ -820,7 +840,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2**31-1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
@@ -829,7 +849,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
         verbose_name_plural = _('users')
-
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
@@ -875,7 +894,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_staff_delete(self):
-        states_with_votes = ["inEvaluation", "reviewed", "evaluated", "published"]
+        states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
         if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
         return not (self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser)
@@ -998,8 +1017,6 @@ class EmailTemplate(models.Model):
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
 
-
-
     EMAIL_RECIPIENTS = (
         ('all_participants', _('all participants')),
         ('due_participants', _('due participants')),
@@ -1007,7 +1024,6 @@ class EmailTemplate(models.Model):
         ('editors', _('all editors')),
         ('contributors', _('all contributors'))
     )
-
 
     @classmethod
     def recipient_list_for_course(cls, course, recipient_groups):
@@ -1028,20 +1044,19 @@ class EmailTemplate(models.Model):
 
         return recipients
 
-
     @classmethod
     def __render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     @classmethod
-    def send_to_users_in_courses(self, template, courses, recipient_groups, use_cc):
+    def send_to_users_in_courses(cls, template, courses, recipient_groups, use_cc):
         user_course_map = {}
         for course in courses:
             # Collect recipients for all courses.
             # Don't include delegates and CC users of the responsible person of a course to the recipient list of this
             # course, because they will get the notification in CC anyway.
             responsible = course.responsible_contributor
-            all_recipients = self.recipient_list_for_course(course, recipient_groups)
+            all_recipients = cls.recipient_list_for_course(course, recipient_groups)
             cc_recipients = []
             if responsible in all_recipients and use_cc:
                 cc_recipients.extend(responsible.cc_users.all())
@@ -1053,7 +1068,7 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             subject_params = {}
             body_params = {'user': user, 'courses': courses}
-            self.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc)
+            cls.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc)
 
     @classmethod
     def __send_to_user(cls, user, template, subject_params, body_params, use_cc):
@@ -1080,12 +1095,12 @@ class EmailTemplate(models.Model):
         body = cls.__render_string(template.body, body_params)
 
         mail = EmailMessage(
-            subject = subject,
-            body = body,
-            to = [user.email],
-            cc = cc_addresses,
-            bcc = [a[1] for a in settings.MANAGERS],
-            headers = {'Reply-To': settings.REPLY_TO_EMAIL})
+            subject=subject,
+            body=body,
+            to=[user.email],
+            cc=cc_addresses,
+            bcc=[a[1] for a in settings.MANAGERS],
+            headers={'Reply-To': settings.REPLY_TO_EMAIL})
 
         try:
             mail.send(False)

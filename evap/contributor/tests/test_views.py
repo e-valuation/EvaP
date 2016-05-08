@@ -21,6 +21,7 @@ class TestContributorSettingsView(ViewTest):
     def setUpTestData(cls):
         course_with_responsible_and_editor()
 
+
 class TestContributorCourseView(ViewTest):
     test_users = ['editor', 'responsible']
     url = '/contributor/course/%s' % TESTING_COURSE_ID
@@ -81,16 +82,18 @@ class TestContributorCourseEditView(ViewTest):
         """
         course = Course.objects.get(pk=TESTING_COURSE_ID)
 
-        page = self.get_assert_200("/contributor/course/{}/edit".format(TESTING_COURSE_ID), user="responsible")
+        page = self.get_assert_200(self.url, user="responsible")
         form = page.forms["course-form"]
         form["vote_start_date"] = "02/1/2098"
         form["vote_end_date"] = "02/1/2099"
 
-        response = form.submit(name="operation", value="save")
-        self.assertEqual(Course.objects.get(pk=TESTING_COURSE_ID).state, "prepared")
+        form.submit(name="operation", value="save")
+        course = Course.objects.get(pk=course.pk)
+        self.assertEqual(course.state, "prepared")
 
         form.submit(name="operation", value="approve")
-        self.assertEqual(Course.objects.get(pk=TESTING_COURSE_ID).state, "editorApproved")
+        course = Course.objects.get(pk=course.pk)
+        self.assertEqual(course.state, "editor_approved")
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)

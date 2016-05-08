@@ -20,7 +20,7 @@ class UserFormTests(TestCase):
         self.assertFalse(user.delegates.filter(username="delegate").exists())
 
         form_data = get_form_data_from_instance(DelegatesForm, user)
-        form_data["delegates"] = [delegate.pk] # add delegate
+        form_data["delegates"] = [delegate.pk]  # add delegate
 
         form = DelegatesForm(form_data, instance=user)
         self.assertTrue(form.is_valid())
@@ -76,8 +76,9 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
         questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+        # one obsolete questionnaire that should never be shown
+        mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
 
         # just the normal questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])

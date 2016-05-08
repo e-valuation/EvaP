@@ -1,3 +1,7 @@
+import datetime
+import random
+from collections import OrderedDict, defaultdict
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction, IntegrityError
@@ -26,15 +30,9 @@ from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
-
-from evap.rewards.tools import is_semester_activated
 from evap.grades.tools import are_grades_activated
-
 from evap.results.exporters import ExcelExporter
-
-import datetime
-import random
-from collections import OrderedDict, defaultdict
+from evap.rewards.tools import is_semester_activated
 
 
 def raise_permission_denied_if_archived(archiveable):
@@ -98,13 +96,13 @@ def semester_view(request, semester_id):
     degree_stats = defaultdict(Stats)
     total_stats = Stats()
     for course in courses:
-        if course.is_single_result():
+        if course.is_single_result:
             continue
         degrees = course.degrees.all()
         stats_objects = [degree_stats[degree] for degree in degrees]
         stats_objects += [total_stats]
         for stats in stats_objects:
-            if course.state in ['inEvaluation', 'evaluated', 'reviewed', 'published']:
+            if course.state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
                 stats.num_enrollments_in_evaluation += course.num_participants
                 stats.num_votes += course.num_voters
                 stats.num_comments += course.num_textanswers
@@ -171,7 +169,7 @@ def semester_course_operation(request, semester_id):
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
             # remove courses without enough questionnaires
-            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires()]
+            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires]
             difference = len(courses) - len(courses_with_enough_questionnaires)
             if difference:
                 courses = courses_with_enough_questionnaires
@@ -179,7 +177,7 @@ def semester_course_operation(request, semester_id):
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
         elif operation == 'startEvaluation':
-            new_state_name = STATES_ORDERED['inEvaluation']
+            new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
             courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.date.today()]
             difference = len(courses) - len(courses_end_in_future)
@@ -389,7 +387,7 @@ def semester_lottery(request, semester_id):
 
         # find all users who have voted on all of their courses
         for user in UserProfile.objects.all():
-            courses = user.courses_participating_in.filter(semester=semester,  state__in=['inEvaluation', 'evaluated', 'reviewed', 'published'])
+            courses = user.courses_participating_in.filter(semester=semester, state__in=['in_evaluation', 'evaluated', 'reviewed', 'published'])
             if not courses.exists():
                 # user was not participating in any course in this semester
                 continue
@@ -401,7 +399,7 @@ def semester_lottery(request, semester_id):
         eligible = None
         winners = None
 
-    template_data =dict(semester=semester, form=form, eligible=eligible, winners=winners)
+    template_data = dict(semester=semester, form=form, eligible=eligible, winners=winners)
     return render(request, "staff_semester_lottery.html", template_data)
 
 
@@ -409,12 +407,12 @@ def semester_lottery(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['prepared', 'editorApproved']).all().prefetch_related("degrees")
+    courses = semester.course_set.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
 
     prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
     responsibles = (course.responsible_contributor for course in prepared_courses)
     responsibles = list(set(responsibles))
-    responsibles.sort(key = lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
     responsible_list = [(responsible, [course for course in courses if course.responsible_contributor.id == responsible.id], responsible.delegates.all()) for responsible in responsibles]
 
@@ -476,9 +474,9 @@ def single_result_create(request, semester_id):
 @staff_required
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    if course.is_single_result():
+    if course.is_single_result:
         return helper_single_result_edit(request, semester, course)
     else:
         return helper_course_edit(request, semester, course)
@@ -501,7 +499,7 @@ def helper_course_edit(request, semester, course):
         if not course.can_staff_edit or course.is_archived:
             raise SuspiciousOperation("Modifying this course is not allowed.")
 
-        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period():
+        if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
         form.save(user=request.user)
         formset.save()
@@ -552,7 +550,7 @@ def course_delete(request):
 @staff_required
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
     form = CourseEmailForm(request.POST or None, instance=course, export='export' in request.POST)
 
     if form.is_valid():
@@ -566,7 +564,8 @@ def course_email(request, semester_id, course_id):
         if missing_email_addresses == 0:
             messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         else:
-            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
+            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be "
+                "reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
@@ -574,8 +573,8 @@ def course_email(request, semester_id, course_id):
 
 @staff_required
 def course_participant_import(request, semester_id, course_id):
-    course = get_object_or_404(Course, id=course_id)
     semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
     raise_permission_denied_if_archived(course)
 
     form = UserImportForm(request.POST or None, request.FILES or None)
@@ -608,7 +607,7 @@ def course_participant_import(request, semester_id, course_id):
 @staff_required
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     filter = request.GET.get('filter', None)
     if filter is None:  # if no parameter is given take session value
@@ -658,10 +657,10 @@ def course_comments_update_publish(request):
         return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
 
-    if course.state == "evaluated" and course.is_fully_reviewed():
+    if course.state == "evaluated" and course.is_fully_reviewed:
         course.review_finished()
         course.save()
-    if course.state == "reviewed" and not course.is_fully_reviewed():
+    if course.state == "reviewed" and not course.is_fully_reviewed:
         course.reopen_review()
         course.save()
 
@@ -670,9 +669,9 @@ def course_comments_update_publish(request):
 
 @staff_required
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
-    text_answer = get_object_or_404(TextAnswer, id=text_answer_id)
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
+    text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
     reviewed_answer = text_answer.reviewed_answer
     if reviewed_answer is None:
         reviewed_answer = text_answer.original_answer
@@ -691,7 +690,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
 @staff_required
 def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
 
     return vote_preview(request, course)
 
@@ -725,10 +724,10 @@ def questionnaire_create(request):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
-        newQuestionnaire = form.save(commit=False)
+        new_questionnaire = form.save(commit=False)
         # set index according to existing questionnaires
-        newQuestionnaire.index = Questionnaire.objects.all().aggregate(Max('index'))['index__max'] + 1
-        newQuestionnaire.save()
+        new_questionnaire.index = Questionnaire.objects.all().aggregate(Max('index'))['index__max'] + 1
+        new_questionnaire.save()
         form.save_m2m()
 
         formset.save()
@@ -750,9 +749,8 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
-
     if not editable:
-        editable_fields =  ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
+        editable_fields = ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
         for name, field in form.fields.items():
             if name not in editable_fields:
                 field.disabled = True
@@ -895,8 +893,8 @@ def questionnaire_update_indices(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    degreeFS = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
-    formset = degreeFS(request.POST or None, queryset=degrees)
+    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
+    formset = DegreeFormset(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
         formset.save()
@@ -911,8 +909,8 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    course_type_FS = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
-    formset = course_type_FS(request.POST or None, queryset=course_types)
+    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
+    formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
     if formset.is_valid():
         formset.save()
@@ -949,7 +947,6 @@ def course_type_merge(request, main_type_id, other_type_id):
         courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
         return render(request, "staff_course_type_merge.html",
             dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
-
 
 
 @staff_required
@@ -1090,8 +1087,8 @@ def template_edit(request, template_id):
 def faq_index(request):
     sections = FaqSection.objects.all()
 
-    sectionFS = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
-    formset = sectionFS(request.POST or None, queryset=sections)
+    SectionFormset = modelformset_factory(FaqSection, form=FaqSectionForm, can_delete=True, extra=1)
+    formset = SectionFormset(request.POST or None, queryset=sections)
 
     if formset.is_valid():
         formset.save()

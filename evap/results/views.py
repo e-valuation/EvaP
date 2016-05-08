@@ -1,11 +1,11 @@
+from collections import OrderedDict, namedtuple
+
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult
-
-from collections import OrderedDict, namedtuple
 
 
 @login_required
@@ -30,7 +30,7 @@ def semester_detail(request, semester_id):
     for degree in Degree.objects.all():
         courses_by_degree[degree] = CourseTuple([], [])
     for course in courses:
-        if course.is_single_result():
+        if course.is_single_result:
             for degree in course.degrees.all():
                 section = calculate_results(course)[0]
                 result = section.results[0]
@@ -46,7 +46,7 @@ def semester_detail(request, semester_id):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(semester.course_set, id=course_id)
+    course = get_object_or_404(semester.course_set, id=course_id, semester=semester)
 
     if not course.can_user_see_results(request.user):
         raise PermissionDenied

@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
@@ -11,7 +13,6 @@ from django.views.decorators.http import require_POST
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ def index(request):
         template_data = dict(new_key_form=new_key_form, login_username_form=login_username_form)
         return render(request, "index.html", template_data)
     else:
-        user, created = UserProfile.objects.get_or_create(username=request.user.username)
+        user, __ = UserProfile.objects.get_or_create(username=request.user.username)
 
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
@@ -119,9 +120,8 @@ def feedback_send(request):
 
         try:
             mail.send()
-            logger.info('Sent feedback email: \n%s\n', mail.message())
-
+            logger.info('Sent feedback email: \n{}\n'.format(mail.message()))
         except Exception:
-            logger.exception('An exception occurred when sending the following feedback email:\n%s\n', mail.message())
+            logger.exception('An exception occurred when sending the following feedback email:\n{}\n'.format(mail.message()))
 
     return HttpResponse()

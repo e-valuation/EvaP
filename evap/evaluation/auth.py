@@ -1,3 +1,6 @@
+from datetime import date, timedelta
+from functools import wraps
+
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import auth, messages
 from django.contrib.auth.backends import ModelBackend
@@ -6,9 +9,6 @@ from django.utils.decorators import available_attrs
 from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import UserProfile, EmailTemplate
-
-from datetime import date, timedelta
-from functools import wraps
 
 
 class RequestAuthMiddleware(object):

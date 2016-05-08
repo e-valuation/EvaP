@@ -27,11 +27,12 @@ class TestUserIndexView(ViewTest):
             and not linear to the number of users
         """
         num_users = 50
-        course = mommy.make(Course, state="published") # this triggers more checks in UserProfile.can_staff_delete
+        course = mommy.make(Course, state="published")  # this triggers more checks in UserProfile.can_staff_delete
         mommy.make(UserProfile, _quantity=num_users, courses_participating_in=[course])
 
-        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+        with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
             self.app.get(self.url, user="staff")
+
 
 class TestUserBulkDeleteView(ViewTest):
     url = '/staff/user/bulk_delete'
@@ -103,8 +104,8 @@ class TestSemesterExportView(ViewTest):
 
         # Load response as Excel file and check its heading for correctness.
         workbook = xlrd.open_workbook(file_contents=response.content)
-        self.assertEquals(workbook.sheets()[0].row_values(0)[0],
-                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
+        self.assertEqual(workbook.sheets()[0].row_values(0)[0],
+                         'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
@@ -116,9 +117,9 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(Semester, pk=1)
+        semester = mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course, pk=1)
+        cls.course = mommy.make(Course, pk=1, semester=semester)
 
     def test_import_valid_file(self):
         page = self.app.get(self.url, user='staff')
@@ -144,7 +145,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
-        self.assertEquals(UserProfile.objects.count(), original_user_count)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_test_run(self):
         page = self.app.get(self.url, user='staff')
@@ -197,9 +198,9 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        self.semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, is_archived=True)
 
-        semester_url = "/staff/semester/{}/".format(self.semester.pk)
+        semester_url = "/staff/semester/{}/".format(semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")

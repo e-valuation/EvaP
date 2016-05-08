@@ -1,18 +1,20 @@
-﻿from django.conf import settings
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.meta import LocalizeModelBase, Translate
-
 import os
 
+from django.conf import settings
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
+from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.models import Course
+
 
 def helper_upload_path(instance, filename):
     return "grades/{}/{}".format(instance.course.id, filename)
 
+
 class GradeDocument(models.Model, metaclass=LocalizeModelBase):
     course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("Course"))
-    file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File")) #upload_to="grades/{}/".format(course.id),
+    file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(course.id),
 
     MIDTERM_GRADES = 'MID'
     FINAL_GRADES = 'FIN'
@@ -38,7 +40,7 @@ class GradeDocument(models.Model, metaclass=LocalizeModelBase):
             ('course', 'description_en')
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
     def filename(self):

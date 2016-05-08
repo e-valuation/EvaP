@@ -1,14 +1,16 @@
-from django.conf import settings
-from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
-from django.db.models import Sum
-from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
-
 from collections import OrderedDict, defaultdict
 from collections import namedtuple
 from functools import partial
 from math import ceil
 from statistics import pstdev, median
+
+from django.conf import settings
+from django.core.cache import cache
+from django.utils.translation import ugettext_lazy as _
+from django.db.models import Sum
+
+from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
+
 
 GRADE_COLORS = {
     1: (136, 191, 74),
@@ -40,9 +42,9 @@ GRADE_NAMES = {
 STATES_ORDERED = OrderedDict((
     ('new', _('new')),
     ('prepared', _('prepared')),
-    ('editorApproved', _('lecturer approved')),
+    ('editor_approved', _('lecturer approved')),
     ('approved', _('approved')),
-    ('inEvaluation', _('in evaluation')),
+    ('in_evaluation', _('in evaluation')),
     ('evaluated', _('evaluated')),
     ('reviewed', _('reviewed')),
     ('published', _('published'))
@@ -52,9 +54,9 @@ STATES_ORDERED = OrderedDict((
 STATE_DESCRIPTIONS = OrderedDict((
     ('new', _('The course was newly created and will be prepared by the student representatives.')),
     ('prepared', _('The course was prepared by the student representatives and is now available for editing to the responsible person.')),
-    ('editorApproved', _('The course was approved by a lecturer and will now be checked by the student representatives.')),
+    ('editor_approved', _('The course was approved by a lecturer and will now be checked by the student representatives.')),
     ('approved', _('All preparations are finished. The evaluation will begin once the defined start date is reached.')),
-    ('inEvaluation', _('The course is currently in evaluation until the defined end date is reached.')),
+    ('in_evaluation', _('The course is currently in evaluation until the defined end date is reached.')),
     ('evaluated', _('The course was fully evaluated and will now be reviewed by the student representatives.')),
     ('reviewed', _('The course was fully evaluated and reviewed by the student representatives. You will receive an email when its results are published.')),
     ('published', _('The results for this course have been published.'))
@@ -62,7 +64,7 @@ STATE_DESCRIPTIONS = OrderedDict((
 
 # the names used for students
 STUDENT_STATES_ORDERED = OrderedDict((
-    ('inEvaluation', _('in evaluation')),
+    ('in_evaluation', _('in evaluation')),
     ('upcoming', _('upcoming')),
     ('evaluationFinished', _('evaluation finished')),
     ('published', _('published'))
@@ -114,7 +116,7 @@ def get_sum_of_answer_counters(answer_counters):
 def get_answers_from_answer_counters(answer_counters):
     answers = []
     for answer_counter in answer_counters:
-        for i in range(0, answer_counter.count):
+        for __ in range(0, answer_counter.count):
             answers.append(answer_counter.answer)
     return answers
 
@@ -130,7 +132,7 @@ def get_textanswers(contribution, question, filter_states=None):
 def get_counts(answer_counters):
     counts = OrderedDict()
     # ensure ordering of answers
-    for answer in range(1,6):
+    for answer in range(1, 6):
         counts[answer] = 0
 
     for answer_counter in answer_counters:
@@ -206,7 +208,7 @@ def calculate_average_grades_and_deviation(course):
     dev_generic_grade = []
     dev_contribution_grade = []
 
-    for questionnaire, contributor, label, results, warning in calculate_results(course):
+    for __, contributor, __, results, __ in calculate_results(course):
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
         deviation_likert = avg([result.deviation for result in results if result.question.is_likert_question])
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
@@ -293,15 +295,15 @@ def get_deviation_color(deviation):
     if deviation is None:
         return (255, 255, 255)
 
-    capped_deviation = min(deviation, 2.0) # values above that are very uncommon in practice
-    val = int(255 - capped_deviation * 60) # tweaked to look good
+    capped_deviation = min(deviation, 2.0)  # values above that are very uncommon in practice
+    val = int(255 - capped_deviation * 60)  # tweaked to look good
     return (val, val, val)
 
 
 def sort_formset(request, formset):
-    if request.POST: # if not, there will be no cleaned_data and the models should already be sorted anyways
-        formset.is_valid() # make sure all forms have cleaned_data
-        formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001) )
+    if request.POST:  # if not, there will be no cleaned_data and the models should already be sorted anyways
+        formset.is_valid()  # make sure all forms have cleaned_data
+        formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001))
 
 
 def course_types_in_semester(semester):

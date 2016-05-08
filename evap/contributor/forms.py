@@ -1,3 +1,6 @@
+import logging
+import datetime
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -7,8 +10,6 @@ from evap.evaluation.models import Course, UserProfile, Questionnaire, Semester
 from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.staff.forms import ContributionForm
 
-import logging
-import datetime
 
 logger = logging.getLogger(__name__)
 

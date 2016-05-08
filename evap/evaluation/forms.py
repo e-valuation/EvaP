@@ -21,7 +21,8 @@ class QuestionnaireChoiceIterator(ModelChoiceIterator):
 
 class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
-        if value is None: value = []
+        if value is None:
+            value = []
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)
         output = ['<ul class="inputs-list">']
@@ -37,11 +38,12 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             else:
                 label_for = ''
 
-            cb = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
+            checkbox = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
             option_value = force_text(option_value)
-            rendered_cb = cb.render(name, option_value)
+            rendered_checkbox = checkbox.render(name, option_value)
             option_label = conditional_escape(force_text(option_label))
-            output.append('<li data-toggle="tooltip" data-placement="left" title="%s"><div class="checkbox"><label%s>%s %s</label></div></li>' % (escape(option_text), label_for, rendered_cb.replace('class="form-control"', ''), option_label))
+            output.append('<li data-toggle="tooltip" data-placement="left" title="{}"><div class="checkbox"><label{}>{} {}</label></div></li>'.format(
+                escape(option_text), label_for, rendered_checkbox.replace('class="form-control"', ''), option_label))
         output.append('</ul>')
         return mark_safe('\n'.join(output))
 
@@ -152,7 +154,6 @@ class BootstrapFieldset(object):
 
 # taken from https://github.com/earle/django-bootstrap/blob/master/bootstrap/forms.py
 class BootstrapMixin(object):
-    """"""
 
     __TEMPLATE = """<div class="form-group{% if errors %} has-error{% endif %}">
                  <label class="col-sm-2 control-label" for="{{ field_id }}">{{ label }}</label>

@@ -21,6 +21,7 @@ class FuzzyInt(int):
         obj.lowest = lowest
         obj.highest = highest
         return obj
+
     def __eq__(self, other):
         return other >= self.lowest and other <= self.highest
 
@@ -38,7 +39,7 @@ class WebTest(DjangoWebTest):
     def get_assert_403(self, url, user):
         try:
             self.app.get(url, user=user, status=403)
-        except AppError as e:
+        except AppError:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
     def get_assert_302(self, url, user):
@@ -83,7 +84,7 @@ def course_with_responsible_and_editor(course_id=None):
     else:
         course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)])
 
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
+    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)], comment_visibility=Contribution.ALL_COMMENTS)
     mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
     course.general_contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=False)]
 

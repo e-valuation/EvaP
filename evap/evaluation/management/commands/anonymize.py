@@ -1,12 +1,12 @@
+import os
+import itertools
+import random
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from evap.evaluation.models import TextAnswer, UserProfile, Semester, Course
-
-import os
-import itertools
-import random
 
 
 class Command(BaseCommand):

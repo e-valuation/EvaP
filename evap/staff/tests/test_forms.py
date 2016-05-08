@@ -224,6 +224,7 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
+
 class ContributionFormset775RegressionTests(TestCase):
     """
         Various regression tests for #775
@@ -235,7 +236,7 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         cls.questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course)
+        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
 
         cls.contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -245,7 +246,7 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-TOTAL_FORMS': 2,
             'contributions-INITIAL_FORMS': 2,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': str(self.contribution1.pk), # browsers send strings so we should too
+            'contributions-0-id': str(self.contribution1.pk),  # browsers send strings so we should too
             'contributions-0-course': self.course.pk,
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
@@ -321,7 +322,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data.appendlist('contributions-0-questionnaires', questionnaire.pk)
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         formset.save()
-        self.assertEquals(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
+        self.assertEqual(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
 
 
 class CourseFormTests(TestCase):
@@ -329,13 +330,13 @@ class CourseFormTests(TestCase):
         courses = Course.objects.all()
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form_data["vote_start_date"] = "02/1/2098" # needed to fix the form
-        form_data["vote_end_date"] = "02/1/2099" # needed to fix the form
+        form_data["vote_start_date"] = "02/1/2098"  # needed to fix the form
+        form_data["vote_end_date"] = "02/1/2099"  # needed to fix the form
 
-        form = CourseForm(form_data, instance=courses[0])
+        form = CourseFormClass(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
         form_data['name_de'] = courses[1].name_de
-        form = CourseForm(form_data, instance=courses[0])
+        form = CourseFormClass(form_data, instance=courses[0])
         self.assertFalse(form.is_valid())
 
     def test_course_form_same_name(self):

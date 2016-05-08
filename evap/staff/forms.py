@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.db.models import Q
 from django.core.exceptions import SuspiciousOperation
@@ -13,7 +15,6 @@ from evap.evaluation.models import Contribution, Course, Question, Questionnaire
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
 from evap.staff.fields import ToolTipModelMultipleChoiceField
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +120,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
 
-        if self.instance.state in ['inEvaluation', 'evaluated', 'reviewed']:
+        if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_date'].disabled = True
 
         if not self.instance.can_staff_edit:
@@ -176,7 +177,7 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
             answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
                 answer_counts[answer_counter.answer] = answer_counter.count
-            for i in range(1,6):
+            for i in range(1, 6):
                 self.fields['answer_' + str(i)].initial = answer_counts[i]
 
     def save(self, *args, **kw):
@@ -191,15 +192,15 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         single_result_question = single_result_questionnaire.question_set.first()
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
-            contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True)
+            contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
             contribution.save()
             contribution.questionnaires.add(single_result_questionnaire)
 
         # set answers
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
         total_votes = 0
-        for i in range(1,6):
-            count = self.cleaned_data['answer_'+str(i)]
+        for i in range(1, 6):
+            count = self.cleaned_data['answer_' + str(i)]
             total_votes += count
             RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=single_result_question, answer=i, defaults={'count': count})
         self.instance._participant_count = total_votes
@@ -318,7 +319,7 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 class ContributionFormSet(AtLeastOneFormSet):
     def __init__(self, data=None, *args, **kwargs):
-        data = self.handle_moved_contributors(data, *args, **kwargs)
+        data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
 
@@ -340,7 +341,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
-    def handle_moved_contributors(self, data, *args, **kwargs):
+    def handle_moved_contributors(self, data, **kwargs):
         """
             Work around https://code.djangoproject.com/ticket/25139
             Basically, if the user assigns a contributor who already has a contribution to a new contribution,
@@ -415,8 +416,8 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['text_de'].widget = forms.TextInput(attrs={'class':'form-control'})
-        self.fields['text_en'].widget = forms.TextInput(attrs={'class':'form-control'})
+        self.fields['text_de'].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields['text_en'].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields['type'].widget.attrs['class'] = 'form-control'
 
 
@@ -427,7 +428,8 @@ class QuestionnairesAssignForm(forms.Form, BootstrapMixin):
 
         for course_type in course_types:
             self.fields[course_type.name] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=True))
+        contributor_questionnaires = Questionnaire.objects.filter(obsolete=False, is_for_contributors=True)
+        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm, BootstrapMixin):
@@ -442,7 +444,7 @@ class UserForm(forms.ModelForm, BootstrapMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         courses_in_active_semester = Course.objects.filter(semester=Semester.active_semester())
-        excludes = [x.id for x in courses_in_active_semester if x.is_single_result()]
+        excludes = [x.id for x in courses_in_active_semester if x.is_single_result]
         courses_in_active_semester = courses_in_active_semester.exclude(id__in=excludes)
         self.fields['courses_participating_in'].queryset = courses_in_active_semester
         if self.instance.pk:

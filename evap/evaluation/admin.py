@@ -1,10 +1,11 @@
-from evap.evaluation.models import Contribution, Course, RatingAnswerCounter, Question, Questionnaire, Semester, TextAnswer, UserProfile
 from django.conf import settings
 from django.contrib import admin
 from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import ugettext_lazy as _
+
+from evap.evaluation.models import Contribution, Course, RatingAnswerCounter, Question, Questionnaire, Semester, TextAnswer, UserProfile
 
 
 class ContributionInline(admin.TabularInline):
@@ -86,8 +87,8 @@ class UserProfileAdmin(UserAdmin):
     list_filter = ()
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password', 'login_key', 'login_key_valid_until')}),
-        ('Personal info', {'fields': ('first_name','last_name', 'title')}),
-        ('Delegates and cc-users', {'fields': ('delegates','cc_users')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'title')}),
+        ('Delegates and cc-users', {'fields': ('delegates', 'cc_users')}),
         ('Permissions', {'fields': ('is_superuser', 'groups', 'user_permissions',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -95,8 +96,8 @@ class UserProfileAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')}
-        ),
+            'fields': ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        }),
     )
     search_fields = ('username',)
     ordering = ('username',)

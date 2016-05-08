@@ -9,6 +9,7 @@ from evap.evaluation.models import Course
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation, NoPointsSelected, NotEnoughPoints
 
+
 @login_required
 @transaction.atomic
 def save_redemptions(request, redemptions):
@@ -29,6 +30,7 @@ def save_redemptions(request, redemptions):
                 event=RewardPointRedemptionEvent.objects.get(id=event_id)
             )
             redemption.save()
+
 
 def can_user_use_reward_points(user):
     return not user.is_external and user.is_participant

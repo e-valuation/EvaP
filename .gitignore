@@ -30,3 +30,6 @@ docs/_build
 
 coverage.xml
 htmlcov
+
+# pip puts editable packages here
+src
