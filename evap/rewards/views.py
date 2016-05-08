@@ -122,11 +122,6 @@ def semester_activation(request, semester_id, active):
     semester = get_object_or_404(Semester, id=semester_id)
     active = active == 'on'
 
-    try:
-        activation = SemesterActivation.objects.filter(semester=semester).get()
-        activation.is_active = active
-    except SemesterActivation.DoesNotExist:
-        activation = SemesterActivation(semester=semester, is_active=active)
-    activation.save()
+    SemesterActivation.objects.update_or_create(semester=semester, defaults={'is_active': active})
 
     return semester_view(request=request, semester_id=semester_id)

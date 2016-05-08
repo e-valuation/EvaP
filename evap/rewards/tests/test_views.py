@@ -3,10 +3,10 @@ from django.core.urlresolvers import reverse
 
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course
+from evap.evaluation.models import UserProfile, Course, Semester
 from evap.evaluation.tests.tools import ViewTest
-from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption
-from evap.rewards.tools import reward_points_of_user
+from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
+from evap.rewards.tools import reward_points_of_user, is_semester_activated
 
 
 class TestEventDeleteView(ViewTest):
@@ -110,3 +110,23 @@ class TestEventEditView(ViewTest):
         response = form.submit()
         self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
         self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=1).name, 'new name')
+
+
+class TestSemesterActivationView(ViewTest):
+    url = '/rewards/reward_semester_activation/1/'
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.semester = mommy.make(Semester, pk=1)
+
+    def test_activate(self):
+        mommy.make(SemesterActivation, semester=self.semester, is_active=False)
+        self.app.post(self.url + 'on', user='staff')
+        self.assertTrue(is_semester_activated(self.semester))
+
+    def test_deactivate(self):
+        mommy.make(SemesterActivation, semester=self.semester, is_active=True)
+        self.app.post(self.url + 'off', user='staff')
+        self.assertFalse(is_semester_activated(self.semester))
