@@ -27,7 +27,8 @@ class TestUserIndexView(ViewTest):
             and not linear to the number of users
         """
         num_users = 50
-        course = mommy.make(Course, state="published")  # this triggers more checks in UserProfile.can_staff_delete
+        semester = mommy.make(Semester, is_archived=True)
+        course = mommy.make(Course, state="published", semester=semester, _participant_count=1, _voter_count=1)  # this triggers more checks in UserProfile.can_staff_delete
         mommy.make(UserProfile, _quantity=num_users, courses_participating_in=[course])
 
         with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
