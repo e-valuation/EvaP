@@ -3,69 +3,50 @@ from django.core.urlresolvers import reverse
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Course
+from evap.evaluation.models import Course, Questionnaire, Question
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTest
-from evap.rewards.models import SemesterActivation
+from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.rewards.tools import reward_points_of_user
 
 
-class GrantRewardPointsTests(WebTest):
-    fixtures = ['minimal_test_data_rewards']
+class TestGrantRewardPoints(WebTest):
     csrf_checks = False
 
-    def test_grant_reward_points(self):
-        """
-            submits several requests that trigger the reward point granting and checks that the reward point
-            granting works as expected for the different requests.
-        """
-        user = UserProfile.objects.get(pk=5)
-        reward_points_before_end = reward_points_of_user(user)
-        response = self.app.get(reverse("student:vote", args=[9]), user="student")
+    @classmethod
+    def setUpTestData(cls):
+        cls.student = mommy.make(UserProfile, username='student', email='foo@hpi.de')
+        cls.course = mommy.make(Course, pk=1, state='in_evaluation', participants=[cls.student])
 
-        form = response.forms["student-vote-form"]
-        for key in form.fields.keys():
+        questionnaire = mommy.make(Questionnaire)
+        mommy.make(Question, questionnaire=questionnaire, type="G")
+        cls.course.general_contribution.questionnaires = [questionnaire]
+
+    def setUp(self):
+        response = self.app.get(reverse("student:vote", args=[1]), user="student")
+
+        self.form = response.forms["student-vote-form"]
+        for key in self.form.fields.keys():
             if key is not None and "question" in key:
-                form.set(key, 6)
+                self.form.set(key, 6)
 
-        response = form.submit()
-        self.assertRedirects(response, reverse('student:index'))
+    def test_semester_not_activated(self):
+        self.form.submit()
+        self.assertEqual(0, reward_points_of_user(self.student))
 
-        # semester is not activated --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
+    def test_everything_works(self):
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        self.form.submit()
+        self.assertEqual(settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(self.student))
 
-        # reset course for another try
-        course = Course.objects.get(pk=9)
-        course.voters = []
-        # activate semester
-        activation = SemesterActivation.objects.get(semester=course.semester)
-        activation.is_active = True
-        activation.save()
-        # create a new course
-        new_course = mommy.make(Course, semester=course.semester)
-        new_course.save()
-        new_course.participants.add(user)
-        new_course.save()
-        response = form.submit()
-        self.assertRedirects(response, reverse('student:index'))
+    def test_semester_activated_not_all_courses(self):
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        mommy.make(Course, semester=self.course.semester, participants=[self.student])
+        self.form.submit()
+        self.assertEqual(0, reward_points_of_user(self.student))
 
-        # user also has other courses this semester --> number of reward points should not increase
-        self.assertEqual(reward_points_before_end, reward_points_of_user(user))
-
-        course.voters = []
-        course.save()
-        new_course.participants.remove(user)
-        new_course.save()
-
-        # last course of user so he may get reward points
-        response = form.submit()
-        self.assertRedirects(response, reverse('student:index'))
-        # if this test fails because of this assertion check that the user is allowed to receive reward points!
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
-
-        # test behaviour if user already got reward points
-        course.voters = []
-        course.save()
-        response = form.submit()
-        self.assertRedirects(response, reverse('student:index'))
-        self.assertEqual(reward_points_before_end + settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(user))
+    def test_already_got_points(self):
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        mommy.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.course.semester)
+        self.form.submit()
+        self.assertEqual(0, reward_points_of_user(self.student))

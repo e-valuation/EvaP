@@ -1,76 +1,112 @@
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 
-from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import WebTest
-from evap.rewards.models import RewardPointRedemptionEvent
+from model_mommy import mommy
+
+from evap.evaluation.models import UserProfile, Course
+from evap.evaluation.tests.tools import ViewTest
+from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption
 from evap.rewards.tools import reward_points_of_user
 
 
-class ViewTests(WebTest):
-    fixtures = ['minimal_test_data_rewards']
+class TestEventDeleteView(ViewTest):
+    url = reverse('rewards:reward_point_redemption_event_delete')
     csrf_checks = False
 
-    def test_delete_redemption_events(self):
-        """
-            Submits a request that tries to delete an event where users already redeemed points -> should not work.
-            It also submits a request that should delete the event.
-        """
-        # try to delete event that can not be deleted, because people already redeemed points
-        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 1}, user="evap", expect_errors=True)
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_deletion_success(self):
+        mommy.make(RewardPointRedemptionEvent, pk=1)
+        response = self.app.post(self.url, {'event_id': 1}, user='staff')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=1).exists())
+
+    def test_deletion_failure(self):
+        """ try to delete event that can not be deleted, because people already redeemed points """
+        event = mommy.make(RewardPointRedemptionEvent, pk=1)
+        mommy.make(RewardPointRedemption, value=1, event=event)
+
+        response = self.app.post(self.url, {'event_id': 1}, user='staff', expect_errors=True)
         self.assertEqual(response.status_code, 400)
-        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
+        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=1).exists())
 
-        # now delete for real
-        response = self.app.post(reverse("rewards:reward_point_redemption_event_delete"), {"event_id": 2}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=2).exists())
 
-    def test_redeem_reward_points(self):
-        """
-            Submits a request that redeems all available reward points and checks that this works.
-            Also checks that it is not possible to redeem more points than the user actually has.
-        """
-        response = self.app.get(reverse("rewards:index"), user="student")
-        self.assertEqual(response.status_code, 200)
+class TestIndexView(ViewTest):
+    url = reverse('rewards:index')
+    test_users = ['student']
+    csrf_checks = False
 
-        user = UserProfile.objects.get(pk=5)
-        form = response.forms["reward-redemption-form"]
-        form.set("points-1", reward_points_of_user(user))
+    @classmethod
+    def setUpTestData(cls):
+        cls.student = mommy.make(UserProfile, username='student', email='foo@hpi.de')
+        mommy.make(Course, participants=[cls.student])
+        mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
+        mommy.make(RewardPointRedemptionEvent, _quantity=2)
+
+    def test_redeem_all_points(self):
+        response = self.app.get(reverse('rewards:index'), user='student')
+        form = response.forms['reward-redemption-form']
+        form.set('points-1', 2)
+        form.set('points-2', 3)
         response = form.submit()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You successfully redeemed your points.")
-        self.assertEqual(0, reward_points_of_user(user))
+        self.assertEqual(0, reward_points_of_user(self.student))
 
-        form.set("points-1", 1)
-        form.set("points-2", 3)
+    def test_redeem_too_many_points(self):
+        mommy.make(RewardPointRedemptionEvent)
+        response = self.app.get(reverse('rewards:index'), user='student')
+        form = response.forms['reward-redemption-form']
+        form.set('points-1', 3)
+        form.set('points-2', 3)
         response = form.submit()
         self.assertIn(b"have enough reward points.", response.body)
+        self.assertEqual(5, reward_points_of_user(self.student))
+
+
+class TestEventCreateView(ViewTest):
+    url = reverse('rewards:reward_point_redemption_event_create')
+    test_users = ['staff']
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
     def test_create_redemption_event(self):
-        """
-            submits a newly created redemption event and checks that the event has been created
-        """
-        response = self.app.get(reverse("rewards:reward_point_redemption_event_create"), user="evap")
+        """ submits a newly created redemption event and checks that the event has been created """
+        self.assertEqual(RewardPointRedemptionEvent.objects.count(), 0)
+        response = self.app.get(self.url, user='staff')
 
-        form = response.forms["reward-point-redemption-event-form"]
+        form = response.forms['reward-point-redemption-event-form']
         form.set('name', 'Test3Event')
         form.set('date', '2014-12-10')
         form.set('redeem_end_date', '2014-11-20')
 
         response = form.submit()
         self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
-        self.assertEqual(RewardPointRedemptionEvent.objects.count(), 3)
+        self.assertEqual(RewardPointRedemptionEvent.objects.count(), 1)
+
+
+class TestEventEditView(ViewTest):
+    url = reverse('rewards:reward_point_redemption_event_edit', args=[1])
+    test_users = ['staff']
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(RewardPointRedemptionEvent, pk=1, name='old name')
 
     def test_edit_redemption_event(self):
-        """
-            submits a changed redemption event and tests whether it actually has changed
-        """
-        response = self.app.get(reverse("rewards:reward_point_redemption_event_edit", args=[2]), user="evap")
+        """ submits a newly created redemption event and checks that the event has been created """
+        response = self.app.get(self.url, user='staff')
 
-        form = response.forms["reward-point-redemption-event-form"]
-        name = form.get('name').value
+        form = response.forms['reward-point-redemption-event-form']
         form.set('name', 'new name')
 
         response = form.submit()
         self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
-        self.assertNotEqual(RewardPointRedemptionEvent.objects.get(pk=2).name, name)
+        self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=1).name, 'new name')

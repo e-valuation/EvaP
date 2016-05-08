@@ -172,6 +172,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
 
 class TestCourseCommentsUpdatePublishView(WebTest):
+    url = reverse("staff:course_comments_update_publish")
     csrf_checks = False
 
     @classmethod
@@ -181,7 +182,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
 
     def helper(self, old_state, expected_new_state, action):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post(reverse("staff:course_comments_update_publish"), {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        response = self.app.post(self.url, {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
         textanswer.refresh_from_db()
         self.assertEqual(textanswer.state, expected_new_state)
