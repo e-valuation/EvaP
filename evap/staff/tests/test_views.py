@@ -247,3 +247,56 @@ class TestQuestionnaireNewVersionView(ViewTest):
         # We should get redirected back to the questionnaire index.
         self.assertEqual(page.status_code, 302)  # REDIRECT
         self.assertEqual(page.location, '/staff/questionnaire/')
+
+
+class TestSemesterRawDataExportView(ViewTest):
+    url = '/staff/semester/1/raw_export'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.student_user = mommy.make(UserProfile, username='student')
+        cls.semester = mommy.make(Semester)
+        cls.course_type = mommy.make(CourseType, name_en="Type")
+        cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1")
+        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            name_de="Veranstaltung 2", name_en="Course 2")
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(self.url, user='staff')
+        expected_content = (
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average degree\r\n"
+            "Course 1;;Type;False;new;1;1;0;\r\n"
+            "Course 2;;Type;False;new;0;1;0;\r\n"
+        )
+        self.assertEqual(response.content, expected_content.encode("utf-8"))
+
+
+class TestSemesterParticipationDataExportView(ViewTest):
+    url = '/staff/semester/1/participation_export'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.student_user = mommy.make(UserProfile, username='student')
+        cls.semester = mommy.make(Semester)
+        cls.course_type = mommy.make(CourseType, name_en="Type")
+        cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_required_for_reward=True)
+        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            name_de="Veranstaltung 2", name_en="Course 2", is_required_for_reward=False)
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(self.url, user='staff')
+        expected_content = (
+            "Username;Can use reward points;#Required courses voted for;#Required courses;#Optional courses voted for;"
+            "#Optional courses;Earned reward points\r\n"
+            "student;False;1;1;0;1;False\r\n")
+        self.assertEqual(response.content, expected_content.encode("utf-8"))
