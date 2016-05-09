@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.core.serializers.base import ProgressBar
 from django.core.cache import cache
 
 from evap.evaluation.models import Course
@@ -12,9 +13,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Clearing cache...")
         cache.clear()
+        total_count = Course.objects.count()
 
         self.stdout.write("Calculating results for all courses...")
-        for course in Course.objects.all():
+
+        self.stdout.ending = None
+        progress_bar = ProgressBar(self.stdout, total_count)
+
+        for counter, course in enumerate(Course.objects.all()):
+            progress_bar.update(counter + 1)
             calculate_results(course)
 
-        self.stdout.write("Done with updating cache.")
+        self.stdout.write("Done with updating cache.\n")
