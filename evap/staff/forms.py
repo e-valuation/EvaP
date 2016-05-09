@@ -416,6 +416,7 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["order"].widget = forms.HiddenInput()
         self.fields['text_de'].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields['text_en'].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields['type'].widget.attrs['class'] = 'form-control'
