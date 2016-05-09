@@ -10,6 +10,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
 from django.views.decorators.http import require_POST
+from django.views.decorators.debug import sensitive_post_parameters
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
@@ -17,6 +18,7 @@ from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semes
 logger = logging.getLogger(__name__)
 
 
+@sensitive_post_parameters("password")
 def index(request):
     """Main entry page into EvaP providing all the login options available. The username/password
        login is thought to be used for internal users, e.g. by connecting to a LDAP directory.
