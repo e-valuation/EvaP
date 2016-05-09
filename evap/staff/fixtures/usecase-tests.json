@@ -129,7 +129,6 @@
             "text_de":"Q1",
             "text_en":"Q1 (en)",
             "type":"L",
-            "_order":0,
             "questionnaire":1
         }
     },
@@ -140,7 +139,6 @@
             "text_de":"Q2",
             "text_en":"Q2 (en)",
             "type":"T",
-            "_order":0,
             "questionnaire":1
         }
     },

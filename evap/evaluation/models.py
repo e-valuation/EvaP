@@ -610,6 +610,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         ("G", _("Grade Question")),
     )
 
+    order = models.IntegerField(verbose_name=_("question order"), default=-1)
     questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
     text_de = models.TextField(verbose_name=_("question text (german)"))
     text_en = models.TextField(verbose_name=_("question text (english)"))
@@ -618,7 +619,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     text = Translate
 
     class Meta:
-        order_with_respect_to = 'questionnaire'
+        ordering = ['order', ]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
 

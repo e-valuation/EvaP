@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -19,6 +20,7 @@
             <table id="question_table" class="table">
                 <thead>
                     <tr>
+                        <th></th>
                         <th class="col-sm-4">{% trans "Question text (German)" %}</th>
                         <th class="col-sm-4">{% trans "Question text (English)" %}</th>
                         <th class="col-sm-3">{% trans "Question type" %}</th>
@@ -31,10 +33,17 @@
                             <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
                         {% endif %}
 
-                        <tr class="select2tr">
-                            {% for field in form_element.hidden_fields %}
-                                {{ field }}
+                        <tr class="select2tr sortable">
+                            {% for hidden in form_element.hidden_fields %}
+                                {{ hidden }}
                             {% endfor %}
+                            {% if editable %}
+                                <td class="movable">
+                                    <span class="movable-icon glyphicon glyphicon-move"></span>
+                                </td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
                             {% for field in form_element.visible_fields %}
                                 <td>{{ field.errors }} {{ field }}</td>
                             {% endfor %}
@@ -64,5 +73,18 @@
 {% endblock %}
 
 {% block additional_javascript %}
+    {% include_sortable_form_js %}
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name_de = $(row.find('input[id$=-text_de]')).val();
+            name_en = $(row.find('input[id$=-text_en]')).val();
+            return name_de || name_en
+        };
+        row_added = function(row) {
+            row.find('a.btn-default').remove();
+        };
+        make_form_sortable("question_table", "form", row_changed, row_added, "", true, false);
+    </script>
     <script type="text/javascript"> preventAccidentalClosing = true; </script>
+
 {% endblock %}
