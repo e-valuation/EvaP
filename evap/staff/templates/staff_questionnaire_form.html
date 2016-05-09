@@ -37,9 +37,13 @@
                             {% for hidden in form_element.hidden_fields %}
                                 {{ hidden }}
                             {% endfor %}
-                            <td class="movable">
-                                <span class="movable-icon glyphicon glyphicon-move"></span>
-                            </td>
+                            {% if editable %}
+                                <td class="movable">
+                                    <span class="movable-icon glyphicon glyphicon-move"></span>
+                                </td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
                             {% for field in form_element.visible_fields %}
                                 <td>{{ field.errors }} {{ field }}</td>
                             {% endfor %}

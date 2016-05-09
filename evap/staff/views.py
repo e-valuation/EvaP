@@ -833,7 +833,7 @@ def questionnaire_edit(request, questionnaire_id):
     else:
         if not editable:
             messages.info(request, _("Some fields are disabled as this questionnaire is already in use."))
-        template_data = dict(questionnaire=questionnaire, form=form, formset=formset)
+        template_data = dict(questionnaire=questionnaire, form=form, formset=formset, editable=editable)
         return render(request, "staff_questionnaire_form.html", template_data)
 
 
