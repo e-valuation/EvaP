@@ -10,8 +10,10 @@
 {% endblock %}
 
 {% block title %}
+    Manage -
     {% if course %}
-        {{ course.name }} -
+        {{ course.name }}
+    {% else %}
+      {{semester.name}}
     {% endif %}
-    {{ block.super }}
 {% endblock %}
