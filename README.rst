@@ -67,6 +67,6 @@ See `LICENSE.rst <LICENSE.rst>`_.
 .. |landscape| image:: https://landscape.io/github/fsr-itse/EvaP/master/landscape.png
         :alt: Code Health
         :target: https://landscape.io/github/fsr-itse/EvaP/master
-.. |coveralls| image:: https://coveralls.io/repos/fsr-itse/EvaP/badge.svg?branch=master&service=github
+.. |coveralls| image:: https://coveralls.io/repos/github/fsr-itse/EvaP/badge.svg?branch=master
         :alt: Code Coverage
         :target: https://coveralls.io/github/fsr-itse/EvaP?branch=master

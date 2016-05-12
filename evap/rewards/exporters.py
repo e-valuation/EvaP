@@ -15,13 +15,13 @@ class ExcelExporter(object):
             'bold':          xlwt.easyxf('font: bold on'),
         }
 
-    def export(self, response):
-        redemptions_dict = self.redemptions_by_user
-
         self.workbook = xlwt.Workbook()
         self.sheet = self.workbook.add_sheet(_("Redemptions"))
         self.row = 0
         self.col = 0
+
+    def export(self, response):
+        redemptions_dict = self.redemptions_by_user
 
         writec(self, _("Last name"), "bold")
         writec(self, _("First name"), "bold")

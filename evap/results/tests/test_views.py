@@ -47,9 +47,9 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         # Special single result course.
         cls.single_result_course = mommy.make(Course, state='published', semester=cls.semester)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-        mommy.make(Contribution, course=cls.single_result_course, questionnaires=[questionnaire], responsible=True)
+        mommy.make(Contribution, course=cls.single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
-        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True)
+        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
 
     def test_single_result_course(self):
@@ -83,7 +83,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertNotIn(".responsible_orig_hidden.", page)
         self.assertNotIn(".responsible_orig_published_changed.", page)
         self.assertIn(".responsible_changed_published.", page)
-        self.assertNotIn(".responsible_orig_private.", page) # private comment not visible
+        self.assertNotIn(".responsible_orig_private.", page)  # private comment not visible
         self.assertNotIn(".responsible_orig_notreviewed.", page)
         self.assertIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)  # private comment not visible

@@ -1,26 +1,27 @@
-from evap.evaluation.models import CourseType
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
+from collections import OrderedDict
 
 from django.utils.translation import ugettext as _
 
-from collections import OrderedDict
 import xlwt
+
+from evap.evaluation.models import CourseType
+from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, get_deviation_color, has_no_rating_answers
 
 
 class ExcelExporter(object):
+
+    CUSTOM_COLOR_START = 8
+    NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
+    NUM_DEVIATION_COLORS = 13  # 0.0 to 2.4 in 0.2 steps
+    STEP = 0.2  # we only have a limited number of custom colors
 
     def __init__(self, semester):
         self.semester = semester
         self.styles = dict()
 
-        self.CUSTOM_COLOR_START = 8
-        self.NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
-        self.NUM_DEVIATION_COLORS = 13  # 0.0 to 2.4 in 0.2 steps
-        self.STEP = 0.2  # we only have a limited number of custom colors
-
     def normalize_number(self, number):
         """ floors 'number' to a multiply of self.STEP """
-        rounded_number = round(number, 1) # see #302
+        rounded_number = round(number, 1)  # see #302
         return round(int(rounded_number / self.STEP + 0.0001) * self.STEP, 1)
 
     def create_color(self, workbook, color_name, palette_index, color):
@@ -44,7 +45,7 @@ class ExcelExporter(object):
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium'
         for i in range(0, self.NUM_GRADE_COLORS):
-            grade = 1 + i*self.STEP
+            grade = 1 + i * self.STEP
             color = get_grade_color(grade)
             palette_index = self.CUSTOM_COLOR_START + i
             style_name = self.grade_to_style(grade)
@@ -94,10 +95,10 @@ class ExcelExporter(object):
 
             used_questionnaires = set()
             for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
-                if course.is_single_result():
+                if course.is_single_result:
                     continue
                 results = OrderedDict()
-                for questionnaire, contributor, label, data, section_warning in calculate_results(course):
+                for questionnaire, contributor, __, data, __ in calculate_results(course):
                     if has_no_rating_answers(course, contributor, questionnaire):
                         continue
                     results.setdefault(questionnaire.id, []).extend(data)
@@ -175,7 +176,7 @@ class ExcelExporter(object):
 
             writen(self, _("Total Voters/Total Participants"), "bold")
             for course, results in courses_with_results:
-                percent_participants = float(course.num_voters)/float(course.num_participants) if course.num_participants > 0 else 0
+                percent_participants = float(course.num_voters) / float(course.num_participants) if course.num_participants > 0 else 0
                 writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)
 
         self.workbook.save(response)

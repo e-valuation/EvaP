@@ -4,7 +4,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
 from evap.contributor.forms import DelegatesForm, EditorContributionForm
-from evap.evaluation.tests.test_utils import WebTest, get_form_data_from_instance
+from evap.evaluation.tests.test_utils import WebTest, get_form_data_from_instance, to_querydict
 from evap.staff.forms import ContributionFormSet
 
 
@@ -20,7 +20,7 @@ class UserFormTests(TestCase):
         self.assertFalse(user.delegates.filter(username="delegate").exists())
 
         form_data = get_form_data_from_instance(DelegatesForm, user)
-        form_data["delegates"] = [delegate.pk] # add delegate
+        form_data["delegates"] = [delegate.pk]  # add delegate
 
         form = DelegatesForm(form_data, instance=user)
         self.assertTrue(form.is_valid())
@@ -45,18 +45,18 @@ class ContributionFormsetTests(TestCase):
 
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
-        data = {
+        data = to_querydict({
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-id': contribution1.pk,
             'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [questionnaire.pk],
+            'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 1,
             'contributions-0-responsibility': "RESPONSIBLE",
             'contributions-0-comment_visibility': "ALL",
             'contributions-0-contributor': user1.pk,
-        }
+        })
 
         formset = InlineContributionFormset(instance=course, data=data.copy())
         self.assertTrue(formset.is_valid())
@@ -76,8 +76,9 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
         questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+        # one obsolete questionnaire that should never be shown
+        mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
 
         # just the normal questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])

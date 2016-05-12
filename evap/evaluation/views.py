@@ -1,13 +1,24 @@
+import logging
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
+from django.views.decorators.http import require_POST
+from django.views.decorators.debug import sensitive_post_parameters
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
 
+logger = logging.getLogger(__name__)
 
+
+@sensitive_post_parameters("password")
 def index(request):
     """Main entry page into EvaP providing all the login options available. The username/password
        login is thought to be used for internal users, e.g. by connecting to a LDAP directory.
@@ -48,7 +59,7 @@ def index(request):
         template_data = dict(new_key_form=new_key_form, login_username_form=login_username_form)
         return render(request, "index.html", template_data)
     else:
-        user, created = UserProfile.objects.get_or_create(username=request.user.username)
+        user, __ = UserProfile.objects.get_or_create(username=request.user.username)
 
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
@@ -94,3 +105,25 @@ def faq(request):
 
 def legal_notice(request):
     return render(request, "legal_notice.html", dict())
+
+
+@require_POST
+@login_required
+def feedback_send(request):
+    sender_email = request.user.email
+    message = request.POST.get("message")
+    subject = "Feedback from {}".format(sender_email)
+
+    if message:
+        mail = EmailMessage(
+            subject=subject,
+            body=message,
+            to=[settings.FEEDBACK_EMAIL])
+
+        try:
+            mail.send()
+            logger.info('Sent feedback email: \n{}\n'.format(mail.message()))
+        except Exception:
+            logger.exception('An exception occurred when sending the following feedback email:\n{}\n'.format(mail.message()))
+
+    return HttpResponse()

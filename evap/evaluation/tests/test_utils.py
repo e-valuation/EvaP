@@ -1,7 +1,17 @@
+from django.http.request import QueryDict
+
 from django_webtest import WebTest as DjangoWebTest
 from model_mommy import mommy
+from webtest import AppError
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
+
+
+def to_querydict(dict):
+    querydict = QueryDict(mutable=True)
+    for key, value in dict.items():
+        querydict[key] = value
+    return querydict
 
 
 # taken from http://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
@@ -11,6 +21,7 @@ class FuzzyInt(int):
         obj.lowest = lowest
         obj.highest = highest
         return obj
+
     def __eq__(self, other):
         return other >= self.lowest and other <= self.highest
 
@@ -28,7 +39,7 @@ class WebTest(DjangoWebTest):
     def get_assert_403(self, url, user):
         try:
             self.app.get(url, user=user, status=403)
-        except AppError as e:
+        except AppError:
             self.fail('url "{}" failed with user "{}"'.format(url, user))
 
     def get_assert_302(self, url, user):
@@ -58,10 +69,6 @@ class ViewTest(WebTest):
             self.get_assert_200(self.url, user)
 
 
-def lastform(page):
-    return page.forms[max(key for key in page.forms.keys() if isinstance(key, int))]
-
-
 def get_form_data_from_instance(FormClass, instance):
     assert FormClass._meta.model == type(instance)
     form = FormClass(instance=instance)
@@ -77,7 +84,7 @@ def course_with_responsible_and_editor(course_id=None):
     else:
         course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)])
 
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
+    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)], comment_visibility=Contribution.ALL_COMMENTS)
     mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
     course.general_contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=False)]
 

@@ -50,7 +50,6 @@
             var updatedIndices = {};
             for (var i = 0; i < questionnaires.length; i++) {
                 var questionnaire = $(questionnaires[i]);
-                questionnaire.attr('data-index', i);
                 updatedIndices[questionnaire.attr('data-id')] = i;
             }
             $.post('{% url "staff:questionnaire_update_indices" %}', updatedIndices);

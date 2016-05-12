@@ -33,11 +33,11 @@
             <tbody>
             {% for form in formset %}
                 <tr class="sortable">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
                     <td class="movable">
                         <span class="movable-icon glyphicon glyphicon-move"></span>
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
                     </td>
                     {% for field in form.visible_fields %}
                         <td>

@@ -113,7 +113,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 1,
-    "_order": 0,
     "text_en": "how?",
     "text_de": "how?",
     "type": "T"
@@ -124,7 +123,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 1,
-    "_order": 1,
     "text_en": "how much?",
     "text_de": "how much?",
     "type": "L"
@@ -135,7 +133,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 2,
-    "_order": 0,
     "text_en": "how?",
     "text_de": "how?",
     "type": "T"
@@ -146,7 +143,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 2,
-    "_order": 1,
     "text_en": "how much?",
     "text_de": "how much?",
     "type": "L"
@@ -157,7 +153,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 2,
-    "_order": 1,
     "text_en": "your grade",
     "text_de": "your grade",
     "type": "G"
@@ -168,7 +163,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 3,
-    "_order": 1,
     "text_en": "your grade",
     "text_de": "your grade",
     "type": "G"
@@ -179,7 +173,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 5,
-    "_order": 1,
     "text_en": "single result",
     "text_de": "single result",
     "type": "G"
@@ -798,7 +791,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -850,7 +844,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -902,7 +897,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -954,7 +950,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1006,7 +1003,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1058,7 +1056,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1110,7 +1109,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1162,7 +1162,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1240,7 +1241,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1266,7 +1268,8 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1292,7 +1295,8 @@
     "questionnaires": [
       5
     ],
-    "can_edit": true
+    "can_edit": true,
+    "comment_visibility": "ALL"
   }
 },
 {
@@ -1384,7 +1388,7 @@
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
     "_voter_count": null,
-    "state": "editorApproved",
+    "state": "editor_approved",
     "last_modified_user": 1,
     "participants": [
       5,
@@ -1432,7 +1436,7 @@
     "semester": 1,
     "last_modified_time": "2014-09-16T23:01:13.059",
     "_voter_count": null,
-    "state": "inEvaluation",
+    "state": "in_evaluation",
     "last_modified_user": 1,
     "participants": [
       5,
@@ -1530,7 +1534,7 @@
         "semester": 3,
         "last_modified_time": "2014-11-16T17:28:28.457",
         "_voter_count": null,
-        "state": "inEvaluation",
+        "state": "in_evaluation",
         "last_modified_user": 1,
         "participants": [5],
         "vote_end_date": "2099-11-20",

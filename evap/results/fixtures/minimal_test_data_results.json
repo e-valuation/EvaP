@@ -59,7 +59,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 1,
-    "_order": 0,
     "text_en": "how?",
     "text_de": "how?",
     "type": "T"
@@ -70,7 +69,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 1,
-    "_order": 1,
     "text_en": "how much?",
     "text_de": "how much?",
     "type": "L"
@@ -81,7 +79,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 2,
-    "_order": 0,
     "text_en": "how?",
     "text_de": "how?",
     "type": "T"
@@ -92,7 +89,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 2,
-    "_order": 1,
     "text_en": "how much?",
     "text_de": "how much?",
     "type": "L"
@@ -103,7 +99,6 @@
   "model": "evaluation.question",
   "fields": {
     "questionnaire": 2,
-    "_order": 1,
     "text_en": "your grade",
     "text_de": "your grade",
     "type": "G"

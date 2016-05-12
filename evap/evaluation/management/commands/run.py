@@ -1,7 +1,7 @@
+import sys
+
 from django.core.management.base import BaseCommand
 from django.core.management import execute_from_command_line
-
-import sys
 
 
 class Command(BaseCommand):

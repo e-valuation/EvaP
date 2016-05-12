@@ -1,13 +1,14 @@
 import datetime
 import os
+from unittest.mock import patch
 
 from django.conf import settings
 from django.utils.six import StringIO
 from django.core import management, mail
 from django.test import TestCase
 from django.test.utils import override_settings
+
 from model_mommy import mommy
-from unittest.mock import patch
 
 from evap.evaluation.models import UserProfile, Course, Semester
 
@@ -90,7 +91,7 @@ class TestSendRemindersCommand(TestCase):
         user_to_remind = mommy.make(UserProfile)
         course = mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_to_remind])
@@ -98,20 +99,20 @@ class TestSendRemindersCommand(TestCase):
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
 
-        self.assertEquals(mock.call_count, 1)
+        self.assertEqual(mock.call_count, 1)
         mock.assert_called_once_with(user_to_remind, first_due_in_days=2, due_courses=[(course, 2)])
 
     def test_remind_user_once_about_two_courses(self):
         user_to_remind = mommy.make(UserProfile)
         course1 = mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=0),
                 participants=[user_to_remind])
         course2 = mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_to_remind])
@@ -119,14 +120,14 @@ class TestSendRemindersCommand(TestCase):
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
 
-        self.assertEquals(mock.call_count, 1)
+        self.assertEqual(mock.call_count, 1)
         mock.assert_called_once_with(user_to_remind, first_due_in_days=0, due_courses=[(course1, 0), (course2, 2)])
 
     def test_dont_remind_already_voted(self):
         user_no_remind = mommy.make(UserProfile)
         mommy.make(
                 Course,
-                state='inEvaluation',
+                state='in_evaluation',
                 vote_start_date=self.today - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_no_remind],

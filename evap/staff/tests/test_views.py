@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from django.conf import settings
@@ -7,9 +8,9 @@ from django.test.utils import override_settings
 from model_mommy import mommy
 import xlrd
 
-from evap.evaluation.models import Semester, UserProfile, Course, CourseType, \
-                                   TextAnswer, Contribution
-from evap.evaluation.tests.test_utils import FuzzyInt, lastform, WebTest, ViewTest
+from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, Questionnaire, \
+                                   Question
+from evap.evaluation.tests.test_utils import FuzzyInt, WebTest, ViewTest
 
 
 class TestUserIndexView(ViewTest):
@@ -26,11 +27,13 @@ class TestUserIndexView(ViewTest):
             and not linear to the number of users
         """
         num_users = 50
-        course = mommy.make(Course, state="published") # this triggers more checks in UserProfile.can_staff_delete
+        semester = mommy.make(Semester, is_archived=True)
+        course = mommy.make(Course, state="published", semester=semester, _participant_count=1, _voter_count=1)  # this triggers more checks in UserProfile.can_staff_delete
         mommy.make(UserProfile, _quantity=num_users, courses_participating_in=[course])
 
-        with self.assertNumQueries(FuzzyInt(0, num_users-1)):
+        with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
             self.app.get(self.url, user="staff")
+
 
 class TestUserBulkDeleteView(ViewTest):
     url = '/staff/user/bulk_delete'
@@ -43,7 +46,7 @@ class TestUserBulkDeleteView(ViewTest):
 
     def test_testrun_deletes_no_users(self):
         page = self.app.get(self.url, user='staff')
-        form = lastform(page)
+        form = page.forms["user-bulk-delete-form"]
 
         form["username_file"] = (self.filename,)
 
@@ -62,7 +65,7 @@ class TestUserBulkDeleteView(ViewTest):
         contribution = mommy.make(Contribution)
         mommy.make(UserProfile, username='contributor', contributions=[contribution])
         page = self.app.get(self.url, user='staff')
-        form = lastform(page)
+        form = page.forms["user-bulk-delete-form"]
 
         form["username_file"] = (self.filename,)
 
@@ -93,7 +96,7 @@ class TestSemesterExportView(ViewTest):
 
     def test_view_downloads_excel_file(self):
         page = self.app.get(self.url, user='staff')
-        form = lastform(page)
+        form = page.forms["semester-export-form"]
 
         # Check one course type.
         form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
@@ -102,29 +105,29 @@ class TestSemesterExportView(ViewTest):
 
         # Load response as Excel file and check its heading for correctness.
         workbook = xlrd.open_workbook(file_contents=response.content)
-        self.assertEquals(workbook.sheets()[0].row_values(0)[0],
-                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
+        self.assertEqual(workbook.sheets()[0].row_values(0)[0],
+                         'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class TestSemesterCourseImportParticipantsView(ViewTest):
-    url = "/staff/semester/1/course/1/importparticipants"
+    url = "/staff/semester/1/course/1/participant_import"
     test_users = ["staff"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(Semester, pk=1)
+        semester = mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course, pk=1)
+        cls.course = mommy.make(Course, pk=1, semester=semester)
 
     def test_import_valid_file(self):
         page = self.app.get(self.url, user='staff')
 
         original_participant_count = self.course.participants.count()
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
         form.submit(name="operation", value="import")
 
@@ -135,7 +138,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
         original_user_count = UserProfile.objects.count()
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="import")
@@ -143,14 +146,14 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
-        self.assertEquals(UserProfile.objects.count(), original_user_count)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_test_run(self):
         page = self.app.get(self.url, user='staff')
 
         original_participant_count = self.course.participants.count()
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
         form.submit(name="operation", value="test")
 
@@ -159,7 +162,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
 
-        form = lastform(page)
+        form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
 
         # Should throw SuspiciousOperation Exception.
@@ -196,11 +199,105 @@ class ArchivingTests(WebTest):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
         """
-        self.semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, is_archived=True)
 
-        semester_url = "/staff/semester/{}/".format(self.semester.pk)
+        semester_url = "/staff/semester/{}/".format(semester.pk)
 
         self.get_assert_403(semester_url + "import", "evap")
         self.get_assert_403(semester_url + "assign", "evap")
         self.get_assert_403(semester_url + "course/create", "evap")
         self.get_assert_403(semester_url + "courseoperation", "evap")
+
+
+class TestQuestionnaireNewVersionView(ViewTest):
+    url = '/staff/questionnaire/2/new_version'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.name_de_orig = 'kurzer name'
+        cls.name_en_orig = 'short name'
+        questionnaire = mommy.make(Questionnaire, id=2, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        mommy.make(Question, questionnaire=questionnaire)
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+    def test_changes_old_title(self):
+        page = self.app.get(url=self.url, user='staff')
+        form = page.forms['questionnaire-form']
+
+        form.submit()
+
+        timestamp = datetime.date.today()
+        new_name_de = '{} (until {})'.format(self.name_de_orig, str(timestamp))
+        new_name_en = '{} (until {})'.format(self.name_en_orig, str(timestamp))
+
+        self.assertTrue(Questionnaire.objects.filter(name_de=self.name_de_orig, name_en=self.name_en_orig).exists())
+        self.assertTrue(Questionnaire.objects.filter(name_de=new_name_de, name_en=new_name_en).exists())
+
+    def test_no_second_update(self):
+
+        # First save.
+        page = self.app.get(url=self.url, user='staff')
+        form = page.forms['questionnaire-form']
+        form.submit()
+
+        # Second try.
+        new_questionnaire = Questionnaire.objects.get(name_de=self.name_de_orig)
+        page = self.app.get(url='/staff/questionnaire/{}/new_version'.format(new_questionnaire.id), user='staff')
+
+        # We should get redirected back to the questionnaire index.
+        self.assertEqual(page.status_code, 302)  # REDIRECT
+        self.assertEqual(page.location, '/staff/questionnaire/')
+
+
+class TestSemesterRawDataExportView(ViewTest):
+    url = '/staff/semester/1/raw_export'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.student_user = mommy.make(UserProfile, username='student')
+        cls.semester = mommy.make(Semester)
+        cls.course_type = mommy.make(CourseType, name_en="Type")
+        cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1")
+        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            name_de="Veranstaltung 2", name_en="Course 2")
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(self.url, user='staff')
+        expected_content = (
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average degree\r\n"
+            "Course 1;;Type;False;new;1;1;0;\r\n"
+            "Course 2;;Type;False;new;0;1;0;\r\n"
+        )
+        self.assertEqual(response.content, expected_content.encode("utf-8"))
+
+
+class TestSemesterParticipationDataExportView(ViewTest):
+    url = '/staff/semester/1/participation_export'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.student_user = mommy.make(UserProfile, username='student')
+        cls.semester = mommy.make(Semester)
+        cls.course_type = mommy.make(CourseType, name_en="Type")
+        cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_required_for_reward=True)
+        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+            name_de="Veranstaltung 2", name_en="Course 2", is_required_for_reward=False)
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_view_downloads_csv_file(self):
+        response = self.app.get(self.url, user='staff')
+        expected_content = (
+            "Username;Can use reward points;#Required courses voted for;#Required courses;#Optional courses voted for;"
+            "#Optional courses;Earned reward points\r\n"
+            "student;False;1;1;0;1;False\r\n")
+        self.assertEqual(response.content, expected_content.encode("utf-8"))

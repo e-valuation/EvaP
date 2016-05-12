@@ -69,7 +69,7 @@
                                     {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
                                 </td>
                                 <td>
-                                    {% if course.state == 'inEvaluation' and course in due_courses %}
+                                    {% if course.state == 'in_evaluation' and course in due_courses %}
                                         {% if course.days_left_for_evaluation <= 0 %}
                                             <span class="label label-danger">{% trans "ends today" %}</span>
                                         {% elif course.days_left_for_evaluation == 1 %}
@@ -80,7 +80,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-right">
-                                    {% if course.state == 'inEvaluation' %}
+                                    {% if course.state == 'in_evaluation' %}
                                         {% if course in voted_courses %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled>{% trans "Evaluate" %}</a></div>
                                         {% else %}

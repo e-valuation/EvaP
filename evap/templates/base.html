@@ -160,6 +160,43 @@
         {% endblock %}
     </div>
 </div>
+
+
+{% if user.is_authenticated %}
+    <span id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedback-modal">
+            <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+        </button>
+    </span>
+    <div id="feedback-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedback-div">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Feedback</h4>
+                </div>
+                <form id="feedback-form">
+                    <div class="modal-body">
+                        {% trans "You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP." %}
+                        <br /><br />
+                        <div class="form-group">
+                            <label for="sender-email" class="control-label">Email:</label>
+                            <input type="text" class="form-control" id="sender-email" disabled value="{{ request.user.email }}">
+                        </div>
+                        <label for="message-text" class="control-label">Message:</label>
+                        <textarea class="form-control" id="message-text" style="resize:vertical;min-height:150px;"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="submit" class="btn btn-primary" value="{% trans "Send" %}">
+                        <img id="feedback-spinner" src="{% get_static_prefix %}images/spinner.gif" width="30px" height="30px" style="display: none;">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
     <div id="footer">
         <div class="container">
             <p class="text-muted">
@@ -169,8 +206,6 @@
                     <a href="{% url "evaluation:legal_notice" %}">{% trans "Legal Notice" %}</a>
                     &nbsp;&middot;&nbsp;
                 {% endif %}
-                <a href="mailto:{{ FEEDBACK_EMAIL }}" target="_blank">Feedback</a>
-                &nbsp;&middot;&nbsp;
                 <a href="{% url "evaluation:faq" %}">{% trans "FAQ"%}</a>
                 &nbsp;&middot;&nbsp;
                 {% if request.user.is_authenticated %}
@@ -199,6 +234,8 @@
         <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
 
         <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/feedback_form.js"></script>
+
     {% endcompress %}
 
     <script type="text/javascript">

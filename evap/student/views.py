@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -11,14 +13,13 @@ from evap.evaluation.tools import STUDENT_STATES_ORDERED
 from evap.student.forms import QuestionsForm
 from evap.student.tools import make_form_identifier
 
-from collections import OrderedDict
 
 @participant_required
 def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
-    due_courses = list(set(Course.objects.filter(participants=request.user, state='inEvaluation').exclude(voters=request.user)))
+    due_courses = list(set(Course.objects.filter(participants=request.user, state='in_evaluation').exclude(voters=request.user)))
 
     sorter = lambda course: (list(STUDENT_STATES_ORDERED.keys()).index(course.student_state), course.vote_end_date, course.name)
     courses.sort(key=sorter)
@@ -45,11 +46,11 @@ def vote_preview(request, course):
     contributor_form_groups = list((contribution.contributor, contribution.label, form_group, False) for contribution, form_group in form_groups.items())
 
     template_data = dict(
-            errors_exist=False,
-            course_form_group=course_form_group,
-            contributor_form_groups=contributor_form_groups,
-            course=course,
-            preview=True)
+        errors_exist=False,
+        course_form_group=course_form_group,
+        contributor_form_groups=contributor_form_groups,
+        course=course,
+        preview=True)
     return render(request, "student_vote.html", template_data)
 
 
@@ -72,12 +73,12 @@ def vote(request, course_id):
         contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
 
         template_data = dict(
-                errors_exist=errors_exist,
-                course_form_group=course_form_group,
-                contributor_form_groups=contributor_form_groups,
-                course=course,
-                participants_warning=course.num_participants <= 5,
-                preview=False)
+            errors_exist=errors_exist,
+            course_form_group=course_form_group,
+            contributor_form_groups=contributor_form_groups,
+            course=course,
+            participants_warning=course.num_participants <= 5,
+            preview=False)
         return render(request, "student_vote.html", template_data)
 
     # all forms are valid, begin vote operation
@@ -97,7 +98,7 @@ def vote(request, course_id):
                                 answer=value)
                     else:
                         if value != 6:
-                            answer_counter, created = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
+                            answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.add_vote()
                             answer_counter.save()
 

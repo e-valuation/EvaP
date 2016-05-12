@@ -25,7 +25,7 @@
             <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
                 {% if events %}
-                    <form action="#" method="POST" class="form-horizontal multiselect-form">
+                    <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
                         {% csrf_token %}
 
                         <table class="table table-striped">

@@ -17,7 +17,7 @@
 
     <p>{% trans "Select the course types you want to export. Add multiple lines to create an export file with multiple sheets." %}</p>
 
-    <form method="POST" class="form-horizontal multiselect-form">
+    <form id="semester-export-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
 
         {{ formset.management_form }}

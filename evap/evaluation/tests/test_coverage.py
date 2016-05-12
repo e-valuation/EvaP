@@ -2,13 +2,12 @@ from django.test.utils import override_settings
 from django.forms.models import inlineformset_factory
 from django.core import mail
 
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, \
-                            EmailTemplate, Degree, CourseType, Contribution
-from evap.evaluation.tests.test_utils import WebTest, lastform
-from evap.staff.forms import ContributionFormSet, ContributionForm
-
 from model_mommy import mommy
 
+from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, \
+                                   EmailTemplate, Degree, CourseType, Contribution
+from evap.evaluation.tests.test_utils import WebTest, to_querydict
+from evap.staff.forms import ContributionFormSet, ContributionForm
 
 
 """
@@ -82,7 +81,6 @@ class URLTests(WebTest):
             ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
             ("test_staff_reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
             ("test_staff_reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
-            ("test_staff_reward_points_semester_overview", "/rewards/semester/1/reward_points", "evap"),
             # degrees
             ("test_staff_degree_index", "/staff/degrees/", "evap"),
             # course types
@@ -101,8 +99,8 @@ class URLTests(WebTest):
         self.get_assert_403("/contributor/course/7/preview", "editor_of_course_1")
         self.get_assert_403("/contributor/course/2/edit", "editor_of_course_1")
         self.get_assert_403("/student/vote/5", "student")
-        self.get_assert_403("/results/semester/1/course/8", "student"),
-        self.get_assert_403("/results/semester/1/course/7", "student"),
+        self.get_assert_403("/results/semester/1/course/8", "student")
+        self.get_assert_403("/results/semester/1/course/7", "student")
 
     def test_failing_forms(self):
         """
@@ -181,16 +179,16 @@ class URLTests(WebTest):
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        data = {
+        data = to_querydict({
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': [1],
+            'contributions-0-questionnaires': 1,
             'contributions-0-order': 0,
             'contributions-0-responsibility': "RESPONSIBLE",
             'contributions-0-comment_visibility': "ALL",
-        }
+        })
         # no contributor and no responsible
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
         # valid
@@ -200,7 +198,7 @@ class URLTests(WebTest):
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = 1
         data['contributions-1-course'] = course.pk
-        data['contributions-1-questionnaires'] = [1]
+        data['contributions-1-questionnaires'] = 1
         data['contributions-1-order'] = 1
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
@@ -214,12 +212,12 @@ class URLTests(WebTest):
             only the second attempt should succeed.
         """
         self.assertFalse(Semester.objects.get(pk=1).can_staff_delete)
-        response = self.app.post("/staff/semester/delete", {"semester_id": 1,}, user="evap", expect_errors=True)
+        response = self.app.post("/staff/semester/delete", {"semester_id": 1}, user="evap", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
         self.assertTrue(Semester.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/semester/delete", {"semester_id": 2,}, user="evap")
+        response = self.app.post("/staff/semester/delete", {"semester_id": 2}, user="evap")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Semester.objects.filter(pk=2).exists())
 
@@ -231,7 +229,7 @@ class URLTests(WebTest):
         form['course'] = course_ids
         response = form.submit('operation', value=operation)
 
-        form = lastform(response)
+        form = response.forms["course-operation-form"]
         response = form.submit()
         self.assertIn("Successfully", str(response))
         for course_id in course_ids:
@@ -253,13 +251,13 @@ class URLTests(WebTest):
         self.helper_semester_state_views([2], "prepared", "approved", "approve")
 
     def test_semester_approve_3(self):
-        self.helper_semester_state_views([3], "editorApproved", "approved", "approve")
+        self.helper_semester_state_views([3], "editor_approved", "approved", "approve")
 
     def test_semester_contributor_ready_1(self):
         self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
 
     def test_semester_contributor_ready_2(self):
-        self.helper_semester_state_views([3], "editorApproved", "prepared", "reenableEditorReview")
+        self.helper_semester_state_views([3], "editor_approved", "prepared", "reenableEditorReview")
 
     def test_semester_unpublish(self):
         self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
@@ -268,10 +266,8 @@ class URLTests(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        data = dict(name_de="asdf", name_en="asdf", type=1, degrees=["1"],
-                    vote_start_date="02/1/2014", vote_end_date="02/1/2099", general_questions=["2"])
         response = self.get_assert_200("/staff/semester/1/course/create", "evap")
-        form = lastform(response)
+        form = response.forms["course-form"]
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
         form["type"] = 1
@@ -304,7 +300,7 @@ class URLTests(WebTest):
             Tests the single result creation view with one valid and one invalid input dataset.
         """
         response = self.get_assert_200("/staff/semester/1/singleresult/create", "evap")
-        form = lastform(response)
+        form = response.forms["single-result-form"]
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
         form["type"] = 1
@@ -317,7 +313,7 @@ class URLTests(WebTest):
         form.submit()
         self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
 
-        form["responsible"] = 2 # now do it right
+        form["responsible"] = 2  # now do it right
 
         form.submit()
         self.assertEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
@@ -327,8 +323,8 @@ class URLTests(WebTest):
             Tests whether the course email view actually sends emails.
         """
         page = self.get_assert_200("/staff/semester/1/course/5/email", user="evap")
-        form = lastform(page)
-        form.get("recipients", index=0).checked = True # send to all participants
+        form = page.forms["course-email-form"]
+        form.get("recipients", index=0).checked = True  # send to all participants
         form["subject"] = "asdf"
         form["body"] = "asdf"
         form.submit()
@@ -341,12 +337,12 @@ class URLTests(WebTest):
             only the second attempt should succeed.
         """
         self.assertFalse(Questionnaire.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2,}, user="evap", expect_errors=True)
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2}, user="evap", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=3).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3,}, user="evap")
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3}, user="evap")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 
@@ -355,7 +351,7 @@ class URLTests(WebTest):
             Tests whether the user creation view actually creates a user.
         """
         page = self.get_assert_200("/staff/user/create", "evap")
-        form = lastform(page)
+        form = page.forms["user-form"]
         form["username"] = "mflkd862xmnbo5"
         form["first_name"] = "asd"
         form["last_name"] = "asd"
@@ -370,7 +366,7 @@ class URLTests(WebTest):
             Tests the emailtemplate view with one valid and one invalid input datasets.
         """
         page = self.get_assert_200("/staff/template/1", "evap")
-        form = lastform(page)
+        form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
         form["body"] = "body: mflkd862xmnbo5"
         form.submit()
@@ -389,7 +385,7 @@ class URLTests(WebTest):
             the course a second time.
         """
         page = self.get_assert_200("/student/vote/5", user="lazy.student")
-        form = lastform(page)
+        form = page.forms["student-vote-form"]
         form["question_17_2_3"] = "some text"
         form["question_17_2_4"] = 1
         form["question_17_2_5"] = 6
@@ -401,7 +397,7 @@ class URLTests(WebTest):
         response = form.submit()
 
         self.assertIn("vote for all rating questions", response)
-        form = lastform(page)
+        form = page.forms["student-vote-form"]
         self.assertEqual(form["question_17_2_3"].value, "some text")
         self.assertEqual(form["question_17_2_4"].value, "1")
         self.assertEqual(form["question_17_2_5"].value, "6")
@@ -420,7 +416,7 @@ class URLTests(WebTest):
             Adds a course type via the staff form and verifies that the type was created in the db.
         """
         page = self.get_assert_200("/staff/course_types/", user="evap")
-        form = lastform(page)
+        form = page.forms["course-type-form"]
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
         form["form-" + str(last_form_id) + "-name_de"].value = "Test"
         form["form-" + str(last_form_id) + "-name_en"].value = "Test"
@@ -434,7 +430,7 @@ class URLTests(WebTest):
             Adds a degree via the staff form and verifies that the degree was created in the db.
         """
         page = self.get_assert_200("/staff/degrees/", user="evap")
-        form = lastform(page)
+        form = page.forms["degree-form"]
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
         form["form-" + str(last_form_id) + "-name_de"].value = "Test"
         form["form-" + str(last_form_id) + "-name_en"].value = "Test"
@@ -454,7 +450,7 @@ class URLTests(WebTest):
         self.assertGreater(courses_with_other_type.count(), 0)
 
         page = self.get_assert_200("/staff/course_types/" + str(main_type.pk) + "/merge/" + str(other_type.pk), user="evap")
-        form = lastform(page)
+        form = page.forms["course-type-merge-form"]
         response = form.submit()
         self.assertIn("Successfully", str(response))
 

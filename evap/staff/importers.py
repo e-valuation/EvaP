@@ -1,3 +1,6 @@
+from collections import OrderedDict, defaultdict
+import xlrd
+
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -7,8 +10,6 @@ from django.core.exceptions import ValidationError
 from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
 
-import xlrd
-from collections import OrderedDict, defaultdict
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
 class CommonEqualityMixin(object):
@@ -16,7 +17,6 @@ class CommonEqualityMixin(object):
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
             and self.__dict__ == other.__dict__)
-
 
 
 class UserData(CommonEqualityMixin):
@@ -48,7 +48,7 @@ class UserData(CommonEqualityMixin):
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
-        user.password = "asdf" # clean_fields needs that...
+        user.password = "asdf"  # clean_fields needs that...
         user.clean_fields()
 
 
@@ -89,7 +89,7 @@ class ExcelImporter(object):
         self.associations = OrderedDict()
         self.request = request
         self.book = None
-        self.skip_first_n_rows = 1 # first line contains the header
+        self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
         self.warnings = []
         # this is a dictionary to not let this become O(n^2)
@@ -102,7 +102,7 @@ class ExcelImporter(object):
         for sheet in self.book.sheets():
             if sheet.nrows <= self.skip_first_n_rows:
                 continue
-            if (sheet.ncols != expected_column_count):
+            if sheet.ncols != expected_column_count:
                 self.errors.append(_("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
 
     def for_each_row_in_excel_file_do(self, parse_row_function):
@@ -151,7 +151,7 @@ class ExcelImporter(object):
         for user_data in self.users.values():
             if not is_external_email(user_data.email) and user_data.username == "":
                 self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
-                return # to avoid duplicate errors with validate
+                return  # to avoid duplicate errors with validate
             try:
                 user_data.validate()
             except ValidationError as e:
@@ -165,7 +165,7 @@ class ExcelImporter(object):
             except UserProfile.DoesNotExist:
                 pass
 
-            if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH :
+            if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH:
                 self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
@@ -198,7 +198,6 @@ class ExcelImporter(object):
                 warningstring += _(" (new)")
                 self.warnings.append(warningstring)
 
-
     def show_errors_and_warnings(self):
         for error in self.errors:
             messages.error(self.request, error)
@@ -212,7 +211,7 @@ class EnrollmentImporter(ExcelImporter):
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
-        self.maxEnrollments = 6
+        self.max_enrollments = 6
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -253,7 +252,6 @@ class EnrollmentImporter(ExcelImporter):
             if not CourseType.objects.filter(name_de=course_type_name).exists():
                 self.errors.append(_("Error: The course type \"{}\" does not exist yet. Please manually create it first.").format(course_type_name))
 
-
     def process_graded_column(self):
         for course_data in self.courses.values():
             if course_data.is_graded == settings.IMPORTER_GRADED_YES:
@@ -261,7 +259,8 @@ class EnrollmentImporter(ExcelImporter):
             elif course_data.is_graded == settings.IMPORTER_GRADED_NO:
                 course_data.is_graded = False
             else:
-                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(course_data.name_en, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
+                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(
+                    course_data.name_en, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
                 course_data.is_graded = True
 
     def check_enrollment_data_sanity(self):
@@ -269,7 +268,7 @@ class EnrollmentImporter(ExcelImporter):
         for enrollment in self.enrollments:
             enrollments_per_user[enrollment[1].username].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
-            if len(enrollments) > self.maxEnrollments:
+            if len(enrollments) > self.max_enrollments:
                 self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
@@ -292,7 +291,8 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
-        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(len(self.courses), students_created, responsibles_created))
+        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
+            len(self.courses), students_created, responsibles_created))
 
     @classmethod
     def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
@@ -359,7 +359,9 @@ class UserImporter(ExcelImporter):
                         users_count += 1
 
                 except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database. The original data location was row %(row)d of sheet '%(sheet)s'. The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
+                    messages.error(self.request, _("A problem occured while writing the entries to the database."
+                                                   " The original data location was row %(row)d of sheet '%(sheet)s'."
+                                                   " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
         return new_participants

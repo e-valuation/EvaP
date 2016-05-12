@@ -1,4 +1,7 @@
+import urllib.parse
+
 from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
@@ -7,9 +10,6 @@ from django.db import transaction
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
-from django.contrib.auth.models import Group
-
-import urllib.parse
 
 
 def custom_redirect(url_name, *args, **kwargs):
@@ -85,7 +85,6 @@ def merge_users(main_user, other_user, preview=False):
 
     if preview or errors:
         return merged_user, errors, warnings
-
 
     # update last_modified_user for courses and grade documents
     Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
