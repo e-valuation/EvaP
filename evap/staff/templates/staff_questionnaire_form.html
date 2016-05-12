@@ -60,31 +60,22 @@
     </form>
 {% endblock %}
 
-{% block on_document_ready %}
-    $('#question_table tbody tr').formset({
-        prefix: 'question_set',
-        deleteText: '{% trans "remove" %}',
-        addText: '{% trans "add another" %}',
-        added: function(row) {
-            apply_select2(row.find("select"));
-        },
-        formTemplate: (".form-template")
-    });
-{% endblock %}
 
 {% block additional_javascript %}
-    {% include_sortable_form_js %}
-    <script type="text/javascript">
-        row_changed = function(row) {
-            name_de = $(row.find('input[id$=-text_de]')).val();
-            name_en = $(row.find('input[id$=-text_en]')).val();
-            return name_de || name_en
-        };
-        row_added = function(row) {
-            row.find('a.btn-default').remove();
-        };
-        make_form_sortable("question_table", "form", row_changed, row_added, "", true, false);
-    </script>
+    {% if editable %}
+        {% include_sortable_form_js %}
+        <script type="text/javascript">
+            row_changed = function(row) {
+                name_de = $(row.find('input[id$=-text_de]')).val();
+                name_en = $(row.find('input[id$=-text_en]')).val();
+                return name_de || name_en
+            };
+            row_added = function(row) {
+                row.find('a.btn-default').remove();
+                apply_select2(row.find("select"));
+            };
+            make_form_sortable("question_table", "form", row_changed, row_added, "", true, true);
+        </script>
+    {% endif %}
     <script type="text/javascript"> preventAccidentalClosing = true; </script>
-
 {% endblock %}
