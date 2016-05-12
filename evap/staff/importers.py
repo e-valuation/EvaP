@@ -360,7 +360,7 @@ class UserImporter(ExcelImporter):
 
                 except Exception as e:
                     messages.error(self.request, _("A problem occured while writing the entries to the database."
-                                                   "The original data location was row %(row)d of sheet '%(sheet)s'."
+                                                   " The original data location was row %(row)d of sheet '%(sheet)s'."
                                                    " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
         messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))

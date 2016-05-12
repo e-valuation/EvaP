@@ -28,7 +28,7 @@
                         </td>
                         <td style="text-align: right;">
                             {% if not questionnaire.obsolete %}
-                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Create New Version" %}</a>
+                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Create new Version" %}</a>
                             {% endif %}
                             <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
                             <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>

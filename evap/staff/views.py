@@ -886,8 +886,7 @@ def questionnaire_new_version(request, questionnaire_id):
 
     # If not, redirect back and suggest to edit the already created version.
     if Questionnaire.objects.filter(Q(name_de=new_name_de) | Q(name_en=new_name_en)):
-        messages.error(request, _("Questionnaire creation aborted. One version was already created today, why not"
-                                  " edit that one?"))
+        messages.error(request, _("Questionnaire creation aborted. A new version was already created today."))
         return redirect('staff:questionnaire_index')
 
     if request.method == "POST":
