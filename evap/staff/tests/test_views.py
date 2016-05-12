@@ -270,7 +270,7 @@ class TestSemesterRawDataExportView(ViewTest):
     def test_view_downloads_csv_file(self):
         response = self.app.get(self.url, user='staff')
         expected_content = (
-            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average degree\r\n"
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average grade\r\n"
             "Course 1;;Type;False;new;1;1;0;\r\n"
             "Course 2;;Type;False;new;0;1;0;\r\n"
         )

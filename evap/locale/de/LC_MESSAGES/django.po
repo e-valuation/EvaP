@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-12 09:53+0200\n"
-"PO-Revision-Date: 2016-05-12 09:54+0200\n"
+"POT-Creation-Date: 2016-05-12 14:44+0200\n"
+"PO-Revision-Date: 2016-05-12 14:44+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -126,6 +126,7 @@ msgstr "Zurück"
 #: evap/contributor/templates/contributor_course_form.html:91
 #: evap/evaluation/templates/confirmation_modal.html:16
 #: evap/staff/templates/staff_course_operation.html:33
+#: evap/templates/base.html:190
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -948,13 +949,11 @@ msgstr "Nicht genügend Antworten eingegangen"
 #: evap/staff/templates/staff_course_type_index.html:50
 #: evap/staff/templates/staff_course_type_index.html:68
 #: evap/staff/templates/staff_degree_index.html:50
-#: evap/staff/templates/staff_questionnaire_form.html:66
 msgid "remove"
 msgstr "Entfernen"
 
 #: evap/evaluation/templates/sortable_form_js.html:25
 #: evap/staff/templates/staff_course_type_index.html:69
-#: evap/staff/templates/staff_questionnaire_form.html:67
 msgid "add another"
 msgstr "Weiteren hinzufügen"
 
@@ -2959,8 +2958,8 @@ msgid "#Comments"
 msgstr "#Kommentare"
 
 #: evap/staff/views.py:370
-msgid "Average degree"
-msgstr "Durchschnittsnot"
+msgid "Average grade"
+msgstr "Durchschnittsnote"
 
 #: evap/staff/views.py:394
 msgid "Can use reward points"

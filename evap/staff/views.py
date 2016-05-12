@@ -367,7 +367,7 @@ def semester_raw_export(request, semester_id):
 
     writer = csv.writer(response, delimiter=";")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
-        _('#Participants'), _('#Comments'), _('Average degree')])
+        _('#Participants'), _('#Comments'), _('Average grade')])
     for course in semester.course_set.all():
         degrees = ", ".join([degree.name for degree in course.degrees.all()])
         course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
