@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-12 14:44+0200\n"
-"PO-Revision-Date: 2016-05-12 14:44+0200\n"
+"POT-Creation-Date: 2016-05-14 22:45+0200\n"
+"PO-Revision-Date: 2016-05-14 22:45+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -346,7 +346,7 @@ msgid "Last name"
 msgstr "Nachname"
 
 #: evap/contributor/templates/contributor_settings.html:42
-#: evap/staff/templates/staff_user_merge.html:51
+#: evap/staff/templates/staff_user_merge.html:51 evap/templates/base.html:183
 msgid "Email"
 msgstr "E‑Mail"
 
@@ -1750,7 +1750,7 @@ msgstr "# sehr schlecht"
 msgid "Send email to"
 msgstr "E‑Mail senden an"
 
-#: evap/staff/forms.py:265
+#: evap/staff/forms.py:265 evap/templates/base.html.py:186
 msgid "Message"
 msgstr "Nachricht"
 
@@ -3287,6 +3287,10 @@ msgstr "EvaP"
 #: evap/templates/base.html:166
 msgid "Give us feedback"
 msgstr "Gib uns Feedback"
+
+#: evap/templates/base.html:176
+msgid "Feedback"
+msgstr "Feedback"
 
 #: evap/templates/base.html:180
 msgid ""
