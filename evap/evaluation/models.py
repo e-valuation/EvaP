@@ -1078,6 +1078,7 @@ class EmailTemplate(models.Model):
             # Collect recipients for all courses.
             # Don't include delegates and CC users of the responsible person of a course to the recipient list of this
             # course, because they will get the notification in CC anyway.
+            # TODO why only for the responsible, not for all contributors
             responsible = course.responsible_contributor
             all_recipients = cls.recipient_list_for_course(course, recipient_groups)
             cc_recipients = []
