@@ -210,6 +210,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
 
+    # defines whether results can only be seen by contributors and participants
+    is_private = models.BooleanField(verbose_name=_("is private"), default=False)
+
     # graders can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
@@ -284,7 +287,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if user.is_staff:
             return True
         if self.state == 'published':
-            return self.can_publish_grades or self.is_user_contributor_or_delegate(user)
+            if self.is_user_contributor_or_delegate(user):
+                return True
+            if not self.can_publish_grades:
+                return False
+            return not self.is_private or user in self.participants.all()
         return False
 
     @property
