@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire
-from evap.evaluation.tests.test_utils import ViewTest, WebTest
+from evap.evaluation.tests.test_utils import ViewTest
 
 
 class TestResultsView(ViewTest):
@@ -52,14 +52,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
 
-        # Private course
-        student = UserProfile.objects.get(username="student")
-        test1 = mommy.make(UserProfile, username="test1")
-        test2 = mommy.make(UserProfile, username="test2")
-        cls.private_course = mommy.make(Course, state='published', is_private=True, semester=cls.semester, participants=[student, test1, test2], voters=[test1, test2])
-        mommy.make(Contribution, course=cls.private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.private_course, contributor=contributor, can_edit=True)
-
     def test_single_result_course(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)
         user = 'evap'
@@ -67,8 +59,17 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(self.url, user))
 
     def test_private_course(self):
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.private_course.id)
-        random_user = mommy.make(UserProfile, username="random")
+        student = UserProfile.objects.get(username="student")
+        contributor = UserProfile.objects.get(username="contributor")
+        responsible = UserProfile.objects.get(username="responsible")
+        test1 = mommy.make(UserProfile, username="test1")
+        test2 = mommy.make(UserProfile, username="test2")
+        private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, test1, test2], voters=[test1, test2])
+        mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
+
+        url = '/results/semester/%s/course/%s' % (self.semester.id, private_course.id)
+        mommy.make(UserProfile, username="random")
         self.get_assert_403(url, "random")
         self.get_assert_200(url, "student")
         self.get_assert_200(url, "responsible")

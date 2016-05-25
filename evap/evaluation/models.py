@@ -291,7 +291,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 return True
             if not self.can_publish_grades:
                 return False
-            return not self.is_private or user in self.participants.all()
+            if self.is_private and user not in self.participants.all():
+                return False
+            return True
         return False
 
     @property

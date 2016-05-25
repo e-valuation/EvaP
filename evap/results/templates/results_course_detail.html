@@ -26,11 +26,14 @@
                 {% trans "This course is private. Only contributors and participants can see the results." %}
             </div>
         {% endif %}
-        {% if public_view and course.is_private %}
-            <div class="alert alert-info hidden-print">{% trans "This is the participant's view. Participants who are not contributors of this course nor their delegates can only see the results below." %}</div>
-            <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=false" class="pull-right btn btn-sm btn-primary hidden-print">{% trans "Show my view" %}</a>
-        {% elif public_view %}
-            <div class="alert alert-info hidden-print">{% trans "This is the public view. Users who are neither contributors of this course nor their delegates can only see the results below." %}</div>
+        {% if public_view %}
+            <div class="alert alert-info hidden-print">
+                {% if course.is_private %}
+                    {% trans "This is the participant's view. Participants who are not contributors of this course can only see the results below." %}
+                {% else %}
+                    {% trans "This is the public view. Users who are not contributors of this course can only see the results below." %}
+                {% endif %}
+            </div>
             <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=false" class="pull-right btn btn-sm btn-primary hidden-print">{% trans "Show my view" %}</a>
         {% elif not sufficient_votes_warning and course.is_private %}
             <a href="{% url "results:course_detail" course.semester.id course.id %}?public_view=true" class="pull-right btn btn-sm btn-default hidden-print">{% trans "Show participant's view" %}</a>

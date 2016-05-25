@@ -52,14 +52,20 @@
                                 <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
                             {% else %}
                                 <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title="
-                                    {% if course.is_private %}{% trans "The results of this course are private." %}
-                                    {% else %}{% trans "Not enough answers were given to publish the results." %}{% endif %}">
-                                        &mdash;
+                                    {% if course.is_private %}
+                                        {% trans "The results of this course are private." %}
+                                    {% else %}
+                                        {% trans "Not enough answers were given to publish the results." %}
+                                    {% endif %}">
+                                    &mdash;
                                 </div></td>
                                 <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="
-                                    {% if course.is_private %}{% trans "The results of this course are private." %}
-                                    {% else %}{% trans "Not enough answers were given to publish the results." %}{% endif %}">
-                                        &mdash;
+                                    {% if course.is_private %}
+                                        {% trans "The results of this course are private." %}
+                                    {% else %}
+                                        {% trans "Not enough answers were given to publish the results." %}
+                                    {% endif %}">
+                                    &mdash;
                                 </div></td>
                             {% endif %}
                             {% with num_participants=course.num_participants num_voters=course.num_voters %}
