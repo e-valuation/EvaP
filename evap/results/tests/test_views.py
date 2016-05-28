@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from model_mommy import mommy
 
-from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire
+from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree
 from evap.evaluation.tests.test_utils import ViewTest
 
 
@@ -64,12 +64,25 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         responsible = UserProfile.objects.get(username="responsible")
         test1 = mommy.make(UserProfile, username="test1")
         test2 = mommy.make(UserProfile, username="test2")
-        private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, test1, test2], voters=[test1, test2])
+        mommy.make(UserProfile, username="random")
+        degree = mommy.make(Degree)
+        private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, test1, test2], voters=[test1, test2], degrees=[degree])
         mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
 
+        url = '/results/semester/%s' % (self.semester.id)
+        page = self.app.get(url, user='random')
+        self.assertNotIn(private_course.name, page)
+        page = self.app.get(url, user='student')
+        self.assertIn(private_course.name, page)
+        page = self.app.get(url, user='responsible')
+        self.assertIn(private_course.name, page)
+        page = self.app.get(url, user='contributor')
+        self.assertIn(private_course.name, page)
+        page = self.app.get(url, user='evap')
+        self.assertIn(private_course.name, page)
+
         url = '/results/semester/%s/course/%s' % (self.semester.id, private_course.id)
-        mommy.make(UserProfile, username="random")
         self.get_assert_403(url, "random")
         self.get_assert_200(url, "student")
         self.get_assert_200(url, "responsible")
