@@ -283,6 +283,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             and user in self.participants.all()
             and user not in self.voters.all())
 
+    def can_user_see_course(self, user):
+        if user.is_staff:
+            return True
+        if self.is_user_contributor_or_delegate(user):
+            return True
+        if self.is_private and user not in self.participants.all():
+            return False
+        return True
+
     def can_user_see_results(self, user):
         if user.is_staff:
             return True
@@ -291,9 +300,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 return True
             if not self.can_publish_grades:
                 return False
-            if self.is_private and user not in self.participants.all():
-                return False
-            return True
+            return self.can_user_see_course(user)
         return False
 
     @property
