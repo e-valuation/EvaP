@@ -1103,7 +1103,9 @@ class EmailTemplate(models.Model):
     @classmethod
     def __send_to_user(cls, user, template, subject_params, body_params, use_cc):
         if not user.email:
-            logger.warning("{} has no email address defined. Could not send email.".format(user.username))
+            warning_message = "{} has no email address defined. Could not send email.".format(user.username)
+            logger.warning(warning_message)
+            messages.warning(_(warning_message))
             return
 
         if use_cc:

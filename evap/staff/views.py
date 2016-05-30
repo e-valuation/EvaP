@@ -613,13 +613,7 @@ def course_email(request, semester_id, course_id):
             messages.info(request, _('Recipients: ') + '\n' + email_addresses)
             return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
         form.send()
-
-        missing_email_addresses = form.missing_email_addresses()
-        if missing_email_addresses == 0:
-            messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
-        else:
-            messages.warning(request, _("Successfully sent some emails for '{course}', but {count} could not be "
-                "reached as they do not have an email address.").format(course=course.name, count=missing_email_addresses))
+        messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         return custom_redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
