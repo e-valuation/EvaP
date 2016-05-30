@@ -7,7 +7,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.dispatch import Signal, receiver
 from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
@@ -1040,30 +1040,46 @@ class EmailTemplate(models.Model):
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
 
+    ALL_PARTICIPANTS = 'all_participants'
+    DUE_PARTICIPANTS = 'due_participants'
+    RESPONSIBLE = 'responsible'
+    EDITORS = 'editors'
+    CONTRIBUTORS = 'contributors'
+
     EMAIL_RECIPIENTS = (
-        ('all_participants', _('all participants')),
-        ('due_participants', _('due participants')),
-        ('responsible', _('responsible person')),
-        ('editors', _('all editors')),
-        ('contributors', _('all contributors'))
+        (ALL_PARTICIPANTS, _('all participants')),
+        (DUE_PARTICIPANTS, _('due participants')),
+        (RESPONSIBLE, _('responsible person')),
+        (EDITORS, _('all editors')),
+        (CONTRIBUTORS, _('all contributors'))
     )
 
     @classmethod
-    def recipient_list_for_course(cls, course, recipient_groups):
+    def recipient_list_for_course(cls, course, recipient_groups, filter_users_in_cc):
         recipients = []
 
-        if "responsible" in recipient_groups:
+        if cls.CONTRIBUTORS in recipient_groups:
+            recipients += UserProfile.objects.filter(contributions__course=course)
+        elif cls.EDITORS in recipient_groups:
+            recipients += UserProfile.objects.filter(contributions__course=course, contributions__can_edit=True)
+        elif cls.RESPONSIBLE in recipient_groups:
             recipients += [course.responsible_contributor]
 
-        if "contributors" in recipient_groups:
-            recipients += [c.contributor for c in course.contributions.exclude(contributor=None)]
-        elif "editors" in recipient_groups:
-            recipients += [c.contributor for c in course.contributions.exclude(contributor=None).filter(can_edit=True)]
-
-        if "all_participants" in recipient_groups:
+        if cls.ALL_PARTICIPANTS in recipient_groups:
             recipients += course.participants.all()
-        elif "due_participants" in recipient_groups:
+        elif cls.DUE_PARTICIPANTS in recipient_groups:
             recipients += course.due_participants
+
+        if filter_users_in_cc:
+            # remove delegates and CC users of recipients from the recipient list
+            # so they won't get the exact same email twice
+            users_excluded = UserProfile.objects.filter(Q(represented_users__in=recipients) | Q(ccing_users__in=recipients))
+            # but do so only if they have no delegates/cc_users, because otherwise
+            # those won't get the email at all. consequently, some "edge case users"
+            # will get the email twice, but there is no satisfying way around that.
+            users_excluded = users_excluded.filter(delegates=None, cc_users=None)
+
+            recipients = list(set(recipients) - set(users_excluded))
 
         return recipients
 
@@ -1075,17 +1091,7 @@ class EmailTemplate(models.Model):
     def send_to_users_in_courses(cls, template, courses, recipient_groups, use_cc):
         user_course_map = {}
         for course in courses:
-            # Collect recipients for all courses.
-            # Don't include delegates and CC users of the responsible person of a course to the recipient list of this
-            # course, because they will get the notification in CC anyway.
-            # TODO why only for the responsible, not for all contributors
-            responsible = course.responsible_contributor
-            all_recipients = cls.recipient_list_for_course(course, recipient_groups)
-            cc_recipients = []
-            if responsible in all_recipients and use_cc:
-                cc_recipients.extend(responsible.cc_users.all())
-                cc_recipients.extend(responsible.delegates.all())
-            recipients = [recipient for recipient in all_recipients if recipient not in cc_recipients]
+            recipients = cls.recipient_list_for_course(course, recipient_groups, filter_users_in_cc=use_cc)
             for user in recipients:
                 user_course_map.setdefault(user, []).append(course)
 
@@ -1162,9 +1168,9 @@ class EmailTemplate(models.Model):
     @classmethod
     def send_review_notifications(cls, courses):
         template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
-        cls.send_to_users_in_courses(template, courses, ['editors'], use_cc=True)
+        cls.send_to_users_in_courses(template, courses, [cls.EDITORS], use_cc=True)
 
     @classmethod
     def send_evaluation_started_notifications(cls, courses):
         template = cls.objects.get(name=cls.EVALUATION_STARTED)
-        cls.send_to_users_in_courses(template, courses, ['all_participants'], use_cc=False)
+        cls.send_to_users_in_courses(template, courses, [cls.ALL_PARTICIPANTS], use_cc=False)

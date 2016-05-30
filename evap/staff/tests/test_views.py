@@ -420,7 +420,6 @@ class TestCourseEmailView(ViewTest):
         participant1 = mommy.make(UserProfile, email="foo@example.com")
         participant2 = mommy.make(UserProfile, email="bar@example.com")
         course = mommy.make(Course, pk=1, semester=semester, participants=[participant1, participant2])
-        mommy.make(Contribution, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_course_email(self):
         """

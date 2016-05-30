@@ -2,7 +2,8 @@ from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, Contribution, Semester, Degree
+from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
+    Contribution, Semester, Degree, EmailTemplate
 from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
     CourseEmailForm
@@ -16,7 +17,7 @@ class CourseEmailFormTests(TestCase):
         """
         course = course_with_responsible_and_editor()
         mommy.make(Contribution, course=course)
-        data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
+        data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
         self.assertTrue(form.missing_email_addresses() == 0)

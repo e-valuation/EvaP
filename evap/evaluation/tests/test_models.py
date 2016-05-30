@@ -224,7 +224,7 @@ class ArchivingTests(TestCase):
         self.assertEqual(course._voter_count, 5)
 
 
-class TestEmails(TestCase):
+class TestLoginUrlEmail(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -241,7 +241,7 @@ class TestEmails(TestCase):
 
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], EmailTemplate.CONTRIBUTORS, use_cc=True)
         self.assertEqual(len(mail.outbox), 2)
         self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
         self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
@@ -250,7 +250,7 @@ class TestEmails(TestCase):
 
     def test_no_login_url_when_cc_users_in_cc(self):
         self.user.cc_users.add(self.other_user)
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True)
         self.assertEqual(len(mail.outbox), 2)
         self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
         self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
@@ -259,13 +259,75 @@ class TestEmails(TestCase):
 
     def test_login_url_when_nobody_in_cc(self):
         # message is not sent to others in cc
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], "contributors", use_cc=False)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=False)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+
+
+class TestEmailRecipientList(TestCase):
+    def test_recipient_list(self):
+        course = mommy.make(Course)
+        responsible = mommy.make(UserProfile)
+        editor = mommy.make(UserProfile)
+        contributor = mommy.make(UserProfile)
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
+        mommy.make(Contribution, course=course, contributor=contributor)
+
+        participant1 = mommy.make(UserProfile, courses_participating_in=[course])
+        participant2 = mommy.make(UserProfile, courses_participating_in=[course])
+        course.voters = [participant1]
+
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [])
+
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.RESPONSIBLE], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [responsible])
+
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.EDITORS], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [responsible, editor])
+
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [responsible, editor, contributor])
+
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.ALL_PARTICIPANTS], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [participant1, participant2])
+
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.DUE_PARTICIPANTS], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [participant2])
+
+    def test_recipient_list_filtering(self):
+        course = mommy.make(Course)
+
+        contributor1 = mommy.make(UserProfile)
+        contributor2 = mommy.make(UserProfile, delegates=[contributor1])
+
+        mommy.make(Contribution, course=course, contributor=contributor1)
+        mommy.make(Contribution, course=course, contributor=contributor2)
+
+        # no-one should get filtered.
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [contributor1, contributor2])
+
+        # contributor1 is in cc of contributor2 and gets filtered.
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=True)
+        self.assertCountEqual(recipient_list, [contributor2])
+
+        contributor3 = mommy.make(UserProfile, delegates=[contributor2])
+        mommy.make(Contribution, course=course, contributor=contributor3)
+
+        # again, no-one should get filtered.
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
+        self.assertCountEqual(recipient_list, [contributor1, contributor2, contributor3])
+
+        # contributor1 is in cc of contributor2 and gets filtered.
+        # contributor2 is in cc of contributor3 but is not filtered since contributor1 wouldn't get an email at all then.
+        recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=True)
+        self.assertCountEqual(recipient_list, [contributor2, contributor3])
