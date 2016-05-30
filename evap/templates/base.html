@@ -234,7 +234,6 @@
         <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
 
         <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/feedback_form.js"></script>
 
     {% endcompress %}
 
@@ -316,6 +315,33 @@
         });
     </script>
 
-    {% block additional_javascript %} {% endblock %}
+    <script type="text/javascript">
+
+        $('#feedback-form').on('submit', function(event){
+
+            event.preventDefault();
+            $('#feedback-spinner').show();
+
+            message = $('#message-text').val();
+
+            $.ajax({
+                url : "/feedback/send",
+                type : "POST",
+                data : { message: message },
+
+                success : function(json) {
+                    $('#feedback-spinner').hide();
+                    $('#feedback-modal').modal('hide');
+                    var text = $('#feedback-button button').html();
+                    $('#feedback-button button').html('{% trans "Message sent!" %}');
+                    setTimeout(function(){
+                        $('#feedback-button button').html(text);
+                    }, 3000);
+                }});
+        });
+    </script>
+
+
+    {% block additional_javascript %}{% endblock %}
 </body>
 </html>
