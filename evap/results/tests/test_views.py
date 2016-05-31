@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree
-from evap.evaluation.tests.test_utils import ViewTest
+from evap.evaluation.tests.tools import ViewTest
 
 
 class TestResultsView(ViewTest):

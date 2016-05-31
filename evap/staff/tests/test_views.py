@@ -3,6 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from model_mommy import mommy
@@ -10,7 +11,7 @@ import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, Questionnaire, \
                                    Question
-from evap.evaluation.tests.test_utils import FuzzyInt, WebTest, ViewTest
+from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
 
 
 class TestUserIndexView(ViewTest):
@@ -172,6 +173,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
 
 class TestCourseCommentsUpdatePublishView(WebTest):
+    url = reverse("staff:course_comments_update_publish")
     csrf_checks = False
 
     @classmethod
@@ -181,7 +183,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
 
     def helper(self, old_state, expected_new_state, action):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post(reverse("staff:course_comments_update_publish"), {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        response = self.app.post(self.url, {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
         textanswer.refresh_from_db()
         self.assertEqual(textanswer.state, expected_new_state)
@@ -301,3 +303,159 @@ class TestSemesterParticipationDataExportView(ViewTest):
             "#Optional courses;Earned reward points\r\n"
             "student;False;1;1;0;1;False\r\n")
         self.assertEqual(response.content, expected_content.encode("utf-8"))
+
+
+class TestSemesterDeleteView(ViewTest):
+    url = '/staff/semester/delete'
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_failure(self):
+        semester = mommy.make(Semester, pk=1)
+        mommy.make(Course, semester=semester, state='in_evaluation', voters=[mommy.make(UserProfile)])
+        self.assertFalse(semester.can_staff_delete)
+        response = self.app.post(self.url, {'semester_id': 1}, user='staff', expect_errors=True)
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(Semester.objects.filter(pk=1).exists())
+
+    def test_success(self):
+        semester = mommy.make(Semester, pk=1)
+        self.assertTrue(semester.can_staff_delete)
+        response = self.app.post(self.url, {'semester_id': 1}, user='staff')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Semester.objects.filter(pk=1).exists())
+
+
+class TestCourseCreateView(ViewTest):
+    url = '/staff/semester/1/course/create'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(Semester, pk=1)
+        mommy.make(CourseType)
+        mommy.make(Questionnaire, pk=1, is_for_contributors=False)
+        mommy.make(Questionnaire, pk=2, is_for_contributors=True)
+
+    def test_course_create(self):
+        """
+            Tests the course creation view with one valid and one invalid input dataset.
+        """
+        response = self.get_assert_200("/staff/semester/1/course/create", "staff")
+        form = response.forms["course-form"]
+        form["name_de"] = "lfo9e7bmxp1xi"
+        form["name_en"] = "asdf"
+        form["type"] = 1
+        form["degrees"] = ["1"]
+        form["vote_start_date"] = "02/1/2099"
+        form["vote_end_date"] = "02/1/2014"  # wrong order to get the validation error
+        form["general_questions"] = ["1"]
+
+        form['contributions-TOTAL_FORMS'] = 1
+        form['contributions-INITIAL_FORMS'] = 0
+        form['contributions-MAX_NUM_FORMS'] = 5
+        form['contributions-0-course'] = ''
+        form['contributions-0-contributor'] = 1
+        form['contributions-0-questionnaires'] = [2]
+        form['contributions-0-order'] = 0
+        form['contributions-0-responsibility'] = "RESPONSIBLE"
+        form['contributions-0-comment_visibility'] = "ALL"
+
+        form.submit()
+        self.assertFalse(Course.objects.exists())
+
+        form["vote_start_date"] = "02/1/2014"
+        form["vote_end_date"] = "02/1/2099"  # now do it right
+
+        form.submit()
+        self.assertEqual(Course.objects.get().name_de, "lfo9e7bmxp1xi")
+
+
+class TestSingleResultCreateView(ViewTest):
+    url = '/staff/semester/1/singleresult/create'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(Semester, pk=1)
+        mommy.make(CourseType)
+
+    def test_single_result_create(self):
+        """
+            Tests the single result creation view with one valid and one invalid input dataset.
+        """
+        response = self.get_assert_200(self.url, "staff")
+        form = response.forms["single-result-form"]
+        form["name_de"] = "qwertz"
+        form["name_en"] = "qwertz"
+        form["type"] = 1
+        form["degrees"] = ["1"]
+        form["event_date"] = "02/1/2014"
+        form["answer_1"] = 6
+        form["answer_3"] = 2
+        # missing responsible to get a validation error
+
+        form.submit()
+        self.assertFalse(Course.objects.exists())
+
+        form["responsible"] = 1  # now do it right
+
+        form.submit()
+        self.assertEqual(Course.objects.get().name_de, "qwertz")
+
+
+class TestCourseEmailView(ViewTest):
+    url = '/staff/semester/1/course/1/email'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        semester = mommy.make(Semester, pk=1)
+        participant1 = mommy.make(UserProfile, email="foo@example.com")
+        participant2 = mommy.make(UserProfile, email="bar@example.com")
+        course = mommy.make(Course, pk=1, semester=semester, participants=[participant1, participant2])
+
+    def test_course_email(self):
+        """
+            Tests whether the course email view actually sends emails.
+        """
+        page = self.get_assert_200(self.url, user="staff")
+        form = page.forms["course-email-form"]
+        form.get("recipients", index=0).checked = True  # send to all participants
+        form["subject"] = "asdf"
+        form["body"] = "asdf"
+        form.submit()
+
+        self.assertEqual(len(mail.outbox), 2)
+
+class TestQuestionnaireDeletionView(WebTest):
+    url = "/staff/questionnaire/delete"
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        questionnaire1 = mommy.make(Questionnaire, pk=1)
+        questionnaire2 = mommy.make(Questionnaire, pk=2)
+        mommy.make(Contribution, questionnaires=[questionnaire1])
+
+    def test_questionnaire_deletion(self):
+        """
+            Tries to delete two questionnaires via the respective post request,
+            only the second attempt should succeed.
+        """
+        self.assertFalse(Questionnaire.objects.get(pk=1).can_staff_delete)
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 1}, user="staff", expect_errors=True)
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(Questionnaire.objects.filter(pk=1).exists())
+
+        self.assertTrue(Questionnaire.objects.get(pk=2).can_staff_delete)
+        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2}, user="staff")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Questionnaire.objects.filter(pk=2).exists())

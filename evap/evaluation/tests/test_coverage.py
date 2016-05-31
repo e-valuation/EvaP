@@ -1,13 +1,8 @@
 from django.test.utils import override_settings
-from django.forms.models import inlineformset_factory
-from django.core import mail
 
-from model_mommy import mommy
-
-from evap.evaluation.models import Semester, Questionnaire, UserProfile, Course, \
-                                   EmailTemplate, Degree, CourseType, Contribution
-from evap.evaluation.tests.test_utils import WebTest, to_querydict
-from evap.staff.forms import ContributionFormSet, ContributionForm
+from evap.evaluation.models import Questionnaire, UserProfile, Course, \
+                                   EmailTemplate, Degree, CourseType
+from evap.evaluation.tests.tools import WebTest
 
 
 """
@@ -37,21 +32,17 @@ class URLTests(WebTest):
             ("test_staff_semester_x", "/staff/semester/1", "evap"),
             ("test_staff_semester_x", "/staff/semester/1?tab=asdf", "evap"),
             ("test_staff_semester_x_edit", "/staff/semester/1/edit", "evap"),
-            ("test_staff_semester_x_course_create", "/staff/semester/1/course/create", "evap"),
             ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
-            ("test_staff_semester_x_export", "/staff/semester/1/export", "evap"),
             ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
             ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
             ("test_staff_semester_x_todo", "/staff/semester/1/todo", "evap"),
             # staff semester course
             ("test_staff_semester_x_course_y_edit", "/staff/semester/1/course/5/edit", "evap"),
-            ("test_staff_semester_x_course_y_email", "/staff/semester/1/course/1/email", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
             ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
             ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
             ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff semester single_result
-            ("test_staff_semester_x_single_result_create", "/staff/semester/1/singleresult/create", "evap"),
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
@@ -59,9 +50,7 @@ class URLTests(WebTest):
             ("test_staff_questionnaire_x_edit", "/staff/questionnaire/3/edit", "evap"),
             ("test_staff_questionnaire_x", "/staff/questionnaire/2", "evap"),
             ("test_staff_questionnaire_x_copy", "/staff/questionnaire/2/copy", "evap"),
-            ("test_staff_questionnaire_delete", "/staff/questionnaire/create", "evap"),
             # staff user
-            ("test_staff_user", "/staff/user/", "evap"),
             ("test_staff_user_import", "/staff/user/import", "evap"),
             ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
             ("test_staff_user_create", "/staff/user/create", "evap"),
@@ -74,13 +63,8 @@ class URLTests(WebTest):
             ("test_staff_faq", "/staff/faq/", "evap"),
             ("test_staff_faq_x", "/staff/faq/1", "evap"),
             # rewards
-            ("test_staff_rewards_index", "/rewards/", "student"),
             ("test_staff_reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
-            ("test_staff_reward_points_redemption_event_create", "/rewards/reward_point_redemption_event/create", "evap"),
-            ("test_staff_reward_points_redemption_event_edit", "/rewards/reward_point_redemption_event/1/edit", "evap"),
             ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
-            ("test_staff_reward_points_semester_activation", "/rewards/reward_semester_activation/1/on", "evap"),
-            ("test_staff_reward_points_semester_deactivation", "/rewards/reward_semester_activation/1/off", "evap"),
             # degrees
             ("test_staff_degree_index", "/staff/degrees/", "evap"),
             # course types
@@ -171,56 +155,6 @@ class URLTests(WebTest):
     def test_contributor_settings(self):
         self.get_submit_assert_302("/contributor/settings", "responsible")
 
-    def test_contributor_form_set(self):
-        """
-            Tests the ContributionFormset with various input data sets.
-        """
-        course = mommy.make(Course)
-
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
-
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 1,
-            'contributions-INITIAL_FORMS': 0,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': 1,
-            'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
-        })
-        # no contributor and no responsible
-        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
-        # valid
-        data['contributions-0-contributor'] = 1
-        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
-        # duplicate contributor
-        data['contributions-TOTAL_FORMS'] = 2
-        data['contributions-1-contributor'] = 1
-        data['contributions-1-course'] = course.pk
-        data['contributions-1-questionnaires'] = 1
-        data['contributions-1-order'] = 1
-        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
-        # two responsibles
-        data['contributions-1-contributor'] = 2
-        data['contributions-1-responsibility'] = "RESPONSIBLE"
-        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
-
-    def test_semester_deletion(self):
-        """
-            Tries to delete two semesters via the respective post request,
-            only the second attempt should succeed.
-        """
-        self.assertFalse(Semester.objects.get(pk=1).can_staff_delete)
-        response = self.app.post("/staff/semester/delete", {"semester_id": 1}, user="evap", expect_errors=True)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue(Semester.objects.filter(pk=1).exists())
-
-        self.assertTrue(Semester.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/semester/delete", {"semester_id": 2}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(Semester.objects.filter(pk=2).exists())
-
     def helper_semester_state_views(self, course_ids, old_state, new_state, operation):
         page = self.app.get("/staff/semester/1", user="evap")
         form = page.forms["form_" + old_state]
@@ -262,89 +196,6 @@ class URLTests(WebTest):
     def test_semester_unpublish(self):
         self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
 
-    def test_course_create(self):
-        """
-            Tests the course creation view with one valid and one invalid input dataset.
-        """
-        response = self.get_assert_200("/staff/semester/1/course/create", "evap")
-        form = response.forms["course-form"]
-        form["name_de"] = "lfo9e7bmxp1xi"
-        form["name_en"] = "asdf"
-        form["type"] = 1
-        form["degrees"] = ["1"]
-        form["vote_start_date"] = "02/1/2099"
-        form["vote_end_date"] = "02/1/2014"  # wrong order to get the validation error
-        form["general_questions"] = ["2"]
-
-        form['contributions-TOTAL_FORMS'] = 1
-        form['contributions-INITIAL_FORMS'] = 0
-        form['contributions-MAX_NUM_FORMS'] = 5
-        form['contributions-0-course'] = ''
-        form['contributions-0-contributor'] = 6
-        form['contributions-0-questionnaires'] = [1]
-        form['contributions-0-order'] = 0
-        form['contributions-0-responsibility'] = "RESPONSIBLE"
-        form['contributions-0-comment_visibility'] = "ALL"
-
-        form.submit()
-        self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
-
-        form["vote_start_date"] = "02/1/2014"
-        form["vote_end_date"] = "02/1/2099"  # now do it right
-
-        form.submit()
-        self.assertEqual(Course.objects.order_by("pk").last().name_de, "lfo9e7bmxp1xi")
-
-    def test_single_result_create(self):
-        """
-            Tests the single result creation view with one valid and one invalid input dataset.
-        """
-        response = self.get_assert_200("/staff/semester/1/singleresult/create", "evap")
-        form = response.forms["single-result-form"]
-        form["name_de"] = "qwertz"
-        form["name_en"] = "qwertz"
-        form["type"] = 1
-        form["degrees"] = ["1"]
-        form["event_date"] = "02/1/2014"
-        form["answer_1"] = 6
-        form["answer_3"] = 2
-        # missing responsible to get a validation error
-
-        form.submit()
-        self.assertNotEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
-
-        form["responsible"] = 2  # now do it right
-
-        form.submit()
-        self.assertEqual(Course.objects.order_by("pk").last().name_de, "qwertz")
-
-    def test_course_email(self):
-        """
-            Tests whether the course email view actually sends emails.
-        """
-        page = self.get_assert_200("/staff/semester/1/course/5/email", user="evap")
-        form = page.forms["course-email-form"]
-        form.get("recipients", index=0).checked = True  # send to all participants
-        form["subject"] = "asdf"
-        form["body"] = "asdf"
-        form.submit()
-
-        self.assertEqual(len(mail.outbox), 2)
-
-    def test_questionnaire_deletion(self):
-        """
-            Tries to delete two questionnaires via the respective post request,
-            only the second attempt should succeed.
-        """
-        self.assertFalse(Questionnaire.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2}, user="evap", expect_errors=True)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue(Questionnaire.objects.filter(pk=2).exists())
-
-        self.assertTrue(Questionnaire.objects.get(pk=3).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 3}, user="evap")
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(Questionnaire.objects.filter(pk=3).exists())
 
     def test_create_user(self):
         """

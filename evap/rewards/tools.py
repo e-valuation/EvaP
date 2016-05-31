@@ -24,12 +24,11 @@ def save_redemptions(request, redemptions):
 
     for event_id in redemptions:
         if redemptions[event_id] > 0:
-            redemption = RewardPointRedemption(
+            RewardPointRedemption.objects.create(
                 user_profile=request.user,
                 value=redemptions[event_id],
                 event=RewardPointRedemptionEvent.objects.get(id=event_id)
             )
-            redemption.save()
 
 
 def can_user_use_reward_points(user):
@@ -68,10 +67,11 @@ def grant_reward_points(sender, **kwargs):
     if required_courses.exclude(voters=request.user).exists():
         return
     # did the user not already get reward points for this semester?
-    if not RewardPointGranting.objects.filter(user_profile=request.user, semester=semester):
-        granting = RewardPointGranting(user_profile=request.user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
-        granting.save()
-        messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
+    if RewardPointGranting.objects.filter(user_profile=request.user, semester=semester).exists():
+        return
+    # grant reward points
+    RewardPointGranting.objects.create(user_profile=request.user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
+    messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
 
 
 def is_semester_activated(semester):

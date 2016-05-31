@@ -2,8 +2,9 @@ from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, Contribution, Semester, Degree
-from evap.evaluation.tests.test_utils import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict
+from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
+    Contribution, Semester, Degree, EmailTemplate
+from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
     CourseEmailForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
@@ -16,10 +17,9 @@ class CourseEmailFormTests(TestCase):
         """
         course = course_with_responsible_and_editor()
         mommy.make(Contribution, course=course)
-        data = {"body": "wat", "subject": "some subject", "recipients": ["due_participants"]}
+        data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
-        self.assertTrue(form.missing_email_addresses() == 0)
         form.send()
 
         data = {"body": "wat", "subject": "some subject"}
@@ -111,6 +111,46 @@ class SingleResultFormTests(TestCase):
 
 
 class ContributionFormsetTests(TestCase):
+
+    def test_contribution_form_set(self):
+        """
+            Tests the ContributionFormset with various input data sets.
+        """
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+
+        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+
+        data = to_querydict({
+            'contributions-TOTAL_FORMS': 1,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': questionnaire.pk,
+            'contributions-0-order': 0,
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
+        })
+        # no contributor and no responsible
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
+        # valid
+        data['contributions-0-contributor'] = user1.pk
+        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
+        # duplicate contributor
+        data['contributions-TOTAL_FORMS'] = 2
+        data['contributions-1-contributor'] = user1.pk
+        data['contributions-1-course'] = course.pk
+        data['contributions-1-questionnaires'] = questionnaire.pk
+        data['contributions-1-order'] = 1
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
+        # two responsibles
+        data['contributions-1-contributor'] = user2.pk
+        data['contributions-1-responsibility'] = "RESPONSIBLE"
+        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
+
     def test_dont_validate_deleted_contributions(self):
         """
             Tests whether contributions marked for deletion are validated.

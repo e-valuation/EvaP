@@ -37,7 +37,7 @@ class RewardPointRedemptionEvent(models.Model):
 
 class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey('evaluation.UserProfile', models.CASCADE, related_name="reward_point_grantings")
-    semester = models.ForeignKey('evaluation.Semester', models.PROTECT, related_name="reward_point_grantings", blank=True, null=True)
+    semester = models.ForeignKey('evaluation.Semester', models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
 
