@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load evaluation_templatetags %}
+{% load morefilters %}
 
 <fieldset>
     <legend>{% trans "Contributors" %}</legend>
@@ -29,11 +30,19 @@
                     {% if editable %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
                 </td>
 
-                <td>{{ form.contributor.errors }} {{ form.contributor }}</td>
+                <td>
+                    {{ form.contributor.errors }}
+                    {% if form.responsibility.value == "RESPONSIBLE" and staff|is_false %}
+                        <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
+                        {{ form.contributor.as_hidden }}
+                    {% else %}
+                        {{ form.contributor }}
+                    {% endif %}
+                </td>
                 <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
                 <td>
                     {% trans "Responsibility" %}:<br />
-                    {% include_responsibility_buttons form True %}
+                    {% include_responsibility_buttons form staff %}
                     <br /><br />
                     {% trans "Comment visibility" %}:<br />
                     {% include_comment_visibility_buttons form %}
@@ -41,7 +50,13 @@
                     {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
                     {{ form.label.errors }} {{ form.label }}
                 </td>
-                {% if editable %}<td>{{ form.DELETE }}</td>{% endif %}
+                {% if editable %}
+                    <td>
+                        {% if staff or not form.responsibility.value == "RESPONSIBLE" %}
+                            {{ form.DELETE }}
+                        {% endif %}
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>

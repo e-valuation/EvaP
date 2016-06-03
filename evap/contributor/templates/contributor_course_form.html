@@ -20,56 +20,7 @@
             {{ form.degrees.as_hidden }} <!-- disabled elements are not sent in the post and select2 doesn't work with readonly -->
         </fieldset>
 
-        <fieldset>
-            <legend>{% trans "Contributors" %}</legend>
-            {{ formset.management_form }}
-            {{ formset.non_form_errors }}
-            <table id="contribution_table" class="table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th class="col-sm-3">{% trans "Contributor" %}</th>
-                        <th class="col-sm-4">{% trans "Questionnaires" %}</th>
-                        <th class="col-sm-4">{% trans "Options" %}</th>
-                        <th class="col-sm-1"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for form in formset %}
-                        {% if form.non_field_errors %}
-                            <tr><td colspan="100">{{ form.non_field_errors }}</td></tr>
-                        {% endif %}
-                        <tr class="contribution select2tr sortable">
-                            <td class="movable"><span class="movable-icon glyphicon glyphicon-move"></span></td>
-                            <td>
-                                {% for field in form.hidden_fields %}
-                                    {{ field }}
-                                {% endfor %}
-                                {{ form.contributor.errors }}
-                                {% if form.responsibility.value == "RESPONSIBLE" %}
-                                    <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
-                                    {{ form.contributor.as_hidden }}
-                                {% else %}
-                                    {{ form.contributor }}
-                                {% endif %}
-                            </td>
-                            <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
-                            <td>
-                                {% trans "Responsibility" %}:<br />
-                                {% include_responsibility_buttons form %}
-                                <br /><br />
-                                {% trans "Comment visibility" %}:<br />
-                                {% include_comment_visibility_buttons form %}
-                                <br /><br />
-                                {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
-                                {{ form.label.errors }} {{ form.label }}
-                            </td>
-                            <td>{% if not form.responsibility.value == "RESPONSIBLE" %}{{ form.DELETE }}{% endif %}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </fieldset>
+        {% include "contribution_formset.html" with formset=formset staff=False editable=True%}
 
         <fieldset>
             <legend>{% trans "Students" %}</legend>
