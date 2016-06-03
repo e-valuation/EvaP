@@ -13,53 +13,7 @@
             {{ form.as_div }}
         </fieldset>
 
-        <fieldset>
-            <legend>{% trans "Contributors" %}</legend>
-            {{ formset.management_form }}
-        </fieldset>
-
-        {{ formset.non_form_errors }}
-
-        <table id="contribution_table" class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                        <th class="col-sm-3">{% trans "Contributor" %}</th>
-                        <th class="col-sm-4">{% trans "Questionnaires" %}</th>
-                        <th class="col-sm-4">{% trans "Options" %}</th>
-                        <th class="col-sm-1"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for form in formset %}
-                    {% if form.non_field_errors %}
-                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
-                    {% endif %}
-                    <tr class="contribution select2tr {% if editable %} sortable {% endif %}">
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
-                        <td class="movable">
-                            {% if editable %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
-                        </td>
-
-                        <td>{{ form.contributor.errors }} {{ form.contributor }}</td>
-                        <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
-                        <td>
-                            {% trans "Responsibility" %}:<br />
-                            {% include_responsibility_buttons form True %}
-                            <br /><br />
-                            {% trans "Comment visibility" %}:<br />
-                            {% include_comment_visibility_buttons form %}
-                            <br /><br />
-                            {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
-                            {{ form.label.errors }} {{ form.label }}
-                        </td>
-                        {% if editable %}<td>{{ form.DELETE }}</td>{% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% include "contribution_formset.html" with formset=formset staff=True editable=editable %}
 
         {% if editable %}
         <div class="form-group well">
