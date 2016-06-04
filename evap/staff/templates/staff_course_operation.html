@@ -17,7 +17,7 @@
             <tbody>
             {% for course in courses %}
                 <tr>
-                    {% include_staff_semester_view_course semester course.state course disable_if_archived info_only=True %}
+                    {% include_staff_semester_view_course semester course disable_if_archived info_only=True %}
                 </tr>
             {% endfor %}
             </tbody>

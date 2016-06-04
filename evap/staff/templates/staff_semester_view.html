@@ -134,7 +134,7 @@
                                 <tbody>
                                 {% for course in courses %}
                                     <tr id="course-row-{{ course.id }}">
-                                        {% include_staff_semester_view_course semester state course disable_if_archived %}
+                                        {% include_staff_semester_view_course semester course disable_if_archived %}
                                     </tr>
                                 {% empty %}
                                     <tr><td><i>{% trans "There are no courses in this state." %}</i><td></tr>

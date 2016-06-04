@@ -17,7 +17,7 @@
         <fieldset>
             <legend>{{ course.name }} ({{ course.semester.name }})</legend>
             {{ form.as_div }}
-            {{ form.degrees.as_hidden }} <!-- disabled elements are not sent in the post and select2 doesn't work with readonly -->
+            {{ form.degrees.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
         </fieldset>
 
         {% include "contribution_formset.html" with formset=formset staff=False editable=True%}

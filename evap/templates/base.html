@@ -24,14 +24,6 @@
         {% endcompress %}
         <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}
-    {% if debug %}
-    <!-- red topbar in debug mode -->
-    <style lang="text/css">
-        .topbar-inner, .topbar .fill {
-            background: #900 !important;
-        }
-    </style>
-    {% endif %}
 </head>
 <body>
 {% block modals %}

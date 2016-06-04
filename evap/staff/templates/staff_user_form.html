@@ -8,8 +8,8 @@
 {% block subtitle %}
     {{ block.super }}
     <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
-    {% if object.id %}
-        <li>{{ object.full_name }}</li>
+    {% if user.id %}
+        <li>{{ user.full_name }}</li>
     {% endif %}
 {% endblock %}
 
@@ -17,7 +17,7 @@
     {{ block.super }}
     <div>
         <div class="col-sm-offset-2" style="margin-bottom:15px">
-            {% include_staff_user_labels object %}
+            {% include_staff_user_labels user %}
         </div>
     </div>
 
@@ -25,7 +25,7 @@
     {% csrf_token %}
     {{ form.as_div }}
 
-    {% if object.pk %}
+    {% if user.pk %}
         <fieldset>
             <legend>{% trans "Represented Users" %}</legend>
             {% include_user_list_with_links form.instance.represented_users.all %}

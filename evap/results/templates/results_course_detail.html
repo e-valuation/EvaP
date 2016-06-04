@@ -120,7 +120,7 @@
                 {% for contributor, contributor_data in contributor_sections.items %}
                     {% regroup contributor_data.sections by questionnaire as sections_grouped %}
                     <div class="panel panel-default">
-                        {% comment %} Logic for collapsing Contributor Sections with no votes. {% endcomment %}
+                        {# Logic for collapsing Contributor Sections with no votes. #}
                         {% if contributor_data.total_votes == 0 %}
                             <div class="panel-heading">
                                 <span class="panel-title">
