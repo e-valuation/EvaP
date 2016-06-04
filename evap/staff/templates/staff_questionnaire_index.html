@@ -2,7 +2,6 @@
 
 {% load i18n %}
 {% load staff_templatetags %}
-{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -10,8 +9,8 @@
         <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
     </p>
     {% if course_questionnaires or contributor_questionnaires %}
-        {% include_staff_questionnaire_index_list course_questionnaires "Course questionnaires" %}
-        {% include_staff_questionnaire_index_list contributor_questionnaires "Contributor questionnaires" %}
+        {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline="Course questionnaires" %}
+        {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline="Contributor questionnaires" %}
     {% else %}
         <p>
             {% trans "There are no questionnaires yet." %}
@@ -24,7 +23,7 @@
     {% trans "Delete questionnaire" as title %}
     {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
     {% trans "Delete questionnaire" as action_text %}
-    {% include_confirmation_modal "delete_questionnaire_modal" title question action_text "danger" %}
+    {% include "confirmation_modal.html" with modal_id="delete_questionnaire_modal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
         function delete_questionnaire_modal_action(data_id) {
             $.ajax({

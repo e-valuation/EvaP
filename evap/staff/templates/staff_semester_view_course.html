@@ -1,7 +1,6 @@
 {% load i18n %}
 {% load morefilters %}
 {% load static %}
-{% load evaluation_templatetags %}
 
 {% with state=course.state %}
 
@@ -62,11 +61,11 @@
     {% if course.is_single_result|is_false %}
         <td style="width: 20%" class="multi-progress-bar">
             <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                {% include_progress_bar course.num_voters course.num_participants "user"%}
+                {% include "progress_bar.html" with done=course.num_voters total=course.num_participants icon="user" %}
             </span>
             {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
                 <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Click to review text answers" %}">
-                    {% include_progress_bar course.num_reviewed_textanswers course.num_textanswers "comment"%}
+                    {% include "progress_bar.html" with done=course.num_reviewed_textanswers total=course.num_textanswers icon="comment" %}
                 </a>
             {% else %}
                 <span data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">

@@ -2,8 +2,6 @@
 
 {% load i18n %}
 {% load static %}
-{% load staff_templatetags %}
-{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -17,7 +15,7 @@
     {{ block.super }}
     <div>
         <div class="col-sm-offset-2" style="margin-bottom:15px">
-            {% include_staff_user_labels user %}
+            {% include "staff_user_labels.html" with user=user %}
         </div>
     </div>
 
@@ -28,11 +26,11 @@
     {% if user.pk %}
         <fieldset>
             <legend>{% trans "Represented Users" %}</legend>
-            {% include_user_list_with_links form.instance.represented_users.all %}
+            {% include "user_list_with_links.html" with users=form.instance.represented_users.all %}
         </fieldset>
         <fieldset>
             <legend>{% trans "CC-User for" %}</legend>
-            {% include_user_list_with_links form.instance.ccing_users.all %}
+            {% include "user_list_with_links.html" with users=form.instance.ccing_users.all %}
         </fieldset>
         <fieldset>
             <legend>{% trans "Courses contributing to (active semester)" %}</legend>

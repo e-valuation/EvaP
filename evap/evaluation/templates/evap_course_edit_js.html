@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load evaluation_templatetags %}
 
 <script type="text/javascript">
     function makeClickHandler(i, contributorCount, responsibility) {
@@ -94,7 +93,7 @@
 
 
 {% if editable %}
-    {% include_sortable_form_js %}
+    {% include "sortable_form_js.html" %}
     <script type="text/javascript">
         row_changed = function(row) {
             name = $(row.find("select[id$=-contributor]")).find(":selected").text();

@@ -1,5 +1,4 @@
 {% load morefilters %}
-{% load evaluation_templatetags %}
 {% load i18n %}
 {% load static %}
 
@@ -20,7 +19,7 @@
                     <tr class="no-break">
                         <td colspan="2">{{ result.question.text }}</td>
                         <td>
-                            {% include_result_bar result show_grades questionnaire_warning %}
+                            {% include "result_bar.html" with result=result show_grades=show_grades questionnaire_warning=questionnaire_warning %}
                         </td>
                     </tr>
                 {% elif result.question.is_text_question %}

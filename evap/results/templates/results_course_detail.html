@@ -1,7 +1,6 @@
 {% extends "results_base.html" %}
 
 {% load morefilters %}
-{% load evaluation_templatetags %}
 {% load i18n %}
 {% load static %}
 
@@ -89,7 +88,7 @@
                             <td><div class="grade-bg grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                             <td><div class="deviation-bg deviation-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                         {% endif %}
-                        <td>{% if course.is_single_result|is_false %}{% include_progress_bar course.num_voters course.num_participants %}{% endif %}</td>
+                        <td>{% if course.is_single_result|is_false %}{% include "progress_bar.html" with done=course.num_voters total=course.num_participants %}{% endif %}</td>
                     </tr>
                 </tbody>
             </table>

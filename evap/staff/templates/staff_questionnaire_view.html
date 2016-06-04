@@ -1,10 +1,8 @@
 {% extends "staff_questionnaire_base.html" %}
 
 {% load i18n %}
-{% load student_templatetags %}
 
 {% block content %}
     {{ block.super }}
-
-    {% include_student_vote_questionnaire_group forms True %}
+    {% include "student_vote_questionnaire_group.html" with questionnaire_group=forms preview=True %}
 {% endblock %}

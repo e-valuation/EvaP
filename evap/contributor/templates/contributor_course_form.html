@@ -3,7 +3,6 @@
 {% load i18n %}
 {% load static %}
 {% load morefilters %}
-{% load evaluation_templatetags %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -50,7 +49,7 @@
     {% trans "Approve course" as title %}
     {% trans "Do you want to approve this course? This will allow the student representatives to proceed with the preparation, but you won't be able to make any further changes." as question %}
     {% trans "Approve course" as action_text %}
-    {% include_confirmation_modal "approve_course_modal" title question action_text "primary" %}
+    {% include "confirmation_modal.html" with modal_id="approve_course_modal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
         function approve_course_modal_action(data_id) {
             $('#course-form').append('<input type="hidden" name="operation" value="approve">');

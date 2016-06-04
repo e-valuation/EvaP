@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load evaluation_templatetags %}
 {% load morefilters %}
 
 <fieldset>
@@ -42,10 +41,10 @@
                 <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
                 <td>
                     {% trans "Responsibility" %}:<br />
-                    {% include_responsibility_buttons form staff %}
+                    {% include "responsibility_buttons.html" with form=form can_change_responsible=staff %}
                     <br /><br />
                     {% trans "Comment visibility" %}:<br />
-                    {% include_comment_visibility_buttons form %}
+                    {% include "comment_visibility_buttons.html" with form=form %}
                     <br /><br />
                     {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
                     {{ form.label.errors }} {{ form.label }}

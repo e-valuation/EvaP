@@ -3,7 +3,6 @@
 {% load i18n %}
 {% load static %}
 {% load morefilters %}
-{% load student_templatetags %}
 
 {% block title %}{{ course.name }} - {% trans "Evaluation" %} - {{ block.super }}{% endblock %}
 
@@ -37,7 +36,7 @@
             <div class="panel-heading">
                 <span class="panel-title">{% trans "Questions about the course" %}</span>
             </div>
-            {% include_student_vote_questionnaire_group course_form_group preview %}
+            {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
         </div>
         <div class="panel-group" id="accordion">
             <div class="panel panel-info">
@@ -70,7 +69,7 @@
                             {% else %}
                                 <div id="{{ contributor.id }}" class="panel-collapse collapse">
                             {% endif %}
-                                {% include_student_vote_questionnaire_group form_group preview %}
+                                {% include "student_vote_questionnaire_group.html" with questionnaire_group=form_group preview=preview %}
                                 </div>
                         </div>
                     {% endfor %}

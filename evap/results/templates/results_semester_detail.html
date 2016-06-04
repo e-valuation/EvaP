@@ -2,7 +2,6 @@
 
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
-{% load evaluation_templatetags %}
 {% load morefilters %}
 {% load static %}
 
@@ -59,7 +58,7 @@
                                 </div></td>
                             {% endif %}
                             {% with num_participants=course.num_participants num_voters=course.num_voters %}
-                                <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include_progress_bar num_voters num_participants %}</td>
+                                <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include "progress_bar.html" with done=num_voters total=num_participants %}</td>
                             {% endwith %}
                         </tr>
                     {% endfor %}
@@ -84,7 +83,7 @@
                             {% with responsible=single_result.responsible_contributor %}
                                 <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
                             {% endwith %}
-                            <td data-order="{{ result.average|default:'0' }}">{% include_result_bar result True %}</td>
+                            <td data-order="{{ result.average|default:'0' }}">{% include "result_bar.html" with result=result show_grades=True questionnaire_warning=False %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

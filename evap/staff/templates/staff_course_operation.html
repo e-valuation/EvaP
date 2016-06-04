@@ -1,7 +1,6 @@
 {% extends "staff_semester_base.html" %}
 
 {% load i18n %}
-{% load staff_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -17,7 +16,7 @@
             <tbody>
             {% for course in courses %}
                 <tr>
-                    {% include_staff_semester_view_course semester course disable_if_archived info_only=True %}
+                    {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=True %}
                 </tr>
             {% endfor %}
             </tbody>

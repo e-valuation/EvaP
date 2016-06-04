@@ -1,7 +1,6 @@
 {% extends "grades_course_base.html" %}
 
 {% load i18n %}
-{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -56,7 +55,7 @@
     {% trans "Delete grade document" as title %}
     {% trans 'Do you really want to delete the grade document <strong id="data-label"></strong>?' as question %}
     {% trans "Delete grade document" as action_text %}
-    {% include_confirmation_modal "delete_gradedocument_modal" title question action_text "danger" %}
+    {% include "confirmation_modal.html" with modal_id="delete_gradedocument_modal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
         function delete_gradedocument_modal_action(data_id) {
             $.ajax({

@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load morefilters %}
-{% load evaluation_templatetags %}
 
 <div class="btn-group" data-toggle="buttons">
     {% for choice in form.responsibility %}
@@ -12,7 +11,7 @@
             {% trans "Default value. No special rights." as tooltip %}
         {% endif %}
         {% if choice.choice_value != "RESPONSIBLE" or form.responsibility.value == "RESPONSIBLE" or can_change_responsible %}
-            {% include_choice_button form.responsibility choice tooltip %}
+            {% include "choice_button.html" with formelement=form.responsibility choice=choice tooltip=tooltip %}
         {% endif %}
     {% endfor %}
 </div>

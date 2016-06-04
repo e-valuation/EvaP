@@ -3,7 +3,6 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
-{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -103,7 +102,7 @@
     {% trans "Have final grades been submitted?" as title %}
     {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
     {% trans "Confirm" as action_text %}
-    {% include_confirmation_modal "confirm_noupload_modal" title question action_text "primary" %}
+    {% include "confirmation_modal.html" with modal_id="confirm_noupload_modal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
         function confirm_noupload_modal_action(data_id) {
             $.ajax({
@@ -118,7 +117,7 @@
     {% trans "Will final grades be uploaded?" as title %}
     {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
     {% trans "Confirm" as action_text %}
-    {% include_confirmation_modal "confirm_laterupload_modal" title question action_text "primary" %}
+    {% include "confirmation_modal.html" with modal_id="confirm_laterupload_modal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
         function confirm_laterupload_modal_action(data_id) {
             confirm_noupload_modal_action(data_id);
