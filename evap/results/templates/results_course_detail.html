@@ -69,7 +69,7 @@
                         <th class="col-xs-3">{% trans "Responsible" %}</th>
                         <th class="col-xs-2">{% trans "Average Grade" %}</th>
                         <th class="col-xs-2">{% trans "Standard Deviation" %}</th>
-                        <th class="col-xs-2">{% if course.is_single_result|is_false %}{% trans "Voters" %}{% endif %}</th>
+                        <th class="col-xs-2">{% if not course.is_single_result %}{% trans "Voters" %}{% endif %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,7 +88,7 @@
                             <td><div class="grade-bg grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                             <td><div class="deviation-bg deviation-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                         {% endif %}
-                        <td>{% if course.is_single_result|is_false %}{% include "progress_bar.html" with done=course.num_voters total=course.num_participants %}{% endif %}</td>
+                        <td>{% if not course.is_single_result %}{% include "progress_bar.html" with done=course.num_voters total=course.num_participants %}{% endif %}</td>
                     </tr>
                 </tbody>
             </table>

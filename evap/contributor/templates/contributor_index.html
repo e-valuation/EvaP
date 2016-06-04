@@ -57,7 +57,7 @@
                                 <span data-toggle="tooltip" data-placement="left" title="{{ course.state|statedescription }}">{{ course.state|statename }}</span>
                             </td>
                             <td>
-                                {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }}{% if course.is_single_result|is_false %} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}{% endif %}
+                                {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}{% endif %}
                             </td>
                             <td>
                                 {% if course.is_single_result %}&mdash;{% else %}{{ course.num_participants }}{% endif %}

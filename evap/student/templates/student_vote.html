@@ -44,7 +44,7 @@
                     <span class="panel-title">{% trans "Questions about the contributors" %}</span>
                 </div>
                 <div class="panel-body">
-                    {% if not preview or preview|is_false %}
+                    {% if not preview or preview == False %}
                         <div class="bs-callout bs-callout-info">
                             {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
                         </div>
@@ -64,7 +64,7 @@
                                     </span>
                                 {% endif %}
                             </div>
-                            {% if errors_exist|is_false or contributor_has_errors %}
+                            {% if errors_exist == False or contributor_has_errors %}
                                 <div id="{{ contributor.id }}" class="panel-collapse in">
                             {% else %}
                                 <div id="{{ contributor.id }}" class="panel-collapse collapse">

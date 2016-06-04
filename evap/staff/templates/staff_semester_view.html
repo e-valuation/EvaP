@@ -77,7 +77,7 @@
                     <a href="" class="btn btn-sm btn-default disabled">{% trans "Reward points active" %}</a>
                     <div class="btn-group btn-toggle">
                         <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active == False %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
                     </div>
                 </div>
                 &nbsp;
@@ -85,7 +85,7 @@
                     <a href="" class="btn btn-sm btn-default disabled">{% trans "Grades downloadable" %}</a>
                     <div class="btn-group btn-toggle">
                         <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if grades_downloadable %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable == False %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
                     </div>
                 </div>
             </div>

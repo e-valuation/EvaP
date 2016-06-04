@@ -6,7 +6,7 @@
 {% block subtitle %}
     {{ block.super }}
     {% if semester %}
-        {% if disable_breadcrumb_semester or is_grade_publisher|is_false %}
+        {% if disable_breadcrumb_semester or is_grade_publisher == False %}
             <li>{{ semester.name }}</li>
         {% else %}
             <li><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
