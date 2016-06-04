@@ -70,7 +70,7 @@ table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sor
 table.dataTable thead > tr > td.sorting_asc,
 table.dataTable thead > tr > td.sorting_desc,
 table.dataTable thead > tr > td.sorting {
-  padding-right: 30px;
+  padding-left: 27px;
 }
 table.dataTable thead > tr > th:active,
 table.dataTable thead > tr > td:active {
@@ -91,7 +91,7 @@ table.dataTable thead .sorting_asc_disabled:after,
 table.dataTable thead .sorting_desc_disabled:after {
   position: absolute;
   bottom: 8px;
-  right: 8px;
+  left: 8px;
   display: block;
   font-family: 'Glyphicons Halflings';
   opacity: 0.5;
