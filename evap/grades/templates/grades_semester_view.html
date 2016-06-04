@@ -29,7 +29,7 @@
                             <th class="col-sm-1">{% trans "Evaluation completed" %}</th>
                             <th class="col-sm-1">{% trans "Midterm grade documents" %}</th>
                             <th class="col-sm-1">{% trans "Final grade documents" %}</th>
-                            <th class="col-sm-1 text-right">{% trans "Actions" %}</th>
+                            <th class="col-sm-1 text-right" data-orderable="false">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,16 +130,13 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.grade-course-table').dataTable({
+            $('.grade-course-table').DataTable({
                 "paging": false,
                 "info": false,
                 "stateSave": true,
                 "language": {
                     "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                },
-                "aoColumnDefs": [
-                    { 'bSortable': false, 'aTargets': [ -1 ] }
-                ]
+                }
             });
         });
     </script>

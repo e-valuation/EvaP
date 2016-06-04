@@ -18,7 +18,7 @@
         <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-default">{% trans "Bulk delete users" %}</a>
         <a href="{% url "staff:user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
     </div>
-    <table class="table table-striped user-table">
+    <table class="table table-striped user-table" data-ordering="false">
         <thead>
             <tr>
                 <th class="col-sm-3">{% trans "Name" %}</th>
@@ -76,11 +76,10 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.user-table').dataTable({
+            $('.user-table').DataTable({
                 "paging": false,
                 "info": false,
                 "stateSave": true,
-                "ordering": false,
                 "language": {
                     "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
                 }
