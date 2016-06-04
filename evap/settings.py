@@ -211,6 +211,7 @@ TEMPLATES = [
                 "evap.context_processors.legal_notice_active",
                 "evap.context_processors.tracker_url",
             ],
+            'builtins': ['django.templatetags.i18n'],
         },
     },
 ]

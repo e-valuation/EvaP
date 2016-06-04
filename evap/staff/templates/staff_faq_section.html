@@ -1,7 +1,5 @@
 {% extends "staff_base.html" %}
 
-{% load i18n %}
-
 {% block subtitle %}
     {{ block.super }}
     <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
