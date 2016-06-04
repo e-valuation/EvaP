@@ -1,9 +1,7 @@
 {% extends "results_base.html" %}
 
 {% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
 {% load morefilters %}
-{% load static %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -94,18 +92,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.course-table').DataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                }
-            });
-        });
-    </script>
+    {% include "datatables.html" with table_selector='.course-table' %}
 {% endblock %}

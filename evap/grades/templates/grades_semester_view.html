@@ -1,8 +1,6 @@
 {% extends "grades_semester_base.html" %}
 
 {% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
-{% load static %}
 
 {% block content %}
     {{ block.super }}
@@ -126,18 +124,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.grade-course-table').DataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                }
-            });
-        });
-    </script>
+    {% include "datatables.html" with table_selector='.grade-course-table' %}
 {% endblock %}
