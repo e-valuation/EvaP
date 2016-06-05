@@ -24,4 +24,4 @@ class Command(BaseCommand):
             progress_bar.update(counter + 1)
             calculate_results(course)
 
-        self.stdout.write("Done with updating cache.\n")
+        self.stdout.write("Results cache has been refreshed.\n")
