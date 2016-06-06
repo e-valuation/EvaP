@@ -1,9 +1,6 @@
 {% extends "staff_semester_base.html" %}
 
-{% load i18n %}
 {% load morefilters %}
-{% load staff_templatetags %}
-{% load evaluation_templatetags %}
 
 {% block content %}
     {{ block.super }}
@@ -48,13 +45,13 @@
                         </td>
                         <td>{{ stats.first_start|date:"SHORT_DATE_FORMAT" }} - {{ stats.last_end|date:"SHORT_DATE_FORMAT" }}</td>
                         <td>
-                            {% include_progress_bar stats.num_courses_evaluated stats.num_courses %}
+                            {% include "progress_bar.html" with done=stats.num_courses_evaluated total=stats.num_courses %}
                         </td>
                         <td>
-                            {% include_progress_bar stats.num_comments_reviewed stats.num_comments %}
+                            {% include "progress_bar.html" with done=stats.num_comments_reviewed total=stats.num_comments %}
                         </td>
                         <td>
-                            {% include_progress_bar stats.num_votes stats.num_enrollments_in_evaluation %}
+                            {% include "progress_bar.html" with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -79,7 +76,7 @@
                     <a href="" class="btn btn-sm btn-default disabled">{% trans "Reward points active" %}</a>
                     <div class="btn-group btn-toggle">
                         <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active == False %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
                     </div>
                 </div>
                 &nbsp;
@@ -87,7 +84,7 @@
                     <a href="" class="btn btn-sm btn-default disabled">{% trans "Grades downloadable" %}</a>
                     <div class="btn-group btn-toggle">
                         <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if grades_downloadable %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable == False %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
                     </div>
                 </div>
             </div>
@@ -134,7 +131,7 @@
                                 <tbody>
                                 {% for course in courses %}
                                     <tr id="course-row-{{ course.id }}">
-                                        {% include_staff_semester_view_course semester state course disable_if_archived %}
+                                        {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=False %}
                                     </tr>
                                 {% empty %}
                                     <tr><td><i>{% trans "There are no courses in this state." %}</i><td></tr>
@@ -182,7 +179,7 @@
     {% trans "Delete semester" as title %}
     {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>?' as question %}
     {% trans "Delete semester" as action_text %}
-    {% include_confirmation_modal "delete_semester_modal" title question action_text "danger" %}
+    {% include "confirmation_modal.html" with modal_id="delete_semester_modal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
         function delete_semester_modal_action(data_id) {
             $.ajax({
@@ -197,7 +194,7 @@
     {% trans "Archive semester" as title %}
     {% trans 'Do you really want to archive the semester <strong id="data-label"></strong>?' as question %}
     {% trans "Archive semester" as action_text %}
-    {% include_confirmation_modal "archive_semester_modal" title question action_text "danger" %}
+    {% include "confirmation_modal.html" with modal_id="archive_semester_modal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
         function archive_semester_modal_action(data_id) {
             $.ajax({
@@ -212,7 +209,7 @@
     {% trans "Delete course" as title %}
     {% trans 'Do you really want to delete the course <strong id="data-label"></strong>?' as question %}
     {% trans "Delete course" as action_text %}
-    {% include_confirmation_modal "delete_course_modal" title question action_text "danger" %}
+    {% include "confirmation_modal.html" with modal_id="delete_course_modal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
         function delete_course_modal_action(data_id) {
             $.ajax({

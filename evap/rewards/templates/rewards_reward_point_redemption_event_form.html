@@ -1,7 +1,5 @@
 {% extends "staff_base.html" %}
 
-{% load i18n %}
-
 {% block subtitle %}
     {{ block.super }}
     <li><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward Point Redemption Events" %}</a></li>

@@ -1,8 +1,5 @@
 {% extends "contributor_base.html" %}
 
-{% load i18n %}
-{% load static %}
-
 {% block subtitle %}
     {{ block.super }}
     <li>{% trans "Settings" %}</li>
@@ -111,7 +108,7 @@
             </div>
         </div>
 
-        {{ form.cc_users.as_hidden }} <!-- disabled elements are not sent in the post and select2 doesn't work with readonly -->
+        {{ form.cc_users.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
 
         <div class="well submit-area text-center">
             <input type="submit" value="{% trans "Save changes" %}" class="btn btn-primary"/>

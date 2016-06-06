@@ -1,6 +1,5 @@
 {% extends "staff_base.html" %}
 
-{% load i18n %}
 {% load morefilters %}
 
 {% block subtitle %}
@@ -75,17 +74,17 @@
                 <td><strong>{% trans "Delegates" %}</strong></td>
                 <td{% if main_user.delegates.all %} class="info"{% endif %}>
                     {% for user in main_user.delegates.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if other_user.delegates.all %} class="info"{% endif %}>
                     {% for user in other_user.delegates.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if merged_user.delegates %} class="success"{% endif %}>
                     {% for user in merged_user.delegates %}
-                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
             </tr>
@@ -93,17 +92,17 @@
                 <td><strong>{% trans "Represented users" %}</strong></td>
                 <td{% if main_user.represented_users.all %} class="info"{% endif %}>
                     {% for user in main_user.represented_users.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if other_user.represented_users.all %} class="info"{% endif %}>
                     {% for user in other_user.represented_users.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if merged_user.represented_users %} class="success"{% endif %}>
                     {% for user in merged_user.represented_users %}
-                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
             </tr>
@@ -111,17 +110,17 @@
                 <td><strong>{% trans "CC users" %}</strong></td>
                 <td{% if main_user.cc_users.all %} class="info"{% endif %}>
                     {% for user in main_user.cc_users.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if other_user.cc_users.all %} class="info"{% endif %}>
                     {% for user in other_user.cc_users.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if merged_user.cc_users %} class="success"{% endif %}>
                     {% for user in merged_user.cc_users %}
-                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
             </tr>
@@ -129,17 +128,17 @@
                 <td><strong>{% trans "CC'ing users" %}</strong></td>
                 <td{% if main_user.ccing_users.all %} class="info"{% endif %}>
                     {% for user in main_user.ccing_users.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if other_user.ccing_users.all %} class="info"{% endif %}>
                     {% for user in other_user.ccing_users.all %}
-                        {{ user.full_name }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
                 <td{% if merged_user.ccing_users %} class="success"{% endif %}>
                     {% for user in merged_user.ccing_users %}
-                        {{ user }}{% if forloop.last|is_false %},{% endif %}
+                        {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
             </tr>

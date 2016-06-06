@@ -1,11 +1,5 @@
 {% extends "staff_base.html" %}
 
-{% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
-{% load static %}
-{% load staff_templatetags %}
-{% load evaluation_templatetags %}
-
 {% block subtitle %}
     {{ block.super }}
     <li>{% trans "Users" %}</li>
@@ -19,7 +13,7 @@
         <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-default">{% trans "Bulk delete users" %}</a>
         <a href="{% url "staff:user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
     </div>
-    <table class="table table-striped user-table">
+    <table class="table table-striped user-table" data-ordering="false">
         <thead>
             <tr>
                 <th class="col-sm-3">{% trans "Name" %}</th>
@@ -33,7 +27,7 @@
             <tr id="user-row-{{ user.id }}">
                 <td>{{ user.full_name }}</td>
                 <td>{{ user.username }}</td>
-                <td>{% include_staff_user_labels user %}</td>
+                <td>{% include "staff_user_labels.html" with user=user %}</td>
                 <td>
                     <a href="{% url "staff:user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                     {% if user.can_staff_delete %}
@@ -58,7 +52,7 @@
     {% trans "Delete user" as title %}
     {% trans 'Do you really want to delete the user <strong id="data-label"></strong>?' as question %}
     {% trans "Delete user" as action_text %}
-    {% include_confirmation_modal "delete_modal" title question action_text "danger" %}
+    {% include "confirmation_modal.html" with modal_id="delete_modal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
         function delete_modal_action(data_id) {
             $.ajax({
@@ -73,19 +67,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.user-table').dataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "ordering": false,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                }
-            });
-        });
-    </script>
+    {% include "datatables.html" with table_selector='.user-table' %}
 {% endblock %}

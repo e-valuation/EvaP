@@ -1,10 +1,5 @@
 {% extends "grades_semester_base.html" %}
 
-{% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
-{% load static %}
-{% load evaluation_templatetags %}
-
 {% block content %}
     {{ block.super }}
 
@@ -30,7 +25,7 @@
                             <th class="col-sm-1">{% trans "Evaluation completed" %}</th>
                             <th class="col-sm-1">{% trans "Midterm grade documents" %}</th>
                             <th class="col-sm-1">{% trans "Final grade documents" %}</th>
-                            <th class="col-sm-1 text-right">{% trans "Actions" %}</th>
+                            <th class="col-sm-1 text-right" data-orderable="false">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,7 +98,7 @@
     {% trans "Have final grades been submitted?" as title %}
     {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
     {% trans "Confirm" as action_text %}
-    {% include_confirmation_modal "confirm_noupload_modal" title question action_text "primary" %}
+    {% include "confirmation_modal.html" with modal_id="confirm_noupload_modal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
         function confirm_noupload_modal_action(data_id) {
             $.ajax({
@@ -118,7 +113,7 @@
     {% trans "Will final grades be uploaded?" as title %}
     {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
     {% trans "Confirm" as action_text %}
-    {% include_confirmation_modal "confirm_laterupload_modal" title question action_text "primary" %}
+    {% include "confirmation_modal.html" with modal_id="confirm_laterupload_modal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
         function confirm_laterupload_modal_action(data_id) {
             confirm_noupload_modal_action(data_id);
@@ -127,21 +122,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.grade-course-table').dataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                },
-                "aoColumnDefs": [
-                    { 'bSortable': false, 'aTargets': [ -1 ] }
-                ]
-            });
-        });
-    </script>
+    {% include "datatables.html" with table_selector='.grade-course-table' %}
 {% endblock %}

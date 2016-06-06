@@ -1,9 +1,6 @@
 {% extends "results_base.html" %}
 
 {% load morefilters %}
-{% load evaluation_templatetags %}
-{% load i18n %}
-{% load static %}
 
 {% block subtitle %}
     {{ block.super }}
@@ -70,7 +67,7 @@
                         <th class="col-xs-3">{% trans "Responsible" %}</th>
                         <th class="col-xs-2">{% trans "Average Grade" %}</th>
                         <th class="col-xs-2">{% trans "Standard Deviation" %}</th>
-                        <th class="col-xs-2">{% if course.is_single_result|is_false %}{% trans "Voters" %}{% endif %}</th>
+                        <th class="col-xs-2">{% if not course.is_single_result %}{% trans "Voters" %}{% endif %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,7 +86,7 @@
                             <td><div class="grade-bg grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                             <td><div class="deviation-bg deviation-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div></td>
                         {% endif %}
-                        <td>{% if course.is_single_result|is_false %}{% include_progress_bar course.num_voters course.num_participants %}{% endif %}</td>
+                        <td>{% if not course.is_single_result %}{% include "progress_bar.html" with done=course.num_voters total=course.num_participants %}{% endif %}</td>
                     </tr>
                 </tbody>
             </table>
@@ -120,7 +117,7 @@
                 {% for contributor, contributor_data in contributor_sections.items %}
                     {% regroup contributor_data.sections by questionnaire as sections_grouped %}
                     <div class="panel panel-default">
-                        {% comment %} Logic for collapsing Contributor Sections with no votes. {% endcomment %}
+                        {# Logic for collapsing Contributor Sections with no votes. #}
                         {% if contributor_data.total_votes == 0 %}
                             <div class="panel-heading">
                                 <span class="panel-title">

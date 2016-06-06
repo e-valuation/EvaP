@@ -1,10 +1,9 @@
-{% load i18n %}
 {% load morefilters %}
-{% load static %}
-{% load evaluation_templatetags %}
+
+{% with state=course.state %}
 
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
-    {% if info_only|is_false %}
+    {% if info_only == False %}
         <td class="minimize">
             <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}" {{disable_if_archived}} />
         </td>
@@ -12,7 +11,7 @@
 {% endif %}
 <td style="width: 55%">
     <div>
-    {% if info_only|is_false %}
+    {% if info_only == False %}
         <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}
@@ -35,9 +34,9 @@
     {% endfor %}
 </td>
 <td style="width: 10%">
-    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if course.is_single_result|is_false %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
+    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if not course.is_single_result %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
 
-    {% if course.state == 'approved' %}
+    {% if state == 'approved' %}
         <br>
         {% if course.days_until_evaluation <= 1 %}
             <span class="label label-danger">{% trans "starts tomorrow" %}</span>
@@ -45,7 +44,7 @@
             <span class="label label-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
         {% endif %}
     {% endif %}
-    {% if course.state == 'in_evaluation' %}
+    {% if state == 'in_evaluation' %}
         <br>
         {% if course.days_left_for_evaluation <= 0 %}
             <span class="label label-danger">{% trans "ends today" %}</span>
@@ -57,14 +56,14 @@
     {% endif %}
 </td>
 {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    {% if course.is_single_result|is_false %}
+    {% if not course.is_single_result %}
         <td style="width: 20%" class="multi-progress-bar">
             <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
-                {% include_progress_bar course.num_voters course.num_participants "user"%}
+                {% include "progress_bar.html" with done=course.num_voters total=course.num_participants icon="user" %}
             </span>
-            {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
+            {% if course.num_textanswers > 0 and state != 'published' and info_only == False %}
                 <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Click to review text answers" %}">
-                    {% include_progress_bar course.num_reviewed_textanswers course.num_textanswers "comment"%}
+                    {% include "progress_bar.html" with done=course.num_reviewed_textanswers total=course.num_textanswers icon="comment" %}
                 </a>
             {% else %}
                 <span data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
@@ -99,12 +98,12 @@
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
         </p>
-        {% if info_only|is_false %}
+        {% if info_only == False %}
             <a href="{% url "staff:course_participant_import" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Participants" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}
-{% if info_only|is_false %}
+{% if info_only == False %}
     <td style="width: 12%">
         <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>
 
@@ -122,3 +121,5 @@
         {% endif %}
     </td>
 {% endif %}
+
+{% endwith %}

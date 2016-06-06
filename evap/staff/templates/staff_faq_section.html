@@ -1,9 +1,5 @@
 {% extends "staff_base.html" %}
 
-{% load i18n %}
-{% load static %}
-{% load evaluation_templatetags %}
-
 {% block subtitle %}
     {{ block.super }}
     <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
@@ -66,7 +62,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include_sortable_form_js %}
+    {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
         row_changed = function(row) {

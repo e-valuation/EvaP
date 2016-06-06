@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% load i18n %}
 {% load morefilters %}
 
 {% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
@@ -54,7 +53,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <!--{{form.as_div}}-->
                         <input type="submit" class="btn btn-primary pull-right" value="{% trans "Redeem" %}" />
                     </form>
                 {% else %}
