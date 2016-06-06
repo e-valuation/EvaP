@@ -148,9 +148,9 @@
                             {% ifequal state "new" %}
                                 <button name="operation" value="prepare" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
                             {% endifequal %}
-                            {% ifequal state "prepared" %}
+                            {% if state == 'prepared' or state == 'approved' %}
                                 <button name="operation" value="revertToNew" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
-                            {% endifequal %}
+                            {% endif %}
                             {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
                                 <button name="operation" value="approve" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
                             {% endif %}
