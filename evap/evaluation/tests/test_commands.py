@@ -3,7 +3,7 @@ import os
 from unittest.mock import patch
 
 from django.conf import settings
-from django.utils.six import StringIO
+from io import StringIO
 from django.core import management, mail
 from django.test import TestCase
 from django.test.utils import override_settings
