@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
-from evap.evaluation.tests.test_utils import WebTest
+from evap.evaluation.tests.tools import WebTest
 from evap.grades.models import SemesterGradeDownloadActivation
 
 

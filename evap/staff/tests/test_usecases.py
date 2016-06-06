@@ -8,7 +8,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Semester, Questionnaire, Question, UserProfile, Course, \
                                    CourseType, Contribution
-from evap.evaluation.tests.test_utils import WebTest
+from evap.evaluation.tests.tools import WebTest
 
 
 class UsecaseTests(WebTest):

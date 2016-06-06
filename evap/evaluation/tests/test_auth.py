@@ -4,7 +4,7 @@ from django.core import mail
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.test_utils import WebTest
+from evap.evaluation.tests.tools import WebTest
 
 
 class LoginTests(WebTest):

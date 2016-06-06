@@ -103,7 +103,7 @@ class CourseForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_required_for_reward', 'vote_start_date',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_date',
                   'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_date', 'vote_end_date')
 
@@ -280,15 +280,8 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
 
         return self.cleaned_data
 
-    # returns the number of recipients without an email address
-    def missing_email_addresses(self):
-        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
-        return len([user for user in recipients if not user.email])
-
     def email_addresses(self):
-        if self.recipient_groups is None:
-            return []
-        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups)
+        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups, filter_users_in_cc=False)
         return set(user.email for user in recipients if user.email)
 
     def send(self):

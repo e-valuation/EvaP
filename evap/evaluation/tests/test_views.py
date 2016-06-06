@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.test_utils import ViewTest
+from evap.evaluation.tests.tools import ViewTest
 
 
 class TestIndexView(ViewTest):

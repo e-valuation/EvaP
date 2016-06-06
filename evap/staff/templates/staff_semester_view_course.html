@@ -26,6 +26,7 @@
     {% endfor %}
     <span class="label label-default">{{ course.type }}</span>
     <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
+    <span class="label label-default">{% if course.is_private %}{% trans "private" %}{% endif %}</span>
     {% if course.is_single_result %}
         <span class="label label-info">{% trans "Single result" %}</span>
     {% endif %}

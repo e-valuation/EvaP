@@ -173,17 +173,17 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Feedback</h4>
+                    <h4 class="modal-title">{% trans "Feedback" %}</h4>
                 </div>
                 <form id="feedback-form">
                     <div class="modal-body">
                         {% trans "You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP." %}
                         <br /><br />
                         <div class="form-group">
-                            <label for="sender-email" class="control-label">Email:</label>
+                            <label for="sender-email" class="control-label">{% trans "Email" %}:</label>
                             <input type="text" class="form-control" id="sender-email" disabled value="{{ request.user.email }}">
                         </div>
-                        <label for="message-text" class="control-label">Message:</label>
+                        <label for="message-text" class="control-label">{% trans "Message" %}:</label>
                         <textarea class="form-control" id="message-text" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                     <div class="modal-footer">
@@ -234,7 +234,6 @@
         <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
 
         <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/feedback_form.js"></script>
 
     {% endcompress %}
 
@@ -316,6 +315,33 @@
         });
     </script>
 
-    {% block additional_javascript %} {% endblock %}
+    <script type="text/javascript">
+
+        $('#feedback-form').on('submit', function(event){
+
+            event.preventDefault();
+            $('#feedback-spinner').show();
+
+            message = $('#message-text').val();
+
+            $.ajax({
+                url : "/feedback/send",
+                type : "POST",
+                data : { message: message },
+
+                success : function(json) {
+                    $('#feedback-spinner').hide();
+                    $('#feedback-modal').modal('hide');
+                    var text = $('#feedback-button button').html();
+                    $('#feedback-button button').html('{% trans "Message sent!" %}');
+                    setTimeout(function(){
+                        $('#feedback-button button').html(text);
+                    }, 3000);
+                }});
+        });
+    </script>
+
+
+    {% block additional_javascript %}{% endblock %}
 </body>
 </html>
