@@ -343,7 +343,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def staff_approve(self):
         pass
 
-    @transition(field=state, source='prepared', target='new')
+    @transition(field=state, source=['prepared', 'approved'], target='new')
     def revert_to_new(self):
         pass
 
