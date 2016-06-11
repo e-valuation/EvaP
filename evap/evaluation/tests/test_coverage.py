@@ -1,7 +1,6 @@
 from django.test.utils import override_settings
 
-from evap.evaluation.models import Questionnaire, UserProfile, Course, \
-                                   EmailTemplate, Degree, CourseType
+from evap.evaluation.models import UserProfile, Course, EmailTemplate, Degree, CourseType
 from evap.evaluation.tests.tools import WebTest
 
 
