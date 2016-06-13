@@ -2,7 +2,7 @@
 
 {% load morefilters %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     {% if semester %}
         {% if disable_breadcrumb_semester or is_grade_publisher == False %}

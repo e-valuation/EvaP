@@ -2,7 +2,7 @@
 
 {% load morefilters %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
     <li>{% trans "Merge users" %}</li>

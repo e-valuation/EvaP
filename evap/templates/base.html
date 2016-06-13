@@ -119,15 +119,13 @@
 
     <div class="container">
         {% if user.is_staff or user.is_grade_publisher %}
-            {% block breadcrumbs %}
-                <div class="row">
-                    <div class="col-md-12">
-                        <ol class="breadcrumb">
-                            {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                        </ol>
-                    </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <ol class="breadcrumb">
+                        {% block breadcrumb %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+                    </ol>
                 </div>
-            {% endblock %}
+            </div>
         {% endif %}
         {% if messages %}
             <div class="row">

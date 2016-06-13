@@ -2,7 +2,7 @@
 
 {% load morefilters %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "results:semester_detail" course.semester.id %}">{{ course.semester.name }}</a></li>
     <li>{{ course.name }}</li>

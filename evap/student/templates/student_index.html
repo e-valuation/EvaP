@@ -4,7 +4,7 @@
 
 {% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     {% if course %}
         <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
