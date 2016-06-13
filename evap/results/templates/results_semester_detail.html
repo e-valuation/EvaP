@@ -2,6 +2,8 @@
 
 {% load morefilters %}
 
+{% block title %}{{ semester.name }} - {{ block.super }}{% endblock %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li>{{ semester.name }}</li>

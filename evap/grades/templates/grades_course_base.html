@@ -1,5 +1,7 @@
 {% extends "grades_semester_base.html" %}
 
+{% block title %}{{ course.name }} - {{ block.super }}{% endblock %}
+
 {% block breadcrumb %}
     {{ block.super }}
     {% if course %}
@@ -9,11 +11,4 @@
             <li><a href="{% url "grades:course_view" semester.id course.id %}">{{ course.name }}</a></li>
         {% endif %}
     {% endif %}
-{% endblock %}
-
-{% block title %}
-    {% if course %}
-        {{ course.name }} -
-    {% endif %}
-    {{ block.super }}
 {% endblock %}
