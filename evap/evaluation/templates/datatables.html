@@ -1,8 +1,12 @@
 {% get_current_language as LANGUAGE_CODE %}
 {% load static %}
+{% load compress %}
 
-<script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+{% compress js %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+{% endcompress %}
+
 <script type="text/javascript">
     $(document).ready(function() {
         $('{{ table_selector }}').DataTable({
