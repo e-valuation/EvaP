@@ -77,7 +77,7 @@ class ExcelExporter(object):
             style_name += "_total"
         return style_name
 
-    def export(self, response, course_types_list, ignore_not_enough_answers=False, include_unpublished=False):
+    def export(self, response, course_types_list, include_not_enough_answers=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -96,6 +96,8 @@ class ExcelExporter(object):
             used_questionnaires = set()
             for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result:
+                    continue
+                if not course.can_publish_grades and not include_not_enough_answers:
                     continue
                 results = OrderedDict()
                 for questionnaire, contributor, __, data, __ in calculate_results(course):
@@ -146,7 +148,8 @@ class ExcelExporter(object):
                                     deviations.append(grade_result.deviation * grade_result.total_count)
                                     total_count += grade_result.total_count
                         enough_answers = course.can_publish_grades
-                        if values and (enough_answers or ignore_not_enough_answers):
+                        if values and enough_answers:
+                            print(course.name)
                             avg = sum(values) / total_count
                             writec(self, avg, self.grade_to_style(avg))
 
