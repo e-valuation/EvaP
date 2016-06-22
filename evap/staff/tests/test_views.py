@@ -419,7 +419,7 @@ class TestCourseEmailView(ViewTest):
         semester = mommy.make(Semester, pk=1)
         participant1 = mommy.make(UserProfile, email="foo@example.com")
         participant2 = mommy.make(UserProfile, email="bar@example.com")
-        course = mommy.make(Course, pk=1, semester=semester, participants=[participant1, participant2])
+        mommy.make(Course, pk=1, semester=semester, participants=[participant1, participant2])
 
     def test_course_email(self):
         """
@@ -434,6 +434,7 @@ class TestCourseEmailView(ViewTest):
 
         self.assertEqual(len(mail.outbox), 2)
 
+
 class TestQuestionnaireDeletionView(WebTest):
     url = "/staff/questionnaire/delete"
     csrf_checks = False
@@ -442,7 +443,7 @@ class TestQuestionnaireDeletionView(WebTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         questionnaire1 = mommy.make(Questionnaire, pk=1)
-        questionnaire2 = mommy.make(Questionnaire, pk=2)
+        mommy.make(Questionnaire, pk=2)
         mommy.make(Contribution, questionnaires=[questionnaire1])
 
     def test_questionnaire_deletion(self):

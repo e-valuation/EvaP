@@ -20,7 +20,7 @@ class CourseEmailFormTests(TestCase):
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
         form = CourseEmailForm(instance=course, data=data)
         self.assertTrue(form.is_valid())
-        form.send()
+        form.send(None)
 
         data = {"body": "wat", "subject": "some subject"}
         form = CourseEmailForm(instance=course, data=data)

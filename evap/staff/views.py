@@ -224,7 +224,7 @@ def helper_semester_course_operation_prepare(request, courses, send_email):
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
     if send_email:
-        EmailTemplate.send_review_notifications(courses)
+        EmailTemplate.send_review_notifications(courses, request)
 
 
 def helper_semester_course_operation_approve(request, courses):
@@ -243,7 +243,7 @@ def helper_semester_course_operation_start(request, courses, send_email):
     messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
         "Successfully started evaluation for %(courses)d courses.", len(courses)) % {'courses': len(courses)})
     if send_email:
-        EmailTemplate.send_evaluation_started_notifications(courses)
+        EmailTemplate.send_evaluation_started_notifications(courses, request)
 
 
 def helper_semester_course_operation_publish(request, courses, send_email):
@@ -612,7 +612,7 @@ def course_email(request, semester_id, course_id):
             email_addresses = '; '.join(form.email_addresses())
             messages.info(request, _('Recipients: ') + '\n' + email_addresses)
             return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
-        form.send()
+        form.send(request)
         messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         return custom_redirect('staff:semester_view', semester_id)
     else:

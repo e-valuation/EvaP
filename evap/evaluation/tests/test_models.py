@@ -20,7 +20,7 @@ class TestCourses(TestCase):
         with patch('evap.evaluation.models.EmailTemplate.send_evaluation_started_notifications') as mock:
             Course.update_courses()
 
-        mock.assert_called_once_with([course])
+        mock.assert_called_once_with([course], None)
 
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'in_evaluation')
@@ -241,7 +241,7 @@ class TestLoginUrlEmail(TestCase):
 
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], EmailTemplate.CONTRIBUTORS, use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], EmailTemplate.CONTRIBUTORS, use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
         self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
         self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
@@ -250,7 +250,7 @@ class TestLoginUrlEmail(TestCase):
 
     def test_no_login_url_when_cc_users_in_cc(self):
         self.user.cc_users.add(self.other_user)
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
         self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
         self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
@@ -259,16 +259,27 @@ class TestLoginUrlEmail(TestCase):
 
     def test_login_url_when_nobody_in_cc(self):
         # message is not sent to others in cc
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=False)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=False, request=None)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+
+
+class TestEmailTemplate(TestCase):
+    def test_missing_email_address(self):
+        """
+        Tests that __send_to_user behaves when the user has no email address.
+        Regression test to https://github.com/fsr-itse/EvaP/issues/825
+        """
+        user = mommy.make(UserProfile, email=None)
+        template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
+        EmailTemplate._EmailTemplate__send_to_user(user, template, {}, {}, False, None)
 
 
 class TestEmailRecipientList(TestCase):
