@@ -1,6 +1,13 @@
 {% extends "staff_base.html" %}
 
-{% block subtitle %}
+{% block title %}
+    {% if semester %}
+        {{ semester.name }} -
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
     {{ block.super }}
     <li>{% trans "Semesters" %}</li>
     {% if semester %}
@@ -10,13 +17,4 @@
             <li><a href="{% url "staff:semester_view" semester.id %}{% if request.GET.tab %}?tab={{ request.GET.tab }}{% endif %}">{{ semester.name }}</a></li>
         {% endif %}
     {% endif %}
-{% endblock %}
-
-{% block title %}
-    {% if semester %}
-        {{ semester.name }} -
-    {% else %}
-        {% trans "Semesters" %} -
-    {% endif %}
-    {{ block.super }}
 {% endblock %}

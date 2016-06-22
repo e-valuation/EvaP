@@ -2,9 +2,9 @@
 
 {% load morefilters %}
 
-{% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Rewards" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
 {% endblock %}

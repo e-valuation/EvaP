@@ -2,7 +2,7 @@
 
 {% block title %}{% trans "Results" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "results:index" %}">{% trans "Results" %}</a></li>
 {% endblock %}

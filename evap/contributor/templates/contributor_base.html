@@ -2,7 +2,7 @@
 
 {% block title %}{% trans "Your EvaP" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     {% if form %}
         <li><a href="{% url "contributor:index" %}">{% trans "Contributor" %}</a></li>
