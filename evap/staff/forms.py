@@ -284,10 +284,10 @@ class CourseEmailForm(forms.Form, BootstrapMixin):
         recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups, filter_users_in_cc=False)
         return set(user.email for user in recipients if user.email)
 
-    def send(self):
+    def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True, request=request)
 
 
 class QuestionnaireForm(forms.ModelForm, BootstrapMixin):
