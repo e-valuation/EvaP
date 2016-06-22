@@ -3,6 +3,7 @@ import random
 import logging
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
@@ -343,7 +344,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def staff_approve(self):
         pass
 
-    @transition(field=state, source='prepared', target='new')
+    @transition(field=state, source=['prepared', 'approved'], target='new')
     def revert_to_new(self):
         pass
 
@@ -552,7 +553,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
-        EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation)
+        EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation, None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
@@ -1088,7 +1089,7 @@ class EmailTemplate(models.Model):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     @classmethod
-    def send_to_users_in_courses(cls, template, courses, recipient_groups, use_cc):
+    def send_to_users_in_courses(cls, template, courses, recipient_groups, use_cc, request):
         user_course_map = {}
         for course in courses:
             recipients = cls.recipient_list_for_course(course, recipient_groups, filter_users_in_cc=use_cc)
@@ -1098,14 +1099,15 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             subject_params = {}
             body_params = {'user': user, 'courses': courses}
-            cls.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc)
+            cls.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
-    def __send_to_user(cls, user, template, subject_params, body_params, use_cc):
+    def __send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             logger.warning(warning_message)
-            messages.warning(_(warning_message))
+            if request is not None:
+                messages.warning(request, _(warning_message))
             return
 
         if use_cc:
@@ -1168,11 +1170,11 @@ class EmailTemplate(models.Model):
         cls.__send_to_user(user, template, subject_params, body_params, use_cc=True)
 
     @classmethod
-    def send_review_notifications(cls, courses):
+    def send_review_notifications(cls, courses, request):
         template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
-        cls.send_to_users_in_courses(template, courses, [cls.EDITORS], use_cc=True)
+        cls.send_to_users_in_courses(template, courses, [cls.EDITORS], use_cc=True, request=request)
 
     @classmethod
-    def send_evaluation_started_notifications(cls, courses):
+    def send_evaluation_started_notifications(cls, courses, request):
         template = cls.objects.get(name=cls.EVALUATION_STARTED)
-        cls.send_to_users_in_courses(template, courses, [cls.ALL_PARTICIPANTS], use_cc=False)
+        cls.send_to_users_in_courses(template, courses, [cls.ALL_PARTICIPANTS], use_cc=False, request=request)

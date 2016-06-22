@@ -1,9 +1,8 @@
 {% extends "staff_course_base.html" %}
 
 {% load morefilters %}
-{% load i18n %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li>{% trans "Comments" %}</li>
 {% endblock %}

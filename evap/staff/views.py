@@ -224,7 +224,7 @@ def helper_semester_course_operation_prepare(request, courses, send_email):
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
     if send_email:
-        EmailTemplate.send_review_notifications(courses)
+        EmailTemplate.send_review_notifications(courses, request)
 
 
 def helper_semester_course_operation_approve(request, courses):
@@ -243,7 +243,7 @@ def helper_semester_course_operation_start(request, courses, send_email):
     messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
         "Successfully started evaluation for %(courses)d courses.", len(courses)) % {'courses': len(courses)})
     if send_email:
-        EmailTemplate.send_evaluation_started_notifications(courses)
+        EmailTemplate.send_evaluation_started_notifications(courses, request)
 
 
 def helper_semester_course_operation_publish(request, courses, send_email):
@@ -341,7 +341,7 @@ def semester_export(request, semester_id):
     formset = ExportSheetFormset(request.POST or None, form_kwargs={'semester': semester})
 
     if formset.is_valid():
-        ignore_not_enough_answers = request.POST.get('ignore_not_enough_answers') == 'on'
+        include_not_enough_answers = request.POST.get('include_not_enough_answers') == 'on'
         include_unpublished = request.POST.get('include_unpublished') == 'on'
         course_types_list = []
         for form in formset:
@@ -351,7 +351,7 @@ def semester_export(request, semester_id):
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
         response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
-        ExcelExporter(semester).export(response, course_types_list, ignore_not_enough_answers, include_unpublished)
+        ExcelExporter(semester).export(response, course_types_list, include_not_enough_answers, include_unpublished)
         return response
     else:
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
@@ -569,7 +569,7 @@ def helper_course_edit(request, semester, course):
         return custom_redirect('staff:semester_view', semester.id)
     else:
         sort_formset(request, formset)
-        template_data = dict(semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
+        template_data = dict(course=course, semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
         return render(request, "staff_course_form.html", template_data)
 
 
@@ -612,7 +612,7 @@ def course_email(request, semester_id, course_id):
             email_addresses = '; '.join(form.email_addresses())
             messages.info(request, _('Recipients: ') + '\n' + email_addresses)
             return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
-        form.send()
+        form.send(request)
         messages.success(request, _("Successfully sent emails for '%s'.") % course.name)
         return custom_redirect('staff:semester_view', semester_id)
     else:
@@ -1052,7 +1052,7 @@ def user_edit(request, user_id):
         messages.success(request, _("Successfully updated user."))
         return redirect('staff:user_index')
     else:
-        return render(request, "staff_user_form.html", dict(form=form, object=user, courses_contributing_to=courses_contributing_to))
+        return render(request, "staff_user_form.html", dict(form=form, user=user, courses_contributing_to=courses_contributing_to))
 
 
 @require_POST

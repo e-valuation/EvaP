@@ -1,10 +1,8 @@
 {% extends "staff_semester_base.html" %}
 
-{% load i18n %}
-{% load staff_templatetags %}
 {% load morefilters %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li>{% trans "Todo" %}</li>
 {% endblock %}
@@ -16,7 +14,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><b><a href="{% url "staff:user_edit" responsible.id %}">{{ responsible.full_name }}</a></b>, {% trans "Delegate" %}:
                 {% for delegate in delegates %}
-                    <a href="{% url "staff:user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if forloop.last|is_false %},{% endif %}
+                    <a href="{% url "staff:user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
                 {% empty %}
                     &mdash;
                 {% endfor %}

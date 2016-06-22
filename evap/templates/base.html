@@ -1,5 +1,4 @@
 {% spaceless %}
-{% load i18n %}
 {% load static %}
 {% load morefilters %}
 {% load staff_templatetags %}
@@ -17,21 +16,12 @@
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css" />
             <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.less" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
-            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.dataTables.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css" />
         {% endcompress %}
         <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}
-    {% if debug %}
-    <!-- red topbar in debug mode -->
-    <style lang="text/css">
-        .topbar-inner, .topbar .fill {
-            background: #900 !important;
-        }
-    </style>
-    {% endif %}
 </head>
 <body>
 {% block modals %}
@@ -129,15 +119,13 @@
 
     <div class="container">
         {% if user.is_staff or user.is_grade_publisher %}
-            {% block breadcrumbs %}
-                <div class="row">
-                    <div class="col-md-12">
-                        <ol class="breadcrumb">
-                            {% block subtitle %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                        </ol>
-                    </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <ol class="breadcrumb">
+                        {% block breadcrumb %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+                    </ol>
                 </div>
-            {% endblock %}
+            </div>
         {% endif %}
         {% if messages %}
             <div class="row">
@@ -163,7 +151,7 @@
 
 
 {% if user.is_authenticated %}
-    <span id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
+    <span class="hidden-print" id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedback-modal">
             <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
         </button>

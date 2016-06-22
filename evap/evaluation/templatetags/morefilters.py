@@ -83,11 +83,6 @@ def can_use_reward_points(user):
 
 
 @register.filter
-def is_false(arg):
-    return arg is False
-
-
-@register.filter
 def is_choice_field(field):
     return field.field.__class__.__name__ == "TypedChoiceField"
 

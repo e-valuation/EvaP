@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 
-{% load i18n %}
-{% load static %}
-
 {% block title %}{% trans "Manage" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     {% if disable_breadcrumb_staff %}
         <li>{% trans "Manage" %}</li>

@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
-{% load i18n %}
 {% load morefilters %}
 
-{% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Rewards" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
 {% endblock %}
@@ -54,7 +53,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <!--{{form.as_div}}-->
                         <input type="submit" class="btn btn-primary pull-right" value="{% trans "Redeem" %}" />
                     </form>
                 {% else %}

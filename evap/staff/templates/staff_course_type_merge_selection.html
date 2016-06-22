@@ -1,8 +1,6 @@
 {% extends "staff_base.html" %}
 
-{% load i18n %}
-
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "staff:course_type_index" %}">{% trans "Course types" %}</a></li>
     <li>{% trans "Merge course types" %}</li>

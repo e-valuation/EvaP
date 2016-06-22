@@ -84,7 +84,7 @@ node default {
     } -> class { 'apache::mod::expires':
         expires_by_type => [
             { 'text/css' => 'access plus 1 year' },
-            { 'text/javascript' => 'access plus 1 year' },
+            { 'application/javascript' => 'access plus 1 year' },
         ]
     }
 

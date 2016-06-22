@@ -1,12 +1,8 @@
 {% extends "staff_semester_base.html" %}
 
-{% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
-{% load evaluation_templatetags %}
 {% load morefilters %}
-{% load static %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li>{% trans "Export" %}</li>
 {% endblock %}
@@ -50,7 +46,7 @@
                 <input type="checkbox" name="include_unpublished"> {% trans "Include courses from states 'evaluated' and 'reviewed' in the export" %}
             </label><br />
             <label>
-                <input type="checkbox" name="ignore_not_enough_answers"> {% trans "Include courses where not enough answers where given in the export" %}
+                <input type="checkbox" name="include_not_enough_answers"> {% trans "Include courses where not enough answers where given in the export" %}
             </label>
         </div>
 
@@ -61,7 +57,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include_sortable_form_js %}
+    {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
         row_changed = function(row) {

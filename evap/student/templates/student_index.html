@@ -1,17 +1,12 @@
 {% extends "base.html" %}
 
-{% load i18n %}
 {% load morefilters %}
 
 {% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
 
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
-    {% if course %}
-        <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
-    {% else %}
-        <li>{% trans "Evaluation" %}</li>
-    {% endif %}
+    <li>{% trans "Evaluation" %}</li>
 {% endblock %}
 
 {% block content %}

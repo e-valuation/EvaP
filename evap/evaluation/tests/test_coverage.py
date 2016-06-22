@@ -1,7 +1,6 @@
 from django.test.utils import override_settings
 
-from evap.evaluation.models import Questionnaire, UserProfile, Course, \
-                                   EmailTemplate, Degree, CourseType
+from evap.evaluation.models import UserProfile, Course, EmailTemplate, Degree, CourseType
 from evap.evaluation.tests.tools import WebTest
 
 
@@ -175,8 +174,11 @@ class URLTests(WebTest):
     def test_semester_publish(self):
         self.helper_semester_state_views([7], "reviewed", "published", "publish")
 
-    def test_semester_reset(self):
+    def test_semester_reset_1(self):
         self.helper_semester_state_views([2], "prepared", "new", "revertToNew")
+
+    def test_semester_reset_2(self):
+        self.helper_semester_state_views([4], "approved", "new", "revertToNew")
 
     def test_semester_approve_1(self):
         self.helper_semester_state_views([1], "new", "approved", "approve")

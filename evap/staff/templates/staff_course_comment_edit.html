@@ -1,8 +1,6 @@
 {% extends "staff_course_base.html" %}
 
-{% load i18n %}
-
-{% block subtitle %}
+{% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "staff:course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
     <li>{{ text_answer.id }}</li>
