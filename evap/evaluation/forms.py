@@ -3,7 +3,6 @@ from itertools import chain
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms import widgets
-from django.forms.models import ModelChoiceIterator
 from django.template import Template, Context
 from django.utils.encoding import force_text
 from django.utils.html import escape, conditional_escape
@@ -14,13 +13,18 @@ from django.views.decorators.debug import sensitive_variables
 from evap.evaluation.models import UserProfile
 
 
-class QuestionnaireChoiceIterator(ModelChoiceIterator):
-    def choice(self, obj):
-        return (self.field.prepare_value(obj), self.field.label_from_instance(obj), obj.description)
-
-
 class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
+    inner_html = '<li data-toggle="tooltip" data-placement="left" title="{}"><div class="checkbox"><label{}>{} {}</label></div></li>'
+
     def render(self, name, value, attrs=None, choices=()):
+        """
+        We have to implement our own renderer, as the default django widgets provide no support for additional
+        help text per choice in a multiple selection field, nor allows to adjust the html rendering with some kind
+        of line-based hook.
+        The code below is an aggregated version of the quite complicated multi-layer abstraction django uses for its
+        widget renderers. If some behaviour in django dealing with form rendering changes dramatically, the code
+        below probably needs to be adjusted as well. Use the implementation in django/forms/widget.py for reference.
+        """
         if value is None:
             value = []
         has_id = attrs and 'id' in attrs
@@ -29,7 +33,10 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
 
         # Normalize to strings
         str_values = set([force_text(v) for v in value])
-        for i, (option_value, option_label, option_text) in enumerate(chain(self.choices, choices)):
+        for i, (option_value, (option_label, option_text)) in enumerate(chain(self.choices, choices)):
+            option_label = conditional_escape(force_text(option_label))
+            option_text = escape(option_text)
+
             # If an ID attribute was given, add a numeric index as a suffix,
             # so that the checkboxes don't all have the same ID attribute.
             if has_id:
@@ -41,9 +48,9 @@ class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
             checkbox = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
             option_value = force_text(option_value)
             rendered_checkbox = checkbox.render(name, option_value)
-            option_label = conditional_escape(force_text(option_label))
-            output.append('<li data-toggle="tooltip" data-placement="left" title="{}"><div class="checkbox"><label{}>{} {}</label></div></li>'.format(
-                escape(option_text), label_for, rendered_checkbox.replace('class="form-control"', ''), option_label))
+
+            output.append(self.inner_html.format(option_text, label_for, rendered_checkbox, option_label))
+
         output.append('</ul>')
         return mark_safe('\n'.join(output))
 
@@ -55,21 +62,12 @@ class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
         super().__init__(*args, **kwargs)
         self.help_text = ""
 
-    def _get_choices(self):
-        # If self._choices is set, then somebody must have manually set
-        # the property self.choices. In this case, just return self._choices.
-        if hasattr(self, '_choices'):
-            return self._choices
-
-        # Otherwise, execute the QuerySet in self.queryset to determine the
-        # choices dynamically. Return a fresh ModelChoiceIterator that has not been
-        # consumed. Note that we're instantiating a new ModelChoiceIterator *each*
-        # time _get_choices() is called (and, thus, each time self.choices is
-        # accessed) so that we can ensure the QuerySet has not been consumed. This
-        # construct might look complicated but it allows for lazy evaluation of
-        # the queryset.
-        return QuestionnaireChoiceIterator(self)
-    choices = property(_get_choices, forms.ChoiceField._set_choices)
+    def label_from_instance(self, obj):
+        """
+        We put both the regular label _and_ the description of the questionnaire in the label field
+        for later decomposition in the render method of QuestionnaireSelectMultiple.
+        """
+        return super().label_from_instance(obj), obj.description
 
 
 class LoginUsernameForm(forms.Form):
