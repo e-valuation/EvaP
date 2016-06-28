@@ -1,10 +1,9 @@
 from django import forms
 
-from evap.evaluation.forms import BootstrapMixin
 from evap.rewards.models import RewardPointRedemptionEvent
 
 
-class RewardPointRedemptionEventForm(forms.ModelForm, BootstrapMixin):
+class RewardPointRedemptionEventForm(forms.ModelForm):
     class Meta:
         model = RewardPointRedemptionEvent
         fields = "__all__"

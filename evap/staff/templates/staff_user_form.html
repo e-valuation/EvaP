@@ -1,5 +1,7 @@
 {% extends "staff_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
@@ -18,7 +20,7 @@
 
     <form id="user-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
     {% csrf_token %}
-    {{ form.as_div }}
+    {% bootstrap_form form layout='horizontal' %}
 
     {% if user.pk %}
         <fieldset>

@@ -1,6 +1,7 @@
 {% extends "staff_course_base.html" %}
 
 {% load static %}
+{% load bootstrap3 %}
 
 {% block content %}
     {{ block.super }}
@@ -9,7 +10,7 @@
     </p>
     <form id="participant-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
        {% csrf_token %}
-       {{ form.as_div }}
+       {% bootstrap_form form layout='horizontal' %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
                 <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>

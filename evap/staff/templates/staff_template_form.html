@@ -1,5 +1,7 @@
 {% extends "staff_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li>{% trans "Templates" %}</li>
@@ -10,7 +12,7 @@
     {{ block.super }}
     <form id="template-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
         {% csrf_token %}
-        {{ form.as_div }}
+        {% bootstrap_form form layout='horizontal' %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
                 <input type="submit" value="{% trans "Save template" %}" onclick="preventAccidentalClosing = false;" class="btn btn-primary"/>

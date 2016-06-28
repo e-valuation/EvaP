@@ -8,14 +8,13 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire, Semester
-from evap.evaluation.forms import BootstrapMixin
 from evap.staff.forms import ContributionForm
 
 
 logger = logging.getLogger(__name__)
 
 
-class CourseForm(forms.ModelForm, BootstrapMixin):
+class CourseForm(forms.ModelForm):
     general_questions = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questions"))
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
@@ -80,7 +79,7 @@ class EditorContributionForm(ContributionForm):
             (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
 
 
-class DelegatesForm(forms.ModelForm, BootstrapMixin):
+class DelegatesForm(forms.ModelForm):
     delegate_of = forms.ModelMultipleChoiceField(None, required=False, disabled=True)
     cc_user_of = forms.ModelMultipleChoiceField(None, required=False, disabled=True)
 

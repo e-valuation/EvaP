@@ -1,10 +1,12 @@
 {% extends "staff_course_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block content %}
     {{ block.super }}
     <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
-        {{ form.as_div }}
+        {% bootstrap_form form layout='horizontal' %}
 
         {% if form.instance.can_staff_edit %}
             <div class="form-group well">

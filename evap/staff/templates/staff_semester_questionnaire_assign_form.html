@@ -1,19 +1,21 @@
 {% extends "staff_semester_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block content %}
     {{ block.super }}
     <p>
         {% trans "Select the questionnaires which shall be assigned each of these course types and the responsible contributor. This will only change courses in the state 'new'. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed." %}
     </p>
     <form id="questionnaire-assign-form" method="POST" class="form-horizontal multiselect-form">
-    {% csrf_token %}
-    <fieldset>
-    {{ form.as_div }}
-    </fieldset>
-    <div class="form-group well">
-        <div class="col-sm-offset-2 col-sm-6">
-           <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
+        {% csrf_token %}
+        <fieldset>
+            {% bootstrap_form form layout='horizontal' %}
+        </fieldset>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+               <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
+            </div>
         </div>
-    </div>
     </form>
 {% endblock %}

@@ -1,13 +1,15 @@
 {% extends "staff_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block content %}
     {{ block.super }}
     <p>
         {% trans "Upload a text file containing one username per line. This will delete all identified users that can be deleted." %}
     </p>
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
-       {% csrf_token %}
-       {{ form.as_div }}
+        {% csrf_token %}
+        {% bootstrap_form form layout='horizontal' %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
                 <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>
