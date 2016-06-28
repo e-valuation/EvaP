@@ -13,63 +13,6 @@ from django.views.decorators.debug import sensitive_variables
 from evap.evaluation.models import UserProfile
 
 
-class QuestionnaireSelectMultiple(forms.CheckboxSelectMultiple):
-    inner_html = '<li data-toggle="tooltip" data-placement="left" title="{}"><div class="checkbox"><label{}>{} {}</label></div></li>'
-
-    def render(self, name, value, attrs=None, choices=()):
-        """
-        We have to implement our own renderer, as the default django widgets provide no support for additional
-        help text per choice in a multiple selection field, nor allows to adjust the html rendering with some kind
-        of line-based hook.
-        The code below is an aggregated version of the quite complicated multi-layer abstraction django uses for its
-        widget renderers. If some behaviour in django dealing with form rendering changes dramatically, the code
-        below probably needs to be adjusted as well. Use the implementation in django/forms/widget.py for reference.
-        """
-        if value is None:
-            value = []
-        has_id = attrs and 'id' in attrs
-        final_attrs = self.build_attrs(attrs, name=name)
-        output = ['<ul class="inputs-list">']
-
-        # Normalize to strings
-        str_values = set([force_text(v) for v in value])
-        for i, (option_value, (option_label, option_text)) in enumerate(chain(self.choices, choices)):
-            option_label = conditional_escape(force_text(option_label))
-            option_text = escape(option_text)
-
-            # If an ID attribute was given, add a numeric index as a suffix,
-            # so that the checkboxes don't all have the same ID attribute.
-            if has_id:
-                final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
-                label_for = ' for="%s"' % final_attrs['id']
-            else:
-                label_for = ''
-
-            checkbox = widgets.CheckboxInput(final_attrs, check_test=lambda value: value in str_values)
-            option_value = force_text(option_value)
-            rendered_checkbox = checkbox.render(name, option_value)
-
-            output.append(self.inner_html.format(option_text, label_for, rendered_checkbox, option_label))
-
-        output.append('</ul>')
-        return mark_safe('\n'.join(output))
-
-
-class QuestionnaireMultipleChoiceField(forms.ModelMultipleChoiceField):
-    widget = QuestionnaireSelectMultiple
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.help_text = ""
-
-    def label_from_instance(self, obj):
-        """
-        We put both the regular label _and_ the description of the questionnaire in the label field
-        for later decomposition in the render method of QuestionnaireSelectMultiple.
-        """
-        return super().label_from_instance(obj), obj.description
-
-
 class LoginUsernameForm(forms.Form):
     """Form encapsulating the login with username and password, for example from an Active Directory.
     """

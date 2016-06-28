@@ -10,7 +10,8 @@ from django.http.request import QueryDict
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
-from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
+from evap.evaluation.forms import BootstrapMixin
+from django.forms.widgets import CheckboxSelectMultiple
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
 from evap.staff.fields import ToolTipModelMultipleChoiceField
@@ -91,7 +92,11 @@ class CourseTypeMergeSelectionForm(forms.Form, BootstrapMixin):
 
 
 class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=False, obsolete=False), label=_("General questions"))
+    general_questions = forms.ModelMultipleChoiceField(
+        Questionnaire.objects.filter(is_for_contributors=False, obsolete=False),
+        widget=CheckboxSelectMultiple,
+        label=_("General questions")
+    )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
@@ -192,7 +197,13 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
         single_result_question = single_result_questionnaire.question_set.first()
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
-            contribution = Contribution(course=self.instance, contributor=self.cleaned_data['responsible'], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+            contribution = Contribution(
+                course=self.instance,
+                contributor=self.cleaned_data['responsible'],
+                responsible=True,
+                can_edit=True,
+                comment_visibility=Contribution.ALL_COMMENTS
+            )
             contribution.save()
             contribution.questionnaires.add(single_result_questionnaire)
 
@@ -215,7 +226,11 @@ class SingleResultForm(forms.ModelForm, BootstrapMixin):
 class ContributionForm(forms.ModelForm, BootstrapMixin):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-    questionnaires = QuestionnaireMultipleChoiceField(Questionnaire.objects.filter(is_for_contributors=True, obsolete=False), label=_("Questionnaires"))
+    questionnaires = forms.ModelMultipleChoiceField(
+        Questionnaire.objects.filter(is_for_contributors=True, obsolete=False),
+        widget=CheckboxSelectMultiple,
+        label=_("Questionnaires")
+    )
 
     class Meta:
         model = Contribution

@@ -6,6 +6,11 @@ from evap.rewards.tools import can_user_use_reward_points
 register = Library()
 
 
+@register.filter(name='zip')
+def zip_lists(a, b):
+    return zip(a, b)
+
+
 @register.filter(name='gradecolor')
 def gradecolor(grade):
     return 'rgb({}, {}, {})'.format(*get_grade_color(grade))
