@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 import os
 import sys
-from django.contrib.messages import constants as messages
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -320,11 +319,6 @@ COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
 COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
-
-# Apply the correct bootstrap css class to django's error messages
-MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
-}
 
 # make generation of Question objects work, see https://github.com/vandersonmota/model_mommy/issues/231
 MOMMY_CUSTOM_FIELDS_GEN = {
