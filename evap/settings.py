@@ -169,6 +169,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    'bootstrap3',
+    'compressor',
+    'django_extensions',
     'evap.evaluation',
     'evap.staff',
     'evap.results',
@@ -176,8 +179,6 @@ INSTALLED_APPS = [
     'evap.contributor',
     'evap.rewards',
     'evap.grades',
-    'compressor',
-    'django_extensions',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -304,6 +305,13 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 
 ### Other
+
+# django-bootstrap3
+BOOTSTRAP3 = {
+    'horizontal_label_class': 'col-md-2',
+    'horizontal_field_class': 'col-md-6',
+    'set_required': False,  # would be nice to have but doesn't play well with the navbar at least in firefox
+}
 
 # django-compressor settings
 COMPRESS_ENABLED = not DEBUG
