@@ -461,6 +461,13 @@ div.disabled-tooltip {
 
 .tooltip-inner {
     max-width: 250px;
+    text-align: left;
+}
+
+.tooltip-inner ul {
+    margin-left: 10px;
+    margin-top: 10px;
+    padding-left: 10px;
 }
 
 .grade-course-table tr {
