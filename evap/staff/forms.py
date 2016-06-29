@@ -94,7 +94,7 @@ class CourseForm(forms.ModelForm):
     general_questions = forms.ModelMultipleChoiceField(
         Questionnaire.objects.filter(is_for_contributors=False, obsolete=False),
         widget=CheckboxSelectMultiple,
-        label=_("General questions")
+        label=_("Questions about the course")
     )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
