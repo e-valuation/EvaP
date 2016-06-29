@@ -9,3 +9,4 @@ model_mommy >= 1.2.6
 django-extensions >= 1.5.5
 django-sendfile >= 0.3.6
 git+git://github.com/django-compressor/django-compressor.git@94755c5aa62d0e659c863bbe75968f51c094be6e#egg=django_compressor
+django-bootstrap3==7.0.1

@@ -1,5 +1,7 @@
 {% extends "staff_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
@@ -13,7 +15,7 @@
     </p>
     <form method="POST" class="form-horizontal">
        {% csrf_token %}
-       {{ form.as_div }}
+       {% bootstrap_form form layout='horizontal' %}
         <div class="well submit-area text-center">
             <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
         </div>

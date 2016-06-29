@@ -2,20 +2,20 @@ import logging
 import datetime
 
 from django import forms
+from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from evap.evaluation.models import Course, UserProfile, Questionnaire, Semester
-from evap.evaluation.forms import BootstrapMixin, QuestionnaireMultipleChoiceField
 from evap.staff.forms import ContributionForm
 
 
 logger = logging.getLogger(__name__)
 
 
-class CourseForm(forms.ModelForm, BootstrapMixin):
-    general_questions = QuestionnaireMultipleChoiceField(queryset=None, label=_("General questions"))
+class CourseForm(forms.ModelForm):
+    general_questions = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questions"))
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
@@ -79,7 +79,7 @@ class EditorContributionForm(ContributionForm):
             (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
 
 
-class DelegatesForm(forms.ModelForm, BootstrapMixin):
+class DelegatesForm(forms.ModelForm):
     delegate_of = forms.ModelMultipleChoiceField(None, required=False, disabled=True)
     cc_user_of = forms.ModelMultipleChoiceField(None, required=False, disabled=True)
 

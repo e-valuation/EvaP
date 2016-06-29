@@ -37,7 +37,9 @@
                         {{ form.contributor }}
                     {% endif %}
                 </td>
-                <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
+                <td>
+                    {% include "questionnaires_widget.html" with questionnaires=form.questionnaires %}
+                </td>
                 <td>
                     {% trans "Responsibility" %}:<br />
                     {% include "responsibility_buttons.html" with form=form can_change_responsible=staff %}

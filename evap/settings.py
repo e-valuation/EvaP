@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 import os
 import sys
-from django.contrib.messages import constants as messages
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -169,6 +168,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    'bootstrap3',
+    'compressor',
+    'django_extensions',
     'evap.evaluation',
     'evap.staff',
     'evap.results',
@@ -176,8 +178,6 @@ INSTALLED_APPS = [
     'evap.contributor',
     'evap.rewards',
     'evap.grades',
-    'compressor',
-    'django_extensions',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -305,6 +305,13 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 ### Other
 
+# django-bootstrap3
+BOOTSTRAP3 = {
+    'horizontal_label_class': 'col-md-2',
+    'horizontal_field_class': 'col-md-6',
+    'set_required': False,  # would be nice to have but doesn't play well with the navbar at least in firefox
+}
+
 # django-compressor settings
 COMPRESS_ENABLED = not DEBUG
 COMPRESS_OFFLINE = False
@@ -312,11 +319,6 @@ COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
 COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
-
-# Apply the correct bootstrap css class to django's error messages
-MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
-}
 
 # make generation of Question objects work, see https://github.com/vandersonmota/model_mommy/issues/231
 MOMMY_CUSTOM_FIELDS_GEN = {

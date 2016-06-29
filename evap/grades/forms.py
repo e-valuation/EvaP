@@ -1,12 +1,11 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
-from evap.evaluation.forms import BootstrapMixin
 
 from evap.grades.models import GradeDocument
 
 
-class GradeDocumentForm(forms.ModelForm, BootstrapMixin):
+class GradeDocumentForm(forms.ModelForm):
     # see CourseForm (staff/forms.py) for details, why the following two fields are needed
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
