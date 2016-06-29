@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class CourseForm(forms.ModelForm):
-    general_questions = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questions"))
+    general_questions = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("Questions about the course"))
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
