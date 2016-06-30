@@ -1,11 +1,12 @@
 {% spaceless %}
 {% load static %}
+{% load cache %}
+{% load compress %}
 {% load morefilters %}
+{% load bootstrap3 %}
 {% load staff_templatetags %}
 {% load grades_templatetags %}
 {% load results_templatetags %}
-{% load cache %}
-{% load compress %}
 
 {% endspaceless %}<!DOCTYPE html>
 <html>
@@ -127,15 +128,9 @@
                 </div>
             </div>
         {% endif %}
-        {% if messages %}
-            <div class="row">
-                <div class="col-md-12">
-                    {% for message in messages %}
-                        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|linebreaksbr }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
+
+        {% bootstrap_messages %}
+        
         {% block rawcontent %}
             <div class="row">
                 <div class="col-md-12">
@@ -233,9 +228,6 @@
                 closeCookie: true,
                 reject: { msie5: true, msie6: true, msie8: true }
             });
-
-            // add a close button to each message and make it work
-            $(".alert").prepend("<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>").alert();
 
             // activate topbar
             $('#topbar').dropdown();

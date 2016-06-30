@@ -1,5 +1,6 @@
 {% extends "contributor_base.html" %}
 
+{% load bootstrap3 %}
 {% load morefilters %}
 
 {% block breadcrumb %}
@@ -11,11 +12,8 @@
     {{ block.super }}
     <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
         {% csrf_token %}
-        <fieldset>
-            <legend>{{ course.name }} ({{ course.semester.name }})</legend>
-            {{ form.as_div }}
-            {{ form.degrees.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
-        </fieldset>
+
+        {% include 'course_form_general_questions.html' with course=course course_form=form %}
 
         {% include "contribution_formset.html" with formset=formset staff=False editable=True%}
 

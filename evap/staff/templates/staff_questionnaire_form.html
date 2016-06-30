@@ -1,12 +1,14 @@
 {% extends "staff_questionnaire_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block content %}
     {{ block.super }}
     <form id="questionnaire-form" method="POST" class="form-horizontal select2form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
-            {{ form.as_div }}
+            {% bootstrap_form form layout='horizontal' %}
         </fieldset>
 
         <fieldset>

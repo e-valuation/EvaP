@@ -1,13 +1,13 @@
 {% extends "staff_course_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block content %}
     {{ block.super }}
     <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
         {% csrf_token %}
-        <fieldset>
-            <legend>{% trans "General Options" %}</legend>
-            {{ form.as_div }}
-        </fieldset>
+        
+        {% include 'course_form_general_questions.html' with course=course course_form=form %}
 
         {% include "contribution_formset.html" with formset=formset staff=True editable=editable %}
 

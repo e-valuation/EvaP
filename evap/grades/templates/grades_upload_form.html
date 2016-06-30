@@ -1,8 +1,10 @@
 {% extends "grades_course_base.html" %}
 
+{% load bootstrap3 %}
+
 {% block content %}
     {{ block.super }}
-    
+
     {% if show_automated_publishing_info %}
         <div class="bs-callout bs-callout-info">
             <b>{% trans "Automated publishing" %}</b><br />
@@ -17,7 +19,7 @@
     {% endif %}</h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_div }}
+        {% bootstrap_form form layout='horizontal' %}
         <div class="form-group well">
             <div class="col-sm-offset-2 col-sm-6">
                 <input type="submit" value="{% trans "Upload grades" %}" class="btn btn-primary"/>
