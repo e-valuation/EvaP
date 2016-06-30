@@ -130,7 +130,7 @@
         {% endif %}
 
         {% bootstrap_messages %}
-        
+
         {% block rawcontent %}
             <div class="row">
                 <div class="col-md-12">
@@ -268,7 +268,7 @@
             apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
             // run the jquery datepicker plugin
-            $("input[data-datepicker='datepicker']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+            $("input[name*='date']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
 
             // scroll content to show below navbar
             var navbar_height = 50;
