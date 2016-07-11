@@ -212,7 +212,7 @@ class ArchivingTests(TestCase):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, state="published")
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        contribution.questionnaires.add(Questionnaire.get_single_result_questionnaire())
+        contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
         self.assertTrue(course.is_single_result)
 
         course._participant_count = 5

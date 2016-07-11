@@ -117865,6 +117865,26 @@
   }
 },
 {
+  "model": "evaluation.userprofile",
+  "pk": 2371,
+  "fields": {
+    "password": "",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "cronjob",
+    "email": "",
+    "title": null,
+    "first_name": null,
+    "last_name": null,
+    "login_key": null,
+    "login_key_valid_until": null,
+    "groups": [],
+    "user_permissions": [],
+    "delegates": [],
+    "cc_users": []
+  }
+},
+{
   "model": "evaluation.emailtemplate",
   "pk": 1,
   "fields": {

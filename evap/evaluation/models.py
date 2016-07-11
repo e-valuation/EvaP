@@ -146,7 +146,7 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
 
     @classmethod
-    def get_single_result_questionnaire(cls):
+    def single_result_questionnaire(cls):
         return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
@@ -540,6 +540,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             try:
                 if course.state == "approved" and course.vote_start_date <= today:
                     course.evaluation_begin()
+                    course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
                 elif course.state == "in_evaluation" and course.vote_end_date < today:
@@ -549,6 +550,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
+                    course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
@@ -909,6 +911,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_grade_publisher(self):
         return self.groups.filter(name='Grade publisher').exists()
+
+    CRONJOB_USER_USERNAME = "cronjob"
+
+    @classmethod
+    def cronjob_user(cls):
+        return cls.objects.get(username=cls.CRONJOB_USER_USERNAME)
 
     @property
     def can_staff_delete(self):
