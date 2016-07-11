@@ -783,7 +783,7 @@ def questionnaire_create(request):
         messages.success(request, _("Successfully created questionnaire."))
         return redirect('staff:questionnaire_index')
     else:
-        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
+        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
 def make_questionnaire_edit_forms(request, questionnaire, editable):
