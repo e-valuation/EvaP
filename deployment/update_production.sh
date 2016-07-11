@@ -1,7 +1,18 @@
 #!/bin/bash
 set -e # abort on error
 cd `dirname $0`/.. # change to root directory
-set -x # print executed commands
+
+# argument 1 is the filename for the backupfile.
+# if no argument is present, no backup will be created.
+if [ $# -eq 1 ] # if there is exactly one argument
+    then
+        echo Creating backup.
+        set -x # print executed commands. enable this here to not print the if above.
+        sudo -u evap ./manage.py dumpdata --indent 2 --output $1
+    else
+        echo No backup file specified, skipping backup creation.
+        set -x # print executed commands
+fi
 
 sudo -u evap git fetch
 sudo -u evap git checkout origin/release
