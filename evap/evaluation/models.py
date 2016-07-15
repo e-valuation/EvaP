@@ -799,6 +799,12 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
 
 class UserProfileManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(username=UserProfile.CRONJOB_USER_USERNAME)
+
+    def with_cronjob_user(self):
+        return super().get_queryset()
+
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
@@ -916,7 +922,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @classmethod
     def cronjob_user(cls):
-        return cls.objects.get(username=cls.CRONJOB_USER_USERNAME)
+        return cls.objects.with_cronjob_user().get(username=cls.CRONJOB_USER_USERNAME)
 
     @property
     def can_staff_delete(self):
