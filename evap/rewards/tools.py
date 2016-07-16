@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -7,7 +9,8 @@ from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Course
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation, NoPointsSelected, NotEnoughPoints
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
+                                SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
 
 
 @login_required
@@ -24,10 +27,14 @@ def save_redemptions(request, redemptions):
 
     for event_id in redemptions:
         if redemptions[event_id] > 0:
+            event = RewardPointRedemptionEvent.objects.get(id=event_id)
+            if event.redeem_end_date < date.today():
+                raise RedemptionEventExpired(_("Sorry, the deadline for this event expired already."))
+
             RewardPointRedemption.objects.create(
                 user_profile=request.user,
                 value=redemptions[event_id],
-                event=RewardPointRedemptionEvent.objects.get(id=event_id)
+                event=event
             )
 
 

@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 
@@ -43,7 +45,7 @@ class TestIndexView(ViewTest):
         cls.student = mommy.make(UserProfile, username='student', email='foo@hpi.de')
         mommy.make(Course, participants=[cls.student])
         mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
-        mommy.make(RewardPointRedemptionEvent, _quantity=2)
+        mommy.make(RewardPointRedemptionEvent, _quantity=2, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
         response = self.app.get(reverse('rewards:index'), user='student')
@@ -56,13 +58,22 @@ class TestIndexView(ViewTest):
         self.assertEqual(0, reward_points_of_user(self.student))
 
     def test_redeem_too_many_points(self):
-        mommy.make(RewardPointRedemptionEvent)
         response = self.app.get(reverse('rewards:index'), user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-1', 3)
         form.set('points-2', 3)
         response = form.submit()
-        self.assertIn(b"have enough reward points.", response.body)
+        self.assertContains(response, "have enough reward points.")
+        self.assertEqual(5, reward_points_of_user(self.student))
+
+    def test_redeem_points_for_expired_event(self):
+        """ Regression test for #846 """
+        response = self.app.get(reverse('rewards:index'), user='student')
+        form = response.forms['reward-redemption-form']
+        form.set('points-2', 1)
+        RewardPointRedemptionEvent.objects.update(redeem_end_date=date.today() - timedelta(days=1))
+        response = form.submit()
+        self.assertContains(response, "event expired already.")
         self.assertEqual(5, reward_points_of_user(self.student))
 
 

@@ -14,6 +14,11 @@ class NotEnoughPoints(Exception):
     pass
 
 
+class RedemptionEventExpired(Exception):
+    """An attempt has been made to redeem more points for an event whose redeem_end_date lies in the past."""
+    pass
+
+
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))
     date = models.DateField(verbose_name=_("event date"))
