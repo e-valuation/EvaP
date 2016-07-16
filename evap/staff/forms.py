@@ -192,7 +192,7 @@ class SingleResultForm(forms.ModelForm):
         self.instance.is_graded = False
         super().save(*args, **kw)
 
-        single_result_questionnaire = Questionnaire.get_single_result_questionnaire()
+        single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.question_set.first()
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
