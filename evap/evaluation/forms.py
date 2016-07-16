@@ -29,6 +29,9 @@ class LoginUsernameForm(forms.Form):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
 
+        # django-auth-kerberos might create a new userprofile. make sure it gets a lowercase username.
+        username = username.lower()
+
         if username and password:
             self.user_cache = authenticate(username=username, password=password)
             if self.user_cache is None:
