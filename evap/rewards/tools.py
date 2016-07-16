@@ -36,13 +36,10 @@ def can_user_use_reward_points(user):
 
 
 def reward_points_of_user(user):
-    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=user)
-    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=user)
-
     count = 0
-    for granting in reward_point_grantings:
+    for granting in user.reward_point_grantings.all():
         count += granting.value
-    for redemption in reward_point_redemptions:
+    for redemption in user.reward_point_redemptions.all():
         count -= redemption.value
 
     return count
@@ -75,8 +72,4 @@ def grant_reward_points(sender, **kwargs):
 
 
 def is_semester_activated(semester):
-    try:
-        activation = SemesterActivation.objects.get(semester=semester)
-        return activation.is_active
-    except SemesterActivation.DoesNotExist:
-        return False
+    return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()

@@ -37,8 +37,7 @@ def index(request):
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
-    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now())
-    events = sorted(events, key=lambda event: event.date)
+    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
 
     reward_point_actions = []
     for granting in reward_point_grantings:
