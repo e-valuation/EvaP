@@ -42,9 +42,9 @@ class MergeUsersTest(TestCase):
             ccing_users=[cls.user1, cls.user2],
             is_superuser=True
         )
-        cls.course1 = mommy.make(Course, name="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.course2 = mommy.make(Course, name="course2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.course3 = mommy.make(Course, name="course3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.course1 = mommy.make(Course, name_de="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.course2 = mommy.make(Course, name_de="course2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.course3 = mommy.make(Course, name_de="course3", participants=[cls.other_user], voters=[cls.other_user])
         cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, course=cls.course1)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course1)  # this should make the merge fail
         cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course2)

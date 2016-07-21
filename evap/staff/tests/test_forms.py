@@ -86,6 +86,7 @@ class SingleResultFormTests(TestCase):
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
+        course = Course(semester=mommy.make(Semester))
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
@@ -98,8 +99,8 @@ class SingleResultFormTests(TestCase):
             "answer_3": 2,
             "answer_4": 0,
             "answer_5": 2,
+            "semester": course.semester.pk
         }
-        course = Course(semester=mommy.make(Semester))
         form = SingleResultForm(form_data, instance=course)
         self.assertTrue(form.is_valid())
 
