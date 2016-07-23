@@ -109,7 +109,7 @@ def vote(request, course_id):
                             answer_counter.add_vote()
                             answer_counter.save()
 
-        course.was_evaluated(request)
+        course.course_evaluated.send(sender=Course, request=request, semester=course.semester)
 
     messages.success(request, _("Your vote was recorded."))
     return redirect('student:index')
