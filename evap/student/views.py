@@ -83,6 +83,11 @@ def vote(request, course_id):
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
+        # add user to course.voters
+        # not using course.voters.add(request.user) since it fails silently when done twice.
+        # manually inserting like this throws an error instead and ensures at the database level that nobody votes twice.
+        course.voters.through.objects.create(userprofile_id=request.user.pk, course_id=course.pk)
+
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
@@ -101,9 +106,6 @@ def vote(request, course_id):
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.add_vote()
                             answer_counter.save()
-
-        # remember that the user voted already
-        course.voters.add(request.user)
 
         course.was_evaluated(request)
 
