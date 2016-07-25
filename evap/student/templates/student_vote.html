@@ -149,6 +149,8 @@
             // remove error highlighting when an answer was selected
             $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
-        preventAccidentalClosing = true;
+        {% if not preview %}
+            preventAccidentalClosing = true;
+        {% endif %}
     </script>
 {% endblock %}
