@@ -35,11 +35,11 @@
                 <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>
-                        <th class="col-sm-4">{% trans "Name" %}</th>
-                        <th class="col-sm-2">{% trans "State" %}</th>
-                        <th class="col-sm-2">{% trans "Evaluation Period" %}</th>
-                        <th class="col-sm-1">{% trans "Participants" %}</th>
-                        <th class="col-sm-3"></th>
+                        <th class="col-xs-3">{% trans "Name" %}</th>
+                        <th class="col-xs-2">{% trans "State" %}</th>
+                        <th class="col-xs-2">{% trans "Evaluation Period" %}</th>
+                        <th class="col-xs-2">{% trans "Participants" %}</th>
+                        <th class="col-xs-3"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -59,7 +59,11 @@
                                 {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}{% endif %}
                             </td>
                             <td>
-                                {% if course.is_single_result %}&mdash;{% else %}{{ course.num_participants }}{% endif %}
+                                {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                    {% include "progress_bar.html" with done=course.num_voters total=course.num_participants icon="user" %}
+                                {% else %}
+                                    {% if course.is_single_result %}&mdash;{% else %}{{ course.num_participants }}{% endif %}
+                                {% endif %}
                             </td>
                             <td class="text-right">
                                 {% if course|is_user_editor_or_delegate:user %}
