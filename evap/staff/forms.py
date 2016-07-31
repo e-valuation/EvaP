@@ -13,7 +13,6 @@ from django.contrib.auth.models import Group
 from django.forms.widgets import CheckboxSelectMultiple
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 
 logger = logging.getLogger(__name__)
@@ -435,9 +434,9 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         contributor_questionnaires = Questionnaire.objects.filter(obsolete=False, is_for_contributors=True)
-        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
+        self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm):
