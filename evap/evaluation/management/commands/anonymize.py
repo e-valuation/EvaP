@@ -20,9 +20,9 @@ class Command(BaseCommand):
 
     ignore_usernames = ['evap', 'student', 'contributor', 'delegate', 'responsible']
 
-    previous_institution_domains = ['hpi.uni-potsdam.de', 'student.hpi.uni-potsdam.de', 'hpi.de', 'student.hpi.de']
-    new_institution_domain = ''
-    new_external_domain = 'external.com'
+    previous_institution_domains = ['hpi.uni-potsdam.de', 'institution.example.com', 'hpi.de', 'student.hpi.de']
+    new_institution_domain = settings.INSTITUTION_EMAIL_DOMAINS[0]
+    new_external_domain = 'external.example.com'
 
     def handle(self, *args, **options):
         self.stdout.write("")
@@ -103,7 +103,7 @@ class Command(BaseCommand):
             if user.email:
                 old_domain = user.email.split('@')[1]
                 is_institution_domain = old_domain in Command.previous_institution_domains
-                new_domain = old_domain if is_institution_domain else Command.new_external_domain
+                new_domain = Command.new_institution_domain if is_institution_domain else Command.new_external_domain
                 user.email = user.username + '@' + new_domain
 
             user.save()

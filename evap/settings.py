@@ -51,7 +51,7 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who can login with username and password and who needs a login key
-INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de", "hpi.de", "student.hpi.de"]
+INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 
 # maximum length of usernames of internal users
 INTERNAL_USERNAMES_MAX_LENGTH = 20

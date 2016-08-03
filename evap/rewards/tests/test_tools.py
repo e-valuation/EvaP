@@ -15,7 +15,7 @@ class TestGrantRewardPoints(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.student = mommy.make(UserProfile, username='student', email='foo@hpi.de')
+        cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
         cls.course = mommy.make(Course, pk=1, state='in_evaluation', participants=[cls.student])
 
         questionnaire = mommy.make(Questionnaire)
