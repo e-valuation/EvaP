@@ -142,8 +142,8 @@ class ArchivingTests(TestCase):
         cls.course = mommy.make(Course, pk=7, state="published", semester=cls.semester)
 
         users = mommy.make(UserProfile, _quantity=3)
-        cls.course.participants = users
-        cls.course.voters = users[:2]
+        cls.course.participants.set(users)
+        cls.course.voters.set(users[:2])
 
     def refresh_course(self):
         """ refresh_from_db does not work with courses"""
@@ -294,7 +294,7 @@ class TestEmailRecipientList(TestCase):
 
         participant1 = mommy.make(UserProfile, courses_participating_in=[course])
         participant2 = mommy.make(UserProfile, courses_participating_in=[course])
-        course.voters = [participant1]
+        course.voters.set([participant1])
 
         recipient_list = EmailTemplate.recipient_list_for_course(course, [], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [])

@@ -20,7 +20,7 @@ class TestGrantRewardPoints(WebTest):
 
         questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, questionnaire=questionnaire, type="G")
-        cls.course.general_contribution.questionnaires = [questionnaire]
+        cls.course.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
         response = self.app.get(reverse("student:vote", args=[1]), user="student")

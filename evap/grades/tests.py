@@ -36,9 +36,9 @@ class GradeUploadTests(WebTest):
         )
         contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
-        contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
+        contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
-        cls.course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         cls.activation = SemesterGradeDownloadActivation.objects.create(semester=cls.course.semester, is_active=True)
 
@@ -146,9 +146,9 @@ class GradeUploadTests(WebTest):
         )
         contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
-        contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
+        contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         self.assertFalse(course.gets_no_grade_documents)
 

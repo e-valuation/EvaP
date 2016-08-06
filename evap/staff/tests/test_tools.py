@@ -138,7 +138,7 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
         # fix data
-        self.course1.participants = [self.main_user]
+        self.course1.participants.set([self.main_user])
         self.contribution2.delete()
 
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed

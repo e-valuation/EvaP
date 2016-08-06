@@ -141,7 +141,7 @@ class CourseForm(forms.ModelForm):
     def save(self, user, *args, **kw):
         self.instance.last_modified_user = user
         super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
         logger.info('Course "{}" (id {}) was edited by staff member {}.'.format(self.instance, self.instance.id, user.username))
 
 
@@ -485,7 +485,8 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        self.instance.courses_participating_in = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+        new_course_list = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+        self.instance.courses_participating_in.set(new_course_list)
 
         staff_group = Group.objects.get(name="Staff")
         grade_user_group = Group.objects.get(name="Grade publisher")

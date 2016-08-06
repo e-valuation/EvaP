@@ -256,7 +256,7 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
         # Suppose we had an obsolete questionnaire already selected, that should be shown as well.
-        contribution1.questionnaires = [questionnaire_obsolete]
+        contribution1.questionnaires.set([questionnaire_obsolete])
 
         inline_contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
         formset = inline_contribution_formset(instance=course, form_kwargs={'course': course})
@@ -386,8 +386,8 @@ class CourseFormTests(TestCase):
             in the same semester in the course edit form is invalid.
         """
         courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
-        courses[0].general_contribution.questionnaires = [mommy.make(Questionnaire)]
-        courses[1].general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        courses[0].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        courses[1].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         self.helper_test_course_form_same_name(CourseForm)
         self.helper_test_course_form_same_name(ContributorCourseForm)
@@ -408,7 +408,7 @@ class CourseFormTests(TestCase):
             the two course edit forms.
         """
         course = mommy.make(Course, degrees=[mommy.make(Degree)])
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # contributors: start date must be in the future
         self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
