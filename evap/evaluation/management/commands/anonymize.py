@@ -43,9 +43,13 @@ class Command(BaseCommand):
 
     def anonymize_data(self):
         abs_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), Command.data_dir)
-        first_names = open(os.path.join(abs_data_dir, Command.firstnames_filename)).read().strip().split('\n')
-        last_names = open(os.path.join(abs_data_dir, Command.lastnames_filename)).read().strip().split('\n')
-        lorem_ipsum = open(os.path.join(abs_data_dir, Command.lorem_ipsum_filename)).read().strip().split(' ')
+
+        with open(os.path.join(abs_data_dir, Command.firstnames_filename)) as f:
+            first_names = f.read().strip().split('\n')
+        with open(os.path.join(abs_data_dir, Command.lastnames_filename)) as f:
+            last_names = f.read().strip().split('\n')
+        with open(os.path.join(abs_data_dir, Command.lorem_ipsum_filename)) as f:
+            lorem_ipsum = f.read().strip().split(' ')
 
         try:
             with transaction.atomic():
