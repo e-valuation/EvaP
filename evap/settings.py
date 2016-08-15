@@ -180,13 +180,12 @@ INSTALLED_APPS = [
     'evap.grades',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -339,7 +338,7 @@ if TESTING:
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE_CLASSES = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE_CLASSES
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
     def show_toolbar(request):
         return True
     DEBUG_TOOLBAR_CONFIG = {
