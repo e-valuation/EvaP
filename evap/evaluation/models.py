@@ -509,9 +509,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def is_archiveable(self):
         return not self.is_archived and self.state in ["new", "published"]
 
-    def was_evaluated(self, request):
-        self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
-
     @property
     def final_grade_documents(self):
         from evap.grades.models import GradeDocument

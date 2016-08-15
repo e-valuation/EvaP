@@ -108,6 +108,12 @@
         var form = $('#student-vote-form');
         form.submit(function (event) {
             event.preventDefault(); // don't use the default submission
+            var submitButton = $('#vote-submit-btn');
+            var originalText = submitButton.val();
+
+            submitButton.val("Submitting...");
+            submitButton.prop('disabled', true);
+
             $.ajax({
                 type: form.attr('method'),
                 url: form.attr('action'),
@@ -122,8 +128,10 @@
                 },
                 error: function(data) {
                     // show a warning if the post isn't successful
-                    $('#vote-submit-btn').effect("highlight", {color:"#eb595a"}, 2000);
                     document.getElementById('submit-error-warning').style.display = 'block';
+                    submitButton.effect("highlight", {color:"#eb595a"}, 2000);
+                    submitButton.val(originalText);
+                    submitButton.prop('disabled', false);
                 }
             });
             return false;
