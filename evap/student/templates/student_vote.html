@@ -119,7 +119,7 @@
                 url: form.attr('action'),
                 data: form.serialize(),
                 statusCode: {
-                    // Successfully submitted questionnaire, deletey sisyphos data and redirect.
+                    // Successfully submitted questionnaire, delete sisyphos data and redirect.
                     200: function (data) {
                         sisyphus.manuallyReleaseData();
                         window.location.href = "{% url "student:index" %}";

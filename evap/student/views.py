@@ -80,7 +80,8 @@ def vote(request, course_id):
             course=course,
             participants_warning=course.num_participants <= 5,
             preview=False)
-        return render(request, "student_vote.html", template_data, status=422)
+        UNPROCESSABLE_ENTITY = 422;
+        return render(request, "student_vote.html", template_data, status=UNPROCESSABLE_ENTITY)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
