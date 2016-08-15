@@ -3,7 +3,8 @@ from collections import OrderedDict
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
@@ -79,7 +80,8 @@ def vote(request, course_id):
             course=course,
             participants_warning=course.num_participants <= 5,
             preview=False)
-        return render(request, "student_vote.html", template_data)
+        UNPROCESSABLE_ENTITY = 422;
+        return render(request, "student_vote.html", template_data, status=UNPROCESSABLE_ENTITY)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
@@ -112,7 +114,7 @@ def vote(request, course_id):
         course.course_evaluated.send(sender=Course, request=request, semester=course.semester)
 
     messages.success(request, _("Your vote was recorded."))
-    return redirect('student:index')
+    return HttpResponse('')
 
 
 def helper_create_form_group(request, contribution):
