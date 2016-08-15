@@ -118,13 +118,19 @@
                 type: form.attr('method'),
                 url: form.attr('action'),
                 data: form.serialize(),
-                success: function (data) {
-                    sisyphus.manuallyReleaseData(); // delete the data from local storage
-                    // replace the html with the response data
-                    document.open();
-                    document.write(data);
-                    document.close();
-                    $('html,body').scrollTop(0); // scroll to the top of the page
+                statusCode: {
+                    // Successfully submitted questionnaire, deletey sisyphos data and redirect.
+                    200: function (data) {
+                        sisyphus.manuallyReleaseData();
+                        window.location.href = "{% url "student:index" %}";
+                    },
+                    // Some data was missing from the form. Replace the html with the response data
+                    422: function (data) {
+                        sisyphus.manuallyReleaseData(); // delete the data from local storage
+                        document.open();
+                        document.write(data.responseText);
+                        document.close();
+                    }
                 },
                 error: function(data) {
                     // show a warning if the post isn't successful
