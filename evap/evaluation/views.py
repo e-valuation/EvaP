@@ -1,8 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth import login as auth_login
+from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
@@ -45,7 +44,7 @@ def index(request):
             return redirect('evaluation:index')
         elif login_username_form.is_valid():
             # user would like to login with username and password and passed password test
-            auth_login(request, login_username_form.get_user())
+            auth.login(request, login_username_form.get_user())
 
             # clean up our test cookie
             if request.session.test_cookie_worked():
