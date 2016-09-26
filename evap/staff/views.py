@@ -635,11 +635,16 @@ def course_participant_import(request, semester_id, course_id):
 
         # Extract data from form.
         excel_file = form.cleaned_data['excel_file']
+        import_course = form.cleaned_data['course']
 
         test_run = operation == 'test'
 
-        # Parse table.
-        imported_users = UserImporter.process(request, excel_file, test_run)
+        # Import from Excel file
+        if excel_file:
+            imported_users = UserImporter.process(request, excel_file, test_run)
+        else:
+            imported_users = import_course.participants.all()
+            messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
 
         # Test run, or an error occurred while parsing -> stay and display error.
         if test_run or not imported_users:
