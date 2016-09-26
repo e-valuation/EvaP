@@ -75,6 +75,7 @@ class MergeUsersTest(TestCase):
             'logentry',  # wtf
             'login_key',  # we decided to discard other_user's login key
             'login_key_valid_until',  # not worth dealing with
+            'language',  # Not worth dealing with
             'Course_voters+',  # some more intermediate models, for an explanation see above
             'Course_participants+',  # intermediate model
         }

@@ -2,11 +2,15 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import user_logged_in
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils import translation
+from django.utils.translation import ugettext as _, LANGUAGE_SESSION_KEY, get_language
 from django.dispatch import receiver
 
 from django.contrib.auth.decorators import login_required
+from django.views.i18n import set_language
+
 from evap.evaluation.models import Course
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
@@ -56,6 +60,12 @@ def reward_points_of_user(user):
     return count
 
 
+def is_semester_activated(semester):
+    return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
+
+
+# Signal handlers
+
 @receiver(Course.course_evaluated)
 def grant_reward_points(sender, **kwargs):
     # grant reward points if all conditions are fulfilled
@@ -82,5 +92,11 @@ def grant_reward_points(sender, **kwargs):
     messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
 
 
-def is_semester_activated(semester):
-    return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
+@receiver(user_logged_in)
+def set_or_get_language(sender, user, request, **kwargs):
+    if user.language:
+        request.session[LANGUAGE_SESSION_KEY] = user.language
+        translation.activate(user.language)
+    else:
+        user.language = get_language()
+        user.save()
