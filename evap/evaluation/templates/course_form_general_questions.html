@@ -7,7 +7,7 @@
             <div class="form-group">
                 <label class="col-md-2 control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="col-md-6">
-                    {% include "questionnaires_widget.html" with questionnaires=course_form.general_questions %}
+                    {% include "questionnaires_widget.html" with field=field %}
                 </div>
             </div>
         {% else %}
