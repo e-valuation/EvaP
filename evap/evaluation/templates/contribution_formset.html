@@ -52,7 +52,7 @@
                 </td>
                 {% if editable %}
                     <td>
-                        {% if staff or not form.responsibility.value == "RESPONSIBLE" %}
+                        {% if staff or responsible %}
                             {{ form.DELETE }}
                         {% endif %}
                     </td>

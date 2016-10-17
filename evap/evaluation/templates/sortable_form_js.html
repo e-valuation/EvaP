@@ -14,31 +14,28 @@
             });
         }
 
-
-        $(document).ready(function() {
-            $('#' + table_id + ' tbody tr').formset({
-                prefix: prefix,
-                deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
-                deleteText: '{% trans "remove" %}',
-                addText: '{% trans "add another" %}',
-                added: function(row) {
-                    row.find('input[id$=-order]').val(row.parent().children().length);
-                    row_added(row);
-                },
-                formTemplate: (uses_template ? ".form-template" : null)
-            });
+        $('#' + table_id + ' tbody tr').formset({
+            prefix: prefix,
+            deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
+            deleteText: '{% trans "remove" %}',
+            addText: '{% trans "add another" %}',
+            added: function(row) {
+                row.find('input[id$=-order]').val(row.parent().children().length);
+                row_added(row);
+            },
+            formTemplate: (uses_template ? ".form-template" : null)
+        });
 
 
-            $('#' + table_id + " tbody").sortable({
-                handle: ".glyphicon-move",
-                draggable: ".sortable"
-            });
+        $('#' + table_id + " tbody").sortable({
+            handle: ".glyphicon-move",
+            draggable: ".sortable"
+        });
 
 
-            $('form').submit(function() {
-                apply_ordering();
-                return true;
-            });
+        $('form').submit(function() {
+            apply_ordering();
+            return true;
         });
     }
 </script>
