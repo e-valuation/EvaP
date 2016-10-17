@@ -900,6 +900,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         else:
             return self.username
 
+    @property
+    def full_name_with_username(self):
+        name = self.full_name
+        if self.username not in name:
+            name += " (" + self.username + ")"
+        return name
+
     def __str__(self):
         return self.full_name
 
