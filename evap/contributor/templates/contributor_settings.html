@@ -21,23 +21,23 @@
             <table class="table table-striped vertically-aligned">
                 <tr>
                     <td class="col-sm-2"><strong>{% trans "Username" %}</strong></td>
-                    <td class="col-sm-10">{{ user.username }}</td>
+                    <td class="col-sm-10">{{ form.instance.username }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Title" %}</strong></td>
-                    <td>{{ user.title }}</td>
+                    <td>{{ form.instance.title }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "First name" %}</strong></td>
-                    <td>{{ user.first_name }}</td>
+                    <td>{{ form.instance.first_name }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Last name" %}</strong></td>
-                    <td>{{ user.last_name }}</td>
+                    <td>{{ form.instance.last_name }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Email" %}</strong></td>
-                    <td>{{ user.email }}</td>
+                    <td>{{ form.instance.email }}</td>
                 </tr>
             </table>
         </div>
