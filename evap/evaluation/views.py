@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
 from django.views.decorators.http import require_POST
 from django.views.decorators.debug import sensitive_post_parameters
+from django.views.i18n import set_language
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
@@ -126,3 +127,15 @@ def feedback_send(request):
             raise
 
     return HttpResponse()
+
+
+@require_POST
+def set_and_save_language(request):
+    response = set_language(request)
+
+    if request.user.is_authenticated():
+        user = request.user
+        user.language = request.POST['language']
+        user.save()
+
+    return response
