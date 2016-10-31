@@ -1052,7 +1052,7 @@ def user_edit(request, user_id):
         messages.success(request, _("Successfully updated user."))
         return redirect('staff:user_index')
     else:
-        return render(request, "staff_user_form.html", dict(form=form, user=user, courses_contributing_to=courses_contributing_to))
+        return render(request, "staff_user_form.html", dict(form=form, courses_contributing_to=courses_contributing_to))
 
 
 @require_POST
