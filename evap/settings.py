@@ -126,6 +126,10 @@ LOGGING = {
         'default': {
             'format': '[%(asctime)s] %(levelname)s: %(message)s',
         },
+        'django.server': {
+            '()': 'django.utils.log.ServerFormatter',
+            'format': '[%(server_time)s] %(message)s',
+        },
     },
     'handlers': {
         'file': {
@@ -139,7 +143,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
     },
     'loggers': {
         'django': {
@@ -152,6 +161,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
+        }
     },
 }
 
