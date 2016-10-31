@@ -2,14 +2,10 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import user_logged_in
 from django.db import transaction
-from django.utils import translation
-from django.utils.translation import ugettext as _, LANGUAGE_SESSION_KEY, get_language
+from django.utils.translation import ugettext as _
 from django.dispatch import receiver
-
 from django.contrib.auth.decorators import login_required
-from django.views.i18n import set_language
 
 from evap.evaluation.models import Course
 
@@ -90,13 +86,3 @@ def grant_reward_points(sender, **kwargs):
     # grant reward points
     RewardPointGranting.objects.create(user_profile=request.user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
     messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
-
-
-@receiver(user_logged_in)
-def set_or_get_language(sender, user, request, **kwargs):
-    if user.language:
-        request.session[LANGUAGE_SESSION_KEY] = user.language
-        translation.activate(user.language)
-    else:
-        user.language = get_language()
-        user.save()
