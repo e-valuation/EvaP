@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
@@ -180,11 +181,11 @@ class ExcelImporter(object):
                         or (user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append(_("The existing user would be overwritten with the following data:") +
-                        "\n - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
+                    self.warnings.append(mark_safe(_("The existing user would be overwritten with the following data:") +
+                        "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
                         _(" (existing)") +
-                        "\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
-                        _(" (new)"))
+                        "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
+                        _(" (new)")))
             except UserProfile.DoesNotExist:
                 pass
 
@@ -192,11 +193,11 @@ class ExcelImporter(object):
             if len(users_same_name) > 0:
                 warningstring = _("An existing user has the same first and last name as a new user:")
                 for user in users_same_name:
-                    warningstring += "\n - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
+                    warningstring += "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
                     warningstring += _(" (existing)")
-                warningstring += "\n - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
+                warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
                 warningstring += _(" (new)")
-                self.warnings.append(warningstring)
+                self.warnings.append(mark_safe(warningstring))
 
     def show_errors_and_warnings(self):
         for error in self.errors:
