@@ -1,11 +1,17 @@
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.conf import settings
 from django.test import override_settings
+
+from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question
+from evap.evaluation.tools import get_answers, get_answers_from_answer_counters, calculate_average_grades_and_deviation
+from django.utils import translation
 from model_mommy import mommy
 
-from evap.evaluation.models import Course, UserProfile, Contribution, RatingAnswerCounter, Questionnaire, Question
-from evap.evaluation.tools import calculate_results, get_answers, get_answers_from_answer_counters, calculate_average_grades_and_deviation
+from evap.evaluation.models import Course, UserProfile
+from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tools import calculate_results, set_or_get_language
 
 
 class TestCalculateResults(TestCase):
@@ -129,3 +135,32 @@ class TestCalculateResults(TestCase):
 
         self.assertAlmostEqual(deviation, total_dev)
 
+
+class TestLanguageSignalReceiver(WebTest):
+
+    # Activate 'de' as language and check that user gets this as initial language as he has None.
+    def test_signal_sets_language_if_none(self):
+        translation.activate('de')
+
+        user = mommy.make(UserProfile)
+        user.generate_login_key()
+
+        self.assertEquals(user.language, None)
+
+        set_or_get_language(None, user, None)
+
+        user = UserProfile.objects.get(pk=user.pk)
+        self.assertEquals(user.language, 'de')
+
+    # Activate 'en' as langauge and check, that user does not get this langauge as he has one.
+    def test_signal_doesnt_set_language(self):
+        translation.activate('en')
+        user = mommy.make(UserProfile, language='de')
+        user.generate_login_key()
+
+        self.assertEquals(user.language, 'de')
+
+        self.app.get(reverse("results:index") + "?loginkey=%s" % user.login_key)
+
+        user = UserProfile.objects.get(pk=user.pk)
+        self.assertEquals(user.language, 'de')

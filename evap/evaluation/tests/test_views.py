@@ -59,3 +59,17 @@ class TestSendFeedbackView(ViewTest):
     def test_sends_mail(self):
         self.app.post('/feedback/send', {'message': 'feedback message', 'sender_email': 'unique@mail.de'}, user='evap')
         self.assertEqual(len(mail.outbox), 1)
+
+
+class TestChangeLanguageView(ViewTest):
+    url = '/set_lang'
+    csrf_checks = False
+
+    def test_changes_language(self):
+        user = mommy.make(UserProfile, username='tester', language='de')
+        self.assertEquals(user.language, 'de')
+
+        self.app.post(self.url, {'language': 'en'}, user='tester')
+
+        user = UserProfile.objects.get(pk=user.pk)
+        self.assertEquals(user.language, 'en')
