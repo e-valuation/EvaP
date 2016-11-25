@@ -501,9 +501,14 @@ class UserForm(forms.ModelForm):
             self.instance.groups.remove(grade_user_group)
 
 
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.full_name_with_username
+
+
 class UserMergeSelectionForm(forms.Form):
-    main_user = forms.ModelChoiceField(UserProfile.objects.all())
-    other_user = forms.ModelChoiceField(UserProfile.objects.all())
+    main_user = UserModelChoiceField(UserProfile.objects.all())
+    other_user = UserModelChoiceField(UserProfile.objects.all())
 
 
 class LotteryForm(forms.Form):
