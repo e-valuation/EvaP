@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 from sendfile import sendfile
 
@@ -35,8 +35,8 @@ def prefetch_data(courses):
         course.responsible_contributor = course.responsible_contribution[0].contributor
         course_data.append((
             course,
-            GradeDocument.objects.filter(course=course, type=GradeDocument.MIDTERM_GRADES).count(),
-            GradeDocument.objects.filter(course=course, type=GradeDocument.FINAL_GRADES).count()
+            course.midterm_grade_documents.count(),
+            course.final_grade_documents.count()
         ))
 
     return course_data
@@ -80,8 +80,7 @@ def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    final_grades = request.GET.get('final', 'false')  # default: midterm grades
-    final_grades = {'true': True, 'false': False}.get(final_grades.lower())  # convert parameter to boolean
+    final_grades = request.GET.get('final') == 'true'  # if parameter is not given, assume midterm grades
 
     grade_document = GradeDocument(course=course)
     if final_grades:
@@ -132,11 +131,9 @@ def toggle_no_grades(request):
     return HttpResponse()  # 200 OK
 
 
+@require_GET
 @grade_downloader_required
 def download_grades(request, grade_document_id):
-    if not request.method == "GET":
-        return HttpResponseBadRequest()
-
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
     if not grade_document.course.grades_activated:
         return HttpResponseForbidden()
