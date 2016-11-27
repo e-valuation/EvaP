@@ -16,6 +16,10 @@ from evap.rewards.models import RewardPointGranting, RewardPointRedemption, Rewa
 @login_required
 @transaction.atomic
 def save_redemptions(request, redemptions):
+    # lock these rows to prevent race conditions
+    list(request.user.reward_point_grantings.select_for_update())
+    list(request.user.reward_point_redemptions.select_for_update())
+
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
 
