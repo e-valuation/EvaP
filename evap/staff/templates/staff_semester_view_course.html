@@ -3,7 +3,7 @@
 {% with state=course.state %}
 
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
-    {% if info_only == False %}
+    {% if not info_only %}
         <td class="minimize">
             <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}" {{disable_if_archived}} />
         </td>
@@ -11,7 +11,7 @@
 {% endif %}
 <td style="width: 55%">
     <div>
-    {% if info_only == False %}
+    {% if not info_only %}
         <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}
@@ -61,7 +61,7 @@
             <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
                 {% include "progress_bar.html" with done=course.num_voters total=course.num_participants icon="user" %}
             </span>
-            {% if course.num_textanswers > 0 and state != 'published' and info_only == False %}
+            {% if course.num_textanswers > 0 and state != 'published' and not info_only %}
                 <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Click to review text answers" %}">
                     {% include "progress_bar.html" with done=course.num_reviewed_textanswers total=course.num_textanswers icon="comment" %}
                 </a>
@@ -98,12 +98,12 @@
             <span class="glyphicon glyphicon-user"></span>
             <span>{{ course.num_participants }}</span>
         </p>
-        {% if info_only == False %}
+        {% if not info_only %}
             <a href="{% url "staff:course_participant_import" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Participants" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}
-{% if info_only == False %}
+{% if not info_only %}
     <td style="width: 12%">
         <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>
 
