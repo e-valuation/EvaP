@@ -323,7 +323,6 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 BOOTSTRAP3 = {
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-6',
-    'set_required': False,  # would be nice to have but doesn't play well with the navbar at least in firefox
 }
 
 # django-compressor settings

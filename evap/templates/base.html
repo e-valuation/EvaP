@@ -281,6 +281,18 @@
                 shiftWindow();
             window.addEventListener("hashchange", shiftWindow);
 
+            // fix scrolling to required field when the browser does form validation
+            // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
+            var delay = 0;
+            var offset = 150;
+            document.addEventListener('invalid', function(e){
+               $(e.target).addClass("invalid");
+               $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
+            }, true);
+            document.addEventListener('change', function(e){
+               $(e.target).removeClass("invalid")
+            }, true);
+
             {% block on_document_ready %} {% endblock %}
         });
     </script>
