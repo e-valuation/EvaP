@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.test.testcases import TestCase
+from django.conf import settings
 from django.test import override_settings
 from model_mommy import mommy
 
@@ -34,8 +35,8 @@ class TestCalculateResults(TestCase):
 
         results = calculate_results(course)
 
-        self.assertTrue(len(results) == 1)
-        self.assertTrue(len(results[0].results) == 1)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(len(results[0].results), 1)
         result = results[0].results[0]
 
         self.assertEquals(result.total_count, 150)
@@ -61,6 +62,7 @@ class TestCalculateResults(TestCase):
         rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=question1, contribution=contribution1, answer=4, count=2))
         rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=question1, contribution=contribution1, answer=5, count=3))
 
+        # create some unrelated answer counters for different questions / contributions
         mommy.make(RatingAnswerCounter, question=question1, contribution=contribution2, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=question1, contribution=contribution3, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=question2, contribution=contribution1, answer=1, count=1)
@@ -89,9 +91,9 @@ class TestCalculateResults(TestCase):
         mommy.make(RatingAnswerCounter, question=question_likert, contribution=contribution1, answer=3, count=4)
         mommy.make(RatingAnswerCounter, question=question_likert, contribution=general_contribution, answer=5, count=3)
 
-        total_likert = 0.3 * 3 + (1 - 0.3) * 5
+        total_likert = settings.CONTRIBUTION_PERCENTAGE * 3 + (1 - settings.CONTRIBUTION_PERCENTAGE) * 5
         total_grade = 2.5
-        total = 0.6 * total_grade + (1 - 0.6) * total_likert
+        total = settings.GRADE_PERCENTAGE * total_grade + (1 - settings.GRADE_PERCENTAGE) * total_likert
 
         average, deviation = calculate_average_grades_and_deviation(course)
 
@@ -119,11 +121,11 @@ class TestCalculateResults(TestCase):
         mommy.make(RatingAnswerCounter, question=question_likert, contribution=contribution1, answer=5, count=4)
         mommy.make(RatingAnswerCounter, question=question_likert, contribution=general_contribution, answer=5, count=3)
 
-        deviation = calculate_average_grades_and_deviation(course)[1]
+        __, deviation = calculate_average_grades_and_deviation(course)
 
-        total_likert_dev = 0.3 * 1 + 0.7 * 0
+        total_likert_dev = settings.CONTRIBUTION_PERCENTAGE * 1 + (1 - settings.CONTRIBUTION_PERCENTAGE) * 0
         total_grade_dev = 1
-        total_dev = 0.6 * total_grade_dev + 0.4 * total_likert_dev
+        total_dev = settings.GRADE_PERCENTAGE * total_grade_dev + (1 - settings.GRADE_PERCENTAGE) * total_likert_dev
 
         self.assertAlmostEqual(deviation, total_dev)
 
