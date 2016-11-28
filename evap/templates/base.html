@@ -13,7 +13,7 @@
 <head>
     {% block header %}
         <title>{% block title %}EvaP{% endblock %}</title>
-        
+
         {% compress css %}
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css" />
             <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.less" />
@@ -172,8 +172,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Cancel" %}</button>
-                        <input type="submit" class="btn btn-primary" value="{% trans "Send" %}">
-                        <img id="feedback-spinner" src="{% get_static_prefix %}images/spinner.gif" width="30px" height="30px" style="display: none;">
+                        <input id="feedback-submit-button" type="submit" class="btn btn-primary" value="{% trans "Send" %}">
                     </div>
                 </form>
             </div>
@@ -299,26 +298,37 @@
     <script type="text/javascript">
 
         $('#feedback-form').on('submit', function(event){
-
             event.preventDefault();
-            $('#feedback-spinner').show();
 
             message = $('#message-text').val();
+
+            $('#feedback-modal').modal('hide');
+
+            if (message.trim() == "")
+                return;
+
+            var feedbackButton = $('#feedback-button button');
+            var originalText = feedbackButton.html();
+            feedbackButton.html("Sending...")
 
             $.ajax({
                 url : "/feedback/send",
                 type : "POST",
                 data : { message: message },
-
                 success : function(json) {
-                    $('#feedback-spinner').hide();
-                    $('#feedback-modal').modal('hide');
-                    var text = $('#feedback-button button').html();
-                    $('#feedback-button button').html('{% trans "Message sent!" %}');
+                    feedbackButton.html('{% trans "Message sent!" %}');
+                    $('#message-text').val("")
                     setTimeout(function(){
-                        $('#feedback-button button').html(text);
+                        feedbackButton.html(originalText);
                     }, 3000);
-                }});
+                },
+                error : function(json) {
+                    feedbackButton.html('{% trans "Sending failed, sorry!" %}');
+                    setTimeout(function(){
+                        feedbackButton.html(originalText);
+                    }, 3000);
+                }
+            });
         });
     </script>
 

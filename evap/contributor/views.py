@@ -84,9 +84,8 @@ def course_edit(request, course_id):
     course_form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
-    operation = request.POST.get('operation')
-
     if course_form.is_valid() and formset.is_valid():
+        operation = request.POST.get('operation')
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 

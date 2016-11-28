@@ -517,7 +517,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
-        return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
+        return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
 
     @property
     def grades_activated(self):
