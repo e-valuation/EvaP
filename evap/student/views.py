@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
@@ -83,6 +83,13 @@ def vote(request, course_id):
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
+        # add user to course.voters
+        # not using course.voters.add(request.user) since it fails silently when done twice.
+        # manually inserting like this gives us the 'created' return value and ensures at the database level that nobody votes twice.
+        __, created = course.voters.through.objects.get_or_create(userprofile_id=request.user.pk, course_id=course.pk)
+        if not created:  # vote already got recorded, bail out
+            raise SuspiciousOperation("A second vote has been received shortly after the first one.")
+
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
@@ -102,10 +109,7 @@ def vote(request, course_id):
                             answer_counter.add_vote()
                             answer_counter.save()
 
-        # remember that the user voted already
-        course.voters.add(request.user)
-
-        course.was_evaluated(request)
+        course.course_evaluated.send(sender=Course, request=request, semester=course.semester)
 
     messages.success(request, _("Your vote was recorded."))
     return redirect('student:index')

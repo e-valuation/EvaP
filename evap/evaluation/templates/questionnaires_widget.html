@@ -1,11 +1,11 @@
 {% load morefilters %}
 
-{% if questionnaires.errors %}
-    <span class="help-block">{{ questionnaires.errors }}</span>
+{% if field.errors %}
+    <span class="help-block">{{ field.errors }}</span>
 {% endif %}
 
 <ul class="inputs-list">
-    {% for choice, questionnaire in questionnaires|zip:questionnaires.field.queryset %}
+    {% for choice, questionnaire in field|zip:field.field.queryset %}
         <li>
             <div class="checkbox">
                 <label data-toggle="tooltip" data-placement="left" title="{% spaceless %}
@@ -19,7 +19,7 @@
                     </ul>
                     {% endspaceless %}">
                     <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="checkbox" value="{{ choice.choice_value }}"
-                    autocomplete="off" {% if choice.is_checked  %}checked{% endif %} />
+                    autocomplete="off" {% if choice.is_checked  %}checked {% endif %}{% if field.field.disabled %}disabled {% endif %}/>
                     {{ choice.choice_label}}
                 </label>
             </div>

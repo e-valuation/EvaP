@@ -118,8 +118,8 @@ class ExcelExporter(object):
 
             writen(self)
             for course, results in courses_with_results:
-                writec(self, "Average", "avg")
-                writec(self, "Deviation", "border_top_bottom_right")
+                writec(self, _("Average"), "avg")
+                writec(self, _("Deviation"), "border_top_bottom_right")
 
             for questionnaire in used_questionnaires:
                 writen(self, questionnaire.name, "bold")

@@ -13,7 +13,8 @@ from evap.evaluation.models import Semester
 
 from evap.staff.views import semester_view
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation, NoPointsSelected, NotEnoughPoints
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
+                                SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
 from evap.rewards.tools import save_redemptions, reward_points_of_user
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.exporters import ExcelExporter
@@ -31,14 +32,13 @@ def index(request):
         try:
             save_redemptions(request, redemptions)
             messages.success(request, _("You successfully redeemed your points."))
-        except (NoPointsSelected, NotEnoughPoints) as error:
+        except (NoPointsSelected, NotEnoughPoints, RedemptionEventExpired) as error:
             messages.warning(request, error)
 
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
-    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now())
-    events = sorted(events, key=lambda event: event.date)
+    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
 
     reward_point_actions = []
     for granting in reward_point_grantings:

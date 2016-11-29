@@ -100,11 +100,12 @@ class Command(BaseCommand):
             user.last_name = new_username[1]
             user.username = (user.first_name + '.' + user.last_name).lower()
 
-            old_domain = user.email.split('@')[1]
-            is_institution_domain = old_domain in Command.previous_institution_domains
-            new_domain = old_domain if is_institution_domain else Command.new_external_domain
+            if user.email:
+                old_domain = user.email.split('@')[1]
+                is_institution_domain = old_domain in Command.previous_institution_domains
+                new_domain = old_domain if is_institution_domain else Command.new_external_domain
+                user.email = user.username + '@' + new_domain
 
-            user.email = user.username + '@' + new_domain
             user.save()
 
     @staticmethod

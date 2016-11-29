@@ -44,7 +44,7 @@ def settings_edit(request):
         messages.success(request, _("Successfully updated your settings."))
         return redirect('contributor:index')
     else:
-        return render(request, "contributor_settings.html", dict(form=form, user=user))
+        return render(request, "contributor_settings.html", dict(form=form))
 
 
 @editor_or_delegate_required
@@ -84,9 +84,8 @@ def course_edit(request, course_id):
     course_form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
-    operation = request.POST.get('operation')
-
     if course_form.is_valid() and formset.is_valid():
+        operation = request.POST.get('operation')
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 

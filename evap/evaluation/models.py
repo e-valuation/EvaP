@@ -146,7 +146,7 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
 
     @classmethod
-    def get_single_result_questionnaire(cls):
+    def single_result_questionnaire(cls):
         return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
@@ -509,9 +509,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def is_archiveable(self):
         return not self.is_archived and self.state in ["new", "published"]
 
-    def was_evaluated(self, request):
-        self.course_evaluated.send(sender=self.__class__, request=request, semester=self.semester)
-
     @property
     def final_grade_documents(self):
         from evap.grades.models import GradeDocument
@@ -520,7 +517,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
-        return self.grade_documents.exclude(type=GradeDocument.FINAL_GRADES)
+        return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
 
     @property
     def grades_activated(self):
@@ -540,6 +537,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             try:
                 if course.state == "approved" and course.vote_start_date <= today:
                     course.evaluation_begin()
+                    course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
                 elif course.state == "in_evaluation" and course.vote_end_date < today:
@@ -549,6 +547,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
+                    course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
@@ -797,6 +796,12 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
 
 class UserProfileManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(username=UserProfile.CRONJOB_USER_USERNAME)
+
+    def with_cronjob_user(self):
+        return super().get_queryset()
+
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
@@ -895,6 +900,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         else:
             return self.username
 
+    @property
+    def full_name_with_username(self):
+        name = self.full_name
+        if self.username not in name:
+            name += " (" + self.username + ")"
+        return name
+
     def __str__(self):
         return self.full_name
 
@@ -909,6 +921,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_grade_publisher(self):
         return self.groups.filter(name='Grade publisher').exists()
+
+    CRONJOB_USER_USERNAME = "cronjob"
+
+    @classmethod
+    def cronjob_user(cls):
+        return cls.objects.with_cronjob_user().get(username=cls.CRONJOB_USER_USERNAME)
 
     @property
     def can_staff_delete(self):

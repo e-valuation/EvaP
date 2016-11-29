@@ -783,7 +783,7 @@ def questionnaire_create(request):
         messages.success(request, _("Successfully created questionnaire."))
         return redirect('staff:questionnaire_index')
     else:
-        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset))
+        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
 def make_questionnaire_edit_forms(request, questionnaire, editable):
@@ -1052,7 +1052,7 @@ def user_edit(request, user_id):
         messages.success(request, _("Successfully updated user."))
         return redirect('staff:user_index')
     else:
-        return render(request, "staff_user_form.html", dict(form=form, user=user, courses_contributing_to=courses_contributing_to))
+        return render(request, "staff_user_form.html", dict(form=form, courses_contributing_to=courses_contributing_to))
 
 
 @require_POST

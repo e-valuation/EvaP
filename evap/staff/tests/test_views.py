@@ -335,7 +335,7 @@ class TestCourseCreateView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
         mommy.make(CourseType)
         mommy.make(Questionnaire, pk=1, is_for_contributors=False)
@@ -359,7 +359,7 @@ class TestCourseCreateView(ViewTest):
         form['contributions-INITIAL_FORMS'] = 0
         form['contributions-MAX_NUM_FORMS'] = 5
         form['contributions-0-course'] = ''
-        form['contributions-0-contributor'] = 1
+        form['contributions-0-contributor'] = self.staff_user.pk
         form['contributions-0-questionnaires'] = [2]
         form['contributions-0-order'] = 0
         form['contributions-0-responsibility'] = "RESPONSIBLE"
@@ -381,7 +381,7 @@ class TestSingleResultCreateView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
         mommy.make(CourseType)
 
@@ -403,7 +403,7 @@ class TestSingleResultCreateView(ViewTest):
         form.submit()
         self.assertFalse(Course.objects.exists())
 
-        form["responsible"] = 1  # now do it right
+        form["responsible"] = self.staff_user.pk  # now do it right
 
         form.submit()
         self.assertEqual(Course.objects.get().name_de, "qwertz")

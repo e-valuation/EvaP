@@ -192,7 +192,7 @@ class SingleResultForm(forms.ModelForm):
         self.instance.is_graded = False
         super().save(*args, **kw)
 
-        single_result_questionnaire = Questionnaire.get_single_result_questionnaire()
+        single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.question_set.first()
 
         if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
@@ -501,9 +501,14 @@ class UserForm(forms.ModelForm):
             self.instance.groups.remove(grade_user_group)
 
 
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.full_name_with_username
+
+
 class UserMergeSelectionForm(forms.Form):
-    main_user = forms.ModelChoiceField(UserProfile.objects.all())
-    other_user = forms.ModelChoiceField(UserProfile.objects.all())
+    main_user = UserModelChoiceField(UserProfile.objects.all())
+    other_user = UserModelChoiceField(UserProfile.objects.all())
 
 
 class LotteryForm(forms.Form):

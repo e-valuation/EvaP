@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -7,12 +9,17 @@ from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Course
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, SemesterActivation, NoPointsSelected, NotEnoughPoints
+from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
+                                SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
 
 
 @login_required
 @transaction.atomic
 def save_redemptions(request, redemptions):
+    # lock these rows to prevent race conditions
+    list(request.user.reward_point_grantings.select_for_update())
+    list(request.user.reward_point_redemptions.select_for_update())
+
     total_points_available = reward_points_of_user(request.user)
     total_points_redeemed = sum(redemptions.values())
 
@@ -24,10 +31,14 @@ def save_redemptions(request, redemptions):
 
     for event_id in redemptions:
         if redemptions[event_id] > 0:
+            event = RewardPointRedemptionEvent.objects.get(id=event_id)
+            if event.redeem_end_date < date.today():
+                raise RedemptionEventExpired(_("Sorry, the deadline for this event expired already."))
+
             RewardPointRedemption.objects.create(
                 user_profile=request.user,
                 value=redemptions[event_id],
-                event=RewardPointRedemptionEvent.objects.get(id=event_id)
+                event=event
             )
 
 
@@ -36,13 +47,10 @@ def can_user_use_reward_points(user):
 
 
 def reward_points_of_user(user):
-    reward_point_grantings = RewardPointGranting.objects.filter(user_profile=user)
-    reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=user)
-
     count = 0
-    for granting in reward_point_grantings:
+    for granting in user.reward_point_grantings.all():
         count += granting.value
-    for redemption in reward_point_redemptions:
+    for redemption in user.reward_point_redemptions.all():
         count -= redemption.value
 
     return count
@@ -75,8 +83,4 @@ def grant_reward_points(sender, **kwargs):
 
 
 def is_semester_activated(semester):
-    try:
-        activation = SemesterActivation.objects.get(semester=semester)
-        return activation.is_active
-    except SemesterActivation.DoesNotExist:
-        return False
+    return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
