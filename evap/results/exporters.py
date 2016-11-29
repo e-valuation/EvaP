@@ -107,6 +107,7 @@ class ExcelExporter(object):
                     used_questionnaires.add(questionnaire)
                 courses_with_results.append((course, results))
 
+            courses_with_results.sort(key=lambda cr: cr[0].name)
             courses_with_results.sort(key=lambda cr: cr[0].type)
             used_questionnaires = sorted(used_questionnaires)
 
