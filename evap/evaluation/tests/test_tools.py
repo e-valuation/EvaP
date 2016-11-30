@@ -45,7 +45,7 @@ class TestCalculateResults(TestCase):
         self.assertEqual(len(results[0].results), 1)
         result = results[0].results[0]
 
-        self.assertEquals(result.total_count, 150)
+        self.assertEqual(result.total_count, 150)
         self.assertAlmostEqual(result.average, float(109) / 30)
         self.assertAlmostEqual(result.deviation, 1.015983376941878)
 
