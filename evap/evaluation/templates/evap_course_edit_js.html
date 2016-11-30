@@ -20,6 +20,8 @@
                     if (j != i)
                         disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
                 }
+                // disable remove link
+                hideRemoveLink(i);
             }
             // if the responsible button is deselected
             else if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")){
@@ -29,6 +31,7 @@
                 for(var j = 0; j < contributorCount; j++){
                     enableButtons("input[name=contributions-" + j + "-responsibility]");
                 }
+                showRemoveLink(i);
             }
         }
     }
@@ -60,6 +63,14 @@
         return $("#contribution_table select").length;
     }
 
+    function hideRemoveLink(selector) {
+        $(".delete-row").eq(selector).hide();
+    }
+
+    function showRemoveLink(selector) {
+        $(".delete-row").eq(selector).show();
+    }
+
     function assignClickHandlers() {
         var count = getContributorCount();
         for(var i = 0; i < count; i++)
@@ -79,6 +90,7 @@
             if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
                 // disable comment buttons for responsible contributor
                 disableButtons("input[name=contributions-" + i + "-comment_visibility]");
+                hideRemoveLink(i);
                 // disable all other responsible buttons
                 for(var j = 0; j < getContributorCount(); j++){
                     if (j != i)
