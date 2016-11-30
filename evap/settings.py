@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 import os
 import sys
+import logging
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -126,10 +127,6 @@ LOGGING = {
         'default': {
             'format': '[%(asctime)s] %(levelname)s: %(message)s',
         },
-        'django.server': {
-            '()': 'django.utils.log.ServerFormatter',
-            'format': '[%(server_time)s] %(message)s',
-        },
     },
     'handlers': {
         'file': {
@@ -144,28 +141,22 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
         },
-        'django.server': {
-            'level': 'INFO',
+        'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'django.server',
+            'formatter': 'default',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file', 'mail_admins'],
+            'handlers': ['console', 'file', 'mail_admins'],
             'level': 'INFO',
             'propagate': True,
         },
         'evap': {
-            'handlers': ['file', 'mail_admins'],
+            'handlers': ['console', 'file', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        'django.server': {
-            'handlers': ['django.server'],
-            'level': 'INFO',
-            'propagate': False,
-        }
     },
 }
 
@@ -344,8 +335,10 @@ TESTING = 'test' in sys.argv
 
 # speed up tests
 if TESTING:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}  # use sqlite
-    COMPRESS_PRECOMPILERS = ()  # disable compressor completely
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}  # use sqlite to speed tests up
+    COMPRESS_PRECOMPILERS = ()  # disable django-compressor
+    logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+
 
 # Django debug toolbar settings
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
