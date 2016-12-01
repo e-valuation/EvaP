@@ -78,6 +78,7 @@ def semester_view(request, semester_id):
     grades_downloadable = are_grades_activated(semester)
 
     courses = get_courses_with_prefetched_data(semester)
+    courses = sorted(courses, key=lambda cr: cr.name)
 
     courses_by_state = []
     for state in STATES_ORDERED.keys():
