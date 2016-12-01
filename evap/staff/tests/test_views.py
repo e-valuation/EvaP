@@ -87,7 +87,6 @@ class TestUserBulkDeleteView(ViewTest):
 class TestSemesterView(ViewTest):
     url = '/staff/semester/1'
     test_users = ['staff']
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'de'}
 
     @classmethod
     def setUpTestData(cls):
@@ -99,16 +98,12 @@ class TestSemesterView(ViewTest):
         mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_view_list_sorting(self):
-        self.extra_environ['HTTP_ACCEPT_LANGUAGE'] = 'en'
-
-        page = self.app.get(self.url, user='staff').body.decode("utf-8")
+        page = self.app.get(self.url, user='staff', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'}).body.decode("utf-8")
         position_course1 = page.find("Course 1")
         position_course2 = page.find("Course 2")
         self.assertGreater(position_course1, position_course2)
 
-        self.extra_environ['HTTP_ACCEPT_LANGUAGE'] = 'de'
-
-        page = self.app.get(self.url, user='staff').body.decode("utf-8")
+        page = self.app.get(self.url, user='staff', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'}).body.decode("utf-8")
         position_course1 = page.find("Course 1")
         position_course2 = page.find("Course 2")
         self.assertLess(position_course1, position_course2)
@@ -117,7 +112,6 @@ class TestSemesterView(ViewTest):
 class TestSemesterExportView(ViewTest):
     url = '/staff/semester/1/export'
     test_users = ['staff']
-    extra_environ = {'HTTP_ACCEPT_LANGUAGE': 'en'}
 
     @classmethod
     def setUpTestData(cls):
@@ -136,19 +130,13 @@ class TestSemesterExportView(ViewTest):
         mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
-        self.extra_environ['HTTP_ACCEPT_LANGUAGE'] = 'de'
         page = self.app.get(self.url, user='staff')
         form = page.forms["semester-export-form"]
         form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
         form.set('include_not_enough_answers', 'on')
-        response_de = form.submit()
 
-        self.extra_environ['HTTP_ACCEPT_LANGUAGE'] = 'en'
-        page = self.app.get(self.url, user='staff')
-        form = page.forms["semester-export-form"]
-        form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
-        form.set('include_not_enough_answers', 'on')
-        response_en = form.submit()
+        response_de = form.submit(extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'})
+        response_en = form.submit(extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'})
 
         # Load responses as Excel files and check for correct sorting
         workbook = xlrd.open_workbook(file_contents=response_de.content)
