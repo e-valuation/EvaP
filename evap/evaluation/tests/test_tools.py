@@ -137,30 +137,29 @@ class TestCalculateResults(TestCase):
 
 
 class TestLanguageSignalReceiver(WebTest):
-
-    # Activate 'de' as language and check that user gets this as initial language as he has None.
     def test_signal_sets_language_if_none(self):
+        """
+        Activate 'de' as language and check that user gets this as initial language as he has None.
+        """
         translation.activate('de')
 
-        user = mommy.make(UserProfile)
+        user = mommy.make(UserProfile, language=None)
         user.generate_login_key()
-
-        self.assertEquals(user.language, None)
 
         set_or_get_language(None, user, None)
 
-        user = UserProfile.objects.get(pk=user.pk)
-        self.assertEquals(user.language, 'de')
+        user.refresh_from_db()
+        self.assertEqual(user.language, 'de')
 
-    # Activate 'en' as langauge and check, that user does not get this langauge as he has one.
     def test_signal_doesnt_set_language(self):
+        """
+        Activate 'en' as langauge and check, that user does not get this langauge as he has one.
+        """
         translation.activate('en')
         user = mommy.make(UserProfile, language='de')
         user.generate_login_key()
 
-        self.assertEquals(user.language, 'de')
-
         self.app.get(reverse("results:index") + "?loginkey=%s" % user.login_key)
 
-        user = UserProfile.objects.get(pk=user.pk)
-        self.assertEquals(user.language, 'de')
+        user.refresh_from_db()
+        self.assertEqual(user.language, 'de')

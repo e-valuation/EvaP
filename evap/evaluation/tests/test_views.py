@@ -67,9 +67,8 @@ class TestChangeLanguageView(ViewTest):
 
     def test_changes_language(self):
         user = mommy.make(UserProfile, username='tester', language='de')
-        self.assertEquals(user.language, 'de')
 
         self.app.post(self.url, {'language': 'en'}, user='tester')
 
-        user = UserProfile.objects.get(pk=user.pk)
-        self.assertEquals(user.language, 'en')
+        user.refresh_from_db()
+        self.assertEqual(user.language, 'en')
