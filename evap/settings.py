@@ -51,7 +51,7 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who can login with username and password and who needs a login key
-INSTITUTION_EMAIL_DOMAINS = ["hpi.uni-potsdam.de", "student.hpi.uni-potsdam.de", "hpi.de", "student.hpi.de"]
+INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 
 # maximum length of usernames of internal users
 INTERNAL_USERNAMES_MAX_LENGTH = 20
@@ -181,6 +181,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -319,11 +320,6 @@ COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
 COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
-
-# make generation of Question objects work, see https://github.com/vandersonmota/model_mommy/issues/231
-MOMMY_CUSTOM_FIELDS_GEN = {
-    'django.db.models.fields.proxy.OrderWrt': int,
-}
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.

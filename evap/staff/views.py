@@ -420,7 +420,7 @@ def semester_questionnaire_assign(request, semester_id):
     if form.is_valid():
         for course in courses:
             if form.cleaned_data[course.type.name]:
-                course.general_contribution.questionnaires = form.cleaned_data[course.type.name]
+                course.general_contribution.questionnaires.set(form.cleaned_data[course.type.name])
             if form.cleaned_data['Responsible contributor']:
                 course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()

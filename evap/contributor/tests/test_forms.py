@@ -91,7 +91,7 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
         # now a staff member adds a staff only questionnaire, which should be shown as well
-        contribution1.questionnaires = [questionnaire_staff_only]
+        contribution1.questionnaires.set([questionnaire_staff_only])
 
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
         formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
