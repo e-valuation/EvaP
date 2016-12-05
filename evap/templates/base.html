@@ -30,7 +30,7 @@
 {% endblock %}
 <div id="wrap">
 {% get_current_language as LANGUAGE_CODE %}
-{% cache 3600 navbar request.user.username LANGUAGE_CODE %}
+{% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
             <div class="navbar-header hidden-print">
