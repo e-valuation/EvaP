@@ -856,6 +856,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
 
+    language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
+
     # delegates of the user, which can also manage their courses
     delegates = models.ManyToManyField("UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True)
 

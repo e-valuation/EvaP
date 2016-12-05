@@ -5,8 +5,11 @@ from math import ceil
 from statistics import pstdev, median
 
 from django.conf import settings
+from django.contrib.auth import user_logged_in
 from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
+from django.dispatch import receiver
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _, LANGUAGE_SESSION_KEY, get_language
 from django.db.models import Sum
 
 from evap.evaluation.models import TextAnswer, EmailTemplate, Course, Contribution, RatingAnswerCounter
@@ -314,3 +317,13 @@ def has_no_rating_answers(course, contributor, questionnaire):
     questions = questionnaire.rating_questions
     contribution = Contribution.objects.get(course=course, contributor=contributor)
     return RatingAnswerCounter.objects.filter(question__in=questions, contribution=contribution).count() == 0
+
+
+@receiver(user_logged_in)
+def set_or_get_language(sender, user, request, **kwargs):
+    if user.language:
+        request.session[LANGUAGE_SESSION_KEY] = user.language
+        translation.activate(user.language)
+    else:
+        user.language = get_language()
+        user.save()

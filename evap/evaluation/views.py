@@ -1,8 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth import login as auth_login
+from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
@@ -11,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import resolve, Resolver404
 from django.views.decorators.http import require_POST
 from django.views.decorators.debug import sensitive_post_parameters
+from django.views.i18n import set_language
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
 from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
@@ -45,7 +45,7 @@ def index(request):
             return redirect('evaluation:index')
         elif login_username_form.is_valid():
             # user would like to login with username and password and passed password test
-            auth_login(request, login_username_form.get_user())
+            auth.login(request, login_username_form.get_user())
 
             # clean up our test cookie
             if request.session.test_cookie_worked():
@@ -127,3 +127,13 @@ def feedback_send(request):
             raise
 
     return HttpResponse()
+
+
+@require_POST
+def set_lang(request):
+    if request.user.is_authenticated():
+        user = request.user
+        user.language = request.POST['language']
+        user.save()
+
+    return set_language(request)
