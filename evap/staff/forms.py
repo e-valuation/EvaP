@@ -31,14 +31,14 @@ class ImportForm(forms.Form):
 
 
 class UserImportForm(forms.Form):
-    course = forms.ModelChoiceField(Course.objects.all(), required=False, label=_("Import from Course:"))
-    excel_file = forms.FileField(label=_("Import from Excel file: "), required=False)
+    course = forms.ModelChoiceField(Course.objects.all(), required=False, label=_("Copy from Course"))
+    excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
 
     def clean(self):
         if self.cleaned_data['course'] and self.cleaned_data['excel_file']:
-            raise ValidationError('Please only set course OR Excel File')
+            raise ValidationError('Please select only one of course or Excel file.')
         if not self.cleaned_data['course'] and not self.cleaned_data['excel_file']:
-            raise ValidationError('Please set either course OR Excel File')
+            raise ValidationError('Please select either course or Excel File.')
 
 
 class UserBulkDeleteForm(forms.Form):

@@ -644,7 +644,8 @@ def course_participant_import(request, semester_id, course_id):
             imported_users = UserImporter.process(request, excel_file, test_run)
         else:
             imported_users = import_course.participants.all()
-            messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
+            if test_run:
+                messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
 
         # Test run, or an error occurred while parsing -> stay and display error.
         if test_run or not imported_users:
