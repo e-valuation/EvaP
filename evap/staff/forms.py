@@ -34,7 +34,7 @@ class UserImportForm(forms.Form):
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
     course = forms.ModelChoiceField(Course.objects.all(), required=False, label=_("Copy from Course"))
 
-    choices = []
+    choices = [('', '---------')]
     for semester in Semester.objects.all():
         course_choices = [(course.pk, course.name) for course in Course.objects.filter(semester=semester)]
         if course_choices:
