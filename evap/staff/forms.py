@@ -31,8 +31,16 @@ class ImportForm(forms.Form):
 
 
 class UserImportForm(forms.Form):
-    course = forms.ModelChoiceField(Course.objects.all(), required=False, label=_("Copy from Course"))
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+    course = forms.ModelChoiceField(Course.objects.all(), required=False, label=_("Copy from Course"))
+
+    choices = []
+    for semester in Semester.objects.all():
+        course_choices = [(course.pk, course.name) for course in Course.objects.filter(semester=semester)]
+        if course_choices:
+            choices += [(semester.name, course_choices)]
+
+    course._choices = choices
 
     def clean(self):
         if self.cleaned_data['course'] and self.cleaned_data['excel_file']:
