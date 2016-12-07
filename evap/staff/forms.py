@@ -32,15 +32,19 @@ class ImportForm(forms.Form):
 
 class UserImportForm(forms.Form):
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
-    course = forms.ModelChoiceField(Course.objects.all(), required=False, label=_("Copy from Course"))
+    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
 
-    choices = [('', '---------')]
-    for semester in Semester.objects.all():
-        course_choices = [(course.pk, course.name) for course in Course.objects.filter(semester=semester)]
-        if course_choices:
-            choices += [(semester.name, course_choices)]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    course._choices = choices
+        # Here we split the courses by semester and create supergroups for them. We also make sure to include an empty option.
+        choices = [('', '<empty>')]
+        for semester in Semester.objects.all():
+            course_choices = [(course.pk, course.name) for course in Course.objects.filter(semester=semester)]
+            if course_choices:
+                choices += [(semester.name, course_choices)]
+
+        self.fields['course'].choices = choices
 
     def clean(self):
         if self.cleaned_data['course'] and self.cleaned_data['excel_file']:
