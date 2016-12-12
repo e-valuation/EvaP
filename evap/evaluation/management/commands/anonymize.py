@@ -12,6 +12,7 @@ from evap.evaluation.models import TextAnswer, UserProfile, Semester, Course
 class Command(BaseCommand):
     args = ''
     help = 'Anonymizes all the data'
+    requires_migrations_checks = True
 
     data_dir = 'anonymize_data'
     firstnames_filename = 'first_names.txt'
