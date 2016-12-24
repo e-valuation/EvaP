@@ -24,7 +24,7 @@
         <small>
         <div class="bs-callout bs-callout-info">
             <b>{% trans "Questionnaire Preview" %}</b><br />
-            {% blocktrans %}This is a preview of the questionnaire for the course. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            {% blocktrans %}This is a preview of the questionnaire for the course, your changes have not been saved yet. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
         </div>
     </small>
     {% endif %}
@@ -76,7 +76,7 @@
         {% endif %}
         <div class="well submit-area text-center">
             {% if preview %}
-                <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                <a class="btn btn-default" onclick="preventAccidentalClosing = false; window.open('', '_self', ''); window.close();">{% trans "Close" %}</a>
             {% else %}
                 <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
                 <p id="submit-error-warning" style="display: none">

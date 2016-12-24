@@ -115,6 +115,7 @@ def vote(request, course_id):
     return redirect('student:index')
 
 
+    print(request.POST)
 def helper_create_voting_form_groups(request, contributions):
     form_groups = OrderedDict()
     for contribution in contributions:

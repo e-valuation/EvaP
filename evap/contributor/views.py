@@ -1,8 +1,13 @@
+import json
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.forms.models import inlineformset_factory
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
+from django.db import transaction
+
 from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
@@ -71,6 +76,14 @@ def course_view(request, course_id):
 
 @editor_or_delegate_required
 def course_edit(request, course_id):
+    print("beginbegin")
+    # TODO why is there another get request after loading
+    # TODO investigate performance
+
+    import time
+
+    start = time.time()
+
     user = request.user
     course = get_object_or_404(Course, id=course_id)
 
@@ -78,21 +91,61 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
+    end = time.time()
+
+    post_operation = request.POST.get('operation') if request.POST else None
+    print(post_operation, "begin")
+    print(end - start)
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
     course_form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
-    if course_form.is_valid() and formset.is_valid():
-        operation = request.POST.get('operation')
-        if operation not in ('save', 'approve'):
+
+    forms_are_valid = course_form.is_valid() and formset.is_valid()
+
+
+    print(post_operation, "form validation")
+    end = time.time()
+    print(end - start)
+
+    if post_operation == 'validate':
+        if not forms_are_valid and (course_form.errors or formset.errors):
+            messages.error(request, _("The preview could not be rendered. Please resolve the errors shown below."))
+        sort_formset(request, formset)
+        template_data = dict(form=course_form, formset=formset, course=course, editable=True,
+                             responsibles=[contributor.username for contributor in course.responsible_contributors])
+        response = render(request, "contributor_course_form.html", template_data)
+        print(post_operation, "form rendering")
+        end = time.time()
+        print(end - start)
+        return response
+
+    if post_operation == 'preview':
+        if not forms_are_valid:
+            return HttpResponse(status=424) # failed dependency
+
+        transaction.set_autocommit(False)
+        course_form.save(user=user)
+        formset.save()
+        request.POST = None # TODO: rather hacky
+
+        preview_response = vote_preview(request, course)
+        transaction.rollback()
+        # do i need to enable autocommit again here?
+        print(post_operation, "preview rendering")
+        end = time.time()
+        print(end - start)
+        return preview_response
+
+    if forms_are_valid:
+        if post_operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
         course_form.save(user=user)
         formset.save()
 
-        if operation == 'approve':
-            # approve course
+        if post_operation == 'approve':
             course.editor_approve()
             course.save()
             messages.success(request, _("Successfully updated and approved course."))
