@@ -326,9 +326,9 @@ def semester_import(request, semester_id):
         test_run = operation == 'test'
 
         # parse table
-        EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
+        warnings, errors = EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
         if test_run:
-            return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
+            return render(request, "staff_semester_import.html", dict(semester=semester, form=form, warnings=warnings, errors=errors))
         return redirect('staff:semester_view', semester_id)
     else:
         return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
@@ -639,11 +639,11 @@ def course_participant_import(request, semester_id, course_id):
         test_run = operation == 'test'
 
         # Parse table.
-        imported_users = UserImporter.process(request, excel_file, test_run)
+        imported_users, warnings, errors = UserImporter.process(request, excel_file, test_run)
 
         # Test run, or an error occurred while parsing -> stay and display error.
         if test_run or not imported_users:
-            return render(request, "staff_course_participant_import.html", dict(course=course, form=form))
+            return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
         else:
             # Add users to course participants. * converts list into parameters.
             course.participants.add(*imported_users)
@@ -1033,9 +1033,9 @@ def user_import(request):
 
         test_run = operation == 'test'
         excel_file = form.cleaned_data['excel_file']
-        UserImporter.process(request, excel_file, test_run)
+        _, warnings, errors = UserImporter.process(request, excel_file, test_run)
         if test_run:
-            return render(request, "staff_user_import.html", dict(form=form))
+            return render(request, "staff_user_import.html", dict(form=form, warnings=warnings, errors=errors))
         return redirect('staff:user_index')
     else:
         return render(request, "staff_user_import.html", dict(form=form))
