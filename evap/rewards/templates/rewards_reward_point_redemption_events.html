@@ -13,11 +13,13 @@
     </p>
 
     <div class="panel panel-info">
-        {% include "rewards_reward_point_redemption_event_list.html" with title="Upcoming events" events=upcoming_events %}
+        {% trans "Upcoming events" as title %}
+        {% include "rewards_reward_point_redemption_event_list.html" with title=title events=upcoming_events %}
     </div>
 
     <div class="panel panel-default">
-        {% include "rewards_reward_point_redemption_event_list.html" with title="Past events" events=past_events %}
+        {% trans "Past events" as title %}
+        {% include "rewards_reward_point_redemption_event_list.html" with title=title events=past_events %}
     </div>
 {% endblock %}
 
