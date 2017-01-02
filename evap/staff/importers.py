@@ -212,7 +212,6 @@ class EnrollmentImporter(ExcelImporter):
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
-        self.max_enrollments = 6
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -269,7 +268,7 @@ class EnrollmentImporter(ExcelImporter):
         for enrollment in self.enrollments:
             enrollments_per_user[enrollment[1].username].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
-            if len(enrollments) > self.max_enrollments:
+            if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
