@@ -20,11 +20,17 @@
             </tbody>
         </table>
         {% if show_email_checkbox %}
+        <div class="form-group">
             <div class="checkbox">
                 <label>
                     <input type="checkbox" name="send_email" checked> {% trans "Send email notifications" %}
                 </label>
             </div>
+            <label>Email subject:</label> <br>
+            <input type="text" name="email_subject" value="{{ email_template.subject}}" style="width: 100%;"> <br>
+            <label>Email body:</label>
+            <textarea class="form-control" name="email_body" style="resize:vertical;min-height:300px;"> {{ email_template.body }} </textarea>
+        </div>
         {% endif %}
         <button type="submit" name="operation" value="{{ operation }}" class="btn btn-primary">{% trans "Confirm" %}</button>
         <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>

@@ -552,7 +552,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
-        EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation, None)
+        EmailTemplate.send_to_users_in_courses(EmailTemplate.EVALUATION_STARTED, courses_new_in_evaluation,
+                                               [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
@@ -1182,19 +1183,10 @@ class EmailTemplate(models.Model):
         logger.info(('Sent login url to {}.').format(user.username))
 
     @classmethod
-    def send_publish_notifications_to_user(cls, user, courses):
-        template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
+    def send_publish_notifications_to_user(cls, user, courses, template):
+        if not template:
+            template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
         subject_params = {}
         body_params = {'user': user, 'courses': courses}
 
         cls.__send_to_user(user, template, subject_params, body_params, use_cc=True)
-
-    @classmethod
-    def send_review_notifications(cls, courses, request):
-        template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
-        cls.send_to_users_in_courses(template, courses, [cls.EDITORS], use_cc=True, request=request)
-
-    @classmethod
-    def send_evaluation_started_notifications(cls, courses, request):
-        template = cls.objects.get(name=cls.EVALUATION_STARTED)
-        cls.send_to_users_in_courses(template, courses, [cls.ALL_PARTICIPANTS], use_cc=False, request=request)

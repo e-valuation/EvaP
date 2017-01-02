@@ -256,7 +256,7 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def send_publish_notifications(courses):
+def send_publish_notifications(courses, template=None):
     publish_notifications = defaultdict(set)
 
     for course in courses:
@@ -275,7 +275,7 @@ def send_publish_notifications(courses):
             publish_notifications[course.responsible_contributor].add(course)
 
     for user, course_set in publish_notifications.items():
-        EmailTemplate.send_publish_notifications_to_user(user, list(course_set))
+        EmailTemplate.send_publish_notifications_to_user(user, list(course_set), template=template)
 
 
 def color_mix(color1, color2, fraction):
