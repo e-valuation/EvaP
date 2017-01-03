@@ -221,81 +221,77 @@
     {% endcompress %}
 
     <script type="text/javascript">
-            // show browser information
-            $.reject({
-                imagePath: '{% get_static_prefix %}images/browsers/',
-                closeCookie: true,
-                reject: { msie5: true, msie6: true, msie8: true }
-            });
+        // show browser information
+        $.reject({
+            imagePath: '{% get_static_prefix %}images/browsers/',
+            closeCookie: true,
+            reject: { msie5: true, msie6: true, msie8: true }
+        });
 
-            // activate topbar
-            $('#topbar').dropdown();
+        // activate topbar
+        $('#topbar').dropdown();
 
-            // activate tooltips
-            $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]', trigger: 'hover'});
+        // activate tooltips
+        $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]', trigger: 'hover'});
 
-            // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
-            if ($.fn.button.noConflict != undefined) {
-                $.fn.button.noConflict();
-            }
+        // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
+        if ($.fn.button.noConflict != undefined) {
+            $.fn.button.noConflict();
+        }
 
-            // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
-            // select2 can't handle already select2'd forms that were copies made by
-            // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
-            var template_form = $(".select2tr").last().clone();
-            // later we use this class to give this to django-dynamic-formsets
-            // as template and to make sure it does not get select2'd
-            template_form.addClass("form-template").css("display","none");
-            // for some reason django-dynamic-formsets does not hide the checkbox like it should
-            template_form.find(':checkbox').last().attr("type", "hidden");
-            // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
-            template_form.insertAfter($('.select2form'));
+        // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
+        // select2 can't handle already select2'd forms that were copies made by
+        // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
+        var template_form = $(".select2tr").last().clone();
+        // later we use this class to give this to django-dynamic-formsets
+        // as template and to make sure it does not get select2'd
+        template_form.addClass("form-template").css("display","none");
+        // for some reason django-dynamic-formsets does not hide the checkbox like it should
+        template_form.find(':checkbox').last().attr("type", "hidden");
+        // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
+        template_form.insertAfter($('.select2form'));
 
-            // put this into a function for later re-use
-            apply_select2 = function(elem) {
-                elem.select2({
-                    language: "{{ LANGUAGE_CODE }}",
-                    placeholder: "{% trans "Please select..." %}",
-                    minimumResultsForSearch: 15,});
-            };
-            apply_select2($('select').not('.form-template select').not('[disabled]'));
+        // put this into a function for later re-use
+        apply_select2 = function(elem) {
+            elem.select2({
+                language: "{{ LANGUAGE_CODE }}",
+                placeholder: "{% trans "Please select..." %}",
+                minimumResultsForSearch: 15,});
+        };
+        apply_select2($('select').not('.form-template select').not('[disabled]'));
 
-            // don't use the placeholder text on disabled select2 elements
-            apply_select2_disabled = function(elem) {
-                elem.select2();
-            };
-            apply_select2_disabled($('select[disabled]').not('.form-template select'));
+        // don't use the placeholder text on disabled select2 elements
+        apply_select2_disabled = function(elem) {
+            elem.select2();
+        };
+        apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
-            // run the jquery datepicker plugin
-            $("input[name*='date']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+        // run the jquery datepicker plugin
+        $("input[name*='date']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
 
-            // scroll content to show below navbar
-            var navbar_height = 50;
-            var shiftWindow = function(){
-                setTimeout(function(){
-                    window.scrollBy(0, -navbar_height);
-                }, 0);
-            };
-            if (location.hash)
-                shiftWindow();
-            window.addEventListener("hashchange", shiftWindow);
+        // scroll content to show below navbar
+        var navbar_height = 50;
+        var shiftWindow = function(){
+            setTimeout(function(){
+                window.scrollBy(0, -navbar_height);
+            }, 0);
+        };
+        if (location.hash)
+            shiftWindow();
+        window.addEventListener("hashchange", shiftWindow);
 
-            // fix scrolling to required field when the browser does form validation
-            // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
-            var delay = 0;
-            var offset = 150;
-            document.addEventListener('invalid', function(e){
-               $(e.target).addClass("invalid");
-               $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
-            }, true);
-            document.addEventListener('change', function(e){
-               $(e.target).removeClass("invalid")
-            }, true);
+        // fix scrolling to required field when the browser does form validation
+        // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
+        var delay = 0;
+        var offset = 150;
+        document.addEventListener('invalid', function(e){
+           $(e.target).addClass("invalid");
+           $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
+        }, true);
+        document.addEventListener('change', function(e){
+           $(e.target).removeClass("invalid")
+        }, true);
 
-            {% block on_document_ready %} {% endblock %}
-    </script>
-
-    <script type="text/javascript">
         // If activated, make the user confirm he wants to leave the page by displaying a popup.
         var preventAccidentalClosing = false;
         $(window).bind('beforeunload', function(){
@@ -303,10 +299,8 @@
                 return "{% trans "Are you sure you want to leave?" %}";
             }
         });
-    </script>
 
-    <script type="text/javascript">
-
+        // feedback form submission
         $('#feedback-form').on('submit', function(event){
             event.preventDefault();
 
@@ -341,7 +335,6 @@
             });
         });
     </script>
-
 
     {% block additional_javascript %}{% endblock %}
 </body>
