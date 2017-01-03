@@ -66,6 +66,8 @@
     </div>
 {% endblock %}
 
-{% block on_document_ready %}
-    $("#id_username").focus();
+{% block additional_javascript %}
+    <script type="text/javascript">
+        $("#id_username").focus();
+    </script>
 {% endblock %}
