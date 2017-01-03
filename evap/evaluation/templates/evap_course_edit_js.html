@@ -1,3 +1,20 @@
+{% if editable %}
+    {% include "sortable_form_js.html" %}
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name = $(row.find("select[id$=-contributor]")).find(":selected").text();
+            id = row.find("input[id$=-id]").val();
+            return id || (name && name != "---------");
+        };
+
+        row_added = function(row) {
+            assignClickHandlers();
+            apply_select2(row.find("select"));
+        }
+        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false, true);
+    </script>
+{% endif %}
+
 <script type="text/javascript">
     function makeClickHandler(i, contributorCount, responsibility) {
         return function () {
@@ -82,38 +99,21 @@
         }
     }
 
-    $(document).ready(function() {
-        assignClickHandlers();
 
-        // apply initial settings
-        for(var i = 0; i < getContributorCount(); i++){
-            if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
-                // disable comment buttons for responsible contributor
-                disableButtons("input[name=contributions-" + i + "-comment_visibility]");
-                hideRemoveLink(i);
-                // disable all other responsible buttons
-                for(var j = 0; j < getContributorCount(); j++){
-                    if (j != i)
-                        disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
-                }
+    assignClickHandlers();
+
+    // apply initial settings
+    for(var i = 0; i < getContributorCount(); i++){
+        if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
+            // disable comment buttons for responsible contributor
+            disableButtons("input[name=contributions-" + i + "-comment_visibility]");
+            hideRemoveLink(i);
+            // disable all other responsible buttons
+            for(var j = 0; j < getContributorCount(); j++){
+                if (j != i)
+                    disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
             }
         }
-    });
+    }
+
 </script>
-
-
-{% if editable %}
-    {% include "sortable_form_js.html" %}
-    <script type="text/javascript">
-        row_changed = function(row) {
-            name = $(row.find("select[id$=-contributor]")).find(":selected").text();
-            id = row.find("input[id$=-id]").val();
-            return id || (name && name != "---------");
-        };
-        row_added = function(row) {
-            assignClickHandlers();
-            apply_select2(row.find("select"));
-        }
-        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false, true);
-    </script>
-{% endif %}

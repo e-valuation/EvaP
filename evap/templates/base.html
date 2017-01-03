@@ -221,7 +221,6 @@
     {% endcompress %}
 
     <script type="text/javascript">
-        $(document).ready(function(){
             // show browser information
             $.reject({
                 imagePath: '{% get_static_prefix %}images/browsers/',
@@ -294,7 +293,6 @@
             }, true);
 
             {% block on_document_ready %} {% endblock %}
-        });
     </script>
 
     <script type="text/javascript">
