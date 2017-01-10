@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Prefetch
 from django.views.decorators.http import require_POST
 
@@ -78,6 +78,7 @@ def semester_view(request, semester_id):
     grades_downloadable = are_grades_activated(semester)
 
     courses = get_courses_with_prefetched_data(semester)
+    courses = sorted(courses, key=lambda cr: cr.name)
 
     courses_by_state = []
     for state in STATES_ORDERED.keys():
@@ -419,7 +420,7 @@ def semester_questionnaire_assign(request, semester_id):
     if form.is_valid():
         for course in courses:
             if form.cleaned_data[course.type.name]:
-                course.general_contribution.questionnaires = form.cleaned_data[course.type.name]
+                course.general_contribution.questionnaires.set(form.cleaned_data[course.type.name])
             if form.cleaned_data['Responsible contributor']:
                 course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()
@@ -634,11 +635,20 @@ def course_participant_import(request, semester_id, course_id):
 
         # Extract data from form.
         excel_file = form.cleaned_data['excel_file']
+        import_course = form.cleaned_data['course']
 
         test_run = operation == 'test'
 
-        # Parse table.
-        imported_users = UserImporter.process(request, excel_file, test_run)
+        # Import user from either excel file or other course
+        imported_users = []
+        if excel_file:
+            imported_users = UserImporter.process(request, excel_file, test_run)
+        else:
+            imported_users = import_course.participants.all()
+
+        # Print message for test run.
+        if test_run and imported_users:
+            messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
 
         # Test run, or an error occurred while parsing -> stay and display error.
         if test_run or not imported_users:

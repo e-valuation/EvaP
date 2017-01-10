@@ -4,8 +4,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
+from django.urls import reverse
 from model_mommy import mommy
 import xlrd
 
@@ -84,6 +83,31 @@ class TestUserBulkDeleteView(ViewTest):
         self.assertEqual(UserProfile.objects.count(), user_count_before - 2)
 
 
+class TestSemesterView(ViewTest):
+    url = '/staff/semester/1'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.semester = mommy.make(Semester)
+        cls.course1 = mommy.make(Course, name_de="A - Course 1", name_en="B - Course 1", semester=cls.semester)
+        cls.course2 = mommy.make(Course, name_de="B - Course 2", name_en="A - Course 2", semester=cls.semester)
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_view_list_sorting(self):
+        page = self.app.get(self.url, user='staff', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'}).body.decode("utf-8")
+        position_course1 = page.find("Course 1")
+        position_course2 = page.find("Course 2")
+        self.assertGreater(position_course1, position_course2)
+
+        page = self.app.get(self.url, user='staff', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'}).body.decode("utf-8")
+        position_course1 = page.find("Course 1")
+        position_course2 = page.find("Course 2")
+        self.assertLess(position_course1, position_course2)
+
+
 class TestSemesterExportView(ViewTest):
     url = '/staff/semester/1/export'
     test_users = ['staff']
@@ -94,6 +118,33 @@ class TestSemesterExportView(ViewTest):
         cls.semester = mommy.make(Semester)
         cls.course_type = mommy.make(CourseType)
         cls.course = mommy.make(Course, pk=1, type=cls.course_type, semester=cls.semester)
+
+    def test_view_excel_file_sorted(self):
+        course1 = mommy.make(Course, state='published', type=self.course_type,
+                             name_de='A - Course1', name_en='B - Course1', semester=self.semester)
+
+        course2 = mommy.make(Course, state='published', type=self.course_type,
+                             name_de='B - Course2', name_en='A - Course2', semester=self.semester)
+
+        mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+        page = self.app.get(self.url, user='staff')
+        form = page.forms["semester-export-form"]
+        form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
+        form.set('include_not_enough_answers', 'on')
+
+        response_de = form.submit(extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'})
+        response_en = form.submit(extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'})
+
+        # Load responses as Excel files and check for correct sorting
+        workbook = xlrd.open_workbook(file_contents=response_de.content)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course1")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B - Course2")
+
+        workbook = xlrd.open_workbook(file_contents=response_en.content)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course2")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B - Course1")
 
     def test_view_downloads_excel_file(self):
         page = self.app.get(self.url, user='staff')
@@ -110,7 +161,6 @@ class TestSemesterExportView(ViewTest):
                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
-@override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class TestSemesterCourseImportParticipantsView(ViewTest):
     url = "/staff/semester/1/course/1/participant_import"
     test_users = ["staff"]

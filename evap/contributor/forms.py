@@ -61,7 +61,7 @@ class CourseForm(forms.ModelForm):
         user = kw.pop("user")
         self.instance.last_modified_user = user
         super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
         logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))
 
 

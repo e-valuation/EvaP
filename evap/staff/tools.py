@@ -2,7 +2,7 @@ import urllib.parse
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
@@ -90,20 +90,24 @@ def merge_users(main_user, other_user, preview=False):
     Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 
-    # email must not exist twice. other user can't be deleted before contributions have been changed
+    # email must not exist twice. other_user can't be deleted before contributions have been changed
     other_user.email = ""
     other_user.save()
 
     # update values for main user
     for key, value in merged_user.items():
-        setattr(main_user, key, value)
+        attr = getattr(main_user, key)
+        if hasattr(attr, "set"):
+            attr.set(value)  # use the 'set' method for e.g. many-to-many relations
+        else:
+            setattr(main_user, key, value)  # use direct assignment for everything else
     main_user.save()
 
     # delete rewards
     other_user.reward_point_grantings.all().delete()
     other_user.reward_point_redemptions.all().delete()
 
-    # delete other user
+    # delete other_user
     other_user.delete()
 
     return merged_user, errors, warnings

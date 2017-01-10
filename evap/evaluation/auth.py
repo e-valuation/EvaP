@@ -23,6 +23,14 @@ class RequestAuthMiddleware(object):
 
     field_name = "loginkey"
 
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        self.process_request(request)
+        response = self.get_response(request)
+        return response
+
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
         if not hasattr(request, 'user'):
@@ -46,7 +54,7 @@ class RequestAuthMiddleware(object):
 
         # If we already have an authenticated user don't try to login a new user. Show an error message if another user
         # tries to login with a URL in this situation.
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if user != request.user:
                 messages.error(request, _("Another user is currently logged in. Please logout first and then use the login URL again."))
             return
@@ -96,7 +104,7 @@ def user_passes_test(test_func):
     def decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 return redirect_to_login(request.get_full_path())
             if not test_func(request.user):
                 raise PermissionDenied()

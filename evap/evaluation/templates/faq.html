@@ -33,21 +33,23 @@
     <br />
 {% endblock %}
 
-{% block on_document_ready %}
-    $(".panel-collapse").removeClass("in");
-    $(".accordion-toggle").addClass("collapsed");
-    var anchor = window.location.hash.replace("#", "").split('-');
-    id = anchor[0];
-    type = 'q';
-    if(anchor.length > 1)
-        type = anchor[1];
+{% block additional_javascript %}
+    <script type="text/javascript">
+        $(".panel-collapse").removeClass("in");
+        $(".accordion-toggle").addClass("collapsed");
+        var anchor = window.location.hash.replace("#", "").split('-');
+        id = anchor[0];
+        type = 'q';
+        if(anchor.length > 1)
+            type = anchor[1];
 
-    if(type == "q" && id != ""){
-        $("#" + id).collapse('show');
-        window.history.pushState('', id, '/faq#' + id + '-q');
-    }
+        if(type == "q" && id != ""){
+            $("#" + id).collapse('show');
+            window.history.pushState('', id, '/faq#' + id + '-q');
+        }
 
-    setTimeout(function() {
-        window.scrollBy(0,-65);
-    }, 100);
+        setTimeout(function() {
+            window.scrollBy(0,-65);
+        }, 100);
+    </script>
 {% endblock %}

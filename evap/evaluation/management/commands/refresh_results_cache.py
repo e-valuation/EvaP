@@ -9,6 +9,7 @@ from evap.evaluation.tools import calculate_results
 class Command(BaseCommand):
     args = ''
     help = 'Clears the cache and pre-warms it with the results of all courses'
+    requires_migrations_checks = True
 
     def handle(self, *args, **options):
         self.stdout.write("Clearing cache...")

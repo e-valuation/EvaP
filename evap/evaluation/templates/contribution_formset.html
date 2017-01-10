@@ -30,7 +30,7 @@
 
                 <td>
                     {{ form.contributor.errors }}
-                    {% if form.responsibility.value == "RESPONSIBLE" and staff == False %}
+                    {% if form.responsibility.value == "RESPONSIBLE" and not staff %}
                         <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
                         {{ form.contributor.as_hidden }}
                     {% else %}
@@ -52,9 +52,7 @@
                 </td>
                 {% if editable %}
                     <td>
-                        {% if staff or not form.responsibility.value == "RESPONSIBLE" %}
-                            {{ form.DELETE }}
-                        {% endif %}
+                        {{ form.DELETE }}
                     </td>
                 {% endif %}
             </tr>

@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
-
 from django.contrib.auth.decorators import login_required
+
 from evap.evaluation.models import Course
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
@@ -56,6 +56,12 @@ def reward_points_of_user(user):
     return count
 
 
+def is_semester_activated(semester):
+    return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
+
+
+# Signal handlers
+
 @receiver(Course.course_evaluated)
 def grant_reward_points(sender, **kwargs):
     # grant reward points if all conditions are fulfilled
@@ -80,7 +86,3 @@ def grant_reward_points(sender, **kwargs):
     # grant reward points
     RewardPointGranting.objects.create(user_profile=request.user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
     messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
-
-
-def is_semester_activated(semester):
-    return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()

@@ -57,14 +57,12 @@
     </form>
 {% endblock %}
 
-{% block on_document_ready %}
-    preventAccidentalClosing = true;
-{% endblock %}
-
 {% block additional_javascript %}
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
+        preventAccidentalClosing = true;
+
         row_changed = function(row) {
             q_de = $(row.find('input[id$=-question_de]')).val();
             q_en = $(row.find('input[id$=-question_en]')).val();
