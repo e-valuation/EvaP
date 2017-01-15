@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load widget_tweaks %}
+{% load bootstrap3 %}
 
 {% block content %}
     {{ block.super }}
@@ -18,17 +18,8 @@
                 <form class="form-horizontal" role="form" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="login_username" />
-
                     {% for field in login_username_form %}
-                        <div class="form-group{% if field.errors %} has-error{% endif %}">
-                            <label class="col-sm-3 control-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                            <div class="col-sm-9">
-                                {{ field|add_class:"form-control" }}
-                                {% if field.errors %}
-                                    <span class="help-block">{% for error in field.errors %}{{ error }}{% endfor %}</span>
-                                {% endif %}
-                            </div>
-                        </div>
+                        {% bootstrap_field field layout='horizontal' horizontal_label_class='col-sm-3' horizontal_field_class='col-sm-9' bound_css_class='' placeholder=''%}
                     {% endfor %}
                     <div class="form-group">
                         <div class="col-sm-offset-3 col-sm-9">
@@ -46,15 +37,7 @@
                 <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
-                    <div class="form-group{% if new_key_form.email.errors %} has-error{% endif %}">
-                        <label class="col-sm-3 control-label" for="{{ new_key_form.email.auto_id }}">{{ new_key_form.email.label }}</label>
-                        <div class="col-sm-9">
-                            {{ new_key_form.email|add_class:"form-control" }}
-                            {% if new_key_form.email.errors %}
-                                <span class="help-block">{% for error in new_key_form.email.errors %}{{ error }}{% endfor %}</span>
-                            {% endif %}
-                        </div>
-                    </div>
+                    {% bootstrap_field new_key_form.email layout='horizontal' horizontal_label_class='col-sm-3' horizontal_field_class='col-sm-9' placeholder=''%}
                     <div class="form-group">
                         <div class="col-sm-offset-3 col-sm-9">
                             <input class="btn btn-default" type="submit" value="{% trans "Request login URL" %}">
