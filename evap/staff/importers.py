@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
 
 from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
@@ -99,13 +100,16 @@ class ExcelImporter(object):
         self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
 
-        self.warnings = {self.W_NAME: [], self.W_EMAIL: [], self.W_GENERAL: []}
+        self.warnings = {self.W_NAME: [], self.W_EMAIL: [], self.W_GENERAL: [], self.W_DUPL: []}
 
         # this is a dictionary to not let this become O(n^2)
         self.users = {}
 
     def read_book(self, excel_file):
-        self.book = xlrd.open_workbook(file_contents=excel_file.read())
+        if isinstance(excel_file, UploadedFile):
+            self.book = xlrd.open_workbook(file_contents=excel_file.read())
+        else:
+            self.book = xlrd.open_workbook(excel_file)
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
@@ -418,6 +422,6 @@ WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: _("Name mismatches"),
     ExcelImporter.W_EMAIL: _("Email mismatches"),
     ExcelImporter.W_DUPL: _("Possible duplicates"),
-    ExcelImporter.W_GENERAL: _("Other warnings"),
+    ExcelImporter.W_GENERAL: _("General warnings"),
     EnrollmentImporter.W_MANY: _("Unusually high number of enrollments")
 }

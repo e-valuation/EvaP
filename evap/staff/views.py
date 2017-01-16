@@ -29,7 +29,8 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
                              UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users, save_import_file, \
+                             get_import_file_name_if_exists, delete_import_file
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 from evap.rewards.models import RewardPointGranting
@@ -318,18 +319,28 @@ def semester_import(request, semester_id):
         if operation not in ('test', 'import'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        # extract data from form
-        excel_file = form.cleaned_data['excel_file']
         vote_start_date = form.cleaned_data['vote_start_date']
         vote_end_date = form.cleaned_data['vote_end_date']
 
         test_run = operation == 'test'
+        import_filename = get_import_file_name_if_exists(str(request.user.id))
 
-        # parse table
-        warnings, errors = EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
         if test_run:
+            # extract data from form
+            excel_file = form.cleaned_data['excel_file']
+            # save data to disk
+            save_import_file(excel_file, str(request.user.id))
+            # parse table
+            warnings, errors = EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
             return render(request, "staff_semester_import.html", dict(semester=semester, form=form, warnings=warnings, errors=errors))
-        return redirect('staff:semester_view', semester_id)
+
+        elif import_filename:
+            EnrollmentImporter.process(request, import_filename, semester, vote_start_date, vote_end_date, test_run)
+            delete_import_file(str(request.user.id))
+            return redirect('staff:semester_view', semester_id)
+
+        else:
+            raise SuspiciousOperation("Invalid POST operation")
     else:
         return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
 
@@ -633,22 +644,31 @@ def course_participant_import(request, semester_id, course_id):
         if operation not in ('test', 'import'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        # Extract data from form.
-        excel_file = form.cleaned_data['excel_file']
-
         test_run = operation == 'test'
+        import_filename = get_import_file_name_if_exists(str(request.user.id))
 
-        # Parse table.
-        imported_users, warnings, errors = UserImporter.process(request, excel_file, test_run)
+        if test_run:
+            # Extract data from form.
+            excel_file = form.cleaned_data['excel_file']
+            save_import_file(excel_file, str(request.user.id))
 
-        # Test run, or an error occurred while parsing -> stay and display error.
-        if test_run or not imported_users:
+            # Parse table.
+            _, warnings, errors = UserImporter.process(request, excel_file, test_run)
             return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
+
+        elif import_filename:
+            imported_users, warnings, errors = UserImporter.process(request, import_filename, test_run)
+            if not imported_users:
+                return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
+            else:
+                # Add users to course participants. * converts list into parameters.
+                course.participants.add(*imported_users)
+                messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
+                return redirect('staff:semester_view', semester_id)
+
         else:
-            # Add users to course participants. * converts list into parameters.
-            course.participants.add(*imported_users)
-            messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
-            return redirect('staff:semester_view', semester_id)
+            raise SuspiciousOperation("Invalid POST operation")
+
     else:
         return render(request, "staff_course_participant_import.html", dict(course=course, form=form, semester=semester))
 
@@ -1025,20 +1045,37 @@ def user_create(request):
 @staff_required
 def user_import(request):
     form = UserImportForm(request.POST or None, request.FILES or None)
-    operation = request.POST.get('operation')
 
-    if form.is_valid():
+    if request.method == "POST":
+        operation = request.POST.get('operation')
         if operation not in ('test', 'import'):
             raise SuspiciousOperation("Invalid POST operation")
 
         test_run = operation == 'test'
-        excel_file = form.cleaned_data['excel_file']
-        _, warnings, errors = UserImporter.process(request, excel_file, test_run)
-        if test_run:
-            return render(request, "staff_user_import.html", dict(form=form, warnings=warnings, errors=errors))
-        return redirect('staff:user_index')
+        import_run = operation == 'import'
+
+        if test_run and form.is_valid():
+            excel_file = form.cleaned_data['excel_file']
+            _, warnings, errors = UserImporter.process(request, excel_file, test_run)
+            if not errors:
+                save_import_file(excel_file, str(request.user.id))
+                return render(request, "staff_user_import.html", dict(form=form, warnings=warnings, errors=errors, test_passed=True))
+            else:
+                return render(request, "staff_user_import.html", dict(form=form, warnings=warnings, errors=errors, test_passed=False))
+
+        elif import_run:
+            import_filename = get_import_file_name_if_exists(str(request.user.id))
+            if import_filename:
+                UserImporter.process(request, import_filename, test_run)
+                delete_import_file(str(request.user.id))
+                return redirect('staff:user_index')
+            else:
+                raise SuspiciousOperation("No test run performed previously.")
+
+    if get_import_file_name_if_exists(str(request.user.id)):
+        return render(request, "staff_user_import.html", dict(form=form, test_passed=True))
     else:
-        return render(request, "staff_user_import.html", dict(form=form))
+        return render(request, "staff_user_import.html", dict(form=form, test_passed=False))
 
 
 @staff_required

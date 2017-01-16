@@ -2,9 +2,39 @@
 
 {% load static %}
 {% load bootstrap3 %}
+{% load staff_templatetags %}
 
 {% block content %}
     {{ block.super }}
+    {% for error in errors %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+            {{ error }}
+        </div>
+    {% endfor %}
+
+    {% for key, warninglist in warnings.items %}
+        {% if warninglist %}
+            <div class="panel panel-default panel-warning">
+                <div class="panel-heading">
+                    <span class="panel-title" id="{{ key }}-q">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ key }}">{{ key|warningname }}</a>
+                    </span>
+                </div>
+                <div id="{{ key }}" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        {% for warning in warninglist %}
+                        <div class="alert alert-warning alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+                            {{ warning }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
     <p>
         {% trans "Upload course participants data from excel file" %} (<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>). {% trans "This will create user accounts for all contained students and adds them as participants for the course." %}
     </p>

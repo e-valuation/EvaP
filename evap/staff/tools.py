@@ -1,4 +1,5 @@
 import urllib.parse
+import os
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -7,9 +8,48 @@ from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.db import transaction
+from django.conf import settings
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
+
+
+def generate_import_file_name(username):
+    return settings.MEDIA_ROOT + '/temp_import_files/' + username + '.xls'
+
+
+def save_import_file(excel_file, username):
+    filename = generate_import_file_name(username)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "wb") as f:
+        for chunk in excel_file.chunks():
+            f.write(chunk)
+    excel_file.seek(0)
+
+
+def load_import_file(username):
+    filename = generate_import_file_name(username)
+    if not os.path.isfile(filename):
+        return None
+
+    with open(filename, "rb") as f:
+        excel_file = f.read()
+        return excel_file
+
+
+def delete_import_file(username):
+    filename = generate_import_file_name(username)
+    if not os.path.isfile(filename):
+        return False
+    os.remove(filename)
+
+
+def get_import_file_name_if_exists(username):
+    filename = generate_import_file_name(username)
+    if os.path.isfile(filename):
+        return filename
+    else:
+        return False
 
 
 def custom_redirect(url_name, *args, **kwargs):
