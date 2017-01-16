@@ -149,7 +149,6 @@ class ExcelExporter(object):
                                     total_count += grade_result.total_count
                         enough_answers = course.can_publish_grades
                         if values and enough_answers:
-                            print(course.name)
                             avg = sum(values) / total_count
                             writec(self, avg, self.grade_to_style(avg))
 

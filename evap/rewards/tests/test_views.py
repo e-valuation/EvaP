@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from model_mommy import mommy
 
@@ -42,7 +42,7 @@ class TestIndexView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.student = mommy.make(UserProfile, username='student', email='foo@hpi.de')
+        cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
         mommy.make(Course, participants=[cls.student])
         mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
         mommy.make(RewardPointRedemptionEvent, _quantity=2, redeem_end_date=date.today() + timedelta(days=1))

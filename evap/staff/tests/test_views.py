@@ -4,8 +4,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
+from django.urls import reverse
 from model_mommy import mommy
 import xlrd
 
@@ -162,7 +161,6 @@ class TestSemesterExportView(ViewTest):
                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
-@override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class TestSemesterCourseImportParticipantsView(ViewTest):
     url = "/staff/semester/1/course/1/participant_import"
     test_users = ["staff"]

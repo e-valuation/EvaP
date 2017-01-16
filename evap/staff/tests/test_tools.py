@@ -42,9 +42,9 @@ class MergeUsersTest(TestCase):
             ccing_users=[cls.user1, cls.user2],
             is_superuser=True
         )
-        cls.course1 = mommy.make(Course, name="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.course2 = mommy.make(Course, name="course2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.course3 = mommy.make(Course, name="course3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.course1 = mommy.make(Course, name_de="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.course2 = mommy.make(Course, name_de="course2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.course3 = mommy.make(Course, name_de="course3", participants=[cls.other_user], voters=[cls.other_user])
         cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, course=cls.course1)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course1)  # this should make the merge fail
         cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course2)
@@ -75,6 +75,7 @@ class MergeUsersTest(TestCase):
             'logentry',  # wtf
             'login_key',  # we decided to discard other_user's login key
             'login_key_valid_until',  # not worth dealing with
+            'language',  # Not worth dealing with
             'Course_voters+',  # some more intermediate models, for an explanation see above
             'Course_participants+',  # intermediate model
         }
@@ -137,7 +138,7 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
         # fix data
-        self.course1.participants = [self.main_user]
+        self.course1.participants.set([self.main_user])
         self.contribution2.delete()
 
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed

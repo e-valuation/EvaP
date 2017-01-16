@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext, get_language
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Prefetch
 from django.views.decorators.http import require_POST
 
@@ -431,7 +431,7 @@ def semester_questionnaire_assign(request, semester_id):
     if form.is_valid():
         for course in courses:
             if form.cleaned_data[course.type.name]:
-                course.general_contribution.questionnaires = form.cleaned_data[course.type.name]
+                course.general_contribution.questionnaires.set(form.cleaned_data[course.type.name])
             if form.cleaned_data['Responsible contributor']:
                 course.contributions.get(responsible=True).questionnaires = form.cleaned_data['Responsible contributor']
             course.save()
@@ -644,27 +644,42 @@ def course_participant_import(request, semester_id, course_id):
         if operation not in ('test', 'import'):
             raise SuspiciousOperation("Invalid POST operation")
 
+        # Extract data from form.
+        # TODO: Merge this.
+        excel_file = form.cleaned_data['excel_file']
+        import_course = form.cleaned_data['course']
+
         test_run = operation == 'test'
-        import_filename = get_import_file_name_if_exists(str(request.user.id))
+        # import_filename = get_import_file_name_if_exists(str(request.user.id))
 
-        if test_run:
-            # Extract data from form.
-            excel_file = form.cleaned_data['excel_file']
-            save_import_file(excel_file, str(request.user.id))
+        # if test_run:
+        #     # Extract data from form.
+        #     excel_file = form.cleaned_data['excel_file']
+        #     save_import_file(excel_file, str(request.user.id))
 
-            # Parse table.
-            _, warnings, errors = UserImporter.process(request, excel_file, test_run)
-            return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
+        #     # Parse table.
+        #     _, warnings, errors = UserImporter.process(request, excel_file, test_run)
+        #     return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
 
-        elif import_filename:
-            imported_users, warnings, errors = UserImporter.process(request, import_filename, test_run)
-            if not imported_users:
-                return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
-            else:
-                # Add users to course participants. * converts list into parameters.
-                course.participants.add(*imported_users)
-                messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
-                return redirect('staff:semester_view', semester_id)
+        # elif import_filename:
+        #     imported_users, warnings, errors = UserImporter.process(request, import_filename, test_run)
+        #     if not imported_users:
+        #         return render(request, "staff_course_participant_import.html", dict(course=course, form=form, warnings=warnings, errors=errors))
+        #     else:
+        #         # Add users to course participants. * converts list into parameters.
+        #         course.participants.add(*imported_users)
+        #         messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
+        #         return redirect('staff:semester_view', semester_id)
+        # Import user from either excel file or other course
+        imported_users = []
+        if excel_file:
+            imported_users = UserImporter.process(request, excel_file, test_run)
+        else:
+            imported_users = import_course.participants.all()
+
+        # Print message for test run.
+        if test_run and imported_users:
+            messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
 
         else:
             raise SuspiciousOperation("Invalid POST operation")

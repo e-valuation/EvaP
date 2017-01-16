@@ -13,7 +13,6 @@ from django.contrib.auth.models import Group
 from django.forms.widgets import CheckboxSelectMultiple
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-from evap.staff.fields import ToolTipModelMultipleChoiceField
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +31,26 @@ class ImportForm(forms.Form):
 
 
 class UserImportForm(forms.Form):
-    excel_file = forms.FileField(label=_("Excel file"))
+    excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Here we split the courses by semester and create supergroups for them. We also make sure to include an empty option.
+        choices = [('', '<empty>')]
+        for semester in Semester.objects.all():
+            course_choices = [(course.pk, course.name) for course in Course.objects.filter(semester=semester)]
+            if course_choices:
+                choices += [(semester.name, course_choices)]
+
+        self.fields['course'].choices = choices
+
+    def clean(self):
+        if self.cleaned_data['course'] and self.cleaned_data['excel_file']:
+            raise ValidationError('Please select only one of course or Excel file.')
+        if not self.cleaned_data['course'] and not self.cleaned_data['excel_file']:
+            raise ValidationError('Please select either course or Excel File.')
 
 
 class UserBulkDeleteForm(forms.Form):
@@ -142,7 +160,7 @@ class CourseForm(forms.ModelForm):
     def save(self, user, *args, **kw):
         self.instance.last_modified_user = user
         super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires = self.cleaned_data.get('general_questions')
+        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
         logger.info('Course "{}" (id {}) was edited by staff member {}.'.format(self.instance, self.instance.id, user.username))
 
 
@@ -435,9 +453,9 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = ToolTipModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
         contributor_questionnaires = Questionnaire.objects.filter(obsolete=False, is_for_contributors=True)
-        self.fields['Responsible contributor'] = ToolTipModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
+        self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm):
@@ -486,7 +504,8 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        self.instance.courses_participating_in = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+        new_course_list = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
+        self.instance.courses_participating_in.set(new_course_list)
 
         staff_group = Group.objects.get(name="Staff")
         grade_user_group = Group.objects.get(name="Grade publisher")

@@ -18,7 +18,6 @@ urlpatterns = [
 
     url(r"^logout$", django.contrib.auth.views.logout, {'next_page': "/"}, name="django-auth-logout"),
 
-    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r"^admin/", admin.site.urls),
 ]
 

@@ -2,7 +2,7 @@ import os.path
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from model_mommy import mommy
 
@@ -57,12 +57,12 @@ class UsecaseTests(WebTest):
 
         check_student = UserProfile.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
-        self.assertEqual(check_student.email, "diam.synephebos@student.hpi.uni-potsdam.de")
+        self.assertEqual(check_student.email, "diam.synephebos@institution.example.com")
 
         check_contributor = UserProfile.objects.get(username="sanctus.aliquyam.ext")
         self.assertEqual(check_contributor.first_name, "Sanctus")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
-        self.assertEqual(check_contributor.email, "567@web.de")
+        self.assertEqual(check_contributor.email, "567@external.example.com")
 
     def test_login_key(self):
         self.assertRedirects(self.app.get(reverse("results:index")), "/?next=/results/")

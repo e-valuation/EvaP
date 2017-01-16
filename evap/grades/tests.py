@@ -16,10 +16,10 @@ class GradeUploadTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        mommy.make(UserProfile, username="student", email="student@student.hpi.de")
-        mommy.make(UserProfile, username="student2", email="student2@student.hpi.de")
-        mommy.make(UserProfile, username="student3", email="student3@student.hpi.de")
-        responsible = mommy.make(UserProfile, username="responsible", email="responsible@hpi.de")
+        mommy.make(UserProfile, username="student", email="student@institution.example.com")
+        mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
+        mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
+        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
         cls.course = mommy.make(Course,
             name_en="Test",
@@ -36,9 +36,9 @@ class GradeUploadTests(WebTest):
         )
         contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
-        contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
+        contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
-        cls.course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         cls.activation = SemesterGradeDownloadActivation.objects.create(semester=cls.course.semester, is_active=True)
 
@@ -146,9 +146,9 @@ class GradeUploadTests(WebTest):
         )
         contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
-        contribution.questionnaires = [mommy.make(Questionnaire, is_for_contributors=True)]
+        contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         self.assertFalse(course.gets_no_grade_documents)
 

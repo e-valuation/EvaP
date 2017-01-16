@@ -57,11 +57,13 @@
     </form>
 {% endblock %}
 
-{% block on_document_ready %}
-    $('#course_types_table tbody tr').formset({
-        prefix: 'form',
-        deleteCssClass: 'btn btn-danger btn-sm',
-        deleteText: '{% trans "remove" %}',
-        addText: '{% trans "add another" %}'
-    });
+{% block additional_javascript %}
+    <script type="text/javascript">
+        $('#course_types_table tbody tr').formset({
+            prefix: 'form',
+            deleteCssClass: 'btn btn-danger btn-sm',
+            deleteText: '{% trans "remove" %}',
+            addText: '{% trans "add another" %}'
+        });
+    </script>
 {% endblock %}
