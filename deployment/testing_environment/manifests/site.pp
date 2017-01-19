@@ -47,11 +47,13 @@ node default {
     } -> package { 'libapache2-mod-wsgi-py3':
         ensure         => latest,
     } -> exec { '/vagrant/requirements.txt':
+        user           => 'vagrant',
         provider       => shell,
-        command        => 'pip3 --log-file /tmp/pip.log install -r /vagrant/requirements.txt'
+        command        => 'pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements.txt'
     } -> exec { '/vagrant/requirements-dev.txt':
+        user           => 'vagrant',
         provider       => shell,
-        command        => 'pip3 --log-file /tmp/pip.log install -r /vagrant/requirements-dev.txt'
+        command        => 'sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements-dev.txt'
     } -> class { 'evap':
         db_connector   => 'postgresql_psycopg2'
     }
@@ -78,7 +80,12 @@ node default {
         docroot                     => '/vagrant/evap/static_collected',
         aliases                     => [ { alias => '/static', path => '/vagrant/evap/static_collected' } ],
         wsgi_daemon_process         => 'wsgi',
-        wsgi_daemon_process_options => { processes => '2', threads => '15', display-name => '%{GROUP}' },
+        wsgi_daemon_process_options => {
+            processes => '2',
+            threads => '15',
+            display-name => '%{GROUP}',
+            user => 'vagrant'
+        },
         wsgi_process_group          => 'wsgi',
         wsgi_script_aliases         => { '/' => '/vagrant/evap/wsgi.py' }
     } -> class { 'apache::mod::expires':
