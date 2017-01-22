@@ -27,7 +27,8 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
                              UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
-                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm
+                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm, \
+                             CourseParticipantImportForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users, save_import_file, \
                              get_import_file_name_if_exists, delete_import_file
@@ -637,7 +638,7 @@ def course_participant_import(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id, semester=semester)
     raise_permission_denied_if_archived(course)
 
-    form = UserImportForm(request.POST or None, request.FILES or None)
+    form = CourseParticipantImportForm(request.POST or None, request.FILES or None)
 
     if form.is_valid():
         operation = request.POST.get('operation')

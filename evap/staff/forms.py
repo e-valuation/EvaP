@@ -32,6 +32,10 @@ class ImportForm(forms.Form):
 
 class UserImportForm(forms.Form):
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+
+
+class CourseParticipantImportForm(forms.Form):
+    excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
     course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
 
     def __init__(self, *args, **kwargs):

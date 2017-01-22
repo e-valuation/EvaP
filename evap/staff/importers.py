@@ -106,10 +106,13 @@ class ExcelImporter(object):
         self.users = {}
 
     def read_book(self, excel_file):
-        if isinstance(excel_file, UploadedFile):
-            self.book = xlrd.open_workbook(file_contents=excel_file.read())
-        else:
-            self.book = xlrd.open_workbook(excel_file)
+        try:
+            if isinstance(excel_file, UploadedFile):
+                self.book = xlrd.open_workbook(file_contents=excel_file.read())
+            else:
+                self.book = xlrd.open_workbook(excel_file)
+        except xlrd.XLRDError as e:
+            self.errors.append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
@@ -390,9 +393,12 @@ class UserImporter(ExcelImporter):
         """
         try:
             importer = cls(request)
-            importer.read_book(excel_file)
-            importer.check_column_count(5)
 
+            importer.read_book(excel_file)
+            if importer.errors:
+                return [], importer.warnings, importer.errors
+
+            importer.check_column_count(5)
             if importer.errors:
                 importer.errors.append(_("The input data is malformed. No data was imported."))
                 return [], importer.warnings, importer.errors
@@ -411,6 +417,7 @@ class UserImporter(ExcelImporter):
                 return [], importer.warnings, importer.errors
             else:
                 return importer.save_users_to_db(), importer.warnings, importer.errors
+
         except Exception as e:
             messages.error(request, _("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
