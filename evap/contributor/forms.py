@@ -84,10 +84,10 @@ class DelegatesForm(forms.ModelForm):
     cc_user_of = UserModelMultipleChoiceField(None, required=False, disabled=True)
     delegates = UserModelMultipleChoiceField(UserProfile.objects.all())
     cc_users = UserModelMultipleChoiceField(UserProfile.objects.all())
-    
+
     class Meta:
         model = UserProfile
-        fields = ('delegates','cc_users',)
+        fields = ('delegates', 'cc_users',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

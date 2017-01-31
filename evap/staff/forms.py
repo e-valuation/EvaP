@@ -466,6 +466,7 @@ class UserForm(forms.ModelForm):
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
     delegates = UserModelMultipleChoiceField(UserProfile.objects.all())
     cc_users = UserModelMultipleChoiceField(UserProfile.objects.all())
+    
     class Meta:
         model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
