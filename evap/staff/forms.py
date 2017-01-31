@@ -13,7 +13,7 @@ from django.contrib.auth.models import Group
 from django.forms.widgets import CheckboxSelectMultiple
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-
+from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +109,7 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
+    participants = UserModelMultipleChoiceField(UserProfile.objects.all())
     general_questions = forms.ModelMultipleChoiceField(
         Questionnaire.objects.filter(is_for_contributors=False, obsolete=False),
         widget=CheckboxSelectMultiple,
@@ -169,7 +170,7 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
+    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
@@ -243,6 +244,7 @@ class SingleResultForm(forms.ModelForm):
 class ContributionForm(forms.ModelForm):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    contributor = UserModelChoiceField(UserProfile.objects.all())
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.filter(is_for_contributors=True, obsolete=False),
         widget=CheckboxSelectMultiple,
@@ -462,7 +464,8 @@ class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
     is_grade_user = forms.BooleanField(required=False, label=_("Grade user"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
-
+    delegates = UserModelMultipleChoiceField(UserProfile.objects.all())
+    cc_users = UserModelMultipleChoiceField(UserProfile.objects.all())
     class Meta:
         model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
@@ -518,11 +521,6 @@ class UserForm(forms.ModelForm):
             self.instance.groups.add(grade_user_group)
         else:
             self.instance.groups.remove(grade_user_group)
-
-
-class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.full_name_with_username
 
 
 class UserMergeSelectionForm(forms.Form):
