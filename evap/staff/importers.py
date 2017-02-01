@@ -106,6 +106,9 @@ class ExcelImporter(object):
         self.users = {}
 
     def read_book(self, excel_file):
+        if excel_file is None:
+            self.errors.append(_("Please select an Excel file."))
+            return
         try:
             if isinstance(excel_file, UploadedFile):
                 self.book = xlrd.open_workbook(file_contents=excel_file.read())
@@ -322,6 +325,9 @@ class EnrollmentImporter(ExcelImporter):
         try:
             importer = cls(request)
             importer.read_book(excel_file)
+            if importer.errors:
+                return importer.warnings, importer.errors
+
             importer.check_column_count(14)
 
             if importer.errors:

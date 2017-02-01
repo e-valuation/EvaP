@@ -24,18 +24,17 @@ def disable_all_fields(form):
 
 
 class ImportForm(forms.Form):
-    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True)
-    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True)
+    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True, required=False)
+    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True, required=False)
 
-    excel_file = forms.FileField(label=_("Excel file"))
+    excel_file = forms.FileField(label=_("Excel file"), required=False)
 
 
 class UserImportForm(forms.Form):
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
 
 
-class CourseParticipantImportForm(forms.Form):
-    excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+class CourseParticipantCopyForm(forms.Form):
     course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
 
     def __init__(self, *args, **kwargs):
@@ -49,12 +48,6 @@ class CourseParticipantImportForm(forms.Form):
                 choices += [(semester.name, course_choices)]
 
         self.fields['course'].choices = choices
-
-    def clean(self):
-        if self.cleaned_data['course'] and self.cleaned_data['excel_file']:
-            raise ValidationError('Please select only one of course or Excel file.')
-        if not self.cleaned_data['course'] and not self.cleaned_data['excel_file']:
-            raise ValidationError('Please select either course or Excel File.')
 
 
 class UserBulkDeleteForm(forms.Form):

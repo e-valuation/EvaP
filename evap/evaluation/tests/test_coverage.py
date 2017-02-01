@@ -93,7 +93,7 @@ class URLTests(WebTest):
         forms = [
             ("/staff/semester/create", "evap"),
             ("/staff/semester/1/course/create", "evap"),
-            ("/staff/semester/1/import", "evap"),
+            # ("/staff/semester/1/import", "evap"),
             ("/staff/questionnaire/create", "evap"),
             ("/staff/user/create", "evap"),
             ("/staff/user/merge", "evap"),

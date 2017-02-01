@@ -534,3 +534,7 @@ li.menu-indent {
     bottom: 20px;
     border: none;
 }
+
+.form-submit-btn {
+    min-width: 200px
+}

@@ -14,12 +14,12 @@ from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
 
 
-def generate_import_file_name(username):
-    return settings.MEDIA_ROOT + '/temp_import_files/' + username + '.xls'
+def generate_import_file_name(user_id):
+    return settings.MEDIA_ROOT + '/temp_import_files/' + user_id + '.xls'
 
 
-def save_import_file(excel_file, username):
-    filename = generate_import_file_name(username)
+def save_import_file(excel_file, user_id):
+    filename = generate_import_file_name(user_id)
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "wb") as f:
         for chunk in excel_file.chunks():
@@ -27,8 +27,8 @@ def save_import_file(excel_file, username):
     excel_file.seek(0)
 
 
-def load_import_file(username):
-    filename = generate_import_file_name(username)
+def load_import_file(user_id):
+    filename = generate_import_file_name(user_id)
     if not os.path.isfile(filename):
         return None
 
@@ -37,15 +37,15 @@ def load_import_file(username):
         return excel_file
 
 
-def delete_import_file(username):
-    filename = generate_import_file_name(username)
+def delete_import_file(user_id):
+    filename = generate_import_file_name(user_id)
     if not os.path.isfile(filename):
         return False
     os.remove(filename)
 
 
-def get_import_file_name_if_exists(username):
-    filename = generate_import_file_name(username)
+def get_import_file_name_if_exists(user_id):
+    filename = generate_import_file_name(user_id)
     if os.path.isfile(filename):
         return filename
     else:
