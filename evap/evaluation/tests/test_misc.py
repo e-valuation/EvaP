@@ -29,9 +29,13 @@ class SampleXlsTests(WebTest):
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["semester-import-form"]
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xls"),)
+        form.submit(name="operation", value="test")
+
+        page = self.app.get("/staff/semester/1/import", user='user')
+        form = page.forms["semester-import-form"]
         form["vote_start_date"] = "2015-01-01"
         form["vote_end_date"] = "2099-01-01"
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xls"),)
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
@@ -43,6 +47,9 @@ class SampleXlsTests(WebTest):
 
         form = page.forms["user-import-form"]
         form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xls"),)
+        page = form.submit(name="operation", value="test")
+
+        form = page.forms["user-import-form"]
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)

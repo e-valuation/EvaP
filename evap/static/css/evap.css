@@ -538,3 +538,10 @@ li.menu-indent {
 .form-submit-btn {
     min-width: 200px
 }
+
+.form-submit-btn-divider {
+    width: 5px;
+    height:auto;
+    display:inline-block;
+}
+

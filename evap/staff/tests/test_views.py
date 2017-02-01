@@ -180,6 +180,10 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
 
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
+        form.submit(name="operation", value="test")
+
+        page = self.app.get(self.url, user='staff')
+        form = page.forms["participant-import-form"]
         form.submit(name="operation", value="import")
 
         self.assertEqual(self.course.participants.count(), original_participant_count + 2)
@@ -192,7 +196,7 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_invalid,)
 
-        reply = form.submit(name="operation", value="import")
+        reply = form.submit(name="operation", value="test")
 
         self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')

@@ -315,6 +315,9 @@ def semester_import(request, semester_id):
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
 
+    errors = []
+    warnings = []
+
     if request.method == "POST":
         operation = request.POST.get('operation')
         if operation not in ('test', 'import'):
@@ -333,17 +336,18 @@ def semester_import(request, semester_id):
                 return render(request, "staff_semester_import.html", dict(semester=semester,
                     excel_form=excel_form, warnings=warnings, errors=errors, test_passed=True))
             else:
+                delete_import_file(str(request.user.id))
                 return render(request, "staff_semester_import.html", dict(semester=semester,
                     excel_form=excel_form, warnings=warnings, errors=errors, test_passed=False))
 
         elif import_run:
             import_filename = get_import_file_name_if_exists(str(request.user.id))
             if import_filename:
-                if ('vote_start_date' not in excel_form.cleaned_data or 'vote_end_date' not in excel_form.cleaned_data):
-                    errors.append["Please enter a start and a end date for the vote period."]
+                vote_start_date = excel_form.cleaned_data['vote_start_date']
+                vote_end_date = excel_form.cleaned_data['vote_end_date']
+                if (vote_start_date is None or vote_end_date is None):
+                    errors.append("Please enter the evaluation period.")
                 else:
-                    vote_start_date = excel_form.cleaned_data['vote_start_date']
-                    vote_end_date = excel_form.cleaned_data['vote_end_date']
                     EnrollmentImporter.process(request, import_filename, semester, vote_start_date, vote_end_date, test_run)
                     delete_import_file(str(request.user.id))
                     return redirect('staff:semester_view', semester_id)
@@ -351,9 +355,9 @@ def semester_import(request, semester_id):
                 raise SuspiciousOperation("No test run performed previously.")
 
     if get_import_file_name_if_exists(str(request.user.id)):
-        return render(request, "staff_semester_import.html", dict(semester=semester, excel_form=excel_form, test_passed=True))
+        return render(request, "staff_semester_import.html", dict(errors=errors, warnings=warnings, semester=semester, excel_form=excel_form, test_passed=True))
     else:
-        return render(request, "staff_semester_import.html", dict(semester=semester, excel_form=excel_form, test_passed=False))
+        return render(request, "staff_semester_import.html", dict(errors=errors, warnings=warnings, semester=semester, excel_form=excel_form, test_passed=False))
 
 
 @staff_required
@@ -670,6 +674,7 @@ def course_participant_import(request, semester_id, course_id):
                 return render(request, "staff_course_participant_import.html", dict(
                     course=course, excel_form=excel_form, copy_form=copy_form, semester=semester, warnings=warnings, participant_test_passed=True))
             else:
+                delete_import_file(str(request.user.id))
                 return render(request, "staff_course_participant_import.html", dict(
                     course=course, excel_form=excel_form, copy_form=copy_form, errors=errors, warnings=warnings, semester=semester, participant_test_passed=False))
 
@@ -1097,6 +1102,7 @@ def user_import(request):
                 save_import_file(excel_file, str(request.user.id))
                 return render(request, "staff_user_import.html", dict(excel_form=excel_form, warnings=warnings, errors=errors, test_passed=True))
             else:
+                delete_import_file(str(request.user.id))
                 return render(request, "staff_user_import.html", dict(excel_form=excel_form, warnings=warnings, errors=errors, test_passed=False))
 
         elif import_run:
