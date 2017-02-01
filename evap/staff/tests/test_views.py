@@ -108,6 +108,79 @@ class TestSemesterView(ViewTest):
         self.assertLess(position_course1, position_course2)
 
 
+class TestSemesterImportView(ViewTest):
+    url = "/staff/semester/1/import"
+    test_users = ["staff"]
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrolment_data.xls")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrolment_data.xls")
+
+    @classmethod
+    def setUpTestData(cls):
+        semester = mommy.make(Semester, pk=1)
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+        cls.course = mommy.make(Course, pk=1, semester=semester)
+
+    def test_import_valid_file(self):
+        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
+
+        original_user_count = UserProfile.objects.count()
+
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["semester-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test")
+
+        form = page.forms["semester-import-form"]
+        form['vote_start_date'] = "02/29/2000"
+        form['vote_end_date'] = "02/29/2012"
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
+
+    def test_import_invalid_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_user_count = UserProfile.objects.count()
+
+        form = page.forms["semester-import-form"]
+        form["excel_file"] = (self.filename_invalid,)
+
+        reply = form.submit(name="operation", value="test")
+        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#39;s data (email: bastius.quid@external.example.com) differs from it&#39;s data in a previous row.')
+        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
+        self.assertContains(reply, 'The imported data contains two email addresses with the same username')
+        # can NOT check for this part:
+        # '(&#39;678@external.example.com&#39; and &#39;678@internal.example.com&#39;).'
+        # since the order of the email adresses is random.
+        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+    def test_test_run(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_participant_count = self.course.participants.count()
+
+        form = page.forms["semester-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        form.submit(name="operation", value="test")
+
+        self.assertEqual(self.course.participants.count(), original_participant_count)
+
+    def test_suspicious_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["semester-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+
+        # Should throw SuspiciousOperation Exception.
+        reply = form.submit(name="operation", value="hackit", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+
 class TestSemesterExportView(ViewTest):
     url = '/staff/semester/1/export'
     test_users = ['staff']
