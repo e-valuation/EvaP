@@ -109,7 +109,6 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
-    participants = UserModelMultipleChoiceField(UserProfile.objects.all())
     general_questions = forms.ModelMultipleChoiceField(
         Questionnaire.objects.filter(is_for_contributors=False, obsolete=False),
         widget=CheckboxSelectMultiple,
@@ -129,6 +128,9 @@ class CourseForm(forms.ModelForm):
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_date',
                   'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_date', 'vote_end_date')
+        field_classes = {
+            'participants' : UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -244,7 +246,6 @@ class SingleResultForm(forms.ModelForm):
 class ContributionForm(forms.ModelForm):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-    contributor = UserModelChoiceField(UserProfile.objects.all())
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.filter(is_for_contributors=True, obsolete=False),
         widget=CheckboxSelectMultiple,
@@ -255,6 +256,9 @@ class ContributionForm(forms.ModelForm):
         model = Contribution
         fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
+        field_classes = {
+            'contributor' : UserModelChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         # work around https://code.djangoproject.com/ticket/25880
@@ -464,12 +468,14 @@ class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
     is_grade_user = forms.BooleanField(required=False, label=_("Grade user"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
-    delegates = UserModelMultipleChoiceField(UserProfile.objects.all())
-    cc_users = UserModelMultipleChoiceField(UserProfile.objects.all())
 
     class Meta:
         model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
+        field_classes = {
+            'delegates' : UserModelMultipleChoiceField,
+            'cc_users' : UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
