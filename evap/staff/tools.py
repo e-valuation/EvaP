@@ -15,6 +15,15 @@ from evap.grades.models import GradeDocument
 from evap.results.tools import calculate_results
 
 
+def forward_messages(request, success_messages, warnings):
+    for message in success_messages:
+        messages.success(request, message)
+
+    for category in warnings:
+        for warning in warnings[category]:
+            messages.warning(request, warning)
+
+
 def generate_import_file_name(user_id):
     return settings.MEDIA_ROOT + '/temp_import_files/' + user_id + '.xls'
 

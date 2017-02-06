@@ -2,7 +2,6 @@ from collections import OrderedDict, defaultdict
 import xlrd
 
 from django.conf import settings
-from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
@@ -92,12 +91,12 @@ class ExcelImporter(object):
     W_DUPL = 'duplicate'
     W_GENERAL = 'general'
 
-    def __init__(self, request):
+    def __init__(self):
         self.associations = OrderedDict()
-        self.request = request
         self.book = None
         self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
+        self.success_messages = []
 
         self.warnings = {self.W_NAME: [], self.W_EMAIL: [], self.W_GENERAL: [], self.W_DUPL: []}
 
@@ -131,11 +130,11 @@ class ExcelImporter(object):
                     # store data objects together with the data source location for problem tracking
                     self.associations[(sheet.name, row)] = line_data
 
-                messages.success(self.request, _("Successfully read sheet '%s'.") % sheet.name)
+                self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
-                messages.warning(self.request, _("A problem occured while reading sheet '%s'.") % sheet.name)
+                self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
                 raise
-        messages.success(self.request, _("Successfully read excel file."))
+        self.success_messages.append(_("Successfully read excel file."))
 
     def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
@@ -226,8 +225,8 @@ class EnrollmentImporter(ExcelImporter):
     # extension of ExcelImporter.warnings + dictionary to translate to UI strings
     W_MANY = 'too many enrollments'
 
-    def __init__(self, request):
-        super().__init__(request)
+    def __init__(self):
+        super().__init__()
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
@@ -312,25 +311,25 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
-        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
+        self.success_messages.append(_("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
             len(self.courses), students_created, responsibles_created))
 
     @classmethod
-    def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
+    def process(cls, excel_file, semester, vote_start_date, vote_end_date, test_run):
         """
             Entry point for the view.
         """
         try:
-            importer = cls(request)
+            importer = cls()
             importer.read_book(excel_file)
             if importer.errors:
-                return importer.warnings, importer.errors
+                return importer.success_messages, importer.warnings, importer.errors
 
             importer.check_column_count(14)
 
             if importer.errors:
                 importer.errors.append(_("The input data is malformed. No data was imported."))
-                return importer.warnings, importer.errors
+                return importer.success_messages, importer.warnings, importer.errors
 
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
@@ -342,22 +341,22 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_user_data_sanity()
 
             if importer.errors:
-                messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
+                importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
             elif test_run:
-                messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
+                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
             else:
                 importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
-            return importer.warnings, importer.errors
+            return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:
-            messages.error(request, _("Import finally aborted after exception: '%s'" % e))
+            importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
 
 
 class UserImporter(ExcelImporter):
-    def __init__(self, request):
-        super().__init__(request)
+    def __init__(self):
+        super().__init__()
 
     def read_one_user(self, data):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
@@ -383,29 +382,29 @@ class UserImporter(ExcelImporter):
                         users_count += 1
 
                 except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database."
+                    self.errors.append(_("A problem occured while writing the entries to the database."
                                                    " The original data location was row %(row)d of sheet '%(sheet)s'."
                                                    " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
-        messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
+        self.success_messages.append(_("Successfully created %(users)d user(s).") % dict(users=users_count))
         return new_participants
 
     @classmethod
-    def process(cls, request, excel_file, test_run):
+    def process(cls, excel_file, test_run):
         """
             Entry point for the view.
         """
         try:
-            importer = cls(request)
+            importer = cls()
 
             importer.read_book(excel_file)
             if importer.errors:
-                return [], importer.warnings, importer.errors
+                return [], importer.success_messages, importer.warnings, importer.errors
 
             importer.check_column_count(5)
             if importer.errors:
                 importer.errors.append(_("The input data is malformed. No data was imported."))
-                return [], importer.warnings, importer.errors
+                return [], importer.success_messages, importer.warnings, importer.errors
 
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.consolidate_user_data()
@@ -415,15 +414,15 @@ class UserImporter(ExcelImporter):
 
             if importer.errors:
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
-                return [], importer.warnings, importer.errors
+                return [], importer.success_messages, importer.warnings, importer.errors
             if test_run:
-                messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
-                return [], importer.warnings, importer.errors
+                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+                return [], importer.success_messages, importer.warnings, importer.errors
             else:
-                return importer.save_users_to_db(), importer.warnings, importer.errors
+                return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
         except Exception as e:
-            messages.error(request, _("Import finally aborted after exception: '%s'" % e))
+            importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
