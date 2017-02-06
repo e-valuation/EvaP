@@ -96,17 +96,12 @@ class ExcelImporter(object):
         self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
         self.success_messages = []
-
-        self.warnings = {self.W_NAME: [], self.W_EMAIL: [], self.W_GENERAL: [], self.W_DUPL: []}
+        self.warnings = defaultdict(list)
 
         # this is a dictionary to not let this become O(n^2)
         self.users = {}
 
     def read_book(self, file_content):
-        if file_content is None:
-            self.errors.append(_("Please select an Excel file."))
-            return
-
         try:
             self.book = xlrd.open_workbook(file_contents=file_content)
         except xlrd.XLRDError as e:
@@ -194,6 +189,15 @@ class ExcelImporter(object):
             "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
             _(" (new)")))
 
+    def _create_user_name_collision_warning(self, user_data, users_with_same_names):
+        warningstring = _("An existing user has the same first and last name as a new user:")
+        for user in users_with_same_names:
+            warningstring += "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
+            warningstring += _(" (existing)")
+        warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
+        warningstring += _(" (new)")
+        self.warnings[self.W_DUPL].append(mark_safe(warningstring))
+
     def check_user_data_sanity(self):
         for user_data in self.users.values():
             try:
@@ -209,26 +213,17 @@ class ExcelImporter(object):
 
             users_same_name = UserProfile.objects.filter(first_name=user_data.first_name, last_name=user_data.last_name).exclude(username=user_data.username).all()
             if len(users_same_name) > 0:
-                warningstring = _("An existing user has the same first and last name as a new user:")
-                for user in users_same_name:
-                    warningstring += "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
-                    warningstring += _(" (existing)")
-                warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
-                warningstring += _(" (new)")
-                self.warnings[self.W_DUPL].append(mark_safe(warningstring))
+                self._create_user_name_collision_warning(user_data, users_same_name)
 
 
 class EnrollmentImporter(ExcelImporter):
-    # extension of ExcelImporter.warnings + dictionary to translate to UI strings
-    W_MANY = 'too many enrollments'
+    W_MANY = 'too many enrollments'  # extension of ExcelImporter.warnings keys
 
     def __init__(self):
         super().__init__()
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
-
-        self.warnings[self.W_MANY] = []
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -352,9 +347,6 @@ class EnrollmentImporter(ExcelImporter):
 
 
 class UserImporter(ExcelImporter):
-    def __init__(self):
-        super().__init__()
-
     def read_one_user(self, data):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
         return user_data
@@ -380,8 +372,8 @@ class UserImporter(ExcelImporter):
 
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
-                                                   " The original data location was row %(row)d of sheet '%(sheet)s'."
-                                                   " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
+                                         " The original data location was row %(row)d of sheet '%(sheet)s'."
+                                         " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
         self.success_messages.append(_("Successfully created %(users)d user(s).") % dict(users=users_count))
         return new_participants
@@ -425,6 +417,7 @@ class UserImporter(ExcelImporter):
                 raise
 
 
+# Dictionary to translate internal keys to UI strings.
 WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: _("Name mismatches"),
     ExcelImporter.W_EMAIL: _("Email mismatches"),

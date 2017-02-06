@@ -90,7 +90,7 @@ class TestSemesterView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.semester = mommy.make(Semester)
+        cls.semester = mommy.make(Semester, pk=1)
         cls.course1 = mommy.make(Course, name_de="A - Course 1", name_en="B - Course 1", semester=cls.semester)
         cls.course2 = mommy.make(Course, name_de="B - Course 2", name_en="A - Course 2", semester=cls.semester)
         mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
@@ -118,7 +118,7 @@ class TestSemesterImportView(ViewTest):
     def setUpTestData(cls):
         semester = mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course, pk=1, semester=semester)
+        cls.course = mommy.make(Course, semester=semester)
 
     def test_import_valid_file(self):
         mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
@@ -188,9 +188,9 @@ class TestSemesterExportView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.semester = mommy.make(Semester)
+        cls.semester = mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType)
-        cls.course = mommy.make(Course, pk=1, type=cls.course_type, semester=cls.semester)
+        cls.course = mommy.make(Course, type=cls.course_type, semester=cls.semester)
 
     def test_view_excel_file_sorted(self):
         course1 = mommy.make(Course, state='published', type=self.course_type,
@@ -387,7 +387,7 @@ class TestSemesterRawDataExportView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.student_user = mommy.make(UserProfile, username='student')
-        cls.semester = mommy.make(Semester)
+        cls.semester = mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType, name_en="Type")
         cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1")
@@ -414,7 +414,7 @@ class TestSemesterParticipationDataExportView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.student_user = mommy.make(UserProfile, username='student')
-        cls.semester = mommy.make(Semester)
+        cls.semester = mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType, name_en="Type")
         cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_required_for_reward=True)

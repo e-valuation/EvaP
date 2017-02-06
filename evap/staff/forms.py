@@ -31,9 +31,29 @@ class ImportForm(forms.Form):
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.excel_file_required = False
+        self.vote_dates_required = False
+
+    def clean(self):
+        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
+            raise ValidationError(_("Please select an Excel file."))
+        if self.vote_dates_required:
+            if self.cleaned_data['vote_start_date'] is None or self.cleaned_data['vote_end_date'] is None:
+                raise ValidationError(_("Please enter an evaluation period."))
+
 
 class UserImportForm(forms.Form):
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.excel_file_required = False
+
+    def clean(self):
+        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
+            raise ValidationError(_("Please select an Excel file."))
 
 
 class CourseParticipantCopyForm(forms.Form):
@@ -41,6 +61,8 @@ class CourseParticipantCopyForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.course_selection_required = False
 
         # Here we split the courses by semester and create supergroups for them. We also make sure to include an empty option.
         choices = [('', '<empty>')]
@@ -50,6 +72,10 @@ class CourseParticipantCopyForm(forms.Form):
                 choices += [(semester.name, course_choices)]
 
         self.fields['course'].choices = choices
+
+    def clean(self):
+        if self.course_selection_required and self.cleaned_data['course'] is None:
+            raise ValidationError(_("Please select a course from the dropdown menu."))
 
 
 class UserBulkDeleteForm(forms.Form):
