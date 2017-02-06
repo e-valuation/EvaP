@@ -251,6 +251,31 @@
         // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
         template_form.insertAfter($('.select2form'));
 
+        // We have to empty the formset, otherwise sometimes old contents from
+        // invalid forms are copied
+        childElementSelector = 'input,select,textarea,label,div';
+
+        template_form.find(childElementSelector).each(function() {
+            var elem = $(this);
+
+            if (elem.is('input:checkbox') || elem.is('input:radio')) {
+                elem.removeAttr("checked")
+            }
+            else if (elem.is('select')) {
+                elem.find('option:selected').removeAttr("selected");
+                elem.find('option:first-child').attr("selected", "selected");
+            }
+            else {
+                elem.val('');
+            }
+        });
+
+        //Remove all error messages
+        template_form.find(".help-block").each(function() {
+            var elem = $(this);
+            elem.remove();
+        })
+
         // put this into a function for later re-use
         apply_select2 = function(elem) {
             elem.select2({
