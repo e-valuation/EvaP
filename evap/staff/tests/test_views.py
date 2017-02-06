@@ -320,6 +320,67 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         self.assertEqual(reply.status_code, 400)
 
 
+class TestSemesterCourseImportContributorsView(ViewTest):
+    url = "/staff/semester/1/course/1/contributor_import"
+    test_users = ["staff"]
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+
+    @classmethod
+    def setUpTestData(cls):
+        semester = mommy.make(Semester)
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+        cls.course = mommy.make(Course, semester=semester)
+
+    def test_import_valid_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_contributor_count = UserProfile.objects.filter(contributions__course=self.course).count()
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        form.submit(name="operation", value="import")
+
+        self.assertEqual(UserProfile.objects.filter(contributions__course=self.course).count(), original_contributor_count + 2)
+
+    def test_import_invalid_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_user_count = UserProfile.objects.count()
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_invalid,)
+
+        reply = form.submit(name="operation", value="import")
+
+        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
+        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+    def test_test_run(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_contributor_count = UserProfile.objects.filter(contributions__course=self.course).count()
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        form.submit(name="operation", value="test")
+
+        self.assertEqual(UserProfile.objects.filter(contributions__course=self.course).count(), original_contributor_count)
+
+    def test_suspicious_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+
+        # Should throw SuspiciousOperation Exception.
+        reply = form.submit(name="operation", value="hackit", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+
 class TestCourseCommentsUpdatePublishView(WebTest):
     url = reverse("staff:course_comments_update_publish")
     csrf_checks = False
