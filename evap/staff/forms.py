@@ -13,7 +13,7 @@ from django.contrib.auth.models import Group
 from django.forms.widgets import CheckboxSelectMultiple
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
                                    FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-
+from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +128,9 @@ class CourseForm(forms.ModelForm):
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_date',
                   'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_date', 'vote_end_date')
+        field_classes = {
+            'participants': UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -169,7 +172,7 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
+    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
@@ -253,6 +256,9 @@ class ContributionForm(forms.ModelForm):
         model = Contribution
         fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
+        field_classes = {
+            'contributor': UserModelChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         # work around https://code.djangoproject.com/ticket/25880
@@ -466,6 +472,10 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
+        field_classes = {
+            'delegates': UserModelMultipleChoiceField,
+            'cc_users': UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -518,11 +528,6 @@ class UserForm(forms.ModelForm):
             self.instance.groups.add(grade_user_group)
         else:
             self.instance.groups.remove(grade_user_group)
-
-
-class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.full_name_with_username
 
 
 class UserMergeSelectionForm(forms.Form):
