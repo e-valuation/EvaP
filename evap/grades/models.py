@@ -61,7 +61,7 @@ def delete_file_pre_save(sender, instance, **kwargs):
         return False
     try:
         oldFile = GradeDocument.objects.get(pk=instance.pk).file
-    except GradeDocument.DoesNotExists:
+    except GradeDocument.DoesNotExist:
         return False
 
     newFile = instance.file
