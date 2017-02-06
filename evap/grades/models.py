@@ -55,9 +55,10 @@ def delete_file_pre_delete(sender, instance, **kwargs):
         instance.file.delete(False)
 
 
+# Changing should lead to the removal of the old file
 @receiver(pre_save, sender=GradeDocument)
 def delete_file_pre_save(sender, instance, **kwargs):
-    if not instance.pk:
+    if not instance.pk: # We do not want to trigger document creation
         return False
     try:
         oldFile = GradeDocument.objects.get(pk=instance.pk).file
