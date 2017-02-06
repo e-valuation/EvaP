@@ -48,13 +48,15 @@ class GradeDocument(models.Model, metaclass=LocalizeModelBase):
     def filename(self):
         return os.path.basename(self.file.name)
 
-@receiver(models.signals.post_delete, sender=GradeDocument)
-def deleteFileOnDelete(sender, instance, **kwargs):
+@receiver(models.signals.pre_delete, sender=GradeDocument)
+
+def delete_file_pre_delete(sender, instance, **kwargs):
     if instance.file:
         instance.file.delete(False)
 
 @receiver(models.signals.pre_save, sender=GradeDocument)
-def deleteFileOnChange(sender, instance, **kwargs):
+
+def delete_file_pre_save(sender, instance, **kwargs):
     if not instance.pk:
         return False
     try:
@@ -67,5 +69,6 @@ def deleteFileOnChange(sender, instance, **kwargs):
         oldFile.delete(False)
 
 class SemesterGradeDownloadActivation(models.Model):
+
     semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='grades_downloadable')
     is_active = models.BooleanField(default=False)
