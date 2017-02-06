@@ -6,7 +6,6 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import UploadedFile
 
 from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
@@ -103,15 +102,13 @@ class ExcelImporter(object):
         # this is a dictionary to not let this become O(n^2)
         self.users = {}
 
-    def read_book(self, excel_file):
-        if excel_file is None:
+    def read_book(self, file_content):
+        if file_content is None:
             self.errors.append(_("Please select an Excel file."))
             return
+
         try:
-            if isinstance(excel_file, UploadedFile):
-                self.book = xlrd.open_workbook(file_contents=excel_file.read())
-            else:
-                self.book = xlrd.open_workbook(excel_file)
+            self.book = xlrd.open_workbook(file_contents=file_content)
         except xlrd.XLRDError as e:
             self.errors.append(_("Couldn't read the file. Error: {}").format(e))
 

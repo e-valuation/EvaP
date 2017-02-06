@@ -44,12 +44,21 @@ def delete_import_file(user_id):
     os.remove(filename)
 
 
-def get_import_file_name_if_exists(user_id):
+def import_file_exists(user_id):
     filename = generate_import_file_name(user_id)
     if os.path.isfile(filename):
-        return filename
+        return True
     else:
         return False
+
+
+def get_import_file_content_if_exists(user_id):
+    filename = generate_import_file_name(user_id)
+    if os.path.isfile(filename):
+        with open(filename, "rb") as file:
+            return file.read()
+    else:
+        return None
 
 
 def custom_redirect(url_name, *args, **kwargs):

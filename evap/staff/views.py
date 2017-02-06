@@ -30,7 +30,7 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              CourseParticipantCopyForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users, save_import_file, \
-                             get_import_file_name_if_exists, delete_import_file, forward_messages
+                             get_import_file_content_if_exists, delete_import_file, import_file_exists, forward_messages
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 from evap.grades.tools import are_grades_activated
@@ -331,7 +331,8 @@ def semester_import(request, semester_id):
 
         if test_run and excel_form_valid:
             excel_file = excel_form.cleaned_data['excel_file']
-            success_messages, warnings, errors = EnrollmentImporter.process(excel_file, semester, None, None, test_run)
+            file_content = excel_file.read() if excel_file else None
+            success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, None, None, test_run)
             if not errors:
                 save_import_file(excel_file, str(request.user.id))
                 return render(request, "staff_semester_import.html", dict(semester=semester,
@@ -342,21 +343,21 @@ def semester_import(request, semester_id):
                     excel_form=excel_form, warnings=warnings, errors=errors, test_passed=False))
 
         elif import_run:
-            import_filename = get_import_file_name_if_exists(str(request.user.id))
-            if import_filename:
+            file_content = get_import_file_content_if_exists(str(request.user.id))
+            if file_content:
                 vote_start_date = excel_form.cleaned_data['vote_start_date']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
                 if vote_start_date is None or vote_end_date is None:
                     errors.append("Please enter the evaluation period.")
                 else:
-                    success_messages, warnings, _ = EnrollmentImporter.process(import_filename, semester, vote_start_date, vote_end_date, test_run)
+                    success_messages, warnings, _ = EnrollmentImporter.process(file_content, semester, vote_start_date, vote_end_date, test_run)
                     forward_messages(request, success_messages, warnings)
                     delete_import_file(str(request.user.id))
                     return redirect('staff:semester_view', semester_id)
             else:
                 raise SuspiciousOperation("No test run performed previously.")
 
-    if get_import_file_name_if_exists(str(request.user.id)):
+    if import_file_exists(str(request.user.id)):
         return render(request, "staff_semester_import.html", dict(success_messages=success_messages,
             errors=errors, warnings=warnings, semester=semester, excel_form=excel_form, test_passed=True))
     else:
@@ -673,7 +674,8 @@ def course_participant_import(request, semester_id, course_id):
 
         if test_run and excel_form.is_valid():
             excel_file = excel_form.cleaned_data['excel_file']
-            imported_users, success_messages, warnings, errors = UserImporter.process(excel_file, test_run)
+            file_content = excel_file.read() if excel_file else None
+            imported_users, success_messages, warnings, errors = UserImporter.process(file_content, test_run)
             if not errors:
                 save_import_file(excel_file, str(request.user.id))
                 # messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
@@ -687,9 +689,9 @@ def course_participant_import(request, semester_id, course_id):
                     success_messages=success_messages, warnings=warnings, semester=semester, participant_test_passed=False))
 
         elif import_run:
-            import_filename = get_import_file_name_if_exists(str(request.user.id))
-            if import_filename:
-                imported_users, success_messages, warnings, _ = UserImporter.process(import_filename, test_run)
+            file_content = get_import_file_content_if_exists(str(request.user.id))
+            if file_content:
+                imported_users, success_messages, warnings, _ = UserImporter.process(file_content, test_run)
                 forward_messages(request, success_messages, warnings)
                 delete_import_file(str(request.user.id))
                 # fallthrough to end
@@ -714,7 +716,7 @@ def course_participant_import(request, semester_id, course_id):
         messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
         return redirect('staff:semester_view', semester_id)
 
-    if get_import_file_name_if_exists(str(request.user.id)):
+    if import_file_exists(str(request.user.id)):
         return render(request, "staff_course_participant_import.html", dict(course=course, excel_form=excel_form,
             copy_form=copy_form, semester=semester, participant_test_passed=True))
     else:
@@ -1107,7 +1109,8 @@ def user_import(request):
 
         if test_run and excel_form.is_valid():
             excel_file = excel_form.cleaned_data['excel_file']
-            _, success_messages, warnings, errors = UserImporter.process(excel_file, test_run)
+            file_content = excel_file.read() if excel_file else None
+            _, success_messages, warnings, errors = UserImporter.process(file_content, test_run)
             if not errors:
                 save_import_file(excel_file, str(request.user.id))
                 return render(request, "staff_user_import.html", dict(excel_form=excel_form,
@@ -1118,16 +1121,16 @@ def user_import(request):
                     success_messages=success_messages, warnings=warnings, errors=errors, test_passed=False))
 
         elif import_run:
-            import_filename = get_import_file_name_if_exists(str(request.user.id))
-            if import_filename:
-                _, success_messages, warnings, _ = UserImporter.process(import_filename, test_run)
+            file_content = get_import_file_content_if_exists(str(request.user.id))
+            if file_content:
+                _, success_messages, warnings, _ = UserImporter.process(file_content, test_run)
                 forward_messages(request, success_messages, warnings)
                 delete_import_file(str(request.user.id))
                 return redirect('staff:user_index')
             else:
                 raise SuspiciousOperation("No test run performed previously.")
 
-    if get_import_file_name_if_exists(str(request.user.id)):
+    if import_file_exists(str(request.user.id)):
         return render(request, "staff_user_import.html", dict(excel_form=excel_form, test_passed=True))
     else:
         return render(request, "staff_user_import.html", dict(excel_form=excel_form, test_passed=False))
