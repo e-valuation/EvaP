@@ -569,6 +569,7 @@ def helper_course_edit(request, semester, course):
 
         return custom_redirect('staff:semester_view', semester.id)
     else:
+        messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
         sort_formset(request, formset)
         template_data = dict(course=course, semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
         return render(request, "staff_course_form.html", template_data)
