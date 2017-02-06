@@ -721,6 +721,52 @@ def course_participant_import(request, semester_id, course_id):
         warnings=dict(warnings), errors=errors, participant_test_passed=test_passed))
 
 
+@staff_required
+def course_contributor_import(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
+    raise_permission_denied_if_archived(course)
+
+    form = UserImportForm(request.POST or None, request.FILES or None)
+
+    if form.is_valid():
+        operation = request.POST.get('operation')
+        if operation not in ('test', 'import'):
+            raise SuspiciousOperation("Invalid POST operation")
+
+        # Extract data from form.
+        excel_file = form.cleaned_data['excel_file']
+        import_course = form.cleaned_data['course']
+
+        test_run = operation == 'test'
+
+        # Import user from either excel file or other course
+        imported_users = []
+        if excel_file:
+            imported_users = UserImporter.process(request, excel_file, test_run)
+        else:
+            imported_users = UserProfile.objects.filter(contributions__course=import_course)
+
+        # Print message for test run.
+        if test_run and imported_users:
+            messages.success(request, "%d Contributors would be added to course %s" % (len(imported_users), course.name))
+
+        # Test run, or an error occurred while parsing -> stay and display error.
+        if test_run or not imported_users:
+            return render(request, "staff_course_contributor_import.html", dict(course=course, form=form))
+        else:
+            # Add users to course contributors. * converts list into parameters.
+            for user in imported_users:
+                order = Contribution.objects.count(course=course)
+                contribution = Contribution(course=course, contributor=user, order=order)
+                contribution.save()
+                course.contributions.add(contribution)
+            messages.success(request, "%d Contributors added to course %s" % (len(imported_users), course.name))
+            return redirect('staff:semester_view', semester_id)
+    else:
+        return render(request, "staff_course_contributor_import.html", dict(course=course, form=form, semester=semester))
+
+
 @reviewer_required
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
