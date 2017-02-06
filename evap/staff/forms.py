@@ -129,7 +129,7 @@ class CourseForm(forms.ModelForm):
                   'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_date', 'vote_end_date')
         field_classes = {
-            'participants' : UserModelMultipleChoiceField,
+            'participants': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
@@ -257,7 +257,7 @@ class ContributionForm(forms.ModelForm):
         fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
         field_classes = {
-            'contributor' : UserModelChoiceField,
+            'contributor': UserModelChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
@@ -473,8 +473,8 @@ class UserForm(forms.ModelForm):
         model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
         field_classes = {
-            'delegates' : UserModelMultipleChoiceField,
-            'cc_users' : UserModelMultipleChoiceField,
+            'delegates': UserModelMultipleChoiceField,
+            'cc_users': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):

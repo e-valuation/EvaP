@@ -87,8 +87,8 @@ class DelegatesForm(forms.ModelForm):
         model = UserProfile
         fields = ('delegates', 'cc_users',)
         field_classes = {
-            'delegates' : UserModelMultipleChoiceField,
-            'cc_users' : UserModelMultipleChoiceField,
+            'delegates': UserModelMultipleChoiceField,
+            'cc_users': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
