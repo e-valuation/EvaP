@@ -19,7 +19,7 @@
         <div class="alert alert-warning">{% trans "The results of this course have not been published because it didn't get enough votes." %}</div>
     {% endif %}
 
-    {% if staff or contributor %}
+    {% if reviewer or contributor %}
         {% if course.is_private %}
             <div class="alert alert-info hidden-print">
                 {% trans "This course is private. Only contributors and participants can see the results." %}
