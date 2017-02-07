@@ -123,6 +123,15 @@ def staff_required(view_func):
     return user_passes_test(check_user)(view_func)
 
 
+def reviewer_required(view_func):
+    """
+    Decorator for views that checks that the user is logged in and a reviewer
+    """
+    def check_user(user):
+        return user.is_reviewer
+    return user_passes_test(check_user)(view_func)
+
+
 def grade_publisher_required(view_func):
     """
     Decorator for views that checks that the user is logged in and a grade publisher
