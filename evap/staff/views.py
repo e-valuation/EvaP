@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.db.models import Prefetch
 from django.views.decorators.http import require_POST
 
-from evap.evaluation.auth import staff_required
+from evap.evaluation.auth import reviewer_required, staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, \
@@ -664,7 +664,7 @@ def course_participant_import(request, semester_id, course_id):
         return render(request, "staff_course_participant_import.html", dict(course=course, form=form, semester=semester))
 
 
-@staff_required
+@reviewer_required
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
@@ -696,7 +696,7 @@ def course_comments(request, semester_id, course_id):
 
 
 @require_POST
-@staff_required
+@reviewer_required
 def course_comments_update_publish(request):
     comment_id = request.POST["id"]
     action = request.POST["action"]
@@ -727,7 +727,7 @@ def course_comments_update_publish(request):
     return HttpResponse()  # 200 OK
 
 
-@staff_required
+@reviewer_required
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
