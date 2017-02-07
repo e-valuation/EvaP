@@ -170,12 +170,17 @@ def semester_course_operation(request, semester_id):
     course_ids = request.GET.getlist('course')
     courses = Course.objects.filter(id__in=course_ids)
 
+    # Set new state, and set email template for possible editing.
+    email_template = None
     if courses:
         current_state_name = STATES_ORDERED[courses[0].state]
         if operation == 'revertToNew':
             new_state_name = STATES_ORDERED['new']
+
         elif operation == 'prepare' or operation == 'reenableEditorReview':
             new_state_name = STATES_ORDERED['prepared']
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
+
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
             # remove courses without enough questionnaires
@@ -186,6 +191,7 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
+
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
@@ -196,8 +202,12 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it's evaluation end date lies in the past. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because their evaluation end dates lie in the past. They were removed from the selection.",
                     difference) % {'courses': difference})
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+
         elif operation == 'publish':
             new_state_name = STATES_ORDERED['published']
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+
         elif operation == 'unpublish':
             new_state_name = STATES_ORDERED['reviewed']
 
@@ -211,18 +221,9 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
+        email_template=email_template,
+        show_email_checkbox=email_template is not None
     )
-
-    # Choose correct email template to display for eventual editing.
-    if operation in ['prepare', 'reenableEditorReview', 'startEvaluation', 'publish']:
-        template_data['show_email_checkbox'] = True
-
-        if operation == 'prepare' or operation == 'reenableEditorReview':
-            template_data['email_template'] = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
-        elif operation == 'startEvaluation':
-            template_data['email_template'] = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-        elif operation == 'publish':
-            template_data['email_template'] = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
     return render(request, "staff_course_operation.html", template_data)
 

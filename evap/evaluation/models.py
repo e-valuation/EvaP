@@ -1120,10 +1120,10 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             subject_params = {}
             body_params = {'user': user, 'courses': courses}
-            cls.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
+            cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
-    def __send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
+    def send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             logger.warning(warning_message)
@@ -1171,7 +1171,7 @@ class EmailTemplate(models.Model):
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_courses': due_courses}
 
-        cls.__send_to_user(user, template, subject_params, body_params, use_cc=False)
+        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
 
     @classmethod
     def send_login_url_to_user(cls, user):
@@ -1179,14 +1179,5 @@ class EmailTemplate(models.Model):
         subject_params = {}
         body_params = {'user': user, 'login_url': user.login_url}
 
-        cls.__send_to_user(user, template, subject_params, body_params, use_cc=False)
+        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.username))
-
-    @classmethod
-    def send_publish_notifications_to_user(cls, user, courses, template):
-        if not template:
-            template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
-        subject_params = {}
-        body_params = {'user': user, 'courses': courses}
-
-        cls.__send_to_user(user, template, subject_params, body_params, use_cc=True)

@@ -275,7 +275,10 @@ def send_publish_notifications(courses, template=None):
             publish_notifications[course.responsible_contributor].add(course)
 
     for user, course_set in publish_notifications.items():
-        EmailTemplate.send_publish_notifications_to_user(user, list(course_set), template=template)
+        if not template:
+            template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+        body_params = {'user': user, 'courses': list(course_set)}
+        EmailTemplate.send_to_user(user, template, {}, body_params, use_cc=True)
 
 
 def color_mix(color1, color2, fraction):

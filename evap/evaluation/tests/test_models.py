@@ -280,7 +280,7 @@ class TestEmailTemplate(TestCase):
         """
         user = mommy.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
-        EmailTemplate._EmailTemplate__send_to_user(user, template, {}, {}, False, None)
+        EmailTemplate.send_to_user(user, template, {}, {}, False, None)
 
 
 class TestEmailRecipientList(TestCase):
