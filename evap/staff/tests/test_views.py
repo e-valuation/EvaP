@@ -8,8 +8,8 @@ from django.urls import reverse
 from model_mommy import mommy
 import xlrd
 
-from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, Questionnaire, \
-                                   Question
+from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
+                                   Questionnaire, Question, EmailTemplate, Degree
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
 
 
@@ -471,10 +471,7 @@ class TestCourseEmailView(ViewTest):
         participant2 = mommy.make(UserProfile, email="bar@example.com")
         mommy.make(Course, pk=1, semester=semester, participants=[participant1, participant2])
 
-    def test_course_email(self):
-        """
-            Tests whether the course email view actually sends emails.
-        """
+    def test_emails_are_sent(self):
         page = self.get_assert_200(self.url, user="staff")
         form = page.forms["course-email-form"]
         form.get("recipients", index=0).checked = True  # send to all participants
@@ -510,3 +507,124 @@ class TestQuestionnaireDeletionView(WebTest):
         response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2}, user="staff")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=2).exists())
+
+
+class TestUserCreateView(ViewTest):
+    url = "/staff/user/create"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_user_is_created(self):
+        page = self.get_assert_200(self.url, "staff")
+        form = page.forms["user-form"]
+        form["username"] = "mflkd862xmnbo5"
+        form["first_name"] = "asd"
+        form["last_name"] = "asd"
+        form["email"] = "a@b.de"
+
+        form.submit()
+
+        self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
+
+
+class TestTemplateEditView(ViewTest):
+    url = "/staff/template/1"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_emailtemplate(self):
+        """
+            Tests the emailtemplate view with one valid and one invalid input datasets.
+        """
+        page = self.get_assert_200(self.url, "staff")
+        form = page.forms["template-form"]
+        form["subject"] = "subject: mflkd862xmnbo5"
+        form["body"] = "body: mflkd862xmnbo5"
+        form.submit()
+
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+        form["body"] = " invalid tag: {{}}"
+        form.submit()
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+
+class TestCourseTypeView(ViewTest):
+    url = "/staff/course_types/"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_page_displays_something(self):
+        CourseType.objects.create(name_de='uZJcsl0rNc', name_en='uZJcsl0rNc')
+        page = self.get_assert_200(self.url, user="staff")
+        self.assertIn('uZJcsl0rNc', page)
+
+    def test_course_type_form(self):
+        """
+            Adds a course type via the staff form and verifies that the type was created in the db.
+        """
+        page = self.get_assert_200(self.url, user="staff")
+        form = page.forms["course-type-form"]
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
+
+
+class TestCourseTypeMergeView(ViewTest):
+    url = "/staff/course_types/1/merge/2"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.main_type = mommy.make(CourseType, pk=1, name_en="A course type")
+        cls.other_type = mommy.make(CourseType, pk=2, name_en="Obsolete course type")
+        mommy.make(Course, type=cls.main_type)
+        mommy.make(Course, type=cls.other_type)
+
+    def test_merge_works(self):
+        page = self.get_assert_200(self.url, user="staff")
+        form = page.forms["course-type-merge-form"]
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
+        self.assertEqual(Course.objects.filter(type=self.main_type).count(), 2)
+        for course in Course.objects.all():
+            self.assertTrue(course.type == self.main_type)
+
+
+class TestDegreeView(ViewTest):
+    url = "/staff/degrees/"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_degree_form(self):
+        """
+            Adds a degree via the staff form and verifies that the degree was created in the db.
+        """
+        page = self.get_assert_200(self.url, user="staff")
+        form = page.forms["degree-form"]
+        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
+        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
+        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
