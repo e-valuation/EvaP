@@ -8,6 +8,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
 from evap.results.tools import get_answers, get_answers_from_answer_counters, calculate_average_grades_and_deviation, calculate_results
+from evap.staff.tools import merge_users
 
 
 class TestCalculateResults(TestCase):
@@ -44,6 +45,27 @@ class TestCalculateResults(TestCase):
         self.assertEqual(result.total_count, 150)
         self.assertAlmostEqual(result.average, float(109) / 30)
         self.assertAlmostEqual(result.deviation, 1.015983376941878)
+
+    def test_calculate_results_after_user_merge(self):
+        """ Asserts that merge_users leaves the results cache in a consistent state. Regression test for #907 """
+        contributor = mommy.make(UserProfile)
+        main_user = mommy.make(UserProfile)
+        student = mommy.make(UserProfile)
+        print(contributor)
+
+        course = mommy.make(Course, state='published', participants=[student])
+        questionnaire = mommy.make(Questionnaire)
+        mommy.make(Question, questionnaire=questionnaire, type="G")
+        mommy.make(Contribution, contributor=contributor, course=course, questionnaires=[questionnaire])
+
+        calculate_results(course)
+
+        merge_users(main_user, contributor)
+
+        results = calculate_results(course)
+
+        for section in results:
+            self.assertTrue(Contribution.objects.filter(course=course, contributor=section.contributor).exists())
 
     def test_answer_counting(self):
         contributor1 = mommy.make(UserProfile)
