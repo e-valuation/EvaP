@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
 
 from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
@@ -86,18 +87,35 @@ class CourseData(CommonEqualityMixin):
 
 
 class ExcelImporter(object):
+    W_NAME = 'name'
+    W_EMAIL = 'email'
+    W_DUPL = 'duplicate'
+    W_GENERAL = 'general'
+
+
     def __init__(self, request):
         self.associations = OrderedDict()
         self.request = request
         self.book = None
         self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
-        self.warnings = []
+
+        self.warnings = {self.W_NAME: [], self.W_EMAIL: [], self.W_GENERAL: [], self.W_DUPL: []}
+
         # this is a dictionary to not let this become O(n^2)
         self.users = {}
 
     def read_book(self, excel_file):
-        self.book = xlrd.open_workbook(file_contents=excel_file.read())
+        if excel_file is None:
+            self.errors.append(_("Please select an Excel file."))
+            return
+        try:
+            if isinstance(excel_file, UploadedFile):
+                self.book = xlrd.open_workbook(file_contents=excel_file.read())
+            else:
+                self.book = xlrd.open_workbook(excel_file)
+        except xlrd.XLRDError as e:
+            self.errors.append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
@@ -173,19 +191,24 @@ class ExcelImporter(object):
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
 
+    @staticmethod
+    def _create_user_data_mismatch_warning(user, user_data):
+        return (mark_safe(_("The existing user would be overwritten with the following data:") +
+            "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
+            _(" (existing)") +
+            "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
+            _(" (new)")))
+
     def check_user_data_sanity(self):
         for user_data in self.users.values():
             try:
                 user = UserProfile.objects.get(username=user_data.username)
-                if (user.email != user_data.email
-                        or (user.title is not None and user.title != user_data.title)
+                if (user.email != user_data.email):
+                    self.warnings[self.W_EMAIL].append(self._create_user_data_mismatch_warning(user, user_data))
+                if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append(mark_safe(_("The existing user would be overwritten with the following data:") +
-                        "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
-                        _(" (existing)") +
-                        "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
-                        _(" (new)")))
+                    self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data))
             except UserProfile.DoesNotExist:
                 pass
 
@@ -197,22 +220,21 @@ class ExcelImporter(object):
                     warningstring += _(" (existing)")
                 warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
                 warningstring += _(" (new)")
-                self.warnings.append(mark_safe(warningstring))
-
-    def show_errors_and_warnings(self):
-        for error in self.errors:
-            messages.error(self.request, error)
-        for warning in self.warnings:
-            messages.warning(self.request, warning)
+                self.warnings[self.W_DUPL].append(mark_safe(warningstring))
 
 
 class EnrollmentImporter(ExcelImporter):
+    # extension of ExcelImporter.warnings + dictionary to translate to UI strings
+    W_MANY = 'too many enrollments'
+
     def __init__(self, request):
         super().__init__(request)
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
         self.max_enrollments = 6
+
+        self.warnings[self.W_MANY] = []
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -270,7 +292,7 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[enrollment[1].username].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > self.max_enrollments:
-                self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
+                self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
@@ -303,11 +325,15 @@ class EnrollmentImporter(ExcelImporter):
         try:
             importer = cls(request)
             importer.read_book(excel_file)
-            importer.check_column_count(14)
             if importer.errors:
-                importer.show_errors_and_warnings()
-                messages.error(importer.request, _("The input data is malformed. No data was imported."))
-                return
+                return importer.warnings, importer.errors
+
+            importer.check_column_count(14)
+
+            if importer.errors:
+                importer.errors.append(_("The input data is malformed. No data was imported."))
+                return importer.warnings, importer.errors
+
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
             importer.generate_external_usernames_if_external()
@@ -317,14 +343,13 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_enrollment_data_sanity()
             importer.check_user_data_sanity()
 
-            importer.show_errors_and_warnings()
             if importer.errors:
                 messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
-                return
-            if test_run:
+            elif test_run:
                 messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
             else:
                 importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+            return importer.warnings, importer.errors
         except Exception as e:
             messages.error(request, _("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
@@ -374,28 +399,42 @@ class UserImporter(ExcelImporter):
         """
         try:
             importer = cls(request)
+
             importer.read_book(excel_file)
+            if importer.errors:
+                return [], importer.warnings, importer.errors
+
             importer.check_column_count(5)
             if importer.errors:
-                importer.show_errors_and_warnings()
-                messages.error(importer.request, _("The input data is malformed. No data was imported."))
-                return
+                importer.errors.append(_("The input data is malformed. No data was imported."))
+                return [], importer.warnings, importer.errors
+
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.consolidate_user_data()
             importer.generate_external_usernames_if_external()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity()
 
-            importer.show_errors_and_warnings()
             if importer.errors:
-                messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
-                return
+                importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
+                return [], importer.warnings, importer.errors
             if test_run:
                 messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
+                return [], importer.warnings, importer.errors
             else:
-                return importer.save_users_to_db()
+                return importer.save_users_to_db(), importer.warnings, importer.errors
+
         except Exception as e:
             messages.error(request, _("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+
+
+WARNING_DESCRIPTIONS = {
+    ExcelImporter.W_NAME: _("Name mismatches"),
+    ExcelImporter.W_EMAIL: _("Email mismatches"),
+    ExcelImporter.W_DUPL: _("Possible duplicates"),
+    ExcelImporter.W_GENERAL: _("General warnings"),
+    EnrollmentImporter.W_MANY: _("Unusually high number of enrollments")
+}
