@@ -10,6 +10,7 @@ body {
 
 .navbar-fixed-top {
     border-width: 0;
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .navbar-brand {
