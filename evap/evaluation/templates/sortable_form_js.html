@@ -21,6 +21,31 @@
             addText: '{% trans "add another" %}',
             added: function(row) {
                 row.find('input[id$=-order]').val(row.parent().children().length);
+
+                // We have to empty the formset, otherwise sometimes old contents from
+                // invalid forms are copied
+                row.find("input:checkbox,:radio").removeAttr("checked");
+
+                //Disable active buttons from bootstrap button groups
+                row.find("label").removeClass("active");
+
+                row.find("input:text,textarea").val("");
+
+                row.find("select").each(function(){
+                    $(this).find('option:selected').removeAttr("selected");
+                    $(this).find('option:first-child').attr("selected", "selected");
+                });
+
+                //Check the first item in every button group
+                row.find(".btn-group").each(function() {
+                    var inputs = $(this).find("input");
+                    inputs[0].setAttribute("checked", "");
+                    $(inputs[0]).parent().addClass("active");
+                });
+
+                //Remove all error messages
+                row.find(".errorlist,.help-block").remove();
+
                 row_added(row);
             },
             formTemplate: (uses_template ? ".form-template" : null)

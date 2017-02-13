@@ -243,6 +243,7 @@
         // select2 can't handle already select2'd forms that were copies made by
         // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
         var template_form = $(".select2tr").last().clone();
+
         // later we use this class to give this to django-dynamic-formsets
         // as template and to make sure it does not get select2'd
         template_form.addClass("form-template").css("display","none");
