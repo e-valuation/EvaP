@@ -444,6 +444,10 @@ Side notes for calling out things
     color: black;
 }
 
+.preview {
+    opacity: 0.4;
+}
+
 .panel table:last-child,
 .panel div:last-child {
     margin-bottom: 0px;
