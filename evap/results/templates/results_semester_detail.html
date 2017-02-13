@@ -30,15 +30,18 @@
                     </thead>
                     <tbody>
                     {% for course in courses %}
-                        <tr>
+                        <tr{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} class="preview"{% endif %}>
                             <td data-order="{{ course.name }}">
-                            {% if course|can_user_see_results:request.user %}
-                                <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
-                            {% else %}
-                                <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given to publish the results." %}">
-                                    {{ course.name }}
-                                </span>
-                            {% endif %}
+                                {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
+                                    <span data-toggle="tooltip" data-placement="top" class="glyphicon glyphicon-info-sign" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                {% endif %}
+                                {% if course|can_user_see_results:request.user %}
+                                    <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
+                                {% else %}
+                                    <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given to publish the results." %}">
+                                        {{ course.name }}
+                                    </span>
+                                {% endif %}
                             </td>
                             <td>{{ course.type }}</td>
                             {% with responsible=course.responsible_contributor %}
