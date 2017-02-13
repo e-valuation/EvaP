@@ -67,9 +67,7 @@
             addText: '{% trans "add another" %}',
             added: function(row){
                 //Remove all error messages
-                row.find(".errorlist,.help-block").each(function() {
-                    $(this).remove();
-                });
+                row.find(".errorlist,.help-block").remove();
             }
         });
 
