@@ -466,7 +466,8 @@ class QuestionnairesAssignForm(forms.Form):
 
 class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
-    is_grade_user = forms.BooleanField(required=False, label=_("Grade user"))
+    is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
+    is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
 
     class Meta:
@@ -486,7 +487,8 @@ class UserForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['courses_participating_in'].initial = courses_in_active_semester.filter(participants=self.instance)
             self.fields['is_staff'].initial = self.instance.is_staff
-            self.fields['is_grade_user'].initial = self.instance.is_grade_publisher
+            self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
+            self.fields['is_reviewer'].initial = self.instance.is_reviewer
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -518,16 +520,22 @@ class UserForm(forms.ModelForm):
         self.instance.courses_participating_in.set(new_course_list)
 
         staff_group = Group.objects.get(name="Staff")
-        grade_user_group = Group.objects.get(name="Grade publisher")
+        grade_publisher_group = Group.objects.get(name="Grade publisher")
+        reviewer_group = Group.objects.get(name="Reviewer")
         if self.cleaned_data.get('is_staff'):
             self.instance.groups.add(staff_group)
         else:
             self.instance.groups.remove(staff_group)
 
-        if self.cleaned_data.get('is_grade_user'):
-            self.instance.groups.add(grade_user_group)
+        if self.cleaned_data.get('is_grade_publisher'):
+            self.instance.groups.add(grade_publisher_group)
         else:
-            self.instance.groups.remove(grade_user_group)
+            self.instance.groups.remove(grade_publisher_group)
+
+        if self.cleaned_data.get('is_reviewer') and not self.cleaned_data.get('is_staff'):
+            self.instance.groups.add(reviewer_group)
+        else:
+            self.instance.groups.remove(reviewer_group)
 
 
 class UserMergeSelectionForm(forms.Form):
