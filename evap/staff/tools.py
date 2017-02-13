@@ -10,6 +10,7 @@ from django.db import transaction
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
+from evap.results.tools import calculate_results
 
 
 def custom_redirect(url_name, *args, **kwargs):
@@ -106,6 +107,10 @@ def merge_users(main_user, other_user, preview=False):
     # delete rewards
     other_user.reward_point_grantings.all().delete()
     other_user.reward_point_redemptions.all().delete()
+
+    # refresh results cache
+    for course in Course.objects.filter(contributions__contributor=main_user).distinct():
+        calculate_results(course, force_recalculation=True)
 
     # delete other_user
     other_user.delete()

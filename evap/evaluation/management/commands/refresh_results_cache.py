@@ -3,7 +3,7 @@ from django.core.serializers.base import ProgressBar
 from django.core.cache import cache
 
 from evap.evaluation.models import Course
-from evap.evaluation.tools import calculate_results
+from evap.results.tools import calculate_results
 
 
 class Command(BaseCommand):
