@@ -65,7 +65,7 @@ def index(request):
         redirect_to = request.GET.get("next", None)
         if redirect_to is not None:
             if redirect_to.startswith("/staff/"):
-                if request.user.is_staff:
+                if request.user.is_reviewer:
                     return redirect(redirect_to)
             elif redirect_to.startswith("/grades/"):
                 if request.user.is_grade_publisher:
