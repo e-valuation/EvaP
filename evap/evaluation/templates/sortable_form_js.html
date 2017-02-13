@@ -24,8 +24,6 @@
 
                 // We have to empty the formset, otherwise sometimes old contents from
                 // invalid forms are copied
-                childElementSelector = 'input,select,textarea,label,div';
-
                 row.find("input:checkbox,:radio").removeAttr("checked");
 
                 //Disable active buttons from bootstrap button groups
