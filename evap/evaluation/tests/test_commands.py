@@ -60,7 +60,7 @@ class TestReloadTestdataCommand(TestCase):
 class TestRefreshResultsCacheCommand(TestCase):
     def test_calls_calculate_results(self):
         mommy.make(Course)
-        with patch('evap.evaluation.tools.calculate_results') as mock:
+        with patch('evap.results.tools.calculate_results') as mock:
             management.call_command('refresh_results_cache', stdout=StringIO())
 
         self.assertEqual(mock.call_count, Course.objects.count())

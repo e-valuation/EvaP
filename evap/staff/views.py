@@ -20,9 +20,8 @@ from django.views.decorators.http import require_POST
 from evap.evaluation.auth import staff_required
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
                                    TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
-from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, get_textanswers, CommentSection, \
-                                  TextResult, send_publish_notifications, sort_formset, \
-                                  calculate_average_grades_and_deviation
+from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, \
+                                  sort_formset
 from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
@@ -32,9 +31,10 @@ from evap.staff.importers import EnrollmentImporter, UserImporter
 from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
-from evap.rewards.models import RewardPointGranting
 from evap.grades.tools import are_grades_activated
 from evap.results.exporters import ExcelExporter
+from evap.results.tools import get_textanswers, calculate_average_grades_and_deviation, CommentSection, TextResult
+from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import is_semester_activated, can_user_use_reward_points
 
 
@@ -569,6 +569,8 @@ def helper_course_edit(request, semester, course):
 
         return custom_redirect('staff:semester_view', semester.id)
     else:
+        if form.errors or formset.errors:
+            messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
         sort_formset(request, formset)
         template_data = dict(course=course, semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
         return render(request, "staff_course_form.html", template_data)

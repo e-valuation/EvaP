@@ -326,7 +326,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_publish_grades(self):
-        from evap.evaluation.tools import get_sum_of_answer_counters
+        from evap.results.tools import get_sum_of_answer_counters
         if self.is_single_result:
             return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 

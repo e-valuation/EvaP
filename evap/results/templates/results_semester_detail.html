@@ -1,6 +1,7 @@
 {% extends "results_base.html" %}
 
-{% load morefilters %}
+{% load results_templatetags %}
+{% load evaluation_filters %}
 
 {% block title %}{{ semester.name }} - {{ block.super }}{% endblock %}
 
