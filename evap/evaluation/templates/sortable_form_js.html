@@ -21,6 +21,46 @@
             addText: '{% trans "add another" %}',
             added: function(row) {
                 row.find('input[id$=-order]').val(row.parent().children().length);
+
+                // We have to empty the formset, otherwise sometimes old contents from
+                // invalid forms are copied
+                childElementSelector = 'input,select,textarea,label,div';
+
+                row.find(childElementSelector).each(function() {
+                    var elem = $(this);
+
+                    if (elem.is('input:checkbox') || elem.is(':radio')) {
+                        elem.removeAttr("checked");
+                    }
+                    else if (elem.is('label')) {
+                        // Disable all button labels for button groups
+                        if (elem.hasClass("active")) {
+                            elem.removeClass("active");
+                        }
+                    }
+                    else if (elem.is('select')) {
+                        elem.find('option:selected').removeAttr("selected");
+                        elem.find('option:first-child').attr("selected", "selected");
+                    }
+                    else {
+                        elem.val('');
+                    }
+                });
+
+                //Check the first item in every button group
+                row.find(".btn-group").each(function() {
+                    var elem = $(this);
+
+                    var inputs = elem.find("input");
+                    inputs[0].setAttribute("checked", "");
+                    $(inputs[0]).parent().addClass("active");
+                });
+
+                //Remove all error messages
+                row.find(".errorlist,.help-block").each(function() {
+                    $(this).remove();
+                });
+
                 row_added(row);
             },
             formTemplate: (uses_template ? ".form-template" : null)
