@@ -1,19 +1,21 @@
 import logging
 
 from django import forms
-from django.db.models import Q
-from django.core.exceptions import SuspiciousOperation
-from django.forms.models import BaseInlineFormSet
-from django.utils.translation import ugettext_lazy as _
-from django.utils.text import normalize_newlines
-from django.http.request import QueryDict
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
-
+from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db.models import Q
+from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
-                                   FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
+from django.http.request import QueryDict
+from django.utils.text import normalize_newlines
+from django.utils.translation import ugettext_lazy as _
+from evap.evaluation.forms import (UserModelChoiceField,
+                                   UserModelMultipleChoiceField)
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree,
+                                    EmailTemplate, FaqQuestion, FaqSection,
+                                    Question, Questionnaire,
+                                    RatingAnswerCounter, Semester, TextAnswer,
+                                    UserProfile)
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +160,7 @@ class CourseForm(forms.ModelForm):
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_start_date and vote_end_date:
             if vote_start_date >= vote_end_date:
+                self.add_error("vote_start_date", _("The first day of evaluation must be before the last one."))
                 raise ValidationError(_("The first day of evaluation must be before the last one."))
 
     def save(self, user, *args, **kw):
