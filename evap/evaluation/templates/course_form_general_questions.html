@@ -1,5 +1,5 @@
 {% load bootstrap3 %}
-
+{% bootstrap_form_errors form %}
 <fieldset>
     <legend>{{ course.name }} ({{ course.semester.name }})</legend>
     {% for field in course_form %}

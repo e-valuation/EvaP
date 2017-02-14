@@ -160,8 +160,8 @@ class CourseForm(forms.ModelForm):
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_start_date and vote_end_date:
             if vote_start_date >= vote_end_date:
-                self.add_error("vote_start_date", _("The first day of evaluation must be before the last one."))
-                raise ValidationError(_("The first day of evaluation must be before the last one."))
+                self.add_error("vote_start_date", "")
+                self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def save(self, user, *args, **kw):
         self.instance.last_modified_user = user

@@ -1,15 +1,14 @@
-import logging
 import datetime
+import logging
 
 from django import forms
-from django.forms.widgets import CheckboxSelectMultiple
-from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-
-from evap.evaluation.models import Course, UserProfile, Questionnaire, Semester
-from evap.staff.forms import ContributionForm
+from django.forms.widgets import CheckboxSelectMultiple
+from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField
+from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
+from evap.staff.forms import ContributionForm
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +42,8 @@ class CourseForm(forms.ModelForm):
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_start_date and vote_end_date:
             if vote_start_date >= vote_end_date:
-                raise ValidationError(_("The first day of evaluation must be before the last one."))
+                self.add_error("vote_start_date", "")
+                self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def clean_vote_start_date(self):
         vote_start_date = self.cleaned_data.get('vote_start_date')
