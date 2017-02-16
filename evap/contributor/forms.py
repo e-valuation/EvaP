@@ -2,7 +2,6 @@ import datetime
 import logging
 
 from django import forms
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
