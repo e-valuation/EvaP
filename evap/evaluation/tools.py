@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _, LANGUAGE_SESSION_KEY, get_language
 
-from evap.evaluation.models import EmailTemplate, Course, Contribution
+from evap.evaluation.models import EmailTemplate, Course
 
 
 LIKERT_NAMES = {

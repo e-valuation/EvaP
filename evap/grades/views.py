@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.http import require_POST, require_GET
 
 from sendfile import sendfile
