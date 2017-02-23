@@ -638,7 +638,8 @@ class TestCoursePreviewView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         semester = mommy.make(Semester, pk=1)
-        mommy.make(Course, semester=semester, pk=1)
+        course = mommy.make(Course, semester=semester, pk=1)
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
 
 class TestCourseImportPersonsView(ViewTest):

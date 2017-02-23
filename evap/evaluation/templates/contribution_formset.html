@@ -1,4 +1,5 @@
 {% load evaluation_filters %}
+{% load bootstrap3 %}
 
 <fieldset>
     <legend>{% trans "Contributors" %}</legend>
@@ -36,6 +37,7 @@
                     {% else %}
                         {{ form.contributor }}
                     {% endif %}
+                    {% bootstrap_field form.does_not_contribute %}
                 </td>
                 <td>
                     {% include "questionnaires_widget.html" with field=form.questionnaires %}
