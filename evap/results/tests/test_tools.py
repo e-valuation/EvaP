@@ -51,7 +51,6 @@ class TestCalculateResults(TestCase):
         contributor = mommy.make(UserProfile)
         main_user = mommy.make(UserProfile)
         student = mommy.make(UserProfile)
-        print(contributor)
 
         course = mommy.make(Course, state='published', participants=[student])
         questionnaire = mommy.make(Questionnaire)

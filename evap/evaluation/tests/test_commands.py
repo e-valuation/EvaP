@@ -1,9 +1,9 @@
 import datetime
+from io import StringIO
 import os
 from unittest.mock import patch
 
 from django.conf import settings
-from io import StringIO
 from django.core import management, mail
 from django.test import TestCase
 from django.test.utils import override_settings
