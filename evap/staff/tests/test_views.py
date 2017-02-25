@@ -49,6 +49,9 @@ class TestSemesterCourseOperationView(ViewTest):
         response = self.app.get(self.url, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
 
+        form = response.forms['course-operation-form']
+        form.submit()
+
         course = Course.objects.get(pk=1)
         self.assertEqual(course.state, 'in_evaluation')
 
@@ -56,7 +59,7 @@ class TestSemesterCourseOperationView(ViewTest):
 class TestUserBulkDeleteView(ViewTest):
     url = '/staff/user/bulk_delete'
     test_users = ['staff']
-    filename = os.path.join(settings.BASE_DIR, "staff/fixtures/test_user_bulk_delete_file.txt")
+    filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_delete_file.txt')
 
     @classmethod
     def setUpTestData(cls):
@@ -64,13 +67,13 @@ class TestUserBulkDeleteView(ViewTest):
 
     def test_testrun_deletes_no_users(self):
         page = self.app.get(self.url, user='staff')
-        form = page.forms["user-bulk-delete-form"]
+        form = page.forms['user-bulk-delete-form']
 
-        form["username_file"] = (self.filename,)
+        form['username_file'] = (self.filename,)
 
         users_before = UserProfile.objects.count()
 
-        reply = form.submit(name="operation", value="test")
+        reply = form.submit(name='operation', value='test')
 
         # Not getting redirected after.
         self.assertEqual(reply.status_code, 200)

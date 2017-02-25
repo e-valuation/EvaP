@@ -256,8 +256,11 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def send_publish_notifications(courses, template):
+def send_publish_notifications(courses, template=None):
     publish_notifications = defaultdict(set)
+    
+    if not template:
+        template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
     for course in courses:
         # for published courses all contributors and participants get a notification
