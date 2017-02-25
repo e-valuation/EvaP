@@ -36,20 +36,21 @@ class TestUserIndexView(ViewTest):
 
 
 class TestSemesterCourseOperationView(ViewTest):
+    url = '/staff/semester/1/courseoperation?course=1&operation=startEvaluation'
+
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
     def test_operation_start_evaluation(self):
-        sem = mommy.make(Semester,pk=1)
+        sem = mommy.make(Semester, pk=1)
         mommy.make(Course, pk=1, state='approved', semester=sem)
 
-        url = '/staff/semester/1/courseoperation?course=1&operation=startEvaluation'
-        response = self.app.get(url, user='staff')
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(url))
+        response = self.app.get(self.url, user='staff')
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
 
         course = Course.objects.get(pk=1)
-        self.assertTrue(course.state, 'in_evaluation')
+        self.assertEqual(course.state, 'in_evaluation')
 
 
 class TestUserBulkDeleteView(ViewTest):

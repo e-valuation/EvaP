@@ -4,7 +4,7 @@
     {{ block.super }}
     <p>{% blocktrans %}Do you want to change the states of the following courses from <strong>{{ current_state_name }}</strong> to <strong>{{ new_state_name }}</strong>?{% endblocktrans %}</p>
 
-    <form id="course-operation-form" method="POST">
+    <form id="course-operation-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% for course in courses %}
             <input type="hidden" name="course_ids" value="{{ course.id }}" />
@@ -20,19 +20,32 @@
             </tbody>
         </table>
         {% if show_email_checkbox %}
+
         <div class="form-group">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" name="send_email" checked> {% trans "Send email notifications" %}
+                    <input type="checkbox" name="send_email" checked onclick="$('#email_form').toggle();"> {% trans "Send email notifications" %}
                 </label>
             </div>
-            <label>Email subject:</label> <br>
-            <input type="text" name="email_subject" value="{{ email_template.subject}}" style="width: 100%;"> <br>
-            <label>Email body:</label>
-            <textarea class="form-control" name="email_body" style="resize:vertical;min-height:300px;"> {{ email_template.body }} </textarea>
+            <fieldset id="email_form">
+                <div class="email-form">
+                    <div class="form-row">
+                        <div class="form-label">Email subject</div>
+                        <div class="form-field"><input class="form-control" name="email_subject" type="text" value="{{ email_template.subject}}" /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label">Email body</div>
+                        <div class="form-field"><textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea></div>
+                    </div>
+                </div>
+            </fieldset>
         </div>
         {% endif %}
-        <button type="submit" name="operation" value="{{ operation }}" class="btn btn-primary">{% trans "Confirm" %}</button>
-        <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
+    <input type="hidden", name="operation", value="{{ operation }}">
+
+        <div class="well submit-area text-center">
+            <input type="submit" class="btn btn-primary" value="{% trans "Confirm" %}" />
+            <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
+        </div>
     </form>
 {% endblock %}
