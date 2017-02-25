@@ -1,6 +1,6 @@
 from django.test.utils import override_settings
 
-from evap.evaluation.models import UserProfile, Course, EmailTemplate, Degree, CourseType
+from evap.evaluation.models import Course
 from evap.evaluation.tests.tools import WebTest
 
 
@@ -52,24 +52,17 @@ class URLTests(WebTest):
             # staff user
             ("test_staff_user_import", "/staff/user/import", "evap"),
             ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
-            ("test_staff_user_create", "/staff/user/create", "evap"),
             ("test_staff_user_x_edit", "/staff/user/4/edit", "evap"),
             ("test_staff_user_merge", "/staff/user/merge", "evap"),
             ("test_staff_user_x_merge_x", "/staff/user/4/merge/5", "evap"),
-            # staff template
-            ("test_staff_template_x", "/staff/template/1", "evap"),
             # faq
             ("test_staff_faq", "/staff/faq/", "evap"),
             ("test_staff_faq_x", "/staff/faq/1", "evap"),
             # rewards
             ("test_staff_reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
             ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
-            # degrees
-            ("test_staff_degree_index", "/staff/degrees/", "evap"),
             # course types
-            ("test_staff_course_type_index", "/staff/course_types/", "evap"),
             ("test_staff_course_type_merge", "/staff/course_types/merge", "evap"),
-            ("test_staff_course_type_x_merge_x", "/staff/course_types/2/merge/3", "evap"),
         ]
         for _, url, user in tests:
             self.get_assert_200(url, user)
@@ -142,9 +135,6 @@ class URLTests(WebTest):
     def test_staff_user_x_edit__nodata_success(self):
         self.get_submit_assert_302("/staff/user/4/edit", "evap")
 
-    def test_staff_template_x__nodata_success(self):
-        self.get_submit_assert_200("/staff/template/1", "evap")
-
     def test_staff_faq__nodata_success(self):
         self.get_submit_assert_302("/staff/faq/", "evap")
 
@@ -198,38 +188,6 @@ class URLTests(WebTest):
     def test_semester_unpublish(self):
         self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
 
-
-    def test_create_user(self):
-        """
-            Tests whether the user creation view actually creates a user.
-        """
-        page = self.get_assert_200("/staff/user/create", "evap")
-        form = page.forms["user-form"]
-        form["username"] = "mflkd862xmnbo5"
-        form["first_name"] = "asd"
-        form["last_name"] = "asd"
-        form["email"] = "a@b.de"
-
-        form.submit()
-
-        self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
-
-    def test_emailtemplate(self):
-        """
-            Tests the emailtemplate view with one valid and one invalid input datasets.
-        """
-        page = self.get_assert_200("/staff/template/1", "evap")
-        form = page.forms["template-form"]
-        form["subject"] = "subject: mflkd862xmnbo5"
-        form["body"] = "body: mflkd862xmnbo5"
-        form.submit()
-
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
-
-        form["body"] = " invalid tag: {{}}"
-        form.submit()
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
-
     def test_student_vote(self):
         """
             Submits a student vote for coverage, verifies that an error message is
@@ -263,51 +221,3 @@ class URLTests(WebTest):
         form.submit()
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
-
-    def test_course_type_form(self):
-        """
-            Adds a course type via the staff form and verifies that the type was created in the db.
-        """
-        page = self.get_assert_200("/staff/course_types/", user="evap")
-        form = page.forms["course-type-form"]
-        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
-        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
-        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
-        response = form.submit()
-        self.assertIn("Successfully", str(response))
-
-        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
-
-    def test_degree_form(self):
-        """
-            Adds a degree via the staff form and verifies that the degree was created in the db.
-        """
-        page = self.get_assert_200("/staff/degrees/", user="evap")
-        form = page.forms["degree-form"]
-        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
-        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
-        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
-        response = form.submit()
-        self.assertIn("Successfully", str(response))
-
-        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
-
-    def test_course_type_merge(self):
-        """
-            Tests that the merging of course types works as expected.
-        """
-        main_type = CourseType.objects.get(name_en="Master project")
-        other_type = CourseType.objects.get(name_en="Obsolete course type")
-        num_courses_with_main_type = Course.objects.filter(type=main_type).count()
-        courses_with_other_type = Course.objects.filter(type=other_type)
-        self.assertGreater(courses_with_other_type.count(), 0)
-
-        page = self.get_assert_200("/staff/course_types/" + str(main_type.pk) + "/merge/" + str(other_type.pk), user="evap")
-        form = page.forms["course-type-merge-form"]
-        response = form.submit()
-        self.assertIn("Successfully", str(response))
-
-        self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
-        self.assertEqual(Course.objects.filter(type=main_type).count(), num_courses_with_main_type + 1)
-        for course in courses_with_other_type:
-            self.assertTrue(course.type == main_type)

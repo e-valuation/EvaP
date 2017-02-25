@@ -1618,6 +1618,13 @@
   "pk": 2,
   "model": "auth.Group",
   "fields": {
+    "name": "Reviewer"
+  }
+},
+{
+  "pk": 3,
+  "model": "auth.Group",
+  "fields": {
     "name": "Grade publisher"
   }
 },

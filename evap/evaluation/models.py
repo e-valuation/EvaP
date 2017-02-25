@@ -285,7 +285,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             and user not in self.voters.all())
 
     def can_user_see_course(self, user):
-        if user.is_staff:
+        if user.is_reviewer:
             return True
         if self.is_user_contributor_or_delegate(user):
             return True
@@ -294,7 +294,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return True
 
     def can_user_see_results(self, user):
-        if user.is_staff:
+        if user.is_reviewer:
             return True
         if self.state == 'published':
             if self.is_user_contributor_or_delegate(user):
@@ -326,7 +326,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_publish_grades(self):
-        from evap.evaluation.tools import get_sum_of_answer_counters
+        from evap.results.tools import get_sum_of_answer_counters
         if self.is_single_result:
             return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 
@@ -919,6 +919,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
+
+    @cached_property
+    def is_reviewer(self):
+        return self.is_staff or self.groups.filter(name='Reviewer').exists()
 
     @cached_property
     def is_grade_publisher(self):

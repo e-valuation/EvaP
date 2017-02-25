@@ -9,7 +9,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Course, UserProfile, Contribution, Semester, \
                                    Questionnaire, CourseType, NotArchiveable, EmailTemplate
-from evap.evaluation.tools import calculate_average_grades_and_deviation
+from evap.results.tools import calculate_average_grades_and_deviation
 
 
 class TestCourses(TestCase):

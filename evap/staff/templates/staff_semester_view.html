@@ -1,6 +1,6 @@
 {% extends "staff_semester_base.html" %}
 
-{% load morefilters %}
+{% load evaluation_filters %}
 
 {% block content %}
     {{ block.super }}
@@ -11,10 +11,12 @@
 
     <h3>
         {{ semester.name }}
-        &nbsp;
-        <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
-        <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
-        <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+        {% if request.user.is_staff %}
+            &nbsp;
+            <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
+            <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+            <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+        {% endif %}
     </h3>
 
     {% if num_courses > 0 %}
@@ -61,6 +63,7 @@
     </div>
     {% endif %}
 
+    {% if request.user.is_staff %}
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{% trans "Actions" %}</h3>
@@ -90,11 +93,13 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="panel-title">
                 {% trans "Courses" %}
+                {% if request.user.is_staff %}
                 &nbsp;
                 <div class="btn-group">
                     <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
@@ -113,6 +118,7 @@
                         <li><a href="{% url "staff:semester_participation_export" semester.id %}">{% trans "Export participation data" %}</a></li>
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </div>
         <div class="panel-body">
@@ -139,6 +145,7 @@
                                 </tbody>
                             </table>
 
+                            {% if request.user.is_staff %}
                             {% if state == 'new' or state == 'prepared' or state == 'editor_approved'  or state == 'approved' or state == 'reviewed' or state == 'published' %}
                                 <button type="button" class="btn btn-default" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</button>
                             {% endif %}
@@ -163,6 +170,7 @@
                             {% ifequal state "published" %}
                                 <button name="operation" value="unpublish" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
                             {% endifequal %}
+                            {% endif %}
                         </form>
                     </div>
                 {% endfor %}

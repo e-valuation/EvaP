@@ -43,7 +43,7 @@ class UsecaseTests(WebTest):
         upload_form = page.forms["semester-import-form"]
         upload_form['vote_start_date'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
-        upload_form['excel_file'] = (os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrolment_data.xls"),)
+        upload_form['excel_file'] = (os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls"),)
         upload_form.submit(name="operation", value="import").follow()
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)

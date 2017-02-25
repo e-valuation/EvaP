@@ -6,10 +6,12 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from evap.evaluation.models import Course, EmailTemplate
+from evap.evaluation.management.commands.tools import log_exceptions
 
 logger = logging.getLogger(__name__)
 
 
+@log_exceptions
 class Command(BaseCommand):
     help = 'Sends email reminders X days before course evaluation ends.'
 

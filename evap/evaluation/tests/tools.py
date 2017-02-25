@@ -7,9 +7,9 @@ from webtest import AppError
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
 
 
-def to_querydict(dict):
+def to_querydict(dictionary):
     querydict = QueryDict(mutable=True)
-    for key, value in dict.items():
+    for key, value in dictionary.items():
         querydict[key] = value
     return querydict
 

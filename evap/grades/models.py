@@ -3,6 +3,8 @@ import os
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.signals import pre_delete, pre_save
+from django.dispatch.dispatcher import receiver
 
 from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.models import Course
@@ -45,6 +47,26 @@ class GradeDocument(models.Model, metaclass=LocalizeModelBase):
 
     def filename(self):
         return os.path.basename(self.file.name)
+
+
+@receiver(pre_delete, sender=GradeDocument)
+def delete_file_pre_delete(sender, instance, **kwargs):
+    if instance.file:
+        instance.file.delete(False)
+
+
+# Changing should lead to the removal of the old file
+@receiver(pre_save, sender=GradeDocument)
+def delete_file_pre_save(sender, instance, **kwargs):
+    if not instance.pk:  # We do not want to trigger document creation
+        return False
+    try:
+        oldFile = GradeDocument.objects.get(pk=instance.pk).file
+    except GradeDocument.DoesNotExist:
+        return False
+    newFile = instance.file
+    if not oldFile == newFile:
+        oldFile.delete(False)
 
 
 class SemesterGradeDownloadActivation(models.Model):

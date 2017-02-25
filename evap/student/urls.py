@@ -1,11 +1,11 @@
 from django.conf.urls import url
 
-from evap.student.views import index, vote
+from evap.student import views
 
 
 app_name = "student"
 
 urlpatterns = [
-    url(r"^$", index, name="index"),
-    url(r"^vote/(?P<course_id>\d+)$", vote, name="vote"),
+    url(r"^$", views.index, name="index"),
+    url(r"^vote/(?P<course_id>\d+)$", views.vote, name="vote"),
 ]

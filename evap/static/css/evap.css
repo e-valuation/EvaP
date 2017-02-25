@@ -10,6 +10,7 @@ body {
 
 .navbar-fixed-top {
     border-width: 0;
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .navbar-brand {
@@ -441,6 +442,10 @@ Side notes for calling out things
 .light-link {
     opacity: 0.2;
     color: black;
+}
+
+.preview {
+    opacity: 0.4;
 }
 
 .panel table:last-child,

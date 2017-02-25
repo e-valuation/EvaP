@@ -1,19 +1,21 @@
 import logging
 
 from django import forms
-from django.db.models import Q
-from django.core.exceptions import SuspiciousOperation
-from django.forms.models import BaseInlineFormSet
-from django.utils.translation import ugettext_lazy as _
-from django.utils.text import normalize_newlines
-from django.http.request import QueryDict
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
-
+from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db.models import Q
+from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, UserProfile, FaqSection, \
-                                   FaqQuestion, EmailTemplate, TextAnswer, Degree, RatingAnswerCounter, CourseType
-
+from django.http.request import QueryDict
+from django.utils.text import normalize_newlines
+from django.utils.translation import ugettext_lazy as _
+from evap.evaluation.forms import (UserModelChoiceField,
+                                   UserModelMultipleChoiceField)
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree,
+                                    EmailTemplate, FaqQuestion, FaqSection,
+                                    Question, Questionnaire,
+                                    RatingAnswerCounter, Semester, TextAnswer,
+                                    UserProfile)
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +130,9 @@ class CourseForm(forms.ModelForm):
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_date',
                   'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_date', 'vote_end_date')
+        field_classes = {
+            'participants': UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -155,7 +160,8 @@ class CourseForm(forms.ModelForm):
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_start_date and vote_end_date:
             if vote_start_date >= vote_end_date:
-                raise ValidationError(_("The first day of evaluation must be before the last one."))
+                self.add_error("vote_start_date", "")
+                self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def save(self, user, *args, **kw):
         self.instance.last_modified_user = user
@@ -169,7 +175,7 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = forms.ModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
+    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
@@ -253,6 +259,9 @@ class ContributionForm(forms.ModelForm):
         model = Contribution
         fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
+        field_classes = {
+            'contributor': UserModelChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         # work around https://code.djangoproject.com/ticket/25880
@@ -460,12 +469,17 @@ class QuestionnairesAssignForm(forms.Form):
 
 class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
-    is_grade_user = forms.BooleanField(required=False, label=_("Grade user"))
+    is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
+    is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
 
     class Meta:
         model = UserProfile
         fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
+        field_classes = {
+            'delegates': UserModelMultipleChoiceField,
+            'cc_users': UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -476,7 +490,8 @@ class UserForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['courses_participating_in'].initial = courses_in_active_semester.filter(participants=self.instance)
             self.fields['is_staff'].initial = self.instance.is_staff
-            self.fields['is_grade_user'].initial = self.instance.is_grade_publisher
+            self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
+            self.fields['is_reviewer'].initial = self.instance.is_reviewer
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -508,21 +523,22 @@ class UserForm(forms.ModelForm):
         self.instance.courses_participating_in.set(new_course_list)
 
         staff_group = Group.objects.get(name="Staff")
-        grade_user_group = Group.objects.get(name="Grade publisher")
+        grade_publisher_group = Group.objects.get(name="Grade publisher")
+        reviewer_group = Group.objects.get(name="Reviewer")
         if self.cleaned_data.get('is_staff'):
             self.instance.groups.add(staff_group)
         else:
             self.instance.groups.remove(staff_group)
 
-        if self.cleaned_data.get('is_grade_user'):
-            self.instance.groups.add(grade_user_group)
+        if self.cleaned_data.get('is_grade_publisher'):
+            self.instance.groups.add(grade_publisher_group)
         else:
-            self.instance.groups.remove(grade_user_group)
+            self.instance.groups.remove(grade_publisher_group)
 
-
-class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.full_name_with_username
+        if self.cleaned_data.get('is_reviewer') and not self.cleaned_data.get('is_staff'):
+            self.instance.groups.add(reviewer_group)
+        else:
+            self.instance.groups.remove(reviewer_group)
 
 
 class UserMergeSelectionForm(forms.Form):

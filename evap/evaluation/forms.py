@@ -76,3 +76,13 @@ class NewKeyForm(forms.Form):
 
     def get_user(self):
         return self.user_cache
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.full_name_with_username
+
+
+class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.full_name_with_username

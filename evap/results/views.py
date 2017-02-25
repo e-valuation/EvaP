@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
-from evap.evaluation.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult
+from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult
 
 
 @login_required
@@ -18,7 +18,10 @@ def index(request):
 @login_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    courses = list(semester.course_set.filter(state="published").prefetch_related("degrees"))
+    if request.user.is_reviewer:
+        courses = list(semester.course_set.filter(state__in=["in_evaluation", "evaluated", "reviewed", "published"]).prefetch_related("degrees"))
+    else:
+        courses = list(semester.course_set.filter(state="published").prefetch_related("degrees"))
 
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
@@ -41,7 +44,7 @@ def semester_detail(request, semester_id):
             for degree in course.degrees.all():
                 courses_by_degree[degree].courses.append(course)
 
-    template_data = dict(semester=semester, courses_by_degree=courses_by_degree, staff=request.user.is_staff)
+    template_data = dict(semester=semester, courses_by_degree=courses_by_degree)
     return render(request, "results_semester_detail.html", template_data)
 
 
@@ -89,7 +92,7 @@ def course_detail(request, semester_id, course_id):
             contributor_sections[section.contributor]['total_votes'] +=\
                 sum([s.total_count if isinstance(s, RatingResult) else 1 for s in section.results])
 
-    # Show a warning if course is still in evaluation (for staff preview).
+    # Show a warning if course is still in evaluation (for reviewer preview).
     evaluation_warning = course.state != 'published'
 
     # Results for a course might not be visible because there are not enough answers
@@ -97,7 +100,7 @@ def course_detail(request, semester_id, course_id):
     # Users who can open the results page see a warning message in this case.
     sufficient_votes_warning = not course.can_publish_grades
 
-    show_grades = request.user.is_staff or course.can_publish_grades
+    show_grades = request.user.is_reviewer or course.can_publish_grades
 
     course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
@@ -108,7 +111,7 @@ def course_detail(request, semester_id, course_id):
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,
             show_grades=show_grades,
-            staff=request.user.is_staff,
+            reviewer=request.user.is_reviewer,
             contributor=course.is_user_contributor_or_delegate(request.user),
             can_download_grades=request.user.can_download_grades,
             public_view=public_view)
@@ -118,7 +121,7 @@ def course_detail(request, semester_id, course_id):
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
     if public_view:
         return False
-    if user.is_staff:
+    if user.is_reviewer:
         return True
     contributor = text_answer.contribution.contributor
     if text_answer.is_private:

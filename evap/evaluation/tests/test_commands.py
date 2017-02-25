@@ -1,9 +1,9 @@
 import datetime
+from io import StringIO
 import os
 from unittest.mock import patch
 
 from django.conf import settings
-from io import StringIO
 from django.core import management, mail
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -60,7 +60,7 @@ class TestReloadTestdataCommand(TestCase):
 class TestRefreshResultsCacheCommand(TestCase):
     def test_calls_calculate_results(self):
         mommy.make(Course)
-        with patch('evap.evaluation.tools.calculate_results') as mock:
+        with patch('evap.results.tools.calculate_results') as mock:
             management.call_command('refresh_results_cache', stdout=StringIO())
 
         self.assertEqual(mock.call_count, Course.objects.count())

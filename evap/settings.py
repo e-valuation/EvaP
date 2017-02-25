@@ -61,6 +61,9 @@ INTERNAL_USERNAMES_MAX_LENGTH = 20
 IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
 
+# the importer will warn if any participant has more enrollments than this number
+IMPORTER_MAX_ENROLLMENTS = 7
+
 # the default descriptions for grade documents
 DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
@@ -172,7 +175,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'widget_tweaks',
     'bootstrap3',
     'compressor',
     'django_extensions',
@@ -200,9 +202,6 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, "templates"),
-        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
