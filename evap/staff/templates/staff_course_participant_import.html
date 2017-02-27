@@ -18,7 +18,9 @@
                             <div class="panel-heading"> From Excel File </div>
                             <div class="panel-body">
                                 <p>
-                                {% trans "Upload user data from excel file" %} (<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
+                                {% trans "Upload user data from excel file" %}
+                                (<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>).
+                                {% trans "This will create all containing users." %}
                                 </p>
                                 {% csrf_token %}
                                 {% bootstrap_form excel_form layout='vertical' %}

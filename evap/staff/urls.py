@@ -25,6 +25,7 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)/email$", views.course_email, name="course_email"),
     url(r"^semester/(\d+)/course/(\d+)/preview$", views.course_preview, name="course_preview"),
     url(r"^semester/(\d+)/course/(\d+)/participant_import", views.course_participant_import, name="course_participant_import"),
+    url(r"^semester/(\d+)/course/(\d+)/contributor_import", views.course_contributor_import, name="course_contributor_import"),
     url(r"^semester/(\d+)/course/(\d+)/comments$", views.course_comments, name="course_comments"),
     url(r"^semester/(\d+)/course/(\d+)/comment/(\d+)/edit$", views.course_comment_edit, name="course_comment_edit"),
     url(r"^semester/(\d+)/courseoperation$", views.semester_course_operation, name="semester_course_operation"),
