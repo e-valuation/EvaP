@@ -1,4 +1,5 @@
 import urllib.parse
+import os
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -6,11 +7,56 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
+from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
+from django.conf import settings
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
 from evap.results.tools import calculate_results
+
+
+def forward_messages(request, success_messages, warnings):
+    for message in success_messages:
+        messages.success(request, message)
+
+    for category in warnings:
+        for warning in warnings[category]:
+            messages.warning(request, warning)
+
+
+def generate_import_filename(user_id):
+    return settings.MEDIA_ROOT + '/temp_import_files/' + str(user_id) + '.xls'
+
+
+def save_import_file(excel_file, user_id):
+    filename = generate_import_filename(user_id)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "wb") as file:
+        for chunk in excel_file.chunks():
+            file.write(chunk)
+    excel_file.seek(0)
+
+
+def delete_import_file(user_id):
+    filename = generate_import_filename(user_id)
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+
+def import_file_exists(user_id):
+    filename = generate_import_filename(user_id)
+    return os.path.isfile(filename)
+
+
+def get_import_file_content_or_raise(user_id):
+    filename = generate_import_filename(user_id)
+    if not os.path.isfile(filename):
+        raise SuspiciousOperation("No test run performed previously.")
+    with open(filename, "rb") as file:
+        return file.read()
 
 
 def custom_redirect(url_name, *args, **kwargs):

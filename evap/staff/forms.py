@@ -26,18 +26,43 @@ def disable_all_fields(form):
 
 
 class ImportForm(forms.Form):
-    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True)
-    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True)
+    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True, required=False)
+    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True, required=False)
 
-    excel_file = forms.FileField(label=_("Excel file"))
+    excel_file = forms.FileField(label=_("Excel file"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.excel_file_required = False
+        self.vote_dates_required = False
+
+    def clean(self):
+        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
+            raise ValidationError(_("Please select an Excel file."))
+        if self.vote_dates_required:
+            if self.cleaned_data['vote_start_date'] is None or self.cleaned_data['vote_end_date'] is None:
+                raise ValidationError(_("Please enter an evaluation period."))
 
 
 class UserImportForm(forms.Form):
     excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.excel_file_required = False
+
+    def clean(self):
+        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
+            raise ValidationError(_("Please select an Excel file."))
+
+
+class CourseParticipantCopyForm(forms.Form):
     course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.course_selection_required = False
 
         # Here we split the courses by semester and create supergroups for them. We also make sure to include an empty option.
         choices = [('', '<empty>')]
@@ -49,10 +74,8 @@ class UserImportForm(forms.Form):
         self.fields['course'].choices = choices
 
     def clean(self):
-        if self.cleaned_data['course'] and self.cleaned_data['excel_file']:
-            raise ValidationError('Please select only one of course or Excel file.')
-        if not self.cleaned_data['course'] and not self.cleaned_data['excel_file']:
-            raise ValidationError('Please select either course or Excel File.')
+        if self.course_selection_required and self.cleaned_data['course'] is None:
+            raise ValidationError(_("Please select a course from the dropdown menu."))
 
 
 class UserBulkDeleteForm(forms.Form):
