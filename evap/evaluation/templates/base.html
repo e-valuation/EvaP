@@ -253,7 +253,7 @@
 
         // later we use this class to give this to django-dynamic-formsets
         // as template and to make sure it does not get select2'd
-        template_form.addClass("form-template").css("display","none");
+        template_form.addClass("form-template").css("display", "none");
         // for some reason django-dynamic-formsets does not hide the checkbox like it should
         template_form.find(':checkbox').last().attr("type", "hidden");
         // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
