@@ -35,10 +35,31 @@ class TestUserIndexView(ViewTest):
             self.app.get(self.url, user="staff")
 
 
+class TestSemesterCourseOperationView(ViewTest):
+    url = '/staff/semester/1/courseoperation?course=1&operation=startEvaluation'
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_operation_start_evaluation(self):
+        sem = mommy.make(Semester, pk=1)
+        mommy.make(Course, pk=1, state='approved', semester=sem)
+
+        response = self.app.get(self.url, user='staff')
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
+
+        form = response.forms['course-operation-form']
+        form.submit()
+
+        course = Course.objects.get(pk=1)
+        self.assertEqual(course.state, 'in_evaluation')
+
+
 class TestUserBulkDeleteView(ViewTest):
     url = '/staff/user/bulk_delete'
     test_users = ['staff']
-    filename = os.path.join(settings.BASE_DIR, "staff/fixtures/test_user_bulk_delete_file.txt")
+    filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_delete_file.txt')
 
     @classmethod
     def setUpTestData(cls):
@@ -46,13 +67,13 @@ class TestUserBulkDeleteView(ViewTest):
 
     def test_testrun_deletes_no_users(self):
         page = self.app.get(self.url, user='staff')
-        form = page.forms["user-bulk-delete-form"]
+        form = page.forms['user-bulk-delete-form']
 
-        form["username_file"] = (self.filename,)
+        form['username_file'] = (self.filename,)
 
         users_before = UserProfile.objects.count()
 
-        reply = form.submit(name="operation", value="test")
+        reply = form.submit(name='operation', value='test')
 
         # Not getting redirected after.
         self.assertEqual(reply.status_code, 200)

@@ -147,17 +147,23 @@ def semester_course_operation(request, semester_id):
     if request.method == 'POST':
         course_ids = request.POST.getlist('course_ids')
         courses = Course.objects.filter(id__in=course_ids)
-        send_email = request.POST.get('send_email') == 'on'
+
+        # If checkbox is not checked, set template to None
+        if request.POST.get('send_email') == 'on':
+            template = EmailTemplate(subject=request.POST["email_subject"], body=request.POST["email_body"])
+        else:
+            template = None
+
         if operation == 'revertToNew':
             helper_semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableEditorReview':
-            helper_semester_course_operation_prepare(request, courses, send_email)
+            helper_semester_course_operation_prepare(request, courses, template)
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
         elif operation == 'startEvaluation':
-            helper_semester_course_operation_start(request, courses, send_email)
+            helper_semester_course_operation_start(request, courses, template)
         elif operation == 'publish':
-            helper_semester_course_operation_publish(request, courses, send_email)
+            helper_semester_course_operation_publish(request, courses, template)
         elif operation == 'unpublish':
             helper_semester_course_operation_unpublish(request, courses)
 
@@ -166,12 +172,17 @@ def semester_course_operation(request, semester_id):
     course_ids = request.GET.getlist('course')
     courses = Course.objects.filter(id__in=course_ids)
 
+    # Set new state, and set email template for possible editing.
+    email_template = None
     if courses:
         current_state_name = STATES_ORDERED[courses[0].state]
         if operation == 'revertToNew':
             new_state_name = STATES_ORDERED['new']
+
         elif operation == 'prepare' or operation == 'reenableEditorReview':
             new_state_name = STATES_ORDERED['prepared']
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
+
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
             # remove courses without enough questionnaires
@@ -182,6 +193,7 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
+
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
@@ -192,8 +204,12 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it's evaluation end date lies in the past. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because their evaluation end dates lie in the past. They were removed from the selection.",
                     difference) % {'courses': difference})
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+
         elif operation == 'publish':
             new_state_name = STATES_ORDERED['published']
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+
         elif operation == 'unpublish':
             new_state_name = STATES_ORDERED['reviewed']
 
@@ -207,8 +223,10 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
-        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'startEvaluation', 'publish']
+        email_template=email_template,
+        show_email_checkbox=email_template is not None
     )
+
     return render(request, "staff_course_operation.html", template_data)
 
 
@@ -220,14 +238,14 @@ def helper_semester_course_operation_revert(request, courses):
         "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
 
 
-def helper_semester_course_operation_prepare(request, courses, send_email):
+def helper_semester_course_operation_prepare(request, courses, template):
     for course in courses:
         course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-    if send_email:
-        EmailTemplate.send_review_notifications(courses, request)
+    if template:
+        EmailTemplate.send_to_users_in_courses(template, courses, [EmailTemplate.EDITORS], use_cc=True, request=request)
 
 
 def helper_semester_course_operation_approve(request, courses):
@@ -238,25 +256,25 @@ def helper_semester_course_operation_approve(request, courses):
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
 
-def helper_semester_course_operation_start(request, courses, send_email):
+def helper_semester_course_operation_start(request, courses, template):
     for course in courses:
         course.vote_start_date = datetime.date.today()
         course.evaluation_begin()
         course.save()
     messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
         "Successfully started evaluation for %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    if send_email:
-        EmailTemplate.send_evaluation_started_notifications(courses, request)
+    if template:
+        EmailTemplate.send_to_users_in_courses(template, courses, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
-def helper_semester_course_operation_publish(request, courses, send_email):
+def helper_semester_course_operation_publish(request, courses, template):
     for course in courses:
         course.publish()
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    if send_email:
-        send_publish_notifications(courses)
+    if template:
+        send_publish_notifications(courses, template)
 
 
 def helper_semester_course_operation_unpublish(request, courses):

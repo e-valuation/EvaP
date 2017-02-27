@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST, require_GET
 from sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required, staff_required
-from evap.evaluation.models import Semester, Contribution, Course
+from evap.evaluation.models import Semester, Contribution, Course, EmailTemplate
 from evap.grades.models import GradeDocument, SemesterGradeDownloadActivation
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
