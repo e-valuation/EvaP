@@ -25,12 +25,12 @@ def forward_messages(request, success_messages, warnings):
             messages.warning(request, warning)
 
 
-def generate_import_filename(user_id):
-    return settings.MEDIA_ROOT + '/temp_import_files/' + str(user_id) + '.xls'
+def generate_import_filename(user_id, magic):
+    return settings.MEDIA_ROOT + '/temp_import_files/' + str(user_id) + '.xls' + '.' + magic
 
 
-def save_import_file(excel_file, user_id):
-    filename = generate_import_filename(user_id)
+def save_import_file(excel_file, user_id, magic):
+    filename = generate_import_filename(user_id, magic)
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "wb") as file:
         for chunk in excel_file.chunks():
@@ -38,21 +38,21 @@ def save_import_file(excel_file, user_id):
     excel_file.seek(0)
 
 
-def delete_import_file(user_id):
-    filename = generate_import_filename(user_id)
+def delete_import_file(user_id, magic):
+    filename = generate_import_filename(user_id, magic)
     try:
         os.remove(filename)
     except OSError:
         pass
 
 
-def import_file_exists(user_id):
-    filename = generate_import_filename(user_id)
+def import_file_exists(user_id, magic):
+    filename = generate_import_filename(user_id, magic)
     return os.path.isfile(filename)
 
 
-def get_import_file_content_or_raise(user_id):
-    filename = generate_import_filename(user_id)
+def get_import_file_content_or_raise(user_id, magic):
+    filename = generate_import_filename(user_id, magic)
     if not os.path.isfile(filename):
         raise SuspiciousOperation("No test run performed previously.")
     with open(filename, "rb") as file:

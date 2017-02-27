@@ -99,13 +99,7 @@
             <span>{{ course.num_participants }}</span>
         </p>
         {% if request.user.is_staff and not info_only %}
-            <div class="btn-group">
-                <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Import" %} <span class="caret"></span></button>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="{% url "staff:course_participant_import" semester.id course.id %}">{% trans "Import Participants" %}</a></li>
-                    <li><a href="{% url "staff:course_contributor_import" semester.id course.id %}">{% trans "Import Contributors" %}</a></li>
-                </ul>
-            </div>
+            <a href="{% url "staff:course_person_import" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Persons" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}
