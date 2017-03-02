@@ -307,13 +307,13 @@ class EnrollmentImporter(ExcelImporter):
             len(self.courses), students_created, responsibles_created))
 
     @classmethod
-    def process(cls, excel_file, semester, vote_start_date, vote_end_date, test_run):
+    def process(cls, excel_content, semester, vote_start_date, vote_end_date, test_run):
         """
             Entry point for the view.
         """
         try:
             importer = cls()
-            importer.read_book(excel_file)
+            importer.read_book(excel_content)
             if importer.errors:
                 return importer.success_messages, importer.warnings, importer.errors
 
@@ -379,14 +379,14 @@ class UserImporter(ExcelImporter):
         return new_participants
 
     @classmethod
-    def process(cls, excel_file, test_run):
+    def process(cls, excel_content, test_run):
         """
             Entry point for the view.
         """
         try:
             importer = cls()
 
-            importer.read_book(excel_file)
+            importer.read_book(excel_content)
             if importer.errors:
                 return [], importer.success_messages, importer.warnings, importer.errors
 

@@ -332,7 +332,7 @@ def semester_import(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
-    magic = 'semester'
+    import_type = 'semester'
 
     errors = []
     warnings = {}
@@ -344,27 +344,27 @@ def semester_import(request, semester_id):
             raise SuspiciousOperation("Invalid POST operation")
 
         if operation == 'test':
-            delete_import_file(request.user.id, magic)  # remove old files if still exist
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.excel_file_required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, None, None, True)
+                success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, vote_start_date=None, vote_end_date=None, test_run=True)
                 if not errors:
-                    save_import_file(excel_file, request.user.id, magic)
+                    save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == 'import':
-            file_content = get_import_file_content_or_raise(request.user.id, magic)
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
             excel_form.vote_dates_required = True
             if excel_form.is_valid():
                 vote_start_date = excel_form.cleaned_data['vote_start_date']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
-                success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_date, vote_end_date, False)
+                success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_date, vote_end_date, test_run=False)
                 forward_messages(request, success_messages, warnings)
-                delete_import_file(request.user.id, magic)
+                delete_import_file(request.user.id, import_type)
                 return redirect('staff:semester_view', semester_id)
 
-    test_passed = import_file_exists(request.user.id, magic)
+    test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_semester_import.html", dict(semester=semester,
         success_messages=success_messages, errors=errors, warnings=dict(warnings),
@@ -677,23 +677,47 @@ def course_person_import(request, semester_id, course_id):
 
     if request.method == "POST":
         operation = request.POST.get('operation')
-
         if operation not in ('test-participants', 'import-participants', 'copy-participants',
                              'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if 'participants' in operation:
-            excel_form = participant_excel_form
-            copy_form = participant_copy_form
-        else:                                                 # 'contributors' in operation
-            excel_form = contributor_excel_form
-            copy_form = contributor_copy_form
+        import_type = 'participant' if 'participants' in operation else 'contributor'
+        excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
+        copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
-        result, success_messages, warnings, errors = helper_course_person_import(
-                request, excel_form, copy_form, course, semester_id)
+        if 'test' in operation:
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            excel_form.excel_file_required = True
+            if excel_form.is_valid():
+                excel_file = excel_form.cleaned_data['excel_file']
+                file_content = excel_file.read()
+                # if on a test run, the process method will not return a list of users that would be
+                # imported so there is currently no way to show how many users would be imported.
+                __, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
+                if not errors:
+                    save_import_file(excel_file, request.user.id, import_type)
 
-        if result is not None:
-            return result  # otherwise fallthrough
+        elif 'import' in operation:
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            imported_users, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
+            delete_import_file(request.user.id, import_type)
+            # Import happens in this call:
+            success_messages.append(helper_person_import(imported_users, course, import_type))
+            forward_messages(request, success_messages, warnings)
+            return redirect('staff:semester_view', semester_id)
+
+        elif 'copy' in operation:
+            copy_form.course_selection_required = True
+            if copy_form.is_valid():
+                import_course = copy_form.cleaned_data['course']
+                if import_type == 'participant':
+                    imported_users = import_course.participants.all()
+                else:
+                    imported_users = UserProfile.objects.filter(contributions__course=import_course)
+                # Import happens in this call:
+                success_messages.append(helper_person_import(imported_users, course, import_type))
+                forward_messages(request, success_messages, warnings)
+                return redirect('staff:semester_view', semester_id)
 
     participant_test_passed = import_file_exists(request.user.id, 'participant')
     contributor_test_passed = import_file_exists(request.user.id, 'contributor')
@@ -705,64 +729,17 @@ def course_person_import(request, semester_id, course_id):
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
 
 
-def helper_course_person_import(request, excel_form, copy_form, course, semester_id):
-    operation = request.POST.get('operation')
-
-    redirect_result = None
-    success_messages = []
-    warnings = {}
-    errors = []
-    magic = 'participant' if 'participants' in operation else 'contributor'
-
-    if 'test' in operation:
-        delete_import_file(request.user.id, magic)  # remove old files if still exist
-        excel_form.excel_file_required = True
-        if excel_form.is_valid():
-            excel_file = excel_form.cleaned_data['excel_file']
-            file_content = excel_file.read()
-            # if on a test run, the process method will not return a list of users that would be
-            # imported so there is currently no way to show how many users would be imported.
-            __, success_messages, warnings, errors = UserImporter.process(file_content, True)
-            if not errors:
-                save_import_file(excel_file, request.user.id, magic)
-
-    elif 'import' in operation:
-        file_content = get_import_file_content_or_raise(request.user.id, magic)
-        imported_users, success_messages, warnings, __ = UserImporter.process(file_content, False)
-        delete_import_file(request.user.id, magic)
-        if magic == 'participant':
-            course.participants.add(*imported_users)
-            success_messages.append(("{} Participants added to course {}").format(len(imported_users), course.name))
-        else:
-            helper_add_contributors(imported_users, course)
-            success_messages.append(("{} Contributors added to course {}").format(len(imported_users), course.name))
-        forward_messages(request, success_messages, warnings)
-        redirect_result = redirect('staff:semester_view', semester_id)
-
-    elif 'copy' in operation:
-        copy_form.course_selection_required = True
-        if copy_form.is_valid():
-            import_course = copy_form.cleaned_data['course']
-            if magic == 'participant':
-                imported_users = import_course.participants.all()
-                course.participants.add(*imported_users)
-                success_messages.append(("{} Participants added to course {}").format(len(imported_users), course.name))
-            else:
-                imported_users = UserProfile.objects.filter(contributions__course=import_course)
-                helper_add_contributors(imported_users, course)
-                success_messages.append(("{} Contributors added to course {}").format(len(imported_users), course.name))
-            forward_messages(request, success_messages, warnings)
-            redirect_result = redirect('staff:semester_view', semester_id)
-
-    return redirect_result, success_messages, warnings, errors
-
-
-def helper_add_contributors(users, course):
-    for user in users:
-        order = Contribution.objects.filter(course=course).count()
-        contribution = Contribution(course=course, contributor=user, order=order)
-        contribution.save()
-        course.contributions.add(contribution)
+def helper_person_import(users, course, import_type):
+    if import_type == 'participant':
+        course.participants.add(*users)
+        return _("{} Participants added to course {}").format(len(users), course.name)
+    else:
+        for user in users:
+            order = Contribution.objects.filter(course=course).count()
+            contribution = Contribution(course=course, contributor=user, order=order)
+            contribution.save()
+            course.contributions.add(contribution)
+        return _("{} Contributors added to course {}").format(len(users), course.name)
 
 
 @reviewer_required
@@ -1139,7 +1116,7 @@ def user_create(request):
 @staff_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    magic = 'user'
+    import_type = 'user'
 
     errors = []
     warnings = {}
@@ -1151,23 +1128,23 @@ def user_import(request):
             raise SuspiciousOperation("Invalid POST operation")
 
         if operation == 'test':
-            delete_import_file(request.user.id, magic)  # remove old files if still exist
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.excel_file_required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                __, success_messages, warnings, errors = UserImporter.process(file_content, True)
+                __, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
                 if not errors:
-                    save_import_file(excel_file, request.user.id, magic)
+                    save_import_file(excel_file, request.user.id, import_type)
 
         elif operation == 'import':
-            file_content = get_import_file_content_or_raise(request.user.id, magic)
-            __, success_messages, warnings, __ = UserImporter.process(file_content, False)
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            __, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
             forward_messages(request, success_messages, warnings)
-            delete_import_file(request.user.id, magic)
+            delete_import_file(request.user.id, import_type)
             return redirect('staff:user_index')
 
-    test_passed = import_file_exists(request.user.id, magic)
+    test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_user_import.html", dict(excel_form=excel_form,
         success_messages=success_messages, warnings=dict(warnings), errors=errors, test_passed=test_passed))
