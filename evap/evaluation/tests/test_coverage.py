@@ -21,20 +21,6 @@ class URLTests(WebTest):
             This tests visits all URLs of evap and verifies they return a 200 for the specified user.
         """
         tests = [
-            # student pages
-            ("test_student", "/student/", "student"),
-            ("test_student_vote_x", "/student/vote/5", "lazy.student"),
-            # staff main page
-            ("test_staff", "/staff/", "evap"),
-            # staff semester
-            ("test_staff_semester_create", "/staff/semester/create", "evap"),
-            ("test_staff_semester_x", "/staff/semester/1", "evap"),
-            ("test_staff_semester_x", "/staff/semester/1?tab=asdf", "evap"),
-            ("test_staff_semester_x_edit", "/staff/semester/1/edit", "evap"),
-            ("test_staff_semester_x_import", "/staff/semester/1/import", "evap"),
-            ("test_staff_semester_x_assign", "/staff/semester/1/assign", "evap"),
-            ("test_staff_semester_x_lottery", "/staff/semester/1/lottery", "evap"),
-            ("test_staff_semester_x_todo", "/staff/semester/1/todo", "evap"),
             # staff semester course
             ("test_staff_semester_x_course_y_edit", "/staff/semester/1/course/5/edit", "evap"),
             ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
@@ -55,9 +41,6 @@ class URLTests(WebTest):
             ("test_staff_user_x_edit", "/staff/user/4/edit", "evap"),
             ("test_staff_user_merge", "/staff/user/merge", "evap"),
             ("test_staff_user_x_merge_x", "/staff/user/4/merge/5", "evap"),
-            # faq
-            ("test_staff_faq", "/staff/faq/", "evap"),
-            ("test_staff_faq_x", "/staff/faq/1", "evap"),
             # rewards
             ("test_staff_reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
             ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),

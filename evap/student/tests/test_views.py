@@ -3,7 +3,17 @@ from django.urls import reverse
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution
-from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tests.tools import WebTest, ViewTest
+
+
+class TestStudentIndexView(ViewTest):
+    test_users = ['student']
+    url = '/student/'
+
+    def setUp(self):
+        # View is only visible to users participating in at least one course.
+        user = mommy.make(UserProfile, username='student')
+        mommy.make(Course, participants=[user])
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])

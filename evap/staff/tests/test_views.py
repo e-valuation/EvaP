@@ -9,8 +9,120 @@ from model_mommy import mommy
 import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
-                                   Questionnaire, Question, EmailTemplate, Degree
+                                   Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
+
+
+class TestStaffIndexView(ViewTest):
+    test_users = ['staff']
+    url = '/staff/'
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+
+class TestStaffFAQView(ViewTest):
+    url = '/staff/faq/'
+    test_users = ['staff']
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+
+class TestStaffFAQEditView(ViewTest):
+    url = '/staff/faq/1'
+    test_users = ['staff']
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        section = mommy.make(FaqSection)
+        mommy.make(FaqQuestion, section=section)
+
+
+class TestSemesterCreateView(ViewTest):
+    url = '/staff/semester/create'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_create(self):
+        name_de = 'name_de'
+        name_en = 'name_en'
+
+        response = self.app.get(self.url, user='staff')
+        form = response.forms['semester-form']
+        form['name_de'] = name_de
+        form['name_en'] = name_en
+        form.submit()
+
+        self.assertTrue(Semester.objects.get(name_de=name_de, name_en=name_en))
+
+
+class TestSemesterEditView(ViewTest):
+    url = '/staff/semester/1/edit'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.semester = mommy.make(Semester, name_de='old_name', name_en='old_name')
+
+    def test_name_change(self):
+        new_name_de = 'new_name_de'
+        new_name_en = 'new_name_en'
+        self.assertNotEqual(self.semester.name_de, new_name_de)
+        self.assertNotEqual(self.semester.name_en, new_name_en)
+
+        response = self.app.get(self.url, user='staff')
+        form = response.forms['semester-form']
+        form['name_de'] = new_name_de
+        form['name_en'] = new_name_en
+        form.submit()
+
+        self.semester.refresh_from_db()
+        self.assertEqual(self.semester.name_de, new_name_de)
+        self.assertEqual(self.semester.name_en, new_name_en)
+
+
+class TestSemesterLotteryView(ViewTest):
+    # TODO: Lottery form functionality should be tested.
+    url = '/staff/semester/1/lottery'
+    test_users = ['staff']
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(Semester)
+
+
+class TestSemesterAssignView(ViewTest):
+    # TODO: Assign form functionality should be tested.
+    url = '/staff/semester/1/assign'
+    test_users = ['staff']
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(Semester)
+
+
+class TestSemesterTodoView(ViewTest):
+    url = '/staff/semester/1/todo'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.semester = mommy.make(Semester)
+
+    def test_todo(self):
+        course = mommy.make(Course, semester=self.semester, state='prepared', name_en='name_to_find', name_de='name_to_find')
+        user = mommy.make(UserProfile, username='user_to_find')
+        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+        response = self.app.get(self.url, user='staff')
+        self.assertContains(response, 'user_to_find')
+        self.assertContains(response, 'name_to_find')
 
 
 class TestUserIndexView(ViewTest):
