@@ -1,0 +1,35 @@
+# editor leftovers
+*~
+*.bak
+*.orig
+*.swp
+TAGS
+.*
+*.kpf
+*.komodoproject
+
+*.sublime-workspace
+
+# python files
+*.py[cod]
+
+# gettext binaries
+*.mo
+
+# operating system junk
+.DS_Store
+thumbs.db
+
+evap/localsettings.py
+evap/static_collected
+evap/media
+evap/database.sqlite3
+evap/upload
+
+docs/_build
+
+coverage.xml
+htmlcov
+
+# pip puts editable packages here
+src

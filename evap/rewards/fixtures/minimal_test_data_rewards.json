@@ -1,0 +1,292 @@
+[
+{
+  "pk": 1,
+  "model": "evaluation.semester",
+  "fields": {
+    "created_at": "2014-09-16",
+    "is_archived": false,
+    "name_de": "testsemester",
+    "name_en": "testsemester"
+  }
+},
+{
+    "pk": 3,
+    "model": "evaluation.semester",
+    "fields": {
+        "created_at": "2014-11-16",
+        "is_archived": false,
+        "name_de": "Test2",
+        "name_en": "Test2"
+    }
+},
+{
+  "pk": 1,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "the person",
+    "is_for_contributors": true,
+    "teaser_en": "answer questions regarding a person here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a person here",
+    "public_name_en": "the person",
+    "description_en": "person_questionnaire description",
+    "obsolete": false,
+    "name_de": "person_questionnaire",
+    "description_de": "person_questionnaire description",
+    "name_en": "person_questionnaire"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "the course",
+    "is_for_contributors": false,
+    "teaser_en": "answer questions regarding a course here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a course here",
+    "public_name_en": "the course",
+    "description_en": "course_questionnaire description",
+    "obsolete": false,
+    "name_de": "course_questionnaire",
+    "description_de": "course_questionnaire description",
+    "name_en": "course_questionnaire"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 1,
+    "_order": 0,
+    "text_en": "how?",
+    "text_de": "how?",
+    "type": "T"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 1,
+    "_order": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
+    "type": "L"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "_order": 0,
+    "text_en": "how?",
+    "text_de": "how?",
+    "type": "T"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "_order": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
+    "type": "L"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "_order": 1,
+    "text_en": "your grade",
+    "text_de": "your grade",
+    "type": "G"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "student",
+    "first_name": "student",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:46.611",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "student@student.hpi.uni-potsdam.de",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "evap",
+    "first_name": "",
+    "last_name": "",
+    "last_login": "2014-09-16T22:50:49.207",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "a.b@c.de",
+    "title": "Prof. Dr.",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null,
+    "groups": [1]
+  }
+},
+{
+  "pk": 1,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Staff"
+  }
+},
+{
+  "pk": 2,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Grade publisher"
+  }
+},
+{
+  "pk": 35,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 9,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master project"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a new course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "new",
+    "last_modified_user": 1,
+    "participants": [5],
+    "vote_end_date": "2014-09-30",
+    "name_en": "a course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 9,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "dasdadsadas",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 3,
+    "last_modified_time": "2014-11-16T17:28:28.457",
+    "_voter_count": null,
+    "state": "in_evaluation",
+    "last_modified_user": 1,
+    "participants": [5],
+    "vote_end_date": "2099-11-20",
+    "name_en": "dadas",
+    "type": 2,
+    "vote_start_date": "2014-11-07"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointredemptionevent",
+    "fields": {
+        "date": "2099-12-19",
+        "redeem_end_date": "2099-12-10",
+        "name": "TestEvent"
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointgranting",
+    "fields": {
+        "user_profile": 5,
+        "semester": 1,
+        "granting_time": "2014-11-15",
+        "value": 5
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.RewardPointRedemptionEvent",
+    "fields": {
+        "name": "TestEvent",
+        "date": "2015-01-01",
+        "redeem_end_date": "2099-12-10"
+    }
+},
+    {
+    "pk": 2,
+    "model": "rewards.RewardPointRedemptionEvent",
+    "fields": {
+        "name": "TestEvent_canDelete",
+        "date": "2015-01-01",
+        "redeem_end_date": "2099-12-10"
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointredemption",
+    "fields": {
+        "user_profile": 5,
+        "redemption_time": "2014-11-16",
+        "value": 2,
+        "event": 1
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.semesteractivation",
+    "fields": {
+        "semester": 3,
+        "is_active": false
+    }
+}
+]

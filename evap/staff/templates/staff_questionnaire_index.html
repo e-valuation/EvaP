@@ -1,0 +1,60 @@
+{% extends "staff_questionnaire_base.html" %}
+
+{% load i18n %}
+{% load staff_templatetags %}
+{% load evaluation_templatetags %}
+
+{% block content %}
+    {{ block.super }}
+    <p>
+        <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
+    </p>
+    {% if course_questionnaires or contributor_questionnaires %}
+        {% include_staff_questionnaire_index_list course_questionnaires "Course questionnaires" %}
+        {% include_staff_questionnaire_index_list contributor_questionnaires "Contributor questionnaires" %}
+    {% else %}
+        <p>
+            {% trans "There are no questionnaires yet." %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete questionnaire" as title %}
+    {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete questionnaire" as action_text %}
+    {% include_confirmation_modal "delete_questionnaire_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_questionnaire_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:questionnaire_delete" %}",
+                data: {"questionnaire_id": data_id},
+                success: function(){ $('#questionnaire-row-'+data_id).hide('slow', function(){ $('#questionnaire-row-'+data_id).remove(); }); },
+                error: function(){ $('#questionnaire-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+
+    $('.questionnaire-table tbody').sortable({
+        handle: ".glyphicon-move",
+        draggable: ".sortable",
+        onUpdate: function( event ) {
+            // update indices of all questionnaires in the table
+            var questionnaires = $(event.item).parent().children();
+            var updatedIndices = {};
+            for (var i = 0; i < questionnaires.length; i++) {
+                var questionnaire = $(questionnaires[i]);
+                questionnaire.attr('data-index', i);
+                updatedIndices[questionnaire.attr('data-id')] = i;
+            }
+            $.post('{% url "staff:questionnaire_update_indices" %}', updatedIndices);
+        }
+    });
+    </script>
+{% endblock %}

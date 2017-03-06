@@ -1,0 +1,34 @@
+{% extends "staff_base.html" %}
+
+{% load i18n %}
+{% load morefilters %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li><a href="{% url "staff:course_type_index" %}">{% trans "Course types" %}</a></li>
+    <li>{% trans "Merge course types" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h2>{% trans "Merge course types" %}</h2>
+
+    <p>
+        {% blocktrans %}The following courses currently have the course type <strong>{{ other_type }}</strong> and will
+        get the type <strong>{{ main_type }}</strong> once you merge the course types. The course type <strong>
+        {{ other_type }}</strong> will be deleted after that.{% endblocktrans %}
+    </p>
+
+    <ul>
+        {% for course in courses_with_other_type %}
+            <li>{{ course }} ({{ course.semester }})</li>
+        {% endfor %}
+    </ul>
+
+    <form id="course-type-merge-form" method="POST" class="form-horizontal">
+        {% csrf_token %}
+        <div class="well submit-area text-center">
+            <button type="submit" class="btn btn-primary">{% trans "Merge course types" %}</button>
+        </div>
+    </form>
+{% endblock %}

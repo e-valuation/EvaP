@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+    403 - {{ block.super }}
+{% endblock %}
+
+{% block subtitle %}
+    403
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <strong>{% trans "You seem to not be allowed to view this page." %}</strong>
+{% endblock %}

@@ -1,0 +1,204 @@
+[
+    {
+        "pk":1,
+        "model":"evaluation.userprofile",
+        "fields":{
+            "username":"staff.user",
+            "first_name":"Staff",
+            "last_name":"User",
+            "login_key":1313,
+            "groups": [1]
+        }
+    },
+    {
+        "pk":2,
+        "model":"evaluation.userprofile",
+        "fields":{
+            "username":"external.user",
+            "first_name":"External",
+            "last_name":"User"
+        }
+    },
+    {
+        "pk":3,
+        "model":"evaluation.userprofile",
+        "fields":{
+            "username":"participant_user",
+            "first_name":"Participant",
+            "last_name":"User"
+        }
+    },
+    {
+        "pk":4,
+        "model":"evaluation.userprofile",
+        "fields":{
+            "username":"contributor_user",
+            "first_name":"Contributor",
+            "last_name":"User"
+        }
+    },
+    {
+        "pk":1,
+        "model":"evaluation.semester",
+        "fields":{
+            "created_at":"2010-08-22",
+            "name_de":"Semester 1",
+            "name_en":"Semester 1 (en)"
+        }
+    },
+    {
+      "pk": 1,
+      "model": "evaluation.degree",
+      "fields": {
+            "name_de": "Bachelor",
+            "name_en": "Bachelor"
+      }
+    },
+    {
+      "pk": 2,
+      "model": "evaluation.degree",
+      "fields": {
+            "name_de": "Master",
+            "name_en": "Master"
+      }
+    },
+    {
+        "pk":1,
+        "model":"evaluation.course",
+        "fields":{
+            "name_de":"Course 1",
+            "name_en":"Course 1 (en)",
+            "type":"Seminar",
+            "degrees":[1],
+            "state":"new",
+
+            "participants":[ 2 ],
+            "voters":[ ],
+
+            "semester":1,
+            "vote_start_date":"2010-08-18",
+            "vote_end_date":"2010-08-30",
+
+            "last_modified_time":"2010-07-01"
+        }
+    },
+    {
+        "pk":2,
+        "model":"evaluation.course",
+        "fields":{
+            "name_de":"Course 2",
+            "name_en":"Course 2 (en)",
+            "type":"Vorlesung",
+            "state":"new",
+
+            "participants":[ 2, 3 ],
+            "voters":[ ],
+
+            "semester":1,
+            "vote_start_date":"2010-08-18",
+            "vote_end_date":"2010-08-30",
+
+            "last_modified_time":"2010-07-01"
+        }
+    },
+    {
+        "pk":1,
+        "model":"evaluation.questionnaire",
+        "fields":{
+          "name_de":"Seminar",
+          "name_en":"Seminar",
+          "index": 0,
+          "is_for_contributors":false
+        }
+    },
+    {
+        "pk":2,
+        "model":"evaluation.questionnaire",
+        "fields":{
+          "name_de":"Einzelergebnis",
+          "name_en":"Single result",
+          "index": 0,
+          "is_for_contributors":true,
+          "obsolete":true
+        }
+    },
+    {
+        "pk":1,
+        "model":"evaluation.question",
+        "fields":{
+            "text_de":"Q1",
+            "text_en":"Q1 (en)",
+            "type":"L",
+            "_order":0,
+            "questionnaire":1
+        }
+    },
+    {
+        "pk":2,
+        "model":"evaluation.question",
+        "fields":{
+            "text_de":"Q2",
+            "text_en":"Q2 (en)",
+            "type":"T",
+            "_order":0,
+            "questionnaire":1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 1,
+            "contributor": 1,
+            "responsible": true,
+            "can_edit": true
+        }
+    },
+    {
+        "pk": 2,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 1,
+            "contributor": null,
+            "responsible": false,
+            "can_edit": false
+        }
+    },
+    {
+        "pk": 3,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 2,
+            "contributor": 1,
+            "responsible": true,
+            "can_edit": true
+        }
+    },
+    {
+        "pk": 4,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 2,
+            "contributor": null,
+            "responsible": false,
+            "can_edit": false
+        }
+    },
+    {
+        "pk": 5,
+        "model": "evaluation.contribution",
+        "fields":{
+            "course": 2,
+            "contributor": 4,
+            "responsible": false,
+            "can_edit": false
+        }
+    },
+    {
+        "pk": 1,
+        "model": "auth.Group",
+        "fields": {
+            "name": "Staff"
+        }
+    }
+]

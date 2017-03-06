@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load evaluation_templatetags %}
+
+<div class="btn-group" data-toggle="buttons">
+    {% for choice in form.comment_visibility %}
+        {% if choice.choice_value == "ALL" %}
+            {% trans "Will see all comments about the course and about all contributors." as tooltip %}
+        {% elif choice.choice_value == "COURSE" %}
+            {% trans "Will see own comments and comments about the course." as tooltip %}
+        {% elif choice.choice_value == "OWN" %}
+            {% trans "Default value. Will only see own comments." as tooltip %}
+        {% endif %}
+        {% include_choice_button form.comment_visibility choice tooltip %}
+    {% endfor %}
+</div>

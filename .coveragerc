@@ -1,0 +1,7 @@
+[run]
+branch = True
+omit = *migrations*, *__init__.py
+source = evap
+
+[report]
+omit = */migrations/*, *__init__.py

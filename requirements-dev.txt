@@ -1,0 +1,2 @@
+coverage
+django-debug-toolbar

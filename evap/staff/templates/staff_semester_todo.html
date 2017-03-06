@@ -1,0 +1,61 @@
+{% extends "staff_semester_base.html" %}
+
+{% load i18n %}
+{% load staff_templatetags %}
+{% load morefilters %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Todo" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% for responsible, courses, delegates in responsible_list %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><b><a href="{% url "staff:user_edit" responsible.id %}">{{ responsible.full_name }}</a></b>, {% trans "Delegate" %}:
+                {% for delegate in delegates %}
+                    <a href="{% url "staff:user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if forloop.last|is_false %},{% endif %}
+                {% empty %}
+                    &mdash;
+                {% endfor %}
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%">{% trans "Course" %}</th>
+                            <th style="width: 15%">{% trans "Status" %}</th>
+                            <th style="width: 20%">{% trans "Evaluation Period" %}</th>
+                            <th style="width: 25%">{% trans "Last modified by" %}</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                            <tr {% if course.state != "prepared" %}class="deactivate"{%  endif %}>
+                                <th scope="row">
+                                    <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a><br />
+                                    {% for degree in course.degrees.all %}
+                                        <span class="label label-default">{{ degree }}</span>
+                                    {% endfor %}
+                                    <span class="label label-default">{{ course.type }}</span>
+                                </th>
+                                <td>{{ course.state|statename }}</td>
+                                <td>{{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}</td>
+                                <td>
+                                    {% if course.last_modified_user %}
+                                        {{ course.last_modified_user }}
+                                    {% else %}
+                                        &mdash;
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,11 @@
+django>=1.9,<1.10
+xlrd>=0.9.3
+xlwt>=1.0.0
+django-fsm>=2.2.1
+django-webtest>=1.7.8
+django-widget-tweaks>=1.3
+WebTest>=2.0.18
+model_mommy >= 1.2.6
+django-extensions >= 1.5.5
+django-sendfile >= 0.3.6
+git+git://github.com/django-compressor/django-compressor.git@94755c5aa62d0e659c863bbe75968f51c094be6e#egg=django_compressor

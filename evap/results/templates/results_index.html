@@ -1,0 +1,19 @@
+{% extends "results_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+
+    <h2>{% trans "Semesters" %}</h2>
+
+    <ul>
+        {% if semesters %}
+            {% for semester in semesters %}
+                <li><a href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a></li>
+            {% endfor %}
+        {% else %}
+            <li>{% trans "No results available yet" %}</li>
+        {% endif %}
+    </ul>
+{% endblock %}

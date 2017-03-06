@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load morefilters %}
+{% load evaluation_templatetags %}
+
+<div class="btn-group" data-toggle="buttons">
+    {% for choice in form.responsibility %}
+        {% if choice.choice_value == "RESPONSIBLE" %}
+            {% trans "Name will be shown next to course. Able to see all comments about all contributors of this course. Every course has exactly one responsible person." as tooltip %}
+        {% elif choice.choice_value == "EDITOR" %}
+            {% trans "Able to edit the course to prepare the evaluation." as tooltip %}
+        {% elif choice.choice_value == "CONTRIBUTOR" %}
+            {% trans "Default value. No special rights." as tooltip %}
+        {% endif %}
+        {% if choice.choice_value != "RESPONSIBLE" or form.responsibility.value == "RESPONSIBLE" or can_change_responsible %}
+            {% include_choice_button form.responsibility choice tooltip %}
+        {% endif %}
+    {% endfor %}
+</div>

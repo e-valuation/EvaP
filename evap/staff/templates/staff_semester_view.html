@@ -1,0 +1,281 @@
+{% extends "staff_semester_base.html" %}
+
+{% load i18n %}
+{% load morefilters %}
+{% load staff_templatetags %}
+{% load evaluation_templatetags %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% if semester.is_archived %}
+        <p class="bs-callout bs-callout-info"> {% trans "This semester is archived." %} </p>
+    {% endif %}
+
+    <h3>
+        {{ semester.name }}
+        &nbsp;
+        <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
+        <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+        <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+    </h3>
+
+    {% if num_courses > 0 %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" href="#accordion"  onclick="saveCollapseState()">
+                    {% trans "Overview" %}
+                </a>
+            </span>
+        </div>
+        <div class="panel-collapse in" id="accordion">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col-sm-3">{% trans "Degree" %}</th>
+                        <th class="col-sm-2">{% trans "Evaluation period" %}</th>
+                        <th class="col-sm-2">{% trans "Evaluated courses" %}</th>
+                        <th class="col-sm-2">{% trans "Reviewed comments" %}</th>
+                        <th class="col-sm-3">{% trans "Participation" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for degree, stats in degree_stats.items %}
+                    <tr {% if degree == 'total' %} class="total-stats" {% endif %}>
+                        <td>
+                            {% if degree == 'total' %}{% trans "Total" %}{% else %}{{ degree }}{% endif %}
+                        </td>
+                        <td>{{ stats.first_start|date:"SHORT_DATE_FORMAT" }} - {{ stats.last_end|date:"SHORT_DATE_FORMAT" }}</td>
+                        <td>
+                            {% include_progress_bar stats.num_courses_evaluated stats.num_courses %}
+                        </td>
+                        <td>
+                            {% include_progress_bar stats.num_comments_reviewed stats.num_comments %}
+                        </td>
+                        <td>
+                            {% include_progress_bar stats.num_votes stats.num_enrollments_in_evaluation %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Actions" %}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="button-menu">
+                <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
+                &nbsp;
+                <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Todo" %}</a>
+                &nbsp;
+                <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
+                <div class="btn-group">
+                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Reward points active" %}</a>
+                    <div class="btn-group btn-toggle">
+                        <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                    </div>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Grades downloadable" %}</a>
+                    <div class="btn-group btn-toggle">
+                        <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if grades_downloadable %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable|is_false %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">
+                {% trans "Courses" %}
+                &nbsp;
+                <div class="btn-group">
+                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Course" %}</a></li>
+                        <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create Single Result" %}</a></li>
+                        <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import Courses" %}</a></li>
+                    </ul>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
+                        <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
+                        <li><a href="{% url "staff:semester_participation_export" semester.id %}">{% trans "Export participation data" %}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            {% if courses_by_state %}
+                <ul class="nav nav-tabs">
+                    {% for state, courses in courses_by_state %}
+                        <li><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+                    {% endfor %}
+                </ul>
+
+                <div class="tab-content">
+                {% for state, courses in courses_by_state %}
+                    <div id="tab{{ forloop.counter }}" class="tab-pane">
+                        <form id="form_{{ state }}" method="GET" action="{% url "staff:semester_course_operation" semester.id %}">
+                            <table class="table table-striped vertically-aligned">
+                                <tbody>
+                                {% for course in courses %}
+                                    <tr id="course-row-{{ course.id }}">
+                                        {% include_staff_semester_view_course semester state course disable_if_archived %}
+                                    </tr>
+                                {% empty %}
+                                    <tr><td><i>{% trans "There are no courses in this state." %}</i><td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                            {% if state == 'new' or state == 'prepared' or state == 'editor_approved'  or state == 'approved' or state == 'reviewed' or state == 'published' %}
+                                <button type="button" class="btn btn-default" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</button>
+                            {% endif %}
+                            {% ifequal state "new" %}
+                                <button name="operation" value="prepare" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "prepared" %}
+                                <button name="operation" value="revertToNew" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
+                            {% endifequal %}
+                            {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
+                                <button name="operation" value="approve" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
+                            {% endif %}
+                            {% ifequal state "editor_approved" %}
+                                <button name="operation" value="reenableEditorReview" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "approved" %}
+                                <button name="operation" value="startEvaluation" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "reviewed" %}
+                                <button name="operation" value="publish" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
+                            {% endifequal %}
+                            {% ifequal state "published" %}
+                                <button name="operation" value="unpublish" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
+                            {% endifequal %}
+                        </form>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <p>{% trans "There are no courses for this semester yet." %}</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete semester" as title %}
+    {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete semester" as action_text %}
+    {% include_confirmation_modal "delete_semester_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_semester_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:semester_delete" %}",
+                data: {"semester_id": data_id},
+                success: function(){ location.replace("{% url "staff:index" %}"); },
+                error: function(){}
+            });
+        };
+    </script>
+    {% trans "Archive semester" as title %}
+    {% trans 'Do you really want to archive the semester <strong id="data-label"></strong>?' as question %}
+    {% trans "Archive semester" as action_text %}
+    {% include_confirmation_modal "archive_semester_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function archive_semester_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:semester_archive" %}",
+                data: {"semester_id": data_id},
+                success: function(){ location.reload(); },
+                error: function(){}
+            });
+        };
+    </script>
+    {% trans "Delete course" as title %}
+    {% trans 'Do you really want to delete the course <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete course" as action_text %}
+    {% include_confirmation_modal "delete_course_modal" title question action_text "danger" %}
+    <script type="text/javascript">
+        function delete_course_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "staff:course_delete" %}",
+                data: {"course_id": data_id},
+                success: function(){ $('#course-row-'+data_id).hide('slow', function(){ $('#course-row-'+data_id).remove(); }); },
+                error: function(){ $('#course-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
+{% endblock %}
+
+{% block on_document_ready %}
+    var defaultTab = "#tab1";
+
+    // The selected tab can change in three ways:
+    // 1. The page is opened
+    //    Select the tab given in the url, or select the previously selected tab, or default to tab 1
+    var storedHash = localStorage.getItem('evap.staff_semester_view.last_tab');
+    var hash = window.location.hash || storedHash || defaultTab;
+    //    Don't add a new history item, but replace the current one by appending the selected tab
+    $('ul.nav a[href="' + hash + '"]').tab('show');
+    history.replaceState(null, null, hash);
+
+    // 2. The user clicks on a tab link
+    $('.nav-tabs a').click(function (e) {
+      $(this).tab('show');
+      //  Add a new history item
+      history.pushState(null, null, this.hash);
+    });
+
+    // 3. The user navigates back
+    $(window).on("popstate", function() {
+        var hash = window.location.hash || defaultTab;
+        $('ul.nav a[href="' + hash + '"]').tab('show');
+    });
+
+    // This event captures all three occasions of changing the selected tab
+    // and persists the newly selected tab into localStorage
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        localStorage.setItem('evap.staff_semester_view.last_tab', this.hash);
+    });
+
+    $('.btn-toggle').click(function() {
+        $(this).find('.btn').toggleClass('active');
+
+        if ($(this).find('.btn-primary').size()>0) {
+            $(this).find('.btn').toggleClass('btn-primary');
+        }
+        $(this).find('.btn').toggleClass('btn-default');
+    });
+
+    if (localStorage['collapse_overview'] === 'true') {
+        $('#accordion').collapse()
+    }
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function saveCollapseState() {
+            var state = window.localStorage['collapse_overview'] === 'true';
+            localStorage['collapse_overview'] = (!state).toString();
+        }
+    </script>
+{% endblock %}

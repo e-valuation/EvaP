@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Your EvaP" %} - {{ block.super }}{% endblock %}
+
+{% block subtitle %}
+    {{ block.super }}
+    {% if form %}
+        <li><a href="{% url "contributor:index" %}">{% trans "Contributor" %}</a></li>
+    {% else %}
+        <li>{% trans "Contributor" %}</li>
+    {% endif %}
+{% endblock %}

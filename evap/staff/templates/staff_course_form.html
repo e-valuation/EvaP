@@ -1,0 +1,91 @@
+{% extends "staff_course_base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load evaluation_templatetags %}
+
+{% block content %}
+    {{ block.super }}
+    <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{% trans "General Options" %}</legend>
+            {{ form.as_div }}
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Contributors" %}</legend>
+            {{ formset.management_form }}
+        </fieldset>
+
+        {{ formset.non_form_errors }}
+
+        <table id="contribution_table" class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                        <th class="col-sm-3">{% trans "Contributor" %}</th>
+                        <th class="col-sm-4">{% trans "Questionnaires" %}</th>
+                        <th class="col-sm-4">{% trans "Options" %}</th>
+                        <th class="col-sm-1"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    {% if form.non_field_errors %}
+                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
+                    {% endif %}
+                    <tr class="contribution select2tr {% if editable %} sortable {% endif %}">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <td class="movable">
+                            {% if editable %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
+                        </td>
+
+                        <td>{{ form.contributor.errors }} {{ form.contributor }}</td>
+                        <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
+                        <td>
+                            {% trans "Responsibility" %}:<br />
+                            {% include_responsibility_buttons form True %}
+                            <br /><br />
+                            {% trans "Comment visibility" %}:<br />
+                            {% include_comment_visibility_buttons form %}
+                            <br /><br />
+                            {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                            {{ form.label.errors }} {{ form.label }}
+                        </td>
+                        {% if editable %}<td>{{ form.DELETE }}</td>{% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if editable %}
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                {% if state == "in_evaluation" %}
+                    <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
+                {% endif %}
+                {% if state == "evaluated" or state == "reviewed" %}
+                    <div class="alert alert-warning">{% trans "You are editing a course, for which the evaluation already finished. Please be careful to not destroy any results." %}</div>
+                {% endif %}
+                {% if state == "new" or state == "prepared" %}
+                    <div class="alert alert-warning">{% trans "You are editing a course which has not been approved by the editor yet." %}</div>
+                {% endif %}
+                <button name="operation" value="save" type="submit" class="btn btn-primary" onclick="preventAccidentalClosing = false;">{% trans "Save"%} </button>
+                {% if state == "new" or state == "prepared" or state == "editor_approved" %}
+                  <button name="operation" value="approve" type="submit" class="btn btn-success" onclick="preventAccidentalClosing = false;">{% trans "Save and approve"%} </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include "evap_course_edit_js.html" %}
+    {% if editable %}
+        <script type="text/javascript"> preventAccidentalClosing = true; </script>
+    {% endif %}
+{% endblock %}

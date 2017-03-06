@@ -1,0 +1,123 @@
+{% load i18n %}
+{% load morefilters %}
+{% load static %}
+{% load evaluation_templatetags %}
+
+{% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
+    {% if info_only|is_false %}
+        <td class="minimize">
+            <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}" {{disable_if_archived}} />
+        </td>
+    {% endif %}
+{% endif %}
+<td style="width: 55%">
+    <div>
+    {% if info_only|is_false %}
+        <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
+    {% else %}
+        {{ course.name }}
+    {% endif %}
+    </div>
+    <div class="course-contributor">
+        {{ course.responsible_contributor.full_name }}
+    </div>
+    {% for degree in course.degrees.all %}
+        <span class="label label-default">{{ degree }}</span>
+    {% endfor %}
+    <span class="label label-default">{{ course.type }}</span>
+    <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
+    {% if course.is_single_result %}
+        <span class="label label-info">{% trans "Single result" %}</span>
+    {% endif %}
+    {% for warning in course.warnings %}
+        <span class="label label-warning">{{ warning }}</span>
+    {% endfor %}
+</td>
+<td style="width: 10%">
+    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if course.is_single_result|is_false %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
+
+    {% if course.state == 'approved' %}
+        <br>
+        {% if course.days_until_evaluation <= 1 %}
+            <span class="label label-danger">{% trans "starts tomorrow" %}</span>
+        {% elif course.days_until_evaluation <= 7 %}
+            <span class="label label-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
+        {% endif %}
+    {% endif %}
+    {% if course.state == 'in_evaluation' %}
+        <br>
+        {% if course.days_left_for_evaluation <= 0 %}
+            <span class="label label-danger">{% trans "ends today" %}</span>
+        {% elif course.days_left_for_evaluation == 1 %}
+            <span class="label label-danger">{% trans "ends tomorrow" %}</span>
+        {% elif course.days_left_for_evaluation < 5 %}
+            <span class="label label-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+        {% endif %}
+    {% endif %}
+</td>
+{% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+    {% if course.is_single_result|is_false %}
+        <td style="width: 20%" class="multi-progress-bar">
+            <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+                {% include_progress_bar course.num_voters course.num_participants "user"%}
+            </span>
+            {% if course.num_textanswers > 0 and state != 'published' and info_only|is_false %}
+                <a href="{% url "staff:course_comments" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Click to review text answers" %}">
+                    {% include_progress_bar course.num_reviewed_textanswers course.num_textanswers "comment"%}
+                </a>
+            {% else %}
+                <span data-toggle="tooltip" data-placement="left" title="{% trans "Text answers" %}">
+                    <span class="glyphicon glyphicon-comment"></span>
+                    <span>{{ course.num_textanswers }}</span>
+                </span>
+                <br />
+            {% endif %}
+            {% if course.is_graded %}
+                <a href="{% url "grades:course_view" semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans "Grade documents (Midterm, Final)" %}">
+                    <span class="glyphicon glyphicon-file"></span>
+                    <span>{% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}</span>
+                </a>
+                {% if course.final_grade_documents %}
+                    <span class="glyphicon glyphicon-ok" data-toggle="tooltip" data-placement="top" title="{% trans "Final grades have been uploaded" %}"></span>
+                {% elif course.gets_no_grade_documents %}
+                    <span class="glyphicon glyphicon-ok" data-toggle="tooltip" data-placement="top" title="{% trans "It was confirmed that final grades have been submitted" %}"></span>
+                {% endif %}
+            {% endif %}
+        </td>
+    {% else %}
+        <td style="width: 20%">
+            <span data-toggle="tooltip" data-placement="left" title="{% trans "Voters" %}">
+                <span class="glyphicon glyphicon-user"></span>
+                <span>{{ course.num_voters}} </span>
+            </span>
+        </td>
+    {% endif %}
+{% else %}
+    <td style="width: 20%">
+        <p data-toggle="tooltip" data-placement="left" title="{% trans "Participants" %}">
+            <span class="glyphicon glyphicon-user"></span>
+            <span>{{ course.num_participants }}</span>
+        </p>
+        {% if info_only|is_false %}
+            <a href="{% url "staff:course_participant_import" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Import Participants" %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+        {% endif %}
+    </td>
+{% endif %}
+{% if info_only|is_false %}
+    <td style="width: 12%">
+        <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>
+
+        {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
+            <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview" %}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+        {% endif %}
+        {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' %}
+            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>
+        {% endif %}
+        {% if course.can_staff_delete %}
+            <a onclick="show_delete_course_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+        {% endif %}
+        {% if state == 'published' %}
+            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Results" %}"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span></a>
+        {% endif %}
+    </td>
+{% endif %}

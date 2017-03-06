@@ -1,0 +1,529 @@
+html,
+body {
+    height: 100%;
+    padding-top: 50px; /* navbar height */
+}
+
+.navbar > .container {
+    width:auto;
+}
+
+.navbar-fixed-top {
+    border-width: 0;
+}
+
+.navbar-brand {
+    padding: 0;
+}
+
+.navbar-brand-image {
+    height: 50px;
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+    min-height: 100%;
+    height: auto;
+    /* Negative indent footer by its height */
+    margin: 0 auto -30px;
+    /* Pad bottom by footer height */
+    padding: 0 0 30px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+    height: 30px;
+    line-height: 30px;
+    background-color: #f5f5f5;
+}
+
+/*-----------------------------------------*/
+
+/*-----------------------------------------*/
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+/*-----------------------------------------*/
+
+p.text-muted {
+    margin-bottom: 0px;
+}
+
+/*-----------------------------------------*/
+
+table#question_table textarea {
+    resize: vertical;
+}
+
+ul.inputs-list, .exportsheet ul {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+td.maximize, th.maximize {
+    width: 100%;
+}
+td.minimize, th.minimize {
+    width: 0%;
+    white-space: nowrap;
+}
+td.minimize-with-padding, th.minimize-with-padding {
+    width: 0%;
+    padding-left: 5px;
+    padding-right: 5px;
+    white-space: nowrap;
+}
+
+td.right, th.right {
+    text-align: right;
+}
+td.center, th.center {
+    text-align: center;
+}
+table.vertically-aligned tr td {
+    vertical-align: middle;
+}
+td.vote-question.text-field {
+    vertical-align: top;
+}
+
+.distribution-bar {
+    overflow: hidden;
+    white-space: nowrap;
+    border-radius: 3px;
+}
+
+.distribution-bar div {
+    display: inline-block;
+}
+
+.distribution-bar div:last-child { width: 100% !important; }
+
+.vote-bg-1 { background: #88bf4a; }
+.vote-bg-2 { background: #bbd154; }
+.vote-bg-3 { background: #efe258; }
+.vote-bg-4 { background: #f29e58; }
+.vote-bg-5 { background: #eb595a; }
+
+.grade-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+}
+
+.grade-bg-result-bar {
+    float: right;
+    border-radius: 3px;
+    width: 30px;
+    margin-left: 10px;
+}
+
+.grade-bg-result-bar-count {
+    float: left;
+    border-radius: 3px;
+    width: 50px;
+    margin-right: 20px;
+    background-color: #31708f;
+    color: #ffffff;
+}
+
+.grade-bg-disabled {
+    background-color: #ddd;
+}
+
+.deviation-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888;
+}
+
+.deviation-bg-disabled {
+    background-color: #ddd;
+}
+
+@media print {
+    .no-break {
+        page-break-inside: avoid;
+    }
+    body {
+        padding: 0;
+    }
+    div.container {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .print-brand-image {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        height: 40px;
+    }
+    nav, #footer, .breadcrumb, .close {
+        display: none;
+    }
+    td, th, p {
+        font-size: 80%;
+        page-break-after: avoid;
+    }
+    h2 {
+        font-size: 20px;
+        page-break-after: avoid;
+    }
+    h4 {
+        font-size: 12px;
+        page-break-after: avoid;
+    }
+    .panel-title {
+        font-size: 12px;
+    }
+    .panel-heading {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .grade-bg-result-bar-count {
+        width: 35px;
+    }
+    .grade-bg {
+        width: 30px;
+    }
+    .deviation-bg {
+        width: 30px;
+    }
+    .alert {
+        padding: 5px;
+    }
+}
+
+select[multiple='multiple'] {
+    height: 200px;
+}
+
+td.vote-row {
+    width: 100%;
+}
+
+td.vote-question {
+    width: 40%;
+}
+
+td.vote-question.choice-error {
+    font-weight: bold;
+    color: #a53e3f;
+}
+
+div.vote-inputs {
+    width: 100%;
+}
+
+div.vote-inputs label.choice-error {
+    box-shadow: 0px 0px 8px #eb595a;
+}
+
+div.vote-inputs > label:nth-of-type(1) { color: #5f8634; }
+div.vote-inputs > label:nth-of-type(2) { color: #83933b; }
+div.vote-inputs > label:nth-of-type(3) { color: #a89f3e; }
+div.vote-inputs > label:nth-of-type(4) { color: #aa6f3e; }
+div.vote-inputs > label:nth-of-type(5) { color: #a53e3f; }
+
+div.vote-inputs > label:nth-of-type(1).active { color: #000000; background-color: #88bf4a; }
+div.vote-inputs > label:nth-of-type(2).active { color: #000000; background-color: #bbd154; }
+div.vote-inputs > label:nth-of-type(3).active { color: #000000; background-color: #efe258; }
+div.vote-inputs > label:nth-of-type(4).active { color: #000000; background-color: #f29e58; }
+div.vote-inputs > label:nth-of-type(5).active { color: #000000; background-color: #eb595a; }
+
+div.vote-inputs > textarea {
+    width: 99%;
+    height: 100px;
+}
+
+div.preview > textarea {
+    height: 60px;
+}
+
+ul.errorlist li {
+    color: #B94A48;
+}
+
+.vote-btn {
+    min-width: 50px;
+}
+
+.submit-area {
+    margin-top: 20px;
+}
+
+.submit-area input, .submit-area a {
+    min-width: 250px;
+}
+
+.nobottompadding {
+    padding-bottom: 0px;
+}
+
+
+/* Bootstrap callouts
+originally taken from https://gist.github.com/matthiasg/6153853
+
+Side notes for calling out things
+-------------------------------------------------- */
+
+/* Base styles (regardless of theme) */
+.bs-callout {
+    margin: 10px 0px 20px 0px;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid #eee;
+}
+.bs-callout h4 {
+    margin-top: 0;
+}
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+.bs-callout code,
+.bs-callout .highlight {
+    background-color: #fff;
+}
+
+/* Themes for different contexts */
+.bs-callout-danger {
+    background-color: #fce4e4;
+    border-color: #eb595a;
+}
+.bs-callout-warning {
+    background-color: #fbf7d0;
+    border-color: #efe258;
+}
+.bs-callout-info {
+    background-color: #d9edf7;
+    border-color: #31708f;
+}
+
+
+
+
+
+.label-info {
+    color: white;
+    background-color: #31708f;
+}
+
+.btn-primary {
+    background-color: #31708f;
+}
+
+.btn-option {
+    background-color: #ffffff;
+    border-color: #cccccc;
+    color: #000000;
+}
+.btn-option.active {
+    background-color: #31708f;
+    color: #ffffff;
+}
+.btn-option.disabled {
+    opacity: 0.6;
+}
+
+.participants-warning {
+    opacity: 0.4;
+}
+
+.glyphicon.participants-warning {
+    padding-left: 10px;
+}
+
+.questionnaire-warning p {
+    padding-left: 3px;
+}
+
+.inline-headers span, .inline-headers p {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.button-menu {
+    margin-bottom: 15px;
+}
+
+.email-form .form-row {
+    clear:both;
+    padding: 15px 0;
+}
+
+.email-form .form-label {
+    float:left;
+    width: 15%;
+    padding-top: 7px;
+    padding-right: 15px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.email-form .form-field {
+    float:left;
+    width:85%;
+}
+
+.form-label.error {
+    color: #a53e3f;
+}
+
+.form-field > .error {
+    box-shadow: 0px 0px 8px #eb595a;
+}
+
+.panel-heading .accordion-toggle:before {
+    /* symbol for open panels */
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";  /* chevron-down */
+    float: left;
+    color: gray;
+    margin-right: 10px;
+}
+.panel-heading .accordion-toggle.collapsed:before {
+    /* symbol for collapsed panels */
+    content: "\e080"; /* chevron-right */
+}
+
+.evap-progress-bar-container {
+    padding-right: 40px;
+    display: block;
+}
+
+.evap-progress-bar-back {
+    background: #d9edf7;
+    border-radius: 3px;
+    width: 100%;
+    position: relative;
+    display: inline-block;
+}
+
+.evap-progress-bar-front {
+    background: #31708f;
+    border-radius: 3px;
+    position: relative;
+    display: inline-block;
+}
+
+.evap-progress-bar-bartext {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: #ffffff;
+    width: 100%;
+    text-align: center;
+    text-shadow: 0px 0px 4px #31708f, 0px 0px 4px #31708f, 1px 1px 2px #31708f;
+}
+
+.evap-progress-bar-text {
+    color: #000000;
+    text-align: left;
+    float: right;
+    width: 36px;
+}
+
+.multi-progress-bar .evap-progress-bar-container {
+    padding-bottom: 3px;
+}
+
+.deactivate {
+    opacity: 0.4;
+}
+
+.light-link {
+    opacity: 0.2;
+    color: black;
+}
+
+.panel table:last-child,
+.panel div:last-child {
+    margin-bottom: 0px;
+}
+
+.comment-link {
+    color: black;
+}
+.comment-original {
+    color: #aaaaaa;
+}
+
+div.disabled-tooltip {
+    display: inline-block;
+}
+
+.tooltip-inner {
+    max-width: 250px;
+}
+
+.grade-course-table tr {
+    height: 57px;
+}
+
+li.menu-indent {
+    padding-left: 20px;
+}
+
+.sortable-ghost {
+    background: #F0F0F0;
+}
+
+.table-striped tbody tr.sortable-ghost {
+    background: #E5E5E5;
+}
+
+.settings-form select {
+    width: 100%;
+}
+
+.course-contributor {
+    font-style: italic;
+    padding-bottom: 6px;
+}
+
+.sortable .movable {
+    width: 10px;
+}
+
+.sortable .movable span.movable-icon {
+    font-size: 16px;
+    top: 8px;
+    cursor:move;
+}
+
+.inline {
+    display: inline;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.text-answer li,a {
+    word-wrap: break-word;
+}
+
+.total-stats {
+    font-weight: bold;
+    background-color: #F0F0F0;
+}
+
+/* feedback form + button */
+
+#feedback-button{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    border: none;
+}

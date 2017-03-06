@@ -1,0 +1,24 @@
+{% extends "grades_base.html" %}
+
+{% load i18n %}
+{% load morefilters %}
+
+{% block subtitle %}
+    {{ block.super }}
+    {% if semester %}
+        {% if disable_breadcrumb_semester or is_grade_publisher|is_false %}
+            <li>{{ semester.name }}</li>
+        {% else %}
+            <li><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block title %}
+    {% if semester %}
+        {{ semester.name }} -
+    {% else %}
+        {% trans "Semesters" %} -
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

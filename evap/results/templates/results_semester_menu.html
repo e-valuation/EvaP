@@ -1,0 +1,5 @@
+{% load i18n %}
+
+{% for semester in semesters %}
+    <li><a href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a></li>
+{% endfor %}

@@ -1,0 +1,49 @@
+{% load morefilters %}
+{% load evaluation_templatetags %}
+{% load i18n %}
+{% load static %}
+
+{% for questionnaire, contributor, label, results, questionnaire_warning in group.list %}
+    <div class="inline-headers">
+        {% if questionnaire_warning and not contributor_data.total_votes == 0 %}
+            <p class="pull-right participants-warning questionnaire-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                {% trans "Only a few participants answered these questions." %}
+            </p>
+        {% endif %}
+        <h4>{{ group.grouper.public_name }}</h4>
+    </div>
+    <table class="table table-striped">
+        <tbody>
+            {% for result in results %}
+                {% if result.question.is_rating_question %}
+                    <tr class="no-break">
+                        <td colspan="2">{{ result.question.text }}</td>
+                        <td>
+                            {% include_result_bar result show_grades questionnaire_warning %}
+                        </td>
+                    </tr>
+                {% elif result.question.is_text_question %}
+                    <tr class="text-answer">
+                        <td>{{ result.question.text }}</td>
+                        <td colspan="3">
+                            <ul>
+                            {% for answer in result.answers %}
+                                <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
+                            {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <!-- empty zero-height cells, necessary to make the overlapped colspans work -->
+            <tr>
+                <th class="col-xs-3 no-padding"></th>
+                <th class="col-xs-4 no-padding"></th>
+                <th class="col-xs-5 no-padding"></th>
+            </tr>
+        </tfoot>
+    </table>
+{% endfor %}

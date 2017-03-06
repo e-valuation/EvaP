@@ -1,0 +1,147 @@
+{% extends "grades_semester_base.html" %}
+
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load static %}
+{% load evaluation_templatetags %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% if semester.is_archived %}
+        <p class="bs-callout bs-callout-info"> {% trans "This semester is archived." %} </p>
+    {% endif %}
+
+    <h3>
+        {{ semester.name }}
+    </h3>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% trans "Courses" %}</h3>
+        </div>
+        <div class="panel-body">
+            {% if courses %}
+                <table class="table table-striped grade-course-table vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-5">{% trans "Name" %}</th>
+                            <th class="col-sm-3">{% trans "Responsible" %}</th>
+                            <th class="col-sm-1">{% trans "Evaluation completed" %}</th>
+                            <th class="col-sm-1">{% trans "Midterm grade documents" %}</th>
+                            <th class="col-sm-1">{% trans "Final grade documents" %}</th>
+                            <th class="col-sm-1 text-right">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course, num_midterm_grades, num_final_grades in courses %}
+                            <tr>
+                                <td>
+                                    <a href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>{{ course.name }}</a><br/>
+                                    {% for degree in course.degrees.all %}
+                                        <span class="label label-default">{{ degree }}</span>
+                                    {% endfor %}
+                                    <span class="label label-info">{{ course.type }}</span>
+                                </td>
+                                <td>{{ course.responsible_contributor.full_name }}</td>
+                                <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
+                                <td class="text-center">
+                                    {% if num_midterm_grades > 0 %}
+                                        <span class="glyphicon glyphicon-file"></span> {{ num_midterm_grades }}
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if num_final_grades > 0 %}
+                                        <span class="glyphicon glyphicon-file"></span> {{ num_final_grades }}
+                                    {% elif course.gets_no_grade_documents %}
+                                        <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" {{ disable_if_archived }}>
+                                            <span class="glyphicon glyphicon-remove light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}"></span>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td class="text-right" style="min-width:72px">
+                                    {% if not course.gets_no_grade_documents %}
+                                        {% if num_final_grades == 0 %}
+                                            <span data-toggle="tooltip" data-placement="top" title="{% trans "Confirm that final grades have been submitted but will not be uploaded" %}">
+                                                <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-default" {{ disable_if_archived }}>
+                                                    <span class="glyphicon glyphicon-remove"></span>
+                                                </a>
+                                            </span>
+                                            <div class="inline" data-toggle="tooltip" data-placement="top" title="{% trans "Upload grades" %}">
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>
+                                                        <span class="glyphicon glyphicon-arrow-up"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a href="{% url "grades:upload_grades" semester.id course.id %}">{% trans "Midterm grades" %}</a></li>
+                                                        <li><a href="{% url "grades:upload_grades" semester.id course.id %}?final=true">{% trans "Final grades" %}</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span data-toggle="tooltip" data-placement="top" title="{% trans "Change grade document" %}">
+                                                <a class="btn btn-sm btn-default" href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </a>
+                                            </span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <i>{% trans "No courses have been created yet" %}</i>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Have final grades been submitted?" as title %}
+    {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
+    {% trans "Confirm" as action_text %}
+    {% include_confirmation_modal "confirm_noupload_modal" title question action_text "primary" %}
+    <script type="text/javascript">
+        function confirm_noupload_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "grades:toggle_no_grades" %}",
+                data: {"course_id": data_id},
+                success: function(){ location.reload(); },
+                error: function(){}
+            });
+        };
+    </script>
+    {% trans "Will final grades be uploaded?" as title %}
+    {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
+    {% trans "Confirm" as action_text %}
+    {% include_confirmation_modal "confirm_laterupload_modal" title question action_text "primary" %}
+    <script type="text/javascript">
+        function confirm_laterupload_modal_action(data_id) {
+            confirm_noupload_modal_action(data_id);
+        };
+    </script>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.grade-course-table').dataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                },
+                "aoColumnDefs": [
+                    { 'bSortable': false, 'aTargets': [ -1 ] }
+                ]
+            });
+        });
+    </script>
+{% endblock %}

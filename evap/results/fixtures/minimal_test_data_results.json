@@ -1,0 +1,447 @@
+[
+{
+  "pk": 1,
+  "model": "evaluation.semester",
+  "fields": {
+    "created_at": "2014-09-16",
+    "is_archived": false,
+    "name_de": "testsemester",
+    "name_en": "testsemester"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "the person",
+    "is_for_contributors": true,
+    "teaser_en": "answer questions regarding a person here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a person here",
+    "public_name_en": "the person",
+    "description_en": "person_questionnaire description",
+    "obsolete": false,
+    "name_de": "person_questionnaire",
+    "description_de": "person_questionnaire description",
+    "name_en": "person_questionnaire"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "the course",
+    "is_for_contributors": false,
+    "teaser_en": "answer questions regarding a course here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a course here",
+    "public_name_en": "the course",
+    "description_en": "course_questionnaire description",
+    "obsolete": false,
+    "name_de": "course_questionnaire",
+    "description_de": "course_questionnaire description",
+    "name_en": "course_questionnaire"
+  }
+},
+{
+  "pk":3,
+  "model":"evaluation.questionnaire",
+  "fields":{
+    "name_de":"Einzelergebnis",
+    "name_en":"Single result",
+    "index": 0,
+    "is_for_contributors":true,
+    "obsolete":true
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 1,
+    "_order": 0,
+    "text_en": "how?",
+    "text_de": "how?",
+    "type": "T"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 1,
+    "_order": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
+    "type": "L"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "_order": 0,
+    "text_en": "how?",
+    "text_de": "how?",
+    "type": "T"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "_order": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
+    "type": "L"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "_order": 1,
+    "text_en": "your grade",
+    "text_de": "your grade",
+    "type": "G"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 3,
+    "original_answer": ".course_orig_published.",
+    "contribution": 1,
+    "state": "PU"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 3,
+    "original_answer": ".course_orig_hidden.",
+    "contribution": 1,
+    "state": "HI"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": ".course_changed_published.",
+    "question": 3,
+    "original_answer": ".course_orig_published_changed.",
+    "contribution": 1,
+    "state": "PU"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".responsible_orig_published.",
+    "contribution": 2,
+    "state": "PU"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".responsible_orig_hidden.",
+    "contribution": 2,
+    "state": "HI"
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": ".responsible_changed_published.",
+    "question": 1,
+    "original_answer": ".responsible_orig_published_changed.",
+    "contribution": 2,
+    "state": "PU"
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".responsible_orig_private.",
+    "contribution": 2,
+    "state": "PR"
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".responsible_orig_notreviewed.",
+    "contribution": 2,
+    "state": "NR"
+  }
+},
+{
+  "pk": 9,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".contributor_orig_published.",
+    "contribution": 3,
+    "state": "PU"
+  }
+},
+{
+  "pk": 10,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".contributor_orig_private.",
+    "contribution": 3,
+    "state": "PR"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "responsible",
+    "first_name": "responsible",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:51:39.584",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "responsible@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [3],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "delegate_for_responsible",
+    "first_name": "delegate_for_responsible",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:04.981",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "delegate@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "delegate_for_contributor",
+    "first_name": "delegate_for_contributor",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:27.021",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "cc@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "student",
+    "first_name": "student",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:46.611",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "student@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "contributor",
+    "first_name": "contributor",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:53:02.506",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "contributor@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [4],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "contributor_course_comments",
+    "first_name": "contributor_course_comments",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:53:02.506",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "contributor_course_comments@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "contributor_all_comments",
+    "first_name": "contributor_all_comments",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:53:02.506",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "contributor_all_comments@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false,
+    "comment_visibility": "OWN"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 1,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false,
+    "comment_visibility": "OWN"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false,
+    "comment_visibility": "COURSE"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 8,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a new course",
+    "_participant_count": 25,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": 17,
+    "state": "published",
+    "last_modified_user": 2,
+    "participants": [],
+    "vote_end_date": "2014-09-30",
+    "name_en": "a course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
+}
+]

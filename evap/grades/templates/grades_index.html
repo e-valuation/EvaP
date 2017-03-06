@@ -1,0 +1,16 @@
+{% extends "grades_base.html" %}
+
+{% load i18n %}
+
+{% block rawcontent %}
+    <h3>{% trans "Semesters" %}</h3>
+    {% if semesters %}
+        <ul>
+        {% for semester in semesters %}
+            <li><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        {% trans "There are no semesters yet." %}
+    {% endif %}
+{% endblock %}

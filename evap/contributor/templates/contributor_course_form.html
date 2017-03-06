@@ -1,0 +1,116 @@
+{% extends "contributor_base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load morefilters %}
+{% load evaluation_templatetags %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{{ course.name }}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
+        {% csrf_token %}
+        <fieldset>
+            <legend>{{ course.name }} ({{ course.semester.name }})</legend>
+            {{ form.as_div }}
+            {{ form.degrees.as_hidden }} <!-- disabled elements are not sent in the post and select2 doesn't work with readonly -->
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Contributors" %}</legend>
+            {{ formset.management_form }}
+            {{ formset.non_form_errors }}
+            <table id="contribution_table" class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="col-sm-3">{% trans "Contributor" %}</th>
+                        <th class="col-sm-4">{% trans "Questionnaires" %}</th>
+                        <th class="col-sm-4">{% trans "Options" %}</th>
+                        <th class="col-sm-1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formset %}
+                        {% if form.non_field_errors %}
+                            <tr><td colspan="100">{{ form.non_field_errors }}</td></tr>
+                        {% endif %}
+                        <tr class="contribution select2tr sortable">
+                            <td class="movable"><span class="movable-icon glyphicon glyphicon-move"></span></td>
+                            <td>
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                                {{ form.contributor.errors }}
+                                {% if form.responsibility.value == "RESPONSIBLE" %}
+                                    <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
+                                    {{ form.contributor.as_hidden }}
+                                {% else %}
+                                    {{ form.contributor }}
+                                {% endif %}
+                            </td>
+                            <td>{{ form.questionnaires.errors }} {{ form.questionnaires }}</td>
+                            <td>
+                                {% trans "Responsibility" %}:<br />
+                                {% include_responsibility_buttons form %}
+                                <br /><br />
+                                {% trans "Comment visibility" %}:<br />
+                                {% include_comment_visibility_buttons form %}
+                                <br /><br />
+                                {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                                {{ form.label.errors }} {{ form.label }}
+                            </td>
+                            <td>{% if not form.responsibility.value == "RESPONSIBLE" %}{{ form.DELETE }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Students" %}</legend>
+            <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the student representatives." %}</p>
+            <ul>
+                {% for p in course.participants.all|dictsort:"last_name" %}
+                    <li>{{ p.full_name }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                {% if editable %}
+                    <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
+                    {# webtest does not allow submission with value "approve" if no such button exists #}
+                    <button style="display: none" name="operation" value="approve" type="submit" />
+                    <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
+                {% endif %}
+                <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit|is_false %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Approve course" as title %}
+    {% trans "Do you want to approve this course? This will allow the student representatives to proceed with the preparation, but you won't be able to make any further changes." as question %}
+    {% trans "Approve course" as action_text %}
+    {% include_confirmation_modal "approve_course_modal" title question action_text "primary" %}
+    <script type="text/javascript">
+        function approve_course_modal_action(data_id) {
+            $('#course-form').append('<input type="hidden" name="operation" value="approve">');
+            $('#course-form').submit();
+        };
+    </script>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include "evap_course_edit_js.html" %}
+    {% if editable %}
+        <script type="text/javascript"> preventAccidentalClosing = true; </script>
+    {% endif %}
+{% endblock %}

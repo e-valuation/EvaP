@@ -1,0 +1,90 @@
+{% extends "staff_course_base.html" %}
+
+{% load morefilters %}
+{% load i18n %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Comments" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% if filter %}
+        <a href="{% url "staff:course_comments" semester.id course.id %}?filter=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
+    {% else %}
+        <a href="{% url "staff:course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
+    {% endif %}
+    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Comments about the Course" %}</span>
+        </div>
+        <div class="panel-body">
+            {% if course_sections %}
+                {% with course_sections as sections %}
+                    {% include "staff_course_comments_section.html" %}
+                {% endwith %}
+            {% else %}
+                <i>{% trans "No comments" %}</i>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
+        </div>
+        <div class="panel-body">
+            {% if contributor_sections %}
+                {% with contributor_sections as sections %}
+                    {% include "staff_course_comments_section.html" %}
+                {% endwith %}
+            {% else %}
+                <i>{% trans "No comments" %}</i>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function press(id, action) {
+            originally_selected = $("[id^="+id+"] .active")
+            if($("#"+id+"-"+action).hasClass("active")) {
+                action = "unreview";
+            }
+            update_state(id, action);
+            var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:course_comments_update_publish' %}",
+                data: parameters,
+                success: function(){ highlight(id, action); },
+                error: function(){ reactivate_button(id, originally_selected); }
+            });
+        }
+
+        function reactivate_button(id, element) {
+            $("#"+id+"-buttons").children().removeClass("active");
+            element.addClass("active");
+            element.effect("highlight", {color:"#eb595a"}, 2000);
+            if (element.length == 0)
+                $("[id^="+id+"] .btn").effect("highlight", {color:"#eb595a"}, 2000);
+        }
+
+        function update_state(id, action) {
+            $("#"+id+"-buttons").children().removeClass("active");
+            $("#"+id+"-"+action).addClass("active");
+        }
+
+        function highlight(id, action) {
+            if(action == "unreview")
+                $("[id^="+id+"] .btn").effect("highlight", {color:"#88bf4a"}, 2000);
+            else
+                $("#"+id+"-"+action).effect("highlight", {color:"#88bf4a"}, 2000);
+        }
+    </script>
+{% endblock %}

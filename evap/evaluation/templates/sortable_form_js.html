@@ -1,0 +1,46 @@
+{% load i18n %}
+
+<script type="text/javascript">
+    function make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button, uses_template) {
+
+        function apply_ordering() {
+            $(document).find('tr').each(function(i) {
+                if (row_changed($(this))) {
+                    $(this).find('input[id$=-order]').val(i);
+                }
+                else {
+                    // if the row is empty (has no text in the input fields) set the order to -1 (default),
+                    // so that the one extra row doesn't change its initial value
+                    $(this).find('input[id$=-order]').val(-1);
+                }
+            });
+        }
+
+
+        $(document).ready(function() {
+            $('#' + table_id + ' tbody tr').formset({
+                prefix: prefix,
+                deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
+                deleteText: '{% trans "remove" %}',
+                addText: '{% trans "add another" %}',
+                added: function(row) {
+                    row.find('input[id$=-order]').val(row.parent().children().length);
+                    row_added(row);
+                },
+                formTemplate: (uses_template ? ".form-template" : null)
+            });
+
+
+            $('#' + table_id + " tbody").sortable({
+                handle: ".glyphicon-move",
+                draggable: ".sortable"
+            });
+
+
+            $('form').submit(function() {
+                apply_ordering();
+                return true;
+            });
+        });
+    }
+</script>

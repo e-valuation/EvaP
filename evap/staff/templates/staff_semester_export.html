@@ -1,0 +1,74 @@
+{% extends "staff_semester_base.html" %}
+
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load evaluation_templatetags %}
+{% load morefilters %}
+{% load static %}
+
+{% block subtitle %}
+    {{ block.super }}
+    <li>{% trans "Export" %}</li>
+{% endblock %}
+
+{{% block content %}
+    {{ block.super }}
+    <h2>{% trans "Export" %} {{ semester.name }}</h2>
+
+    <p>{% trans "Select the course types you want to export. Add multiple lines to create an export file with multiple sheets." %}</p>
+
+    <form id="semester-export-form" method="POST" class="form-horizontal multiselect-form">
+        {% csrf_token %}
+
+        {{ formset.management_form }}
+
+        <table id="exportsheets-table" class="table">
+            <thead>
+                <tr>
+                    <th class="col-sm-11">{% trans "Course types" %}</th>
+                    <th class="col-sm-1"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    {% if form.non_field_errors %}
+                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
+                    {% endif %}
+                    <tr class="exportsheet sortable">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <td><div class="checkbox">{{ form.selected_course_types.errors }} {{ form.selected_course_types }}</div></td>
+                        <td>{{ form.DELETE }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" name="include_unpublished"> {% trans "Include courses from states 'evaluated' and 'reviewed' in the export" %}
+            </label><br />
+            <label>
+                <input type="checkbox" name="ignore_not_enough_answers"> {% trans "Include courses where not enough answers where given in the export" %}
+            </label>
+        </div>
+
+        <div class="well submit-area text-center">
+            <input type="submit" value="{% trans "Export" %}" class="btn btn-primary"/>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include_sortable_form_js %}
+
+    <script type="text/javascript">
+        row_changed = function(row) {
+            id = row.find("input[id$=-id]").val();
+            return id;
+        };
+        row_added = function(row) { };
+        make_form_sortable("exportsheets-table", "form", row_changed, row_added, "", false, false);
+    </script>
+{% endblock %}
