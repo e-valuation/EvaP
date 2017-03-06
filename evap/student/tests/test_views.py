@@ -54,21 +54,6 @@ class TestVoteView(WebTest):
 
         self.get_assert_403("/student/vote/5", user="lazy.student")
 
-    def test_simple_vote(self):
-        page = self.get_assert_200("/student/vote/5", user="lazy.student")
-        form = page.forms["student-vote-form"]
-        form["question_17_2_3"] = "some text"
-        form["question_17_2_4"] = 1
-        form["question_17_2_5"] = 6
-        form["question_18_1_1"] = "some other text"
-        form["question_18_1_2"] = 1
-        form["question_19_1_1"] = "some more text"
-        form["question_19_1_2"] = 1
-        form["question_20_1_1"] = "and the last text"
-        form["question_20_1_2"] = 1
-        form.submit()
-
-        self.get_assert_403("/student/vote/5", user="lazy.student")
 
     def test_user_cannot_vote_for_themselves(self):
         contributor1 = mommy.make(UserProfile)

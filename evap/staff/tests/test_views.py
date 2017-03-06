@@ -18,7 +18,8 @@ class TestStaffIndexView(ViewTest):
     test_users = ['staff']
     url = '/staff/'
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
 
@@ -27,7 +28,8 @@ class TestStaffFAQView(ViewTest):
     url = '/staff/faq/'
     test_users = ['staff']
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
 
@@ -35,7 +37,8 @@ class TestStaffFAQEditView(ViewTest):
     url = '/staff/faq/1'
     test_users = ['staff']
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         section = mommy.make(FaqSection)
         mommy.make(FaqQuestion, section=section)
@@ -177,7 +180,7 @@ class TestSemesterCreateView(ViewTest):
         form['name_en'] = name_en
         form.submit()
 
-        self.assertTrue(Semester.objects.get(name_de=name_de, name_en=name_en))
+        self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en).count(), 1)
 
 
 class TestSemesterEditView(ViewTest):
@@ -187,7 +190,7 @@ class TestSemesterEditView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.semester = mommy.make(Semester, name_de='old_name', name_en='old_name')
+        cls.semester = mommy.make(Semester, pk=1, name_de='old_name', name_en='old_name')
 
     def test_name_change(self):
         new_name_de = 'new_name_de'
@@ -231,23 +234,23 @@ class TestSemesterDeleteView(ViewTest):
 
 
 class TestSemesterLotteryView(ViewTest):
-    # TODO: Lottery form functionality should be tested.
     url = '/staff/semester/1/lottery'
     test_users = ['staff']
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(Semester)
+        mommy.make(Semester, pk=1)
 
 
 class TestSemesterAssignView(ViewTest):
-    # TODO: Assign form functionality should be tested.
     url = '/staff/semester/1/assign'
     test_users = ['staff']
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(Semester)
+        mommy.make(Semester, pk=1)
 
 
 class TestSemesterTodoView(ViewTest):
@@ -257,7 +260,7 @@ class TestSemesterTodoView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.semester = mommy.make(Semester)
+        cls.semester = mommy.make(Semester, pk=1)
 
     def test_todo(self):
         course = mommy.make(Course, semester=self.semester, state='prepared', name_en='name_to_find', name_de='name_to_find')
@@ -449,16 +452,61 @@ class TestSemesterParticipationDataExportView(ViewTest):
 
 
 class TestCourseOperationView(ViewTest):
-    url = '/staff/semester/1/courseoperation'
+    url = '/staff/semester/111/courseoperation'
+    fixtures = ['minimal_test_data']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.sem = mommy.make(Semester, pk=1)
+        cls.semester = mommy.make(Semester, pk=111)
+
+    def helper_semester_state_views(self, course_ids, old_state, new_state, operation):
+        page = self.app.get("/staff/semester/1", user="evap")
+        form = page.forms["form_" + old_state]
+        for course_id in course_ids:
+            self.assertIn(Course.objects.get(pk=course_id).state, old_state)
+        form['course'] = course_ids
+        response = form.submit('operation', value=operation)
+
+        form = response.forms["course-operation-form"]
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+        for course_id in course_ids:
+            self.assertEqual(Course.objects.get(pk=course_id).state, new_state)
+
+    """
+        The following tests make sure the course state transitions are triggerable via the UI.
+    """
+    def test_semester_publish(self):
+        self.helper_semester_state_views([7], "reviewed", "published", "publish")
+
+    def test_semester_reset_1(self):
+        self.helper_semester_state_views([2], "prepared", "new", "revertToNew")
+
+    def test_semester_reset_2(self):
+        self.helper_semester_state_views([4], "approved", "new", "revertToNew")
+
+    def test_semester_approve_1(self):
+        self.helper_semester_state_views([1], "new", "approved", "approve")
+
+    def test_semester_approve_2(self):
+        self.helper_semester_state_views([2], "prepared", "approved", "approve")
+
+    def test_semester_approve_3(self):
+        self.helper_semester_state_views([3], "editor_approved", "approved", "approve")
+
+    def test_semester_contributor_ready_1(self):
+        self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
+
+    def test_semester_contributor_ready_2(self):
+        self.helper_semester_state_views([3], "editor_approved", "prepared", "reenableEditorReview")
+
+    def test_semester_unpublish(self):
+        self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
 
     def test_operation_start_evaluation(self):
         urloptions = '?course=1&operation=startEvaluation'
-        mommy.make(Course, pk=1, state='approved', semester=self.sem)
+        mommy.make(Course, pk=1, state='approved', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -471,7 +519,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_prepare(self):
         urloptions = '?course=1&operation=prepare'
-        mommy.make(Course, pk=1, state='new', semester=self.sem)
+        mommy.make(Course, pk=1, state='new', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -568,24 +616,29 @@ class TestCourseEditView(ViewTest):
     url = '/staff/semester/1/course/1/edit'
     test_users = ['staff']
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        semester = mommy.make(Semester)
-        course = mommy.make(Course, semester=semester)
+        semester = mommy.make(Semester, pk=1)
+        course = mommy.make(Course, semester=semester, pk=1)
 
         # This is necessary so that the call to is_single_result does not fail.
         user = mommy.make(UserProfile)
         mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_single_result(self):
+        pass  # TODO: Should be done.
 
 
 class TestCoursePreviewView(ViewTest):
     url = '/staff/semester/1/course/1/preview'
     test_users = ['staff']
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        semester = mommy.make(Semester)
-        mommy.make(Course, semester=semester)
+        semester = mommy.make(Semester, pk=1)
+        mommy.make(Course, semester=semester, pk=1)
 
 
 class TestCourseImportPersonsView(ViewTest):
@@ -712,7 +765,7 @@ class TestCourseCommentView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        semester = mommy.make(Semester)
+        semester = mommy.make(Semester, pk=1)
         cls.course = mommy.make(Course, semester=semester)
 
     def test_comments_showing_up(self):
@@ -732,8 +785,8 @@ class TestCourseCommentEditView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        semester = mommy.make(Semester)
-        course = mommy.make(Course, semester=semester)
+        semester = mommy.make(Semester, pk=1)
+        course = mommy.make(Course, semester=semester, pk=1)
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
