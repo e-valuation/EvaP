@@ -1,0 +1,6 @@
+{% extends "staff_questionnaire_base.html" %}
+
+{% block content %}
+    {{ block.super }}
+    {% include "student_vote_questionnaire_group.html" with questionnaire_group=forms preview=True %}
+{% endblock %}

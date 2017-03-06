@@ -1,0 +1,25 @@
+{% extends "staff_course_base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+    {{ block.super }}
+    <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
+        {% csrf_token %}
+        {% bootstrap_form form layout='horizontal' %}
+
+        {% if form.instance.can_staff_edit %}
+            <div class="form-group well">
+                <div class="col-sm-offset-2 col-sm-6">
+                    <input type="submit" value="{% trans "Save course" %}" class="btn btn-primary" onclick="preventAccidentalClosing = false;"/>
+                </div>
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% if form.instance.can_staff_edit %}
+        <script type="text/javascript"> preventAccidentalClosing = true; </script>
+    {% endif %}
+{% endblock %}

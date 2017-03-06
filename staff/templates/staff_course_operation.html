@@ -1,0 +1,32 @@
+{% extends "staff_semester_base.html" %}
+
+{% block content %}
+    {{ block.super }}
+    <p>{% blocktrans %}Do you want to change the states of the following courses from <strong>{{ current_state_name }}</strong> to <strong>{{ new_state_name }}</strong>?{% endblocktrans %}</p>
+
+    <form id="course-operation-form" method="POST">
+        {% csrf_token %}
+        {% for course in courses %}
+            <input type="hidden" name="course_ids" value="{{ course.id }}" />
+        {% endfor %}
+
+        <table class="table table-striped">
+            <tbody>
+            {% for course in courses %}
+                <tr>
+                    {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=True %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if show_email_checkbox %}
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="send_email" checked> {% trans "Send email notifications" %}
+                </label>
+            </div>
+        {% endif %}
+        <button type="submit" name="operation" value="{{ operation }}" class="btn btn-primary">{% trans "Confirm" %}</button>
+        <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+    400 - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    400
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <strong>{% trans "Something seems to be broken here." %}</strong>
+{% endblock %}

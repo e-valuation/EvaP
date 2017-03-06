@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+    404 - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    404
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <strong>{% trans "The page you're looking for seems to be missing." %}</strong>
+{% endblock %}

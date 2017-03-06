@@ -1,0 +1,1679 @@
+[
+{
+  "pk": 1,
+  "model": "evaluation.semester",
+  "fields": {
+    "created_at": "2014-09-16",
+    "is_archived": false,
+    "name_de": "testsemester",
+    "name_en": "testsemester"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.semester",
+  "fields": {
+    "created_at": "2014-09-16",
+    "is_archived": false,
+    "name_de": "empty_semester",
+    "name_en": "emtpy_semester"
+  }
+},
+{
+    "pk": 3,
+    "model": "evaluation.semester",
+    "fields": {
+        "created_at": "2014-11-16",
+        "is_archived": false,
+        "name_de": "Test2",
+        "name_en": "Test2"
+    }
+},
+{
+  "pk": 1,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "the person",
+    "is_for_contributors": true,
+    "teaser_en": "answer questions regarding a person here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a person here",
+    "public_name_en": "the person",
+    "description_en": "person_questionnaire description",
+    "obsolete": false,
+    "name_de": "person_questionnaire",
+    "description_de": "person_questionnaire description",
+    "name_en": "person_questionnaire"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "the course",
+    "is_for_contributors": false,
+    "teaser_en": "answer questions regarding a course here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a course here",
+    "public_name_en": "the course",
+    "description_en": "course_questionnaire description",
+    "obsolete": false,
+    "name_de": "course_questionnaire",
+    "description_de": "course_questionnaire description",
+    "name_en": "course_questionnaire"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "unused",
+    "is_for_contributors": false,
+    "teaser_en": "answer questions regarding a course here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a course here",
+    "public_name_en": "unused",
+    "description_en": "course_questionnaire description",
+    "obsolete": false,
+    "name_de": "unused",
+    "description_de": "course_questionnaire description",
+    "name_en": "unused"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.questionnaire",
+  "fields": {
+    "public_name_de": "unused_obsolete",
+    "is_for_contributors": false,
+    "teaser_en": "answer questions regarding a course here",
+    "index": 0,
+    "teaser_de": "answer questions regarding a course here",
+    "public_name_en": "unused_obsolete",
+    "description_en": "course_questionnaire description",
+    "obsolete": true,
+    "name_de": "unused_obsolete",
+    "description_de": "course_questionnaire description",
+    "name_en": "unused_obsolete"
+  }
+},
+{
+  "pk":5,
+  "model":"evaluation.questionnaire",
+  "fields":{
+    "name_de": "Einzelergebnis",
+    "name_en": "Single result",
+    "index": 0,
+    "is_for_contributors": true,
+    "obsolete": true
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 1,
+    "text_en": "how?",
+    "text_de": "how?",
+    "type": "T"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 1,
+    "text_en": "how much?",
+    "text_de": "how much?",
+    "type": "L"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "text_en": "how?",
+    "text_de": "how?",
+    "type": "T"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "text_en": "how much?",
+    "text_de": "how much?",
+    "type": "L"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "text_en": "your grade",
+    "text_de": "your grade",
+    "type": "G"
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 3,
+    "text_en": "your grade",
+    "text_de": "your grade",
+    "type": "G"
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 5,
+    "text_en": "single result",
+    "text_de": "single result",
+    "type": "G"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 18,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 17,
+    "question": 4,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 20,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 22,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 21,
+    "question": 4,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 24,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 26,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 25,
+    "question": 4,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 9,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 28,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 10,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 30,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 29,
+    "question": 4,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 12,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 32,
+    "question": 2,
+    "answer": 1,
+    "count": 1
+  }
+},
+{
+  "pk": 13,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 17,
+    "question": 5,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 14,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 21,
+    "question": 5,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 15,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 25,
+    "question": 5,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 16,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 29,
+    "question": 5,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 17,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 1,
+    "count": 5
+  }
+},
+{
+  "pk": 18,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 2,
+    "count": 1
+  }
+},
+{
+  "pk": 19,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 3,
+    "count": 1
+  }
+},
+{
+  "pk": 20,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 4,
+    "count": 1
+  }
+},
+{
+  "pk": 21,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 5,
+    "count": 1
+  }
+},
+{
+  "pk": 22,
+  "model": "evaluation.ratinganswercounter",
+  "fields": {
+    "contribution": 40,
+    "question": 7,
+    "answer": 6,
+    "count": 1
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 18,
+    "state": "NR"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": "censored!",
+    "question": 3,
+    "original_answer": "asdf",
+    "contribution": 17,
+    "state": "PU"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 19,
+    "state": "HI"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 20,
+    "state": "NR"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 22,
+    "state": "NR"
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": "censored!",
+    "question": 3,
+    "original_answer": "asdf",
+    "contribution": 21,
+    "state": "PU"
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 23,
+    "state": "HI"
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "mfj49s1my.45j",
+    "contribution": 24,
+    "state": "NR"
+  }
+},
+{
+  "pk": 9,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 26,
+    "state": "PU"
+  }
+},
+{
+  "pk": 10,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": "censored!",
+    "question": 3,
+    "original_answer": "asdf",
+    "contribution": 25,
+    "state": "PU"
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 27,
+    "state": "HI"
+  }
+},
+{
+  "pk": 12,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 28,
+    "state": "PU"
+  }
+},
+{
+  "pk": 13,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 30,
+    "state": "PU"
+  }
+},
+{
+  "pk": 14,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": "censored!",
+    "question": 3,
+    "original_answer": "asdf",
+    "contribution": 29,
+    "state": "PU"
+  }
+},
+{
+  "pk": 15,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 31,
+    "state": "HI"
+  }
+},
+{
+  "pk": 16,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": "sdfg",
+    "contribution": 32,
+    "state": "PU"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.emailtemplate",
+  "fields": {
+    "body": "",
+    "name": "Editor Review Notice",
+    "subject": "[EvaP] New Course ready for approval"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.emailtemplate",
+  "fields": {
+    "body": "",
+    "name": "Student Reminder",
+    "subject": "[EvaP] Only 2 days left to evaluate"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.emailtemplate",
+  "fields": {
+    "body": "",
+    "name": "Publishing Notice",
+    "subject": "[EvaP] A course has been published"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.emailtemplate",
+  "fields": {
+    "body": "",
+    "name": "Login Key Created",
+    "subject": "[EvaP] A login key was created"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "evap",
+    "first_name": "",
+    "last_name": "",
+    "last_login": "2014-09-16T22:50:49.207",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "a.b@c.de",
+    "title": "Prof. Dr.",
+    "cc_users": [
+      4
+    ],
+    "delegates": [
+      3
+    ],
+    "login_key_valid_until": null,
+    "login_key": null,
+    "groups": [1]
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "responsible",
+    "first_name": "responsible",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:51:39.584",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "responsible@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "delegate",
+    "first_name": "delegate",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:04.981",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "delegate@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "cc_user",
+    "first_name": "cc",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:27.021",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "cc@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "student",
+    "first_name": "student",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:46.611",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "student@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "contributor",
+    "first_name": "contributor",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:53:02.506",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "contributor@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "editor",
+    "first_name": "editor",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:53:16.207",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "editor@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "lazy.student",
+    "first_name": "lazy student",
+    "last_name": "user",
+    "last_login": "2014-09-16T23:01:00.878",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "lazy.student@example.de",
+    "title": null,
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 9,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "editor_of_course_1",
+    "first_name": "can only edit course 1",
+    "last_name": "user",
+    "last_login": "2014-09-16T23:01:00.878",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "lazy.student@example.com",
+    "title": null,
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 1,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 2,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 2,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 2,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 2,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 9,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 3,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 10,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 3,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 3,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 12,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 3,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 13,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 4,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 14,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 4,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 15,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 4,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 16,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 4,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 17,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 5,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 18,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 5,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 19,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 5,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 20,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 5,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 21,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 6,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 22,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 6,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 23,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 6,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 24,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 6,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 25,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 7,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 26,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 7,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 27,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 7,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 28,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 7,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 29,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 8,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 30,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 8,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 31,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 7,
+    "course": 8,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 32,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 6,
+    "course": 8,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 33,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 1,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 34,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 9,
+    "responsible": false,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true
+  }
+},
+{
+  "pk": 35,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 9,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 36,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 9,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 37,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 10,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 38,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 2,
+    "course": 10,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 39,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": null,
+    "course": 11,
+    "responsible": false,
+    "questionnaires": [
+      2
+    ],
+    "can_edit": false
+  }
+},
+{
+  "pk": 40,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 11,
+    "responsible": true,
+    "questionnaires": [
+      5
+    ],
+    "can_edit": true,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.degree",
+  "fields": {
+    "name_de": "a degree",
+    "name_en": "a degree"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "a type",
+    "name_en": "a type"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Masterprojekt",
+    "name_en": "Master project"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.coursetype",
+  "fields": {
+    "name_de": "Obsoleter Kurstyp",
+    "name_en": "Obsolete course type"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a new course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "new",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2099-12-31",
+    "name_en": "a course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 2,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a prepared course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "prepared",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2014-09-30",
+    "name_en": "a prepared course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 3,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "an editor approved course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "editor_approved",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2014-09-30",
+    "name_en": "an editor approved course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 4,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "an approved course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "approved",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2014-09-30",
+    "name_en": "an approved course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 5,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "an in evaluation course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [
+      5
+    ],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "in_evaluation",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2099-09-30",
+    "name_en": "an in evaluation course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "an evaluated course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [
+      5
+    ],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "evaluated",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2014-09-30",
+    "name_en": "an evaluated course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 7,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a reviewed course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [
+      5
+    ],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "reviewed",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2014-09-30",
+    "name_en": "a reviewed course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 8,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "a published course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [
+      5
+    ],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "published",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2014-09-30",
+    "name_en": "a published course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+    "pk": 9,
+    "model": "evaluation.course",
+    "fields": {
+        "name_de": "dasdadsadas",
+        "_participant_count": null,
+        "degrees": [1],
+        "voters": [],
+        "semester": 3,
+        "last_modified_time": "2014-11-16T17:28:28.457",
+        "_voter_count": null,
+        "state": "in_evaluation",
+        "last_modified_user": 1,
+        "participants": [5],
+        "vote_end_date": "2099-11-20",
+        "name_en": "dadas",
+        "type": 3,
+        "vote_start_date": "2014-11-07"
+    }
+},
+{
+  "pk": 10,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "another new course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "new",
+    "last_modified_user": 1,
+    "participants": [
+      5,
+      8
+    ],
+    "vote_end_date": "2099-12-31",
+    "name_en": "another new course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.course",
+  "fields": {
+    "name_de": "single result course",
+    "_participant_count": null,
+    "degrees": [1],
+    "voters": [],
+    "semester": 1,
+    "last_modified_time": "2014-09-16T23:01:13.059",
+    "_voter_count": null,
+    "state": "reviewed",
+    "last_modified_user": 1,
+    "participants": [],
+    "vote_end_date": "2014-09-10",
+    "name_en": "single result course",
+    "type": 1,
+    "vote_start_date": "2014-09-10"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.faqsection",
+  "fields": {
+    "order": 0,
+    "title_de": "testsection",
+    "title_en": "testsection"
+  }
+},
+{
+  "pk": 1,
+  "model": "evaluation.faqquestion",
+  "fields": {
+    "section": 1,
+    "order": 0,
+    "question_de": "testquestion",
+    "question_en": "testquestion",
+    "answer_de": "testanswer",
+    "answer_en": "testanswer"
+  }
+},
+{
+  "pk": 1,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Staff"
+  }
+},
+{
+  "pk": 2,
+  "model": "auth.Group",
+  "fields": {
+    "name": "Grade publisher"
+  }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointredemptionevent",
+    "fields": {
+        "date": "2099-12-19",
+        "redeem_end_date": "2099-12-10",
+        "name": "TestEvent"
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointgranting",
+    "fields": {
+        "user_profile": 5,
+        "semester": 1,
+        "granting_time": "2014-11-15",
+        "value": 5
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.RewardPointRedemptionEvent",
+    "fields": {
+        "name": "TestEvent",
+        "date": "2015-01-01",
+        "redeem_end_date": "2099-12-10"
+    }
+},
+    {
+    "pk": 2,
+    "model": "rewards.RewardPointRedemptionEvent",
+    "fields": {
+        "name": "TestEvent_canDelete",
+        "date": "2015-01-01",
+        "redeem_end_date": "2099-12-10"
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.rewardpointredemption",
+    "fields": {
+        "user_profile": 5,
+        "redemption_time": "2014-11-16",
+        "value": 2,
+        "event": 1
+    }
+},
+{
+    "pk": 1,
+    "model": "rewards.semesteractivation",
+    "fields": {
+        "semester": 3,
+        "is_active": false
+    }
+}
+]
