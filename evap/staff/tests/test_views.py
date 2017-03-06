@@ -255,8 +255,8 @@ class TestSemesterExportView(ViewTest):
                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
-class TestSemesterCourseImportParticipantsView(ViewTest):
-    url = "/staff/semester/1/course/1/participant_import"
+class TestSemesterCourseImportPersonsView(ViewTest):
+    url = "/staff/semester/1/course/1/person_import"
     test_users = ["staff"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
@@ -267,22 +267,45 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
         cls.course = mommy.make(Course, pk=1, semester=semester)
 
-    def test_import_valid_file(self):
+    def test_import_valid_participants_file(self):
         page = self.app.get(self.url, user='staff')
 
         original_participant_count = self.course.participants.count()
 
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
-        form.submit(name="operation", value="test")
+        page = form.submit(name="operation", value="test-participants")
 
-        page = self.app.get(self.url, user='staff')
+        self.assertContains(page, 'Import previously uploaded file')
+        self.assertEqual(self.course.participants.count(), original_participant_count)
+
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import")
-
+        form.submit(name="operation", value="import-participants")
         self.assertEqual(self.course.participants.count(), original_participant_count + 2)
 
-    def test_import_invalid_file(self):
+        page = self.app.get(self.url, user='staff')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_import_valid_contributors_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_contributor_count = UserProfile.objects.filter(contributions__course=self.course).count()
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test-contributors")
+
+        self.assertContains(page, 'Import previously uploaded file')
+        self.assertEqual(UserProfile.objects.filter(contributions__course=self.course).count(), original_contributor_count)
+
+        form = page.forms["contributor-import-form"]
+        form.submit(name="operation", value="import-contributors")
+        self.assertEqual(UserProfile.objects.filter(contributions__course=self.course).count(), original_contributor_count + 2)
+
+        page = self.app.get(self.url, user='staff')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_import_invalid_participants_file(self):
         page = self.app.get(self.url, user='staff')
 
         original_user_count = UserProfile.objects.count()
@@ -290,23 +313,29 @@ class TestSemesterCourseImportParticipantsView(ViewTest):
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_invalid,)
 
-        reply = form.submit(name="operation", value="test")
+        reply = form.submit(name="operation", value="test-participants")
 
         self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+        self.assertNotContains(reply, 'Import previously uploaded file')
 
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
-    def test_test_run(self):
+    def test_import_invalid_contributors_file(self):
         page = self.app.get(self.url, user='staff')
 
-        original_participant_count = self.course.participants.count()
+        original_user_count = UserProfile.objects.count()
 
-        form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_valid,)
-        form.submit(name="operation", value="test")
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_invalid,)
 
-        self.assertEqual(self.course.participants.count(), original_participant_count)
+        reply = form.submit(name="operation", value="test-contributors")
+
+        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
+        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+        self.assertNotContains(reply, 'Import previously uploaded file')
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
