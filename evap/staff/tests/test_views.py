@@ -136,6 +136,92 @@ class TestUserBulkDeleteView(ViewTest):
         self.assertEqual(UserProfile.objects.count(), user_count_before - 2)
 
 
+class TestUserImportView(ViewTest):
+    url = "/staff/user/import"
+    test_users = ["staff"]
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+    def test_import_valid_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_user_count = UserProfile.objects.count()
+
+        form = page.forms["user-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test")
+
+        self.assertContains(page, 'Import previously uploaded file')
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+        form = page.forms["user-import-form"]
+        form.submit(name="operation", value="import")
+        self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
+
+        page = self.app.get(self.url, user='staff')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_import_invalid_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_user_count = UserProfile.objects.count()
+
+        form = page.forms["user-import-form"]
+        form["excel_file"] = (self.filename_invalid,)
+
+        reply = form.submit(name="operation", value="test")
+
+        self.assertContains(reply, 'Sheet &quot;Sheet1&quot;, row 2: Email address is missing.')
+        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+        self.assertNotContains(reply, 'Import previously uploaded file')
+
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+    def test_import_wrong_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["user-import-form"]
+        form["excel_file"] = (self.filename_random,)
+
+        reply = form.submit(name="operation", value="test")
+
+        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
+        self.assertNotContains(reply, 'Import previously uploaded file')
+
+    def test_suspicious_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["user-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+
+        # Should throw SuspiciousOperation Exception.
+        reply = form.submit(name="operation", value="hackit", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+    def test_invalid_upload_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["user-import-form"]
+        page = form.submit(name="operation", value="test")
+
+        self.assertContains(page, 'Please select an Excel file')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_invalid_import_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["user-import-form"]
+        reply = form.submit(name="operation", value="import", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+
 # Staff - Semester Views
 class TestSemesterView(ViewTest):
     url = '/staff/semester/1'
@@ -277,12 +363,12 @@ class TestSemesterImportView(ViewTest):
     test_users = ["staff"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
+    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
     def setUpTestData(cls):
-        semester = mommy.make(Semester, pk=1)
+        mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course, semester=semester)
 
     def test_import_valid_file(self):
         mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
@@ -295,6 +381,8 @@ class TestSemesterImportView(ViewTest):
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
+
+        self.assertEqual(original_user_count, original_user_count)
 
         form = page.forms["semester-import-form"]
         form['vote_start_date'] = "02/29/2000"
@@ -322,16 +410,18 @@ class TestSemesterImportView(ViewTest):
 
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
-    def test_test_run(self):
+    def test_import_wrong_file(self):
         page = self.app.get(self.url, user='staff')
 
-        original_participant_count = self.course.participants.count()
+        original_user_count = UserProfile.objects.count()
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_valid,)
-        form.submit(name="operation", value="test")
+        form["excel_file"] = (self.filename_random,)
+        reply = form.submit(name="operation", value="test")
 
-        self.assertEqual(self.course.participants.count(), original_participant_count)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
+        self.assertNotContains(reply, 'Import previously uploaded file')
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
@@ -343,6 +433,39 @@ class TestSemesterImportView(ViewTest):
         reply = form.submit(name="operation", value="hackit", expect_errors=True)
 
         self.assertEqual(reply.status_code, 400)
+
+    def test_invalid_upload_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["semester-import-form"]
+        page = form.submit(name="operation", value="test")
+
+        self.assertContains(page, 'Please select an Excel file')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_invalid_import_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["semester-import-form"]
+        reply = form.submit(name="operation", value="import", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+    def test_missing_evaluation_period(self):
+        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
+
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["semester-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test")
+
+        form = page.forms["semester-import-form"]
+        page = form.submit(name="operation", value="import")
+
+        self.assertContains(page, 'Please enter an evaluation period')
+        self.assertContains(page, 'Import previously uploaded file')
 
 
 class TestSemesterExportView(ViewTest):
@@ -646,12 +769,15 @@ class TestCourseImportPersonsView(ViewTest):
     test_users = ["staff"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
     def setUpTestData(cls):
         semester = mommy.make(Semester, pk=1)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
         cls.course = mommy.make(Course, pk=1, semester=semester)
+        profiles = mommy.make(UserProfile, _quantity=42)
+        cls.course2 = mommy.make(Course, pk=2, semester=semester, participants=profiles)
 
     def test_import_valid_participants_file(self):
         page = self.app.get(self.url, user='staff')
@@ -672,6 +798,17 @@ class TestCourseImportPersonsView(ViewTest):
         page = self.app.get(self.url, user='staff')
         self.assertNotContains(page, 'Import previously uploaded file')
 
+    def test_copy_participants(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_participant_count = self.course.participants.count()
+
+        form = page.forms["participant-copy-form"]
+        form["course"] = str(self.course2.pk)
+        page = form.submit(name="operation", value="copy-participants")
+
+        self.assertEqual(self.course.participants.count(), original_participant_count + self.course2.participants.count())
+
     def test_import_valid_contributors_file(self):
         page = self.app.get(self.url, user='staff')
 
@@ -690,6 +827,18 @@ class TestCourseImportPersonsView(ViewTest):
 
         page = self.app.get(self.url, user='staff')
         self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_copy_contributors(self):
+        page = self.app.get(self.url, user='staff')
+
+        original_contributor_count = UserProfile.objects.filter(contributions__course=self.course).count()
+
+        form = page.forms["contributor-copy-form"]
+        form["course"] = str(self.course2.pk)
+        page = form.submit(name="operation", value="copy-contributors")
+
+        new_contributor_count = UserProfile.objects.filter(contributions__course=self.course).count()
+        self.assertEqual(new_contributor_count, original_contributor_count + UserProfile.objects.filter(contributions__course=self.course2).count())
 
     def test_import_invalid_participants_file(self):
         page = self.app.get(self.url, user='staff')
@@ -723,6 +872,28 @@ class TestCourseImportPersonsView(ViewTest):
 
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
+    def test_import_wrong_contributors_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_random,)
+
+        reply = form.submit(name="operation", value="test-contributors")
+
+        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
+        self.assertNotContains(reply, 'Import previously uploaded file')
+
+    def test_import_wrong_participants_file(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["participant-import-form"]
+        form["excel_file"] = (self.filename_random,)
+
+        reply = form.submit(name="operation", value="test-participants")
+
+        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
+        self.assertNotContains(reply, 'Import previously uploaded file')
+
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
 
@@ -731,6 +902,40 @@ class TestCourseImportPersonsView(ViewTest):
 
         # Should throw SuspiciousOperation Exception.
         reply = form.submit(name="operation", value="hackit", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+    def test_invalid_contributor_upload_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["contributor-import-form"]
+        page = form.submit(name="operation", value="test-contributors")
+
+        self.assertContains(page, 'Please select an Excel file')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_invalid_participant_upload_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["participant-import-form"]
+        page = form.submit(name="operation", value="test-participants")
+
+        self.assertContains(page, 'Please select an Excel file')
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_invalid_contributor_import_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["contributor-import-form"]
+        reply = form.submit(name="operation", value="import-contributors", expect_errors=True)
+
+        self.assertEqual(reply.status_code, 400)
+
+    def test_invalid_participant_import_operation(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["participant-import-form"]
+        reply = form.submit(name="operation", value="import-participants", expect_errors=True)
 
         self.assertEqual(reply.status_code, 400)
 
