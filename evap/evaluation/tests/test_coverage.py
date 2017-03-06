@@ -21,12 +21,6 @@ class URLTests(WebTest):
             This tests visits all URLs of evap and verifies they return a 200 for the specified user.
         """
         tests = [
-            # staff semester course
-            ("test_staff_semester_x_course_y_edit", "/staff/semester/1/course/5/edit", "evap"),
-            ("test_staff_semester_x_course_y_preview", "/staff/semester/1/course/1/preview", "evap"),
-            ("test_staff_semester_x_course_y_comments", "/staff/semester/1/course/5/comments", "evap"),
-            ("test_staff_semester_x_course_y_comment_z_edit", "/staff/semester/1/course/7/comment/12/edit", "evap"),
-            ("test_staff_semester_x_courseoperation", "/staff/semester/1/courseoperation?course=1&operation=prepare", "evap"),
             # staff semester single_result
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
             # staff questionnaires

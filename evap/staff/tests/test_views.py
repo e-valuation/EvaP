@@ -147,18 +147,89 @@ class TestUserIndexView(ViewTest):
             self.app.get(self.url, user="staff")
 
 
-class TestSemesterCourseOperationView(ViewTest):
-    url = '/staff/semester/1/courseoperation?course=1&operation=startEvaluation'
+class TestCourseEditView(ViewTest):
+    url = '/staff/semester/1/course/1/edit'
+    test_users = ['staff']
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        semester = mommy.make(Semester)
+        course = mommy.make(Course, semester=semester)
+
+        # This is necessary so that the call to is_single_result does not fail.
+        user = mommy.make(UserProfile)
+        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+
+class TestCoursePreviewView(ViewTest):
+    url = '/staff/semester/1/course/1/preview'
+    test_users = ['staff']
+
+    def setUp(self):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        semester = mommy.make(Semester)
+        mommy.make(Course, semester=semester)
+
+
+class TestCourseCommentView(ViewTest):
+    url = '/staff/semester/1/course/1/comments'
+    test_users = ['staff']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        semester = mommy.make(Semester)
+        cls.course = mommy.make(Course, semester=semester)
+
+    def test_comments_showing_up(self):
+        questionnaire = mommy.make(Questionnaire)
+        question = mommy.make(Question, questionnaire=questionnaire, type='T')
+        contribution = mommy.make(Contribution, course=self.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
+        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='should show up')
+        response = self.app.get(self.url, user='staff')
+
+        self.assertContains(response, 'should show up')
+
+
+class TestCourseCommentEditView(ViewTest):
+    url = '/staff/semester/1/course/1/comment/1/edit'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        semester = mommy.make(Semester)
+        course = mommy.make(Course, semester=semester)
+        questionnaire = mommy.make(Questionnaire)
+        question = mommy.make(Question, questionnaire=questionnaire, type='T')
+        contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
+        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk=1)
+
+    def test_comments_showing_up(self):
+        response = self.app.get(self.url, user='staff')
+
+        form = response.forms['comment-edit-form']
+        self.assertEqual(form['original_answer'].value, 'test answer text')
+        form['reviewed_answer'] = 'edited answer text'
+        form.submit()
+
+        answer = TextAnswer.objects.get(pk=1)
+        self.assertEqual(answer.reviewed_answer, 'edited answer text')
+
+
+class TestSemesterCourseOperationView(ViewTest):
+    url = '/staff/semester/1/courseoperation'
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.sem = mommy.make(Semester, pk=1)
 
     def test_operation_start_evaluation(self):
-        sem = mommy.make(Semester, pk=1)
-        mommy.make(Course, pk=1, state='approved', semester=sem)
+        urloptions = '?course=1&operation=startEvaluation'
+        mommy.make(Course, pk=1, state='approved', semester=self.sem)
 
-        response = self.app.get(self.url, user='staff')
+        response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
 
         form = response.forms['course-operation-form']
@@ -166,6 +237,19 @@ class TestSemesterCourseOperationView(ViewTest):
 
         course = Course.objects.get(pk=1)
         self.assertEqual(course.state, 'in_evaluation')
+
+    def test_operation_prepare(self):
+        urloptions = '?course=1&operation=prepare'
+        mommy.make(Course, pk=1, state='new', semester=self.sem)
+
+        response = self.app.get(self.url + urloptions, user='staff')
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
+
+        form = response.forms['course-operation-form']
+        form.submit()
+
+        course = Course.objects.get(pk=1)
+        self.assertEqual(course.state, 'prepared')
 
 
 class TestUserBulkDeleteView(ViewTest):
