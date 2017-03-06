@@ -11,7 +11,7 @@
 {% block content %}
     {{ block.super }}
     <h2>{% trans "Comment" %} {{ text_answer.id }}</h2>
-    <form method="POST" class="form-horizontal">
+    <form id="comment-edit-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% bootstrap_form form layout='horizontal' %}
         <div class="well submit-area text-center">

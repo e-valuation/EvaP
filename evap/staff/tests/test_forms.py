@@ -4,7 +4,8 @@ from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
     Contribution, Semester, Degree, EmailTemplate
-from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict
+from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict, \
+    WebTest
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
     CourseEmailForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
