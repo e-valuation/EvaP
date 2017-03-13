@@ -115,14 +115,13 @@ def vote(request, course_id):
     return redirect('student:index')
 
 
-def helper_create_form_group(request, contribution):
-    return list(QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in contribution.questionnaires.all())
-
-
 def helper_create_voting_form_groups(request, contributions):
     form_groups = OrderedDict()
     for contribution in contributions:
-        form_groups[contribution] = helper_create_form_group(request, contribution)
+        questionnaires = contribution.questionnaires.all()
+        if not questionnaires.exists():
+            continue
+        form_groups[contribution] = [QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
     return form_groups
 
 

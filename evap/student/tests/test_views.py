@@ -61,6 +61,7 @@ class TestVoteView(WebTest):
         student = mommy.make(UserProfile)
 
         course = mommy.make(Course, state='in_evaluation', participants=[student, contributor1])
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
         questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, questionnaire=questionnaire, type="G")
         mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])

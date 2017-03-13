@@ -63,6 +63,7 @@ def course_detail(request, semester_id, course_id):
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
 
+    # filter text answers
     for section in sections:
         results = []
         for result in section.results:
@@ -74,7 +75,10 @@ def course_detail(request, semester_id, course_id):
                 results.append(result)
         section.results[:] = results
 
-    # Filter empty sections and group by contributor.
+    # remove empty sections
+    sections = [section for section in sections if section.results]
+
+    # group by contributor
     course_sections = []
     contributor_sections = OrderedDict()
     for section in sections:

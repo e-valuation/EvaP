@@ -73,6 +73,23 @@
         }
     }
 
+    function makeDoesNotContributeChangeHandler(i) {
+        return function () {
+            // don't do anything on disabled buttons
+            if ($(this).hasClass("disabled"))
+                return false;
+            if($("input[name=contributions-" + i + "-does_not_contribute]").prop("checked")) {
+                // uncheck and disable all questionnaire checkboxes
+                $("input[name=contributions-" + i + "-questionnaires]").prop("checked", false);
+                $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", true);
+            }
+            else {
+                // enable all questionnaire checkboxes
+                $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", false);
+            }
+        }
+    }
+
     function uncheckButtons(selector){
         $(selector).prop("checked", false);
         $(selector).parent().removeClass("active");
@@ -108,6 +125,7 @@
             $("input[name=contributions-" + i + "-responsibility][value=EDITOR]").parent().click(makeClickHandler(i, count, 'EDITOR'));
             $("input[name=contributions-" + i + "-responsibility][value=CONTRIBUTOR]").parent().click(makeClickHandler(i, count, 'CONTRIBUTOR'));
             $("input[name=contributions-" + i + "-comment_visibility]").parent().click(makeDisabledClickHandler());
+            $("input[name=contributions-" + i + "-does_not_contribute]").parent().change(makeDoesNotContributeChangeHandler(i));
         }
     }
 
@@ -125,6 +143,10 @@
                 if (j != i)
                     disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
             }
+        }
+        if($("input[name=contributions-" + i + "-does_not_contribute]").prop("checked")) {
+            $("input[name=contributions-" + i + "-questionnaires]").prop("checked", false);
+            $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", true);
         }
     }
 

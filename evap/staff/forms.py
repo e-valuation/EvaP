@@ -274,9 +274,11 @@ class ContributionForm(forms.ModelForm):
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.filter(is_for_contributors=True, obsolete=False),
+        required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
     )
+    does_not_contribute = forms.BooleanField(required=False, label=_("Does not contribute to course"))
 
     class Meta:
         model = Contribution
@@ -308,9 +310,16 @@ class ContributionForm(forms.ModelForm):
         self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
 
+        if self.instance.pk:
+            self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
+
         if not self.course.can_staff_edit:
             # form is used as read-only course view
             disable_all_fields(self)
+
+    def clean(self):
+        if not self.cleaned_data.get('does_not_contribute') and not self.cleaned_data.get('questionnaires'):
+            self.add_error('does_not_contribute', _("Select either this option or at least one questionnaire!"))
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
