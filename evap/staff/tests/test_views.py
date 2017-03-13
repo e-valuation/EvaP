@@ -166,7 +166,8 @@ class TestUserImportView(ViewTest):
         page = self.app.get(self.url, user='staff')
         self.assertNotContains(page, 'Import previously uploaded file')
 
-    def test_import_invalid_file(self):
+    def test_error_handling(self):
+        # Tests whether errors given from the importer are displayed
         page = self.app.get(self.url, user='staff')
 
         original_user_count = UserProfile.objects.count()
@@ -182,16 +183,19 @@ class TestUserImportView(ViewTest):
 
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
-    def test_import_wrong_file(self):
+    def test_warning_handling(self):
+        # Tests whether warnings given from the importer are displayed
+        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
+
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_random,)
+        form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test")
-
-        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
-        self.assertNotContains(reply, 'Import previously uploaded file')
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
@@ -382,7 +386,7 @@ class TestSemesterImportView(ViewTest):
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
 
-        self.assertEqual(original_user_count, original_user_count)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
         form = page.forms["semester-import-form"]
         form['vote_start_date'] = "02/29/2000"
@@ -391,10 +395,9 @@ class TestSemesterImportView(ViewTest):
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
-    def test_import_invalid_file(self):
+    def test_error_handling(self):
+        # Tests whether errors given from the importer are displayed
         page = self.app.get(self.url, user='staff')
-
-        original_user_count = UserProfile.objects.count()
 
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_invalid,)
@@ -403,25 +406,23 @@ class TestSemesterImportView(ViewTest):
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#39;s data (email: bastius.quid@external.example.com) differs from it&#39;s data in a previous row.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
         self.assertContains(reply, 'The imported data contains two email addresses with the same username')
-        # can NOT check for this part:
-        # '(&#39;678@external.example.com&#39; and &#39;678@internal.example.com&#39;).'
-        # since the order of the email adresses is random.
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
+        self.assertNotContains(page, 'Import previously uploaded file')
 
-    def test_import_wrong_file(self):
+    def test_warning_handling(self):
+        # Tests whether warnings given from the importer are displayed
+        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
+
         page = self.app.get(self.url, user='staff')
 
-        original_user_count = UserProfile.objects.count()
-
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_random,)
-        reply = form.submit(name="operation", value="test")
+        form["excel_file"] = (self.filename_valid,)
 
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
-        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
-        self.assertNotContains(reply, 'Import previously uploaded file')
+        reply = form.submit(name="operation", value="test")
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
@@ -447,6 +448,7 @@ class TestSemesterImportView(ViewTest):
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["semester-import-form"]
+        # invalid because no file has been uploaded previously (and the button doesn't even exist)
         reply = form.submit(name="operation", value="import", expect_errors=True)
 
         self.assertEqual(reply.status_code, 400)
@@ -840,10 +842,9 @@ class TestCourseImportPersonsView(ViewTest):
         new_contributor_count = UserProfile.objects.filter(contributions__course=self.course).count()
         self.assertEqual(new_contributor_count, original_contributor_count + UserProfile.objects.filter(contributions__course=self.course2).count())
 
-    def test_import_invalid_participants_file(self):
+    def test_import_participants_error_handling(self):
+        # Tests whether errors given from the importer are displayed
         page = self.app.get(self.url, user='staff')
-
-        original_user_count = UserProfile.objects.count()
 
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_invalid,)
@@ -854,12 +855,27 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
         self.assertNotContains(reply, 'Import previously uploaded file')
 
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
+    def test_import_participants_warning_handling(self):
+        # Tests whether warnings given from the importer are displayed
+        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
-    def test_import_invalid_contributors_file(self):
         page = self.app.get(self.url, user='staff')
 
-        original_user_count = UserProfile.objects.count()
+        form = page.forms["participant-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+
+        reply = form.submit(name="operation", value="test-participants")
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+
+        # delete the uploaded file again so other tests can start with no file guaranteed
+        form = reply.forms["participant-import-form"]
+        form.submit(name="operation", value="import-participants")
+
+    def test_import_contributors_error_handling(self):
+        # Tests whether errors given from the importer are displayed
+        page = self.app.get(self.url, user='staff')
 
         form = page.forms["contributor-import-form"]
         form["excel_file"] = (self.filename_invalid,)
@@ -870,29 +886,22 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
         self.assertNotContains(reply, 'Import previously uploaded file')
 
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
+    def test_import_contributors_warning_handling(self):
+        # Tests whether warnings given from the importer are displayed
+        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
-    def test_import_wrong_contributors_file(self):
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["contributor-import-form"]
-        form["excel_file"] = (self.filename_random,)
+        form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-contributors")
-
-        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
-        self.assertNotContains(reply, 'Import previously uploaded file')
-
-    def test_import_wrong_participants_file(self):
-        page = self.app.get(self.url, user='staff')
-
-        form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_random,)
-
-        reply = form.submit(name="operation", value="test-participants")
-
-        self.assertContains(reply, "Couldn&#39;t read the file. Error: Unsupported format, or corrupt file: Expected BOF record;")
-        self.assertNotContains(reply, 'Import previously uploaded file')
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+        # delete the uploaded file again so other tests can start with no file guaranteed
+        form = reply.forms["contributor-import-form"]
+        form.submit(name="operation", value="import-contributors")
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
@@ -927,6 +936,7 @@ class TestCourseImportPersonsView(ViewTest):
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["contributor-import-form"]
+        # invalid because no file has been uploaded previously (and the button doesn't even exist)
         reply = form.submit(name="operation", value="import-contributors", expect_errors=True)
 
         self.assertEqual(reply.status_code, 400)
@@ -935,6 +945,7 @@ class TestCourseImportPersonsView(ViewTest):
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["participant-import-form"]
+        # invalid because no file has been uploaded previously (and the button doesn't even exist)
         reply = form.submit(name="operation", value="import-participants", expect_errors=True)
 
         self.assertEqual(reply.status_code, 400)

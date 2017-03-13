@@ -3,23 +3,18 @@ import datetime
 from django.test import override_settings
 from django.conf import settings
 from evap.evaluation.tests.test_tools import WebTest
-# from django.contrib.auth.models import Group
-# from django.core import mail
-# from django.urls import reverse
 from model_mommy import mommy
-# import xlrd
 
 from evap.evaluation.models import UserProfile, Semester
-# from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
-#                                    Questionnaire, Question, EmailTemplate, Degree
-
 from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter
 
 
 class TestUserImporter(WebTest):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
-    def test_user_importer_duplicate_warning(self):
+    def test_duplicate_warning(self):
         mommy.make(UserProfile, first_name='Lucilia', last_name="Manilium", username="lucilia.manilium2")
 
         with open(self.filename_valid, "rb") as excel_file:
@@ -34,7 +29,7 @@ class TestUserImporter(WebTest):
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
                 warnings_test[ExcelImporter.W_DUPL])
 
-    def test_user_importer_email_mismatch_warning(self):
+    def test_email_mismatch_warning(self):
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         with open(self.filename_valid, "rb") as excel_file:
@@ -48,9 +43,39 @@ class TestUserImporter(WebTest):
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
                 warnings_test[ExcelImporter.W_EMAIL])
 
+    def test_random_file_error(self):
+        original_user_count = UserProfile.objects.count()
+
+        with open(self.filename_random, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        __, __, __, errors_test = UserImporter.process(excel_content, test_run=True)
+        __, __, __, errors_no_test = UserImporter.process(excel_content, test_run=False)
+
+        self.assertEqual(errors_test, errors_no_test)
+        self.assertIn("Couldn't read the file. Error: Unsupported format, or corrupt file:"
+                " Expected BOF record; found b'42\\n'", errors_test)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+    def test_invalid_file_error(self):
+        original_user_count = UserProfile.objects.count()
+
+        with open(self.filename_invalid, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        __, __, __, errors_test = UserImporter.process(excel_content, test_run=True)
+        __, __, __, errors_no_test = UserImporter.process(excel_content, test_run=False)
+
+        self.assertEqual(errors_test, errors_no_test)
+        self.assertIn('Sheet "Sheet1", row 2: Email address is missing.', errors_test)
+        self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
 
 class TestEnrollmentImporter(WebTest):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
@@ -71,3 +96,31 @@ class TestEnrollmentImporter(WebTest):
         self.assertIn("Warning: User diam.synephebos has 6 enrollments, which is a lot.", warnings_many)
         self.assertIn("Warning: User torquate.metrodorus has 6 enrollments, which is a lot.", warnings_many)
         self.assertIn("Warning: User latinas.menandri has 5 enrollments, which is a lot.", warnings_many)
+
+    def test_random_file_error(self):
+        original_user_count = UserProfile.objects.count()
+
+        with open(self.filename_random, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        __, __, __, errors_test = UserImporter.process(excel_content, test_run=True)
+        __, __, __, errors_no_test = UserImporter.process(excel_content, test_run=False)
+
+        self.assertEqual(errors_test, errors_no_test)
+        self.assertIn("Couldn't read the file. Error: Unsupported format, or corrupt file:"
+                " Expected BOF record; found b'42\\n'", errors_test)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+    def test_invalid_file_error(self):
+        original_user_count = UserProfile.objects.count()
+
+        with open(self.filename_invalid, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        __, __, __, errors_test = UserImporter.process(excel_content, test_run=True)
+        __, __, __, errors_no_test = UserImporter.process(excel_content, test_run=False)
+
+        self.assertEqual(errors_test, errors_no_test)
+        self.assertIn('Sheet "Sheet1", row 2: Email address is missing.', errors_test)
+        self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
