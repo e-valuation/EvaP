@@ -64,7 +64,7 @@
                     <tr>
                         <th class="col-xs-1">{% trans "Degree" %}</th>
                         <th class="col-xs-2">{% trans "Type" %}</th>
-                        <th class="col-xs-3">{% trans "Responsible" %}</th>
+                        <th class="col-xs-3">{% trans "Responsibles" %}</th>
                         <th class="col-xs-2">{% trans "Average Grade" %}</th>
                         <th class="col-xs-2">{% trans "Standard Deviation" %}</th>
                         <th class="col-xs-2">{% if not course.is_single_result %}{% trans "Voters" %}{% endif %}</th>
@@ -78,7 +78,11 @@
                             {% endfor %}
                         </td>
                         <td>{{ course.type }}</td>
-                        <td>{{ course.responsible_contributor.full_name }}</td>
+                        <td>
+                            {% for contributor in course.responsible_contributors %}
+                                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
                         {% if show_grades %}
                             <td><div class="grade-bg text-center" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                             <td><div class="deviation-bg text-center" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>

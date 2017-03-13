@@ -1,26 +1,23 @@
 import datetime
-import random
 import logging
+import random
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
 from django.db.models import Count, Q
 from django.dispatch import Signal, receiver
-from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
-from django.utils.translation import ugettext_lazy as _
+from django.template.base import TemplateEncodingError, TemplateSyntaxError
 from django.utils.functional import cached_property
-
+from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
-
 
 logger = logging.getLogger(__name__)
 
@@ -408,8 +405,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.participants.exclude(pk__in=self.voters.all())
 
     @cached_property
-    def responsible_contributor(self):
-        return self.contributions.get(responsible=True).contributor
+    def responsible_contributors(self):
+        return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True)
+        #return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).prefetch_related(Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True, course=self), to_attr="responsible_contribution")).order_by("responsible_contribution__order")
 
     @property
     def days_left_for_evaluation(self):
@@ -1089,7 +1087,7 @@ class EmailTemplate(models.Model):
         elif cls.EDITORS in recipient_groups:
             recipients += UserProfile.objects.filter(contributions__course=course, contributions__can_edit=True)
         elif cls.RESPONSIBLE in recipient_groups:
-            recipients += [course.responsible_contributor]
+            recipients += course.responsible_contributors
 
         if cls.ALL_PARTICIPANTS in recipient_groups:
             recipients += course.participants.all()

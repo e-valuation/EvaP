@@ -9,8 +9,6 @@
         {% elif choice.choice_value == "CONTRIBUTOR" %}
             {% trans "Default value. No special rights." as tooltip %}
         {% endif %}
-        {% if choice.choice_value != "RESPONSIBLE" or form.responsibility.value == "RESPONSIBLE" or can_change_responsible %}
-            {% include "choice_button.html" with formelement=form.responsibility choice=choice tooltip=tooltip %}
-        {% endif %}
+        {% include "choice_button.html" with formelement=form.responsibility choice=choice tooltip=tooltip %}
     {% endfor %}
 </div>

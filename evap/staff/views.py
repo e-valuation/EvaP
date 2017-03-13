@@ -5,39 +5,34 @@ from collections import OrderedDict, defaultdict
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.db import transaction, IntegrityError
-from django.db.models import Max, Count, Q, BooleanField, ExpressionWrapper, Sum, Case, When, IntegerField
-from django.forms.models import inlineformset_factory, modelformset_factory
+from django.db import IntegrityError, transaction
+from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Max, Prefetch, Q, Sum, When
 from django.forms import formset_factory
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext, get_language
+from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.db.models import Prefetch
+from django.utils.translation import ugettext as _
+from django.utils.translation import get_language, ungettext
 from django.views.decorators.http import require_POST
-
 from evap.evaluation.auth import reviewer_required, staff_required
-from evap.evaluation.models import Contribution, Course, Question, Questionnaire, Semester, \
-                                   TextAnswer, UserProfile, FaqSection, FaqQuestion, EmailTemplate, Degree, CourseType
-from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, \
-                                  sort_formset
-from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, CourseEmailForm, EmailTemplateForm, \
-                             ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
-                             SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
-                             UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
-                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm, \
-                             CourseParticipantCopyForm
-from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users, save_import_file, \
-                             get_import_file_content_or_raise, delete_import_file, import_file_exists, forward_messages
-from evap.student.views import vote_preview
-from evap.student.forms import QuestionsForm
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
+                                    Semester, TextAnswer, UserProfile)
+from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, sort_formset
 from evap.grades.tools import are_grades_activated
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import get_textanswers, calculate_average_grades_and_deviation, CommentSection, TextResult
+from evap.results.tools import CommentSection, TextResult, calculate_average_grades_and_deviation, get_textanswers
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import is_semester_activated, can_user_use_reward_points
+from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
+from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
+                              CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
+                              FaqSectionForm, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
+                              SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
+from evap.staff.importers import EnrollmentImporter, UserImporter
+from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
+                              get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file)
+from evap.student.forms import QuestionsForm
+from evap.student.views import vote_preview
 
 
 def raise_permission_denied_if_archived(archiveable):
@@ -56,7 +51,7 @@ def index(request):
 
 def get_courses_with_prefetched_data(semester):
     courses = semester.course_set.prefetch_related(
-        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contribution"),
+        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
         Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
         "degrees")
     participant_counts = semester.course_set.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
@@ -65,7 +60,7 @@ def get_courses_with_prefetched_data(semester):
 
     for course, participant_count, voter_count, textanswer_count in zip(courses, participant_counts, voter_counts, textanswer_counts):
         course.general_contribution = course.general_contribution[0]
-        course.responsible_contributor = course.responsible_contribution[0].contributor
+        course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
         course.num_textanswers = textanswer_count
         if course._participant_count is None:
             course.num_voters = voter_count
@@ -502,11 +497,12 @@ def semester_todo(request, semester_id):
     courses = semester.course_set.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
 
     prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
-    responsibles = (course.responsible_contributor for course in prepared_courses)
+    responsibles = (contributor for course in prepared_courses for contributor in course.responsible_contributors)
     responsibles = list(set(responsibles))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
-    responsible_list = [(responsible, [course for course in courses if course.responsible_contributor.id == responsible.id], responsible.delegates.all()) for responsible in responsibles]
+    responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors],
+                         responsible.delegates.all()) for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_todo.html", template_data)
