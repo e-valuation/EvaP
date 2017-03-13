@@ -130,10 +130,11 @@ class TestUserBulkDeleteView(ViewTest):
         # Getting redirected after.
         self.assertEqual(reply.status_code, 302)
 
-        # Assert only these two users got deleted.
-        self.assertEqual(UserProfile.objects.filter(username__in=['testuser1', 'testuser2']).count(), 0)
+        # Assert only one user got deleted.
+        self.assertTrue(UserProfile.objects.filter(username='testuser1').exists())
+        self.assertFalse(UserProfile.objects.filter(username='testuser2').exists())
         self.assertTrue(UserProfile.objects.filter(username='contributor').exists())
-        self.assertEqual(UserProfile.objects.count(), user_count_before - 2)
+        self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
 
 
 # Staff - Semester Views
