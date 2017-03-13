@@ -39,7 +39,7 @@
                 //Check the first item in every button group
                 row.find(".btn-group").each(function() {
                     var inputs = $(this).find("input");
-                    inputs[0].setAttribute("checked", "");
+                    $(inputs[0]).prop("checked", true);
                     $(inputs[0]).parent().addClass("active");
                 });
 
