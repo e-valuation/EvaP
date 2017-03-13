@@ -1,5 +1,6 @@
 import urllib.parse
 import os
+import glob
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -14,6 +15,7 @@ from django.conf import settings
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
 from evap.results.tools import calculate_results
+from time import sleep
 
 
 def forward_messages(request, success_messages, warnings):
@@ -44,6 +46,12 @@ def delete_import_file(user_id, import_type):
         os.remove(filename)
     except OSError:
         pass
+
+
+def delete_all_import_files(user_id):
+    file_filter = generate_import_filename(user_id, "*")
+    for filename in glob.glob(file_filter):
+        os.remove(filename)
 
 
 def import_file_exists(user_id, import_type):

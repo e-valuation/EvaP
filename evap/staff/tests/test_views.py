@@ -11,6 +11,7 @@ import xlrd
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
+from evap.staff.tools import delete_all_import_files
 
 
 # Staff - Root View
@@ -167,7 +168,9 @@ class TestUserImportView(ViewTest):
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_error_handling(self):
-        # Tests whether errors given from the importer are displayed
+        """
+        Tests whether errors given from the importer are displayed
+        """
         page = self.app.get(self.url, user='staff')
 
         original_user_count = UserProfile.objects.count()
@@ -184,7 +187,9 @@ class TestUserImportView(ViewTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_warning_handling(self):
-        # Tests whether warnings given from the importer are displayed
+        """
+        Tests whether warnings given from the importer are displayed
+        """
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         page = self.app.get(self.url, user='staff')
@@ -396,7 +401,9 @@ class TestSemesterImportView(ViewTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
 
     def test_error_handling(self):
-        # Tests whether errors given from the importer are displayed
+        """
+        Tests whether errors given from the importer are displayed
+        """
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["semester-import-form"]
@@ -411,7 +418,9 @@ class TestSemesterImportView(ViewTest):
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_warning_handling(self):
-        # Tests whether warnings given from the importer are displayed
+        """
+        Tests whether warnings given from the importer are displayed
+        """
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         page = self.app.get(self.url, user='staff')
@@ -776,7 +785,7 @@ class TestCourseImportPersonsView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         semester = mommy.make(Semester, pk=1)
-        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+        cls.staff_user = mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
         cls.course = mommy.make(Course, pk=1, semester=semester)
         profiles = mommy.make(UserProfile, _quantity=42)
         cls.course2 = mommy.make(Course, pk=2, semester=semester, participants=profiles)
@@ -843,7 +852,9 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertEqual(new_contributor_count, original_contributor_count + UserProfile.objects.filter(contributions__course=self.course2).count())
 
     def test_import_participants_error_handling(self):
-        # Tests whether errors given from the importer are displayed
+        """
+        Tests whether errors given from the importer are displayed
+        """
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["participant-import-form"]
@@ -856,7 +867,9 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertNotContains(reply, 'Import previously uploaded file')
 
     def test_import_participants_warning_handling(self):
-        # Tests whether warnings given from the importer are displayed
+        """
+        Tests whether warnings given from the importer are displayed
+        """
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         page = self.app.get(self.url, user='staff')
@@ -870,11 +883,12 @@ class TestCourseImportPersonsView(ViewTest):
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
         # delete the uploaded file again so other tests can start with no file guaranteed
-        form = reply.forms["participant-import-form"]
-        form.submit(name="operation", value="import-participants")
+        delete_all_import_files(self.staff_user.id)
 
     def test_import_contributors_error_handling(self):
-        # Tests whether errors given from the importer are displayed
+        """
+        Tests whether errors given from the importer are displayed
+        """
         page = self.app.get(self.url, user='staff')
 
         form = page.forms["contributor-import-form"]
@@ -887,7 +901,9 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertNotContains(reply, 'Import previously uploaded file')
 
     def test_import_contributors_warning_handling(self):
-        # Tests whether warnings given from the importer are displayed
+        """
+        Tests whether warnings given from the importer are displayed
+        """
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         page = self.app.get(self.url, user='staff')
@@ -900,8 +916,7 @@ class TestCourseImportPersonsView(ViewTest):
                 " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
         # delete the uploaded file again so other tests can start with no file guaranteed
-        form = reply.forms["contributor-import-form"]
-        form.submit(name="operation", value="import-contributors")
+        delete_all_import_files(self.staff_user.id)
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
