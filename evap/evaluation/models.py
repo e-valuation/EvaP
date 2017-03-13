@@ -942,9 +942,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser:
             return False
-        if any(not user.can_staff_delete() for user in self.represented_users.all()):
+        if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False
-        if any(not user.can_staff_delete() for user in self.ccing_users.all()):
+        if any(not user.can_staff_delete for user in self.ccing_users.all()):
             return False
         return True
 

@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
     <p>
-        {% trans "Upload a text file containing one username per line. This will delete all identified users that can be deleted." %}
+        {% trans "Upload a text file containing one username per line. All users that are not in this file which can be deleted will then be deleted." %}
     </p>
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
         {% csrf_token %}
