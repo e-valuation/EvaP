@@ -1,5 +1,6 @@
 import datetime
 import os
+import glob
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -11,7 +12,13 @@ import xlrd
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
-from evap.staff.tools import delete_all_import_files
+from evap.staff.tools import generate_import_filename
+
+
+def helper_delete_all_import_files(user_id):
+    file_filter = generate_import_filename(user_id, "*")
+    for filename in glob.glob(file_filter):
+        os.remove(filename)
 
 
 # Staff - Root View
@@ -790,6 +797,11 @@ class TestCourseImportPersonsView(ViewTest):
         profiles = mommy.make(UserProfile, _quantity=42)
         cls.course2 = mommy.make(Course, pk=2, semester=semester, participants=profiles)
 
+    @classmethod
+    def tearDown(cls):
+        # delete the uploaded file again so other tests can start with no file guaranteed
+        helper_delete_all_import_files(cls.staff_user.id)
+
     def test_import_valid_participants_file(self):
         page = self.app.get(self.url, user='staff')
 
@@ -882,9 +894,6 @@ class TestCourseImportPersonsView(ViewTest):
                 " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
-        # delete the uploaded file again so other tests can start with no file guaranteed
-        delete_all_import_files(self.staff_user.id)
-
     def test_import_contributors_error_handling(self):
         """
         Tests whether errors given from the importer are displayed
@@ -915,8 +924,6 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
                 " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
-        # delete the uploaded file again so other tests can start with no file guaranteed
-        delete_all_import_files(self.staff_user.id)
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
