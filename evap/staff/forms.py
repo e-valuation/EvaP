@@ -313,17 +313,13 @@ class ContributionForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
 
-        # JS disable in both directions
-
         if not self.course.can_staff_edit:
             # form is used as read-only course view
             disable_all_fields(self)
 
     def clean(self):
         if not self.cleaned_data.get('does_not_contribute') and not self.cleaned_data.get('questionnaires'):
-            self.add_error('does_not_contribute', "One or the other!")
-        if self.cleaned_data.get('does_not_contribute') and self.cleaned_data.get('questionnaires'):
-            self.add_error('does_not_contribute', "Don't select both this checkbox and questionnaires!")
+            self.add_error('does_not_contribute', _("Select either this option or at least one questionnaire!"))
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
