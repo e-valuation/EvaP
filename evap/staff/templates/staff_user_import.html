@@ -10,10 +10,10 @@
 
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         <div class="panel panel-info">
-            <div class="panel-heading"> {% trans "User Import" %} </div>
+            <div class="panel-heading"> {% trans "User import" %} </div>
             <div class="panel-body">
                 <p>
-                {% trans "Upload user data from excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
+                {% trans "Upload Excel file (" %}<a href="{% get_static_prefix %}sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
                 </p>
                 {% csrf_token %}
                 {% bootstrap_form excel_form layout='horizontal' %}

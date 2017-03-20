@@ -126,7 +126,7 @@ class ExcelImporter(object):
             except Exception:
                 self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
                 raise
-        self.success_messages.append(_("Successfully read excel file."))
+        self.success_messages.append(_("Successfully read Excel file."))
 
     def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
