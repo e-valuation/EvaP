@@ -275,7 +275,7 @@
         apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
         // run the jquery datepicker plugin
-        $("input[name*='date']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+        $("input[name*='date']:not([readonly='True'])").datetimepicker();
 
         // scroll content to show below navbar
         var navbar_height = 50;

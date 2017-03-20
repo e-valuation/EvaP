@@ -34,7 +34,7 @@
     {% endfor %}
 </td>
 <td style="width: 10%">
-    {{ course.vote_start_date|date:"SHORT_DATE_FORMAT" }}{% if not course.is_single_result %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
+    {{ course.vote_start_date|date:"SHORT_DATETIME_FORMAT" }}{% if not course.is_single_result %} - {{ course.vote_end_date|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
 
     {% if state == 'approved' %}
         <br>
