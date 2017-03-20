@@ -94,8 +94,8 @@ def semester_view(request, semester_id):
             self.num_courses = 0
             self.num_comments = 0
             self.num_comments_reviewed = 0
-            self.first_start = datetime.date(9999, 1, 1)
-            self.last_end = datetime.date(2000, 1, 1)
+            self.first_start = datetime.datetime(9999, 1, 1)
+            self.last_end = datetime.datetime(2000, 1, 1)
 
     degree_stats = defaultdict(Stats)
     total_stats = Stats()
@@ -204,7 +204,7 @@ def semester_course_operation(request, semester_id):
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
-            courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.date.today()]
+            courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.datetime.now()]
             difference = len(courses) - len(courses_end_in_future)
             if difference:
                 courses = courses_end_in_future
@@ -265,7 +265,7 @@ def helper_semester_course_operation_approve(request, courses):
 
 def helper_semester_course_operation_start(request, courses, template):
     for course in courses:
-        course.vote_start_date = datetime.date.today()
+        course.vote_start_date = datetime.datetime.now()
         course.evaluation_begin()
         course.save()
     messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",

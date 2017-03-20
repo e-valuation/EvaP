@@ -20,6 +20,7 @@
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
+            <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css" />
         {% endcompress %}
         <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
@@ -210,8 +211,9 @@
     {% compress js %}
         <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
         <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.10.3.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_de.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/jquery.ui.datepicker_en.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
         <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
 
         <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
@@ -275,7 +277,10 @@
         apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
         // run the jquery datepicker plugin
-        $("input[name*='date']:not([readonly='True'])").datepicker( $.datepicker.regional["{{ LANGUAGE_CODE }}"] );
+        $("input[name*='date']:not([readonly='True'])").datetimepicker({
+                locale: "{{ LANGUAGE_CODE }}",
+                format: "DD.MM.YYYY hh:mm"
+            });
 
         // scroll content to show below navbar
         var navbar_height = 50;
