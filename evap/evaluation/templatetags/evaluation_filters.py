@@ -14,7 +14,7 @@ def zip_lists(a, b):
 @register.filter(name='percentage')
 def percentage(fraction, population):
     try:
-        return "{0:.0f}%".format((float(fraction) / float(population)) * 100)
+        return "{0:.0f}%".format(int(float(fraction) / float(population) * 100))
     except ValueError:
         return None
     except ZeroDivisionError:
