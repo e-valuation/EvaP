@@ -42,6 +42,9 @@ class UserData(CommonEqualityMixin):
             user.refresh_login_key()
         return user, created
 
+    def user_already_exists(self):
+        return UserProfile.objects.filter(username=self.username).exists()
+
     def validate(self):
         user = UserProfile()
         user.username = self.username
@@ -361,6 +364,7 @@ class UserImporter(ExcelImporter):
             occur because of the data already in the database.
         """
         new_participants = []
+        created_users = []
         with transaction.atomic():
             users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
@@ -369,14 +373,42 @@ class UserImporter(ExcelImporter):
                     new_participants.append(user)
                     if created:
                         users_count += 1
+                        created_users.append(user)
 
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
                                          " The original data location was row %(row)d of sheet '%(sheet)s'."
                                          " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
-        self.success_messages.append(_("Successfully created %(users)d user(s).") % dict(users=users_count))
+
+        msg = _("Successfully created {} user(s):").format(users_count)
+        for user in created_users:
+            msg += "<br>"
+            msg += ("{} {} ({})").format(user.first_name, user.last_name, user.username)
+        self.success_messages.append(mark_safe(msg))
         return new_participants
+
+    def get_user_profile_list(self):
+        new_participants = []
+        for user_data in self.users.values():
+            if UserProfile.objects.filter(username=user_data.username).exists():
+                new_participants.append(UserProfile.objects.get(username=user_data.username))
+
+        return new_participants
+
+    def create_test_success_messages(self):
+        self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+
+        filtered_users = []
+        for (sheet, row), (user_data) in self.associations.items():
+            if not user_data.user_already_exists():
+                filtered_users.append(user_data)
+
+        msg = _("{} user(s) would be created:").format(len(filtered_users))
+        for user in filtered_users:
+            msg += "<br>"
+            msg += ("{} {} ({})").format(user.first_name, user.last_name, user.username)
+        self.success_messages.append(mark_safe(msg))
 
     @classmethod
     def process(cls, excel_content, test_run):
@@ -405,8 +437,8 @@ class UserImporter(ExcelImporter):
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
                 return [], importer.success_messages, importer.warnings, importer.errors
             if test_run:
-                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-                return [], importer.success_messages, importer.warnings, importer.errors
+                importer.create_test_success_messages()
+                return importer.get_user_profile_list(), importer.success_messages, importer.warnings, importer.errors
             else:
                 return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
