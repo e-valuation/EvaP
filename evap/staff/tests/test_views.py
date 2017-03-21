@@ -324,14 +324,14 @@ class TestSemesterDeleteView(ViewTest):
         semester = mommy.make(Semester, pk=1)
         mommy.make(Course, semester=semester, state='in_evaluation', voters=[mommy.make(UserProfile)])
         self.assertFalse(semester.can_staff_delete)
-        response = self.app.post(self.url, {'semester_id': 1}, user='staff', expect_errors=True)
+        response = self.app.post(self.url, params={'semester_id': 1}, user='staff', expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=1).exists())
 
     def test_success(self):
         semester = mommy.make(Semester, pk=1)
         self.assertTrue(semester.can_staff_delete)
-        response = self.app.post(self.url, {'semester_id': 1}, user='staff')
+        response = self.app.post(self.url, params={'semester_id': 1}, user='staff')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Semester.objects.filter(pk=1).exists())
 
@@ -1103,12 +1103,12 @@ class TestQuestionnaireDeletionView(WebTest):
             only the second attempt should succeed.
         """
         self.assertFalse(Questionnaire.objects.get(pk=1).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 1}, user="staff", expect_errors=True)
+        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": 1}, user="staff", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=1).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", {"questionnaire_id": 2}, user="staff")
+        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": 2}, user="staff")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=2).exists())
 
@@ -1178,7 +1178,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
 
     def helper(self, old_state, expected_new_state, action):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post(self.url, {"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        response = self.app.post(self.url, params={"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
         self.assertEqual(response.status_code, 200)
         textanswer.refresh_from_db()
         self.assertEqual(textanswer.state, expected_new_state)
