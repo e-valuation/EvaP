@@ -552,7 +552,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
-        EmailTemplate.send_evaluation_started_notifications(courses_new_in_evaluation, None)
+        EmailTemplate.send_to_users_in_courses(EmailTemplate.EVALUATION_STARTED, courses_new_in_evaluation,
+                                               [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
@@ -941,9 +942,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser:
             return False
-        if any(not user.can_staff_delete() for user in self.represented_users.all()):
+        if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False
-        if any(not user.can_staff_delete() for user in self.ccing_users.all()):
+        if any(not user.can_staff_delete for user in self.ccing_users.all()):
             return False
         return True
 
@@ -1123,10 +1124,10 @@ class EmailTemplate(models.Model):
         for user, courses in user_course_map.items():
             subject_params = {}
             body_params = {'user': user, 'courses': courses}
-            cls.__send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
+            cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
-    def __send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
+    def send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             logger.warning(warning_message)
@@ -1174,7 +1175,7 @@ class EmailTemplate(models.Model):
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_courses': due_courses}
 
-        cls.__send_to_user(user, template, subject_params, body_params, use_cc=False)
+        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
 
     @classmethod
     def send_login_url_to_user(cls, user):
@@ -1182,23 +1183,5 @@ class EmailTemplate(models.Model):
         subject_params = {}
         body_params = {'user': user, 'login_url': user.login_url}
 
-        cls.__send_to_user(user, template, subject_params, body_params, use_cc=False)
+        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.username))
-
-    @classmethod
-    def send_publish_notifications_to_user(cls, user, courses):
-        template = cls.objects.get(name=cls.PUBLISHING_NOTICE)
-        subject_params = {}
-        body_params = {'user': user, 'courses': courses}
-
-        cls.__send_to_user(user, template, subject_params, body_params, use_cc=True)
-
-    @classmethod
-    def send_review_notifications(cls, courses, request):
-        template = cls.objects.get(name=cls.EDITOR_REVIEW_NOTICE)
-        cls.send_to_users_in_courses(template, courses, [cls.EDITORS], use_cc=True, request=request)
-
-    @classmethod
-    def send_evaluation_started_notifications(cls, courses, request):
-        template = cls.objects.get(name=cls.EVALUATION_STARTED)
-        cls.send_to_users_in_courses(template, courses, [cls.ALL_PARTICIPANTS], use_cc=False, request=request)

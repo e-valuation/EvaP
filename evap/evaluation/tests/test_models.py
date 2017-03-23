@@ -17,10 +17,11 @@ class TestCourses(TestCase):
     def test_approved_to_in_evaluation(self):
         course = mommy.make(Course, state='approved', vote_start_date=date.today())
 
-        with patch('evap.evaluation.models.EmailTemplate.send_evaluation_started_notifications') as mock:
+        with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_courses') as mock:
             Course.update_courses()
 
-        mock.assert_called_once_with([course], None)
+        mock.assert_called_once_with(EmailTemplate.EVALUATION_STARTED, [course], [EmailTemplate.ALL_PARTICIPANTS],
+                                     use_cc=False, request=None)
 
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'in_evaluation')
@@ -279,7 +280,7 @@ class TestEmailTemplate(TestCase):
         """
         user = mommy.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
-        EmailTemplate._EmailTemplate__send_to_user(user, template, {}, {}, False, None)
+        EmailTemplate.send_to_user(user, template, {}, {}, False, None)
 
 
 class TestEmailRecipientList(TestCase):

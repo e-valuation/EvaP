@@ -26,9 +26,11 @@ from evap.staff.forms import ContributionForm, AtLeastOneFormSet, CourseForm, Co
                              ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, \
                              SemesterForm, UserForm, ContributionFormSet, FaqSectionForm, FaqQuestionForm, \
                              UserImportForm, TextAnswerForm, DegreeForm, SingleResultForm, ExportSheetForm, \
-                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm
+                             UserMergeSelectionForm, CourseTypeForm, UserBulkDeleteForm, CourseTypeMergeSelectionForm, \
+                             CourseParticipantCopyForm
 from evap.staff.importers import EnrollmentImporter, UserImporter
-from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users
+from evap.staff.tools import custom_redirect, delete_navbar_cache, merge_users, bulk_delete_users, save_import_file, \
+                             get_import_file_content_or_raise, delete_import_file, import_file_exists, forward_messages
 from evap.student.views import vote_preview
 from evap.student.forms import QuestionsForm
 from evap.grades.tools import are_grades_activated
@@ -145,17 +147,23 @@ def semester_course_operation(request, semester_id):
     if request.method == 'POST':
         course_ids = request.POST.getlist('course_ids')
         courses = Course.objects.filter(id__in=course_ids)
-        send_email = request.POST.get('send_email') == 'on'
+
+        # If checkbox is not checked, set template to None
+        if request.POST.get('send_email') == 'on':
+            template = EmailTemplate(subject=request.POST["email_subject"], body=request.POST["email_body"])
+        else:
+            template = None
+
         if operation == 'revertToNew':
             helper_semester_course_operation_revert(request, courses)
         elif operation == 'prepare' or operation == 'reenableEditorReview':
-            helper_semester_course_operation_prepare(request, courses, send_email)
+            helper_semester_course_operation_prepare(request, courses, template)
         elif operation == 'approve':
             helper_semester_course_operation_approve(request, courses)
         elif operation == 'startEvaluation':
-            helper_semester_course_operation_start(request, courses, send_email)
+            helper_semester_course_operation_start(request, courses, template)
         elif operation == 'publish':
-            helper_semester_course_operation_publish(request, courses, send_email)
+            helper_semester_course_operation_publish(request, courses, template)
         elif operation == 'unpublish':
             helper_semester_course_operation_unpublish(request, courses)
 
@@ -164,12 +172,17 @@ def semester_course_operation(request, semester_id):
     course_ids = request.GET.getlist('course')
     courses = Course.objects.filter(id__in=course_ids)
 
+    # Set new state, and set email template for possible editing.
+    email_template = None
     if courses:
         current_state_name = STATES_ORDERED[courses[0].state]
         if operation == 'revertToNew':
             new_state_name = STATES_ORDERED['new']
+
         elif operation == 'prepare' or operation == 'reenableEditorReview':
             new_state_name = STATES_ORDERED['prepared']
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
+
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
             # remove courses without enough questionnaires
@@ -180,6 +193,7 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
                     difference) % {'courses': difference})
+
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
@@ -190,8 +204,12 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be approved, because it's evaluation end date lies in the past. It was removed from the selection.",
                     "%(courses)d courses can not be approved, because their evaluation end dates lie in the past. They were removed from the selection.",
                     difference) % {'courses': difference})
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+
         elif operation == 'publish':
             new_state_name = STATES_ORDERED['published']
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+
         elif operation == 'unpublish':
             new_state_name = STATES_ORDERED['reviewed']
 
@@ -205,8 +223,10 @@ def semester_course_operation(request, semester_id):
         operation=operation,
         current_state_name=current_state_name,
         new_state_name=new_state_name,
-        show_email_checkbox=operation in ['prepare', 'reenableEditorReview', 'startEvaluation', 'publish']
+        email_template=email_template,
+        show_email_checkbox=email_template is not None
     )
+
     return render(request, "staff_course_operation.html", template_data)
 
 
@@ -218,14 +238,14 @@ def helper_semester_course_operation_revert(request, courses):
         "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
 
 
-def helper_semester_course_operation_prepare(request, courses, send_email):
+def helper_semester_course_operation_prepare(request, courses, template):
     for course in courses:
         course.ready_for_editors()
         course.save()
     messages.success(request, ungettext("Successfully enabled %(courses)d course for editor review.",
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
-    if send_email:
-        EmailTemplate.send_review_notifications(courses, request)
+    if template:
+        EmailTemplate.send_to_users_in_courses(template, courses, [EmailTemplate.EDITORS], use_cc=True, request=request)
 
 
 def helper_semester_course_operation_approve(request, courses):
@@ -236,25 +256,25 @@ def helper_semester_course_operation_approve(request, courses):
         "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
 
-def helper_semester_course_operation_start(request, courses, send_email):
+def helper_semester_course_operation_start(request, courses, template):
     for course in courses:
         course.vote_start_date = datetime.date.today()
         course.evaluation_begin()
         course.save()
     messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
         "Successfully started evaluation for %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    if send_email:
-        EmailTemplate.send_evaluation_started_notifications(courses, request)
+    if template:
+        EmailTemplate.send_to_users_in_courses(template, courses, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
-def helper_semester_course_operation_publish(request, courses, send_email):
+def helper_semester_course_operation_publish(request, courses, template):
     for course in courses:
         course.publish()
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    if send_email:
-        send_publish_notifications(courses)
+    if template:
+        send_publish_notifications(courses, template)
 
 
 def helper_semester_course_operation_unpublish(request, courses):
@@ -311,27 +331,44 @@ def semester_import(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
 
-    form = ImportForm(request.POST or None, request.FILES or None)
+    excel_form = ImportForm(request.POST or None, request.FILES or None)
+    import_type = 'semester'
 
-    if form.is_valid():
+    errors = []
+    warnings = {}
+    success_messages = []
+
+    if request.method == "POST":
         operation = request.POST.get('operation')
         if operation not in ('test', 'import'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        # extract data from form
-        excel_file = form.cleaned_data['excel_file']
-        vote_start_date = form.cleaned_data['vote_start_date']
-        vote_end_date = form.cleaned_data['vote_end_date']
+        if operation == 'test':
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            excel_form.excel_file_required = True
+            if excel_form.is_valid():
+                excel_file = excel_form.cleaned_data['excel_file']
+                file_content = excel_file.read()
+                success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, vote_start_date=None, vote_end_date=None, test_run=True)
+                if not errors:
+                    save_import_file(excel_file, request.user.id, import_type)
 
-        test_run = operation == 'test'
+        elif operation == 'import':
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            excel_form.vote_dates_required = True
+            if excel_form.is_valid():
+                vote_start_date = excel_form.cleaned_data['vote_start_date']
+                vote_end_date = excel_form.cleaned_data['vote_end_date']
+                success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_date, vote_end_date, test_run=False)
+                forward_messages(request, success_messages, warnings)
+                delete_import_file(request.user.id, import_type)
+                return redirect('staff:semester_view', semester_id)
 
-        # parse table
-        EnrollmentImporter.process(request, excel_file, semester, vote_start_date, vote_end_date, test_run)
-        if test_run:
-            return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
-        return redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_semester_import.html", dict(semester=semester, form=form))
+    test_passed = import_file_exists(request.user.id, import_type)
+    # casting warnings to a normal dict is necessary for the template to iterate over it.
+    return render(request, "staff_semester_import.html", dict(semester=semester,
+        success_messages=success_messages, errors=errors, warnings=dict(warnings),
+        excel_form=excel_form, test_passed=test_passed))
 
 
 @staff_required
@@ -623,45 +660,86 @@ def course_email(request, semester_id, course_id):
 
 
 @staff_required
-def course_participant_import(request, semester_id, course_id):
+def course_person_import(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
     raise_permission_denied_if_archived(course)
 
-    form = UserImportForm(request.POST or None, request.FILES or None)
+    # Each form required two times so the errors can be displayed correctly
+    participant_excel_form = UserImportForm(request.POST or None, request.FILES or None)
+    participant_copy_form = CourseParticipantCopyForm(request.POST or None)
+    contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None)
+    contributor_copy_form = CourseParticipantCopyForm(request.POST or None)
 
-    if form.is_valid():
+    errors = []
+    warnings = {}
+    success_messages = []
+
+    if request.method == "POST":
         operation = request.POST.get('operation')
-        if operation not in ('test', 'import'):
+        if operation not in ('test-participants', 'import-participants', 'copy-participants',
+                             'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        # Extract data from form.
-        excel_file = form.cleaned_data['excel_file']
-        import_course = form.cleaned_data['course']
+        import_type = 'participant' if 'participants' in operation else 'contributor'
+        excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
+        copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
-        test_run = operation == 'test'
+        if 'test' in operation:
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            excel_form.excel_file_required = True
+            if excel_form.is_valid():
+                excel_file = excel_form.cleaned_data['excel_file']
+                file_content = excel_file.read()
+                # if on a test run, the process method will not return a list of users that would be
+                # imported so there is currently no way to show how many users would be imported.
+                __, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
+                if not errors:
+                    save_import_file(excel_file, request.user.id, import_type)
 
-        # Import user from either excel file or other course
-        imported_users = []
-        if excel_file:
-            imported_users = UserImporter.process(request, excel_file, test_run)
-        else:
-            imported_users = import_course.participants.all()
-
-        # Print message for test run.
-        if test_run and imported_users:
-            messages.success(request, "%d Participants would be added to course %s" % (len(imported_users), course.name))
-
-        # Test run, or an error occurred while parsing -> stay and display error.
-        if test_run or not imported_users:
-            return render(request, "staff_course_participant_import.html", dict(course=course, form=form))
-        else:
-            # Add users to course participants. * converts list into parameters.
-            course.participants.add(*imported_users)
-            messages.success(request, "%d Participants added to course %s" % (len(imported_users), course.name))
+        elif 'import' in operation:
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            imported_users, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
+            delete_import_file(request.user.id, import_type)
+            # Import happens in this call:
+            success_messages.append(helper_person_import(imported_users, course, import_type))
+            forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
+
+        elif 'copy' in operation:
+            copy_form.course_selection_required = True
+            if copy_form.is_valid():
+                import_course = copy_form.cleaned_data['course']
+                if import_type == 'participant':
+                    imported_users = import_course.participants.all()
+                else:
+                    imported_users = UserProfile.objects.filter(contributions__course=import_course)
+                # Import happens in this call:
+                success_messages.append(helper_person_import(imported_users, course, import_type))
+                forward_messages(request, success_messages, warnings)
+                return redirect('staff:semester_view', semester_id)
+
+    participant_test_passed = import_file_exists(request.user.id, 'participant')
+    contributor_test_passed = import_file_exists(request.user.id, 'contributor')
+    # casting warnings to a normal dict is necessary for the template to iterate over it.
+    return render(request, "staff_course_person_import.html", dict(semester=semester, course=course,
+        participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
+        contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
+        success_messages=success_messages, warnings=dict(warnings), errors=errors,
+        participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
+
+
+def helper_person_import(users, course, import_type):
+    if import_type == 'participant':
+        course.participants.add(*users)
+        return _("{} Participants added to course {}").format(len(users), course.name)
     else:
-        return render(request, "staff_course_participant_import.html", dict(course=course, form=form, semester=semester))
+        for user in users:
+            order = Contribution.objects.filter(course=course).count()
+            contribution = Contribution(course=course, contributor=user, order=order)
+            contribution.save()
+            course.contributions.add(contribution)
+        return _("{} Contributors added to course {}").format(len(users), course.name)
 
 
 @reviewer_required
@@ -1037,21 +1115,39 @@ def user_create(request):
 
 @staff_required
 def user_import(request):
-    form = UserImportForm(request.POST or None, request.FILES or None)
-    operation = request.POST.get('operation')
+    excel_form = UserImportForm(request.POST or None, request.FILES or None)
+    import_type = 'user'
 
-    if form.is_valid():
+    errors = []
+    warnings = {}
+    success_messages = []
+
+    if request.method == "POST":
+        operation = request.POST.get('operation')
         if operation not in ('test', 'import'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        test_run = operation == 'test'
-        excel_file = form.cleaned_data['excel_file']
-        UserImporter.process(request, excel_file, test_run)
-        if test_run:
-            return render(request, "staff_user_import.html", dict(form=form))
-        return redirect('staff:user_index')
-    else:
-        return render(request, "staff_user_import.html", dict(form=form))
+        if operation == 'test':
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            excel_form.excel_file_required = True
+            if excel_form.is_valid():
+                excel_file = excel_form.cleaned_data['excel_file']
+                file_content = excel_file.read()
+                __, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
+                if not errors:
+                    save_import_file(excel_file, request.user.id, import_type)
+
+        elif operation == 'import':
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            __, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
+            forward_messages(request, success_messages, warnings)
+            delete_import_file(request.user.id, import_type)
+            return redirect('staff:user_index')
+
+    test_passed = import_file_exists(request.user.id, import_type)
+    # casting warnings to a normal dict is necessary for the template to iterate over it.
+    return render(request, "staff_user_import.html", dict(excel_form=excel_form,
+        success_messages=success_messages, warnings=dict(warnings), errors=errors, test_passed=test_passed))
 
 
 @staff_required

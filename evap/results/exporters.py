@@ -118,8 +118,8 @@ class ExcelExporter(object):
 
             writen(self)
             for course, results in courses_with_results:
-                writec(self, _("Average"), "avg")
-                writec(self, _("Deviation"), "border_top_bottom_right")
+                writec(self, _("Avg."), "avg")
+                writec(self, _("Std. dev."), "border_top_bottom_right")
 
             for questionnaire in used_questionnaires:
                 writen(self, questionnaire.name, "bold")
@@ -176,7 +176,7 @@ class ExcelExporter(object):
                 else:
                     self.write_two_empty_cells_with_borders()
 
-            writen(self, _("Total Voters/Total Participants"), "bold")
+            writen(self, _("Total voters/Total participants"), "bold")
             for course, results in courses_with_results:
                 percent_participants = float(course.num_voters) / float(course.num_participants) if course.num_participants > 0 else 0
                 writec(self, "{}/{} ({:.0%})".format(course.num_voters, course.num_participants, percent_participants), "total_voters", cols=2)

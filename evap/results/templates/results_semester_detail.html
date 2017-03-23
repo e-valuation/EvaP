@@ -32,8 +32,11 @@
                     {% for course in courses %}
                         <tr{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} class="preview"{% endif %}>
                             <td data-order="{{ course.name }}">
-                                {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
-                                    <span data-toggle="tooltip" data-placement="top" class="glyphicon glyphicon-info-sign" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                {% if course.state == 'in_evaluation' %}
+                                    <span data-toggle="tooltip" data-placement="top" class="glyphicon glyphicon-play" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                {% endif %}
+                                {% if course.state == 'evaluated' or course.state == 'reviewed' %}
+                                    <span data-toggle="tooltip" data-placement="top" class="glyphicon glyphicon-pause" title="{% trans 'This course has not been published yet.' %}"></span>
                                 {% endif %}
                                 {% if course|can_user_see_results:request.user %}
                                     <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>

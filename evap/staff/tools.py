@@ -1,4 +1,5 @@
 import urllib.parse
+import os
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -6,11 +7,58 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
+from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
 from evap.results.tools import calculate_results
+
+
+def forward_messages(request, success_messages, warnings):
+    for message in success_messages:
+        messages.success(request, message)
+
+    for category in warnings:
+        for warning in warnings[category]:
+            messages.warning(request, warning)
+
+
+def generate_import_filename(user_id, import_type):
+    return settings.MEDIA_ROOT + '/temp_import_files/' + str(user_id) + '.xls' + '.' + import_type
+
+
+def save_import_file(excel_file, user_id, import_type):
+    filename = generate_import_filename(user_id, import_type)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "wb") as file:
+        for chunk in excel_file.chunks():
+            file.write(chunk)
+    excel_file.seek(0)
+
+
+def delete_import_file(user_id, import_type):
+    filename = generate_import_filename(user_id, import_type)
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+
+def import_file_exists(user_id, import_type):
+    filename = generate_import_filename(user_id, import_type)
+    return os.path.isfile(filename)
+
+
+def get_import_file_content_or_raise(user_id, import_type):
+    filename = generate_import_filename(user_id, import_type)
+    if not os.path.isfile(filename):
+        raise SuspiciousOperation("No test run performed previously.")
+    with open(filename, "rb") as file:
+        return file.read()
 
 
 def custom_redirect(url_name, *args, **kwargs):
@@ -30,21 +78,21 @@ def delete_navbar_cache():
 
 def bulk_delete_users(request, username_file, test_run):
     usernames = [u.strip() for u in username_file.readlines()]
-    users = UserProfile.objects.filter(username__in=usernames)
+    users = UserProfile.objects.exclude(username__in=usernames)
     deletable_users = [u for u in users if u.can_staff_delete]
 
-    messages.info(request, 'The uploaded text file contains {} usernames. {} users have been found in the database. '
-                           '{} of those can be deleted.'
-                  .format(len(usernames), len(users), len(deletable_users)))
-    messages.info(request, 'Users to be deleted are:\n{}'
-                  .format('\n'.join([u.username for u in deletable_users])))
+    messages.info(request, _('The uploaded text file contains {} usernames. {} other users have been found in the database. '
+                           '{} of those will be deleted.'
+                  .format(len(usernames), len(users), len(deletable_users))))
+    messages.info(request, mark_safe(_('Users to be deleted are:<br />{}'
+                  .format('<br />'.join([u.username for u in deletable_users])))))
 
     if test_run:
-        messages.info(request, 'No Users were deleted in this test run.')
+        messages.info(request, _('No users were deleted in this test run.'))
     else:
         for user in deletable_users:
             user.delete()
-        messages.info(request, '{} users have been deleted'.format(len(deletable_users)))
+        messages.info(request, _('{} users have been deleted'.format(len(deletable_users))))
 
 
 @transaction.atomic

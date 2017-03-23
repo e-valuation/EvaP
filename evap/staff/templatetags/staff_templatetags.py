@@ -1,6 +1,7 @@
 from django.template import Library
 
 from evap.evaluation.models import Semester
+from evap.staff.importers import WARNING_DESCRIPTIONS
 
 register = Library()
 
@@ -11,3 +12,8 @@ def include_staff_semester_menu(indentation=False):
         'semesters': Semester.objects.all()[:5],
         'indentation': indentation,
     }
+
+
+@register.filter(name='warningname')
+def warningname(warning):
+    return WARNING_DESCRIPTIONS.get(warning)

@@ -78,8 +78,11 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def send_publish_notifications(courses):
+def send_publish_notifications(courses, template=None):
     publish_notifications = defaultdict(set)
+    
+    if not template:
+        template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
     for course in courses:
         # for published courses all contributors and participants get a notification
@@ -97,7 +100,8 @@ def send_publish_notifications(courses):
             publish_notifications[course.responsible_contributor].add(course)
 
     for user, course_set in publish_notifications.items():
-        EmailTemplate.send_publish_notifications_to_user(user, list(course_set))
+        body_params = {'user': user, 'courses': list(course_set)}
+        EmailTemplate.send_to_user(user, template, {}, body_params, use_cc=True)
 
 
 def sort_formset(request, formset):

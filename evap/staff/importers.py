@@ -2,7 +2,6 @@ from collections import OrderedDict, defaultdict
 import xlrd
 
 from django.conf import settings
-from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
@@ -86,18 +85,27 @@ class CourseData(CommonEqualityMixin):
 
 
 class ExcelImporter(object):
-    def __init__(self, request):
+    W_NAME = 'name'
+    W_EMAIL = 'email'
+    W_DUPL = 'duplicate'
+    W_GENERAL = 'general'
+
+    def __init__(self):
         self.associations = OrderedDict()
-        self.request = request
         self.book = None
         self.skip_first_n_rows = 1  # first line contains the header
         self.errors = []
-        self.warnings = []
+        self.success_messages = []
+        self.warnings = defaultdict(list)
+
         # this is a dictionary to not let this become O(n^2)
         self.users = {}
 
-    def read_book(self, excel_file):
-        self.book = xlrd.open_workbook(file_contents=excel_file.read())
+    def read_book(self, file_content):
+        try:
+            self.book = xlrd.open_workbook(file_contents=file_content)
+        except xlrd.XLRDError as e:
+            self.errors.append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
@@ -114,11 +122,11 @@ class ExcelImporter(object):
                     # store data objects together with the data source location for problem tracking
                     self.associations[(sheet.name, row)] = line_data
 
-                messages.success(self.request, _("Successfully read sheet '%s'.") % sheet.name)
+                self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
-                messages.warning(self.request, _("A problem occured while reading sheet '%s'.") % sheet.name)
+                self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
                 raise
-        messages.success(self.request, _("Successfully read excel file."))
+        self.success_messages.append(_("Successfully read Excel file."))
 
     def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
@@ -173,42 +181,46 @@ class ExcelImporter(object):
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
 
+    @staticmethod
+    def _create_user_data_mismatch_warning(user, user_data):
+        return (mark_safe(_("The existing user would be overwritten with the following data:") +
+            "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
+            _(" (existing)") +
+            "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
+            _(" (new)")))
+
+    def _create_user_name_collision_warning(self, user_data, users_with_same_names):
+        warningstring = _("An existing user has the same first and last name as a new user:")
+        for user in users_with_same_names:
+            warningstring += "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
+            warningstring += _(" (existing)")
+        warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
+        warningstring += _(" (new)")
+        self.warnings[self.W_DUPL].append(mark_safe(warningstring))
+
     def check_user_data_sanity(self):
         for user_data in self.users.values():
             try:
                 user = UserProfile.objects.get(username=user_data.username)
-                if (user.email != user_data.email
-                        or (user.title is not None and user.title != user_data.title)
+                if user.email != user_data.email:
+                    self.warnings[self.W_EMAIL].append(self._create_user_data_mismatch_warning(user, user_data))
+                if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings.append(mark_safe(_("The existing user would be overwritten with the following data:") +
-                        "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
-                        _(" (existing)") +
-                        "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
-                        _(" (new)")))
+                    self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data))
             except UserProfile.DoesNotExist:
                 pass
 
             users_same_name = UserProfile.objects.filter(first_name=user_data.first_name, last_name=user_data.last_name).exclude(username=user_data.username).all()
             if len(users_same_name) > 0:
-                warningstring = _("An existing user has the same first and last name as a new user:")
-                for user in users_same_name:
-                    warningstring += "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
-                    warningstring += _(" (existing)")
-                warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
-                warningstring += _(" (new)")
-                self.warnings.append(mark_safe(warningstring))
-
-    def show_errors_and_warnings(self):
-        for error in self.errors:
-            messages.error(self.request, error)
-        for warning in self.warnings:
-            messages.warning(self.request, warning)
+                self._create_user_name_collision_warning(user_data, users_same_name)
 
 
 class EnrollmentImporter(ExcelImporter):
-    def __init__(self, request):
-        super().__init__(request)
+    W_MANY = 'too many enrollments'  # extension of ExcelImporter.warnings keys
+
+    def __init__(self):
+        super().__init__()
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
@@ -269,7 +281,7 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[enrollment[1].username].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
-                self.warnings.append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
+                self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
         students_created = 0
@@ -291,22 +303,26 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
-        messages.success(self.request, _("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
+        self.success_messages.append(_("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
             len(self.courses), students_created, responsibles_created))
 
     @classmethod
-    def process(cls, request, excel_file, semester, vote_start_date, vote_end_date, test_run):
+    def process(cls, excel_content, semester, vote_start_date, vote_end_date, test_run):
         """
             Entry point for the view.
         """
         try:
-            importer = cls(request)
-            importer.read_book(excel_file)
-            importer.check_column_count(14)
+            importer = cls()
+            importer.read_book(excel_content)
             if importer.errors:
-                importer.show_errors_and_warnings()
-                messages.error(importer.request, _("The input data is malformed. No data was imported."))
-                return
+                return importer.success_messages, importer.warnings, importer.errors
+
+            importer.check_column_count(14)
+
+            if importer.errors:
+                importer.errors.append(_("The input data is malformed. No data was imported."))
+                return importer.success_messages, importer.warnings, importer.errors
+
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
             importer.generate_external_usernames_if_external()
@@ -316,25 +332,21 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_enrollment_data_sanity()
             importer.check_user_data_sanity()
 
-            importer.show_errors_and_warnings()
             if importer.errors:
-                messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
-                return
-            if test_run:
-                messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
+                importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
+            elif test_run:
+                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
             else:
                 importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+            return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:
-            messages.error(request, _("Import finally aborted after exception: '%s'" % e))
+            importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
 
 
 class UserImporter(ExcelImporter):
-    def __init__(self, request):
-        super().__init__(request)
-
     def read_one_user(self, data):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
         return user_data
@@ -359,42 +371,57 @@ class UserImporter(ExcelImporter):
                         users_count += 1
 
                 except Exception as e:
-                    messages.error(self.request, _("A problem occured while writing the entries to the database."
-                                                   " The original data location was row %(row)d of sheet '%(sheet)s'."
-                                                   " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
+                    self.errors.append(_("A problem occured while writing the entries to the database."
+                                         " The original data location was row %(row)d of sheet '%(sheet)s'."
+                                         " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
-        messages.success(self.request, _("Successfully created %(users)d user(s).") % dict(users=users_count))
+        self.success_messages.append(_("Successfully created %(users)d user(s).") % dict(users=users_count))
         return new_participants
 
     @classmethod
-    def process(cls, request, excel_file, test_run):
+    def process(cls, excel_content, test_run):
         """
             Entry point for the view.
         """
         try:
-            importer = cls(request)
-            importer.read_book(excel_file)
+            importer = cls()
+
+            importer.read_book(excel_content)
+            if importer.errors:
+                return [], importer.success_messages, importer.warnings, importer.errors
+
             importer.check_column_count(5)
             if importer.errors:
-                importer.show_errors_and_warnings()
-                messages.error(importer.request, _("The input data is malformed. No data was imported."))
-                return
+                importer.errors.append(_("The input data is malformed. No data was imported."))
+                return [], importer.success_messages, importer.warnings, importer.errors
+
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.consolidate_user_data()
             importer.generate_external_usernames_if_external()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity()
 
-            importer.show_errors_and_warnings()
             if importer.errors:
-                messages.error(importer.request, _("Errors occurred while parsing the input data. No data was imported."))
-                return
+                importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
+                return [], importer.success_messages, importer.warnings, importer.errors
             if test_run:
-                messages.info(importer.request, _("The test run showed no errors. No data was imported yet."))
+                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+                return [], importer.success_messages, importer.warnings, importer.errors
             else:
-                return importer.save_users_to_db()
+                return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
+
         except Exception as e:
-            messages.error(request, _("Import finally aborted after exception: '%s'" % e))
+            importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+
+
+# Dictionary to translate internal keys to UI strings.
+WARNING_DESCRIPTIONS = {
+    ExcelImporter.W_NAME: _("Name mismatches"),
+    ExcelImporter.W_EMAIL: _("Email mismatches"),
+    ExcelImporter.W_DUPL: _("Possible duplicates"),
+    ExcelImporter.W_GENERAL: _("General warnings"),
+    EnrollmentImporter.W_MANY: _("Unusually high number of enrollments")
+}
