@@ -307,7 +307,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if self.vote_start_date != self.vote_end_date:
             return False
 
-        return self.contributions.get(responsible=True).questionnaires.filter(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
+        return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
 
     @property
     def can_staff_edit(self):
@@ -406,8 +406,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @cached_property
     def responsible_contributors(self):
-        return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True)
-        #return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).prefetch_related(Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True, course=self), to_attr="responsible_contribution")).order_by("responsible_contribution__order")
+        return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).order_by('contributions__order')
 
     @property
     def days_left_for_evaluation(self):

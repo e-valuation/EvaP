@@ -101,6 +101,21 @@ class TestCourses(TestCase):
         user.delete()
         self.assertTrue(Course.objects.filter(pk=course.pk).exists())
 
+    def test_responsible_contributors_ordering(self):
+        course = mommy.make(Course)
+        responsible1 = mommy.make(UserProfile)
+        responsible2 = mommy.make(UserProfile)
+        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=0)
+        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=1)
+
+        self.assertEqual(list(course.responsible_contributors), [responsible1, responsible2])
+
+        contribution1.order = 2
+        contribution1.save()
+
+        course = Course.objects.get(pk=course.pk)
+        self.assertEqual(list(course.responsible_contributors), [responsible2, responsible1])
+
 
 class TestUserProfile(TestCase):
 
