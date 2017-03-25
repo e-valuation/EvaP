@@ -552,8 +552,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
-        EmailTemplate.send_to_users_in_courses(EmailTemplate.EVALUATION_STARTED, courses_new_in_evaluation,
-                                               [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
+        template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+        EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
