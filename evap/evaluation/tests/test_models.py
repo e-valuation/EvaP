@@ -20,7 +20,8 @@ class TestCourses(TestCase):
         with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_courses') as mock:
             Course.update_courses()
 
-        mock.assert_called_once_with(EmailTemplate.EVALUATION_STARTED, [course], [EmailTemplate.ALL_PARTICIPANTS],
+        template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+        mock.assert_called_once_with(template, [course], [EmailTemplate.ALL_PARTICIPANTS],
                                      use_cc=False, request=None)
 
         course = Course.objects.get(pk=course.pk)
@@ -58,6 +59,17 @@ class TestCourses(TestCase):
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'published')
 
+    def test_approved_to_in_evaluation_sends_emails(self):
+        """ Regression test for #945 """
+        participant = mommy.make(UserProfile, email='foo@example.com')
+        course = mommy.make(Course, state='approved', vote_start_date=date.today(), participants=[participant])
+
+        Course.update_courses()
+
+        course = Course.objects.get(pk=course.pk)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(course.state, 'in_evaluation')
+
     def test_has_enough_questionnaires(self):
         # manually circumvent Course's save() method to have a Course without a general contribution
         # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
@@ -73,7 +85,7 @@ class TestCourses(TestCase):
         self.assertFalse(course.has_enough_questionnaires)
 
         general_contribution = mommy.make(Contribution, course=course, contributor=None)
-        course = Course.objects.get()  # refresh because of cached properties
+        course = Course.objects.get()
         self.assertFalse(course.has_enough_questionnaires)
 
         questionnaire = mommy.make(Questionnaire)
