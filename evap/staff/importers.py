@@ -11,6 +11,14 @@ from evap.evaluation.models import Course, UserProfile, Degree, Contribution, Co
 from evap.evaluation.tools import is_external_email
 
 
+def create_user_list_string_for_message(users):
+    msg = ""
+    for user in users:
+        msg += "<br>"
+        msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+    return msg
+
+
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
 class CommonEqualityMixin(object):
 
@@ -45,13 +53,17 @@ class UserData(CommonEqualityMixin):
     def user_already_exists(self):
         return UserProfile.objects.filter(username=self.username).exists()
 
-    def validate(self):
+    def create_user_profile(self):
         user = UserProfile()
         user.username = self.username
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
         user.password = "asdf"  # clean_fields needs that...
+        return user
+
+    def validate(self):
+        user = self.create_user_profile()
         user.clean_fields()
 
 
@@ -308,23 +320,15 @@ class EnrollmentImporter(ExcelImporter):
 
         msg = _("Successfully created {} course(s), {} student(s) and {} contributor(s):").format(
             len(self.courses), len(students_created), len(responsibles_created))
-        for user in students_created + responsibles_created:
-            msg += "<br>"
-            msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+        msg += create_user_list_string_for_message(students_created + responsibles_created)
         self.success_messages.append(mark_safe(msg))
 
     def create_test_success_messages(self):
-        filtered_users = []
-
-        for user_data in self.users.values():
-            if not user_data.user_already_exists():
-                filtered_users.append(user_data)
+        filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
         msg = _("The import run will create {} courses and {} users:").format(len(self.courses), len(filtered_users))
-        for user in filtered_users:
-            msg += "<br>"
-            msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+        msg += create_user_list_string_for_message(filtered_users)
         self.success_messages.append(mark_safe(msg))
 
     @classmethod
@@ -385,13 +389,11 @@ class UserImporter(ExcelImporter):
         new_participants = []
         created_users = []
         with transaction.atomic():
-            users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
                     if created:
-                        users_count += 1
                         created_users.append(user)
 
                 except Exception as e:
@@ -400,18 +402,20 @@ class UserImporter(ExcelImporter):
                                          " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
 
-        msg = _("Successfully created {} user(s):").format(users_count)
-        for user in created_users:
-            msg += "<br>"
-            msg += ("{} {} ({})").format(user.first_name, user.last_name, user.username)
+        msg = _("Successfully created {} user(s):").format(len(created_users))
+        msg += create_user_list_string_for_message(created_users)
         self.success_messages.append(mark_safe(msg))
         return new_participants
 
     def get_user_profile_list(self):
         new_participants = []
         for user_data in self.users.values():
-            if UserProfile.objects.filter(username=user_data.username).exists():
-                new_participants.append(UserProfile.objects.get(username=user_data.username))
+            try:
+                new_participant = UserProfile.objects.get(username=user_data.username)
+            except UserProfile.DoesNotExist:
+                new_participant = user_data.create_user_profile()
+
+            new_participants.append(new_participant)
 
         return new_participants
 
@@ -424,9 +428,7 @@ class UserImporter(ExcelImporter):
                 filtered_users.append(user_data)
 
         msg = _("{} user(s) would be created:").format(len(filtered_users))
-        for user in filtered_users:
-            msg += "<br>"
-            msg += ("{} {} ({})").format(user.first_name, user.last_name, user.username)
+        msg += create_user_list_string_for_message(filtered_users)
         self.success_messages.append(mark_safe(msg))
 
     @classmethod
@@ -466,6 +468,93 @@ class UserImporter(ExcelImporter):
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+
+
+class PersonImporter:
+    def __init__(self, import_type, course):
+        self.import_type = import_type
+        self.course = course
+        self.user_list = []
+        self.users_to_add = []
+
+        self.success_messages = []
+        self.warnings = defaultdict(list)
+        self.errors = []
+
+    def handle_already_related(self):
+        already_related = []
+
+        if self.import_type == "participant":
+            usernames = [user.username for user in self.user_list]
+            already_related = self.course.participants.filter(username__in=usernames).all()
+        else:  # import_type == "contributor"
+            already_related = Contribution.objects.filter(course=self.course, contributor__in=self.user_list).all()
+
+        if already_related:
+            if self.import_type == "participant":
+                msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), self.course.name)
+            else:  # import_type == "contributor"
+                msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), self.course.name)
+            msg += create_user_list_string_for_message(already_related)
+
+        # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
+        # makes anything relying on hashes unusable here (for a faster list difference)
+        self.users_to_add = list(filter(lambda x: x not in already_related, self.user_list))
+
+    def create_relations(self):
+        if self.import_type == 'participant':
+            self.course.participants.add(*self.users_to_add)
+            msg = _("{} Participants added to course {}").format(len(self.users_to_add), self.course.name)
+            msg += create_user_list_string_for_message(self.users_to_add)
+            self.success_messages.append(mark_safe(msg))
+
+        else:
+            for user in self.users_to_add:
+                order = Contribution.objects.filter(course=self.course).count()
+                contribution = Contribution(course=self.course, contributor=user, order=order)
+                contribution.save()
+                self.course.contributions.add(contribution)
+            msg = _("{} Contributors added to course {}").format(len(self.users_to_add), self.course.name)
+            msg += create_user_list_string_for_message(self.users_to_add)
+            self.success_messages.append(mark_safe(msg))
+
+    def create_test_success_messages(self):
+        if self.import_type == "participant":
+            msg = _("{} participants would be added to the course {}:").format(len(self.users_to_add), self.course.name)
+        else:  # import_type == "contributor"
+            msg = _("{} contributors would be added to the course {}:").format(len(self.users_to_add), self.course.name)
+        msg += create_user_list_string_for_message(self.users_to_add)
+
+        self.success_messages.append(mark_safe(msg))
+
+    def do_user_import(self, file_content, test_run):
+        self.user_list, self.success_messages, self.warnings, self.errors = UserImporter.process(file_content, test_run)
+
+    def get_users_from_source_course(self, source_course):
+        if self.import_type == 'participant':
+            self.user_list = source_course.participants.all()
+        else:
+            self.user_list = UserProfile.objects.filter(contributions__course=source_course)
+
+    @classmethod
+    def process(cls, import_type, course, test_run, file_content=None, source_course=None):
+        importer = cls(import_type, course)
+
+        if file_content:
+            importer.do_user_import(file_content, test_run)
+        elif source_course:
+            importer.get_users_from_source_course(source_course)
+        else:
+            raise ValueError("Expected one of the two positional arguments: file_content or source_course")
+
+        importer.handle_already_related()
+
+        if test_run:
+            importer.create_test_success_messages()
+        else:
+            importer.create_relations()
+
+        return importer.success_messages, importer.warnings, importer.errors
 
 
 # Dictionary to translate internal keys to UI strings.

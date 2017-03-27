@@ -9,7 +9,6 @@ from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Max, Prefetch, Q, Sum, When
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.utils.safestring import mark_safe
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -29,7 +28,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
                               FaqSectionForm, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
                               SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
-from evap.staff.importers import EnrollmentImporter, UserImporter
+from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
                               get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file)
 from evap.student.forms import QuestionsForm
@@ -689,19 +688,14 @@ def course_person_import(request, semester_id, course_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                imported_users, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
-                imported_users = helper_handle_already_related(import_type, course, imported_users, warnings[UserImporter.W_GENERAL])
+                success_messages, warnings, errors = PersonImporter.process(import_type, course, test_run=True, file_content=file_content)
                 if not errors:
-                    success_messages.append(helper_create_test_success_message(import_type, course, imported_users))
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif 'import' in operation:
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            imported_users, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
+            success_messages, warnings, __ = PersonImporter.process(import_type, course, test_run=False, file_content=file_content)
             delete_import_file(request.user.id, import_type)
-            imported_users = helper_handle_already_related(import_type, course, imported_users, warnings[UserImporter.W_GENERAL])
-            # Import happens in this call:
-            success_messages.append(helper_person_import(imported_users, course, import_type))
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
 
@@ -709,13 +703,7 @@ def course_person_import(request, semester_id, course_id):
             copy_form.course_selection_required = True
             if copy_form.is_valid():
                 import_course = copy_form.cleaned_data['course']
-                if import_type == 'participant':
-                    imported_users = import_course.participants.all()
-                else:
-                    imported_users = UserProfile.objects.filter(contributions__course=import_course)
-                imported_users = helper_handle_already_related(import_type, course, imported_users, warnings[UserImporter.W_GENERAL])
-                # Import happens in this call:
-                success_messages.append(helper_person_import(imported_users, course, import_type))
+                success_messages, warnings, errors = PersonImporter.process(import_type, course, test_run=False, source_course=import_course)
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
@@ -727,68 +715,6 @@ def course_person_import(request, semester_id, course_id):
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
         success_messages=success_messages, warnings=dict(warnings), errors=errors,
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
-
-
-def helper_person_import(users, course, import_type):
-    if import_type == 'participant':
-        course.participants.add(*users)
-        msg = _("{} Participants added to course {}").format(len(users), course.name)
-        for user in users:
-            msg += "<br>"
-            msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
-        return mark_safe(msg)
-
-    else:
-        for user in users:
-            order = Contribution.objects.filter(course=course).count()
-            contribution = Contribution(course=course, contributor=user, order=order)
-            contribution.save()
-            course.contributions.add(contribution)
-        msg = _("{} Contributors added to course {}").format(len(users), course.name)
-        for user in users:
-            msg += "<br>"
-            msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
-        return mark_safe(msg)
-
-
-def helper_create_test_success_message(import_type, course, imported_users):
-    if import_type == "participant":
-        msg = _("{} participants would be added to the course {}:").format(len(imported_users), course.name)
-    else:  # import_type == "contributor"
-        msg = _("{} contributors would be added to the course {}:").format(len(imported_users), course.name)
-
-    for user in imported_users:
-        msg += "<br>"
-        msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
-
-    return mark_safe(msg)
-
-
-def helper_handle_already_related(import_type, course, user_list, warnings):
-    already_related = []
-
-    if import_type == "participant":
-        for new_participant in user_list:
-            if new_participant in course.participants.all():
-                already_related.append(new_participant)
-    else:  # import_type == "contributor"
-        for new_contributor in user_list:
-            if Contribution.objects.filter(course=course, contributor=new_contributor).exists():
-                already_related.append(new_contributor)
-
-    if already_related:
-        if import_type == "participant":
-            msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
-        else:  # import_type == "contributor"
-            msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
-
-        for participant in already_related:
-            msg += "<br>"
-            msg += ("{} {} ({})").format(participant.first_name, participant.last_name, participant.username)
-        warnings.append(mark_safe(msg))
-
-    filtered_list = list(filter(lambda x: x not in already_related, user_list))
-    return filtered_list
 
 
 @reviewer_required
