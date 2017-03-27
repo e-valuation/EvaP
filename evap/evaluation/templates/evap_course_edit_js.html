@@ -127,7 +127,7 @@
     // apply initial settings
     for(var i = 0; i < getContributorCount(); i++){
         if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
-            // disable comment buttons for responsible contributor
+            // disable comment buttons for responsible contributors
             disableButtons("input[name=contributions-" + i + "-comment_visibility]");
         }
         if($("input[name=contributions-" + i + "-does_not_contribute]").prop("checked")) {

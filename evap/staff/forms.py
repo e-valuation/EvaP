@@ -466,7 +466,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 count_responsible += 1
 
         if count_responsible < 1:
-            raise forms.ValidationError(_('No responsible contributor found. Each course must have exactly one responsible contributor.'))
+            raise forms.ValidationError(_('No responsible contributors found.'))
 
 
 class QuestionForm(forms.ModelForm):
