@@ -2,10 +2,10 @@
 
 <label class="btn btn-sm btn-option
     {% if formelement.field.disabled %} disabled{% endif %}
-    {% if formelement.value == choice.choice_value %} active{% endif %}
+    {% if formelement.value == choice.data.value %} active{% endif %}
     {% if formelement.errors %} choice-error{% endif %}"
-    name="{{ choice.name }}" data-toggle="tooltip" data-placement="top" title="{{ tooltip }}">
-    <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="radio" value="{{ choice.choice_value }}"
-    autocomplete="off" {% if formelement.value == choice.choice_value %}checked{% endif %} />
+    name="{{ choice.data.name }}" data-toggle="tooltip" data-placement="top" title="{{ tooltip }}">
+    <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}"
+    autocomplete="off" {% if formelement.value == choice.data.value %}checked{% endif %} />
     {{ choice.choice_label }}
 </label>
