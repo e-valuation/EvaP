@@ -670,7 +670,7 @@ def course_person_import(request, semester_id, course_id):
     contributor_copy_form = CourseParticipantCopyForm(request.POST or None)
 
     errors = []
-    warnings = {}
+    warnings = defaultdict(list)
     success_messages = []
 
     if request.method == "POST":
@@ -766,8 +766,6 @@ def helper_create_test_success_message(import_type, course, imported_users):
 
 def helper_handle_already_related(import_type, course, user_list, warnings):
     already_related = []
-    print(user_list)
-    print(course.participants.all())
 
     if import_type == "participant":
         for new_participant in user_list:

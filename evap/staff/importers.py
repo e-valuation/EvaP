@@ -287,17 +287,17 @@ class EnrollmentImporter(ExcelImporter):
                 self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
-        students_created = 0
-        responsibles_created = 0
+        students_created = []
+        responsibles_created = []
 
         with transaction.atomic():
             for user_data in self.users.values():
-                created = user_data.store_in_database()
+                __, created = user_data.store_in_database()
                 if created:
                     if user_data.is_responsible:
-                        responsibles_created += 1
+                        responsibles_created.append(user_data)
                     else:
-                        students_created += 1
+                        students_created.append(user_data)
             for course_data in self.courses.values():
                 course_data.store_in_database(vote_start_date, vote_end_date, semester)
 
@@ -306,8 +306,26 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
-        self.success_messages.append(_("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
-            len(self.courses), students_created, responsibles_created))
+        msg = _("Successfully created {} course(s), {} student(s) and {} contributor(s):").format(
+            len(self.courses), len(students_created), len(responsibles_created))
+        for user in students_created + responsibles_created:
+            msg += "<br>"
+            msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+        self.success_messages.append(mark_safe(msg))
+
+    def create_test_success_messages(self):
+        filtered_users = []
+
+        for user_data in self.users.values():
+            if not user_data.user_already_exists():
+                filtered_users.append(user_data)
+
+        self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+        msg = _("The import run will create {} courses and {} users:").format(len(self.courses), len(filtered_users))
+        for user in filtered_users:
+            msg += "<br>"
+            msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+        self.success_messages.append(mark_safe(msg))
 
     @classmethod
     def process(cls, excel_content, semester, vote_start_date, vote_end_date, test_run):
@@ -338,9 +356,10 @@ class EnrollmentImporter(ExcelImporter):
             if importer.errors:
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
             elif test_run:
-                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+                importer.create_test_success_messages()
             else:
                 importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+
             return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
