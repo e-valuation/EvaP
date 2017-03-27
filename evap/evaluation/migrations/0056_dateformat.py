@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0049_rename_course_states'),
+        ('evaluation', '0055_reviewer_group'),
     ]
 
     operations = [
