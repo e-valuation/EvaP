@@ -20,6 +20,31 @@ def helper_delete_all_import_files(user_id):
     for filename in glob.glob(file_filter):
         os.remove(filename)
 
+# Staff - Sample Files View
+class TestDownloadSampleXlsView(ViewTest):
+    test_users = ['staff']
+    url = '/staff/download_sample_xls/sample.xls'
+    email_placeholder = "institution.com"
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_sample_file_correctness(self):
+        page = self.app.get(self.url, user='staff')
+
+        found_institution_domain = False
+        book = xlrd.open_workbook(file_contents=page.body)
+        for sheet in book.sheets():
+            for row in sheet.get_rows():
+                for cell in row:
+                    value = cell.value
+                    self.assertNotIn(self.email_placeholder, value)
+                    if settings.INSTITUTION_EMAIL_DOMAINS[0] in value:
+                        found_institution_domain = True
+
+        self.assertTrue(found_institution_domain)
+
 
 # Staff - Root View
 class TestStaffIndexView(ViewTest):

@@ -66,4 +66,6 @@ urlpatterns = [
 
     url(r"faq/$", views.faq_index, name="faq_index"),
     url(r"faq/(\d+)$", views.faq_section, name="faq_section"),
+
+    url(r"download_sample_xls/(.+)$", views.download_sample_xls, name="download_sample_xls")
 ]
