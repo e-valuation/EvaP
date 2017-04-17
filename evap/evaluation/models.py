@@ -974,6 +974,19 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.contributions.exists()
 
     @property
+    def is_student(self):
+        last_semester_participated = Semester.objects.filter(course__participants=self).distinct().order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(course__contributions__contributor=self).distinct().order_by("-created_at").first()
+
+        if last_semester_participated:
+            if last_semester_contributed:
+                return last_semester_participated.created_at >= last_semester_contributed.created_at
+            else:
+                return True
+        else:
+            return False
+
+    @property
     def is_editor(self):
         return self.contributions.filter(can_edit=True).exists()
 
