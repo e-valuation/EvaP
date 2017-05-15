@@ -52,7 +52,6 @@
                 for(var j = 0; j < contributorCount; j++){
                     enableButtons("input[name=contributions-" + j + "-responsibility]");
                 }
-                showRemoveLink(i);
             }
         }
     }
@@ -99,14 +98,6 @@
 
     function getContributorCount() {
         return $("#contribution_table select").length;
-    }
-
-    function hideRemoveLink(selector) {
-        $(".delete-row").eq(selector).hide();
-    }
-
-    function showRemoveLink(selector) {
-        $(".delete-row").eq(selector).show();
     }
 
     function assignClickHandlers() {
