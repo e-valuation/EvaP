@@ -1,11 +1,10 @@
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
-from model_mommy import mommy
-
-from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
 from evap.contributor.forms import DelegatesForm, EditorContributionForm
-from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance, to_querydict
+from evap.evaluation.models import Contribution, Course, Questionnaire, UserProfile
+from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
+from model_mommy import mommy
 
 
 class UserFormTests(TestCase):
@@ -31,42 +30,6 @@ class UserFormTests(TestCase):
 
 
 class ContributionFormsetTests(TestCase):
-
-    def test_editors_cannot_change_responsible(self):
-        """
-            Asserts that editors cannot change the responsible of a course
-            through POST-hacking. Regression test for #504.
-        """
-        course = mommy.make(Course)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
-
-        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
-
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 1,
-            'contributions-INITIAL_FORMS': 1,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': contribution1.pk,
-            'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': questionnaire.pk,
-            'contributions-0-order': 1,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
-            'contributions-0-contributor': user1.pk,
-        })
-
-        formset = InlineContributionFormset(instance=course, data=data.copy())
-        self.assertTrue(formset.is_valid())
-
-        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
-        data["contributions-0-contributor"] = user2.pk
-        formset = InlineContributionFormset(instance=course, data=data.copy())
-        self.assertTrue(formset.is_valid())
-        formset.save()
-        self.assertTrue(course.contributions.get(responsible=True).contributor == user1)
 
     def test_staff_only(self):
         """

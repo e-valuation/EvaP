@@ -9,13 +9,9 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
 from django.utils.text import normalize_newlines
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.forms import (UserModelChoiceField,
-                                   UserModelMultipleChoiceField)
-from evap.evaluation.models import (Contribution, Course, CourseType, Degree,
-                                    EmailTemplate, FaqQuestion, FaqSection,
-                                    Question, Questionnaire,
-                                    RatingAnswerCounter, Semester, TextAnswer,
-                                    UserProfile)
+from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
+                                    RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +220,7 @@ class SingleResultForm(forms.ModelForm):
             disable_all_fields(self)
 
         if self.instance.pk:
-            self.fields['responsible'].initial = self.instance.responsible_contributor
+            self.fields['responsible'].initial = self.instance.responsible_contributors[0]
             answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
                 answer_counts[answer_counter.answer] = answer_counter.count
@@ -470,9 +466,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 count_responsible += 1
 
         if count_responsible < 1:
-            raise forms.ValidationError(_('No responsible contributor found. Each course must have exactly one responsible contributor.'))
-        elif count_responsible > 1:
-            raise forms.ValidationError(_('Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
+            raise forms.ValidationError(_('No responsible contributors found.'))
 
 
 class QuestionForm(forms.ModelForm):

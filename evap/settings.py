@@ -24,7 +24,6 @@ DEBUG = True
 # Works only with DEBUG = True and Django's development server (so no apache).
 ENABLE_DEBUG_TOOLBAR = False
 
-
 ### EvaP logic
 
 # key authentication settings

@@ -47,8 +47,12 @@
                                 {% endif %}
                             </td>
                             <td>{{ course.type }}</td>
-                            {% with responsible=course.responsible_contributor %}
-                                <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
+                            {% with responsible=course.responsible_contributors.0 %}
+                                <td data-order="{{ responsible.last_name }}">
+                                    {% for contributor in course.responsible_contributors %}
+                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
                             {% endwith %}
                             {% if course|can_user_see_results:request.user and course.avg_grade %}
                                 <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
@@ -86,8 +90,11 @@
                         <tr>
                             <td>{{ single_result.name }}</td>
                             <td>{{ single_result.type }}</td>
-                            {% with responsible=single_result.responsible_contributor %}
-                                <td data-order="{{ responsible.last_name }}">{{ responsible.full_name }}</td>
+                            {% with responsible=single_result.responsible_contributors.0 %}
+                                <td data-order="{{ responsible.last_name }}">
+                                    {% for contributor in single_result.responsible_contributors %}
+                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}</td>
                             {% endwith %}
                             <td data-order="{{ result.average|default:'0' }}">{% include "result_bar.html" with result=result show_grades=True questionnaire_warning=False %}</td>
                         </tr>
