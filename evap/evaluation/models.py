@@ -268,7 +268,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_in_evaluation_period(self):
         today = datetime.date.today()
-        return today >= self.vote_start_date and today <= self.vote_end_date
+        return self.vote_start_date.date() <= today <= self.vote_end_date.date()
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -308,7 +308,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_single_result(self):
         # early return to save some queries
-        if self.vote_start_date != self.vote_end_date:
+        if self.vote_start_date.date() != self.vote_end_date.date():
             return False
 
         return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
@@ -414,11 +414,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def days_left_for_evaluation(self):
-        return (self.vote_end_date - datetime.date.today()).days
+        return (self.vote_end_date - datetime.datetime.now()).days
 
     @property
     def days_until_evaluation(self):
-        return (self.vote_start_date - datetime.date.today()).days
+        return (self.vote_start_date - datetime.datetime.now()).days
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
@@ -540,12 +540,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         for course in cls.objects.all():
             try:
-                if course.state == "approved" and course.vote_start_date <= today:
+                if course.state == "approved" and course.vote_start_date.date() <= today:
                     course.evaluation_begin()
                     course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
-                elif course.state == "in_evaluation" and course.vote_end_date < today:
+                elif course.state == "in_evaluation" and course.vote_end_date.date() < today:
                     course.evaluation_end()
                     if course.is_fully_reviewed:
                         course.review_finished()
@@ -558,6 +558,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+
+
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
@@ -1015,7 +1017,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         self.refresh_login_key()
 
     def refresh_login_key(self):
-        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+        self.login_key_valid_until = datetime.datetime.now() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
     @property

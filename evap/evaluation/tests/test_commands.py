@@ -85,7 +85,7 @@ class TestDumpTestDataCommand(TestCase):
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
 class TestSendRemindersCommand(TestCase):
-    today = datetime.date.today()
+    today = datetime.datetime.now()
 
     def test_remind_user_about_one_course(self):
         user_to_remind = mommy.make(UserProfile)

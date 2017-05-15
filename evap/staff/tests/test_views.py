@@ -426,8 +426,8 @@ class TestSemesterImportView(ViewTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
         form = page.forms["semester-import-form"]
-        form['vote_start_date'] = "02/29/2000"
-        form['vote_end_date'] = "02/29/2012"
+        form['vote_start_date'] = "02/29/2000 00:00:00"
+        form['vote_end_date'] = "02/29/2012 00:00:00"
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
@@ -755,8 +755,8 @@ class TestCourseCreateView(ViewTest):
         form["name_en"] = "asdf"
         form["type"] = 1
         form["degrees"] = ["1"]
-        form["vote_start_date"] = "02/1/2099"
-        form["vote_end_date"] = "02/1/2014"  # wrong order to get the validation error
+        form["vote_start_date"] = "02/1/2099 00:00:00"
+        form["vote_end_date"] = "02/1/2014 00:00:00"  # wrong order to get the validation error
         form["general_questions"] = ["1"]
 
         form['contributions-TOTAL_FORMS'] = 1
@@ -772,8 +772,8 @@ class TestCourseCreateView(ViewTest):
         form.submit()
         self.assertFalse(Course.objects.exists())
 
-        form["vote_start_date"] = "02/1/2014"
-        form["vote_end_date"] = "02/1/2099"  # now do it right
+        form["vote_start_date"] = "02/1/2014 00:00:00"
+        form["vote_end_date"] = "02/1/2099 00:00:00"  # now do it right
 
         form.submit()
         self.assertEqual(Course.objects.get().name_de, "lfo9e7bmxp1xi")

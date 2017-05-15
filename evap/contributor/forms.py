@@ -52,7 +52,7 @@ class CourseForm(forms.ModelForm):
 
     def clean_vote_end_date(self):
         vote_end_date = self.cleaned_data.get('vote_end_date')
-        if vote_end_date and vote_end_date < datetime.date.today():
+        if vote_end_date and vote_end_date < datetime.datetime.now():
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
         return vote_end_date
 

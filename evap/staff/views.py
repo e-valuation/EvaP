@@ -204,7 +204,7 @@ def semester_course_operation(request, semester_id):
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
-            courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.datetime.now()]
+            courses_end_in_future = [course for course in courses if course.vote_end_date.date() >= datetime.date.today()]
             difference = len(courses) - len(courses_end_in_future)
             if difference:
                 courses = courses_end_in_future

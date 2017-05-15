@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch, Mock
 
 from django.test import TestCase
@@ -15,7 +15,7 @@ from evap.results.tools import calculate_average_grades_and_deviation
 class TestCourses(TestCase):
 
     def test_approved_to_in_evaluation(self):
-        course = mommy.make(Course, state='approved', vote_start_date=date.today())
+        course = mommy.make(Course, state='approved', vote_start_date=datetime.now())
 
         with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_courses') as mock:
             Course.update_courses()
@@ -28,7 +28,7 @@ class TestCourses(TestCase):
         self.assertEqual(course.state, 'in_evaluation')
 
     def test_in_evaluation_to_evaluated(self):
-        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1))
+        course = mommy.make(Course, state='in_evaluation', vote_end_date=datetime.now() - timedelta(days=1))
 
         with patch('evap.evaluation.models.Course.is_fully_reviewed') as mock:
             mock.__get__ = Mock(return_value=False)
@@ -39,7 +39,7 @@ class TestCourses(TestCase):
 
     def test_in_evaluation_to_reviewed(self):
         # Course is "fully reviewed" as no open text_answers are present by default,
-        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1))
+        course = mommy.make(Course, state='in_evaluation', vote_end_date=datetime.now() - timedelta(days=1))
 
         Course.update_courses()
 
@@ -48,7 +48,7 @@ class TestCourses(TestCase):
 
     def test_in_evaluation_to_published(self):
         # Course is "fully reviewed" and not graded, thus gets published immediately.
-        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1),
+        course = mommy.make(Course, state='in_evaluation', vote_end_date=datetime.now() - timedelta(days=1),
                             is_graded=False)
 
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
@@ -62,7 +62,7 @@ class TestCourses(TestCase):
     def test_approved_to_in_evaluation_sends_emails(self):
         """ Regression test for #945 """
         participant = mommy.make(UserProfile, email='foo@example.com')
-        course = mommy.make(Course, state='approved', vote_start_date=date.today(), participants=[participant])
+        course = mommy.make(Course, state='approved', vote_start_date=datetime.now(), participants=[participant])
 
         Course.update_courses()
 
@@ -155,8 +155,8 @@ class TestUserProfile(TestCase):
         contributor = mommy.make(UserProfile, contributions=[mommy.make(Contribution)])
         self.assertFalse(contributor.is_student)
 
-        semester_contributed_to = mommy.make(Semester, created_at=date.today())
-        semester_participated_in = mommy.make(Semester, created_at=date.today())
+        semester_contributed_to = mommy.make(Semester, created_at=datetime.now())
+        semester_participated_in = mommy.make(Semester, created_at=datetime.now())
         course_contributed_to = mommy.make(Course, semester=semester_contributed_to)
         course_participated_in = mommy.make(Course, semester=semester_participated_in)
         contribution = mommy.make(Contribution, course=course_contributed_to)
@@ -164,12 +164,12 @@ class TestUserProfile(TestCase):
 
         self.assertTrue(user.is_student)
 
-        semester_contributed_to.created_at = date.today() - timedelta(days=1)
+        semester_contributed_to.created_at = datetime.now() - timedelta(days=1)
         semester_contributed_to.save()
 
         self.assertTrue(user.is_student)
 
-        semester_participated_in.created_at = date.today() - timedelta(days=2)
+        semester_participated_in.created_at = datetime.now() - timedelta(days=2)
         semester_participated_in.save()
 
         self.assertFalse(user.is_student)

@@ -16,25 +16,21 @@ class GradeUploadTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        mommy.make(UserProfile, username="student", email="student@institution.example.com")
-        mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
-        mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
+        cls.student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
+        cls.student2 = mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
+        cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
         responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
-        cls.course = mommy.make(Course,
-            name_en="Test",
-            vote_start_date=datetime.date.today(),
-            participants=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-                UserProfile.objects.get(username="student3"),
-            ],
-            voters=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-            ]
+        cls.course = mommy.make(
+                Course,
+                name_en="Test",
+                vote_start_date=datetime.datetime.now() - datetime.timedelta(10),
+                vote_end_date=datetime.datetime.now() + datetime.timedelta(10),
+                participants=[cls.student, cls.student2, cls.student3],
+                voters=[cls.student, cls.student2]
         )
-        contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True,
+                                    comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
@@ -56,11 +52,11 @@ class GradeUploadTests(WebTest):
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
-            "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
-            params={"description_en": "Grades", "description_de": "Grades"},
-            user="grade_publisher",
-            content_type='multipart/form-data',
-            upload_files=upload_files,
+                "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
+                params={"description_en": "Grades", "description_de": "Grades"},
+                user="grade_publisher",
+                content_type='multipart/form-data',
+                upload_files=upload_files,
         ).follow()
         return response
 
@@ -122,7 +118,8 @@ class GradeUploadTests(WebTest):
         # state: reviewed
         course.review_finished()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants + course.contributions.exclude(contributor=None).count())
+        self.helper_check_final_grade_upload(
+                course, course.num_participants + course.contributions.exclude(contributor=None).count())
 
         # state: published
         course.publish()
@@ -130,21 +127,16 @@ class GradeUploadTests(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
-        course = mommy.make(Course,
-            name_en="Toggle",
-            vote_start_date=datetime.date.today(),
-            state="reviewed",
-            participants=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-                UserProfile.objects.get(username="student3"),
-            ],
-            voters=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-            ]
+        course = mommy.make(
+                Course,
+                name_en="Toggle",
+                vote_start_date=datetime.datetime.now(),
+                state="reviewed",
+                participants=[self.student, self.student2, self.student3],
+                voters=[self.student, self.student2]
         )
-        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
+                                    responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
@@ -158,7 +150,8 @@ class GradeUploadTests(WebTest):
         self.assertTrue(course.gets_no_grade_documents)
         # course should get published here
         self.assertEqual(course.state, "published")
-        self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
+        self.assertEqual(
+                len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
 
         response = self.app.post("/grades/toggle_no_grades", params={"course_id": course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)

@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django import forms
@@ -22,8 +23,8 @@ def disable_all_fields(form):
 
 
 class ImportForm(forms.Form):
-    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True, required=False)
-    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True, required=False)
+    vote_start_date = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
+    vote_end_date = forms.DateTimeField(label=_("End of evaluation"), localize=True, required=False)
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
 
@@ -230,8 +231,9 @@ class SingleResultForm(forms.ModelForm):
     def save(self, *args, **kw):
         user = kw.pop("user")
         self.instance.last_modified_user = user
-        self.instance.vote_start_date = self.cleaned_data['event_date']
-        self.instance.vote_end_date = self.cleaned_data['event_date']
+        event_date = self.cleaned_data['event_date']
+        self.instance.vote_start_date = datetime.datetime(event_date.year, event_date.month, event_date.day)
+        self.instance.vote_end_date = datetime.datetime(event_date.year, event_date.month, event_date.day)
         self.instance.is_graded = False
         super().save(*args, **kw)
 
