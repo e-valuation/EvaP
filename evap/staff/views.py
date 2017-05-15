@@ -28,7 +28,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
                               FaqSectionForm, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
                               SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
-from evap.staff.importers import EnrollmentImporter, UserImporter
+from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
                               get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file)
 from evap.student.forms import QuestionsForm
@@ -669,7 +669,7 @@ def course_person_import(request, semester_id, course_id):
     contributor_copy_form = CourseParticipantCopyForm(request.POST or None)
 
     errors = []
-    warnings = {}
+    warnings = defaultdict(list)
     success_messages = []
 
     if request.method == "POST":
@@ -688,18 +688,14 @@ def course_person_import(request, semester_id, course_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                # if on a test run, the process method will not return a list of users that would be
-                # imported so there is currently no way to show how many users would be imported.
-                __, success_messages, warnings, errors = UserImporter.process(file_content, test_run=True)
+                success_messages, warnings, errors = PersonImporter.process_file_content(import_type, course, test_run=True, file_content=file_content)
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif 'import' in operation:
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            imported_users, success_messages, warnings, __ = UserImporter.process(file_content, test_run=False)
+            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, course, test_run=False, file_content=file_content)
             delete_import_file(request.user.id, import_type)
-            # Import happens in this call:
-            success_messages.append(helper_person_import(imported_users, course, import_type))
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
 
@@ -707,12 +703,7 @@ def course_person_import(request, semester_id, course_id):
             copy_form.course_selection_required = True
             if copy_form.is_valid():
                 import_course = copy_form.cleaned_data['course']
-                if import_type == 'participant':
-                    imported_users = import_course.participants.all()
-                else:
-                    imported_users = UserProfile.objects.filter(contributions__course=import_course)
-                # Import happens in this call:
-                success_messages.append(helper_person_import(imported_users, course, import_type))
+                success_messages, warnings, errors = PersonImporter.process_source_course(import_type, course, test_run=False, source_course=import_course)
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
@@ -724,19 +715,6 @@ def course_person_import(request, semester_id, course_id):
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
         success_messages=success_messages, warnings=dict(warnings), errors=errors,
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
-
-
-def helper_person_import(users, course, import_type):
-    if import_type == 'participant':
-        course.participants.add(*users)
-        return _("{} Participants added to course {}").format(len(users), course.name)
-    else:
-        for user in users:
-            order = Contribution.objects.filter(course=course).count()
-            contribution = Contribution(course=course, contributor=user, order=order)
-            contribution.save()
-            course.contributions.add(contribution)
-        return _("{} Contributors added to course {}").format(len(users), course.name)
 
 
 @reviewer_required

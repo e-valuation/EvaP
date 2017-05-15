@@ -11,6 +11,14 @@ from evap.evaluation.models import Course, UserProfile, Degree, Contribution, Co
 from evap.evaluation.tools import is_external_email
 
 
+def create_user_list_string_for_message(users):
+    msg = ""
+    for user in users:
+        msg += "<br>"
+        msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+    return msg
+
+
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
 class CommonEqualityMixin(object):
 
@@ -42,13 +50,20 @@ class UserData(CommonEqualityMixin):
             user.refresh_login_key()
         return user, created
 
-    def validate(self):
+    def user_already_exists(self):
+        return UserProfile.objects.filter(username=self.username).exists()
+
+    def get_user_profile_object(self):
         user = UserProfile()
         user.username = self.username
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
         user.password = "asdf"  # clean_fields needs that...
+        return user
+
+    def validate(self):
+        user = self.get_user_profile_object()
         user.clean_fields()
 
 
@@ -284,17 +299,17 @@ class EnrollmentImporter(ExcelImporter):
                 self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
-        students_created = 0
-        responsibles_created = 0
+        students_created = []
+        responsibles_created = []
 
         with transaction.atomic():
             for user_data in self.users.values():
-                created = user_data.store_in_database()
+                __, created = user_data.store_in_database()
                 if created:
                     if user_data.is_responsible:
-                        responsibles_created += 1
+                        responsibles_created.append(user_data)
                     else:
-                        students_created += 1
+                        students_created.append(user_data)
             for course_data in self.courses.values():
                 course_data.store_in_database(vote_start_date, vote_end_date, semester)
 
@@ -303,8 +318,18 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
-        self.success_messages.append(_("Successfully created {} course(s), {} student(s) and {} contributor(s).").format(
-            len(self.courses), students_created, responsibles_created))
+        msg = _("Successfully created {} course(s), {} student(s) and {} contributor(s):").format(
+            len(self.courses), len(students_created), len(responsibles_created))
+        msg += create_user_list_string_for_message(students_created + responsibles_created)
+        self.success_messages.append(mark_safe(msg))
+
+    def create_test_success_messages(self):
+        filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
+
+        self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+        msg = _("The import run will create {} courses and {} users:").format(len(self.courses), len(filtered_users))
+        msg += create_user_list_string_for_message(filtered_users)
+        self.success_messages.append(mark_safe(msg))
 
     @classmethod
     def process(cls, excel_content, semester, vote_start_date, vote_end_date, test_run):
@@ -335,9 +360,10 @@ class EnrollmentImporter(ExcelImporter):
             if importer.errors:
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
             elif test_run:
-                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+                importer.create_test_success_messages()
             else:
                 importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+
             return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
@@ -361,22 +387,43 @@ class UserImporter(ExcelImporter):
             occur because of the data already in the database.
         """
         new_participants = []
+        created_users = []
         with transaction.atomic():
-            users_count = 0
             for (sheet, row), (user_data) in self.associations.items():
                 try:
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
                     if created:
-                        users_count += 1
+                        created_users.append(user)
 
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
                                          " The original data location was row %(row)d of sheet '%(sheet)s'."
                                          " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
                     raise
-        self.success_messages.append(_("Successfully created %(users)d user(s).") % dict(users=users_count))
+
+        msg = _("Successfully created {} user(s):").format(len(created_users))
+        msg += create_user_list_string_for_message(created_users)
+        self.success_messages.append(mark_safe(msg))
         return new_participants
+
+    def get_user_profile_list(self):
+        new_participants = []
+        for user_data in self.users.values():
+            try:
+                new_participant = UserProfile.objects.get(username=user_data.username)
+            except UserProfile.DoesNotExist:
+                new_participant = user_data.get_user_profile_object()
+            new_participants.append(new_participant)
+        return new_participants
+
+    def create_test_success_messages(self):
+        filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
+
+        self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+        msg = _("The import run will create {} user(s):").format(len(filtered_users))
+        msg += create_user_list_string_for_message(filtered_users)
+        self.success_messages.append(mark_safe(msg))
 
     @classmethod
     def process(cls, excel_content, test_run):
@@ -405,8 +452,8 @@ class UserImporter(ExcelImporter):
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
                 return [], importer.success_messages, importer.warnings, importer.errors
             if test_run:
-                importer.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-                return [], importer.success_messages, importer.warnings, importer.errors
+                importer.create_test_success_messages()
+                return importer.get_user_profile_list(), importer.success_messages, importer.warnings, importer.errors
             else:
                 return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
@@ -415,6 +462,74 @@ class UserImporter(ExcelImporter):
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+
+
+class PersonImporter:
+    def __init__(self):
+        self.success_messages = []
+        self.warnings = defaultdict(list)
+        self.errors = []
+
+    def process_participants(self, course, test_run, user_list):
+        course_participants = course.participants.all()
+        already_related = [user for user in user_list if user in course_participants]
+        users_to_add = [user for user in user_list if user not in course_participants]
+
+        if already_related:
+            msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
+            msg += create_user_list_string_for_message(already_related)
+
+        if not test_run:
+            course.participants.add(*users_to_add)
+        msg = _("{} participants {} added to the course {}:").format(len(users_to_add), "would be" if test_run else "", course.name)
+        msg += create_user_list_string_for_message(users_to_add)
+
+        self.success_messages.append(mark_safe(msg))
+
+    def process_contributors(self, course, test_run, user_list):
+        already_related_contributions = Contribution.objects.filter(course=course, contributor__in=user_list).all()
+        already_related = [contribution.contributor for contribution in already_related_contributions]
+        if already_related:
+            msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
+            msg += create_user_list_string_for_message(already_related)
+
+        # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
+        # makes anything relying on hashes unusable here (for a faster list difference)
+        users_to_add = [user for user in user_list if user not in already_related]
+
+        if not test_run:
+            for user in users_to_add:
+                order = Contribution.objects.filter(course=course).count()
+                Contribution.objects.create(course=course, contributor=user, order=order)
+        msg = _("{} contributors {} added to the course {}:").format(len(users_to_add), "would be" if test_run else "", course.name)
+        msg += create_user_list_string_for_message(users_to_add)
+
+        self.success_messages.append(mark_safe(msg))
+
+    @classmethod
+    def process_file_content(cls, import_type, course, test_run, file_content):
+        importer = cls()
+
+        user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
+        if import_type == 'participant':
+            importer.process_participants(course, test_run, user_list)
+        else:  # import_type == 'contributor'
+            importer.process_contributors(course, test_run, user_list)
+
+        return importer.success_messages, importer.warnings, importer.errors
+
+    @classmethod
+    def process_source_course(cls, import_type, course, test_run, source_course):
+        importer = cls()
+
+        if import_type == 'participant':
+            user_list = list(source_course.participants.all())
+            importer.process_participants(course, test_run, user_list)
+        else:  # import_type == 'contributor'
+            user_list = list(UserProfile.objects.filter(contributions__course=source_course))
+            importer.process_contributors(course, test_run, user_list)
+
+        return importer.success_messages, importer.warnings, importer.errors
 
 
 # Dictionary to translate internal keys to UI strings.
