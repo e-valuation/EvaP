@@ -470,40 +470,25 @@ class PersonImporter:
         self.warnings = defaultdict(list)
         self.errors = []
 
-    def process_participants(self, course, test_run, file_content=None, source_course=None):
-        if file_content:
-            user_list, self.success_messages, self.warnings, self.errors = UserImporter.process(file_content, test_run)
-        elif source_course:
-            user_list = list(source_course.participants.all())
-
-        usernames = [user.username for user in user_list]
-        already_related = course.participants.filter(username__in=usernames).all()
+    def process_participants(self, course, test_run, user_list):
+        course_participants = course.participants.all()
+        already_related = [user for user in user_list if user in course_participants]
+        users_to_add = [user for user in user_list if user not in course_participants]
 
         if already_related:
             msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
 
-        # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
-        # makes anything relying on hashes unusable here (for a faster list difference)
-        users_to_add = [user for user in user_list if user not in already_related]
-
-        if test_run:
-            msg = _("{} participants would be added to the course {}:").format(len(users_to_add), course.name)
-            msg += create_user_list_string_for_message(users_to_add)
-        else:
+        if not test_run:
             course.participants.add(*users_to_add)
-            msg = _("{} Participants added to course {}").format(len(users_to_add), course.name)
-            msg += create_user_list_string_for_message(users_to_add)
+        msg = _("{} participants {} added to the course {}:").format(len(users_to_add), "would be" if test_run else "", course.name)
+        msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
 
-    def process_contributors(self, course, test_run, file_content=None, source_course=None):
-        if file_content:
-            user_list, self.success_messages, self.warnings, self.errors = UserImporter.process(file_content, test_run)
-        elif source_course:
-            user_list = list(UserProfile.objects.filter(contributions__course=source_course))
-
-        already_related = Contribution.objects.filter(course=course, contributor__in=user_list).all()
+    def process_contributors(self, course, test_run, user_list):
+        already_related_contributions = Contribution.objects.filter(course=course, contributor__in=user_list).all()
+        already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
@@ -512,31 +497,37 @@ class PersonImporter:
         # makes anything relying on hashes unusable here (for a faster list difference)
         users_to_add = [user for user in user_list if user not in already_related]
 
-        if test_run:
-            msg = _("{} contributors would be added to the course {}:").format(len(users_to_add), course.name)
-            msg += create_user_list_string_for_message(users_to_add)
-        else:
+        if not test_run:
             for user in users_to_add:
                 order = Contribution.objects.filter(course=course).count()
-                contribution = Contribution(course=course, contributor=user, order=order)
-                contribution.save()
-                course.contributions.add(contribution)
-            msg = _("{} Contributors added to course {}").format(len(users_to_add), course.name)
-            msg += create_user_list_string_for_message(users_to_add)
+                Contribution.objects.create(course=course, contributor=user, order=order)
+        msg = _("{} contributors {} added to the course {}:").format(len(users_to_add), "would be" if test_run else "", course.name)
+        msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
 
     @classmethod
-    def process(cls, import_type, course, test_run, file_content=None, source_course=None):
+    def process_file_content(cls, import_type, course, test_run, file_content):
         importer = cls()
 
-        if file_content is None and source_course is None:
-            raise ValueError("Expected one of the two positional arguments: file_content or source_course")
+        user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
+        if import_type == 'participant':
+            importer.process_participants(course, test_run, user_list)
+        else:  # import_type == 'contributor'
+            importer.process_contributors(course, test_run, user_list)
+
+        return importer.success_messages, importer.warnings, importer.errors
+
+    @classmethod
+    def process_source_course(cls, import_type, course, test_run, source_course):
+        importer = cls()
 
         if import_type == 'participant':
-            importer.process_participants(course, test_run, file_content=file_content, source_course=source_course)
-        else:  # import_type == 'contributors'
-            importer.process_contributors(course, test_run, file_content=file_content, source_course=source_course)
+            user_list = list(source_course.participants.all())
+            importer.process_participants(course, test_run, user_list)
+        else:  # import_type == 'contributor'
+            user_list = list(UserProfile.objects.filter(contributions__course=source_course))
+            importer.process_contributors(course, test_run, user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
 

@@ -688,13 +688,13 @@ def course_person_import(request, semester_id, course_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                success_messages, warnings, errors = PersonImporter.process(import_type, course, test_run=True, file_content=file_content)
+                success_messages, warnings, errors = PersonImporter.process_file_content(import_type, course, test_run=True, file_content=file_content)
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif 'import' in operation:
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            success_messages, warnings, __ = PersonImporter.process(import_type, course, test_run=False, file_content=file_content)
+            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, course, test_run=False, file_content=file_content)
             delete_import_file(request.user.id, import_type)
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
@@ -703,7 +703,7 @@ def course_person_import(request, semester_id, course_id):
             copy_form.course_selection_required = True
             if copy_form.is_valid():
                 import_course = copy_form.cleaned_data['course']
-                success_messages, warnings, errors = PersonImporter.process(import_type, course, test_run=False, source_course=import_course)
+                success_messages, warnings, errors = PersonImporter.process_source_course(import_type, course, test_run=False, source_course=import_course)
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
