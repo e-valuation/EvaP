@@ -104,7 +104,7 @@ def merge_users(main_user, other_user, preview=False):
     merged_user['title'] = main_user.title if main_user.title else other_user.title or ""
     merged_user['first_name'] = main_user.first_name if main_user.first_name else other_user.first_name or ""
     merged_user['last_name'] = main_user.last_name if main_user.last_name else other_user.last_name or ""
-    merged_user['email'] = main_user.email if main_user.email else other_user.email or ""
+    merged_user['email'] = main_user.email if main_user.email else other_user.email or None
 
     merged_user['groups'] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
     merged_user['is_superuser'] = main_user.is_superuser or other_user.is_superuser

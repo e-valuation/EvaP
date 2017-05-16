@@ -22,7 +22,7 @@ class MergeUsersTest(TestCase):
             title="Dr.",
             first_name="Main",
             last_name="",
-            email="",  # test that merging works when taking the email from other user (UniqueConstraint)
+            email=None,  # test that merging works when taking the email from other user (UniqueConstraint)
             groups=[cls.group1],
             delegates=[cls.user1, cls.user2],
             represented_users=[cls.user3],
@@ -110,7 +110,7 @@ class MergeUsersTest(TestCase):
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")
         self.assertEqual(self.main_user.last_name, "")
-        self.assertEqual(self.main_user.email, "")
+        self.assertEqual(self.main_user.email, None)
         self.assertSequenceEqual(self.main_user.groups.all(), [self.group1])
         self.assertSequenceEqual(self.main_user.delegates.all(), [self.user1, self.user2])
         self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user3])

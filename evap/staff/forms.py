@@ -533,6 +533,9 @@ class UserForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
+        if email is None:
+            return
+
         user_with_same_email = UserProfile.objects.filter(email__iexact=email)
 
         # make sure we don't take the instance itself into account

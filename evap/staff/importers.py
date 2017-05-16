@@ -197,20 +197,20 @@ class ExcelImporter(object):
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
 
     @staticmethod
+    def _create_user_string(user):
+        return "{} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email or "")
+
+    @staticmethod
     def _create_user_data_mismatch_warning(user, user_data):
         return (mark_safe(_("The existing user would be overwritten with the following data:") +
-            "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email) +
-            _(" (existing)") +
-            "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email) +
-            _(" (new)")))
+            "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)") +
+            "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = _("An existing user has the same first and last name as a new user:")
         for user in users_with_same_names:
-            warningstring += "<br> - {} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email)
-            warningstring += _(" (existing)")
-        warningstring += "<br> - {} ({} {} {}, {})".format(user_data.username, user_data.title or "", user_data.first_name, user_data.last_name, user_data.email)
-        warningstring += _(" (new)")
+            warningstring += "<br> - " + self._create_user_string(user) + _(" (existing)")
+        warningstring += "<br> - " + self._create_user_string(user_data) + _(" (new)")
         self.warnings[self.W_DUPL].append(mark_safe(warningstring))
 
     def check_user_data_sanity(self):
