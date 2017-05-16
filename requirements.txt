@@ -1,11 +1,11 @@
-django >= 1.10, < 1.11
+django >= 1.11, < 1.12
 xlrd == 1.0.0
 xlwt == 1.2.0
-django-fsm == 2.4.0
-django-webtest == 1.8.0
+git+https://github.com/ticosax/django-fsm.git@4720bbeb27467319feff10bb6ddd02e43f876b16
+django-webtest == 1.9.1
 WebTest == 2.0.24
 model_mommy == 1.3.1
 django-extensions == 1.7.5
 django-sendfile == 0.3.11
 django-compressor == 2.1
-django-bootstrap3 == 8.1.0
+django-bootstrap3 == 8.2.1
