@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from django.core import management
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test.testcases import TestCase
 from django.utils import translation
 

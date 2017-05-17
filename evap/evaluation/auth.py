@@ -50,7 +50,7 @@ class RequestAuthMiddleware(object):
             return
 
         # We are seeing this user for the first time in this session, attempt to authenticate the user.
-        user = auth.authenticate(key=key)
+        user = auth.authenticate(request, key=key)
 
         # If we already have an authenticated user don't try to login a new user. Show an error message if another user
         # tries to login with a URL in this situation.
@@ -84,7 +84,7 @@ class RequestAuthUserBackend(ModelBackend):
 
     It looks for the appropriate key in the login_key field of the UserProfile.
     """
-    def authenticate(self, key):
+    def authenticate(self, request, key):
         if not key:
             return None
 
