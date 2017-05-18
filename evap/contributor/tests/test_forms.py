@@ -95,10 +95,10 @@ class ContributionFormsetWebTests(WebTest):
 
         data["contributions-0-order"] = 1
         data["contributions-1-order"] = 2
-        response = str(self.app.post("/contributor/course/1/edit", data, user=user1))
+        response = str(self.app.post("/contributor/course/1/edit", params=data, user=user1))
         self.assertTrue(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
 
         data["contributions-0-order"] = 2
         data["contributions-1-order"] = 1
-        response = str(self.app.post("/contributor/course/1/edit", data, user=user1))
+        response = str(self.app.post("/contributor/course/1/edit", params=data, user=user1))
         self.assertFalse(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))

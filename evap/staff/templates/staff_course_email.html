@@ -17,8 +17,8 @@
                             <div class="form-label vertically-aligned {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
                             <div class="btn-group" data-toggle="buttons">
                                 {% for choice in field %}
-                                    <label class="btn btn-sm btn-default {% if choice.choice_value in field.value %}active{% endif %} {% if field.errors %}error{% endif %}" name="{{ field.name }}" onclick="changedFieldValue('{{ field.name }}')">
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="checkbox" value="{{ choice.choice_value }}" autocomplete="off" {% if choice.choice_value in field.value %}checked{% endif %} />
+                                    <label class="btn btn-sm btn-default {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error{% endif %}" name="{{ field.name }}" onclick="changedFieldValue('{{ field.name }}')">
+                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
                                         {{ choice.choice_label }} {{ choice.id }}
                                     </label>
                                 {% endfor %}

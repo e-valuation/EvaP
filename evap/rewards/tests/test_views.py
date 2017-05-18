@@ -21,7 +21,7 @@ class TestEventDeleteView(ViewTest):
 
     def test_deletion_success(self):
         mommy.make(RewardPointRedemptionEvent, pk=1)
-        response = self.app.post(self.url, {'event_id': 1}, user='staff')
+        response = self.app.post(self.url, params={'event_id': 1}, user='staff')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=1).exists())
 
@@ -30,7 +30,7 @@ class TestEventDeleteView(ViewTest):
         event = mommy.make(RewardPointRedemptionEvent, pk=1)
         mommy.make(RewardPointRedemption, value=1, event=event)
 
-        response = self.app.post(self.url, {'event_id': 1}, user='staff', expect_errors=True)
+        response = self.app.post(self.url, params={'event_id': 1}, user='staff', expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=1).exists())
 

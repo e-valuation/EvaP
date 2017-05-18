@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('last_login', models.DateTimeField(default=django.utils.timezone.now, verbose_name='last login')),
                 ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
                 ('username', models.CharField(unique=True, max_length=255, verbose_name='username')),
-                ('email', evap.evaluation.models.EmailNullField(max_length=255, unique=True, null=True, verbose_name='email address', blank=True)),
+                ('email', models.EmailField(max_length=255, unique=True, null=True, verbose_name='email address', blank=True)),
                 ('title', models.CharField(max_length=255, null=True, verbose_name='Title', blank=True)),
                 ('first_name', models.CharField(max_length=255, null=True, verbose_name='first name', blank=True)),
                 ('last_name', models.CharField(max_length=255, null=True, verbose_name='last name', blank=True)),
