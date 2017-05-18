@@ -1,15 +1,14 @@
 import os
 import datetime
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.conf import settings
-from evap.evaluation.tests.test_tools import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Semester
-from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter
+from evap.evaluation.models import UserProfile, Semester, Course, Contribution
+from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter, PersonImporter
 
 
-class TestUserImporter(WebTest):
+class TestUserImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -72,7 +71,7 @@ class TestUserImporter(WebTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
 
-class TestEnrollmentImporter(WebTest):
+class TestEnrollmentImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -124,3 +123,43 @@ class TestEnrollmentImporter(WebTest):
         self.assertIn('Sheet "Sheet1", row 2: Email address is missing.', errors_test)
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+
+class TestPersonImporter(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.participant1 = mommy.make(UserProfile)
+        cls.course1 = mommy.make(Course, participants=[cls.participant1])
+        cls.contributor1 = mommy.make(UserProfile)
+        cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, course=cls.course1)
+
+        cls.participant2 = mommy.make(UserProfile)
+        cls.course2 = mommy.make(Course, participants=[cls.participant2])
+        cls.contributor2 = mommy.make(UserProfile)
+        cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, course=cls.course2)
+
+    def test_import_existing_contributor(self):
+        self.assertEqual(self.course1.contributions.count(), 2)
+        PersonImporter.process_source_course('contributor', self.course1, False, self.course1)
+
+        self.assertEqual(self.course1.contributions.count(), 2)
+        self.assertEqual(set(UserProfile.objects.filter(contributions__course=self.course1)), set([self.contributor1]))
+
+    def test_import_new_contributor(self):
+        self.assertEqual(self.course1.contributions.count(), 2)
+        PersonImporter.process_source_course('contributor', self.course1, False, self.course2)
+
+        self.assertEqual(self.course1.contributions.count(), 3)
+        self.assertEqual(set(UserProfile.objects.filter(contributions__course=self.course1)), set([self.contributor1, self.contributor2]))
+
+    def test_import_existing_participant(self):
+        PersonImporter.process_source_course('participant', self.course1, False, self.course1)
+
+        self.assertEqual(self.course1.participants.count(), 1)
+        self.assertEqual(self.course1.participants.get(), self.participant1)
+
+    def test_import_new_participant(self):
+        PersonImporter.process_source_course('participant', self.course1, False, self.course2)
+
+        self.assertEqual(self.course1.participants.count(), 2)
+        self.assertEqual(set(self.course1.participants.all()), set([self.participant1, self.participant2]))
