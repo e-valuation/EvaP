@@ -315,7 +315,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_delete(self):
-        return self.can_staff_edit and not self.num_voters > 0
+        return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
     def can_staff_approve(self):
