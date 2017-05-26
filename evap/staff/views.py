@@ -17,7 +17,7 @@ from django.utils.translation import get_language, ungettext
 from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, staff_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
-                                    Semester, TextAnswer, UserProfile)
+                                    RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, sort_formset
 from evap.grades.tools import are_grades_activated
 from evap.results.exporters import ExcelExporter
@@ -634,6 +634,8 @@ def course_delete(request):
 
     if not course.can_staff_delete:
         raise SuspiciousOperation("Deleting course not allowed")
+    if course.is_single_result:
+        RatingAnswerCounter.objects.filter(contribution__course=course).delete()
     course.delete()
     return HttpResponse()  # 200 OK
 
