@@ -238,16 +238,11 @@ class SingleResultForm(forms.ModelForm):
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.question_set.first()
 
-        if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
-            contribution = Contribution(
-                course=self.instance,
-                contributor=self.cleaned_data['responsible'],
-                responsible=True,
-                can_edit=True,
-                comment_visibility=Contribution.ALL_COMMENTS
-            )
-            contribution.save()
+        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution.contributor = self.cleaned_data['responsible']
+        if created:
             contribution.questionnaires.add(single_result_questionnaire)
+        contribution.save()
 
         # set answers
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
