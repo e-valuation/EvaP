@@ -126,11 +126,11 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.contributions.exists()
+        return not self.contributions.exclude(course__state='new').exists()
 
     @property
     def can_staff_delete(self):
-        return self.can_staff_edit
+        return not self.contributions.exists()
 
     @property
     def text_questions(self):
