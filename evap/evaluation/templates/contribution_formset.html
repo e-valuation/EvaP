@@ -32,7 +32,16 @@
                     <td>
                         {{ form.contributor.errors }}
                         {{ form.contributor }}
-                    {% bootstrap_field form.does_not_contribute %}
+                        <div class="checkbox">
+                            <label for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}
+                                Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the
+                                course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments.
+                                {% endblocktrans %}">
+                                {{ form.does_not_contribute }}
+                                {{ form.does_not_contribute.label}}
+                            </label>
+                        </div>
+                        {{ form.does_not_contribute.errors }}
                     </td>
                     <td>
                         {% include "questionnaires_widget.html" with field=form.questionnaires %}
