@@ -94,7 +94,7 @@
                                             </ul>
                                         </div>
                                     {% elif course.grades_activated and course.is_graded and can_download_grades %}
-                                        {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                        {% if course.state == 'evaluated' or course.state == 'reviewed' %}
                                             <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "No grades have been uploaded yet." %}"><button type="button" class="btn btn-sm btn-default dropdown-toggle" disabled>{% trans "Download grades" %} <span class="caret"></span></button></div>
                                         {% endif %}
                                     {% endif %}
