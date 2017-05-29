@@ -19,7 +19,7 @@ from django_fsm.signals import post_transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.tools import date_to_datetime
-from evap.settings import EVALUATION_END_OFFSET
+from evap.settings import EVALUATION_END_OFFSET_HOURS
 
 logger = logging.getLogger(__name__)
 
@@ -268,10 +268,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.open_textanswer_set.exists()
 
     @property
+    def actual_evaluation_end_datetime(self):
+        # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+        return date_to_datetime(self.vote_end_date) + datetime.timedelta(hours=24 + EVALUATION_END_OFFSET_HOURS)
+
+    @property
     def is_in_evaluation_period(self):
         now = datetime.datetime.now()
-        return self.vote_start_date <= now <= \
-               date_to_datetime(self.vote_end_date) + datetime.timedelta(hours=24 + EVALUATION_END_OFFSET)
+
+        return self.vote_start_date <= now <= self.actual_evaluation_end_datetime
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -547,8 +552,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                     course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
-                elif course.state == "in_evaluation" and date_to_datetime(course.vote_end_date) < \
-                                datetime.datetime.now() + datetime.timedelta(hours=24 + EVALUATION_END_OFFSET):
+                elif course.state == "in_evaluation" and course.actual_evaluation_end_datetime < datetime.datetime.now():
                     course.evaluation_end()
                     if course.is_fully_reviewed:
                         course.review_finished()
@@ -561,7 +565,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
