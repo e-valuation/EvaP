@@ -11,15 +11,13 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th class="col-sm-1">{% trans "ID" %}</th>
-                            <th class="col-sm-9">{% trans "Comment" %}</th>
+                            <th class="col-sm-10">{% trans "Comment" %}</th>
                             <th class="col-sm-2">{% trans "Publish" %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
-                                <td>{{ answer.id }}</td>
                                 <td class="text-answer">
                                     {% if answer.reviewed_answer %}
                                         <a class="comment-link" href="{% url "staff:course_comment_edit" semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
