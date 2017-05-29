@@ -46,7 +46,7 @@ class CourseForm(forms.ModelForm):
 
     def clean_vote_start_date(self):
         vote_start_date = self.cleaned_data.get('vote_start_date')
-        if vote_start_date and vote_start_date < datetime.date.today():
+        if vote_start_date and vote_start_date < datetime.datetime.now():
             raise forms.ValidationError(_("The first day of evaluation must be in the future."))
         return vote_start_date
 
