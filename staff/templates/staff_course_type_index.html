@@ -1,0 +1,67 @@
+{% extends "staff_base.html" %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "Course types" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div>
+        <a href="{% url "staff:course_type_merge_selection" %}" class="btn btn-sm btn-default">{% trans "Merge course types" %}</a>
+    </div>
+
+    <form id="course-type-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table id="course_types_table" class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Name (German)" %}</th>
+                    <th>{% trans "Name (English)" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    <tr>
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        <td>
+                            {{ form.name_de.errors }}{{ form.name_de }}
+                        </td>
+                        <td>
+                            {{ form.name_en.errors }}{{ form.name_en }}
+                        </td>
+                        <td>
+                            {{ form.DELETE.errors }}
+                            {% if form.instance.can_staff_delete %}
+                                {{ form.DELETE }}
+                            {% else %}
+                                <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"
+                                title="{% trans "This course type cannot be deleted because it is used for at least one course." %}">
+                                    {% trans "remove" %}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-group well text-center">
+            <input type="submit" value="{% trans "Save course types" %}" class="btn btn-primary"/>
+        </div>
+    </form>
+{% endblock %}
+
+{% block on_document_ready %}
+    $('#course_types_table tbody tr').formset({
+        prefix: 'form',
+        deleteCssClass: 'btn btn-danger btn-sm',
+        deleteText: '{% trans "remove" %}',
+        addText: '{% trans "add another" %}'
+    });
+{% endblock %}

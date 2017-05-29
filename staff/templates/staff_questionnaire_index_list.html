@@ -1,0 +1,46 @@
+{% if questionnaires %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans headline %}</span>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped questionnaire-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="col-sm-*">{% trans "Questionnaire" %}</th>
+                        <th class="col-sm-*" style="text-align: right;">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for questionnaire in questionnaires %}
+                    <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
+                        <td class="movable"><span class="movable-icon glyphicon glyphicon-move"></span></td>
+                        <td>
+                            <strong>{{ questionnaire.name }}</strong>
+                            <br>
+                            {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question {% plural %} {{ count }} questions{% endblocktrans %},
+                            {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time {% plural %} used {{ count }} times {% endblocktrans %}
+                            {% if questionnaire.obsolete %}<span class="label label-info">{% trans "obsolete" %}</span>{% endif %}
+                            {% if questionnaire.staff_only %}<span class="label label-info">{% trans "staff only" %}</span>{% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            {% if not questionnaire.obsolete %}
+                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Create new Version" %}</a>
+                            {% endif %}
+                            <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                            <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
+                            <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
+                            {% if questionnaire.can_staff_delete %}
+                                <a onclick="show_delete_questionnaire_modal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+                            {% else %}
+                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This questionnaire cannot be deleted because it is already in use." %}"><a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}

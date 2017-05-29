@@ -1,0 +1,107 @@
+<script type="text/javascript">
+    function makeClickHandler(i, contributorCount, responsibility) {
+        return function () {
+            // don't do anything on disabled buttons
+            if ($(this).hasClass("disabled"))
+                return false;
+
+            // if the responsible button is selected
+            if(responsibility == "RESPONSIBLE") {
+                // uncheck all buttons
+                uncheckButtons("input[name=contributions-" + i + "-comment_visibility]");
+                uncheckButtons("input[name=contributions-" + i + "-responsibility]");
+
+                // check "all comments" and disable comment buttons
+                checkButtons("input[name=contributions-" + i + "-comment_visibility][value=ALL]");
+                disableButtons("input[name=contributions-" + i + "-comment_visibility]");
+
+                // disable all other responsible buttons
+                for(var j = 0; j < contributorCount; j++){
+                    if (j != i)
+                        disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
+                }
+            }
+            // if the responsible button is deselected
+            else if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")){
+                // enable comment buttons
+                enableButtons("input[name=contributions-" + i + "-comment_visibility]");
+                // enable all responsible buttons
+                for(var j = 0; j < contributorCount; j++){
+                    enableButtons("input[name=contributions-" + j + "-responsibility]");
+                }
+            }
+        }
+    }
+
+    function makeDisabledClickHandler() {
+        return function () {
+            // suppress toggling disabled buttons
+            if ($(this).hasClass("disabled"))
+                return false;
+        }
+    }
+
+    function uncheckButtons(selector){
+        $(selector).prop("checked", false);
+        $(selector).parent().removeClass("active");
+    }
+    function checkButtons(selector){
+        $(selector).prop("checked", true);
+        $(selector).parent().addClass("active");
+    }
+    function disableButtons(selector){
+        $(selector).parent().addClass("disabled");
+    }
+    function enableButtons(selector){
+        $(selector).parent().removeClass("disabled");
+    }
+
+    function getContributorCount() {
+        return $("#contribution_table select").length;
+    }
+
+    function assignClickHandlers() {
+        var count = getContributorCount();
+        for(var i = 0; i < count; i++)
+        {
+            $("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").parent().click(makeClickHandler(i, count, 'RESPONSIBLE'));
+            $("input[name=contributions-" + i + "-responsibility][value=EDITOR]").parent().click(makeClickHandler(i, count, 'EDITOR'));
+            $("input[name=contributions-" + i + "-responsibility][value=CONTRIBUTOR]").parent().click(makeClickHandler(i, count, 'CONTRIBUTOR'));
+            $("input[name=contributions-" + i + "-comment_visibility]").parent().click(makeDisabledClickHandler());
+        }
+    }
+
+    $(document).ready(function() {
+        assignClickHandlers();
+
+        // apply initial settings
+        for(var i = 0; i < getContributorCount(); i++){
+            if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
+                // disable comment buttons for responsible contributor
+                disableButtons("input[name=contributions-" + i + "-comment_visibility]");
+                // disable all other responsible buttons
+                for(var j = 0; j < getContributorCount(); j++){
+                    if (j != i)
+                        disableButtons("input[name=contributions-" + j + "-responsibility][value=RESPONSIBLE]");
+                }
+            }
+        }
+    });
+</script>
+
+
+{% if editable %}
+    {% include "sortable_form_js.html" %}
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name = $(row.find("select[id$=-contributor]")).find(":selected").text();
+            id = row.find("input[id$=-id]").val();
+            return id || (name && name != "---------");
+        };
+        row_added = function(row) {
+            assignClickHandlers();
+            apply_select2(row.find("select"));
+        }
+        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false, true);
+    </script>
+{% endif %}

@@ -1,0 +1,23 @@
+{% if user.pk %}
+    {% if user.is_staff %}
+        <span class="label label-primary">{% trans "Staff" %}</span>
+    {% endif %}
+    {% if user.is_grade_publisher %}
+        <span class="label label-primary">{% trans "Grade publisher" %}</span>
+    {% endif %}
+    {% if user.is_external %}
+        <span class="label label-default">{% trans "External" %}</span>
+    {% endif %}
+    {% if user.is_contributor %}
+        <span class="label label-info">{% trans "Contributor" %}</span>
+    {% endif %}
+    {% if user.is_responsible %}
+        <span class="label label-info">{% trans "Responsible" %}</span>
+    {% endif %}
+    {% if user.login_key %}
+        <span class="label label-info">{% trans "Login Key" %}</span>
+    {% endif %}
+    {% if not user.email %}
+        <span class="label label-danger">{% trans "Email address missing!" %}</span>
+    {% endif %}
+{% endif %}

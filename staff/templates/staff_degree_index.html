@@ -1,0 +1,76 @@
+{% extends "staff_base.html" %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "Degrees" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form id="degree-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table id="degree_table" class="table">
+            <thead>
+                <tr>
+                    <th class="movable">&nbsp;</th>
+                    {% for field in formset.0.visible_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    <tr class="sortable">
+                        <td class="movable">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <span class="movable-icon glyphicon glyphicon-move"></span>
+                        </td>
+                        <td>
+                            {{ form.name_de.errors }}{{ form.name_de }}
+                        </td>
+                        <td>
+                            {{ form.name_en.errors }}{{ form.name_en }}
+                        </td>
+                        <td>
+                            {{ form.DELETE.errors }}
+                            {% if form.instance.can_staff_delete %}
+                                {{ form.DELETE }}
+                            {% else %}
+                                <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"
+                                title="{% trans "This degree cannot be deleted because it is used for at least one course." %}">
+                                    {% trans "remove" %}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-group well">
+            <div class="col-sm-6">
+                <input type="submit" value="{% trans "Save degrees" %}" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include "sortable_form_js.html" %}
+
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name_de = $(row.find('input[id$=-name_de]')).val();
+            name_en = $(row.find('input[id$=-name_en]')).val();
+            return name_de || name_en
+        };
+        row_added = function(row) {
+            row.find('a.btn-default').remove();
+        };
+        make_form_sortable("degree_table", "form", row_changed, row_added, "", true, false);
+    </script>
+{% endblock %}

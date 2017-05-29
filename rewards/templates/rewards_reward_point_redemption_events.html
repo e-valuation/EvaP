@@ -1,0 +1,107 @@
+{% extends "staff_base.html" %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "Reward Point Redemption Events" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <p>
+        <a href="{% url "rewards:reward_point_redemption_event_create" %}" class="btn btn-success btn-sm">{% trans "Create new event" %}</a>
+    </p>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Upcoming events" %}</span>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-sm-2">{% trans "Event date" %}</th>
+                        <th class="col-sm-2">{% trans "Redemption end date" %}</th>
+                        <th class="col-sm-3">{% trans "Event name" %}</th>
+                        <th class="col-sm-1">{% trans "Redemptions" %}</th>
+                        <th class="col-sm-4">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in upcoming_events %}
+                        <tr id="event-row-{{ event.id }}">
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.redeem_end_date }}</td>
+                            <td>{{ event.name }}</td>
+                            <td><span class="glyphicon glyphicon-user"></span> {{ event.redemptions_by_user|length }}
+                            <td>
+                                <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
+                                <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                {% if event.can_delete %}
+                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                {% else %}
+                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Past events" %}</span>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-sm-2">{% trans "Event date" %}</th>
+                        <th class="col-sm-2">{% trans "Redemption end date" %}</th>
+                        <th class="col-sm-3">{% trans "Event name" %}</th>
+                        <th class="col-sm-1">{% trans "Redemptions" %}</th>
+                        <th class="col-sm-4">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in past_events %}
+                        <tr id="event-row-{{ event.id }}">
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.redeem_end_date }}</td>
+                            <td>{{ event.name }}</td>
+                            <td><span class="glyphicon glyphicon-user"></span> {{ event.reward_point_redemptions.all|length }}
+                            <td>
+                                <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
+                                <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
+                                {% if event.can_delete %}
+                                    <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+                                {% else %}
+                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Delete event" as title %}
+    {% trans 'Do you really want to delete the event <strong id="data-label"></strong>?' as question %}
+    {% trans "Delete event" as action_text %}
+    {% include "confirmation_modal.html" with modal_id="delete_event_modal" title=title question=question action_text=action_text btn_type="danger" %}
+    <script type="text/javascript">
+        function delete_event_modal_action(data_id) {
+            $.ajax({
+                type: "POST",
+                url: "{% url "rewards:reward_point_redemption_event_delete" %}",
+                data: {"event_id": data_id},
+                success: function(){ $('#event-row-'+data_id).hide('slow', function(){ $('#event-row-'+data_id).remove(); }); },
+                error: function(){ $('#event-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+            });
+        };
+    </script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load morefilters %}
+
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ title }}</h4>
+            </div>
+            <div class="modal-body">
+                {{ question }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-action" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Cancel" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function show_{{ modal_id }}(data_id, data_label) {
+        // call the modal's action function when action button was pressed and give data_id as parameter
+        $('#{{ modal_id }} #btn-action').unbind().click(function(){ {{ modal_id }}_action(data_id); });
+        // put the data_label text in the right place
+        $('#{{ modal_id }} #data-label').text(data_label);
+        // show modal
+        $('#{{ modal_id }}').modal();
+    }
+</script>

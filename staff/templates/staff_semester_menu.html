@@ -1,0 +1,3 @@
+{% for semester in semesters %}
+    <li class="menu-indent"><a href="{% url "staff:semester_view" semester.id %}#tab1">{{ semester.name }}</a></li>
+{% endfor %}

@@ -1,0 +1,15 @@
+{% extends "staff_base.html" %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    {% if questionnaire %}
+        <li><a href="{% url "staff:questionnaire_index" %}">{% trans "Questionnaires" %}</a></li>
+        <li>{{ questionnaire.name }}</li>
+    {% else %}
+        <li>{% trans "Questionnaires" %}</li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+{% endblock %}

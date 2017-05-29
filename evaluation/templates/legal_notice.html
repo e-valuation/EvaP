@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{% trans "Legal Notice" %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "Legal Notice" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Legal Notice" %}</h1>
+    {% if LEGAL_NOTICE_ACTIVE %}{% include "legal_notice_text.html" %}{% endif %}
+{% endblock %}

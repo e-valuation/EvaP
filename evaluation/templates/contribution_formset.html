@@ -1,0 +1,64 @@
+{% load morefilters %}
+
+<fieldset>
+    <legend>{% trans "Contributors" %}</legend>
+    {{ formset.management_form }}
+    {{ formset.non_form_errors }}
+
+    <table id="contribution_table" class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="col-sm-3">{% trans "Contributor" %}</th>
+                <th class="col-sm-4">{% trans "Questionnaires" %}</th>
+                <th class="col-sm-4">{% trans "Options" %}</th>
+                <th class="col-sm-1"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for form in formset %}
+            {% if form.non_field_errors %}
+                <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
+            {% endif %}
+            <tr class="contribution select2tr {% if editable %} sortable {% endif %}">
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+                <td class="movable">
+                    {% if editable %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
+                </td>
+
+                <td>
+                    {{ form.contributor.errors }}
+                    {% if form.responsibility.value == "RESPONSIBLE" and staff == False %}
+                        <select class="form-control" disabled><option selected>{{ responsible }} ({% trans "responsible" %})</option></select>
+                        {{ form.contributor.as_hidden }}
+                    {% else %}
+                        {{ form.contributor }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% include "questionnaires_widget.html" with questionnaires=form.questionnaires %}
+                </td>
+                <td>
+                    {% trans "Responsibility" %}:<br />
+                    {% include "responsibility_buttons.html" with form=form can_change_responsible=staff %}
+                    <br /><br />
+                    {% trans "Comment visibility" %}:<br />
+                    {% include "comment_visibility_buttons.html" with form=form %}
+                    <br /><br />
+                    {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                    {{ form.label.errors }} {{ form.label }}
+                </td>
+                {% if editable %}
+                    <td>
+                        {% if staff or not form.responsibility.value == "RESPONSIBLE" %}
+                            {{ form.DELETE }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</fieldset>

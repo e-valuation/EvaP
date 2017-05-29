@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% load morefilters %}
+
+{% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "Evaluation" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div class="bs-callout bs-callout-info small">
+        <b>{% trans "Anonymity" %}</b><br />
+        {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
+        <em>{% trans "More details:" %} <a href="/faq#21">{% trans "FAQ/Anonymity" %}</a></em><br />
+        <br />
+        <b>{% trans "References to other answers" %}</b><br />
+        {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
+        <em>{% trans "More details:" %} <a href="/faq#24">{% trans "FAQ/Reference" %}</a></em><br />
+        <br />
+        <b>{% trans "Evaluation Results" %}</b><br />
+        {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the person responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+        <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+    </div>
+
+    {% for semester in semester_list %}
+        {% if semester.courses %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="panel-title">{{ semester.semester_name }}</span>
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped vertically-aligned">
+                    <thead>
+                    <tr>
+                        <th style="width: 35%">{% trans "Name" %}</th>
+                        <th style="width: 12%">{% trans "State" %}</th>
+                        <th style="width: 20%">{% trans "Evaluation Period" %}</th>
+                        <th style="width: 10%"></th>
+                        <th style="width: 23%"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in semester.courses %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        {{ course.name }}
+                                    </div>
+                                    <span class="label label-default">{{ course.type }}</span>
+                                    {% if course not in voted_courses %}
+                                        {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                            <span class="label label-info">{% trans "You did not evaluate this course" %}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ course.student_state|studentstatename }}
+                                </td>
+                                <td>
+                                    {{ course.vote_start_date|date:'SHORT_DATETIME_FORMAT' }} &ndash;</br> {{ course.vote_end_date|date:'SHORT_DATETIME_FORMAT' }}
+                                </td>
+                                <td>
+                                    {% if course.state == 'in_evaluation' and course in due_courses %}
+                                        {% if course.days_left_for_evaluation <= 0 %}
+                                            <span class="label label-danger">{% trans "ends today" %}</span>
+                                        {% elif course.days_left_for_evaluation == 1 %}
+                                            <span class="label label-danger">{% trans "ends tomorrow" %}</span>
+                                        {% elif course.days_left_for_evaluation < 5 %}
+                                            <span class="label label-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    {% if course.state == 'in_evaluation' %}
+                                        {% if course in voted_courses %}
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "You already evaluated this course" %}"><a class="btn btn-sm btn-default" disabled>{% trans "Evaluate" %}</a></div>
+                                        {% else %}
+                                            <a href="{% url "student:vote" course.id %}" class="btn btn-sm btn-primary">{% trans "Evaluate" %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
+                                        <a href="{% url "grades:download_grades" course.grade_documents.all.first.id %}" class="btn btn-sm btn-default" role="button" aria-expanded="false">{{ course.grade_documents.all.first.description }}</a>
+                                    {% elif course.grade_documents.count > 1 and can_download_grades %}
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Download grades" %} <span class="caret"></span></button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                {% for grade_document in course.grade_documents.all %}
+                                                    <li><a href="{% url "grades:download_grades" grade_document.id %}">{{ grade_document.description }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% elif course.grades_activated and course.is_graded and can_download_grades %}
+                                        {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "No grades have been uploaded yet." %}"><button type="button" class="btn btn-sm btn-default dropdown-toggle" disabled>{% trans "Download grades" %} <span class="caret"></span></button></div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if course.state == 'published' %}
+                                        {% if course.can_publish_grades %}
+                                            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                        {% else %}
+                                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "We did not receive enough votes to publish the results of this course" %}"><a class="btn btn-sm btn-default" disabled>{% trans "Results" %}</a></div>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

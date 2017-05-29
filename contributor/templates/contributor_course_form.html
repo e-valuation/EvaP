@@ -1,0 +1,62 @@
+{% extends "contributor_base.html" %}
+
+{% load bootstrap3 %}
+{% load morefilters %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{{ course.name }}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
+        {% csrf_token %}
+
+        {% include 'course_form_general_questions.html' with course=course course_form=form %}
+
+        {% include "contribution_formset.html" with formset=formset staff=False editable=True%}
+
+        <fieldset>
+            <legend>{% trans "Students" %}</legend>
+            <p>{% trans "These students should be participating in your course. If this data is not correct, e.g. when students are missing from the list, please contact the student representatives." %}</p>
+            <ul>
+                {% for p in course.participants.all|dictsort:"last_name" %}
+                    <li>{{ p.full_name }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+        <div class="form-group well">
+            <div class="col-sm-offset-2 col-sm-6">
+                {% if editable %}
+                    <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
+                    {# webtest does not allow submission with value "approve" if no such button exists #}
+                    <button style="display: none" name="operation" value="approve" type="submit" />
+                    <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
+                {% endif %}
+                <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit == False %} {% trans "Back" %} {% else %} {% trans "Cancel" %} {% endif %}</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans "Approve course" as title %}
+    {% trans "Do you want to approve this course? This will allow the student representatives to proceed with the preparation, but you won't be able to make any further changes." as question %}
+    {% trans "Approve course" as action_text %}
+    {% include "confirmation_modal.html" with modal_id="approve_course_modal" title=title question=question action_text=action_text btn_type="primary" %}
+    <script type="text/javascript">
+        function approve_course_modal_action(data_id) {
+            $('#course-form').append('<input type="hidden" name="operation" value="approve">');
+            $('#course-form').submit();
+        };
+    </script>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include "evap_course_edit_js.html" %}
+    {% if editable %}
+        <script type="text/javascript"> preventAccidentalClosing = true; </script>
+    {% endif %}
+{% endblock %}

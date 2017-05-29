@@ -1,0 +1,11 @@
+{% if users %}
+    <ul>
+        {% for user in users %}
+            <li><a href="{% url "staff:user_edit" user.id %}">{{ user.full_name }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>
+        <i>{% trans "Nobody" %}</i>
+    </p>
+{% endif %}

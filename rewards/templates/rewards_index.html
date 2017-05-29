@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% load morefilters %}
+
+{% block title %}{% trans "Rewards" %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div class="bs-callout bs-callout-info small">
+        {% trans "You will get reward points once you evaluated all your courses in one semester. These points can be redeemed for many events at HPI. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points." %}
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Redeem points" %}</span>
+        </div>
+        <div class="panel-body">
+            <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
+            {% if total_points_available > 0 %}
+                {% if events %}
+                    <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
+                        {% csrf_token %}
+
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-2">{% trans "Date" %}</th>
+                                    <th class="col-sm-6">{% trans "Event" %}</th>
+                                    <th class="col-sm-2">{% trans "Available until" %}</th>
+                                    <th class="col-sm-2 text-right">{% trans "Redeem points" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in events %}
+                                    <tr>
+                                        <td>{{ event.date }}</td>
+                                        <td>{{ event.name }}</td>
+                                        <td>{{ event.redeem_end_date }}</td>
+                                        <td class="text-right">
+                                            <select class="form-control pull-right" id="id_points-{{event.id}}" name="points-{{event.id}}" style="width:5em">
+                                                {% for p in point_selection %}
+                                                    <option value="{{p}}">{{p}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <input type="submit" class="btn btn-primary pull-right" value="{% trans "Redeem" %}" />
+                    </form>
+                {% else %}
+                    <p><i>{% trans "Currently there are no events available for which you can redeem points. We'll send you a message when this changes." %}</i></p>
+                {% endif %}
+            {% else %}
+                <p><i>{% trans "You don't have any reward points that you could redeem." %}</i></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="panel-title">{% trans "Reward points history" %}</span>
+        </div>
+        <div class="panel-body">
+            {% if reward_point_actions %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-3">{% trans "Date" %}</th>
+                            <th class="col-sm-7">{% trans "Action" %}</th>
+                            <th class="col-sm-1 text-right">{% trans "Granted points" %}</th>
+                            <th class="col-sm-1 text-right">{% trans "Redeemed points" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for action_time, event_name, granting_value, redemption_value in reward_point_actions %}
+                            <tr>
+                                <td>{{ action_time }}</td>
+                                <td>{{ event_name }}</td>
+                                <td class="text-right">{{ granting_value }}</td>
+                                <td class="text-right">{{ redemption_value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p><i>{% trans "No reward points earned yet." %}</i></p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block on_document_ready %}
+    $('.dropdown-toggle').dropdown()
+{% endblock %}

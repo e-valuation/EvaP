@@ -1,0 +1,74 @@
+{% extends "staff_base.html" %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "FAQ Sections" %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="col-sm-offset-1">
+        <table id="section_table" class="table">
+            <thead>
+                <tr>
+                    <th class="movable">&nbsp;</th>
+                    {% for field in formset.0.visible_fields %}
+                        {% if forloop.last %}
+                            <th>{% trans "Actions" %}</th>
+                        {% else %}
+                            <th>{{ field.label }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for form in formset %}
+                <tr class="sortable">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <td class="movable">
+                        <span class="movable-icon glyphicon glyphicon-move"></span>
+                    </td>
+                    {% for field in form.visible_fields %}
+                        <td>
+                            {% if forloop.last and form.instance.id %}
+                                <a href="{% url "staff:faq_section" form.instance.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
+                            {% endif %}
+                            {{ field.errors }}
+                            {{ field }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</div>
+        <div class="form-group well">
+            <div class="col-sm-6">
+                <input type="submit" value="{% trans "Save FAQ sections" %}" class="btn btn-primary"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include "sortable_form_js.html" %}
+
+    <script type="text/javascript">
+        row_changed = function(row) {
+            name_de = $(row.find('input[id$=-title_de]')).val();
+            name_en = $(row.find('input[id$=-title_en]')).val();
+            return name_de || name_en
+        };
+        row_added = function(row) {
+            row.find('a.btn-default').remove();
+        };
+        make_form_sortable("section_table", "form", row_changed, row_added, "", true, false);
+    </script>
+{% endblock %}
