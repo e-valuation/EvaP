@@ -478,12 +478,11 @@ class PersonImporter:
         if already_related:
             msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         if not test_run:
             course.participants.add(*users_to_add)
-            msg = _("{} participants added to the course {}:").format(len(users_to_add), course.name)
-        else:
-            msg = _("{} participants would be added to the course {}:").format(len(users_to_add), course.name)
+        msg = _("{} participants {}added to the course {}:").format(len(users_to_add), "would be " if test_run else "", course.name)
         msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
@@ -494,6 +493,7 @@ class PersonImporter:
         if already_related:
             msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
         # makes anything relying on hashes unusable here (for a faster list difference)
@@ -503,9 +503,7 @@ class PersonImporter:
             for user in users_to_add:
                 order = Contribution.objects.filter(course=course).count()
                 Contribution.objects.create(course=course, contributor=user, order=order)
-            msg = _("{} contributors added to the course {}:").format(len(users_to_add), course.name)
-        else:
-            msg = _("{} contributors would be added to the course {}:").format(len(users_to_add), course.name)
+        msg = _("{} contributors {}added to the course {}:").format(len(users_to_add), "would be " if test_run else "", course.name)
         msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
