@@ -7,6 +7,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField
 from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
+from evap.evaluation.tools import date_to_datetime
 from evap.staff.forms import ContributionForm
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ class CourseForm(forms.ModelForm):
         vote_start_date = self.cleaned_data.get('vote_start_date')
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_start_date and vote_end_date:
-            if vote_start_date >= vote_end_date:
+            if vote_start_date.date() >= vote_end_date:
                 self.add_error("vote_start_date", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
@@ -52,7 +53,7 @@ class CourseForm(forms.ModelForm):
 
     def clean_vote_end_date(self):
         vote_end_date = self.cleaned_data.get('vote_end_date')
-        if vote_end_date and vote_end_date < datetime.datetime.now():
+        if vote_end_date and vote_end_date < datetime.date.today():
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
         return vote_end_date
 

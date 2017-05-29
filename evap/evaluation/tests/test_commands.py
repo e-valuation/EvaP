@@ -85,14 +85,15 @@ class TestDumpTestDataCommand(TestCase):
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
 class TestSendRemindersCommand(TestCase):
-    today = datetime.datetime.now()
+    now = datetime.datetime.now()
+    today = datetime.date.today()
 
     def test_remind_user_about_one_course(self):
         user_to_remind = mommy.make(UserProfile)
         course = mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.today - datetime.timedelta(days=1),
+                vote_start_date=self.now - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_to_remind])
 
@@ -107,13 +108,13 @@ class TestSendRemindersCommand(TestCase):
         course1 = mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.today - datetime.timedelta(days=1),
+                vote_start_date=self.now - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=0),
                 participants=[user_to_remind])
         course2 = mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.today - datetime.timedelta(days=1),
+                vote_start_date=self.now - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_to_remind])
 
@@ -128,7 +129,7 @@ class TestSendRemindersCommand(TestCase):
         mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.today - datetime.timedelta(days=1),
+                vote_start_date=self.now - datetime.timedelta(days=1),
                 vote_end_date=self.today + datetime.timedelta(days=2),
                 participants=[user_no_remind],
                 voters=[user_no_remind])

@@ -24,7 +24,7 @@ def disable_all_fields(form):
 
 class ImportForm(forms.Form):
     vote_start_date = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
-    vote_end_date = forms.DateTimeField(label=_("End of evaluation"), localize=True, required=False)
+    vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
 
@@ -179,7 +179,7 @@ class CourseForm(forms.ModelForm):
         vote_start_date = self.cleaned_data.get('vote_start_date')
         vote_end_date = self.cleaned_data.get('vote_end_date')
         if vote_start_date and vote_end_date:
-            if vote_start_date >= vote_end_date:
+            if vote_start_date.date() >= vote_end_date:
                 self.add_error("vote_start_date", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
@@ -233,7 +233,7 @@ class SingleResultForm(forms.ModelForm):
         self.instance.last_modified_user = user
         event_date = self.cleaned_data['event_date']
         self.instance.vote_start_date = datetime.datetime(event_date.year, event_date.month, event_date.day)
-        self.instance.vote_end_date = datetime.datetime(event_date.year, event_date.month, event_date.day)
+        self.instance.vote_end_date = event_date
         self.instance.is_graded = False
         super().save(*args, **kw)
 

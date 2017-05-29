@@ -276,10 +276,16 @@
         };
         apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
-        // run the jquery datepicker plugin
-        $("input[name*='date']:not([readonly='True'])").datetimepicker({
+        // run the bootstrap datepicker plugin
+        $("input[name*='end_date']:not([readonly='True'])").datetimepicker({
                 locale: "{{ LANGUAGE_CODE }}",
-                format: "DD.MM.YYYY hh:mm"
+                format: "YYYY-MM-DD",
+                sideBySide: true
+            });
+        $("input[name*='start_date']:not([readonly='True'])").datetimepicker({
+                locale: "{{ LANGUAGE_CODE }}",
+                format: "YYYY-MM-DD HH:mm",
+                sideBySide: true
             });
 
         // scroll content to show below navbar

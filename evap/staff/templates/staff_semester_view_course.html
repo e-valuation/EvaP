@@ -9,7 +9,7 @@
         </td>
     {% endif %}
 {% endif %}
-<td style="width: 55%">
+<td style="width: 45%">
     <div>
     {% if not info_only and request.user.is_staff %}
         <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
@@ -36,8 +36,8 @@
         <span class="label label-warning">{{ warning }}</span>
     {% endfor %}
 </td>
-<td style="width: 10%">
-    {{ course.vote_start_date|date:"SHORT_DATETIME_FORMAT" }}{% if not course.is_single_result %} - {{ course.vote_end_date|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
+<td style="width: 20%">
+    {{ course.vote_start_date|date:"SHORT_DATETIME_FORMAT" }}{% if not course.is_single_result %} - {{ course.vote_end_date|date:"SHORT_DATE_FORMAT" }}{% endif %}
 
     {% if state == 'approved' %}
         <br>

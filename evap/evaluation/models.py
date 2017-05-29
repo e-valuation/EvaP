@@ -18,6 +18,8 @@ from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
+from evap.evaluation.tools import date_to_datetime
+from evap.settings import EVALUATION_END_OFFSET
 
 logger = logging.getLogger(__name__)
 
@@ -226,8 +228,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateTimeField(verbose_name=_("first day of evaluation"))
-    vote_end_date = models.DateTimeField(verbose_name=_("last day of evaluation"))
+    vote_start_date = models.DateTimeField(verbose_name=_("start of evaluation"))
+    vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
     last_modified_time = models.DateTimeField(auto_now=True)
@@ -267,8 +269,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_in_evaluation_period(self):
-        today = datetime.date.today()
-        return self.vote_start_date.date() <= today <= self.vote_end_date.date()
+        now = datetime.datetime.now()
+        return self.vote_start_date <= now <= \
+               date_to_datetime(self.vote_end_date) + datetime.timedelta(hours=24 + EVALUATION_END_OFFSET)
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -308,7 +311,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_single_result(self):
         # early return to save some queries
-        if self.vote_start_date.date() != self.vote_end_date.date():
+        if self.vote_start_date.date() != self.vote_end_date:
             return False
 
         return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
@@ -414,11 +417,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def days_left_for_evaluation(self):
-        return (self.vote_end_date - datetime.datetime.now()).days
+        return (self.vote_end_date - datetime.date.today()).days
 
     @property
     def days_until_evaluation(self):
-        return (self.vote_start_date - datetime.datetime.now()).days
+        return (self.vote_start_date.date() - datetime.date.today()).days
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
@@ -533,19 +536,19 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def update_courses(cls):
         logger.info("update_courses called. Processing courses now.")
         from evap.evaluation.tools import send_publish_notifications
-        today = datetime.date.today()
 
         courses_new_in_evaluation = []
         evaluation_results_courses = []
 
         for course in cls.objects.all():
             try:
-                if course.state == "approved" and course.vote_start_date.date() <= today:
+                if course.state == "approved" and course.vote_start_date.date() <= datetime.date.today():
                     course.evaluation_begin()
                     course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
-                elif course.state == "in_evaluation" and course.vote_end_date.date() < today:
+                elif course.state == "in_evaluation" and date_to_datetime(course.vote_end_date) < \
+                                datetime.datetime.now() + datetime.timedelta(hours=24 + EVALUATION_END_OFFSET):
                     course.evaluation_end()
                     if course.is_fully_reviewed:
                         course.review_finished()
@@ -558,7 +561,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-
 
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
@@ -1017,7 +1019,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         self.refresh_login_key()
 
     def refresh_login_key(self):
-        self.login_key_valid_until = datetime.datetime.now() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
     @property

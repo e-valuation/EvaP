@@ -34,7 +34,7 @@ class SampleXlsTests(WebTest):
 
         form = page.forms["semester-import-form"]
         form["vote_start_date"] = "2015-01-01 11:11:11"
-        form["vote_end_date"] = "2099-01-01 11:11:12"
+        form["vote_end_date"] = "2099-01-01"
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
