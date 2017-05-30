@@ -1,5 +1,5 @@
 from django.template import Library
-from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, STATES_ORDERED, STATE_DESCRIPTIONS, STUDENT_STATES_ORDERED
+from evap.evaluation.tools import LIKERT_NAMES, STATE_DESCRIPTIONS, STATES_ORDERED, STUDENT_STATES_ORDERED
 from evap.rewards.tools import can_user_use_reward_points
 
 register = Library()

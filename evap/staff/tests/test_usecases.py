@@ -170,4 +170,4 @@ class UsecaseTests(WebTest):
         form['contributions-0-responsibility'] = "CONTRIBUTOR"
         page = form.submit()
 
-        self.assertIn("No responsible contributor found", page)
+        self.assertIn("No responsible contributors found", page)

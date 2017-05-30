@@ -24,7 +24,6 @@ DEBUG = True
 # Works only with DEBUG = True and Django's development server (so no apache).
 ENABLE_DEBUG_TOOLBAR = False
 
-
 ### EvaP logic
 
 # key authentication settings
@@ -221,15 +220,6 @@ TEMPLATES = [
         },
     },
 ]
-# enable cached template loader when DEBUG == False
-if not DEBUG:
-    TEMPLATES[0]['APP_DIRS'] = False
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
-        ('django.template.loaders.cached.Loader', [
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        ]),
-    ]
 
 AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',

@@ -131,7 +131,7 @@ def feedback_send(request):
 
 @require_POST
 def set_lang(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         user = request.user
         user.language = request.POST['language']
         user.save()

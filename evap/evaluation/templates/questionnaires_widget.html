@@ -18,8 +18,8 @@
                         {% endfor %}
                     </ul>
                     {% endspaceless %}">
-                    <input id="{{ choice.id_for_label }}" name="{{ choice.name }}" type="checkbox" value="{{ choice.choice_value }}"
-                    autocomplete="off" {% if choice.is_checked  %}checked {% endif %}{% if field.field.disabled %}disabled {% endif %}/>
+                    <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
+                    autocomplete="off" {% if choice.data.selected  %}checked {% endif %}{% if field.field.disabled %}disabled {% endif %}/>
                     {{ choice.choice_label}}
                 </label>
             </div>

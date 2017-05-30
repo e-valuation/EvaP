@@ -7,8 +7,8 @@ from django.core import mail
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Course, UserProfile, Contribution, Semester, \
-                                   Questionnaire, CourseType, NotArchiveable, EmailTemplate
+from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Questionnaire,
+                                    RatingAnswerCounter, Semester, UserProfile)
 from evap.results.tools import calculate_average_grades_and_deviation
 
 
@@ -100,6 +100,42 @@ class TestCourses(TestCase):
         course = mommy.make(Course, last_modified_user=user)
         user.delete()
         self.assertTrue(Course.objects.filter(pk=course.pk).exists())
+
+    def test_responsible_contributors_ordering(self):
+        course = mommy.make(Course)
+        responsible1 = mommy.make(UserProfile)
+        responsible2 = mommy.make(UserProfile)
+        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=0)
+        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=1)
+
+        self.assertEqual(list(course.responsible_contributors), [responsible1, responsible2])
+
+        contribution1.order = 2
+        contribution1.save()
+
+        course = Course.objects.get(pk=course.pk)
+        self.assertEqual(list(course.responsible_contributors), [responsible2, responsible1])
+
+    def test_single_result_can_be_deleted_only_in_reviewed(self):
+        responsible = mommy.make(UserProfile)
+        course = mommy.make(Course, semester=mommy.make(Semester))
+        contribution = mommy.make(Contribution,
+            course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            questionnaires=[Questionnaire.single_result_questionnaire()]
+        )
+        course.single_result_created()
+        course.publish()
+        course.save()
+
+        self.assertTrue(Course.objects.filter(pk=course.pk).exists())
+        self.assertFalse(course.can_staff_delete)
+
+        course.unpublish()
+        self.assertTrue(course.can_staff_delete)
+
+        RatingAnswerCounter.objects.filter(contribution__course=course).delete()
+        course.delete()
+        self.assertFalse(Course.objects.filter(pk=course.pk).exists())
 
 
 class TestUserProfile(TestCase):

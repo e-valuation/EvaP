@@ -1,26 +1,23 @@
 import datetime
-import random
 import logging
+import random
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
 from django.db.models import Count, Q
 from django.dispatch import Signal, receiver
-from django.template.base import TemplateSyntaxError, TemplateEncodingError
 from django.template import Context, Template
-from django.utils.translation import ugettext_lazy as _
+from django.template.base import TemplateEncodingError, TemplateSyntaxError
 from django.utils.functional import cached_property
-
+from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
-
 
 logger = logging.getLogger(__name__)
 
@@ -129,11 +126,11 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.contributions.exists()
+        return not self.contributions.exclude(course__state='new').exists()
 
     @property
     def can_staff_delete(self):
-        return self.can_staff_edit
+        return not self.contributions.exists()
 
     @property
     def text_questions(self):
@@ -310,7 +307,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if self.vote_start_date != self.vote_end_date:
             return False
 
-        return self.contributions.get(responsible=True).questionnaires.filter(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
+        return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
 
     @property
     def can_staff_edit(self):
@@ -318,7 +315,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_delete(self):
-        return self.can_staff_edit and not self.num_voters > 0
+        return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
     def can_staff_approve(self):
@@ -408,8 +405,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.participants.exclude(pk__in=self.voters.all())
 
     @cached_property
-    def responsible_contributor(self):
-        return self.contributions.get(responsible=True).contributor
+    def responsible_contributors(self):
+        return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).order_by('contributions__order')
 
     @property
     def days_left_for_evaluation(self):
@@ -831,27 +828,11 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
-# taken from http://stackoverflow.com/questions/454436/unique-fields-that-allow-nulls-in-django
-# and https://docs.djangoproject.com/en/1.8/howto/custom-model-fields/#converting-values-to-python-objects
-class EmailNullField(models.EmailField):
-
-    description = "EmailField that stores NULL but returns ''"
-
-    def from_db_value(self, value, expression, connection, context):
-        return value or ""
-
-    def to_python(self, value):  # this is the value right out of the db, or an instance
-        return value or ""
-
-    def get_prep_value(self, value):  # catches value right before sending to db
-        return value or None
-
-
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
 
     # null=True because users created through kerberos logins and certain external users don't have an address.
-    email = EmailNullField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
 
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
@@ -1089,7 +1070,7 @@ class EmailTemplate(models.Model):
         elif cls.EDITORS in recipient_groups:
             recipients += UserProfile.objects.filter(contributions__course=course, contributions__can_edit=True)
         elif cls.RESPONSIBLE in recipient_groups:
-            recipients += [course.responsible_contributor]
+            recipients += course.responsible_contributors
 
         if cls.ALL_PARTICIPANTS in recipient_groups:
             recipients += course.participants.all()
@@ -1130,9 +1111,14 @@ class EmailTemplate(models.Model):
     def send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
-            logger.warning(warning_message)
+            # If this method is triggered by a cronjob changing course states, the request is None.
+            # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
+            # If a request exists, the page is displayed in the browser and the message can be shown on the page (messages.warning).
             if request is not None:
+                logger.warning(warning_message)
                 messages.warning(request, _(warning_message))
+            else:
+                logger.error(warning_message)
             return
 
         if use_cc:

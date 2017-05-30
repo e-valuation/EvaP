@@ -12,6 +12,7 @@ from evap.contributor.forms import CourseForm as ContributorCourseForm
 
 
 class CourseEmailFormTests(TestCase):
+
     def test_course_email_form(self):
         """
             Tests the CourseEmailForm with one valid and one invalid input dataset.
@@ -29,6 +30,7 @@ class CourseEmailFormTests(TestCase):
 
 
 class UserFormTests(TestCase):
+
     def test_user_form(self):
         """
             Tests the UserForm with one valid and one invalid input dataset.
@@ -84,6 +86,7 @@ class UserFormTests(TestCase):
 
 
 class SingleResultFormTests(TestCase):
+
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
@@ -110,6 +113,38 @@ class SingleResultFormTests(TestCase):
         course = Course.objects.get()
         self.assertEqual(course.num_participants, 10)
         self.assertEqual(course.num_voters, 10)
+
+    def test_single_result_form_can_change_responsible(self):
+        responsible = mommy.make(UserProfile)
+        course_type = mommy.make(CourseType)
+        course = Course(semester=mommy.make(Semester))
+        form_data = {
+            "name_de": "qwertz",
+            "name_en": "qwertz",
+            "type": course_type.pk,
+            "degrees": ["1"],
+            "event_date": "02/1/2014",
+            "responsible": responsible.pk,
+            "answer_1": 6,
+            "answer_2": 0,
+            "answer_3": 2,
+            "answer_4": 0,
+            "answer_5": 2,
+            "semester": course.semester.pk
+        }
+        form = SingleResultForm(form_data, instance=course)
+        self.assertTrue(form.is_valid())
+
+        form.save(user=mommy.make(UserProfile))
+        self.assertEqual(course.responsible_contributors[0], responsible)
+
+        new_responsible = mommy.make(UserProfile)
+        form_data["responsible"] = new_responsible.pk
+        form = SingleResultForm(form_data, instance=course)
+        self.assertTrue(form.is_valid())
+
+        form.save(user=mommy.make(UserProfile))
+        self.assertEqual(course.responsible_contributors[0], new_responsible)
 
 
 class ContributionFormsetTests(TestCase):

@@ -3,11 +3,10 @@ from collections import OrderedDict, defaultdict
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
+from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
-from django.utils.translation import ugettext_lazy as _, LANGUAGE_SESSION_KEY, get_language
-
-from evap.evaluation.models import EmailTemplate, Course
-
+from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
+from evap.evaluation.models import Course, EmailTemplate
 
 LIKERT_NAMES = {
     1: _("Strongly agree"),
@@ -80,7 +79,7 @@ def is_external_email(email):
 
 def send_publish_notifications(courses, template=None):
     publish_notifications = defaultdict(set)
-    
+
     if not template:
         template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
@@ -97,7 +96,9 @@ def send_publish_notifications(courses, template=None):
             for textanswer in course.textanswer_set:
                 if textanswer.contribution.contributor:
                     publish_notifications[textanswer.contribution.contributor].add(course)
-            publish_notifications[course.responsible_contributor].add(course)
+
+            for contributor in course.responsible_contributors:
+                publish_notifications[contributor].add(course)
 
     for user, course_set in publish_notifications.items():
         body_params = {'user': user, 'courses': list(course_set)}

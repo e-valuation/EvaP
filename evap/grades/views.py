@@ -27,12 +27,12 @@ def index(request):
 
 def prefetch_data(courses):
     courses = courses.prefetch_related(
-        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contribution"),
+        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
         "degrees")
 
     course_data = []
     for course in courses:
-        course.responsible_contributor = course.responsible_contribution[0].contributor
+        course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
         course_data.append((
             course,
             course.midterm_grade_documents.count(),

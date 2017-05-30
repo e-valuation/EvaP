@@ -18,7 +18,10 @@
     {% endif %}
     </div>
     <div class="course-contributor">
-        {{ course.responsible_contributor.full_name }}
+
+    {% for contributor in course.responsible_contributors %}
+        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
     </div>
     {% for degree in course.degrees.all %}
         <span class="label label-default">{{ degree }}</span>

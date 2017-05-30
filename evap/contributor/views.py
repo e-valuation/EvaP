@@ -3,13 +3,11 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
-
+from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm
+from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
-from evap.evaluation.auth import editor_required, editor_or_delegate_required, contributor_or_delegate_required
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
-from evap.contributor.forms import CourseForm, DelegatesForm
 from evap.staff.forms import ContributionFormSet
-from evap.contributor.forms import EditorContributionForm
 from evap.student.views import vote_preview
 
 
@@ -66,7 +64,8 @@ def course_view(request, course_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(form=form, formset=formset, course=course, editable=False, responsible=course.responsible_contributor.username)
+    template_data = dict(form=form, formset=formset, course=course, editable=False,
+                        responsibles=[contributor.username for contributor in course.responsible_contributors])
     return render(request, "contributor_course_form.html", template_data)
 
 
@@ -105,7 +104,8 @@ def course_edit(request, course_id):
         if course_form.errors or formset.errors:
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
         sort_formset(request, formset)
-        template_data = dict(form=course_form, formset=formset, course=course, editable=True, responsible=course.responsible_contributor.username)
+        template_data = dict(form=course_form, formset=formset, course=course, editable=True,
+                             responsibles=[contributor.username for contributor in course.responsible_contributors])
         return render(request, "contributor_course_form.html", template_data)
 
 

@@ -38,7 +38,11 @@
                                     {% endfor %}
                                     <span class="label label-info">{{ course.type }}</span>
                                 </td>
-                                <td>{{ course.responsible_contributor.full_name }}</td>
+                                <td>
+                                    {% for contributor in course.responsible_contributors %}
+                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
                                 <td class="text-center">
                                     {% if num_midterm_grades > 0 %}

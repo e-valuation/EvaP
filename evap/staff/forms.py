@@ -9,13 +9,9 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
 from django.utils.text import normalize_newlines
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.forms import (UserModelChoiceField,
-                                   UserModelMultipleChoiceField)
-from evap.evaluation.models import (Contribution, Course, CourseType, Degree,
-                                    EmailTemplate, FaqQuestion, FaqSection,
-                                    Question, Questionnaire,
-                                    RatingAnswerCounter, Semester, TextAnswer,
-                                    UserProfile)
+from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
+                                    RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +220,7 @@ class SingleResultForm(forms.ModelForm):
             disable_all_fields(self)
 
         if self.instance.pk:
-            self.fields['responsible'].initial = self.instance.responsible_contributor
+            self.fields['responsible'].initial = self.instance.responsible_contributors[0]
             answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
                 answer_counts[answer_counter.answer] = answer_counter.count
@@ -242,16 +238,11 @@ class SingleResultForm(forms.ModelForm):
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.question_set.first()
 
-        if not Contribution.objects.filter(course=self.instance, responsible=True).exists():
-            contribution = Contribution(
-                course=self.instance,
-                contributor=self.cleaned_data['responsible'],
-                responsible=True,
-                can_edit=True,
-                comment_visibility=Contribution.ALL_COMMENTS
-            )
-            contribution.save()
+        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution.contributor = self.cleaned_data['responsible']
+        if created:
             contribution.questionnaires.add(single_result_questionnaire)
+        contribution.save()
 
         # set answers
         contribution = Contribution.objects.get(course=self.instance, responsible=True)
@@ -470,9 +461,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 count_responsible += 1
 
         if count_responsible < 1:
-            raise forms.ValidationError(_('No responsible contributor found. Each course must have exactly one responsible contributor.'))
-        elif count_responsible > 1:
-            raise forms.ValidationError(_('Too many responsible contributors found. Each course must have exactly one responsible contributor.'))
+            raise forms.ValidationError(_('No responsible contributors found.'))
 
 
 class QuestionForm(forms.ModelForm):
@@ -539,6 +528,9 @@ class UserForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
+        if email is None:
+            return
+
         user_with_same_email = UserProfile.objects.filter(email__iexact=email)
 
         # make sure we don't take the instance itself into account
