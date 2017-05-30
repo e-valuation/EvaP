@@ -33,10 +33,7 @@
                         {{ form.contributor.errors }}
                         {{ form.contributor }}
                         <div class="checkbox">
-                            <label for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}
-                                Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the
-                                course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments.
-                                {% endblocktrans %}">
+                            <label for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% trans "Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments." %}">
                                 {{ form.does_not_contribute }}
                                 {{ form.does_not_contribute.label}}
                             </label>
