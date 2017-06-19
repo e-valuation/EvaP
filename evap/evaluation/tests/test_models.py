@@ -16,7 +16,7 @@ from evap.results.tools import calculate_average_grades_and_deviation
 class TestCourses(TestCase):
 
     def test_approved_to_in_evaluation(self):
-        course = mommy.make(Course, state='approved', vote_start_date=datetime.now())
+        course = mommy.make(Course, state='approved', vote_start_datetime=datetime.now())
 
         with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_courses') as mock:
             Course.update_courses()
@@ -74,7 +74,7 @@ class TestCourses(TestCase):
     def test_approved_to_in_evaluation_sends_emails(self):
         """ Regression test for #945 """
         participant = mommy.make(UserProfile, email='foo@example.com')
-        course = mommy.make(Course, state='approved', vote_start_date=datetime.now(), participants=[participant])
+        course = mommy.make(Course, state='approved', vote_start_datetime=datetime.now(), participants=[participant])
 
         Course.update_courses()
 

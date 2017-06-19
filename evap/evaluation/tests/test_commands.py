@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, date, timedelta
 from io import StringIO
 import os
 from unittest.mock import patch
@@ -85,16 +85,13 @@ class TestDumpTestDataCommand(TestCase):
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
 class TestSendRemindersCommand(TestCase):
-    now = datetime.datetime.now()
-    today = datetime.date.today()
-
     def test_remind_user_about_one_course(self):
         user_to_remind = mommy.make(UserProfile)
         course = mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.now - datetime.timedelta(days=1),
-                vote_end_date=self.today + datetime.timedelta(days=2),
+                vote_start_datetime=datetime.now() - timedelta(days=1),
+                vote_end_date=date.today() + timedelta(days=2),
                 participants=[user_to_remind])
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
@@ -108,14 +105,14 @@ class TestSendRemindersCommand(TestCase):
         course1 = mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.now - datetime.timedelta(days=1),
-                vote_end_date=self.today + datetime.timedelta(days=0),
+                vote_start_datetime=datetime.now() - timedelta(days=1),
+                vote_end_date=date.today() + timedelta(days=0),
                 participants=[user_to_remind])
         course2 = mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.now - datetime.timedelta(days=1),
-                vote_end_date=self.today + datetime.timedelta(days=2),
+                vote_start_datetime=datetime.now() - timedelta(days=1),
+                vote_end_date=date.today() + timedelta(days=2),
                 participants=[user_to_remind])
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
@@ -129,8 +126,8 @@ class TestSendRemindersCommand(TestCase):
         mommy.make(
                 Course,
                 state='in_evaluation',
-                vote_start_date=self.now - datetime.timedelta(days=1),
-                vote_end_date=self.today + datetime.timedelta(days=2),
+                vote_start_datetime=datetime.now() - timedelta(days=1),
+                vote_end_date=date.today() + timedelta(days=2),
                 participants=[user_no_remind],
                 voters=[user_no_remind])
 

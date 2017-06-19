@@ -56,7 +56,7 @@
                                 <span data-toggle="tooltip" data-placement="left" title="{{ course.state|statedescription }}">{{ course.state|statename }}</span>
                             </td>
                             <td>
-                                {{ course.vote_start_date|date:'SHORT_DATETIME_FORMAT' }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}{% endif %}
+                                {{ course.vote_start_datetime|date:'SHORT_DATETIME_FORMAT' }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}{% endif %}
                             </td>
                             <td>
                                 {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}

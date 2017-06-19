@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 
 from django.core import mail
 from django.contrib.auth.models import Group
@@ -24,8 +24,8 @@ class GradeUploadTests(WebTest):
         cls.course = mommy.make(
                 Course,
                 name_en="Test",
-                vote_start_date=datetime.datetime.now() - datetime.timedelta(10),
-                vote_end_date=datetime.datetime.now() + datetime.timedelta(10),
+                vote_start_datetime=datetime.now() - timedelta(10),
+                vote_end_date=datetime.now() + timedelta(10),
                 participants=[cls.student, cls.student2, cls.student3],
                 voters=[cls.student, cls.student2]
         )
@@ -130,7 +130,7 @@ class GradeUploadTests(WebTest):
         course = mommy.make(
                 Course,
                 name_en="Toggle",
-                vote_start_date=datetime.datetime.now(),
+                vote_start_datetime=datetime.now(),
                 state="reviewed",
                 participants=[self.student, self.student2, self.student3],
                 voters=[self.student, self.student2]
@@ -150,8 +150,7 @@ class GradeUploadTests(WebTest):
         self.assertTrue(course.gets_no_grade_documents)
         # course should get published here
         self.assertEqual(course.state, "published")
-        self.assertEqual(
-                len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
+        self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
 
         response = self.app.post("/grades/toggle_no_grades", params={"course_id": course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)

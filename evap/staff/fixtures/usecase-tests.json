@@ -76,7 +76,7 @@
             "voters":[ ],
 
             "semester":1,
-            "vote_start_date":"2010-08-18",
+            "vote_start_datetime":"2010-08-18",
             "vote_end_date":"2010-08-30",
 
             "last_modified_time":"2010-07-01"
@@ -95,7 +95,7 @@
             "voters":[ ],
 
             "semester":1,
-            "vote_start_date":"2010-08-18",
+            "vote_start_datetime":"2010-08-18",
             "vote_end_date":"2010-08-30",
 
             "last_modified_time":"2010-07-01"

@@ -45,7 +45,7 @@ class UsecaseTests(WebTest):
         page = upload_form.submit(name="operation", value="test")
 
         upload_form = page.forms["semester-import-form"]
-        upload_form['vote_start_date'] = "02/29/2000"
+        upload_form['vote_start_datetime'] = "02/29/2000"
         upload_form['vote_end_date'] = "02/29/2012"
         upload_form.submit(name="operation", value="import").follow()
 
