@@ -181,13 +181,14 @@ def semester_course_operation(request, semester_id):
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
             # remove courses without enough questionnaires
-            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires]
+            courses_with_enough_questionnaires = [course for course in courses if course.has_all_questionnaires]
             difference = len(courses) - len(courses_with_enough_questionnaires)
             if difference:
-                courses = courses_with_enough_questionnaires
-                messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
-                    "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
-                    difference) % {'courses': difference})
+                message = '%(courses)d {} not have a questionnaires assigned for every contributor. {} approved anyway.'
+                messages.warning(request,
+                                 ungettext(message.format('course does', 'It was'),
+                                           message.format('courses do', 'They were'),
+                                           difference) % {'courses': difference})
 
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
