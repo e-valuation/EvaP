@@ -187,18 +187,18 @@ def semester_course_operation(request, semester_id):
             difference = len(courses) - len(courses_with_enough_questionnaires)
             if difference:
                 courses = courses_with_enough_questionnaires
-                message = '%(courses)d {} can not be approved, because {} not enough questionnaires assigned. {} removed from the selection.'
+                message =
                 messages.warning(request,
-                                 ungettext(message.format('course', 'it has', 'It was'),
-                                           message.format('courses', 'they have', 'They were'),
+                                 ungettext('%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.',
+                                           '%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.',
                                            difference) % {'courses': difference})
 
             difference = len(courses_with_missing_questionnaires)
             if difference:
-                message = '%(courses)d {} not have a questionnaire assigned for every contributor. {} approved anyway.'
+                message =
                 messages.warning(request,
-                                 ungettext(message.format('course does', 'It was'),
-                                           message.format('courses do', 'They were'),
+                                 ungettext('%(courses)d course does not have a questionnaire assigned for every contributor. It was approved anyway.',
+                                           '%(courses)d courses do not have a questionnaire assigned for every contributor. They were approved anyway.',
                                            difference) % {'courses': difference})
 
         elif operation == 'startEvaluation':
