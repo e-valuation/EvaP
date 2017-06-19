@@ -24,7 +24,7 @@ class TestUserImporter(TestCase):
         with open(cls.filename_random, "rb") as excel_file:
             cls.random_excel_content = excel_file.read()
 
-    def test_test_run_consistency(self):
+    def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
 
         __, __, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
@@ -32,14 +32,14 @@ class TestUserImporter(TestCase):
         self.assertEqual(original_users, list(UserProfile.objects.all()))
 
     def test_test_and_notest_equality(self):
-        # success messages are supposed to be different
+        # success messages are supposed to be different in a test and import run
         list_test, __, warnings_test, errors_test = UserImporter.process(self.valid_excel_content, test_run=True)
         list_notest, __, warnings_notest, errors_notest = UserImporter.process(self.valid_excel_content, test_run=False)
 
         notest_string_list = ["{} {}".format(user.full_name, user.email) for user in list_notest]
-        for user in list_test:
-            self.assertIn("{} {}".format(user.full_name, user.email), notest_string_list)
+        test_string_list = ["{} {}".format(user.full_name, user.email) for user in list_test]
 
+        self.assertEqual(notest_string_list, test_string_list)
         self.assertEqual(warnings_test, warnings_notest)
         self.assertEqual(errors_test, errors_notest)
 
@@ -55,7 +55,7 @@ class TestUserImporter(TestCase):
         self.assertEqual(v3, [])
 
         self.assertEqual(len(user_list), 2)
-        self.assertEqual(2 + original_user_count, UserProfile.objects.count())
+        self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
         self.assertTrue(isinstance(user_list[0], UserProfile))
         self.assertTrue(UserProfile.objects.filter(email="lucilia.manilium@institution.example.com").exists())
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())

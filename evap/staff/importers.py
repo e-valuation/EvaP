@@ -114,7 +114,9 @@ class ExcelImporter(object):
         self.warnings = defaultdict(list)
 
         # this is a dictionary to not let this become O(n^2)
-        self.users = {}
+        # ordered to always keep the order of the imported users the same when iterating over it
+        # (otherwise, testing is a pain)
+        self.users = OrderedDict()
 
     def read_book(self, file_content):
         try:
@@ -482,7 +484,9 @@ class PersonImporter:
 
         if not test_run:
             course.participants.add(*users_to_add)
-        msg = _("{} participants {}added to the course {}:").format(len(users_to_add), "would be " if test_run else "", course.name)
+            msg = _("{} participants added to the course {}:").format(len(users_to_add), course.name)
+        else:
+            msg = _("{} participants would be added to the course {}:").format(len(users_to_add), course.name)
         msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
@@ -503,7 +507,9 @@ class PersonImporter:
             for user in users_to_add:
                 order = Contribution.objects.filter(course=course).count()
                 Contribution.objects.create(course=course, contributor=user, order=order)
-        msg = _("{} contributors {}added to the course {}:").format(len(users_to_add), "would be " if test_run else "", course.name)
+            msg = _("{} contributors added to the course {}:").format(len(users_to_add), course.name)
+        else:
+            msg = _("{} contributors would be added to the course {}:").format(len(users_to_add), course.name)
         msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
