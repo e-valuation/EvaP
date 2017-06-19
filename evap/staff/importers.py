@@ -114,7 +114,9 @@ class ExcelImporter(object):
         self.warnings = defaultdict(list)
 
         # this is a dictionary to not let this become O(n^2)
-        self.users = {}
+        # ordered to always keep the order of the imported users the same when iterating over it
+        # (otherwise, testing is a pain)
+        self.users = OrderedDict()
 
     def read_book(self, file_content):
         try:
@@ -478,6 +480,7 @@ class PersonImporter:
         if already_related:
             msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         if not test_run:
             course.participants.add(*users_to_add)
@@ -494,6 +497,7 @@ class PersonImporter:
         if already_related:
             msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
         # makes anything relying on hashes unusable here (for a faster list difference)
