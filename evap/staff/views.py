@@ -180,14 +180,13 @@ def semester_course_operation(request, semester_id):
 
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
-            # remove courses without main questionnaire, warn about courses with missing questionnaires
+            # remove courses without questionnaires on general contribution, warn about courses with missing questionnaires
             courses_with_enough_questionnaires = [course for course in courses if course.general_contribution_has_questionnaires]
-            courses_with_missing_questionnaires = [course for course in courses_with_enough_questionnaires if not course.has_all_questionnaires]
+            courses_with_missing_questionnaires = [course for course in courses_with_enough_questionnaires if not course.all_contributions_have_questionnaires]
 
             difference = len(courses) - len(courses_with_enough_questionnaires)
             if difference:
                 courses = courses_with_enough_questionnaires
-                message =
                 messages.warning(request,
                                  ungettext('%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.',
                                            '%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.',
@@ -195,7 +194,6 @@ def semester_course_operation(request, semester_id):
 
             difference = len(courses_with_missing_questionnaires)
             if difference:
-                message =
                 messages.warning(request,
                                  ungettext('%(courses)d course does not have a questionnaire assigned for every contributor. It was approved anyway.',
                                            '%(courses)d courses do not have a questionnaire assigned for every contributor. They were approved anyway.',
