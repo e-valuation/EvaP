@@ -194,8 +194,8 @@ def semester_course_operation(request, semester_id):
 
             if courses_with_missing_questionnaires:
                 messages.warning(request,
-                                 ungettext('%(courses)d course does not have a questionnaire assigned for every contributor. It was approved anyway.',
-                                           '%(courses)d courses do not have a questionnaire assigned for every contributor. They were approved anyway.',
+                                 ungettext('%(courses)d course does not have a questionnaire assigned for every contributor. It can be approved anyway.',
+                                           '%(courses)d courses do not have a questionnaire assigned for every contributor. They can be approved anyway.',
                                            len(courses_with_missing_questionnaires)) % {'courses': len(courses_with_missing_questionnaires)})
 
         elif operation == 'startEvaluation':

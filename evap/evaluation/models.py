@@ -458,7 +458,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def warnings(self):
         result = []
         if self.state in ['new', 'prepared', 'editor_approved'] and not self.general_contribution_has_questionnaires:
-            result.append(_("No questionnaires assigned to course"))
+            result.append(_("General contribution has no questionnaires"))
+        if self.state in ['new', 'prepared', 'editor_approved'] and not self.all_contributions_have_questionnaires:
+            result.append(_("Not all contributions have questionnaires"))
         if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
