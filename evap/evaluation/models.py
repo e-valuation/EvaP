@@ -271,7 +271,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return today >= self.vote_start_date and today <= self.vote_end_date
 
     @property
-    def has_enough_questionnaires(self):
+    def general_contribution_has_questionnaires(self):
+        return self.general_contribution and (self.is_single_result or self.general_contribution.questionnaires.count() > 0)
+
+    @property
+    def all_contributions_have_questionnaires(self):
         return self.general_contribution and (self.is_single_result or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
@@ -337,7 +341,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.has_enough_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.general_contribution_has_questionnaires])
     def staff_approve(self):
         pass
 
@@ -453,8 +457,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     def warnings(self):
         result = []
-        if self.state in ['new', 'prepared', 'editor_approved'] and not self.has_enough_questionnaires:
-            result.append(_("Not enough questionnaires assigned"))
+        if self.state in ['new', 'prepared', 'editor_approved'] and not self.all_contributions_have_questionnaires:
+            if not self.general_contribution_has_questionnaires:
+                result.append(_("General contribution has no questionnaires"))
+            else:
+                result.append(_("Not all contributions have questionnaires"))
+
         if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
         return result
