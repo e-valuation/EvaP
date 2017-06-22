@@ -9,16 +9,13 @@ GRADE_CHOICES = [(str(k), v) for k, v in GRADE_NAMES.items()]
 
 
 class QuestionsForm(forms.Form):
-    """Dynamic form class that adds one field per question. Pass the arguments
-    `contribution` and `questionnaire` to the constructor.
+    """Dynamic form class that adds one field per question.
 
     See http://jacobian.org/writing/dynamic-form-generation/"""
 
-    def __init__(self, *args, **kwargs):
-        self.contribution = kwargs.pop('contribution')
-        self.questionnaire = kwargs.pop('questionnaire')
-
+    def __init__(self, *args, contribution, questionnaire, **kwargs):
         super().__init__(*args, **kwargs)
+        self.questionnaire = questionnaire
 
         for question in self.questionnaire.question_set.all():
             # generic arguments for all kinds of fields
@@ -38,8 +35,8 @@ class QuestionsForm(forms.Form):
                                                coerce=int,
                                                **field_args)
 
-            identifier = make_form_identifier(self.contribution,
-                                              self.questionnaire,
+            identifier = make_form_identifier(contribution,
+                                              questionnaire,
                                               question)
             self.fields[identifier] = field
 

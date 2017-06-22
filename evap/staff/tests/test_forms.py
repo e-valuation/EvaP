@@ -19,12 +19,12 @@ class CourseEmailFormTests(TestCase):
         course = course_with_responsible_and_editor()
         mommy.make(Contribution, course=course)
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
-        form = CourseEmailForm(instance=course, data=data)
+        form = CourseEmailForm(course=course, data=data)
         self.assertTrue(form.is_valid())
         form.send(None)
 
         data = {"body": "wat", "subject": "some subject"}
-        form = CourseEmailForm(instance=course, data=data)
+        form = CourseEmailForm(course=course, data=data)
         self.assertFalse(form.is_valid())
 
 
