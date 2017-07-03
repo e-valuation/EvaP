@@ -298,7 +298,9 @@ class EnrollmentImporter(ExcelImporter):
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            enrollments_per_user[enrollment[1].username].append(enrollment)
+            # At this point the user should have a non-empty email address (see #953)
+            index = enrollment[1].username if enrollment[1].username else enrollment[1].email
+            enrollments_per_user[index].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))

@@ -153,6 +153,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("Warning: User diam.synephebos has 6 enrollments, which is a lot.", warnings_many)
         self.assertIn("Warning: User torquate.metrodorus has 6 enrollments, which is a lot.", warnings_many)
         self.assertIn("Warning: User latinas.menandri has 5 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User bastius.quid@external.example.com has 3 enrollments, which is a lot.", warnings_many)
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
