@@ -93,6 +93,7 @@ class CourseData(CommonEqualityMixin):
                         vote_end_date=vote_end_date,
                         semester=semester)
         course.save()
+        # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         for degree_name in self.degree_names:
@@ -194,6 +195,8 @@ class ExcelImporter(object):
             if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH:
                 self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
+                # This might be meaningless due to an empty email, but in that case, there will be
+                # another error saying that the email address is missing for this user.
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
@@ -317,6 +320,7 @@ class EnrollmentImporter(ExcelImporter):
 
             for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de)
+                # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
