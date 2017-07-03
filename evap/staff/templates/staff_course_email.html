@@ -1,6 +1,7 @@
 {% extends "staff_course_base.html" %}
 
 {% load evaluation_filters %}
+{% load bootstrap3 %}
 
 {% block content %}
     {{ block.super }}
@@ -14,21 +15,20 @@
                 {% for field in form %}
                     <div class="form-row">
                         {% if field.name == "recipients" %}
-                            <div class="form-label vertically-aligned {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
-                            <div class="btn-group" data-toggle="buttons">
-                                {% for choice in field %}
-                                    <label class="btn btn-sm btn-default {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error{% endif %}" name="{{ field.name }}" onclick="changedFieldValue('{{ field.name }}')">
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
-                                        {{ choice.choice_label }} {{ choice.id }}
-                                    </label>
-                                {% endfor %}
-                            </div> <input name="export" type="submit" value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
-                        {% elif field.name == "subject" %}
-                            <div class="form-label {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
-                            <div class="form-field"><input class="form-control {% if field.errors %}error{% endif %}" id="{{ field.id_for_label }}" name="{{ field.name }}" type="text" oninput="changedFieldValue('{{ field.name }}');"/></div>
-                        {% elif field.name == "body" %}
-                            <div class="form-label {% if field.errors %}error{% endif %}" name="{{ field.name }}">{{ field.label }}</div>
-                            <div class="form-field"><textarea class="form-control {% if field.errors %}error{% endif %}" cols="40" rows="10" id="{{ field.id_for_label }}" name="{{ field.name }}" oninput="changedFieldValue('{{ field.name }}');"></textarea></div>
+                            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                                <label class="col-md-2 control-label" name="{{ field.name}}">{{ field.label }}</label>
+                                <div class="btn-group col-md-7" data-toggle="buttons">
+                                    {% for choice in field %}
+                                        <label class="btn btn-sm btn-default control-label {% if choice.data.value in field.value %}active{% endif %}" name="{{ field.name }}">
+                                            <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
+                                            {{ choice.choice_label }} {{ choice.id }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                                <input name="export" type="submit" value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
+                            </div>
+                        {% else %}
+                            {% bootstrap_field field layout='horizontal' %}
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -38,14 +38,4 @@
             <input name="send" type="submit" value="{% trans "Send email" %}" class="btn btn-primary"/>
         </div>
     </form>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript">
-        function changedFieldValue(fieldName) {
-            // remove error highlighting when field was changed
-            $("[name=" + fieldName + "]").removeClass("error");
-        }
-    </script>
 {% endblock %}
