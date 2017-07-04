@@ -88,11 +88,11 @@ class TestSendRemindersCommand(TestCase):
     def test_remind_user_about_one_course(self):
         user_to_remind = mommy.make(UserProfile)
         course = mommy.make(
-                Course,
-                state='in_evaluation',
-                vote_start_datetime=datetime.now() - timedelta(days=1),
-                vote_end_date=date.today() + timedelta(days=2),
-                participants=[user_to_remind])
+            Course,
+            state='in_evaluation',
+            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user_to_remind])
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
@@ -103,17 +103,17 @@ class TestSendRemindersCommand(TestCase):
     def test_remind_user_once_about_two_courses(self):
         user_to_remind = mommy.make(UserProfile)
         course1 = mommy.make(
-                Course,
-                state='in_evaluation',
-                vote_start_datetime=datetime.now() - timedelta(days=1),
-                vote_end_date=date.today() + timedelta(days=0),
-                participants=[user_to_remind])
+            Course,
+            state='in_evaluation',
+            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_end_date=date.today() + timedelta(days=0),
+            participants=[user_to_remind])
         course2 = mommy.make(
-                Course,
-                state='in_evaluation',
-                vote_start_datetime=datetime.now() - timedelta(days=1),
-                vote_end_date=date.today() + timedelta(days=2),
-                participants=[user_to_remind])
+            Course,
+            state='in_evaluation',
+            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user_to_remind])
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
@@ -124,12 +124,12 @@ class TestSendRemindersCommand(TestCase):
     def test_dont_remind_already_voted(self):
         user_no_remind = mommy.make(UserProfile)
         mommy.make(
-                Course,
-                state='in_evaluation',
-                vote_start_datetime=datetime.now() - timedelta(days=1),
-                vote_end_date=date.today() + timedelta(days=2),
-                participants=[user_no_remind],
-                voters=[user_no_remind])
+            Course,
+            state='in_evaluation',
+            vote_start_datetime=datetime.now() - timedelta(days=1),
+            vote_end_date=date.today() + timedelta(days=2),
+            participants=[user_no_remind],
+            voters=[user_no_remind])
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')

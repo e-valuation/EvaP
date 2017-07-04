@@ -22,12 +22,12 @@ class GradeUploadTests(WebTest):
         responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
         cls.course = mommy.make(
-                Course,
-                name_en="Test",
-                vote_start_datetime=datetime.now() - timedelta(10),
-                vote_end_date=datetime.now() + timedelta(10),
-                participants=[cls.student, cls.student2, cls.student3],
-                voters=[cls.student, cls.student2]
+            Course,
+            name_en="Test",
+            vote_start_datetime=datetime.now() - timedelta(10),
+            vote_end_date=datetime.now() + timedelta(10),
+            participants=[cls.student, cls.student2, cls.student3],
+            voters=[cls.student, cls.student2],
         )
         contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True,
                                     comment_visibility=Contribution.ALL_COMMENTS)
@@ -52,11 +52,11 @@ class GradeUploadTests(WebTest):
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
-                "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
-                params={"description_en": "Grades", "description_de": "Grades"},
-                user="grade_publisher",
-                content_type='multipart/form-data',
-                upload_files=upload_files,
+            "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
+            params={"description_en": "Grades", "description_de": "Grades"},
+            user="grade_publisher",
+            content_type='multipart/form-data',
+            upload_files=upload_files,
         ).follow()
         return response
 
@@ -119,7 +119,7 @@ class GradeUploadTests(WebTest):
         course.review_finished()
         course.save()
         self.helper_check_final_grade_upload(
-                course, course.num_participants + course.contributions.exclude(contributor=None).count())
+            course, course.num_participants + course.contributions.exclude(contributor=None).count())
 
         # state: published
         course.publish()
@@ -128,12 +128,12 @@ class GradeUploadTests(WebTest):
 
     def test_toggle_no_grades(self):
         course = mommy.make(
-                Course,
-                name_en="Toggle",
-                vote_start_datetime=datetime.now(),
-                state="reviewed",
-                participants=[self.student, self.student2, self.student3],
-                voters=[self.student, self.student2]
+            Course,
+            name_en="Toggle",
+            vote_start_datetime=datetime.now(),
+            state="reviewed",
+            participants=[self.student, self.student2, self.student3],
+            voters=[self.student, self.student2]
         )
         contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
                                     responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
