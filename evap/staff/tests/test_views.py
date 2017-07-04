@@ -20,6 +20,31 @@ def helper_delete_all_import_files(user_id):
     for filename in glob.glob(file_filter):
         os.remove(filename)
 
+# Staff - Sample Files View
+class TestDownloadSampleXlsView(ViewTest):
+    test_users = ['staff']
+    url = '/staff/download_sample_xls/sample.xls'
+    email_placeholder = "institution.com"
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_sample_file_correctness(self):
+        page = self.app.get(self.url, user='staff')
+
+        found_institution_domain = False
+        book = xlrd.open_workbook(file_contents=page.body)
+        for sheet in book.sheets():
+            for row in sheet.get_rows():
+                for cell in row:
+                    value = cell.value
+                    self.assertNotIn(self.email_placeholder, value)
+                    if settings.INSTITUTION_EMAIL_DOMAINS[0] in value:
+                        found_institution_domain = True
+
+        self.assertTrue(found_institution_domain)
+
 
 # Staff - Root View
 class TestStaffIndexView(ViewTest):
@@ -156,21 +181,20 @@ class TestUserImportView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
 
-    def test_import_valid_file(self):
+    def test_success_handling(self):
+        """
+        Tests whether a correct excel file is correctly tested and imported and whether the success messages are displayed
+        """
         page = self.app.get(self.url, user='staff')
-
-        original_user_count = UserProfile.objects.count()
-
         form = page.forms["user-import-form"]
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
 
+        self.assertContains(page, 'The import run will create 2 user(s):<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)')
         self.assertContains(page, 'Import previously uploaded file')
-        self.assertEqual(UserProfile.objects.count(), original_user_count)
 
         form = page.forms["user-import-form"]
         form.submit(name="operation", value="import")
-        self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
 
         page = self.app.get(self.url, user='staff')
         self.assertNotContains(page, 'Import previously uploaded file')
@@ -420,6 +444,7 @@ class TestSemesterImportView(ViewTest):
         reply = form.submit(name="operation", value="test")
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#39;s data (email: bastius.quid@external.example.com) differs from it&#39;s data in a previous row.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
+        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 10: Email address is missing.')
         self.assertContains(reply, 'The imported data contains two email addresses with the same username')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 

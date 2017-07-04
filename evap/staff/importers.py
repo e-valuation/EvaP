@@ -93,6 +93,7 @@ class CourseData(CommonEqualityMixin):
                         vote_end_date=vote_end_date,
                         semester=semester)
         course.save()
+        # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         for degree_name in self.degree_names:
@@ -114,7 +115,9 @@ class ExcelImporter(object):
         self.warnings = defaultdict(list)
 
         # this is a dictionary to not let this become O(n^2)
-        self.users = {}
+        # ordered to always keep the order of the imported users the same when iterating over it
+        # (otherwise, testing is a pain)
+        self.users = OrderedDict()
 
     def read_book(self, file_content):
         try:
@@ -192,6 +195,8 @@ class ExcelImporter(object):
             if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH:
                 self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
+                # This might be meaningless due to an empty email, but in that case, there will be
+                # another error saying that the email address is missing for this user.
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
@@ -293,7 +298,9 @@ class EnrollmentImporter(ExcelImporter):
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            enrollments_per_user[enrollment[1].username].append(enrollment)
+            # At this point the user should have a non-empty email address (see #953)
+            index = enrollment[1].username if enrollment[1].username else enrollment[1].email
+            enrollments_per_user[index].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
@@ -315,6 +322,7 @@ class EnrollmentImporter(ExcelImporter):
 
             for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de)
+                # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
@@ -478,6 +486,7 @@ class PersonImporter:
         if already_related:
             msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         if not test_run:
             course.participants.add(*users_to_add)
@@ -494,6 +503,7 @@ class PersonImporter:
         if already_related:
             msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
         # makes anything relying on hashes unusable here (for a faster list difference)

@@ -76,24 +76,29 @@ class TestCourses(TestCase):
         Course.objects.bulk_create([mommy.prepare(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))])
         course = Course.objects.get()
         self.assertEqual(course.contributions.count(), 0)
-        self.assertFalse(course.has_enough_questionnaires)
+        self.assertFalse(course.general_contribution_has_questionnaires)
+        self.assertFalse(course.all_contributions_have_questionnaires)
 
         responsible_contribution = mommy.make(
                 Contribution, course=course, contributor=mommy.make(UserProfile),
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         course = Course.objects.get()
-        self.assertFalse(course.has_enough_questionnaires)
+        self.assertFalse(course.general_contribution_has_questionnaires)
+        self.assertFalse(course.all_contributions_have_questionnaires)
 
         general_contribution = mommy.make(Contribution, course=course, contributor=None)
         course = Course.objects.get()
-        self.assertFalse(course.has_enough_questionnaires)
+        self.assertFalse(course.general_contribution_has_questionnaires)
+        self.assertFalse(course.all_contributions_have_questionnaires)
 
         questionnaire = mommy.make(Questionnaire)
         general_contribution.questionnaires.add(questionnaire)
-        self.assertFalse(course.has_enough_questionnaires)
+        self.assertTrue(course.general_contribution_has_questionnaires)
+        self.assertFalse(course.all_contributions_have_questionnaires)
 
         responsible_contribution.questionnaires.add(questionnaire)
-        self.assertTrue(course.has_enough_questionnaires)
+        self.assertTrue(course.general_contribution_has_questionnaires)
+        self.assertTrue(course.all_contributions_have_questionnaires)
 
     def test_deleting_last_modified_user_does_not_delete_course(self):
         user = mommy.make(UserProfile)

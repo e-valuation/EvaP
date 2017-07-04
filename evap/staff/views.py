@@ -1,8 +1,11 @@
 import csv
 import datetime
 import random
+from xlrd import open_workbook as open_workbook
+from xlutils.copy import copy as copy_workbook
 from collections import OrderedDict, defaultdict
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
@@ -180,14 +183,23 @@ def semester_course_operation(request, semester_id):
 
         elif operation == 'approve':
             new_state_name = STATES_ORDERED['approved']
-            # remove courses without enough questionnaires
-            courses_with_enough_questionnaires = [course for course in courses if course.has_enough_questionnaires]
+            # remove courses without questionnaires on general contribution, warn about courses with missing questionnaires
+            courses_with_enough_questionnaires = [course for course in courses if course.general_contribution_has_questionnaires]
+            courses_with_missing_questionnaires = [course for course in courses_with_enough_questionnaires if not course.all_contributions_have_questionnaires]
+
             difference = len(courses) - len(courses_with_enough_questionnaires)
             if difference:
                 courses = courses_with_enough_questionnaires
-                messages.warning(request, ungettext("%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.",
-                    "%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.",
-                    difference) % {'courses': difference})
+                messages.warning(request,
+                                 ungettext('%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.',
+                                           '%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.',
+                                           difference) % {'courses': difference})
+
+            if courses_with_missing_questionnaires:
+                messages.warning(request,
+                                 ungettext('%(courses)d course does not have a questionnaire assigned for every contributor. It can be approved anyway.',
+                                           '%(courses)d courses do not have a questionnaire assigned for every contributor. They can be approved anyway.',
+                                           len(courses_with_missing_questionnaires)) % {'courses': len(courses_with_missing_questionnaires)})
 
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
@@ -1249,3 +1261,27 @@ def faq_section(request, section_id):
     else:
         template_data = dict(formset=formset, section=section, questions=questions)
         return render(request, "staff_faq_section.html", template_data)
+
+
+@staff_required
+def download_sample_xls(request, filename):
+    email_placeholder = "institution.com"
+
+    if filename not in ["sample.xls", "sample_user.xls"]:
+        raise SuspiciousOperation("Invalid file name.")
+
+    read_book = open_workbook(settings.STATICFILES_DIRS[0] + "/" + filename, formatting_info=True)
+    write_book = copy_workbook(read_book)
+    for sheet_index in range(read_book.nsheets):
+        read_sheet = read_book.sheet_by_index(sheet_index)
+        write_sheet = write_book.get_sheet(sheet_index)
+        for row in range(read_sheet.nrows):
+            for col in range(read_sheet.ncols):
+                value = read_sheet.cell(row, col).value
+                if email_placeholder in value:
+                    write_sheet.write(row, col, value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0]))
+
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    write_book.save(response)
+    return response
