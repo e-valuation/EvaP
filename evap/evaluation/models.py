@@ -459,9 +459,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         result = []
         if self.state in ['new', 'prepared', 'editor_approved'] and not self.all_contributions_have_questionnaires:
             if not self.general_contribution_has_questionnaires:
-                result.append(_("General contribution has no questionnaires"))
+                result.append(_("Course has no questionnaires"))
             else:
-                result.append(_("Not all contributions have questionnaires"))
+                result.append(_("Not all contributors have questionnaires"))
 
         if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
             result.append(_("Not enough participants to publish results"))
