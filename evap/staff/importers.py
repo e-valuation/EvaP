@@ -83,13 +83,13 @@ class CourseData(CommonEqualityMixin):
             degree_name = degree_name.strip()
         self.degree_names = degree_names
 
-    def store_in_database(self, vote_start_date, vote_end_date, semester):
+    def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
         course = Course(name_de=self.name_de,
                         name_en=self.name_en,
                         type=course_type,
                         is_graded=self.is_graded,
-                        vote_start_date=vote_start_date,
+                        vote_start_datetime=vote_start_datetime,
                         vote_end_date=vote_end_date,
                         semester=semester)
         course.save()
@@ -305,7 +305,7 @@ class EnrollmentImporter(ExcelImporter):
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
-    def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
+    def write_enrollments_to_db(self, semester, vote_start_datetime, vote_end_date):
         students_created = []
         responsibles_created = []
 
@@ -318,7 +318,7 @@ class EnrollmentImporter(ExcelImporter):
                     else:
                         students_created.append(user_data)
             for course_data in self.courses.values():
-                course_data.store_in_database(vote_start_date, vote_end_date, semester)
+                course_data.store_in_database(vote_start_datetime, vote_end_date, semester)
 
             for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de)
@@ -340,7 +340,7 @@ class EnrollmentImporter(ExcelImporter):
         self.success_messages.append(mark_safe(msg))
 
     @classmethod
-    def process(cls, excel_content, semester, vote_start_date, vote_end_date, test_run):
+    def process(cls, excel_content, semester, vote_start_datetime, vote_end_date, test_run):
         """
             Entry point for the view.
         """
@@ -370,7 +370,7 @@ class EnrollmentImporter(ExcelImporter):
             elif test_run:
                 importer.create_test_success_messages()
             else:
-                importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+                importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
             return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:

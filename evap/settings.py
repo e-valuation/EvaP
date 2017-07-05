@@ -265,6 +265,8 @@ USERNAME_REPLACEMENTS = [
     ('ß', 'ss'),
 ]
 
+# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
+EVALUATION_END_OFFSET_HOURS = 3
 
 ### Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/

@@ -1,5 +1,5 @@
 import os
-import datetime
+from datetime import datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_mommy import mommy
@@ -113,8 +113,8 @@ class TestEnrollmentImporter(TestCase):
 
     def test_valid_file_import(self):
         semester = mommy.make(Semester)
-        vote_start_date = datetime.datetime(2017, 1, 10)
-        vote_end_date = datetime.datetime(2017, 3, 10)
+        vote_start_date = datetime(2017, 1, 10)
+        vote_end_date = datetime(2017, 3, 10)
         mommy.make(CourseType, name_de="Seminar")
         mommy.make(CourseType, name_de="Vorlesung")
 
@@ -137,14 +137,14 @@ class TestEnrollmentImporter(TestCase):
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
         semester = mommy.make(Semester)
-        vote_start_date = datetime.datetime(2017, 1, 10)
-        vote_end_date = datetime.datetime(2017, 3, 10)
+        vote_start_datetime = datetime(2017, 1, 10)
+        vote_end_date = datetime(2017, 3, 10)
 
         with open(self.filename_valid, "rb") as excel_file:
             excel_content = excel_file.read()
 
         __, warnings_test, __ = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
-        __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, semester, vote_start_date, vote_end_date, test_run=False)
+        __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, semester, vote_start_datetime, vote_end_date, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
         warnings_many = warnings_test[EnrollmentImporter.W_MANY]

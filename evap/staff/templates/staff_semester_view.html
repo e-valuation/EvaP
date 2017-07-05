@@ -45,7 +45,7 @@
                         <td>
                             {% if degree == 'total' %}{% trans "Total" %}{% else %}{{ degree }}{% endif %}
                         </td>
-                        <td>{{ stats.first_start|date:"SHORT_DATE_FORMAT" }} - {{ stats.last_end|date:"SHORT_DATE_FORMAT" }}</td>
+                        <td>{{ stats.first_start|date:"Y-m-d H:i" }} &ndash; {{ stats.last_end|date:"Y-m-d" }}</td>
                         <td>
                             {% include "progress_bar.html" with done=stats.num_courses_evaluated total=stats.num_courses %}
                         </td>

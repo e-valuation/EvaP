@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 
 from django.core import mail
 from django.contrib.auth.models import Group
@@ -16,25 +16,21 @@ class GradeUploadTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        mommy.make(UserProfile, username="student", email="student@institution.example.com")
-        mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
-        mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
+        cls.student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
+        cls.student2 = mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
+        cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
         responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
-        cls.course = mommy.make(Course,
+        cls.course = mommy.make(
+            Course,
             name_en="Test",
-            vote_start_date=datetime.date.today(),
-            participants=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-                UserProfile.objects.get(username="student3"),
-            ],
-            voters=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-            ]
+            vote_start_datetime=datetime.now() - timedelta(10),
+            vote_end_date=datetime.now() + timedelta(10),
+            participants=[cls.student, cls.student2, cls.student3],
+            voters=[cls.student, cls.student2],
         )
-        contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True,
+                                    comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
@@ -122,7 +118,8 @@ class GradeUploadTests(WebTest):
         # state: reviewed
         course.review_finished()
         course.save()
-        self.helper_check_final_grade_upload(course, course.num_participants + course.contributions.exclude(contributor=None).count())
+        self.helper_check_final_grade_upload(
+            course, course.num_participants + course.contributions.exclude(contributor=None).count())
 
         # state: published
         course.publish()
@@ -130,21 +127,16 @@ class GradeUploadTests(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
-        course = mommy.make(Course,
+        course = mommy.make(
+            Course,
             name_en="Toggle",
-            vote_start_date=datetime.date.today(),
+            vote_start_datetime=datetime.now(),
             state="reviewed",
-            participants=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-                UserProfile.objects.get(username="student3"),
-            ],
-            voters=[
-                UserProfile.objects.get(username="student"),
-                UserProfile.objects.get(username="student2"),
-            ]
+            participants=[self.student, self.student2, self.student3],
+            voters=[self.student, self.student2]
         )
-        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"), responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
+                                    responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 

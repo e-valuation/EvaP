@@ -84,7 +84,7 @@ class TestContributorCourseEditView(ViewTest):
 
         page = self.get_assert_200(self.url, user="responsible")
         form = page.forms["course-form"]
-        form["vote_start_date"] = "02/1/2098"
+        form["vote_start_datetime"] = "02/1/2098 11:43:12"
         form["vote_end_date"] = "02/1/2099"
 
         form.submit(name="operation", value="save")

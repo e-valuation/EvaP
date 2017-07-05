@@ -407,7 +407,7 @@ class CourseFormTests(TestCase):
         courses = Course.objects.all()
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form_data["vote_start_date"] = "02/1/2098"  # needed to fix the form
+        form_data["vote_start_datetime"] = "02/1/2098"  # needed to fix the form
         form_data["vote_end_date"] = "02/1/2099"  # needed to fix the form
 
         form = CourseFormClass(form_data, instance=courses[0])
@@ -432,7 +432,7 @@ class CourseFormTests(TestCase):
         course = Course.objects.get()
 
         form_data = get_form_data_from_instance(CourseFormClass, course)
-        form_data["vote_start_date"] = start_date
+        form_data["vote_start_datetime"] = start_date
         form_data["vote_end_date"] = end_date
 
         form = CourseFormClass(form_data, instance=course)

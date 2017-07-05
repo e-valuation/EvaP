@@ -1,4 +1,5 @@
 from collections import OrderedDict, defaultdict
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth import user_logged_in
@@ -6,7 +7,6 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
-from evap.evaluation.models import Course, EmailTemplate
 
 LIKERT_NAMES = {
     1: _("Strongly agree"),
@@ -78,6 +78,7 @@ def is_external_email(email):
 
 
 def send_publish_notifications(courses, template=None):
+    from evap.evaluation.models import EmailTemplate
     publish_notifications = defaultdict(set)
 
     if not template:
@@ -112,7 +113,12 @@ def sort_formset(request, formset):
 
 
 def course_types_in_semester(semester):
+    from evap.evaluation.models import Course
     return Course.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()
+
+
+def date_to_datetime(date):
+    return datetime(year=date.year, month=date.month, day=date.day)
 
 
 @receiver(user_logged_in)
