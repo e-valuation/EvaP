@@ -1,5 +1,5 @@
 import csv
-import datetime
+from datetime import datetime, date
 import random
 from xlrd import open_workbook as open_workbook
 from xlutils.copy import copy as copy_workbook
@@ -94,8 +94,8 @@ def semester_view(request, semester_id):
             self.num_courses = 0
             self.num_comments = 0
             self.num_comments_reviewed = 0
-            self.first_start = datetime.date(9999, 1, 1)
-            self.last_end = datetime.date(2000, 1, 1)
+            self.first_start = datetime(9999, 1, 1)
+            self.last_end = date(2000, 1, 1)
 
     degree_stats = defaultdict(Stats)
     total_stats = Stats()
@@ -114,7 +114,7 @@ def semester_view(request, semester_id):
             if course.state in ['evaluated', 'reviewed', 'published']:
                 stats.num_courses_evaluated += 1
             stats.num_courses += 1
-            stats.first_start = min(stats.first_start, course.vote_start_date)
+            stats.first_start = min(stats.first_start, course.vote_start_datetime)
             stats.last_end = max(stats.last_end, course.vote_end_date)
     degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
     degree_stats['total'] = total_stats
@@ -204,7 +204,7 @@ def semester_course_operation(request, semester_id):
         elif operation == 'startEvaluation':
             new_state_name = STATES_ORDERED['in_evaluation']
             # remove courses with vote_end_date in the past
-            courses_end_in_future = [course for course in courses if course.vote_end_date >= datetime.date.today()]
+            courses_end_in_future = [course for course in courses if course.vote_end_date >= date.today()]
             difference = len(courses) - len(courses_end_in_future)
             if difference:
                 courses = courses_end_in_future
@@ -265,7 +265,7 @@ def helper_semester_course_operation_approve(request, courses):
 
 def helper_semester_course_operation_start(request, courses, template):
     for course in courses:
-        course.vote_start_date = datetime.date.today()
+        course.vote_start_datetime = datetime.now()
         course.evaluation_begin()
         course.save()
     messages.success(request, ungettext("Successfully started evaluation for %(courses)d course.",
@@ -356,7 +356,7 @@ def semester_import(request, semester_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, vote_start_date=None, vote_end_date=None, test_run=True)
+                success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, vote_start_datetime=None, vote_end_date=None, test_run=True)
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
@@ -364,9 +364,9 @@ def semester_import(request, semester_id):
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
             excel_form.vote_dates_required = True
             if excel_form.is_valid():
-                vote_start_date = excel_form.cleaned_data['vote_start_date']
+                vote_start_datetime = excel_form.cleaned_data['vote_start_datetime']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
-                success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_date, vote_end_date, test_run=False)
+                success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_datetime, vote_end_date, test_run=False)
                 forward_messages(request, success_messages, warnings)
                 delete_import_file(request.user.id, import_type)
                 return redirect('staff:semester_view', semester_id)
@@ -953,7 +953,7 @@ def questionnaire_new_version(request, questionnaire_id):
         raise PermissionDenied
 
     # Check if we can use the old name with the current time stamp.
-    timestamp = datetime.date.today()
+    timestamp = date.today()
     new_name_de = '{} (until {})'.format(old_questionnaire.name_de, str(timestamp))
     new_name_en = '{} (until {})'.format(old_questionnaire.name_en, str(timestamp))
 

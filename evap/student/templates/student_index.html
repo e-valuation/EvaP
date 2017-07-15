@@ -36,9 +36,9 @@
                 <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>
-                        <th style="width: 35%">{% trans "Name" %}</th>
+                        <th style="width: 30%">{% trans "Name" %}</th>
                         <th style="width: 12%">{% trans "State" %}</th>
-                        <th style="width: 20%">{% trans "Evaluation Period" %}</th>
+                        <th style="width: 25%">{% trans "Evaluation Period" %}</th>
                         <th style="width: 10%"></th>
                         <th style="width: 23%"></th>
                     </tr>
@@ -61,7 +61,7 @@
                                     {{ course.student_state|studentstatename }}
                                 </td>
                                 <td>
-                                    {{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}
+                                    {{ course.vote_start_datetime|date:'Y-m-d H:i' }} &ndash; {{ course.vote_end_date|date:'Y-m-d' }}
                                 </td>
                                 <td>
                                     {% if course.state == 'in_evaluation' and course in due_courses %}

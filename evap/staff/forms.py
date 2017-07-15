@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.tools import date_to_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +23,8 @@ def disable_all_fields(form):
 
 
 class ImportForm(forms.Form):
-    vote_start_date = forms.DateField(label=_("First day of evaluation"), localize=True, required=False)
-    vote_end_date = forms.DateField(label=_("Last day of evaluation"), localize=True, required=False)
+    vote_start_datetime = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
+    vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
 
@@ -36,7 +37,7 @@ class ImportForm(forms.Form):
         if self.excel_file_required and self.cleaned_data['excel_file'] is None:
             raise ValidationError(_("Please select an Excel file."))
         if self.vote_dates_required:
-            if self.cleaned_data['vote_start_date'] is None or self.cleaned_data['vote_end_date'] is None:
+            if self.cleaned_data['vote_start_datetime'] is None or self.cleaned_data['vote_end_date'] is None:
                 raise ValidationError(_("Please enter an evaluation period."))
 
 
@@ -146,9 +147,9 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_date',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_datetime',
                   'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
-        localized_fields = ('vote_start_date', 'vote_end_date')
+        localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
         }
@@ -167,7 +168,7 @@ class CourseForm(forms.ModelForm):
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
-            self.fields['vote_start_date'].disabled = True
+            self.fields['vote_start_datetime'].disabled = True
 
         if not self.instance.can_staff_edit:
             # form is used as read-only course view
@@ -175,11 +176,11 @@ class CourseForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        vote_start_date = self.cleaned_data.get('vote_start_date')
+        vote_start_datetime = self.cleaned_data.get('vote_start_datetime')
         vote_end_date = self.cleaned_data.get('vote_end_date')
-        if vote_start_date and vote_end_date:
-            if vote_start_date >= vote_end_date:
-                self.add_error("vote_start_date", "")
+        if vote_start_datetime and vote_end_date:
+            if vote_start_datetime.date() > vote_end_date:
+                self.add_error("vote_start_datetime", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def save(self, user, *args, **kw):
@@ -213,8 +214,8 @@ class SingleResultForm(forms.ModelForm):
         if self.instance.last_modified_user:
             self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
 
-        if self.instance.vote_start_date:
-            self.fields['event_date'].initial = self.instance.vote_start_date
+        if self.instance.vote_start_datetime:
+            self.fields['event_date'].initial = self.instance.vote_start_datetime
 
         if not self.instance.can_staff_edit:
             disable_all_fields(self)
@@ -230,8 +231,9 @@ class SingleResultForm(forms.ModelForm):
     def save(self, *args, **kw):
         user = kw.pop("user")
         self.instance.last_modified_user = user
-        self.instance.vote_start_date = self.cleaned_data['event_date']
-        self.instance.vote_end_date = self.cleaned_data['event_date']
+        event_date = self.cleaned_data['event_date']
+        self.instance.vote_start_datetime = date_to_datetime(event_date)
+        self.instance.vote_end_date = event_date
         self.instance.is_graded = False
         super().save(*args, **kw)
 

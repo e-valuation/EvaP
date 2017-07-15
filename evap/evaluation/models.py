@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, date, timedelta
 import logging
 import random
 
@@ -18,6 +18,8 @@ from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
+from evap.evaluation.tools import date_to_datetime
+from evap.settings import EVALUATION_END_OFFSET_HOURS
 
 logger = logging.getLogger(__name__)
 
@@ -226,7 +228,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
-    vote_start_date = models.DateField(verbose_name=_("first day of evaluation"))
+    vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
@@ -266,9 +268,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.open_textanswer_set.exists()
 
     @property
+    def vote_end_datetime(self):
+        # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+        return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + EVALUATION_END_OFFSET_HOURS)
+
+    @property
     def is_in_evaluation_period(self):
-        today = datetime.date.today()
-        return today >= self.vote_start_date and today <= self.vote_end_date
+        now = datetime.now()
+
+        return self.vote_start_datetime <= now <= self.vote_end_datetime
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -308,7 +316,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_single_result(self):
         # early return to save some queries
-        if self.vote_start_date != self.vote_end_date:
+        if self.vote_start_datetime.date() != self.vote_end_date:
             return False
 
         return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
@@ -414,11 +422,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def days_left_for_evaluation(self):
-        return (self.vote_end_date - datetime.date.today()).days
+        return (self.vote_end_date - date.today()).days
 
     @property
     def days_until_evaluation(self):
-        return (self.vote_start_date - datetime.date.today()).days
+        return (self.vote_start_datetime.date() - date.today()).days
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
@@ -533,19 +541,18 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def update_courses(cls):
         logger.info("update_courses called. Processing courses now.")
         from evap.evaluation.tools import send_publish_notifications
-        today = datetime.date.today()
 
         courses_new_in_evaluation = []
         evaluation_results_courses = []
 
         for course in cls.objects.all():
             try:
-                if course.state == "approved" and course.vote_start_date <= today:
+                if course.state == "approved" and course.vote_start_datetime <= datetime.now():
                     course.evaluation_begin()
                     course.last_modified_user = UserProfile.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
-                elif course.state == "in_evaluation" and course.vote_end_date < today:
+                elif course.state == "in_evaluation" and datetime.now() >= course.vote_end_datetime:
                     course.evaluation_end()
                     if course.is_fully_reviewed:
                         course.review_finished()
@@ -1015,7 +1022,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         self.refresh_login_key()
 
     def refresh_login_key(self):
-        self.login_key_valid_until = datetime.date.today() + datetime.timedelta(settings.LOGIN_KEY_VALIDITY)
+        self.login_key_valid_until = date.today() + timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
     @property
