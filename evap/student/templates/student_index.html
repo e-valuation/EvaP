@@ -61,7 +61,7 @@
                                     {{ course.student_state|studentstatename }}
                                 </td>
                                 <td>
-                                    {{ course.vote_start_datetime|date:'Y-m-d H:i' }} &ndash; {{ course.vote_end_date|date:'Y-m-d' }}
+                                    {{ course.vote_start_datetime }} &ndash; {{ course.vote_end_date }}
                                 </td>
                                 <td>
                                     {% if course.state == 'in_evaluation' and course in due_courses %}

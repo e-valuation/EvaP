@@ -96,7 +96,7 @@ class SingleResultFormTests(TestCase):
             "name_en": "qwertz",
             "type": course_type.pk,
             "degrees": ["1"],
-            "event_date": "02/1/2014",
+            "event_date": "2014-01-01",
             "responsible": responsible.pk,
             "answer_1": 6,
             "answer_2": 0,
@@ -123,7 +123,7 @@ class SingleResultFormTests(TestCase):
             "name_en": "qwertz",
             "type": course_type.pk,
             "degrees": ["1"],
-            "event_date": "02/1/2014",
+            "event_date": "2014-01-01",
             "responsible": responsible.pk,
             "answer_1": 6,
             "answer_2": 0,
@@ -407,8 +407,8 @@ class CourseFormTests(TestCase):
         courses = Course.objects.all()
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form_data["vote_start_datetime"] = "02/1/2098"  # needed to fix the form
-        form_data["vote_end_date"] = "02/1/2099"  # needed to fix the form
+        form_data["vote_start_datetime"] = "2098-01-01"  # needed to fix the form
+        form_data["vote_end_date"] = "2099-01-01"  # needed to fix the form
 
         form = CourseFormClass(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
@@ -447,22 +447,22 @@ class CourseFormTests(TestCase):
         course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # contributors: start date must be in the future
-        self.helper_date_validation(ContributorCourseForm, "02/1/1999", "02/1/2099", False)
+        self.helper_date_validation(ContributorCourseForm, "1999-01-01", "2099-01-01", False)
 
         # contributors: end date must be in the future
-        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/1999", False)
+        self.helper_date_validation(ContributorCourseForm, "2099-01-01", "1999-01-01", False)
 
         # contributors: start date must be < end date
-        self.helper_date_validation(ContributorCourseForm, "02/1/2099", "02/1/2098", False)
+        self.helper_date_validation(ContributorCourseForm, "2099-01-01", "2098-01-01", False)
 
         # contributors: valid data
-        self.helper_date_validation(ContributorCourseForm, "02/1/2098", "02/1/2099", True)
+        self.helper_date_validation(ContributorCourseForm, "2098-01-01", "2099-01-01", True)
 
         # staff: neither end nor start date must be in the future
-        self.helper_date_validation(CourseForm, "02/1/1998", "02/1/1999", True)
+        self.helper_date_validation(CourseForm, "1998-01-01", "1999-01-01", True)
 
         # staff: valid data in the future
-        self.helper_date_validation(CourseForm, "02/1/2098", "02/1/2099", True)
+        self.helper_date_validation(CourseForm, "2098-01-01", "2099-01-01", True)
 
         # staff: but start date must be < end date
-        self.helper_date_validation(CourseForm, "02/1/1999", "02/1/1998", False)
+        self.helper_date_validation(CourseForm, "1999-01-01", "1998-01-01", False)

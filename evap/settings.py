@@ -248,9 +248,9 @@ USE_L10N = True
 
 USE_TZ = False
 
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, "locale"),
-]
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
+
+FORMAT_MODULE_PATH = ['evap.locale']
 
 LANGUAGES = [
     ('en', "English"),

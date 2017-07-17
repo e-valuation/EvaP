@@ -426,8 +426,8 @@ class TestSemesterImportView(ViewTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
         form = page.forms["semester-import-form"]
-        form['vote_start_datetime'] = "02/29/2000 00:00:00"
-        form['vote_end_date'] = "02/29/2012"
+        form['vote_start_datetime'] = "2000-01-01 00:00:00"
+        form['vote_end_date'] = "2012-01-01"
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
@@ -718,7 +718,7 @@ class TestSingleResultCreateView(ViewTest):
         form["name_en"] = "qwertz"
         form["type"] = 1
         form["degrees"] = ["1"]
-        form["event_date"] = "02/1/2014"
+        form["event_date"] = "2014-01-01"
         form["answer_1"] = 6
         form["answer_3"] = 2
         # missing responsible to get a validation error
@@ -755,8 +755,8 @@ class TestCourseCreateView(ViewTest):
         form["name_en"] = "asdf"
         form["type"] = 1
         form["degrees"] = ["1"]
-        form["vote_start_datetime"] = "02/1/2099 00:00:00"
-        form["vote_end_date"] = "02/1/2014"  # wrong order to get the validation error
+        form["vote_start_datetime"] = "2099-01-01 00:00:00"
+        form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
         form["general_questions"] = ["1"]
 
         form['contributions-TOTAL_FORMS'] = 1
@@ -772,8 +772,8 @@ class TestCourseCreateView(ViewTest):
         form.submit()
         self.assertFalse(Course.objects.exists())
 
-        form["vote_start_datetime"] = "02/1/2014 00:00:00"
-        form["vote_end_date"] = "02/1/2099"  # now do it right
+        form["vote_start_datetime"] = "2014-01-01 00:00:00"
+        form["vote_end_date"] = "2099-01-01"  # now do it right
 
         form.submit()
         self.assertEqual(Course.objects.get().name_de, "lfo9e7bmxp1xi")
