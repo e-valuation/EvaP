@@ -37,7 +37,7 @@
     {% endfor %}
 </td>
 <td style="width: 20%">
-    {{ course.vote_start_datetime|date:"Y-m-d H:i" }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date|date:"Y-m-d" }}{% endif %}
+    {{ course.vote_start_datetime }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date }}{% endif %}
 
     {% if state == 'approved' %}
         <br>
