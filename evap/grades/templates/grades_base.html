@@ -5,8 +5,8 @@
 {% block breadcrumb %}
     {{ block.super }}
     {% if is_grade_publisher %}
-        <li><a href="{% url "grades:index" %}">{% trans "Grade publishing" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url "grades:index" %}">{% trans "Grade publishing" %}</a></li>
     {% else %}
-        <li>{% trans "Grade publishing" %}</li>
+        <li class="breadcrumb-item">{% trans "Grade publishing" %}</li>
     {% endif %}
 {% endblock %}

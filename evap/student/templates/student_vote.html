@@ -9,8 +9,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
-    <li>{{ course.name }}</li>
+    <li class="breadcrumb-item"><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
+    <li class="breadcrumb-item">{{ course.name }}</li>
 {% endblock %}
 
 {% block content %}

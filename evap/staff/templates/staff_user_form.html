@@ -4,9 +4,9 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
     {% if form.instance.id %}
-        <li>{{ form.instance.full_name }}</li>
+        <li class="breadcrumb-item">{{ form.instance.full_name }}</li>
     {% endif %}
 {% endblock %}
 

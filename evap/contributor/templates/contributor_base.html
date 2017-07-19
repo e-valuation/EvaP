@@ -5,8 +5,8 @@
 {% block breadcrumb %}
     {{ block.super }}
     {% if form %}
-        <li><a href="{% url "contributor:index" %}">{% trans "Contributor" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url "contributor:index" %}">{% trans "Contributor" %}</a></li>
     {% else %}
-        <li>{% trans "Contributor" %}</li>
+        <li class="breadcrumb-item">{% trans "Contributor" %}</li>
     {% endif %}
 {% endblock %}

@@ -2,8 +2,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
-    <li>{{ section.title }}</li>
+    <li class="breadcrumb-item"><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
+    <li class="breadcrumb-item">{{ section.title }}</li>
 {% endblock %}
 
 {% block content %}

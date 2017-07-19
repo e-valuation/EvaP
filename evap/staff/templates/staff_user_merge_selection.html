@@ -4,8 +4,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
-    <li>{% trans "Merge users" %}</li>
+    <li class="breadcrumb-item"><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
+    <li class="breadcrumb-item">{% trans "Merge users" %}</li>
 {% endblock %}
 
 {% block content %}

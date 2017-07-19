@@ -4,8 +4,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Templates" %}</li>
-    <li>{{ template.name }}</li>
+    <li class="breadcrumb-item">{% trans "Templates" %}</li>
+    <li class="breadcrumb-item">{{ template.name }}</li>
 {% endblock %}
 
 {% block content %}

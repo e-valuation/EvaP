@@ -4,8 +4,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward Point Redemption Events" %}</a></li>
-    <li>{% trans "Edit event" %}</li>
+    <li class="breadcrumb-item"><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward Point Redemption Events" %}</a></li>
+    <li class="breadcrumb-item">{% trans "Edit event" %}</li>
 {% endblock %}
 
 {% block content %}

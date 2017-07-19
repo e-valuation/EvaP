@@ -8,9 +8,9 @@
     {{ block.super }}
     {% if semester %}
         {% if disable_breadcrumb_semester or not is_grade_publisher %}
-            <li>{{ semester.name }}</li>
+            <li class="breadcrumb-item">{{ semester.name }}</li>
         {% else %}
-            <li><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
         {% endif %}
     {% endif %}
 {% endblock %}

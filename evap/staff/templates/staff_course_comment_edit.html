@@ -4,8 +4,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
-    <li>{{ text_answer.id }}</li>
+    <li class="breadcrumb-item"><a href="{% url "staff:course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
+    <li class="breadcrumb-item">{{ text_answer.id }}</li>
 {% endblock %}
 
 {% block content %}
