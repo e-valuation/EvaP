@@ -178,6 +178,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap3',
     'compressor',
+    'sass_processor',
     'django_extensions',
     'evap.evaluation',
     'evap.staff',

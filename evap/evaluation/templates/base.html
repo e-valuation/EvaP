@@ -7,6 +7,7 @@
 {% load staff_templatetags %}
 {% load grades_templatetags %}
 {% load results_templatetags %}
+{% load sass_tags %}
 
 {% endspaceless %}<!DOCTYPE html>
 <html>
@@ -15,8 +16,7 @@
         <title>{% block title %}EvaP{% endblock %}</title>
 
         {% compress css %}
-            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css" />
-            <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.less" />
+            <link rel="stylesheet" href="{% sass_src 'bootstrap/scss/bootstrap.scss' %}" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
@@ -213,6 +213,7 @@
         <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
         <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
         <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/tether.min.js"></script>
         <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
 
         <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
@@ -240,7 +241,7 @@
         $('#topbar').dropdown();
 
         // activate tooltips
-        $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]', trigger: 'hover'});
+        $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
 
         // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
         if ($.fn.button.noConflict != undefined) {

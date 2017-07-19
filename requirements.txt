@@ -10,3 +10,5 @@ django-extensions == 1.7.9
 django-sendfile == 0.3.11
 django-compressor == 2.1
 django-bootstrap3 == 8.2.3
+libsass
+django-sass-processor == 0.5.3
