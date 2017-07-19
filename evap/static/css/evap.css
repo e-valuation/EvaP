@@ -1,16 +1,12 @@
 html,
 body {
     height: 100%;
-    padding-top: 50px; /* navbar height */
 }
 
-.navbar > .container {
-    width:auto;
-}
-
-.navbar-fixed-top {
-    border-width: 0;
-    -webkit-font-smoothing: subpixel-antialiased;
+.navbar {
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .navbar-brand {
@@ -478,8 +474,8 @@ div.disabled-tooltip {
     height: 57px;
 }
 
-li.menu-indent {
-    padding-left: 20px;
+.menu-indent {
+    text-indent: 20px;
 }
 
 .sortable-ghost {
