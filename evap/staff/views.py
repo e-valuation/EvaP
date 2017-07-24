@@ -1077,7 +1077,19 @@ def course_type_merge(request, main_type_id, other_type_id):
 
 @staff_required
 def user_index(request):
-    users = (UserProfile.objects.all()
+    filter = request.GET.get('filter', None)
+    if filter is None:  # if no parameter is given take session value
+        filter = request.session.get('filter_users', True)  # defaults to True if no session value exists
+    else:
+        filter = {'true': True, 'false': False}.get(filter.lower())  # convert parameter to boolean
+    request.session['filter_users'] = filter  # store value for session
+
+    if filter:
+        users = UserProfile.objects.all()
+    else:
+        users = UserProfile.objects.with_inactive_users()
+
+    users = (users
         # the following six annotations basically add two bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
@@ -1087,7 +1099,7 @@ def user_index(request):
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
         .prefetch_related('contributions', 'courses_participating_in', 'courses_participating_in__semester', 'represented_users', 'ccing_users'))
 
-    return render(request, "staff_user_index.html", dict(users=users))
+    return render(request, "staff_user_index.html", dict(users=users, filter=filter))
 
 
 @staff_required
@@ -1141,7 +1153,11 @@ def user_import(request):
 
 @staff_required
 def user_edit(request, user_id):
-    user = get_object_or_404(UserProfile, id=user_id)
+    try:
+        user = UserProfile.objects.with_inactive_users().get(id=user_id)
+    except UserProfile.DoesNotExist:
+        raise Http404('No UserProfile matches the given query.')
+
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
     courses_contributing_to = Course.objects.filter(semester=Semester.active_semester(), contributions__contributor=user)

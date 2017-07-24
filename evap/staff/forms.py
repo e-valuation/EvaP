@@ -494,6 +494,7 @@ class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
+    is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
 
     class Meta:
@@ -515,6 +516,7 @@ class UserForm(forms.ModelForm):
             self.fields['is_staff'].initial = self.instance.is_staff
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
+            self.fields['is_inactive'].initial = not self.instance.is_active
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -565,6 +567,13 @@ class UserForm(forms.ModelForm):
             self.instance.groups.add(reviewer_group)
         else:
             self.instance.groups.remove(reviewer_group)
+
+        if self.cleaned_data.get('is_inactive'):
+            self.instance.is_active = False
+        else:
+            self.instance.is_active = True
+
+        self.instance.save()
 
 
 class UserMergeSelectionForm(forms.Form):

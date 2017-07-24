@@ -40,18 +40,19 @@ class UserData(CommonEqualityMixin):
         self.is_responsible = is_responsible
 
     def store_in_database(self):
-        user, created = UserProfile.objects.update_or_create(username=self.username,
+        user, created = UserProfile.objects.with_inactive_users().update_or_create(username=self.username,
                                                              defaults={
                                                                  'first_name': self.first_name,
                                                                  'last_name': self.last_name,
                                                                  'email': self.email,
-                                                                 'title': self.title})
+                                                                 'title': self.title,
+                                                                 'is_active': True})
         if user.needs_login_key:
             user.refresh_login_key()
         return user, created
 
     def user_already_exists(self):
-        return UserProfile.objects.filter(username=self.username).exists()
+        return UserProfile.objects.with_inactive_users().filter(username=self.username).exists()
 
     def get_user_profile_object(self):
         user = UserProfile()
@@ -94,7 +95,7 @@ class CourseData(CommonEqualityMixin):
                         semester=semester)
         course.save()
         # This is safe because the user's email address is checked before in the importer (see #953)
-        responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
+        responsible_dbobj = UserProfile.objects.with_inactive_users().get(email=self.responsible_email)
         course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         for degree_name in self.degree_names:
             course.degrees.add(Degree.objects.get(name_de=degree_name))
@@ -105,6 +106,7 @@ class ExcelImporter(object):
     W_EMAIL = 'email'
     W_DUPL = 'duplicate'
     W_GENERAL = 'general'
+    W_INACTIVE = 'inactive'
 
     def __init__(self):
         self.associations = OrderedDict()
@@ -185,7 +187,7 @@ class ExcelImporter(object):
                 self.errors.append(_('User {}: Error when validating: {}').format(user_data.email, e))
 
             try:
-                duplicate_email_user = UserProfile.objects.get(email=user_data.email)
+                duplicate_email_user = UserProfile.objects.with_inactive_users().get(email=user_data.email)
                 if duplicate_email_user.username != user_data.username:
                     self.errors.append(_('User {}, username {}: Another user with the same email address and a '
                         'different username ({}) already exists.').format(user_data.email, user_data.username, duplicate_email_user.username))
@@ -211,6 +213,11 @@ class ExcelImporter(object):
             "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)") +
             "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
+    @staticmethod
+    def _create_user_inactive_warning(user):
+        return mark_safe(_("The following user is currently marked inactive and will be marked active upon importing: ")
+                + ExcelImporter._create_user_string(user))
+
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = _("An existing user has the same first and last name as a new user:")
         for user in users_with_same_names:
@@ -221,17 +228,22 @@ class ExcelImporter(object):
     def check_user_data_sanity(self):
         for user_data in self.users.values():
             try:
-                user = UserProfile.objects.get(username=user_data.username)
+                user = UserProfile.objects.with_inactive_users().get(username=user_data.username)
                 if user.email != user_data.email:
                     self.warnings[self.W_EMAIL].append(self._create_user_data_mismatch_warning(user, user_data))
                 if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
                     self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data))
+                if user.is_active != True:
+                    self.warnings[self.W_INACTIVE].append(self._create_user_inactive_warning(user))
             except UserProfile.DoesNotExist:
                 pass
 
-            users_same_name = UserProfile.objects.filter(first_name=user_data.first_name, last_name=user_data.last_name).exclude(username=user_data.username).all()
+            users_same_name = (UserProfile.objects.with_inactive_users()
+                .filter(first_name=user_data.first_name, last_name=user_data.last_name)
+                .exclude(username=user_data.username)
+                .all())
             if len(users_same_name) > 0:
                 self._create_user_name_collision_warning(user_data, users_same_name)
 
@@ -323,7 +335,10 @@ class EnrollmentImporter(ExcelImporter):
             for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de)
                 # This is safe because the user's email address is checked before in the importer (see #953)
-                student = UserProfile.objects.get(email=student_data.email)
+                student = UserProfile.objects.with_inactive_users().get(email=student_data.email)
+                if not student.is_active:
+                    student.is_active = True
+                    student.save()
                 course.participants.add(student)
 
         msg = _("Successfully created {} course(s), {} student(s) and {} contributor(s):").format(
@@ -419,7 +434,7 @@ class UserImporter(ExcelImporter):
         new_participants = []
         for user_data in self.users.values():
             try:
-                new_participant = UserProfile.objects.get(username=user_data.username)
+                new_participant = UserProfile.objects.with_inactive_users().get(username=user_data.username)
             except UserProfile.DoesNotExist:
                 new_participant = user_data.get_user_profile_object()
             new_participants.append(new_participant)
@@ -538,17 +553,30 @@ class PersonImporter:
 
         if import_type == 'participant':
             user_list = list(source_course.participants.all())
+            if not test_run:
+                cls.make_users_active(user_list)
             importer.process_participants(course, test_run, user_list)
         else:  # import_type == 'contributor'
-            user_list = list(UserProfile.objects.filter(contributions__course=source_course))
+            user_list = list(UserProfile.objects.with_inactive_users().filter(contributions__course=source_course))
+            if not test_run:
+                cls.make_users_active(user_list)
             importer.process_contributors(course, test_run, user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
+
+    @staticmethod
+    def make_users_active(user_list):
+        for user in user_list:
+            if not user.is_active:
+                user.is_active = True
+                user.save()
+
 
 
 # Dictionary to translate internal keys to UI strings.
 WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: _("Name mismatches"),
+    ExcelImporter.W_INACTIVE: _("Inactive users"),
     ExcelImporter.W_EMAIL: _("Email mismatches"),
     ExcelImporter.W_DUPL: _("Possible duplicates"),
     ExcelImporter.W_GENERAL: _("General warnings"),

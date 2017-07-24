@@ -199,6 +199,20 @@ class TestUserProfile(TestCase):
         mommy.make(Contribution, contributor=contributor)
         self.assertFalse(contributor.can_staff_delete)
 
+    def test_inactive_users_hidden(self):
+        active_user = mommy.make(UserProfile)
+        inactive_user = mommy.make(UserProfile, is_active=False)
+
+        self.assertEqual(list(UserProfile.objects.all()), [active_user])
+
+    def test_inactive_users_shown(self):
+        active_user = mommy.make(UserProfile)
+        inactive_user = mommy.make(UserProfile, is_active=False)
+
+        user_list = list(UserProfile.objects.with_inactive_users())
+        self.assertIn(active_user, user_list)
+        self.assertIn(inactive_user, user_list)
+
 
 class ArchivingTests(TestCase):
 

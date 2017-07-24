@@ -80,19 +80,27 @@ def bulk_delete_users(request, username_file, test_run):
     usernames = [u.strip() for u in username_file.readlines()]
     users = UserProfile.objects.exclude(username__in=usernames)
     deletable_users = [u for u in users if u.can_staff_delete]
+    users_to_mark_inactive = [u for u in users if not u.can_staff_delete and u.can_staff_mark_inactive]
 
     messages.info(request, _('The uploaded text file contains {} usernames. {} other users have been found in the database. '
-                           '{} of those will be deleted.'
-                  .format(len(usernames), len(users), len(deletable_users))))
+                           '{} of those will be deleted. The rest ({}) of those will be marked inactive'
+                  .format(len(usernames), len(users), len(deletable_users), len(users_to_mark_inactive))))
     messages.info(request, mark_safe(_('Users to be deleted are:<br />{}'
                   .format('<br />'.join([u.username for u in deletable_users])))))
+    messages.info(request, mark_safe(_('Users to be marked inactive are:<br />{}'
+                  .format('<br />'.join([u.username for u in users_to_mark_inactive])))))
 
     if test_run:
-        messages.info(request, _('No users were deleted in this test run.'))
+        messages.info(request, _('No users were deleted or marked inactive in this test run.'))
     else:
         for user in deletable_users:
             user.delete()
+        for user in users_to_mark_inactive:
+            user.is_active = False
+            user.save()
+
         messages.info(request, _('{} users have been deleted'.format(len(deletable_users))))
+        messages.info(request, _('{} users have been marked inactive'.format(len(users_to_mark_inactive))))
 
 
 @transaction.atomic
@@ -101,6 +109,7 @@ def merge_users(main_user, other_user, preview=False):
 
     merged_user = dict()
     merged_user['username'] = main_user.username
+    merged_user['is_active'] = main_user.is_active or other_user.is_active
     merged_user['title'] = main_user.title if main_user.title else other_user.title or ""
     merged_user['first_name'] = main_user.first_name if main_user.first_name else other_user.first_name or ""
     merged_user['last_name'] = main_user.last_name if main_user.last_name else other_user.last_name or ""
