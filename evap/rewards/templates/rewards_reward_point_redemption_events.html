@@ -12,12 +12,12 @@
         <a href="{% url "rewards:reward_point_redemption_event_create" %}" class="btn btn-success btn-sm">{% trans "Create new event" %}</a>
     </p>
 
-    <div class="panel panel-info">
+    <div class="card card-outline-primary mb-3">
         {% trans "Upcoming events" as title %}
         {% include "rewards_reward_point_redemption_event_list.html" with title=title events=upcoming_events %}
     </div>
 
-    <div class="panel panel-default">
+    <div class="card">
         {% trans "Past events" as title %}
         {% include "rewards_reward_point_redemption_event_list.html" with title=title events=past_events %}
     </div>

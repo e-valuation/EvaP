@@ -20,15 +20,13 @@
     </h3>
 
     {% if num_courses > 0 %}
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">
-                <a class="accordion-toggle" data-toggle="collapse" href="#accordion"  onclick="saveCollapseState()">
-                    {% trans "Overview" %}
-                </a>
-            </span>
+    <div class="card card-outline-info">
+        <div class="card-header">
+            <a class="accordion-toggle" data-toggle="collapse" href="#accordion"  onclick="saveCollapseState()">
+                {% trans "Overview" %}
+            </a>
         </div>
-        <div class="panel-collapse in" id="accordion">
+        <div class="card-block panel-collapse in" id="accordion">
             <table class="table">
                 <thead>
                     <tr>
@@ -64,11 +62,11 @@
     {% endif %}
 
     {% if request.user.is_staff %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Actions" %}</h3>
+    <div class="card">
+        <div class="card-header">
+            {% trans "Actions" %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             <div class="button-menu">
                 <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
                 &nbsp;
@@ -95,33 +93,31 @@
     </div>
     {% endif %}
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <div class="panel-title">
-                {% trans "Courses" %}
-                {% if request.user.is_staff %}
-                &nbsp;
-                <div class="btn-group">
-                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create course" %}</a></li>
-                        <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create single result" %}</a></li>
-                        <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import courses" %}</a></li>
-                    </ul>
-                </div>
-                &nbsp;
-                <div class="btn-group">
-                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
-                        <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
-                        <li><a href="{% url "staff:semester_participation_export" semester.id %}">{% trans "Export participation data" %}</a></li>
-                    </ul>
-                </div>
-                {% endif %}
+    <div class="card">
+        <div class="card-header d-flex">
+            {% trans "Courses" %}
+            {% if request.user.is_staff %}
+            &nbsp;
+            <div class="btn-group">
+                <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create course" %}</a></li>
+                    <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create single result" %}</a></li>
+                    <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import courses" %}</a></li>
+                </ul>
             </div>
+            &nbsp;
+            <div class="btn-group">
+                <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
+                    <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
+                    <li><a href="{% url "staff:semester_participation_export" semester.id %}">{% trans "Export participation data" %}</a></li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             {% if courses_by_state %}
                 <ul class="nav nav-tabs">
                     {% for state, courses in courses_by_state %}

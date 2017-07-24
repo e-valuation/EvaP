@@ -9,15 +9,13 @@
     {{ block.super }}
     <h2>{% trans "Settings" %}</h2>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Personal information" %}
-                <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign pull-right"
-                title="{% trans "To change any of these settings, please contact the student representatives." %}">
-                </span>
-            </span>
+    <div class="card mb-3">
+        <div class="card-header">
+            {% trans "Personal information" %}
+            <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign pull-right"
+            title="{% trans 'To change any of these settings, please contact the student representatives.' %}" />
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             <table class="table table-striped vertically-aligned">
                 <tr>
                     <td class="col-sm-2"><strong>{% trans "Username" %}</strong></td>
@@ -46,34 +44,33 @@
     <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.non_field_errors }}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Delegates and CC users" %}
-                    <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign pull-right"
+        <div class="card">
+            <div class="card-header d-flex">
+                <div class="mr-auto">{% trans "Delegates and CC users" %}</div>
+                <div data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign pull-right"
                     title="{% blocktrans %}You can only change your own delegates. To become a delegate of another person this person has to add you.
                     Please contact the student representatives to change the CC settings.{% endblocktrans %}">
-                    </span>
-                </span>
+                </div>
             </div>
-            <div class="panel-body">
+            <div class="card-block">
                 <div class="row">
                     <div class="col-sm-6">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "Own delegates" %}</span>
+                        <div class="card card-outline-primary">
+                            <div class="card-header">
+                                {% trans "Own delegates" %}
                             </div>
-                            <div class="panel-body">
+                            <div class="card-block">
                                 {{ form.delegates.errors }}
                                 {{ form.delegates }}
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "You are a delegate of" %}</span>
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans "You are a delegate of" %}
                             </div>
-                            <div class="panel-body">
+                            <div class="card-block">
                                 {{ form.delegate_of.errors }}
                                 {{ form.delegate_of }}
                             </div>
@@ -83,22 +80,22 @@
                 <br />
                 <div class="row">
                     <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "Emails sent to you will be CC'ed to" %}</span>
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans "Emails sent to you will be CC'ed to" %}
                             </div>
-                            <div class="panel-body">
+                            <div class="card-block">
                                 {{ form.cc_users.errors }}
                                 {{ form.cc_users }}
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "Emails sent to these users will be CC'ed to you" %}</span>
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans "Emails sent to these users will be CC'ed to you" %}
                             </div>
-                            <div class="panel-body">
+                            <div class="card-block">
                                 {{ form.cc_user_of.errors }}
                                 {{ form.cc_user_of }}
                             </div>

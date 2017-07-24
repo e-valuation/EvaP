@@ -9,16 +9,16 @@
     {% include "staff_message_rendering_template.html" with errors=errors warnings=warnings success_messages=success_messages %}
 
     <form id="semester-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
-        <div class="panel panel-info">
-            <div class="panel-heading"> {% trans "Semester import" %} </div>
-            <div class="panel-body">
+        <div class="card card-outline-info">
+            <div class="card-header"> {% trans "Semester import" %} </div>
+            <div class="card-block">
                 <p>
                 {% trans "Upload Excel file (" %}<a href="{% url "staff:download_sample_xls" "sample.xls" %}">{% trans "Sample File"%}</a>{% trans "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses." %}
                 </p>
                 {% csrf_token %}
                 {% bootstrap_form excel_form layout='horizontal' %}
             </div>
-            <div class="panel-footer">
+            <div class="card-footer">
                 {% if not test_passed %}
                     <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans "Upload and Test" %}</button>
                 {% else %}

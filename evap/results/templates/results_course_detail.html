@@ -42,10 +42,10 @@
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Overview" %}</span>
-            <div class="pull-right btn-group hidden-print">
+    <div class="card card-outline-primary mb-3">
+        <div class="card-header d-flex">
+            <div class="mr-auto">{% trans "Overview" %}</div>
+            <div class="btn-group hidden-print">
                 {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
                     <a href="{% url "grades:download_grades" course.grade_documents.all.first.id %}" class="btn btn-xs btn-default" role="button" aria-expanded="false">{{ course.grade_documents.all.first.description }}</a>
                 {% elif course.grade_documents.count > 1 and can_download_grades %}
@@ -58,7 +58,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             <table class="table">
                 <thead>
                     <tr>
@@ -98,11 +98,11 @@
     </div>
 
     {% if course_sections %}
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Course" %}</span>
+        <div class="card card-outline-primary mb-3">
+            <div class="card-header">
+                {% trans "Course" %}
             </div>
-            <div class="panel-body">
+            <div class="card-block">
                 {% for section in course_sections %}
                     {% include "results_course_detail_questionnaires.html" %}
                 {% endfor %}
@@ -111,37 +111,32 @@
     {% endif %}
 
     {% if contributor_sections %}
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Contributors" %}</span>
+        <div class="card card-outline-primary mb-3">
+            <div class="card-header">
+                {% trans "Contributors" %}
             </div>
-            <div class="panel-body">
-                <div class="panel-group">
+            <div class="card-block">
                 {% for contributor, contributor_data in contributor_sections.items %}
-                    <div class="panel panel-default">
+                    <div class="card">
                         {# Logic for collapsing Contributor Sections with no votes. #}
                         {% if contributor_data.total_votes == 0 %}
-                            <div class="panel-heading">
-                                <span class="panel-title">
-                                    <div class="inline-headers">
-                                        <p class="pull-right participants-warning">
-                                            <span class="glyphicon glyphicon-warning-sign"></span>
-                                            {% trans "There are no results for this contributor" %}
-                                        </p>
-                                    </div>
-                                     <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}{% if contributor_data.sections.0.label %} &ndash; <i>{{ contributor_data.sections.0.label }}</i>{% endif %}</a>
-                                </span>
+                            <div class="card-header d-flex">
+                                <div class="mr-auto">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}{% if contributor_data.sections.0.label %} &ndash; <i>{{ contributor_data.sections.0.label }}</i>{% endif %}</a>
+                                </div>
+                                <div class="participants-warning">
+                                    <span class="glyphicon glyphicon-warning-sign"></span>
+                                    {% trans "There are no results for this contributor" %}
+                                </div>
                             </div>
                             <div id="{{ contributor.id }}" class="panel-collapse collapse">
                         {% else %}
-                            <div class="panel-heading">
-                                <span class="panel-title">
-                                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}{% if contributor_data.sections.0.label %} &ndash; <i>{{ contributor_data.sections.0.label }}</i>{% endif %}</a>
-                                </span>
+                            <div class="card-header">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">{{ contributor.full_name }}{% if contributor_data.sections.0.label %} &ndash; <i>{{ contributor_data.sections.0.label }}</i>{% endif %}</a>
                             </div>
                             <div id="{{ contributor.id }}" class="panel-collapse in">
                         {% endif %}
-                                <div class="panel-body">
+                                <div class="card-block">
                                     {% for section in contributor_data.sections %}
                                         {% include "results_course_detail_questionnaires.html" %}
                                     {% endfor %}
@@ -149,7 +144,6 @@
                             </div>
                     </div>
                 {% endfor %}
-                </div>
             </div>
         </div>
     {% endif %}

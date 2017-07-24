@@ -10,18 +10,16 @@
 {% block content %}
     <h1>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h1>
 
-    <div class="panel-group" id="accordion">
+    <div id="accordion" role="tablist" aria-multiselectable="true">
         {% for section in sections %}
             <h2 id="{{ section.id }}-s">{{ section.title }}</h2>
             {% for question in section.questions.all %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <span class="panel-title" id="{{ question.id }}-q">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">{{ question.question }}</a>
-                        </span>
+                <div class="card">
+                    <div class="card-header" role="tab" id="{{ question.id }}-q">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}" aria-expanded="true" aria-controls="collapse-{{ question.id }}">{{ question.question }}</a>
                     </div>
-                    <div id="{{ question.id }}" class="panel-collapse collapse in">
-                        <div class="panel-body">
+                    <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q">
+                        <div class="card-block">
                             {{ question.answer|safe }}
                         </div>
                     </div>

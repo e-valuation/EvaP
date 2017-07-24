@@ -16,14 +16,12 @@
 
 {% for key, warninglist in warnings.items %}
     {% if warninglist %}
-        <div class="panel panel-default panel-warning">
-            <div class="panel-heading">
-                <span class="panel-title" id="{{ key }}-q">
-                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ key }}">{{ key|warningname }}</a>
-                </span>
+        <div class="card card-outline-warning mb-3">
+            <div class="card-header" id="{{ key }}-q">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ key }}">{{ key|warningname }}</a>
             </div>
             <div id="{{ key }}" class="panel-collapse collapse in">
-                <div class="panel-body">
+                <div class="card-block">
                     {% for warning in warninglist %}
                         <div class="alert alert-warning alert-dismissable">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>

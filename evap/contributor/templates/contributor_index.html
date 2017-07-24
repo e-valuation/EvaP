@@ -27,11 +27,11 @@
 
     {% for semester in semester_list %}
         {% if semester.courses %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <span class="panel-title">{{ semester.semester_name }}</span>
+        <div class="card">
+            <div class="card-header">
+                {{ semester.semester_name }}
             </div>
-            <div class="panel-body">
+            <div class="card-block">
                 <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>

@@ -16,11 +16,11 @@
         {% trans "You will get reward points once you evaluated all your courses in one semester. These points can be redeemed for many events at HPI. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points." %}
     </div>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Redeem points" %}</span>
+    <div class="card card-outline-primary mb-3">
+        <div class="card-header">
+            {% trans "Redeem points" %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
                 {% if events %}
@@ -64,11 +64,11 @@
         </div>
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Reward points history" %}</span>
+    <div class="card">
+        <div class="card-header">
+            {% trans "Reward points history" %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             {% if reward_point_actions %}
                 <table class="table table-striped">
                     <thead>

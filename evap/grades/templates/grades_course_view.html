@@ -5,11 +5,11 @@
 
     <h3>{{ course.name }} ({{ semester.name }})</h3>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Uploaded grade documents" %}</h3>
+    <div class="card">
+        <div class="card-header">
+            {% trans "Uploaded grade documents" %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             {% if grade_documents %}
                 <table class="table table-striped vertically-aligned">
                     <thead>

@@ -17,11 +17,11 @@
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Comments about the Course" %}</span>
+    <div class="card card-outline-primary mb-3">
+        <div class="card-header">
+            {% trans "Comments about the Course" %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             {% if course_sections %}
                 {% with course_sections as sections %}
                     {% include "staff_course_comments_section.html" %}
@@ -32,11 +32,11 @@
         </div>
     </div>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
+    <div class="card card-outline-primary">
+        <div class="card-header">
+            {% trans "Comments about the Contributors" %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
                     {% include "staff_course_comments_section.html" %}

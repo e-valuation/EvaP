@@ -212,13 +212,6 @@ td.vote-question.text-field {
         font-size: 12px;
         page-break-after: avoid;
     }
-    .panel-title {
-        font-size: 12px;
-    }
-    .panel-heading {
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
     .grade-bg-result-bar-count {
         width: 35px;
     }
@@ -410,7 +403,7 @@ Side notes for calling out things
     box-shadow: 0px 0px 8px $evap-red;
 }
 
-.panel-heading .accordion-toggle:before {
+.card-header .accordion-toggle:before {
     /* symbol for open panels */
     font-family: 'Glyphicons Halflings';
     content: "\e114";  /* chevron-down */
@@ -418,7 +411,7 @@ Side notes for calling out things
     color: $dark-gray;
     margin-right: 10px;
 }
-.panel-heading .accordion-toggle.collapsed:before {
+.card-header .accordion-toggle.collapsed:before {
     /* symbol for collapsed panels */
     content: "\e080"; /* chevron-right */
 }
@@ -475,11 +468,6 @@ Side notes for calling out things
 
 .preview {
     opacity: 0.4;
-}
-
-.panel table:last-child,
-.panel div:last-child {
-    margin-bottom: 0px;
 }
 
 .comment-link {

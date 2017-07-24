@@ -1,11 +1,11 @@
 {% load evaluation_filters %}
 
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <span class="panel-title">{{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans "responsible" %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}</span>
+    <div class="card">
+        <div class="card-header">
+            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans "responsible" %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}
         </div>
-        <div class="panel-body">
+        <div class="card-block">
             {% for result in results %}
                 <p>{{ result.question.text }}</p>
                 <table class="table table-striped">

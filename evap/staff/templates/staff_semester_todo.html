@@ -11,15 +11,15 @@
     {{ block.super }}
 
     {% for responsible, courses, delegates in responsible_list %}
-        <div class="panel panel-default">
-            <div class="panel-heading"><b><a href="{% url "staff:user_edit" responsible.id %}">{{ responsible.full_name }}</a></b>, {% trans "Delegate" %}:
+        <div class="card">
+            <div class="card-header"><b><a href="{% url "staff:user_edit" responsible.id %}">{{ responsible.full_name }}</a></b>, {% trans "Delegate" %}:
                 {% for delegate in delegates %}
                     <a href="{% url "staff:user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
                 {% empty %}
                     &mdash;
                 {% endfor %}
             </div>
-            <div class="panel-body">
+            <div class="card-block">
                 <table class="table table-striped">
                     <thead>
                         <tr>
