@@ -28,40 +28,54 @@
 <body>
 {% block modals %}
 {% endblock %}
-<div id="wrap">
-    {% get_current_language as LANGUAGE_CODE %}
-    {% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
-        {% include_navbar user %}
-    {% endcache %}
 
-    <div class="visible-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
+{% get_current_language as LANGUAGE_CODE %}
+{% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
+    {% include_navbar user %}
+{% endcache %}
 
-    <div class="container">
-        {% if user.is_staff or user.is_grade_publisher %}
-            <div class="row">
-                <div class="col-md-12">
-                    <ol class="breadcrumb">
-                        {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                    </ol>
+<div class="visible-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
+
+<div class="container">
+    {% if user.is_staff or user.is_grade_publisher %}
+        <div class="row">
+            <div class="col-md-12">
+                <ol class="breadcrumb">
+                    {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+                </ol>
+            </div>
+        </div>
+    {% endif %}
+
+    {% bootstrap_messages %}
+
+    {% block rawcontent %}
+        <div class="row">
+            <div class="col-md-12">
+                <div>
+                    {% block content %}
+                    {% endblock %}
                 </div>
             </div>
+        </div>
+    {% endblock %}
+
+    <div class="footer">
+        <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
+        &nbsp;&middot;&nbsp;
+        {% if LEGAL_NOTICE_ACTIVE %}
+            <a href="{% url 'evaluation:legal_notice' %}">{% trans "Legal Notice" %}</a>
+            &nbsp;&middot;&nbsp;
         {% endif %}
-
-        {% bootstrap_messages %}
-
-        {% block rawcontent %}
-            <div class="row">
-                <div class="col-md-12">
-                    <div>
-                        {% block content %}
-                        {% endblock %}
-                    </div>
-                </div>
-            </div>
-        {% endblock %}
+        <a href="{% url 'evaluation:faq' %}">{% trans "FAQ"%}</a>
+        &nbsp;&middot;&nbsp;
+        {% if request.user.is_authenticated %}
+            {% trans "Logged in as" %} {{ request.user.full_name }}
+        {% else %}
+            {% trans "Not logged in" %}
+        {% endif %}
     </div>
 </div>
-
 
 {% if user.is_authenticated %}
     <span class="hidden-print" id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
@@ -97,173 +111,152 @@
     </div>
 {% endif %}
 
-    <div id="footer">
-        <div class="container">
-            <p class="text-muted">
-                <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
-                &nbsp;&middot;&nbsp;
-                {% if LEGAL_NOTICE_ACTIVE %}
-                    <a href="{% url 'evaluation:legal_notice' %}">{% trans "Legal Notice" %}</a>
-                    &nbsp;&middot;&nbsp;
-                {% endif %}
-                <a href="{% url 'evaluation:faq' %}">{% trans "FAQ"%}</a>
-                &nbsp;&middot;&nbsp;
-                {% if request.user.is_authenticated %}
-                    {% trans "Logged in as" %} {{ request.user.full_name }}
-                {% else %}
-                    {% trans "Not logged in" %}
-                {% endif %}
-            </p>
-        </div>
-    </div>
+{% compress js %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/tether.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
 
-    {% compress js %}
-        <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/tether.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
 
-        <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
+{% endcompress %}
 
-        <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
+<script type="text/javascript">
+    // show browser information
+    $.reject({
+        imagePath: '{% get_static_prefix %}images/browsers/',
+        closeCookie: true,
+        reject: { msie5: true, msie6: true, msie8: true }
+    });
 
-    {% endcompress %}
+    // activate topbar
+    $('#topbar').dropdown();
 
-    <script type="text/javascript">
-        // show browser information
-        $.reject({
-            imagePath: '{% get_static_prefix %}images/browsers/',
-            closeCookie: true,
-            reject: { msie5: true, msie6: true, msie8: true }
-        });
+    // activate tooltips
+    $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
 
-        // activate topbar
-        $('#topbar').dropdown();
+    // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
+    if ($.fn.button.noConflict != undefined) {
+        $.fn.button.noConflict();
+    }
 
-        // activate tooltips
-        $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
+    // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
+    // select2 can't handle already select2'd forms that were copies made by
+    // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
+    var template_form = $(".select2tr").last().clone();
 
-        // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
+    // later we use this class to give this to django-dynamic-formsets
+    // as template and to make sure it does not get select2'd
+    template_form.addClass("form-template").css("display", "none");
+    // for some reason django-dynamic-formsets does not hide the checkbox like it should
+    template_form.find(':checkbox').last().attr("type", "hidden");
+    // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
+    template_form.insertAfter($('.select2form'));
+
+    // put this into a function for later re-use
+    apply_select2 = function(elem) {
+        elem.select2({
+            language: "{{ LANGUAGE_CODE }}",
+            placeholder: "{% trans "Please select..." %}",
+            minimumResultsForSearch: 15,});
+    };
+    apply_select2($('select').not('.form-template select').not('[disabled]'));
+
+    // don't use the placeholder text on disabled select2 elements
+    apply_select2_disabled = function(elem) {
+        elem.select2();
+    };
+    apply_select2_disabled($('select[disabled]').not('.form-template select'));
+
+    // run the bootstrap datepicker plugin
+    $("input[name*='end_date']:not([readonly='True'])").datetimepicker({
+        locale: "{{ LANGUAGE_CODE }}",
+        format: "YYYY-MM-DD",
+        sideBySide: true
+    });
+    $("input[name*='start_date']:not([readonly='True'])").datetimepicker({
+        locale: "{{ LANGUAGE_CODE }}",
+        format: "YYYY-MM-DD HH:mm",
+        sideBySide: true
+    });
+
+    // scroll content to show below navbar
+    var navbar_height = 50;
+    var shiftWindow = function(){
+        setTimeout(function(){
+            window.scrollBy(0, -navbar_height);
+        }, 0);
+    };
+    if (location.hash)
+        shiftWindow();
+    window.addEventListener("hashchange", shiftWindow);
+
+    // fix scrolling to required field when the browser does form validation
+    // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
+    var delay = 0;
+    var offset = 150;
+    document.addEventListener('invalid', function(e){
+       $(e.target).addClass("invalid");
+       $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
+    }, true);
+    document.addEventListener('change', function(e){
+       $(e.target).removeClass("invalid")
+    }, true);
+
+    // If activated, make the user confirm he wants to leave the page by displaying a popup.
+    var preventAccidentalClosing = false;
+    $(window).bind('beforeunload', function(){
+        if (preventAccidentalClosing) {
+            return "{% trans "Are you sure you want to leave?" %}";
         }
+    });
 
-        // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
-        // select2 can't handle already select2'd forms that were copies made by
-        // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
-        var template_form = $(".select2tr").last().clone();
+    // feedback form submission
+    $('#feedback-form').on('submit', function(event){
+        event.preventDefault();
 
-        // later we use this class to give this to django-dynamic-formsets
-        // as template and to make sure it does not get select2'd
-        template_form.addClass("form-template").css("display", "none");
-        // for some reason django-dynamic-formsets does not hide the checkbox like it should
-        template_form.find(':checkbox').last().attr("type", "hidden");
-        // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
-        template_form.insertAfter($('.select2form'));
+        message = $('#message-text').val();
 
-        // put this into a function for later re-use
-        apply_select2 = function(elem) {
-            elem.select2({
-                language: "{{ LANGUAGE_CODE }}",
-                placeholder: "{% trans "Please select..." %}",
-                minimumResultsForSearch: 15,});
-        };
-        apply_select2($('select').not('.form-template select').not('[disabled]'));
+        $('#feedback-modal').modal('hide');
 
-        // don't use the placeholder text on disabled select2 elements
-        apply_select2_disabled = function(elem) {
-            elem.select2();
-        };
-        apply_select2_disabled($('select[disabled]').not('.form-template select'));
+        if (message.trim() == "")
+            return;
 
-        // run the bootstrap datepicker plugin
-        $("input[name*='end_date']:not([readonly='True'])").datetimepicker({
-            locale: "{{ LANGUAGE_CODE }}",
-            format: "YYYY-MM-DD",
-            sideBySide: true
-        });
-        $("input[name*='start_date']:not([readonly='True'])").datetimepicker({
-            locale: "{{ LANGUAGE_CODE }}",
-            format: "YYYY-MM-DD HH:mm",
-            sideBySide: true
-        });
+        var feedbackButton = $('#feedback-button button');
+        var originalText = feedbackButton.html();
+        feedbackButton.html("Sending...")
 
-        // scroll content to show below navbar
-        var navbar_height = 50;
-        var shiftWindow = function(){
-            setTimeout(function(){
-                window.scrollBy(0, -navbar_height);
-            }, 0);
-        };
-        if (location.hash)
-            shiftWindow();
-        window.addEventListener("hashchange", shiftWindow);
-
-        // fix scrolling to required field when the browser does form validation
-        // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
-        var delay = 0;
-        var offset = 150;
-        document.addEventListener('invalid', function(e){
-           $(e.target).addClass("invalid");
-           $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
-        }, true);
-        document.addEventListener('change', function(e){
-           $(e.target).removeClass("invalid")
-        }, true);
-
-        // If activated, make the user confirm he wants to leave the page by displaying a popup.
-        var preventAccidentalClosing = false;
-        $(window).bind('beforeunload', function(){
-            if (preventAccidentalClosing) {
-                return "{% trans "Are you sure you want to leave?" %}";
+        $.ajax({
+            url : "/feedback/send",
+            type : "POST",
+            data : { message: message },
+            success : function(json) {
+                feedbackButton.html('{% trans "Message sent!" %}');
+                $('#message-text').val("")
+                setTimeout(function(){
+                    feedbackButton.html(originalText);
+                }, 3000);
+            },
+            error : function(json) {
+                feedbackButton.html('{% trans "Sending failed, sorry!" %}');
+                setTimeout(function(){
+                    feedbackButton.html(originalText);
+                }, 3000);
             }
         });
+    });
+</script>
 
-        // feedback form submission
-        $('#feedback-form').on('submit', function(event){
-            event.preventDefault();
-
-            message = $('#message-text').val();
-
-            $('#feedback-modal').modal('hide');
-
-            if (message.trim() == "")
-                return;
-
-            var feedbackButton = $('#feedback-button button');
-            var originalText = feedbackButton.html();
-            feedbackButton.html("Sending...")
-
-            $.ajax({
-                url : "/feedback/send",
-                type : "POST",
-                data : { message: message },
-                success : function(json) {
-                    feedbackButton.html('{% trans "Message sent!" %}');
-                    $('#message-text').val("")
-                    setTimeout(function(){
-                        feedbackButton.html(originalText);
-                    }, 3000);
-                },
-                error : function(json) {
-                    feedbackButton.html('{% trans "Sending failed, sorry!" %}');
-                    setTimeout(function(){
-                        feedbackButton.html(originalText);
-                    }, 3000);
-                }
-            });
-        });
-    </script>
-
-    {% block additional_javascript %}{% endblock %}
+{% block additional_javascript %}{% endblock %}
 </body>
 </html>

@@ -10,11 +10,11 @@ $evap-dark-yellow:  darken($evap-yellow, 20%);
 $evap-dark-orange:  darken($evap-orange, 20%);
 $evap-dark-red:     darken($evap-red, 20%);
 
-$evap-light-green:   lighten($evap-green, 30%);
-$evap-light-lime:    lighten($evap-lime, 30%);
-$evap-light-yellow:  lighten($evap-yellow, 30%);
-$evap-light-orange:  lighten($evap-orange, 30%);
-$evap-light-red:     lighten($evap-red, 30%);
+$evap-light-green:  lighten($evap-green, 30%);
+$evap-light-lime:   lighten($evap-lime, 30%);
+$evap-light-yellow: lighten($evap-yellow, 30%);
+$evap-light-orange: lighten($evap-orange, 30%);
+$evap-light-red:    lighten($evap-red, 30%);
 
 $evap-dark-blue:    #31708f;
 $evap-light-blue:   #d9edf7;
@@ -51,24 +51,12 @@ div.container {
     padding-top: 15px;
 }
 
-/* Wrapper for page content to push down footer */
-#wrap {
-    min-height: 100%;
-    height: auto;
-    /* Negative indent footer by its height */
-    margin: 0 auto -30px;
-    /* Pad bottom by footer height */
-    padding: 0 0 30px;
-}
-
-/* Set the fixed height of the footer here */
-#footer {
-    height: 30px;
-    line-height: 30px;
+.footer {
+    height: 45px;
+    line-height: 45px;
     background-color: $lighter-gray;
+    padding: 0 15px;
 }
-
-/*-----------------------------------------*/
 
 /*-----------------------------------------*/
 
@@ -77,12 +65,6 @@ input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-}
-
-/*-----------------------------------------*/
-
-p.text-muted {
-    margin-bottom: 0px;
 }
 
 /*-----------------------------------------*/
