@@ -25,7 +25,8 @@ def index(request):
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
-    semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
+    semester_list = [dict(semester_name=semester.name, id=semester.id, is_active_semester=semester.is_active_semester,
+        courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
 
     template_data = dict(
         semester_list=semester_list,

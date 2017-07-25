@@ -86,6 +86,10 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def active_semester(cls):
         return cls.objects.order_by("created_at").last()
 
+    @property
+    def is_active_semester(self):
+        return self == Semester.active_semester()
+
 
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     """A named collection of questions."""
