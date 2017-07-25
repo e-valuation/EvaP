@@ -1,32 +1,5 @@
-$evap-green:        #88bf4a;
-$evap-lime:         #bbd154;
-$evap-yellow:       #efe258;
-$evap-orange:       #f29e58;
-$evap-red:          #eb595a;
-
-$evap-dark-green:   darken($evap-green, 20%);
-$evap-dark-lime:    darken($evap-lime, 20%);
-$evap-dark-yellow:  darken($evap-yellow, 20%);
-$evap-dark-orange:  darken($evap-orange, 20%);
-$evap-dark-red:     darken($evap-red, 20%);
-
-$evap-light-green:  lighten($evap-green, 30%);
-$evap-light-lime:   lighten($evap-lime, 30%);
-$evap-light-yellow: lighten($evap-yellow, 30%);
-$evap-light-orange: lighten($evap-orange, 30%);
-$evap-light-red:    lighten($evap-red, 30%);
-
-$evap-dark-blue:    #31708f;
-$evap-light-blue:   #d9edf7;
-
-$white:             #ffffff;
-$lighter-gray:      #f5f5f5;
-$light-gray:        #dddddd;
-$medium-gray:       #aaaaaa;
-$dark-gray:         #888888;
-$black:             #000000;
-
-
+@import "evap-variables";
+@import "../bootstrap/scss/bootstrap";
 
 html,
 body {
@@ -314,17 +287,6 @@ Side notes for calling out things
 
 
 
-
-
-.label-info {
-    color: $white;
-    background-color: $evap-dark-blue;
-}
-
-.btn-primary {
-    background-color: $evap-dark-blue;
-}
-
 .btn-option {
     background-color: $white;
     border-color: $light-gray;
@@ -530,4 +492,18 @@ div.disabled-tooltip {
     width: 5px;
     height:auto;
     display:inline-block;
+}
+
+
+/* Override bootstrap values */
+.card-header {
+    font-weight: bold;
+}
+
+.card-outline-primary .card-header {
+    background-color: $evap-light-blue;
+}
+
+.badge-info {
+    color: $darker-gray;
 }
