@@ -35,9 +35,9 @@
                                 <th scope="row">
                                     <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a><br />
                                     {% for degree in course.degrees.all %}
-                                        <span class="label label-default">{{ degree }}</span>
+                                        <span class="badge badge-primary">{{ degree }}</span>
                                     {% endfor %}
-                                    <span class="label label-default">{{ course.type }}</span>
+                                    <span class="badge badge-default">{{ course.type }}</span>
                                 </th>
                                 <td>{{ course.state|statename }}</td>
                                 <td>{{ course.vote_start_datetime }} &ndash; {{ course.vote_end_date }}</td>

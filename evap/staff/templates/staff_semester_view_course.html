@@ -24,16 +24,17 @@
     {% endfor %}
     </div>
     {% for degree in course.degrees.all %}
-        <span class="label label-default">{{ degree }}</span>
+        <span class="badge badge-primary">{{ degree }}</span>
     {% endfor %}
-    <span class="label label-default">{{ course.type }}</span>
-    <span class="label label-default">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
-    <span class="label label-default">{% if course.is_private %}{% trans "private" %}{% endif %}</span>
+    <span class="badge badge-default">{{ course.type }}</span>
     {% if course.is_single_result %}
-        <span class="label label-info">{% trans "Single result" %}</span>
+        <span class="badge badge-success">{% trans "Single result" %}</span>
+    {% else %}
+        <span class="badge badge-info">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
+        <span class="badge badge-info">{% if course.is_private %}{% trans "private" %}{% endif %}</span>
     {% endif %}
     {% for warning in course.warnings %}
-        <span class="label label-warning">{{ warning }}</span>
+        <span class="badge badge-warning">{{ warning }}</span>
     {% endfor %}
 </td>
 <td style="width: 20%">
@@ -42,19 +43,19 @@
     {% if state == 'approved' %}
         <br>
         {% if course.days_until_evaluation <= 1 %}
-            <span class="label label-danger">{% trans "starts tomorrow" %}</span>
+            <span class="badge badge-danger">{% trans "starts tomorrow" %}</span>
         {% elif course.days_until_evaluation <= 7 %}
-            <span class="label label-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
+            <span class="badge badge-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
         {% endif %}
     {% endif %}
     {% if state == 'in_evaluation' %}
         <br>
         {% if course.days_left_for_evaluation <= 0 %}
-            <span class="label label-danger">{% trans "ends today" %}</span>
+            <span class="badge badge-danger">{% trans "ends today" %}</span>
         {% elif course.days_left_for_evaluation == 1 %}
-            <span class="label label-danger">{% trans "ends tomorrow" %}</span>
+            <span class="badge badge-danger">{% trans "ends tomorrow" %}</span>
         {% elif course.days_left_for_evaluation < 5 %}
-            <span class="label label-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+            <span class="badge badge-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
         {% endif %}
     {% endif %}
 </td>

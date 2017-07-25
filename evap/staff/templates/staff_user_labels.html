@@ -1,28 +1,28 @@
 {% if user.pk %}
     {% if user.is_staff %}
-        <span class="label label-warning">{% trans "Staff" %}</span>
+        <span class="badge badge-primary">{% trans "Staff" %}</span>
     {% elif user.is_reviewer %}
-        <span class="label label-warning">{% trans "Reviewer" %}</span>
+        <span class="badge badge-primary">{% trans "Reviewer" %}</span>
     {% endif %}
     {% if user.is_grade_publisher %}
-        <span class="label label-warning">{% trans "Grade publisher" %}</span>
+        <span class="badge badge-primary">{% trans "Grade publisher" %}</span>
     {% endif %}
     {% if user.is_contributor %}
-        <span class="label label-info">{% trans "Contributor" %}</span>
+        <span class="badge badge-info">{% trans "Contributor" %}</span>
     {% endif %}
     {% if user.is_responsible %}
-        <span class="label label-info">{% trans "Responsible" %}</span>
+        <span class="badge badge-info">{% trans "Responsible" %}</span>
     {% endif %}
     {% if user.is_external %}
-        <span class="label label-default">{% trans "External" %}</span>
+        <span class="badge badge-warning">{% trans "External" %}</span>
     {% endif %}
     {% if not user.is_active %}
         <span class="label label-default">{% trans "Inactive" %}</span>
     {% endif %}
     {% if user.login_key %}
-        <span class="label label-default">{% trans "Login Key" %}</span>
+        <span class="badge badge-default">{% trans "Login Key" %}</span>
     {% endif %}
     {% if not user.email %}
-        <span class="label label-danger">{% trans "No email" %}</span>
+        <span class="badge badge-danger">{% trans "No email" %}</span>
     {% endif %}
 {% endif %}

@@ -21,8 +21,8 @@
                             <br>
                             {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                             {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
-                            {% if questionnaire.obsolete %}<span class="label label-info">{% trans "obsolete" %}</span>{% endif %}
-                            {% if questionnaire.staff_only %}<span class="label label-info">{% trans "staff only" %}</span>{% endif %}
+                            {% if questionnaire.obsolete %}<span class="badge badge-warning">{% trans "obsolete" %}</span>{% endif %}
+                            {% if questionnaire.staff_only %}<span class="badge badge-info">{% trans "staff only" %}</span>{% endif %}
                         </td>
                         <td style="text-align: right;">
                             {% if not questionnaire.obsolete %}
