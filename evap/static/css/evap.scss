@@ -360,10 +360,6 @@ Side notes for calling out things
     opacity: 0.4;
 }
 
-.glyphicon.participants-warning {
-    padding-left: 10px;
-}
-
 .questionnaire-warning p {
     padding-left: 3px;
 }
@@ -401,19 +397,6 @@ Side notes for calling out things
 
 .form-field > .error {
     box-shadow: 0px 0px 8px $evap-red;
-}
-
-.card-header .accordion-toggle:before {
-    /* symbol for open panels */
-    font-family: 'Glyphicons Halflings';
-    content: "\e114";  /* chevron-down */
-    float: left;
-    color: $dark-gray;
-    margin-right: 10px;
-}
-.card-header .accordion-toggle.collapsed:before {
-    /* symbol for collapsed panels */
-    content: "\e080"; /* chevron-right */
 }
 
 .evap-progress-bar-container {

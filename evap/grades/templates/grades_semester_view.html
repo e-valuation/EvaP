@@ -43,18 +43,18 @@
                                         {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </td>
-                                <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
+                                <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="fa fa-check"></span>{% endif %}
                                 <td class="text-center">
                                     {% if num_midterm_grades > 0 %}
-                                        <span class="glyphicon glyphicon-file"></span> {{ num_midterm_grades }}
+                                        <span class="fa fa-file-o"></span> {{ num_midterm_grades }}
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
                                     {% if num_final_grades > 0 %}
-                                        <span class="glyphicon glyphicon-file"></span> {{ num_final_grades }}
+                                        <span class="fa fa-file-o"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
                                         <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" {{ disable_if_archived }}>
-                                            <span class="glyphicon glyphicon-remove light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}"></span>
+                                            <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}"></span>
                                         </a>
                                     {% endif %}
                                 </td>
@@ -63,13 +63,13 @@
                                         {% if num_final_grades == 0 %}
                                             <span data-toggle="tooltip" data-placement="top" title="{% trans "Confirm that final grades have been submitted but will not be uploaded" %}">
                                                 <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-default" {{ disable_if_archived }}>
-                                                    <span class="glyphicon glyphicon-remove"></span>
+                                                    <span class="fa fa-times"></span>
                                                 </a>
                                             </span>
                                             <div class="inline" data-toggle="tooltip" data-placement="top" title="{% trans "Upload grades" %}">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>
-                                                        <span class="glyphicon glyphicon-arrow-up"></span>
+                                                        <span class="fa fa-upload"></span>
                                                     </button>
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li><a href="{% url "grades:upload_grades" semester.id course.id %}">{% trans "Midterm grades" %}</a></li>
@@ -80,7 +80,7 @@
                                         {% else %}
                                             <span data-toggle="tooltip" data-placement="top" title="{% trans "Change grade document" %}">
                                                 <a class="btn btn-sm btn-default" href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>
-                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                    <span class="fa fa-pencil"></span>
                                                 </a>
                                             </span>
                                         {% endif %}

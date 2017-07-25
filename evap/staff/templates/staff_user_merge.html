@@ -273,7 +273,7 @@
                 <td{% if other_user.reward_point_grantings.all and not "rewards" in warnings %} class="info"
                 {% elif other_user.reward_point_grantings.all and "rewards" in warnings %} class="warning"{% endif %}>
                     {% if "rewards" in warnings %}
-                        <span class="glyphicon glyphicon-warning-sign"></span> {% trans "The rewards of this user will be deleted and not be merged into the other user." %}<br /><br />
+                        <span class="fa fa-exclamation-triangle"></span> {% trans "The rewards of this user will be deleted and not be merged into the other user." %}<br /><br />
                     {% endif %}
                     {% if other_user.reward_point_grantings.all %}
                         {% trans "Grantings" %}:
@@ -320,7 +320,7 @@
             {% if errors %}
                 {% trans "The users can't be merged, because either contributions or participations for the same course exist." %}
             {% elif warnings %}
-                <button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-warning-sign"></span> {% trans "Merge users" %}</button>
+                <button type="submit" class="btn btn-warning"><span class="fa fa-exclamation-triangle"></span> {% trans "Merge users" %}</button>
             {% else %}
                 <button type="submit" class="btn btn-primary">{% trans "Merge users" %}</button>
             {% endif %}

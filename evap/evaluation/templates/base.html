@@ -15,6 +15,7 @@
 
         {% compress css %}
             <link rel="stylesheet" href="{% sass_src 'bootstrap/scss/bootstrap.scss' %}" />
+            <link rel="stylesheet" href="{% sass_src 'font-awesome/scss/font-awesome.scss' %}" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
@@ -65,7 +66,7 @@
 {% if user.is_authenticated %}
     <span class="hidden-print" id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedback-modal">
-            <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+            <span class="fa fa-comment" aria-hidden="true"></span>
         </button>
     </span>
     <div id="feedback-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedback-div">

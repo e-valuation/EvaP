@@ -3,7 +3,7 @@
 <div class="inline-headers">
     {% if section.questionnaire_warning and not contributor_data.total_votes == 0 %}
         <p class="pull-right participants-warning questionnaire-warning">
-            <span class="glyphicon glyphicon-warning-sign"></span>
+            <span class="fa fa-exclamation-triangle"></span>
             {% trans "Only a few participants answered these questions." %}
         </p>
     {% endif %}
@@ -25,7 +25,7 @@
                     <td colspan="3">
                         <ul>
                         {% for answer in result.answers %}
-                            <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
+                            <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="fa fa-info-circle" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
                         {% endfor %}
                         </ul>
                     </td>

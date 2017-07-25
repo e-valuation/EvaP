@@ -80,7 +80,7 @@
             {% else %}
                 <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
                 <p id="submit-error-warning" style="display: none">
-                    <span class="glyphicon glyphicon-warning-sign"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
+                    <span class="fa fa-exclamation-triangle"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
                 </p>
             {% endif %}
         </div>

@@ -26,7 +26,7 @@
                         {{ field }}
                     {% endfor %}
                     <td class="movable">
-                        {% if editable %} <span class="movable-icon glyphicon glyphicon-move" /> {% endif %}
+                        {% if editable %} <span class="movable-icon fa fa-arrows-v" /> {% endif %}
                     </td>
 
                     <td>
@@ -50,7 +50,7 @@
                         {% trans "Comment visibility" %}:<br />
                         {% include "comment_visibility_buttons.html" with form=form %}
                         <br /><br />
-                        {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                        {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="fa fa-info-circle" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
                         {{ form.label.errors }} {{ form.label }}
                     </td>
                     <td>
