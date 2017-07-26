@@ -29,19 +29,21 @@
         </div>
     </small>
     {% endif %}
-    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
+    <h2 class="mb-3">{{ course.name }} ({{ course.semester.name }})</h2>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
-        <div class="card card-outline-info">
+        <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans "Questions about the course" %}
             </div>
-            {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
+            <div class="card-block">
+                {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
+            </div>
         </div>
         {% if contributor_form_groups %}
             <div class="panel-group" id="accordion">
-                <div class="card card-outline-info">
+                <div class="card card-outline-primary mb-3">
                     <div class="card-header">
                         {% trans "Questions about the contributors" %}
                     </div>
@@ -53,20 +55,20 @@
                         {% endif %}
 
                         {% for contributor, label, form_group, contributor_has_errors in contributor_form_groups %}
-                            <div class="card">
+                            <div class="card{% if not forloop.last %} mb-3{% endif %}">
                                 <div class="card-header d-flex">
-                                    <a class="accordion-toggle mr-auto" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">
+                                    <a class="collapse-toggle mr-auto{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse" href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
                                         {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
                                     </a>
-                                    <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                    <a role="button" class="btn btn-secondary btn-sm" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                                 </div>
                                 {% if errors_exist == False or contributor_has_errors %}
-                                    <div id="{{ contributor.id }}" class="panel-collapse in">
+                                    <div class="card-block collapse show" id="vote-area-{{ contributor.id }}">
                                 {% else %}
-                                    <div id="{{ contributor.id }}" class="panel-collapse collapse">
+                                    <div class="card-block collapse" id="vote-area-{{ contributor.id }}">
                                 {% endif %}
                                     {% include "student_vote_questionnaire_group.html" with questionnaire_group=form_group preview=preview %}
-                                    </div>
+                                </div>
                             </div>
                         {% endfor %}
                     </div>
@@ -74,15 +76,17 @@
             </div>
         {% endif %}
         {% if not for_rendering_in_modal %}
-        <div class="well submit-area text-center">
-            {% if preview %}
-                <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
-            {% else %}
-                <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
-                <p id="submit-error-warning" style="display: none">
-                    <span class="fa fa-exclamation-triangle"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
-                </p>
-            {% endif %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-block">
+                {% if preview %}
+                    <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                {% else %}
+                    <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
+                    <p id="submit-error-warning" style="display: none">
+                        <span class="fa fa-exclamation-triangle"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
+                    </p>
+                {% endif %}
+            </div>
         </div>
         {% endif %}
     </form>
@@ -155,16 +159,15 @@
 
         function markNoAnswerFor(contributorId) {
             // uncheck all other options and deactivate buttons
-            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
-            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+            $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
+            $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
 
             // check "no answer" and activate the button
-            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
-            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
+            $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
+            $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
 
             // hide questionnaire for contributor
-            $("#" + contributorId).collapse("hide");
-            $("a[href=#" + contributorId + "]").addClass("collapsed");
+            $("#vote-area-" + contributorId).collapse("hide");
 
             // setting the 'checked' prop does not trigger a change event, so manually save all data here
             sisyphus.saveAllData()

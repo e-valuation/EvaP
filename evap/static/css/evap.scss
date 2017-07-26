@@ -74,8 +74,16 @@ td.center, th.center {
 table.vertically-aligned tr td {
     vertical-align: middle;
 }
-td.vote-question.text-field {
+td.vote-question-text {
     vertical-align: top;
+}
+
+.vote-question-choice {
+    flex-grow: 1;
+}
+
+.vote-text-answer {
+    flex-grow: 1;
 }
 
 .distribution-bar {
@@ -200,10 +208,11 @@ td.vote-question.choice-error {
 
 div.vote-inputs {
     width: 100%;
+    flex-wrap: wrap;
 }
 
 div.vote-inputs label.choice-error {
-    box-shadow: 0px 0px 8px $evap-red;
+    border-color: $evap-red;
 }
 
 .vote-btn-1 { color: $evap-dark-green; }
@@ -219,7 +228,7 @@ div.vote-inputs label.choice-error {
 .vote-btn-5.active { color: $black; background-color: $evap-red; }
 
 div.vote-inputs > textarea {
-    width: 99%;
+    width: 100%;
     height: 100px;
 }
 
@@ -232,19 +241,40 @@ ul.errorlist li {
 }
 
 .vote-btn {
-    min-width: 50px;
+    min-width: 85px;
+    max-width: 110px;
+    height: 38px;
+    font-size: 8pt;
+    white-space: normal;
+    margin-bottom: 0;
 }
 
-.submit-area {
-    margin-top: 20px;
+.card-submit-area {
+    background-color: $lighter-gray;
+    border-color: $evap-dark-blue;
+    min-height: 65px;
 }
 
-.submit-area input, .submit-area a {
+.card-submit-area input, .card-submit-area a {
     min-width: 250px;
 }
 
 .nobottompadding {
     padding-bottom: 0px;
+}
+
+.collapse-toggle {
+    color: $darker-gray;
+}
+.collapse-toggle:before {
+    font-family: "FontAwesome";
+    content: "\f078";
+    float: left;
+    margin-right: 10px;
+}
+.collapse-toggle.collapsed:before {
+    content: "\f054";
+    margin-left: 4px;
 }
 
 
@@ -256,7 +286,7 @@ Side notes for calling out things
 
 /* Base styles (regardless of theme) */
 .bs-callout {
-    margin: 10px 0px 20px 0px;
+    margin: 0 0 20px 0;
     padding: 15px 30px 15px 15px;
     border-left: 5px solid $dark-gray;
 }
@@ -505,7 +535,7 @@ span.line {
     font-weight: bold;
 }
 
-.card-outline-primary .card-header {
+.card-outline-primary > .card-header {
     background-color: $evap-light-blue;
 }
 
