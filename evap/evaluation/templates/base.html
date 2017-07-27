@@ -59,8 +59,10 @@
             </div>
         </div>
     {% endblock %}
+</div>
 
-    <div class="footer">
+<div class="footer fixed-bottom d-flex hidden-print">
+    <span class="mr-auto">
         <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
         &nbsp;&middot;&nbsp;
         {% if LEGAL_NOTICE_ACTIVE %}
@@ -74,15 +76,17 @@
         {% else %}
             {% trans "Not logged in" %}
         {% endif %}
-    </div>
+    </span>
+    {% if user.is_authenticated %}
+        <span class="feedback-button" id="feedback-button">
+            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#feedback-modal">
+                {% trans "Problems/Feedback" %}
+            </button>
+        </span>
+    {% endif %}
 </div>
 
 {% if user.is_authenticated %}
-    <span class="hidden-print" id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedback-modal">
-            <span class="fa fa-comment" aria-hidden="true"></span>
-        </button>
-    </span>
     <div id="feedback-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedback-div">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">

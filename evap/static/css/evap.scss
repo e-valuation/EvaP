@@ -21,7 +21,8 @@ body {
 }
 
 div.container {
-    padding-top: 15px;
+    padding-top: 70px; /* for navbar */
+    padding-bottom: 55px; /* for footer */
 }
 
 .footer {
@@ -315,6 +316,10 @@ Side notes for calling out things
     border-color: $evap-dark-blue;
 }
 
+.feedback-button {
+    line-height: 40px;
+}
+
 
 
 .btn-option {
@@ -503,15 +508,6 @@ div.disabled-tooltip {
 .total-stats {
     font-weight: bold;
     background-color: $lighter-gray;
-}
-
-/* feedback form + button */
-
-#feedback-button{
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    border: none;
 }
 
 .form-submit-btn {
