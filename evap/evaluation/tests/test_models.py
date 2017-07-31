@@ -201,15 +201,15 @@ class TestUserProfile(TestCase):
 
     def test_inactive_users_hidden(self):
         active_user = mommy.make(UserProfile)
-        inactive_user = mommy.make(UserProfile, is_active=False)
+        mommy.make(UserProfile, is_active=False)
 
-        self.assertEqual(list(UserProfile.objects.all()), [active_user])
+        self.assertEqual(list(UserProfile.objects.exclude_inactive_users().all()), [active_user])
 
     def test_inactive_users_shown(self):
         active_user = mommy.make(UserProfile)
         inactive_user = mommy.make(UserProfile, is_active=False)
 
-        user_list = list(UserProfile.objects.with_inactive_users())
+        user_list = list(UserProfile.objects.all())
         self.assertIn(active_user, user_list)
         self.assertIn(inactive_user, user_list)
 

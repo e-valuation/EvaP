@@ -160,6 +160,8 @@ class CourseForm(forms.ModelForm):
         self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
+        self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
+
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
@@ -195,7 +197,7 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
+    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.exclude_inactive_users())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
@@ -263,6 +265,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
+    contributor = forms.ModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -568,10 +571,7 @@ class UserForm(forms.ModelForm):
         else:
             self.instance.groups.remove(reviewer_group)
 
-        if self.cleaned_data.get('is_inactive'):
-            self.instance.is_active = False
-        else:
-            self.instance.is_active = True
+        self.instance.is_active = not self.cleaned_data.get('is_inactive')
 
         self.instance.save()
 

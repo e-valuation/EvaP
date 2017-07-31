@@ -169,11 +169,11 @@ class TestUserBulkDeleteView(ViewTest):
         self.assertFalse(UserProfile.objects.filter(username='testuser2').exists())
         self.assertTrue(UserProfile.objects.filter(username='staff').exists())
 
-        self.assertFalse(UserProfile.objects.filter(username='contributor').exists())
-        self.assertTrue(UserProfile.objects.with_inactive_users().filter(username='contributor').exists())
+        self.assertTrue(UserProfile.objects.filter(username='contributor').exists())
+        self.assertFalse(UserProfile.objects.exclude_inactive_users().filter(username='contributor').exists())
 
-        self.assertEqual(UserProfile.objects.count(), user_count_before - 2)
-        self.assertEqual(UserProfile.objects.with_inactive_users().count(), user_count_before - 1)
+        self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
+        self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
 
 
 class TestUserImportView(ViewTest):
