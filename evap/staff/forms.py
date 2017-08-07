@@ -180,13 +180,13 @@ class CourseForm(forms.ModelForm):
         super().validate_unique()
         # name_xy and semester are unique together. This will be treated as a non-field-error since two
         # fields are involved. Since we only show the name_xy field to the user, assign that error to this
-        # field.
+        # field. This hack is not documented, so it might be broken when you are reading this.
         for e in self.non_field_errors().as_data():
             if e.code == "unique_together" and "unique_check" in e.params:
                 if "semester" in e.params["unique_check"]:
-                    field = e.params["unique_check"][0]
-                    field = e.params["unique_check"][1] if field == "semester" else field
-                    self.add_error(field, e)
+                    # The order of the fields is probably determined by the unique_together constraints in the Course class.
+                    name_field = e.params["unique_check"][1]
+                    self.add_error(name_field, e)
 
     def clean(self):
         super().clean()
