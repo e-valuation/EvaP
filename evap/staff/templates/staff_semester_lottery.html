@@ -1,7 +1,5 @@
 {% extends "staff_semester_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
     {% if not form.is_valid %}
@@ -9,10 +7,10 @@
         {% csrf_token %}
         <fieldset>
         <legend>{% trans "Lottery" %}</legend>
-        {% bootstrap_form form layout='horizontal' %}
+        {% include "bootstrap_form.html" with form=form %}
         </fieldset>
         <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
+            <div class="offset-sm-3 col-sm-6">
                 <input type="submit" value="{% trans "Perform Lottery" %}" class="btn btn-primary"/>
             </div>
         </div>

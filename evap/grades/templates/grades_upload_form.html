@@ -1,7 +1,5 @@
 {% extends "grades_course_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
 
@@ -19,9 +17,9 @@
     {% endif %}</h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
         {% csrf_token %}
-        {% bootstrap_form form layout='horizontal' %}
+        {% include "bootstrap_form.html" with form=form %}
         <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
+            <div class="offset-sm-3 col-sm-6">
                 <input type="submit" value="{% trans "Upload grades" %}" class="btn btn-primary"/>
             </div>
         </div>

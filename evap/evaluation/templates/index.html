@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
     <h1>{% trans "Welcome to the evaluation platform!" %}</h1>
@@ -11,39 +9,45 @@
 
     <div class="row">
         <div class="col-md-6">
-            <h2>{% trans "HPI users" %}</h2>
-
-            <div class="well">
-                <p>{% trans "Log in using your usual HPI credentials." %}</p>
-                <form class="form-horizontal" role="form" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_type" value="login_username" />
-                    {% for field in login_username_form %}
-                        {% bootstrap_field field layout='horizontal' horizontal_label_class='col-sm-3' horizontal_field_class='col-sm-9' bound_css_class='' placeholder=''%}
-                    {% endfor %}
-                    <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-9">
-                            <input class="btn btn-primary" type="submit" value="{% trans "Login" %}">
-                        </div>
+            <div class="card">
+                <div class="card-block">
+                    <h2 class="card-title">{% trans "HPI users" %}</h2>
+                    <p class="card-subtitle mb-2 text-muted">{% trans "Log in using your usual HPI credentials." %}</p>
+                    <div class="card-text">
+                        <form class="form-horizontal" role="form" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="submit_type" value="login_username" />
+                            {% for field in login_username_form %}
+                                {% include "bootstrap_form_field.html" with field=field wide=True %}
+                            {% endfor %}
+                            <div class="form-submit">
+                                <div class="offset-sm-4 col-sm-8">
+                                    <input class="btn btn-primary" type="submit" value="{% trans "Login" %}">
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-
         <div class="col-md-6">
-            <h2>{% trans "External and D-School users" %}</h2>
-            <div class="well">
-                <p>{% trans "Here you can request a one-time login URL. We will send it to your email address." %}</p>
-                <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_type" value="new_key" />
-                    {% bootstrap_field new_key_form.email layout='horizontal' horizontal_label_class='col-sm-3' horizontal_field_class='col-sm-9' placeholder=''%}
-                    <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-9">
-                            <input class="btn btn-default" type="submit" value="{% trans "Request login URL" %}">
-                        </div>
+            <div class="card">
+                <div class="card-block">
+                    <h2 class="card-title">{% trans "External and D-School users" %}</h2>
+                    <p class="card-subtitle mb-2 text-muted">{% trans "Here you can request a one-time login URL. We will send it to your email address." %}</p>
+                    <div class="card-text">
+                        <form class="form-horizontal" action="{% url "evaluation:index" %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="submit_type" value="new_key" />
+                            {% include "bootstrap_form_field.html" with field=new_key_form.email wide=True %}
+                            <div class="form-submit">
+                                <div class="offset-sm-4 col-sm-8">
+                                    <input class="btn btn-default" type="submit" value="{% trans "Request login URL" %}">
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

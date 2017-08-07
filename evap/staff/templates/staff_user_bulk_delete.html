@@ -1,7 +1,5 @@
 {% extends "staff_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
     <p>
@@ -9,9 +7,9 @@
     </p>
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% bootstrap_form form layout='horizontal' %}
+        {% include "bootstrap_form.html" with form=form %}
         <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
+            <div class="offset-sm-3 col-sm-6">
                 <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>
                 <button name="operation" value="bulk_delete" type="submit" class="btn btn-danger">{% trans "Bulk Delete" %}</button>
             </div>

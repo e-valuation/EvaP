@@ -176,7 +176,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bootstrap3',
     'compressor',
     'sass_processor',
     'django_extensions',
@@ -187,6 +186,7 @@ INSTALLED_APPS = [
     'evap.contributor',
     'evap.rewards',
     'evap.grades',
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -221,6 +221,8 @@ TEMPLATES = [
         },
     },
 ]
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',
@@ -303,12 +305,6 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 
 ### Other
-
-# django-bootstrap3
-BOOTSTRAP3 = {
-    'horizontal_label_class': 'col-md-2',
-    'horizontal_field_class': 'col-md-6',
-}
 
 # django-compressor settings
 COMPRESS_ENABLED = not DEBUG

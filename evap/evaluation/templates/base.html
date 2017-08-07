@@ -3,7 +3,6 @@
 {% load cache %}
 {% load compress %}
 {% load evaluation_filters %}
-{% load bootstrap3 %}
 {% load navbar_templatetags %}
 {% load sass_tags %}
 
@@ -47,7 +46,12 @@
         </div>
     {% endif %}
 
-    {% bootstrap_messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
 
     {% block rawcontent %}
         <div class="row">

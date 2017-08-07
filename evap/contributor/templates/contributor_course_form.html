@@ -1,6 +1,5 @@
 {% extends "contributor_base.html" %}
 
-{% load bootstrap3 %}
 {% load evaluation_filters %}
 
 {% block breadcrumb %}
@@ -27,7 +26,7 @@
             </ul>
         </fieldset>
         <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
+            <div class="offset-sm-2 col-sm-6">
                 {% if editable %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
                     <button name="operation" value="preview" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Preview"%}</button>

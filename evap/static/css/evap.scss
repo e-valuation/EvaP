@@ -374,6 +374,12 @@ Side notes for calling out things
     color: $evap-dark-red;
 }
 
+.form-label {
+    text-align: right;
+    font-weight: bold;
+    padding-top: 0.3rem;
+}
+
 .form-field > .error {
     box-shadow: 0px 0px 8px $evap-red;
 }

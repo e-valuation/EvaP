@@ -1,7 +1,6 @@
 {% extends "staff_base.html" %}
 
 {% load static %}
-{% load bootstrap3 %}
 
 {% block content %}
     {{ block.super }}
@@ -16,7 +15,7 @@
                 {% trans "Upload Excel file (" %}<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
                 </p>
                 {% csrf_token %}
-                {% bootstrap_form excel_form layout='horizontal' %}
+                {% include "bootstrap_form.html" with form=excel_form %}
             </div>
             <div class="card-footer">
                 {% if not test_passed %}

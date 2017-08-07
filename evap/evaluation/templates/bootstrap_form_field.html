@@ -1,0 +1,7 @@
+<div class="form-group d-flex">
+	<label class="col-md-{% if wide %}4{% else %}3{% endif %} form-label" for="{{ field.id }}" id="{{ field.id_for_label }}">{{ field.label }}</label>
+	<div class="col-md-{% if wide %}8{% else %}7{% endif %}">
+		{{ field.errors }}
+		{{ field }}
+	</div>
+</div>

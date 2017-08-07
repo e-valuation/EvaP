@@ -1,7 +1,6 @@
 {% extends "staff_course_base.html" %}
 
 {% load static %}
-{% load bootstrap3 %}
 
 {% block content %}
     {{ block.super }}
@@ -21,7 +20,7 @@
                                 {% trans "Upload Excel file with participant data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
                                 </p>
                                 {% csrf_token %}
-                                {% bootstrap_form participant_excel_form layout='vertical' %}
+                                {% include "bootstrap_form.html" with form=participant_excel_form %}
                             </div>
                             <div class="card-footer text-center">
                                 {% if not participant_test_passed %}
@@ -45,7 +44,7 @@
                                 {% trans "Copy participants from another course." %}
                                 </p>
                                 {% csrf_token %}
-                                {% bootstrap_form participant_copy_form layout='vertical'%}
+                                {% include "bootstrap_form.html" with form=participant_copy_form %}
                             </div>
                             <div class="card-footer text-center">
                                 <button name="operation" value="copy-participants" type="submit" class="btn btn-primary form-submit-btn">{% trans "Copy participants" %}</button>
@@ -70,7 +69,7 @@
                                 {% trans "Upload Excel file with contributor data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
                                 </p>
                                 {% csrf_token %}
-                                {% bootstrap_form contributor_excel_form layout='vertical' %}
+                                {% include "bootstrap_form.html" with form=contributor_excel_form %}
                             </div>
                             <div class="card-footer text-center">
                                 {% if not contributor_test_passed %}
@@ -94,7 +93,7 @@
                                 {% trans "Copy contributors from another course." %}
                                 </p>
                                 {% csrf_token %}
-                                {% bootstrap_form contributor_copy_form layout='vertical'%}
+                                {% include "bootstrap_form.html" with form=contributor_copy_form %}
                             </div>
                             <div class="card-footer text-center">
                                 <button name="operation" value="copy-contributors" type="submit" class="btn btn-primary form-submit-btn">{% trans "Copy Contributors" %}</button>

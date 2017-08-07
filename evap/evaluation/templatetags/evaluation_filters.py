@@ -86,3 +86,14 @@ def is_choice_field(field):
 @register.filter
 def is_user_editor_or_delegate(course, user):
     return course.is_user_editor_or_delegate(user)
+
+
+@register.filter
+def message_class(level):
+    return {
+        'debug': 'info',
+        'info': 'info',
+        'success': 'success',
+        'warning': 'warning',
+        'error': 'danger',
+    }.get(level, 'info')
