@@ -15,17 +15,19 @@
                 {% for field in form %}
                     <div class="form-row">
                         {% if field.name == "recipients" %}
-                            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                            <div class="form-group{% if field.errors %} has-error{% endif %}">
                                 <label class="col-md-2 control-label" name="{{ field.name}}">{{ field.label }}</label>
-                                <div class="btn-group col-md-7" data-toggle="buttons">
-                                    {% for choice in field %}
-                                        <label class="btn btn-sm btn-default control-label {% if choice.data.value in field.value %}active{% endif %}" name="{{ field.name }}">
-                                            <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
-                                            {{ choice.choice_label }} {{ choice.id }}
-                                        </label>
-                                    {% endfor %}
+                                <div class="col-md-10">
+                                    <div class="btn-group" data-toggle="buttons">
+                                        {% for choice in field %}
+                                            <label class="btn btn-sm btn-default control-label {% if choice.data.value in field.value %}active{% endif %}" name="{{ field.name }}">
+                                                <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
+                                                {{ choice.choice_label }} {{ choice.id }}
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                    <input name="export" type="submit" formnovalidate value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
                                 </div>
-                                <input name="export" type="submit" value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
                             </div>
                         {% else %}
                             {% bootstrap_field field layout='horizontal' %}
