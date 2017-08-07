@@ -1,7 +1,7 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta, date
 from unittest.mock import patch, Mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.cache import cache
 from django.core import mail
 
@@ -12,10 +12,11 @@ from evap.evaluation.models import (Contribution, Course, CourseType, EmailTempl
 from evap.results.tools import calculate_average_grades_and_deviation
 
 
+@override_settings(EVALUATION_END_OFFSET=0)
 class TestCourses(TestCase):
 
     def test_approved_to_in_evaluation(self):
-        course = mommy.make(Course, state='approved', vote_start_date=date.today())
+        course = mommy.make(Course, state='approved', vote_start_datetime=datetime.now())
 
         with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_courses') as mock:
             Course.update_courses()
@@ -59,10 +60,21 @@ class TestCourses(TestCase):
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'published')
 
+    def test_evaluation_ended(self):
+        # Course is out of evaluation period.
+        mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1), is_graded=False)
+        # This course is not.
+        mommy.make(Course, state='in_evaluation', vote_end_date=date.today(), is_graded=False)
+
+        with patch('evap.evaluation.models.Course.evaluation_end') as mock:
+            Course.update_courses()
+
+        self.assertEqual(mock.call_count, 1)
+
     def test_approved_to_in_evaluation_sends_emails(self):
         """ Regression test for #945 """
         participant = mommy.make(UserProfile, email='foo@example.com')
-        course = mommy.make(Course, state='approved', vote_start_date=date.today(), participants=[participant])
+        course = mommy.make(Course, state='approved', vote_start_datetime=datetime.now(), participants=[participant])
 
         Course.update_courses()
 

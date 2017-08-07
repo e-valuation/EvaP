@@ -1351,7 +1351,7 @@
     "vote_end_date": "2099-12-31",
     "name_en": "a course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1374,7 +1374,7 @@
     "vote_end_date": "2014-09-30",
     "name_en": "a prepared course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1397,7 +1397,7 @@
     "vote_end_date": "2014-09-30",
     "name_en": "an editor approved course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1420,7 +1420,7 @@
     "vote_end_date": "2014-09-30",
     "name_en": "an approved course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1445,7 +1445,7 @@
     "vote_end_date": "2099-09-30",
     "name_en": "an in evaluation course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1470,7 +1470,7 @@
     "vote_end_date": "2014-09-30",
     "name_en": "an evaluated course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1495,7 +1495,7 @@
     "vote_end_date": "2014-09-30",
     "name_en": "a reviewed course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1520,7 +1520,7 @@
     "vote_end_date": "2014-09-30",
     "name_en": "a published course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1540,7 +1540,7 @@
         "vote_end_date": "2099-11-20",
         "name_en": "dadas",
         "type": 3,
-        "vote_start_date": "2014-11-07"
+        "vote_start_datetime": "2014-11-07"
     }
 },
 {
@@ -1563,7 +1563,7 @@
     "vote_end_date": "2099-12-31",
     "name_en": "another new course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {
@@ -1583,7 +1583,7 @@
     "vote_end_date": "2014-09-10",
     "name_en": "single result course",
     "type": 1,
-    "vote_start_date": "2014-09-10"
+    "vote_start_datetime": "2014-09-10"
   }
 },
 {

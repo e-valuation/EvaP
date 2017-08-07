@@ -83,16 +83,17 @@ class CourseData(CommonEqualityMixin):
             degree_name = degree_name.strip()
         self.degree_names = degree_names
 
-    def store_in_database(self, vote_start_date, vote_end_date, semester):
+    def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
         course = Course(name_de=self.name_de,
                         name_en=self.name_en,
                         type=course_type,
                         is_graded=self.is_graded,
-                        vote_start_date=vote_start_date,
+                        vote_start_datetime=vote_start_datetime,
                         vote_end_date=vote_end_date,
                         semester=semester)
         course.save()
+        # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         for degree_name in self.degree_names:
@@ -194,6 +195,8 @@ class ExcelImporter(object):
             if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH:
                 self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
+                # This might be meaningless due to an empty email, but in that case, there will be
+                # another error saying that the email address is missing for this user.
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
@@ -295,12 +298,14 @@ class EnrollmentImporter(ExcelImporter):
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            enrollments_per_user[enrollment[1].username].append(enrollment)
+            # At this point the user should have a non-empty email address (see #953)
+            index = enrollment[1].username if enrollment[1].username else enrollment[1].email
+            enrollments_per_user[index].append(enrollment)
         for username, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
 
-    def write_enrollments_to_db(self, semester, vote_start_date, vote_end_date):
+    def write_enrollments_to_db(self, semester, vote_start_datetime, vote_end_date):
         students_created = []
         responsibles_created = []
 
@@ -313,10 +318,11 @@ class EnrollmentImporter(ExcelImporter):
                     else:
                         students_created.append(user_data)
             for course_data in self.courses.values():
-                course_data.store_in_database(vote_start_date, vote_end_date, semester)
+                course_data.store_in_database(vote_start_datetime, vote_end_date, semester)
 
             for course_data, student_data in self.enrollments:
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de)
+                # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
                 course.participants.add(student)
 
@@ -334,7 +340,7 @@ class EnrollmentImporter(ExcelImporter):
         self.success_messages.append(mark_safe(msg))
 
     @classmethod
-    def process(cls, excel_content, semester, vote_start_date, vote_end_date, test_run):
+    def process(cls, excel_content, semester, vote_start_datetime, vote_end_date, test_run):
         """
             Entry point for the view.
         """
@@ -364,7 +370,7 @@ class EnrollmentImporter(ExcelImporter):
             elif test_run:
                 importer.create_test_success_messages()
             else:
-                importer.write_enrollments_to_db(semester, vote_start_date, vote_end_date)
+                importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
             return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:

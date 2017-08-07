@@ -34,7 +34,7 @@
         {% endfor %}
     </ul>
     <p>
-        {{ eligible|length }} {% trans "users were eligible for the lottery." %}
+        {% blocktrans %}{{ eligible|length }} users were eligible for the lottery.{% endblocktrans %}
     </p>
     {% endif %}
 {% endblock %}

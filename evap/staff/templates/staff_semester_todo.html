@@ -40,7 +40,7 @@
                                     <span class="label label-default">{{ course.type }}</span>
                                 </th>
                                 <td>{{ course.state|statename }}</td>
-                                <td>{{ course.vote_start_date|date:'SHORT_DATE_FORMAT' }} &ndash; {{ course.vote_end_date|date:'SHORT_DATE_FORMAT' }}</td>
+                                <td>{{ course.vote_start_datetime }} &ndash; {{ course.vote_end_date }}</td>
                                 <td>
                                     {% if course.last_modified_user %}
                                         {{ course.last_modified_user }}
