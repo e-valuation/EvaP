@@ -16,6 +16,9 @@
     {% if user.is_external %}
         <span class="label label-default">{% trans "External" %}</span>
     {% endif %}
+    {% if not user.is_active %}
+        <span class="label label-default">{% trans "Inactive" %}</span>
+    {% endif %}
     {% if user.login_key %}
         <span class="label label-default">{% trans "Login Key" %}</span>
     {% endif %}

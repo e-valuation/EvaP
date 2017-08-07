@@ -160,6 +160,8 @@ class CourseForm(forms.ModelForm):
         self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
+        self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
+
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
@@ -195,7 +197,7 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
+    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.exclude_inactive_users())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
@@ -263,6 +265,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
+    contributor = forms.ModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -494,6 +497,7 @@ class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
+    is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
 
     class Meta:
@@ -515,6 +519,7 @@ class UserForm(forms.ModelForm):
             self.fields['is_staff'].initial = self.instance.is_staff
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
+            self.fields['is_inactive'].initial = not self.instance.is_active
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -565,6 +570,10 @@ class UserForm(forms.ModelForm):
             self.instance.groups.add(reviewer_group)
         else:
             self.instance.groups.remove(reviewer_group)
+
+        self.instance.is_active = not self.cleaned_data.get('is_inactive')
+
+        self.instance.save()
 
 
 class UserMergeSelectionForm(forms.Form):

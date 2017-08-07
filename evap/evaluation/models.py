@@ -549,7 +549,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             try:
                 if course.state == "approved" and course.vote_start_datetime <= datetime.now():
                     course.evaluation_begin()
-                    course.last_modified_user = UserProfile.cronjob_user()
+                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
                 elif course.state == "in_evaluation" and datetime.now() >= course.vote_end_datetime:
@@ -559,7 +559,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
-                    course.last_modified_user = UserProfile.cronjob_user()
+                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
@@ -812,8 +812,11 @@ class UserProfileManager(BaseUserManager):
     def get_queryset(self):
         return super().get_queryset().exclude(username=UserProfile.CRONJOB_USER_USERNAME)
 
-    def with_cronjob_user(self):
-        return super().get_queryset()
+    def cronjob_user(self):
+        return super().get_queryset().get(username=UserProfile.CRONJOB_USER_USERNAME)
+
+    def exclude_inactive_users(self):
+        return self.get_queryset().exclude(is_active=False)
 
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
@@ -867,6 +870,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
+    is_active = models.BooleanField(default=True, verbose_name=_("active"))
+
     class Meta:
         ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
@@ -909,10 +914,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.full_name
 
-    @property
-    def is_active(self):
-        return True
-
     @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
@@ -927,16 +928,20 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     CRONJOB_USER_USERNAME = "cronjob"
 
-    @classmethod
-    def cronjob_user(cls):
-        return cls.objects.with_cronjob_user().get(username=cls.CRONJOB_USER_USERNAME)
+    @property
+    def can_staff_mark_inactive(self):
+        if self.is_reviewer or self.is_grade_publisher or self.is_staff or self.is_superuser:
+            return False
+        if any(not course.is_archived for course in self.courses_participating_in.all()):
+            return False
+        return True
 
     @property
     def can_staff_delete(self):
         states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
         if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
-        if self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser:
+        if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_staff or self.is_superuser:
             return False
         if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False

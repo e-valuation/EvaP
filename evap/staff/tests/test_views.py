@@ -136,6 +136,7 @@ class TestUserBulkDeleteView(ViewTest):
 
         form['username_file'] = (self.filename,)
 
+        mommy.make(UserProfile, is_active=False)
         users_before = UserProfile.objects.count()
 
         reply = form.submit(name='operation', value='test')
@@ -150,12 +151,12 @@ class TestUserBulkDeleteView(ViewTest):
         mommy.make(UserProfile, username='testuser2')
         contribution = mommy.make(Contribution)
         mommy.make(UserProfile, username='contributor', contributions=[contribution])
+
         page = self.app.get(self.url, user='staff')
         form = page.forms["user-bulk-delete-form"]
 
         form["username_file"] = (self.filename,)
 
-        self.assertEqual(UserProfile.objects.filter(username__in=['testuser1', 'testuser2', 'contributor']).count(), 3)
         user_count_before = UserProfile.objects.count()
 
         reply = form.submit(name="operation", value="bulk_delete")
@@ -163,11 +164,16 @@ class TestUserBulkDeleteView(ViewTest):
         # Getting redirected after.
         self.assertEqual(reply.status_code, 302)
 
-        # Assert only one user got deleted.
+        # Assert only one user got deleted and one was marked inactive
         self.assertTrue(UserProfile.objects.filter(username='testuser1').exists())
         self.assertFalse(UserProfile.objects.filter(username='testuser2').exists())
+        self.assertTrue(UserProfile.objects.filter(username='staff').exists())
+
         self.assertTrue(UserProfile.objects.filter(username='contributor').exists())
+        self.assertFalse(UserProfile.objects.exclude_inactive_users().filter(username='contributor').exists())
+
         self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
+        self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
 
 
 class TestUserImportView(ViewTest):

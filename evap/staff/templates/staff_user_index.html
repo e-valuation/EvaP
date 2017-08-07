@@ -11,8 +11,15 @@
         <a href="{% url "staff:user_import" %}" class="btn btn-sm btn-default">{% trans "Import users" %}</a>
         <a href="{% url "staff:user_merge_selection" %}" class="btn btn-sm btn-default">{% trans "Merge users" %}</a>
         <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-default">{% trans "Bulk delete users" %}</a>
-        <a href="{% url "staff:user_create" %}{% if filter %}?filter={{ filter|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
+        <a href="{% url "staff:user_create" %}{% if filter_arg %}?filter={{ filter_arg|urlencode }}{% endif %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
+    {% if filter_arg %}
+        <a href="{% url "staff:user_index" %}?filter=false" class="btn btn-sm btn-primary">{% trans "Show inactive users" %}</a>
+    {% else %}
+        <a href="{% url "staff:user_index" %}?filter=true" class="btn btn-sm btn-default">{% trans "Hide inactive users" %}</a>
+    {% endif %}
     </div>
+
+
     <table class="table table-striped user-table" data-ordering="false">
         <thead>
             <tr>

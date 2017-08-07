@@ -736,14 +736,14 @@ def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    filter = request.GET.get('filter', None)
-    if filter is None:  # if no parameter is given take session value
-        filter = request.session.get('filter_comments', False)  # defaults to False if no session value exists
+    filter_arg = request.GET.get('filter', None)
+    if filter_arg is None:  # if no parameter is given take session value
+        filter_arg = request.session.get('filter_comments', False)  # defaults to False if no session value exists
     else:
-        filter = {'true': True, 'false': False}.get(filter.lower())  # convert parameter to boolean
-    request.session['filter_comments'] = filter  # store value for session
+        filter_arg = {'true': True, 'false': False}.get(filter_arg.lower())  # convert parameter to boolean
+    request.session['filter_comments'] = filter_arg  # store value for session
 
-    filter_states = [TextAnswer.NOT_REVIEWED] if filter else None
+    filter_states = [TextAnswer.NOT_REVIEWED] if filter_arg else None
 
     course_sections = []
     contributor_sections = []
@@ -758,7 +758,7 @@ def course_comments(request, semester_id, course_id):
         section_list = course_sections if contribution.is_general else contributor_sections
         section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
+    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter_arg=filter_arg)
     return render(request, "staff_course_comments.html", template_data)
 
 
@@ -1077,7 +1077,19 @@ def course_type_merge(request, main_type_id, other_type_id):
 
 @staff_required
 def user_index(request):
-    users = (UserProfile.objects.all()
+    filter_arg = request.GET.get('filter', None)
+    if filter_arg is None:  # if no parameter is given take session value
+        filter_arg = request.session.get('filter_users', True)  # defaults to True if no session value exists
+    else:
+        filter_arg = {'true': True, 'false': False}.get(filter_arg.lower())  # convert parameter to boolean
+    request.session['filter_users'] = filter_arg  # store value for session
+
+    if filter_arg:
+        users = UserProfile.objects.exclude_inactive_users()
+    else:
+        users = UserProfile.objects.all()
+
+    users = (users
         # the following six annotations basically add two bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
@@ -1087,7 +1099,7 @@ def user_index(request):
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
         .prefetch_related('contributions', 'courses_participating_in', 'courses_participating_in__semester', 'represented_users', 'ccing_users'))
 
-    return render(request, "staff_user_index.html", dict(users=users))
+    return render(request, "staff_user_index.html", dict(users=users, filter_arg=filter_arg))
 
 
 @staff_required

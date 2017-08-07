@@ -10,7 +10,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% if filter %}
+    {% if filter_arg %}
         <a href="{% url "staff:course_comments" semester.id course.id %}?filter=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
     {% else %}
         <a href="{% url "staff:course_comments" semester.id course.id %}?filter=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>

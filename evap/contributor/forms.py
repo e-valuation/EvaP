@@ -95,6 +95,8 @@ class DelegatesForm(forms.ModelForm):
 
         self.fields['cc_users'].disabled = True
 
+        self.fields['delegates'].queryset = UserProfile.objects.exclude_inactive_users()
+
         represented_users = self.instance.represented_users.all()
         self.fields['delegate_of'].queryset = represented_users
         self.fields['delegate_of'].initial = represented_users
