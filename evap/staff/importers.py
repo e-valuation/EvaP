@@ -323,6 +323,7 @@ class EnrollmentImporter(ExcelImporter):
 
         with transaction.atomic():
             for user_data in self.users.values():
+                # this also marks the users active
                 __, created = user_data.store_in_database()
                 if created:
                     if user_data.is_responsible:
@@ -336,9 +337,6 @@ class EnrollmentImporter(ExcelImporter):
                 course = Course.objects.get(semester=semester, name_de=course_data.name_de)
                 # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
-                if not student.is_active:
-                    student.is_active = True
-                    student.save()
                 course.participants.add(student)
 
         msg = _("Successfully created {} course(s), {} student(s) and {} contributor(s):").format(
@@ -504,7 +502,6 @@ class PersonImporter:
             self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         if not test_run:
-            self.make_users_active(user_list)
             course.participants.add(*users_to_add)
             msg = _("{} participants added to the course {}:").format(len(users_to_add), course.name)
         else:
@@ -526,8 +523,6 @@ class PersonImporter:
         users_to_add = [user for user in user_list if user not in already_related]
 
         if not test_run:
-            self.make_users_active(user_list)
-
             for user in users_to_add:
                 order = Contribution.objects.filter(course=course).count()
                 Contribution.objects.create(course=course, contributor=user, order=order)
@@ -542,6 +537,7 @@ class PersonImporter:
     def process_file_content(cls, import_type, course, test_run, file_content):
         importer = cls()
 
+        # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
         if import_type == 'participant':
             importer.process_participants(course, test_run, user_list)
@@ -560,6 +556,8 @@ class PersonImporter:
         else:  # import_type == 'contributor'
             user_list = list(UserProfile.objects.filter(contributions__course=source_course))
             importer.process_contributors(course, test_run, user_list)
+
+        cls.make_users_active(user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
 

@@ -12,7 +12,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Max, Prefetch, Q, Sum, When
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -1153,11 +1153,7 @@ def user_import(request):
 
 @staff_required
 def user_edit(request, user_id):
-    try:
-        user = UserProfile.objects.get(id=user_id)
-    except UserProfile.DoesNotExist:
-        raise Http404('No UserProfile matches the given query.')
-
+    user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
     courses_contributing_to = Course.objects.filter(semester=Semester.active_semester(), contributions__contributor=user)
