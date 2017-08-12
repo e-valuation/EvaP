@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends for_rendering_in_modal|yesno:"base_empty.html,base.html" %}
+
 
 {% load static %}
 {% load evaluation_filters %}
@@ -20,7 +21,7 @@
     {% if participants_warning %}
         <div class="bs-callout bs-callout-warning">{% blocktrans %}This course has only a small number of participants. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
     {% endif %}
-    {% if preview %}
+    {% if preview and not for_rendering_in_modal %}
         <small>
         <div class="bs-callout bs-callout-info">
             <b>{% trans "Questionnaire Preview" %}</b><br />
@@ -74,9 +75,10 @@
                 </div>
             </div>
         {% endif %}
+        {% if not for_rendering_in_modal %}
         <div class="well submit-area text-center">
             {% if preview %}
-                <a class="btn btn-default" onclick="preventAccidentalClosing = false; window.open('', '_self', ''); window.close();">{% trans "Close" %}</a>
+                <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
             {% else %}
                 <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
                 <p id="submit-error-warning" style="display: none">
@@ -84,6 +86,7 @@
                 </p>
             {% endif %}
         </div>
+        {% endif %}
     </form>
 {% endblock %}
 

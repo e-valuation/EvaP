@@ -28,7 +28,7 @@ class TestContributorCourseView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=2)
+        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
 
 class TestContributorCoursePreviewView(ViewTest):
@@ -37,7 +37,7 @@ class TestContributorCoursePreviewView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=2)
+        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
 
 class TestContributorCourseEditView(ViewTest):
@@ -46,7 +46,7 @@ class TestContributorCourseEditView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=2)
+        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def test_not_authenticated(self):
         """
@@ -98,3 +98,23 @@ class TestContributorCourseEditView(ViewTest):
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)
         self.assertEqual(response.status_code, 403)
+
+    def test_contributor_course_edit_preview(self):
+        """
+            Asserts that the preview button either renders a preview or shows an error.
+        """
+        page = self.app.get(self.url, user="responsible")
+        form = page.forms["course-form"]
+        form["vote_start_datetime"] = "2099-01-01 11:43:12"
+        form["vote_end_date"] = "2098-01-01"
+
+        response = form.submit(name="operation", value="preview")
+        self.assertNotIn("preview_modal", response)
+        self.assertIn("The preview could not be rendered", response)
+
+        form["vote_start_datetime"] = "2098-01-01 11:43:12"
+        form["vote_end_date"] = "2099-01-01"
+
+        response = form.submit(name="operation", value="preview")
+        self.assertIn("preview_modal", response)
+        self.assertNotIn("The preview could not be rendered", response)

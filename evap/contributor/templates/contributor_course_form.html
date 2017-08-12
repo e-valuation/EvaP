@@ -30,9 +30,7 @@
             <div class="col-sm-offset-2 col-sm-6">
                 {% if editable %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
-                    <button id="preview-button" name="operation" formtarget="_blank"
-                    value="preview" type="submit" onclick="preventAccidentalClosing = false;"
-                    class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">{% trans "Preview"%}</button>
+                    <button name="operation" value="preview" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Preview"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit" />
                     <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
@@ -42,13 +40,24 @@
         </div>
     </form>
 
-<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-      Creating preview, please wait...
-    </div>
-  </div>
-</div>
+    {% if preview_html %}
+        <div class="modal fade" id="preview_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document" style="width:1100px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Preview</h4>
+                    </div>
+                    <div class="modal-body">
+                        {{ preview_html|safe|escape }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Close" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block modals %}
@@ -69,43 +78,11 @@
     {% include "evap_course_edit_js.html" %}
     {% if editable %}
         <script type="text/javascript"> preventAccidentalClosing = true; </script>
+    {% endif %}
 
+    {% if preview_html %}
         <script type="text/javascript">
-
-            $('#course-form').on('click', ":button[value='preview']", function(event){
-                event.preventDefault();
-
-                $("#preview-button").html("Please wait...")
-
-                $.ajax({
-                    type : "POST",
-                    data : $('#course-form').serialize() + "&operation=validate",
-                    success : function(response) {
-                        // document.write re-creates window.
-                        // this here saves previewWindow so it doesn't get lost
-                        previewWindow = window.previewWindow
-                        document.open();
-                        document.write(response);
-                        document.close();
-                        window.previewWindow = previewWindow;
-                    },
-                    error : function(response) { /* TODO?? */ }
-                });
-
-
-                $.ajax({
-                    type : "POST",
-                    data : $('#course-form').serialize() + "&operation=preview",
-                    success : function(response) {
-                        if (typeof(window.previewWindow) === 'undefined' || window.previewWindow.closed == true)
-                            window.previewWindow = window.open('','mywindow');
-                        window.previewWindow.document.write(response);
-                        window.previewWindow.document.close();
-                        // window.previewWindow.opener.focus();
-                    },
-                    error : function(response) { /* form was invalid, ignore that */ }
-                });
-            });
+            $('#preview_modal').modal();
         </script>
     {% endif %}
 {% endblock %}
