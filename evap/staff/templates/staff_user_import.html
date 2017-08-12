@@ -10,7 +10,7 @@
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         <div class="card card-outline-info">
             <div class="card-header"> {% trans "User import" %} </div>
-            <div class="card-block">
+            <div class="card-body">
                 <p>
                 {% trans "Upload Excel file (" %}<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
                 </p>

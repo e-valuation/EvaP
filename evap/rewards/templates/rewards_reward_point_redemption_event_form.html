@@ -11,10 +11,9 @@
     <form id="reward-point-redemption-event-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% include "bootstrap_form.html" with form=form %}
-        <div class="form-group well">
-            <div class="offset-sm-3 col-sm-6">
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
                 <input type="submit" value="{% trans "Save event" %}" class="btn btn-primary"/>
-            }
             </div>
         </div>
     </form>

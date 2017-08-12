@@ -9,13 +9,13 @@
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header"> {% trans "Participant import" %} </div>
-        <div class="card-block">
+        <div class="card-body">
             <div class="row">
                 <div class="col-xs-6">
                     <form id="participant-import-form" method="POST" enctype="multipart/form-data" class="form-vertical">
                         <div class="card">
                             <div class="card-header"> {% trans "From Excel file" %} </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 <p>
                                 {% trans "Upload Excel file with participant data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
                                 </p>
@@ -39,7 +39,7 @@
                     <form id="participant-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical">
                         <div class="card">
                             <div class="card-header"> {% trans "From other course" %} </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 <p>
                                 {% trans "Copy participants from another course." %}
                                 </p>
@@ -58,13 +58,13 @@
 
     <div class="card card-outline-primary">
         <div class="card-header"> {% trans "Contributor import" %} </div>
-        <div class="card-block">
+        <div class="card-body">
             <div class="row">
                 <div class="col-xs-6">
                     <form id="contributor-import-form" method="POST" enctype="multipart/form-data" class="form-vertical">
                         <div class="card">
                             <div class="card-header"> {% trans "From Excel file" %} </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 <p>
                                 {% trans "Upload Excel file with contributor data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
                                 </p>
@@ -88,7 +88,7 @@
                     <form id="contributor-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical">
                         <div class="card">
                             <div class="card-header"> {% trans "From other course" %} </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 <p>
                                 {% trans "Copy contributors from another course." %}
                                 </p>

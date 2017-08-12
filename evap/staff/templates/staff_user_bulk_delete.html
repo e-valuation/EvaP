@@ -8,8 +8,8 @@
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% include "bootstrap_form.html" with form=form %}
-        <div class="form-group well">
-            <div class="offset-sm-3 col-sm-6">
+        <div class="card card-submit-area card-submit-area-2 text-center mb-3">
+            <div class="card-body">
                 <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>
                 <button name="operation" value="bulk_delete" type="submit" class="btn btn-danger">{% trans "Bulk Delete" %}</button>
             </div>

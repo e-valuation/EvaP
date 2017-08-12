@@ -26,7 +26,7 @@
                 {% trans "Overview" %}
             </a>
         </div>
-        <div class="card-block panel-collapse in" id="accordion">
+        <div class="card-body panel-collapse in" id="accordion">
             <table class="table">
                 <thead>
                     <tr>
@@ -66,7 +66,7 @@
         <div class="card-header">
             {% trans "Actions" %}
         </div>
-        <div class="card-block">
+        <div class="card-body">
             <div class="button-menu">
                 <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
                 &nbsp;
@@ -117,7 +117,7 @@
             </div>
             {% endif %}
         </div>
-        <div class="card-block">
+        <div class="card-body">
             {% if courses_by_state %}
                 <ul class="nav nav-tabs">
                     {% for state, courses in courses_by_state %}

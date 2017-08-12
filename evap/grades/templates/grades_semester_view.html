@@ -15,7 +15,7 @@
         <div class="card-header">
             {% trans "Courses" %}
         </div>
-        <div class="card-block">
+        <div class="card-body">
             {% if courses %}
                 <table class="table table-striped grade-course-table vertically-aligned">
                     <thead>
@@ -36,7 +36,7 @@
                                     {% for degree in course.degrees.all %}
                                         <span class="badge badge-primary">{{ degree }}</span>
                                     {% endfor %}
-                                    <span class="badge badge-default">{{ course.type }}</span>
+                                    <span class="badge badge-secondary">{{ course.type }}</span>
                                 </td>
                                 <td>
                                     {% for contributor in course.responsible_contributors %}

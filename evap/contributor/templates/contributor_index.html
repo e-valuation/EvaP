@@ -31,7 +31,7 @@
             <div class="card-header">
                 {{ semester.semester_name }}
             </div>
-            <div class="card-block">
+            <div class="card-body">
                 <table class="table table-striped vertically-aligned">
                     <thead>
                     <tr>
@@ -49,7 +49,7 @@
                                 <div>
                                     {{ course.name }}
                                 </div>
-                                <span class="badge badge-default">{{ course.type }}</span>
+                                <span class="badge badge-secondary">{{ course.type }}</span>
                                 {% if course in delegated_courses %}<span class="badge badge-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
                             </td>
                             <td>

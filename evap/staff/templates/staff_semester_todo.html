@@ -19,7 +19,7 @@
                     &mdash;
                 {% endfor %}
             </div>
-            <div class="card-block">
+            <div class="card-body">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -37,7 +37,7 @@
                                     {% for degree in course.degrees.all %}
                                         <span class="badge badge-primary">{{ degree }}</span>
                                     {% endfor %}
-                                    <span class="badge badge-default">{{ course.type }}</span>
+                                    <span class="badge badge-secondary">{{ course.type }}</span>
                                 </th>
                                 <td>{{ course.state|statename }}</td>
                                 <td>{{ course.vote_start_datetime }} &ndash; {{ course.vote_end_date }}</td>

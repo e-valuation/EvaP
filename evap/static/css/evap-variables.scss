@@ -27,8 +27,13 @@ $dark-gray:         #888888;
 $darker-gray:       #444444;
 $black:             #000000;
 
-$brand-danger:  $evap-red;
-$brand-warning: $evap-yellow;
-$brand-success: $evap-green;
-$brand-primary: $evap-dark-blue;
-$brand-info:    $evap-light-blue;
+$theme-colors: (
+    primary: $evap-dark-blue,
+    secondary: $dark-gray,
+    success: $evap-green,
+    info: $evap-light-blue,
+    warning: $evap-yellow,
+    danger: $evap-red,
+    light: $lighter-gray,
+    dark: $darker-gray
+)

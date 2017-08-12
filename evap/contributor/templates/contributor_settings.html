@@ -15,7 +15,7 @@
             <span class="fa fa-info-circle" data-toggle="tooltip" data-placement="left"
             title="{% trans 'To change any of these settings, please contact the student representatives.' %}" />
         </div>
-        <div class="card-block">
+        <div class="card-body">
             <table class="table table-striped vertically-aligned">
                 <tr>
                     <td class="col-sm-2"><strong>{% trans "Username" %}</strong></td>
@@ -52,14 +52,14 @@
                     Please contact the student representatives to change the CC settings.{% endblocktrans %}">
                 </div>
             </div>
-            <div class="card-block">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="card card-outline-primary">
                             <div class="card-header">
                                 {% trans "Own delegates" %}
                             </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 {{ form.delegates.errors }}
                                 {{ form.delegates }}
                             </div>
@@ -70,7 +70,7 @@
                             <div class="card-header">
                                 {% trans "You are a delegate of" %}
                             </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 {{ form.delegate_of.errors }}
                                 {{ form.delegate_of }}
                             </div>
@@ -84,7 +84,7 @@
                             <div class="card-header">
                                 {% trans "Emails sent to you will be CC'ed to" %}
                             </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 {{ form.cc_users.errors }}
                                 {{ form.cc_users }}
                             </div>
@@ -95,7 +95,7 @@
                             <div class="card-header">
                                 {% trans "Emails sent to these users will be CC'ed to you" %}
                             </div>
-                            <div class="card-block">
+                            <div class="card-body">
                                 {{ form.cc_user_of.errors }}
                                 {{ form.cc_user_of }}
                             </div>

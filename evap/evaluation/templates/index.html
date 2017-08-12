@@ -10,7 +10,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-block">
+                <div class="card-body">
                     <h2 class="card-title">{% trans "HPI users" %}</h2>
                     <p class="card-subtitle mb-2 text-muted">{% trans "Log in using your usual HPI credentials." %}</p>
                     <div class="card-text">
@@ -21,7 +21,7 @@
                                 {% include "bootstrap_form_field.html" with field=field wide=True %}
                             {% endfor %}
                             <div class="form-submit">
-                                <div class="offset-sm-4 col-sm-8">
+                                <div class="ml-auto col-sm-8">
                                     <input class="btn btn-primary" type="submit" value="{% trans "Login" %}">
                                 </div>
                             </div>
@@ -32,7 +32,7 @@
         </div>
         <div class="col-md-6">
             <div class="card">
-                <div class="card-block">
+                <div class="card-body">
                     <h2 class="card-title">{% trans "External and D-School users" %}</h2>
                     <p class="card-subtitle mb-2 text-muted">{% trans "Here you can request a one-time login URL. We will send it to your email address." %}</p>
                     <div class="card-text">
@@ -41,7 +41,7 @@
                             <input type="hidden" name="submit_type" value="new_key" />
                             {% include "bootstrap_form_field.html" with field=new_key_form.email wide=True %}
                             <div class="form-submit">
-                                <div class="offset-sm-4 col-sm-8">
+                                <div class="ml-auto col-sm-8">
                                     <input class="btn btn-default" type="submit" value="{% trans "Request login URL" %}">
                                 </div>
                             </div>

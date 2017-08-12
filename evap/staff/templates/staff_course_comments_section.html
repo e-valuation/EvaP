@@ -5,7 +5,7 @@
         <div class="card-header">
             {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans "responsible" %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}
         </div>
-        <div class="card-block">
+        <div class="card-body">
             {% for result in results %}
                 <p>{{ result.question.text }}</p>
                 <table class="table table-striped">

@@ -10,9 +10,9 @@
         <fieldset>
             {% include "bootstrap_form.html" with form=form %}
         </fieldset>
-        <div class="form-group well">
-            <div class="offset-sm-3 col-sm-6">
-               <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <input type="submit" value="{% trans "Assign questionnaires" %}" class="btn btn-primary"/>
             </div>
         </div>
     </form>

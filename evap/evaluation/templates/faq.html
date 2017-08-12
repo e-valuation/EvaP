@@ -19,7 +19,7 @@
                         <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}" aria-expanded="true" aria-controls="collapse-{{ question.id }}">{{ question.question }}</a>
                     </div>
                     <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q">
-                        <div class="card-block">
+                        <div class="card-body">
                             {{ question.answer|safe }}
                         </div>
                     </div>

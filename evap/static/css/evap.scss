@@ -249,6 +249,12 @@ ul.errorlist li {
     white-space: normal;
     margin-bottom: 0;
 }
+.btn-light {
+    border-color: $medium-gray;
+}
+.btn-light.active {
+    border-color: $medium-gray;
+}
 
 .card-submit-area {
     background-color: $lighter-gray;
@@ -256,8 +262,25 @@ ul.errorlist li {
     min-height: 65px;
 }
 
-.card-submit-area input, .card-submit-area a {
+.card-submit-area input,
+.card-submit-area a,
+.card-submit-area button,
+.card-submit-area-1 input,
+.card-submit-area-1 a,
+.card-submit-area-1 button {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
     min-width: 250px;
+}
+.card-submit-area-2 input,
+.card-submit-area-2 a,
+.card-submit-area-2 button {
+    min-width: 230px;
+}
+.card-submit-area-3 input,
+.card-submit-area-3 a,
+.card-submit-area-3 button {
+    min-width: 190px;
 }
 
 .nobottompadding {

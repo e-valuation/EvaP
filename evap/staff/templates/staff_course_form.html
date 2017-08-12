@@ -10,8 +10,8 @@
         {% include "contribution_formset.html" with formset=formset staff=True editable=editable %}
 
         {% if editable %}
-        <div class="form-group well">
-            <div class="offset-sm-3 col-sm-6">
+        <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">
+            <div class="card-body">
                 {% if state == "in_evaluation" %}
                     <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
                 {% endif %}

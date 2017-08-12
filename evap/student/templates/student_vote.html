@@ -37,7 +37,7 @@
             <div class="card-header">
                 {% trans "Questions about the course" %}
             </div>
-            <div class="card-block">
+            <div class="card-body">
                 {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
             </div>
         </div>
@@ -47,7 +47,7 @@
                     <div class="card-header">
                         {% trans "Questions about the contributors" %}
                     </div>
-                    <div class="card-block">
+                    <div class="card-body">
                         {% if not preview %}
                             <div class="bs-callout bs-callout-info">
                                 {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
@@ -60,12 +60,12 @@
                                     <a class="collapse-toggle mr-auto{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse" href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
                                         {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
                                     </a>
-                                    <a role="button" class="btn btn-secondary btn-sm" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                    <a role="button" class="btn btn-light btn-sm" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                                 </div>
                                 {% if errors_exist == False or contributor_has_errors %}
-                                    <div class="card-block collapse show" id="vote-area-{{ contributor.id }}">
+                                    <div class="card-body collapse show" id="vote-area-{{ contributor.id }}">
                                 {% else %}
-                                    <div class="card-block collapse" id="vote-area-{{ contributor.id }}">
+                                    <div class="card-body collapse" id="vote-area-{{ contributor.id }}">
                                 {% endif %}
                                     {% include "student_vote_questionnaire_group.html" with questionnaire_group=form_group preview=preview %}
                                 </div>
@@ -77,7 +77,7 @@
         {% endif %}
         {% if not for_rendering_in_modal %}
         <div class="card card-submit-area text-center mb-3">
-            <div class="card-block">
+            <div class="card-body">
                 {% if preview %}
                     <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
                 {% else %}

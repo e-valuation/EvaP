@@ -32,7 +32,7 @@
     {% include_navbar user %}
 {% endcache %}
 
-<div class="visible-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
+<div class="d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
 
 <div class="container">
     {% if user.is_staff or user.is_grade_publisher %}
@@ -64,7 +64,7 @@
     {% endblock %}
 </div>
 
-<div class="footer fixed-bottom d-flex hidden-print">
+<div class="footer fixed-bottom d-flex d-print-none">
     <span class="mr-auto">
         <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
         &nbsp;&middot;&nbsp;
@@ -123,7 +123,7 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/tether.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/popper.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
 
     <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>

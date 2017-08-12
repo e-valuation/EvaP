@@ -21,7 +21,7 @@
         <div class="card-header">
             {% trans "Comments about the Course" %}
         </div>
-        <div class="card-block">
+        <div class="card-body">
             {% if course_sections %}
                 {% with course_sections as sections %}
                     {% include "staff_course_comments_section.html" %}
@@ -36,7 +36,7 @@
         <div class="card-header">
             {% trans "Comments about the Contributors" %}
         </div>
-        <div class="card-block">
+        <div class="card-body">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
                     {% include "staff_course_comments_section.html" %}

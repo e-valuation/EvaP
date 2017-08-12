@@ -26,7 +26,7 @@
     {% for degree in course.degrees.all %}
         <span class="badge badge-primary">{{ degree }}</span>
     {% endfor %}
-    <span class="badge badge-default">{{ course.type }}</span>
+    <span class="badge badge-secondary">{{ course.type }}</span>
     {% if course.is_single_result %}
         <span class="badge badge-success">{% trans "Single result" %}</span>
     {% else %}
@@ -45,7 +45,7 @@
         {% if course.days_until_evaluation <= 1 %}
             <span class="badge badge-danger">{% trans "starts tomorrow" %}</span>
         {% elif course.days_until_evaluation <= 7 %}
-            <span class="badge badge-default">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
+            <span class="badge badge-secondary">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
         {% endif %}
     {% endif %}
     {% if state == 'in_evaluation' %}
@@ -55,7 +55,7 @@
         {% elif course.days_left_for_evaluation == 1 %}
             <span class="badge badge-danger">{% trans "ends tomorrow" %}</span>
         {% elif course.days_left_for_evaluation < 5 %}
-            <span class="badge badge-default">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+            <span class="badge badge-secondary">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
         {% endif %}
     {% endif %}
 </td>
