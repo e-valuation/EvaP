@@ -21,9 +21,9 @@
                 {% if state == "new" or state == "prepared" %}
                     <div class="alert alert-warning">{% trans "You are editing a course which has not been approved by the editor yet." %}</div>
                 {% endif %}
-                <button name="operation" value="save" type="submit" class="btn btn-primary" onclick="preventAccidentalClosing = false;">{% trans "Save"%} </button>
+                <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%} </button>
                 {% if state == "new" or state == "prepared" or state == "editor_approved" %}
-                  <button name="operation" value="approve" type="submit" class="btn btn-success" onclick="preventAccidentalClosing = false;">{% trans "Save and approve"%} </button>
+                  <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve"%} </button>
                 {% endif %}
             </div>
         </div>
@@ -33,7 +33,4 @@
 
 {% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
-    {% if editable %}
-        <script type="text/javascript"> preventAccidentalClosing = true; </script>
-    {% endif %}
 {% endblock %}

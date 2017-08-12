@@ -206,14 +206,6 @@
        $(e.target).removeClass("invalid")
     }, true);
 
-    // If activated, make the user confirm he wants to leave the page by displaying a popup.
-    var preventAccidentalClosing = false;
-    $(window).bind('beforeunload', function(){
-        if (preventAccidentalClosing) {
-            return "{% trans "Are you sure you want to leave?" %}";
-        }
-    });
-
     // feedback form submission
     $('#feedback-form').on('submit', function(event){
         event.preventDefault();

@@ -48,9 +48,9 @@
                 </tbody>
             </table>
         </fieldset>
-                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="preventAccidentalClosing = false;" class="btn btn-primary"/>
-        <div class="card card-submit-area text-center mb-3">
-            <div class="card-body">
+        <div class="form-group well">
+            <div class="offset-sm-3 col-sm-6">
+                <input type="submit" value="{% trans "Save questionnaire" %}" class="btn btn-primary"/>
             </div>
         </div>
     </form>
@@ -73,5 +73,4 @@
             make_form_sortable("question_table", "question_set", row_changed, row_added, "", true, true);
         </script>
     {% endif %}
-    <script type="text/javascript"> preventAccidentalClosing = true; </script>
 {% endblock %}

@@ -13,12 +13,8 @@
         {% include "bootstrap_form.html" with form=form %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <input type="submit" value="{% trans "Save template" %}" onclick="preventAccidentalClosing = false;" class="btn btn-primary"/>
+                <input type="submit" value="{% trans "Save template" %}" class="btn btn-primary"/>
             </div>
         </div>
     </form>
-{% endblock %}
-
-{% block additional_javascript %}
-    <script type="text/javascript"> preventAccidentalClosing = true; </script>
 {% endblock %}

@@ -28,11 +28,11 @@
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}
-                    <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
                     <button name="operation" value="preview" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Preview"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit" />
-                    <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
+                    <button onclick="show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>
             </div>
@@ -75,9 +75,6 @@
 
 {% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
-    {% if editable %}
-        <script type="text/javascript"> preventAccidentalClosing = true; </script>
-    {% endif %}
 
     {% if preview_html %}
         <script type="text/javascript">

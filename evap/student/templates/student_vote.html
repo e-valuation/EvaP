@@ -79,9 +79,9 @@
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 {% if preview %}
-                    <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                    <a class="btn btn-default" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
                 {% else %}
-                    <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
+                    <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success"/>
                     <p id="submit-error-warning" style="display: none">
                         <span class="fa fa-exclamation-triangle"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
                     </p>
@@ -176,8 +176,5 @@
             // remove error highlighting when an answer was selected
             $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
         }
-        {% if not preview %}
-            preventAccidentalClosing = true;
-        {% endif %}
     </script>
 {% endblock %}
