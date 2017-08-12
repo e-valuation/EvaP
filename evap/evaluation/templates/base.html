@@ -17,7 +17,6 @@
             <link rel="stylesheet" href="{% sass_src 'font-awesome/scss/font-awesome.scss' %}" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
-            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
             <link rel="stylesheet" href="{% sass_src 'css/evap.scss' %}" />
         {% endcompress %}
@@ -130,8 +129,6 @@
     <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
     <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
@@ -140,23 +137,11 @@
 {% endcompress %}
 
 <script type="text/javascript">
-    // show browser information
-    $.reject({
-        imagePath: '{% get_static_prefix %}images/browsers/',
-        closeCookie: true,
-        reject: { msie5: true, msie6: true, msie8: true }
-    });
-
     // activate topbar
     $('#topbar').dropdown();
 
     // activate tooltips
     $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
-
-    // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
-    if ($.fn.button.noConflict != undefined) {
-        $.fn.button.noConflict();
-    }
 
     // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
     // select2 can't handle already select2'd forms that were copies made by
