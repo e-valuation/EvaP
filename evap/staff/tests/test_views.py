@@ -1433,6 +1433,10 @@ class TestCourseCommentsUpdatePublishView(WebTest):
 
 class ArchivingTests(WebTest):
 
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
     def test_raise_403(self):
         """
             Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
@@ -1441,10 +1445,10 @@ class ArchivingTests(WebTest):
 
         semester_url = "/staff/semester/{}/".format(semester.pk)
 
-        self.get_assert_403(semester_url + "import", "evap")
-        self.get_assert_403(semester_url + "assign", "evap")
-        self.get_assert_403(semester_url + "course/create", "evap")
-        self.get_assert_403(semester_url + "courseoperation", "evap")
+        self.get_assert_403(semester_url + "import", "staff")
+        self.get_assert_403(semester_url + "assign", "staff")
+        self.get_assert_403(semester_url + "course/create", "staff")
+        self.get_assert_403(semester_url + "courseoperation", "staff")
 
 
 class TestTemplateEditView(ViewTest):
