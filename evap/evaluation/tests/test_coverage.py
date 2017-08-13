@@ -25,10 +25,8 @@ class URLTests(WebTest):
             ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
             # staff questionnaires
             ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
-            ("test_staff_questionnaire_create", "/staff/questionnaire/create", "evap"),
             ("test_staff_questionnaire_x_edit", "/staff/questionnaire/3/edit", "evap"),
             ("test_staff_questionnaire_x", "/staff/questionnaire/2", "evap"),
-            ("test_staff_questionnaire_x_copy", "/staff/questionnaire/2/copy", "evap"),
             # staff user
             ("test_staff_user_import", "/staff/user/import", "evap"),
             ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),

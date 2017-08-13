@@ -383,7 +383,27 @@ class TestSemesterAssignView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(Semester, pk=1)
+        cls.semester = mommy.make(Semester, pk=1)
+        lecture_type = mommy.make(CourseType, name_de="Vorlesung", name_en="Lecture")
+        seminar_type = mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
+        cls.questionnaire = mommy.make(Questionnaire)
+        course1 = mommy.make(Course, semester=cls.semester, type=seminar_type)
+        mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course1,
+                   responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        course2 = mommy.make(Course, semester=cls.semester, type=lecture_type)
+        mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course2,
+                   responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_assign_questionnaires(self):
+        page = self.app.get(self.url, user="staff")
+        assign_form = page.forms["questionnaire-assign-form"]
+        assign_form['Seminar'] = [self.questionnaire.pk]
+        assign_form['Lecture'] = [self.questionnaire.pk]
+        page = assign_form.submit().follow()
+
+        for course in self.semester.course_set.all():
+            self.assertEqual(course.general_contribution.questionnaires.count(), 1)
+            self.assertEqual(course.general_contribution.questionnaires.get(), self.questionnaire)
 
 
 class TestSemesterTodoView(ViewTest):
@@ -437,6 +457,22 @@ class TestSemesterImportView(ViewTest):
         form.submit(name="operation", value="import")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 23)
+
+        courses = Course.objects.all()
+        self.assertEqual(len(courses), 23)
+
+        for course in courses:
+            responsibles_count = Contribution.objects.filter(course=course, responsible=True).count()
+            self.assertEqual(responsibles_count, 1)
+
+        check_student = UserProfile.objects.get(username="diam.synephebos")
+        self.assertEqual(check_student.first_name, "Diam")
+        self.assertEqual(check_student.email, "diam.synephebos@institution.example.com")
+
+        check_contributor = UserProfile.objects.get(username="sanctus.aliquyam.ext")
+        self.assertEqual(check_contributor.first_name, "Sanctus")
+        self.assertEqual(check_contributor.last_name, "Aliquyam")
+        self.assertEqual(check_contributor.email, "567@external.example.com")
 
     def test_error_handling(self):
         """
@@ -797,10 +833,22 @@ class TestCourseEditView(ViewTest):
 
         # This is necessary so that the call to is_single_result does not fail.
         user = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_single_result(self):
         pass  # TODO: Should be done.
+
+    def test_remove_responsibility(self):
+        page = self.app.get(self.url, user="staff")
+        page = page.click(self.contribution.course.semester.name_en, index=0)
+        page = page.click(self.contribution.course.name_en)
+
+        # remove responsibility
+        form = page.forms["course-form"]
+        form['contributions-0-responsibility'] = "CONTRIBUTOR"
+        page = form.submit()
+
+        self.assertIn("No responsible contributors found", page)
 
 
 class TestCoursePreviewView(ViewTest):
@@ -1102,7 +1150,6 @@ class TestQuestionnaireNewVersionView(ViewTest):
         self.assertTrue(Questionnaire.objects.filter(name_de=new_name_de, name_en=new_name_en).exists())
 
     def test_no_second_update(self):
-
         # First save.
         page = self.app.get(url=self.url, user='staff')
         form = page.forms['questionnaire-form']
@@ -1117,8 +1164,75 @@ class TestQuestionnaireNewVersionView(ViewTest):
         self.assertEqual(page.location, '/staff/questionnaire/')
 
 
+class TestQuestionnaireCreateView(WebTest):
+    url = "/staff/questionnaire/create"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+
+    def test_create_questionnaire(self):
+        page = self.app.get(self.url, user="staff")
+
+        questionnaire_form = page.forms["questionnaire-form"]
+        questionnaire_form['name_de'] = "Test Fragebogen"
+        questionnaire_form['name_en'] = "test questionnaire"
+        questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
+        questionnaire_form['public_name_en'] = "Public Test Questionnaire"
+        questionnaire_form['question_set-0-text_de'] = "Frage 1"
+        questionnaire_form['question_set-0-text_en'] = "Question 1"
+        questionnaire_form['question_set-0-type'] = "T"
+        questionnaire_form['index'] = 0
+        questionnaire_form.submit().follow()
+
+        # retrieve new questionnaire
+        questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
+        self.assertEqual(questionnaire.question_set.count(), 1)
+
+    def test_create_empty_questionnaire(self):
+        page = self.app.get(self.url, user="staff")
+
+        questionnaire_form = page.forms["questionnaire-form"]
+        questionnaire_form['name_de'] = "Test Fragebogen"
+        questionnaire_form['name_en'] = "test questionnaire"
+        questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
+        questionnaire_form['public_name_en'] = "Public Test Questionnaire"
+        questionnaire_form['index'] = 0
+        page = questionnaire_form.submit()
+
+        self.assertIn("You must have at least one of these", page)
+
+        self.assertFalse(Questionnaire.objects.filter(name_de="Test Fragebogen", name_en="test questionnaire").exists())
+
+
+class TestQuestionnaireCopyView(WebTest):
+    url = '/staff/questionnaire/2/copy'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        questionnaire = mommy.make(Questionnaire, id=2)
+        mommy.make(Question, questionnaire=questionnaire)
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+    def test_copy_questionnaire(self):
+        page = self.app.get(self.url, user="staff")
+
+        questionnaire_form = page.forms["questionnaire-form"]
+        questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
+        questionnaire_form['name_en'] = "test questionnaire (copied)"
+        questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen (kopiert)"
+        questionnaire_form['public_name_en'] = "Public Test Questionnaire (copied)"
+        page = questionnaire_form.submit().follow()
+
+        questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
+        self.assertEqual(questionnaire.question_set.count(), 1)
+
+
 class TestQuestionnaireDeletionView(WebTest):
     url = "/staff/questionnaire/delete"
+    test_users = ['staff']
     csrf_checks = False
 
     @classmethod
