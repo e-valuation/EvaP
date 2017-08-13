@@ -13,7 +13,7 @@
     <p>
         {% trans "Select the course types you want to merge." %}
     </p>
-    <form method="POST" class="form-horizontal">
+    <form id="course-type-merge-selection-form" method="POST" class="form-horizontal">
        {% csrf_token %}
        {% bootstrap_form form layout='horizontal' %}
         <div class="well submit-area text-center">

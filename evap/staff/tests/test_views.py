@@ -1302,6 +1302,10 @@ class TestQuestionnaireCopyView(ViewTest):
         mommy.make(Question, questionnaire=questionnaire)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
 
+    def test_not_changing_name_fails(self):
+        response = self.get_submit_assert_200(self.url, "staff")
+        self.assertIn("already exists", response)
+
     def test_copy_questionnaire(self):
         page = self.app.get(self.url, user="staff")
 
@@ -1381,6 +1385,14 @@ class TestCourseTypeMergeSelectionView(ViewTest):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.main_type = mommy.make(CourseType, pk=1, name_en="A course type")
         cls.other_type = mommy.make(CourseType, pk=2, name_en="Obsolete course type")
+
+    def test_same_course_fails(self):
+        page = self.get_assert_200(self.url, user="staff")
+        form = page.forms["course-type-merge-selection-form"]
+        form["main_type"] = 1
+        form["other_type"] = 1
+        response = form.submit()
+        self.assertIn("You must select two different course types", str(response))
 
 
 class TestCourseTypeMergeView(ViewTest):

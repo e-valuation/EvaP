@@ -23,30 +23,46 @@ class TestContributorSettingsView(ViewTest):
 
 
 class TestContributorCourseView(ViewTest):
-    test_users = ['editor', 'responsible']
     url = '/contributor/course/%s' % TESTING_COURSE_ID
+    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        cls.course = course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+
+    def test_wrong_state(self):
+        self.course.revert_to_new()
+        self.course.save()
+        self.get_assert_403(self.url, 'responsible')
 
 
 class TestContributorCoursePreviewView(ViewTest):
-    test_users = ['editor', 'responsible']
     url = '/contributor/course/%s/preview' % TESTING_COURSE_ID
+    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        cls.course = course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+
+    def setUp(self):
+        self.course = Course.objects.get(pk=TESTING_COURSE_ID)
+
+    def test_wrong_state(self):
+        self.course.revert_to_new()
+        self.course.save()
+        self.get_assert_403(self.url, 'responsible')
 
 
 class TestContributorCourseEditView(ViewTest):
-    test_users = ['editor', 'responsible']
     url = '/contributor/course/%s/edit' % TESTING_COURSE_ID
+    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        cls.course = course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+
+    def setUp(self):
+        self.course = Course.objects.get(pk=TESTING_COURSE_ID)
 
     def test_not_authenticated(self):
         """
@@ -68,10 +84,8 @@ class TestContributorCourseEditView(ViewTest):
             Asserts that a contributor attempting to edit a course
             that is in a state where editing is not allowed gets a 403.
         """
-        course = Course.objects.get(pk=TESTING_COURSE_ID)
-
-        course.editor_approve()
-        course.save()
+        self.course.editor_approve()
+        self.course.save()
 
         self.get_assert_403(self.url, 'responsible')
 
@@ -80,20 +94,18 @@ class TestContributorCourseEditView(ViewTest):
             Tests whether the "save" button in the contributor's course edit view does not
             change the course's state, and that the "approve" button does that.
         """
-        course = Course.objects.get(pk=TESTING_COURSE_ID)
-
         page = self.get_assert_200(self.url, user="responsible")
         form = page.forms["course-form"]
         form["vote_start_datetime"] = "2098-01-01 11:43:12"
         form["vote_end_date"] = "2099-01-01"
 
         form.submit(name="operation", value="save")
-        course = Course.objects.get(pk=course.pk)
-        self.assertEqual(course.state, "prepared")
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, "prepared")
 
         form.submit(name="operation", value="approve")
-        course = Course.objects.get(pk=course.pk)
-        self.assertEqual(course.state, "editor_approved")
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, "editor_approved")
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)
