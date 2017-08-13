@@ -572,3 +572,17 @@ span.line {
 .badge-info, .badge-warning {
     color: $darker-gray;
 }
+
+
+// adjust select2 selection fields to bootstrap input sizes
+.select2-container--default .select2-selection--single {
+    height: 38px;
+
+    .select2-selection__rendered {
+        padding-top: 4px;
+    }
+
+    .select2-selection__arrow {
+        top: 6px;
+    }
+}
