@@ -10,10 +10,11 @@
 <html>
 <head>
     {% block header %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>{% block title %}EvaP{% endblock %}</title>
 
         {% compress css %}
-            <link rel="stylesheet" href="{% sass_src 'css/evap-variables.scss' %}" />
             <link rel="stylesheet" href="{% sass_src 'font-awesome/scss/font-awesome.scss' %}" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
@@ -36,13 +37,9 @@
 
 <div class="container">
     {% if user.is_staff or user.is_grade_publisher %}
-        <div class="row">
-            <div class="col-md-12">
-                <ol class="breadcrumb">
-                    {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                </ol>
-            </div>
-        </div>
+        <ol class="breadcrumb">
+            {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+        </ol>
     {% endif %}
 
     {% for message in messages %}
@@ -53,14 +50,8 @@
     {% endfor %}
 
     {% block rawcontent %}
-        <div class="row">
-            <div class="col-md-12">
-                <div>
-                    {% block content %}
-                    {% endblock %}
-                </div>
-            </div>
-        </div>
+        {% block content %}
+        {% endblock %}
     {% endblock %}
 </div>
 
@@ -137,9 +128,6 @@
 {% endcompress %}
 
 <script type="text/javascript">
-    // activate topbar
-    $('#topbar').dropdown();
-
     // activate tooltips
     $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
 

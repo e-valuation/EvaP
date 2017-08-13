@@ -1,11 +1,8 @@
 @import "evap-variables";
 @import "../bootstrap/scss/bootstrap";
 
-html,
-body {
-    height: 100%;
-}
 
+/* override bootstrap values */
 .navbar {
     padding-left: 0;
     padding-top: 0;
@@ -32,118 +29,52 @@ div.container {
     padding: 0 15px;
 }
 
-/*-----------------------------------------*/
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+.btn-light {
+    border-color: $medium-gray;
+}
+.btn-light.active {
+    border-color: $medium-gray;
+}
+.btn-light.disabled {
+    border-color: $light-gray;
 }
 
-/*-----------------------------------------*/
-
-table#question_table textarea {
-    resize: vertical;
+.card-header {
+    font-weight: bold;
 }
 
-ul.inputs-list, .exportsheet ul {
-    list-style-type: none;
-    padding-left: 0px;
+.card-outline-primary {
+    border-color: rgba($evap-dark-blue, 0.5);
+}
+.card-outline-primary > .card-header {
+    background-color: $evap-light-blue;
 }
 
-td.maximize, th.maximize {
-    width: 100%;
-}
-td.minimize, th.minimize {
-    width: 0%;
-    white-space: nowrap;
-}
-td.minimize-with-padding, th.minimize-with-padding {
-    width: 0%;
-    padding-left: 5px;
-    padding-right: 5px;
-    white-space: nowrap;
+.badge-info, .badge-warning {
+    color: $darker-gray;
 }
 
-td.right, th.right {
-    text-align: right;
-}
-td.center, th.center {
-    text-align: center;
-}
-table.vertically-aligned tr td {
-    vertical-align: middle;
-}
-td.vote-question-text {
-    vertical-align: top;
+.card-header .btn-sm {
+    line-height: 1;
 }
 
-.vote-question-choice {
-    flex-grow: 1;
+.tooltip-inner {
+    max-width: 250px;
+    text-align: left;
 }
 
-.vote-text-answer {
-    flex-grow: 1;
-}
-
-.distribution-bar {
-    overflow: hidden;
-    white-space: nowrap;
-    border-radius: 3px;
-}
-
-.distribution-bar div {
-    display: inline-block;
-}
-
-.distribution-bar div:last-child { width: 100% !important; }
-
-.vote-bg-1 { background: $evap-green; }
-.vote-bg-2 { background: $evap-lime; }
-.vote-bg-3 { background: $evap-yellow; }
-.vote-bg-4 { background: $evap-orange; }
-.vote-bg-5 { background: $evap-red; }
-
-.grade-bg {
-    display: inline-block;
-    border-radius: 3px;
-    width: 45px;
-}
-
-.grade-bg-result-bar {
-    float: right;
-    border-radius: 3px;
-    width: 30px;
+.tooltip-inner ul {
     margin-left: 10px;
+    margin-top: 10px;
+    padding-left: 10px;
 }
 
-.grade-bg-result-bar-count {
-    float: left;
-    border-radius: 3px;
-    width: 50px;
-    margin-right: 20px;
-    background-color: $evap-dark-blue;
-    color: white;
+.table {
+    margin-bottom: 0;
 }
 
-.grade-bg-disabled {
-    background-color: $light-gray;
-}
 
-.deviation-bg {
-    display: inline-block;
-    border-radius: 3px;
-    width: 45px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: $dark-gray;
-}
-
-.deviation-bg-disabled {
-    background-color: $light-gray;
-}
-
+/* evap print styling */
 @media print {
     .no-break {
         page-break-inside: avoid;
@@ -190,9 +121,39 @@ td.vote-question-text {
     }
 }
 
-select[multiple='multiple'] {
-    height: 200px;
+
+/* evap styling */
+table#question_table textarea {
+    resize: vertical;
 }
+
+ul.inputs-list, .exportsheet ul {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+table.vertically-aligned tr td {
+    vertical-align: middle;
+}
+
+td.vote-question-text {
+    vertical-align: top;
+}
+
+.vote-question-choice {
+    flex-grow: 1;
+    word-break: break-word;
+}
+
+.vote-text-answer {
+    flex-grow: 1;
+}
+
+.vote-bg-1 { background: $evap-green; }
+.vote-bg-2 { background: $evap-lime; }
+.vote-bg-3 { background: $evap-yellow; }
+.vote-bg-4 { background: $evap-orange; }
+.vote-bg-5 { background: $evap-red; }
 
 td.vote-row {
     width: 100%;
@@ -205,6 +166,15 @@ td.vote-question {
 td.vote-question.choice-error {
     font-weight: bold;
     color: $evap-dark-red;
+}
+
+.vote-btn {
+    min-width: 85px;
+    max-width: 110px;
+    height: 38px;
+    font-size: 8pt;
+    white-space: normal;
+    margin-bottom: 0;
 }
 
 div.vote-inputs {
@@ -237,28 +207,68 @@ div.preview > textarea {
     height: 60px;
 }
 
+.distribution-bar {
+    overflow: hidden;
+    white-space: nowrap;
+    border-radius: 3px;
+}
+
+.distribution-bar div {
+    display: inline-block;
+}
+
+.distribution-bar div:last-child { width: 100% !important; }
+
+.grade-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+}
+
+.grade-bg-result-bar {
+    float: right;
+    border-radius: 3px;
+    width: 30px;
+    margin-left: 10px;
+}
+
+.grade-bg-result-bar-count {
+    float: left;
+    border-radius: 3px;
+    width: 50px;
+    margin-right: 20px;
+    background-color: $evap-dark-blue;
+    color: white;
+}
+
+.grade-bg-disabled {
+    background-color: $light-gray;
+}
+
+.deviation-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: $dark-gray;
+}
+
+.deviation-bg-disabled {
+    background-color: $light-gray;
+}
+
+select[multiple='multiple'] {
+    height: 200px;
+}
+
 .error-label {
     color: $evap-dark-red;
 }
 
-.vote-btn {
-    min-width: 85px;
-    max-width: 110px;
-    height: 38px;
-    font-size: 8pt;
-    white-space: normal;
-    margin-bottom: 0;
-}
-.btn-light {
-    border-color: $medium-gray;
-}
-.btn-light.active {
-    border-color: $medium-gray;
-}
-
 .card-submit-area {
     background-color: $lighter-gray;
-    border-color: $evap-dark-blue;
+    border-color: rgba($evap-dark-blue, 0.5);;
     min-height: 65px;
 }
 
@@ -283,10 +293,6 @@ div.preview > textarea {
     min-width: 190px;
 }
 
-.nobottompadding {
-    padding-bottom: 0px;
-}
-
 .collapse-toggle {
     color: $darker-gray;
 }
@@ -301,49 +307,9 @@ div.preview > textarea {
     margin-left: 4px;
 }
 
-
-/* Bootstrap callouts
-originally taken from https://gist.github.com/matthiasg/6153853
-
-Side notes for calling out things
--------------------------------------------------- */
-
-/* Base styles (regardless of theme) */
-.bs-callout {
-    margin: 0 0 20px 0;
-    padding: 15px 30px 15px 15px;
-    border-left: 5px solid $dark-gray;
-}
-.bs-callout h4 {
-    margin-top: 0;
-}
-.bs-callout p:last-child {
-    margin-bottom: 0;
-}
-.bs-callout code,
-.bs-callout .highlight {
-    background-color: $lighter-gray;
-}
-
-/* Themes for different contexts */
-.bs-callout-danger {
-    background-color: $evap-light-red;
-    border-color: $evap-red;
-}
-.bs-callout-warning {
-    background-color: $evap-light-yellow;
-    border-color: $evap-yellow;
-}
-.bs-callout-info {
-    background-color: $evap-light-blue;
-    border-color: $evap-dark-blue;
-}
-
 .feedback-button {
     line-height: 40px;
 }
-
-
 
 .btn-option {
     background-color: $white;
@@ -416,7 +382,6 @@ Side notes for calling out things
     padding-right: 40px;
     display: block;
 }
-
 .evap-progress-bar-back {
     background: $evap-light-blue;
     border-radius: 3px;
@@ -424,14 +389,12 @@ Side notes for calling out things
     position: relative;
     display: inline-block;
 }
-
 .evap-progress-bar-front {
     background: $evap-dark-blue;
     border-radius: 3px;
     position: relative;
     display: inline-block;
 }
-
 .evap-progress-bar-bartext {
     position: absolute;
     top: 0px;
@@ -441,14 +404,12 @@ Side notes for calling out things
     text-align: center;
     text-shadow: 0px 0px 4px $evap-dark-blue, 0px 0px 4px $evap-dark-blue, 1px 1px 2px $evap-dark-blue;
 }
-
 .evap-progress-bar-text {
     color: $black;
     text-align: left;
     float: right;
     width: 36px;
 }
-
 .multi-progress-bar .evap-progress-bar-container {
     padding-bottom: 3px;
 }
@@ -477,17 +438,6 @@ div.disabled-tooltip {
     display: inline-block;
 }
 
-.tooltip-inner {
-    max-width: 250px;
-    text-align: left;
-}
-
-.tooltip-inner ul {
-    margin-left: 10px;
-    margin-top: 10px;
-    padding-left: 10px;
-}
-
 .grade-course-table tr {
     height: 57px;
 }
@@ -504,10 +454,6 @@ div.disabled-tooltip {
     background: $light-gray;
 }
 
-.settings-form select {
-    width: 100%;
-}
-
 .course-contributor {
     font-style: italic;
     padding-bottom: 6px;
@@ -521,10 +467,6 @@ div.disabled-tooltip {
     font-size: 16px;
     top: 8px;
     cursor:move;
-}
-
-.inline {
-    display: inline;
 }
 
 .nowrap {
@@ -559,22 +501,38 @@ span.line {
 }
 
 
-
-/* Override bootstrap values */
-.card-header {
-    font-weight: bold;
+/* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
+.bs-callout {
+    margin: 0 0 20px 0;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid $dark-gray;
+}
+.bs-callout h4 {
+    margin-top: 0;
+}
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+.bs-callout code,
+.bs-callout .highlight {
+    background-color: $lighter-gray;
 }
 
-.card-outline-primary > .card-header {
+.bs-callout-danger {
+    background-color: $evap-light-red;
+    border-color: $evap-red;
+}
+.bs-callout-warning {
+    background-color: $evap-light-yellow;
+    border-color: $evap-yellow;
+}
+.bs-callout-info {
     background-color: $evap-light-blue;
-}
-
-.badge-info, .badge-warning {
-    color: $darker-gray;
+    border-color: $evap-dark-blue;
 }
 
 
-// adjust select2 selection fields to bootstrap input sizes
+/* select2 adjustments */
 .select2-container--default .select2-selection--single {
     height: 38px;
 

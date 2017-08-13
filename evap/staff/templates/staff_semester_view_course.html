@@ -4,7 +4,7 @@
 
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
     {% if not info_only and request.user.is_staff  %}
-        <td class="minimize">
+        <td>
             <input type="checkbox" name="course" id="option{{course.id}}" value="{{course.id}}" {{disable_if_archived}} />
         </td>
     {% endif %}

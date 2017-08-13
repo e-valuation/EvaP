@@ -74,7 +74,7 @@
                                     <td class="text-right">
                                         {% if course.state == 'in_evaluation' %}
                                             {% if course in voted_courses %}
-                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans 'You already evaluated this course.' %}"><button class="btn btn-sm btn-secondary disabled">{% trans "Evaluate" %}</button></div>
+                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans 'You already evaluated this course.' %}"><button class="btn btn-sm btn-light disabled">{% trans "Evaluate" %}</button></div>
                                             {% else %}
                                                 <a class="btn btn-sm btn-primary" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
                                             {% endif %}
@@ -93,7 +93,7 @@
                                         {% elif course.grades_activated and course.is_graded and can_download_grades %}
                                             {% if course.state == 'evaluated' or course.state == 'reviewed' %}
                                                 <div class="btn-group" role="group" data-toggle="tooltip" data-placement="left" title="{% trans 'No grades have been uploaded yet.' %}">
-                                                    <button type="button" class="btn btn-sm btn-secondary dropdown-toggle disabled">{% trans "Download grades" %}</button>
+                                                    <button type="button" class="btn btn-sm btn-secondary disabled">{% trans "Download grades" %}</button>
                                                 </div>
                                             {% endif %}
                                         {% endif %}
