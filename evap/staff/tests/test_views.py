@@ -10,7 +10,8 @@ from model_mommy import mommy
 import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
-                                   Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion
+                                   Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion, \
+                                   RatingAnswerCounter
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
 from evap.staff.tools import generate_import_filename
 
@@ -119,6 +120,37 @@ class TestUserCreateView(ViewTest):
         form.submit()
 
         self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
+
+
+class TestUserEditView(ViewTest):
+    url = "/staff/user/3/edit"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, pk=3)
+
+
+class TestUserMergeSelectionView(ViewTest):
+    url = "/staff/user/merge"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile)
+
+
+class TestUserMergeView(ViewTest):
+    url = "/staff/user/3/merge/4"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, pk=3)
+        mommy.make(UserProfile, pk=4)
 
 
 class TestUserBulkDeleteView(ViewTest):
@@ -832,11 +864,8 @@ class TestCourseEditView(ViewTest):
         course = mommy.make(Course, semester=semester, pk=1)
 
         # This is necessary so that the call to is_single_result does not fail.
-        user = mommy.make(UserProfile)
-        cls.contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-
-    def test_single_result(self):
-        pass  # TODO: Should be done.
+        responsible = mommy.make(UserProfile)
+        cls.contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_remove_responsibility(self):
         page = self.app.get(self.url, user="staff")
@@ -849,6 +878,28 @@ class TestCourseEditView(ViewTest):
         page = form.submit()
 
         self.assertIn("No responsible contributors found", page)
+
+
+class TestSingleResultEditView(ViewTest):
+    url = '/staff/semester/1/course/1/edit'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        semester = mommy.make(Semester, pk=1)
+
+        course = mommy.make(Course, semester=semester, pk=1)
+        responsible = mommy.make(UserProfile)
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True,
+                                  comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[Questionnaire.single_result_questionnaire()])
+
+        question = Questionnaire.single_result_questionnaire().question_set.get()
+        mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
+        mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=2, count=15)
+        mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=3, count=40)
+        mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=4, count=60)
+        mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=5, count=30)
 
 
 class TestCoursePreviewView(ViewTest):
@@ -1164,7 +1215,7 @@ class TestQuestionnaireNewVersionView(ViewTest):
         self.assertEqual(page.location, '/staff/questionnaire/')
 
 
-class TestQuestionnaireCreateView(WebTest):
+class TestQuestionnaireCreateView(ViewTest):
     url = "/staff/questionnaire/create"
     test_users = ['staff']
 
@@ -1206,7 +1257,42 @@ class TestQuestionnaireCreateView(WebTest):
         self.assertFalse(Questionnaire.objects.filter(name_de="Test Fragebogen", name_en="test questionnaire").exists())
 
 
-class TestQuestionnaireCopyView(WebTest):
+class TestQuestionnaireIndexView(ViewTest):
+    url = "/staff/questionnaire/"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(Questionnaire, is_for_contributors=True)
+        mommy.make(Questionnaire, is_for_contributors=False)
+
+
+class TestQuestionnaireEditView(ViewTest):
+    url = '/staff/questionnaire/2/edit'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        questionnaire = mommy.make(Questionnaire, id=2)
+        mommy.make(Question, questionnaire=questionnaire)
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+
+class TestQuestionnaireViewView(ViewTest):
+    url = '/staff/questionnaire/2'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        questionnaire = mommy.make(Questionnaire, id=2)
+        mommy.make(Question, questionnaire=questionnaire, type='T')
+        mommy.make(Question, questionnaire=questionnaire, type='G')
+        mommy.make(Question, questionnaire=questionnaire, type='L')
+        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+
+class TestQuestionnaireCopyView(ViewTest):
     url = '/staff/questionnaire/2/copy'
     test_users = ['staff']
 
@@ -1232,7 +1318,6 @@ class TestQuestionnaireCopyView(WebTest):
 
 class TestQuestionnaireDeletionView(WebTest):
     url = "/staff/questionnaire/delete"
-    test_users = ['staff']
     csrf_checks = False
 
     @classmethod
@@ -1285,6 +1370,17 @@ class TestCourseTypeView(ViewTest):
         self.assertIn("Successfully", str(response))
 
         self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
+
+
+class TestCourseTypeMergeSelectionView(ViewTest):
+    url = "/staff/course_types/merge"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.main_type = mommy.make(CourseType, pk=1, name_en="A course type")
+        cls.other_type = mommy.make(CourseType, pk=2, name_en="Obsolete course type")
 
 
 class TestCourseTypeMergeView(ViewTest):

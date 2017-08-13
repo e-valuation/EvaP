@@ -16,32 +16,6 @@ class URLTests(WebTest):
     fixtures = ['minimal_test_data']
     csrf_checks = False
 
-    def test_all_urls(self):
-        """
-            This tests visits all URLs of evap and verifies they return a 200 for the specified user.
-        """
-        tests = [
-            # staff semester single_result
-            ("test_staff_semester_x_single_result_y_edit", "/staff/semester/1/course/11/edit", "evap"),
-            # staff questionnaires
-            ("test_staff_questionnaire", "/staff/questionnaire/", "evap"),
-            ("test_staff_questionnaire_x_edit", "/staff/questionnaire/3/edit", "evap"),
-            ("test_staff_questionnaire_x", "/staff/questionnaire/2", "evap"),
-            # staff user
-            ("test_staff_user_import", "/staff/user/import", "evap"),
-            ("test_staff_sample_xls", "/static/sample_user.xls", "evap"),
-            ("test_staff_user_x_edit", "/staff/user/4/edit", "evap"),
-            ("test_staff_user_merge", "/staff/user/merge", "evap"),
-            ("test_staff_user_x_merge_x", "/staff/user/4/merge/5", "evap"),
-            # rewards
-            ("test_staff_reward_points_redemption_events", "/rewards/reward_point_redemption_events/", "evap"),
-            ("test_staff_reward_points_redemption_event_export", "/rewards/reward_point_redemption_event/1/export", "evap"),
-            # course types
-            ("test_staff_course_type_merge", "/staff/course_types/merge", "evap"),
-        ]
-        for _, url, user in tests:
-            self.get_assert_200(url, user)
-
     def test_permission_denied(self):
         """
             Tests whether all the 403s Evap can throw are correctly thrown.
