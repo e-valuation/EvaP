@@ -1,4 +1,6 @@
-from evap.evaluation.models import Course
+from model_mommy import mommy
+
+from evap.evaluation.models import Course, UserProfile
 from evap.evaluation.tests.tools import ViewTest, course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
@@ -20,6 +22,15 @@ class TestContributorSettingsView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         course_with_responsible_and_editor()
+
+    def test_save_settings(self):
+        user = mommy.make(UserProfile)
+        page = self.get_assert_200(self.url, "responsible")
+        form = page.forms["settings-form"]
+        form["delegates"] = [user.pk]
+        form.submit()
+
+        self.assertEquals(list(UserProfile.objects.get(username='responsible').delegates.all()), [user])
 
 
 class TestContributorCourseView(ViewTest):

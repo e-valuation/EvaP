@@ -131,6 +131,13 @@ class TestUserEditView(ViewTest):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(UserProfile, pk=3)
 
+    def test_questionnaire_edit(self):
+        page = self.get_assert_200(self.url, "staff")
+        form = page.forms["user-form"]
+        form["username"] = "lfo9e7bmxp1xi"
+        form.submit()
+        self.assertTrue(UserProfile.objects.filter(username='lfo9e7bmxp1xi').exists())
+
 
 class TestUserMergeSelectionView(ViewTest):
     url = "/staff/user/merge"
@@ -861,21 +868,33 @@ class TestCourseEditView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         semester = mommy.make(Semester, pk=1)
-        course = mommy.make(Course, semester=semester, pk=1)
+        degree = mommy.make(Degree)
+        cls.course = mommy.make(Course, semester=semester, pk=1, degrees=[degree])
+        mommy.make(Questionnaire, question_set=[mommy.make(Question)])
+        cls.course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
 
         # This is necessary so that the call to is_single_result does not fail.
         responsible = mommy.make(UserProfile)
-        cls.contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_edit_course(self):
+        user = mommy.make(UserProfile)
+        page = self.app.get(self.url, user="staff")
+
+        # remove responsibility
+        form = page.forms["course-form"]
+        form['contributions-0-contributor'] = user.pk
+        form['contributions-0-responsibility'] = "RESPONSIBLE"
+        page = form.submit("operation", value="save")
+        self.assertEqual(list(self.course.responsible_contributors), [user])
 
     def test_remove_responsibility(self):
         page = self.app.get(self.url, user="staff")
-        page = page.click(self.contribution.course.semester.name_en, index=0)
-        page = page.click(self.contribution.course.name_en)
 
         # remove responsibility
         form = page.forms["course-form"]
         form['contributions-0-responsibility'] = "CONTRIBUTOR"
-        page = form.submit()
+        page = form.submit("operation", value="save")
 
         self.assertIn("No responsible contributors found", page)
 

@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <form method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
+    <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.non_field_errors }}
         <div class="panel panel-default">
