@@ -30,6 +30,7 @@
             <div class="col-sm-offset-2 col-sm-6">
                 {% if editable %}
                     <button name="operation" value="save" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Save"%}</button>
+                    <button name="operation" value="preview" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Preview"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit" />
                     <button onclick="preventAccidentalClosing = false; show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
@@ -38,6 +39,25 @@
             </div>
         </div>
     </form>
+
+    {% if preview_html %}
+        <div class="modal fade" id="preview_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document" style="width:1100px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Preview</h4>
+                    </div>
+                    <div class="modal-body">
+                        {{ preview_html|safe|escape }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Close" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block modals %}
@@ -58,5 +78,11 @@
     {% include "evap_course_edit_js.html" %}
     {% if editable %}
         <script type="text/javascript"> preventAccidentalClosing = true; </script>
+    {% endif %}
+
+    {% if preview_html %}
+        <script type="text/javascript">
+            $('#preview_modal').modal();
+        </script>
     {% endif %}
 {% endblock %}

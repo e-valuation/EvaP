@@ -73,7 +73,7 @@ class TestStaffFAQEditView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        section = mommy.make(FaqSection)
+        section = mommy.make(FaqSection, pk=1)
         mommy.make(FaqQuestion, section=section)
 
 
@@ -712,7 +712,7 @@ class TestSingleResultCreateView(ViewTest):
     def setUpTestData(cls):
         cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
-        mommy.make(CourseType)
+        mommy.make(CourseType, pk=1)
 
     def test_single_result_create(self):
         """
@@ -747,7 +747,7 @@ class TestCourseCreateView(ViewTest):
     def setUpTestData(cls):
         cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
-        mommy.make(CourseType)
+        mommy.make(CourseType, pk=1)
         mommy.make(Questionnaire, pk=1, is_for_contributors=False)
         mommy.make(Questionnaire, pk=2, is_for_contributors=True)
 
@@ -1037,7 +1037,7 @@ class TestCourseCommentView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         semester = mommy.make(Semester, pk=1)
-        cls.course = mommy.make(Course, semester=semester)
+        cls.course = mommy.make(Course, pk=1, semester=semester)
 
     def test_comments_showing_up(self):
         questionnaire = mommy.make(Questionnaire)

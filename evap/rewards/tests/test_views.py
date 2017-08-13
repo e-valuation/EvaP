@@ -45,7 +45,8 @@ class TestIndexView(ViewTest):
         cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
         mommy.make(Course, participants=[cls.student])
         mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
-        mommy.make(RewardPointRedemptionEvent, _quantity=2, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
         response = self.app.get(reverse('rewards:index'), user='student')

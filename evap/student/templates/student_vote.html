@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends for_rendering_in_modal|yesno:"base_empty.html,base.html" %}
+
 
 {% load static %}
 {% load evaluation_filters %}
@@ -20,11 +21,11 @@
     {% if participants_warning %}
         <div class="bs-callout bs-callout-warning">{% blocktrans %}This course has only a small number of participants. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
     {% endif %}
-    {% if preview %}
+    {% if preview and not for_rendering_in_modal %}
         <small>
         <div class="bs-callout bs-callout-info">
             <b>{% trans "Questionnaire Preview" %}</b><br />
-            {% blocktrans %}This is a preview of the questionnaire for the course. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            {% blocktrans %}This is a preview of the questionnaire for the course, your changes have not been saved yet. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
         </div>
     </small>
     {% endif %}
@@ -74,6 +75,7 @@
                 </div>
             </div>
         {% endif %}
+        {% if not for_rendering_in_modal %}
         <div class="well submit-area text-center">
             {% if preview %}
                 <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
@@ -84,6 +86,7 @@
                 </p>
             {% endif %}
         </div>
+        {% endif %}
     </form>
 {% endblock %}
 

@@ -296,9 +296,9 @@ class ContributionForm(forms.ModelForm):
             'contributor': UserModelChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, course=None, **kwargs):
+        self.course = course
         # work around https://code.djangoproject.com/ticket/25880
-        self.course = kwargs.pop('course', None)
         if self.course is None:
             assert 'instance' in kwargs
             self.course = kwargs['instance'].course
@@ -345,13 +345,12 @@ class CourseEmailForm(forms.Form):
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance')
-        self.export = kwargs.pop('export', False)
-        self.template = EmailTemplate()
+    def __init__(self, *args, course, export=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['subject'].required = not self.export
-        self.fields['body'].required = not self.export
+        self.template = EmailTemplate()
+        self.course = course
+        self.fields['subject'].required = not export
+        self.fields['body'].required = not export
 
     def clean(self):
         self.recipient_groups = self.cleaned_data.get('recipients')
@@ -362,13 +361,13 @@ class CourseEmailForm(forms.Form):
         return self.cleaned_data
 
     def email_addresses(self):
-        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups, filter_users_in_cc=False)
+        recipients = self.template.recipient_list_for_course(self.course, self.recipient_groups, filter_users_in_cc=False)
         return set(user.email for user in recipients if user.email)
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True, request=request)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], self.recipient_groups, use_cc=True, request=request)
 
 
 class QuestionnaireForm(forms.ModelForm):
@@ -495,8 +494,7 @@ class QuestionForm(forms.ModelForm):
 
 
 class QuestionnairesAssignForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        course_types = kwargs.pop('course_types')
+    def __init__(self, *args, course_types, **kwargs):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:

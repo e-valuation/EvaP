@@ -656,10 +656,11 @@ def course_delete(request):
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
-    form = CourseEmailForm(request.POST or None, instance=course, export='export' in request.POST)
+    export = 'export' in request.POST
+    form = CourseEmailForm(request.POST or None, course=course, export=export)
 
     if form.is_valid():
-        if form.export:
+        if export:
             email_addresses = '; '.join(form.email_addresses())
             messages.info(request, _('Recipients: ') + '\n' + email_addresses)
             return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))

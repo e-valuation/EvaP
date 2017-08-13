@@ -36,7 +36,7 @@ def index(request):
     return render(request, "student_index.html", template_data)
 
 
-def vote_preview(request, course):
+def vote_preview(request, course, for_rendering_in_modal=False):
     """
         Renders a preview of the voting page for the given course.
         Not used by the student app itself, but by staff and contributor.
@@ -50,7 +50,8 @@ def vote_preview(request, course):
         course_form_group=course_form_group,
         contributor_form_groups=contributor_form_groups,
         course=course,
-        preview=True)
+        preview=True,
+        for_rendering_in_modal=for_rendering_in_modal)
     return render(request, "student_vote.html", template_data)
 
 
