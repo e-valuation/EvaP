@@ -700,61 +700,70 @@ class TestSemesterParticipationDataExportView(ViewTest):
 
 
 class TestCourseOperationView(ViewTest):
-    url = '/staff/semester/111/courseoperation'
-    fixtures = ['minimal_test_data']
+    url = '/staff/semester/1/courseoperation'
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.semester = mommy.make(Semester, pk=111)
+        cls.semester = mommy.make(Semester, pk=1)
 
-    def helper_semester_state_views(self, course_ids, old_state, new_state, operation):
-        page = self.app.get("/staff/semester/1", user="evap")
+    def helper_semester_state_views(self, course, old_state, new_state, operation):
+        page = self.app.get("/staff/semester/1", user="staff")
         form = page.forms["form_" + old_state]
-        for course_id in course_ids:
-            self.assertIn(Course.objects.get(pk=course_id).state, old_state)
-        form['course'] = course_ids
+        self.assertIn(course.state, old_state)
+        form['course'] = course.pk
         response = form.submit('operation', value=operation)
 
         form = response.forms["course-operation-form"]
         response = form.submit()
         self.assertIn("Successfully", str(response))
-        for course_id in course_ids:
-            self.assertEqual(Course.objects.get(pk=course_id).state, new_state)
+        self.assertEqual(Course.objects.get(pk=course.pk).state, new_state)
 
     """
         The following tests make sure the course state transitions are triggerable via the UI.
     """
     def test_semester_publish(self):
-        self.helper_semester_state_views([7], "reviewed", "published", "publish")
+        course = mommy.make(Course, semester=self.semester, state='reviewed')
+        self.helper_semester_state_views(course, "reviewed", "published", "publish")
 
     def test_semester_reset_1(self):
-        self.helper_semester_state_views([2], "prepared", "new", "revertToNew")
+        course = mommy.make(Course, semester=self.semester, state='prepared')
+        self.helper_semester_state_views(course, "prepared", "new", "revertToNew")
 
     def test_semester_reset_2(self):
-        self.helper_semester_state_views([4], "approved", "new", "revertToNew")
+        course = mommy.make(Course, semester=self.semester, state='approved')
+        self.helper_semester_state_views(course, "approved", "new", "revertToNew")
 
     def test_semester_approve_1(self):
-        self.helper_semester_state_views([1], "new", "approved", "approve")
+        course = course = mommy.make(Course, semester=self.semester, state='new')
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        self.helper_semester_state_views(course, "new", "approved", "approve")
 
     def test_semester_approve_2(self):
-        self.helper_semester_state_views([2], "prepared", "approved", "approve")
+        course = mommy.make(Course, semester=self.semester, state='prepared')
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        self.helper_semester_state_views(course, "prepared", "approved", "approve")
 
     def test_semester_approve_3(self):
-        self.helper_semester_state_views([3], "editor_approved", "approved", "approve")
+        course = mommy.make(Course, semester=self.semester, state='editor_approved')
+        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        self.helper_semester_state_views(course, "editor_approved", "approved", "approve")
 
     def test_semester_contributor_ready_1(self):
-        self.helper_semester_state_views([1, 10], "new", "prepared", "prepare")
+        course = mommy.make(Course, semester=self.semester, state='new')
+        self.helper_semester_state_views(course, "new", "prepared", "prepare")
 
     def test_semester_contributor_ready_2(self):
-        self.helper_semester_state_views([3], "editor_approved", "prepared", "reenableEditorReview")
+        course = mommy.make(Course, semester=self.semester, state='editor_approved')
+        self.helper_semester_state_views(course, "editor_approved", "prepared", "reenableEditorReview")
 
     def test_semester_unpublish(self):
-        self.helper_semester_state_views([8], "published", "reviewed", "unpublish")
+        course = mommy.make(Course, semester=self.semester, state='published')
+        self.helper_semester_state_views(course, "published", "reviewed", "unpublish")
 
     def test_operation_start_evaluation(self):
         urloptions = '?course=1&operation=startEvaluation'
-        mommy.make(Course, pk=1, state='approved', semester=self.semester)
+        course = mommy.make(Course, state='approved', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -762,12 +771,12 @@ class TestCourseOperationView(ViewTest):
         form = response.forms['course-operation-form']
         form.submit()
 
-        course = Course.objects.get(pk=1)
+        course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'in_evaluation')
 
     def test_operation_prepare(self):
         urloptions = '?course=1&operation=prepare'
-        mommy.make(Course, pk=1, state='new', semester=self.semester)
+        course = mommy.make(Course, state='new', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -775,7 +784,7 @@ class TestCourseOperationView(ViewTest):
         form = response.forms['course-operation-form']
         form.submit()
 
-        course = Course.objects.get(pk=1)
+        course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'prepared')
 
 
