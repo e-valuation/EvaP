@@ -32,16 +32,12 @@
                         {% endfor %}
                     </td>
                     <td>
-                        {{ form.question_de.errors }}
-                        {{ form.question_de }}
-                        {{ form.answer_de.errors }}
-                        {{ form.answer_de }}
+                        {% include "bootstrap_form_field_widget.html" with field=form.question_de %}
+                        {% include "bootstrap_form_field_widget.html" with field=form.answer_de %}
                     </td>
                     <td>
-                        {{ form.question_en.errors }}
-                        {{ form.question_en }}
-                        {{ form.answer_en.errors }}
-                        {{ form.answer_en }}
+                        {% include "bootstrap_form_field_widget.html" with field=form.question_en %}
+                        {% include "bootstrap_form_field_widget.html" with field=form.answer_en %}
                     </td>
                     <td>{{ form.DELETE }}</td>
                 </tr>

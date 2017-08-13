@@ -27,14 +27,12 @@
             </thead>
             <tbody>
                 {% for form in formset %}
-                    {% if form.non_field_errors %}
-                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
-                    {% endif %}
+                    {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
                     <tr class="exportsheet sortable">
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                        <td><div class="checkbox">{{ form.selected_course_types.errors }} {{ form.selected_course_types }}</div></td>
+                        <td>{% include "bootstrap_form_field_widget.html" with field=form.selected_course_types %}</td>
                         <td>{{ form.DELETE }}</td>
                     </tr>
                 {% endfor %}

@@ -1,7 +1,13 @@
-<div class="form-group d-flex">
-	<label class="col-md-{% if wide %}4{% else %}3{% endif %} form-label" for="{{ field.id }}" id="{{ field.id_for_label }}">{{ field.label }}</label>
-	<div class="col-md-{% if wide %}8{% else %}7{% endif %}">
-		{{ field.errors }}
-		{{ field }}
-	</div>
-</div>
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <div class="form-group d-flex">
+        {% if wide %}
+            {% include "bootstrap_form_field_label.html" with field=field class="col-md-4" %}
+            {% include "bootstrap_form_field_widget.html" with field=field class="col-md-8" %}
+        {% else %}
+            {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
+            {% include "bootstrap_form_field_widget.html" with field=field class="col-md-7" %}
+        {% endif %}
+    </div>
+{% endif %}

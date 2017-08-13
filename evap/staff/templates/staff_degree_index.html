@@ -31,13 +31,13 @@
                             <span class="movable-icon fa fa-arrows-v"></span>
                         </td>
                         <td>
-                            {{ form.name_de.errors }}{{ form.name_de }}
+                            {% include "bootstrap_form_field_widget.html" with field=form.name_de %}
                         </td>
                         <td>
-                            {{ form.name_en.errors }}{{ form.name_en }}
+                            {% include "bootstrap_form_field_widget.html" with field=form.name_en %}
                         </td>
                         <td>
-                            {{ form.DELETE.errors }}
+                            {% include "bootstrap_form_errors.html" with errors=form.DELETE.errors %}
                             {% if form.instance.can_staff_delete %}
                                 {{ form.DELETE }}
                             {% else %}

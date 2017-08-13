@@ -7,7 +7,7 @@
 
         {% include 'course_form_general_questions.html' with course=course course_form=form %}
 
-        {% include "contribution_formset.html" with formset=formset staff=True editable=editable %}
+        {% include 'contribution_formset.html' with formset=formset staff=True editable=editable %}
 
         {% if editable %}
         <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">

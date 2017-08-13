@@ -237,7 +237,7 @@ div.preview > textarea {
     height: 60px;
 }
 
-ul.errorlist li {
+.error-label {
     color: $evap-dark-red;
 }
 
@@ -393,7 +393,16 @@ Side notes for calling out things
     width:85%;
 }
 
-.form-label.error {
+.is-invalid {
+    .form-control {
+        border-color: $evap-dark-red;
+    }
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-red, 0.25);
+    }
+}
+
+.form-label.is-invalid {
     color: $evap-dark-red;
 }
 
@@ -401,10 +410,6 @@ Side notes for calling out things
     text-align: right;
     font-weight: bold;
     padding-top: 0.3rem;
-}
-
-.form-field > .error {
-    box-shadow: 0px 0px 8px $evap-red;
 }
 
 .evap-progress-bar-container {

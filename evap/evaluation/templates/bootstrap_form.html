@@ -1,5 +1,4 @@
-{{ form.non_field_errors }}
-{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-{% for field in form.visible_fields %}
-	{% include "bootstrap_form_field.html" with field=field %}
+{% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+{% for field in form %}
+    {% include "bootstrap_form_field.html" with field=field %}
 {% endfor %}

@@ -14,7 +14,7 @@
 
         {% include 'course_form_general_questions.html' with course=course course_form=form %}
 
-        {% include "contribution_formset.html" with formset=formset staff=False editable=editable%}
+        {% include 'contribution_formset.html' with formset=formset staff=False editable=editable%}
 
         <fieldset>
             <legend>{% trans "Students" %}</legend>

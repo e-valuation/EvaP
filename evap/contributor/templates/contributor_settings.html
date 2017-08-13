@@ -43,7 +43,7 @@
 
     <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.non_field_errors }}
+        {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
         <div class="card">
             <div class="card-header d-flex">
                 <div class="mr-auto">{% trans "Delegates and CC users" %}</div>
@@ -60,7 +60,7 @@
                                 {% trans "Own delegates" %}
                             </div>
                             <div class="card-body">
-                                {{ form.delegates.errors }}
+                                {% include "bootstrap_form_errors.html" with errors=form.delegates.errors %}
                                 {{ form.delegates }}
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                                 {% trans "You are a delegate of" %}
                             </div>
                             <div class="card-body">
-                                {{ form.delegate_of.errors }}
+                                {% include "bootstrap_form_errors.html" with errors=form.delegate_of.errors %}
                                 {{ form.delegate_of }}
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                                 {% trans "Emails sent to you will be CC'ed to" %}
                             </div>
                             <div class="card-body">
-                                {{ form.cc_users.errors }}
+                                {% include "bootstrap_form_errors.html" with errors=form.cc_users.errors %}
                                 {{ form.cc_users }}
                             </div>
                         </div>
@@ -96,7 +96,7 @@
                                 {% trans "Emails sent to these users will be CC'ed to you" %}
                             </div>
                             <div class="card-body">
-                                {{ form.cc_user_of.errors }}
+                                {% include "bootstrap_form_errors.html" with errors=form.cc_user_of.errors %}
                                 {{ form.cc_user_of }}
                             </div>
                         </div>

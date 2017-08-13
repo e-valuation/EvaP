@@ -12,7 +12,7 @@
         <fieldset>
             <legend>{% trans "Questions" %}</legend>
             {{ formset.management_form }}
-            {{ formset.non_form_errors }}
+            {% include "bootstrap_form_errors.html" with errors=formset.non_form_errors %}
             <table id="question_table" class="table">
                 <thead>
                     <tr>
@@ -25,9 +25,7 @@
                 </thead>
                 <tbody>
                     {% for form_element in formset %}
-                        {% if form_element.non_field_errors %}
-                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                        {% endif %}
+                        {% include "bootstrap_form_errors.html" with errors=form_element.non_field_errors %}
 
                         <tr class="select2tr sortable">
                             {% for hidden in form_element.hidden_fields %}
@@ -41,15 +39,15 @@
                                 <td></td>
                             {% endif %}
                             {% for field in form_element.visible_fields %}
-                                <td>{{ field.errors }} {{ field }}</td>
+                                <td>{% include "bootstrap_form_field_widget.html" with field=field %}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </fieldset>
-        <div class="form-group well">
-            <div class="offset-sm-3 col-sm-6">
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
                 <input type="submit" value="{% trans "Save questionnaire" %}" class="btn btn-primary"/>
             </div>
         </div>

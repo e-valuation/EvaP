@@ -39,8 +39,7 @@
                             {% if forloop.last and form.instance.id %}
                                 <a href="{% url "staff:faq_section" form.instance.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
                             {% endif %}
-                            {{ field.errors }}
-                            {{ field }}
+                            {% include "bootstrap_form_field_widget.html" with field=field %}
                         </td>
                     {% endfor %}
                 </tr>
