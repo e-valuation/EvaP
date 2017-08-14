@@ -264,10 +264,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return not self.open_textanswer_set.exists()
 
     @property
-    def is_not_fully_reviewed(self):
-        return self.open_textanswer_set.exists()
-
-    @property
     def vote_end_datetime(self):
         # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + EVALUATION_END_OFFSET_HOURS)
@@ -330,10 +326,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
-    def can_staff_approve(self):
-        return self.state in ['new', 'prepared', 'editor_approved']
-
-    @property
     def can_publish_grades(self):
         from evap.results.tools import get_sum_of_answer_counters
         if self.is_single_result:
@@ -377,7 +369,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def single_result_created(self):
         pass
 
-    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: self.is_not_fully_reviewed])
+    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: not self.is_fully_reviewed])
     def reopen_review(self):
         pass
 
@@ -431,37 +423,18 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
-        else:
-            represented_users = user.represented_users.all()
-            if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
-                return True
-
-        return False
-
-    def is_user_responsible_or_delegate(self, user):
-        if self.contributions.filter(responsible=True, contributor=user).exists():
+        represented_users = user.represented_users.all()
+        if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
             return True
-        else:
-            represented_users = user.represented_users.all()
-            if self.contributions.filter(responsible=True, contributor__in=represented_users).exists():
-                return True
-
         return False
-
-    def is_user_contributor(self, user):
-        return self.contributions.filter(contributor=user).exists()
 
     def is_user_contributor_or_delegate(self, user):
-        if self.is_user_contributor(user):
+        if self.contributions.filter(contributor=user).exists():
             return True
-        else:
-            represented_users = user.represented_users.all()
-            if self.contributions.filter(contributor__in=represented_users).exists():
-                return True
+        represented_users = user.represented_users.all()
+        if self.contributions.filter(contributor__in=represented_users).exists():
+            return True
         return False
-
-    def is_user_editor(self, user):
-        return self.contributions.filter(contributor=user, can_edit=True).exists()
 
     def warnings(self):
         result = []
@@ -733,10 +706,6 @@ class TextAnswer(Answer):
     class Meta:
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
-
-    @property
-    def is_reviewed(self):
-        return self.state != self.NOT_REVIEWED
 
     @property
     def is_hidden(self):

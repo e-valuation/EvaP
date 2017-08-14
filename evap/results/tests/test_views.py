@@ -55,8 +55,12 @@ class TestResultsSemesterCourseDetailView(ViewTest):
     def test_single_result_course(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)
         user = 'evap'
-        response = self.app.get(url, user=user)
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(self.url, user))
+        self.get_assert_200(url, user)
+
+    def test_wrong_state(self):
+        course = mommy.make(Course, state='reviewed', semester=self.semester)
+        url = '/results/semester/%s/course/%s' % (self.semester.id, course.id)
+        self.get_assert_403(url, 'student')
 
     def test_private_course(self):
         student = UserProfile.objects.get(username="student")
