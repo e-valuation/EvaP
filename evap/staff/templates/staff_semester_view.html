@@ -150,25 +150,25 @@
                                 <button type="button" class="btn btn-default" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</button>
                             {% endif %}
                             {% ifequal state "new" %}
-                                <button name="operation" value="prepare" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
+                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
                             {% endifequal %}
                             {% if state == 'prepared' or state == 'approved' %}
-                                <button name="operation" value="revertToNew" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
+                                <button name="operation" value="{{state}}->new" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
                             {% endif %}
                             {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
-                                <button name="operation" value="approve" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
+                                <button name="operation" value="{{state}}->approved" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
                             {% endif %}
                             {% ifequal state "editor_approved" %}
-                                <button name="operation" value="reenableEditorReview" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
+                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
                             {% endifequal %}
                             {% ifequal state "approved" %}
-                                <button name="operation" value="startEvaluation" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
+                                <button name="operation" value="{{state}}->in_evaluation" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
                             {% endifequal %}
                             {% ifequal state "reviewed" %}
-                                <button name="operation" value="publish" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
+                                <button name="operation" value="{{state}}->published" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
                             {% endifequal %}
                             {% ifequal state "published" %}
-                                <button name="operation" value="unpublish" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
+                                <button name="operation" value="{{state}}->reviewed" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
                             {% endifequal %}
                             {% endif %}
                         </form>
