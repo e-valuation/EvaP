@@ -50,10 +50,12 @@
                                             {{ course.name }}
                                         </div>
                                         <span class="badge badge-secondary">{{ course.type }}</span>
-                                        {% if course not in voted_courses %}
-                                            {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
-                                                <span class="badge badge-info">{% trans "You did not evaluate this course" %}</span>
+                                        {% if course in voted_courses %}
+                                            {% if course.state == 'in_evaluation' %}
+                                                <span class="badge badge-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You already evaluated this course.' %}"><span class="fa fa-smile-o" aria-hidden="true"></span></span>
                                             {% endif %}
+                                        {% elif course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                                <span class="badge badge-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not evaluate this course.' %}"><span class="fa fa-frown-o" aria-hidden="true"></span></span>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -72,18 +74,14 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-right">
-                                        {% if course.state == 'in_evaluation' %}
-                                            {% if course in voted_courses %}
-                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans 'You already evaluated this course.' %}"><button class="btn btn-sm btn-light disabled">{% trans "Evaluate" %}</button></div>
-                                            {% else %}
-                                                <a class="btn btn-sm btn-primary" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
-                                            {% endif %}
+                                        {% if course.state == 'in_evaluation' and course not in voted_courses %}
+                                            <a class="btn btn-sm btn-primary" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                         {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
-                                            <a class="btn btn-sm btn-secondary" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}" role="button">{{ course.grade_documents.all.first.description }}</a>
+                                            <a class="btn btn-sm btn-light" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}" role="button">{{ course.grade_documents.all.first.description }}</a>
                                         {% elif course.grade_documents.count > 1 and can_download_grades %}
                                             <div class="btn-group" role="group">
-                                                <button id="btnDownload{{ course.id }}" type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Download grades" %}</button>
+                                                <button id="btnDownload{{ course.id }}" type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Grades" %}</button>
                                                 <div class="dropdown-menu" aria-labelledby="btnDownload{{ course.id }}">
                                                     {% for grade_document in course.grade_documents.all %}
                                                         <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
@@ -93,7 +91,7 @@
                                         {% elif course.grades_activated and course.is_graded and can_download_grades %}
                                             {% if course.state == 'evaluated' or course.state == 'reviewed' %}
                                                 <div class="btn-group" role="group" data-toggle="tooltip" data-placement="left" title="{% trans 'No grades have been uploaded yet.' %}">
-                                                    <button type="button" class="btn btn-sm btn-secondary disabled">{% trans "Download grades" %}</button>
+                                                    <button type="button" class="btn btn-sm btn-light disabled">{% trans "Grades" %}</button>
                                                 </div>
                                             {% endif %}
                                         {% endif %}
@@ -101,7 +99,7 @@
                                             {% if course.can_publish_grades %}
                                                 <a class="btn btn-sm btn-secondary" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
                                             {% else %}
-                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans 'We did not receive enough votes to publish the results of this course' %}"><a class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
+                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
                                             {% endif %}
                                         {% endif %}
                                     </td>
