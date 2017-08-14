@@ -4,7 +4,6 @@
 {% load compress %}
 {% load evaluation_filters %}
 {% load navbar_templatetags %}
-{% load sass_tags %}
 
 {% endspaceless %}<!DOCTYPE html>
 <html>
@@ -15,11 +14,11 @@
         <title>{% block title %}EvaP{% endblock %}</title>
 
         {% compress css %}
-            <link rel="stylesheet" href="{% sass_src 'font-awesome/scss/font-awesome.scss' %}" />
+            <link type="text/x-scss" rel="stylesheet" href="{% get_static_prefix %}font-awesome/scss/font-awesome.scss" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
-            <link rel="stylesheet" href="{% sass_src 'css/evap.scss' %}" />
+            <link type="text/x-scss" rel="stylesheet" href="{% get_static_prefix %}css/evap.scss" />
         {% endcompress %}
         <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
     {% endblock %}

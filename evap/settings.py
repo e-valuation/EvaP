@@ -177,7 +177,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',
-    'sass_processor',
     'django_extensions',
     'evap.evaluation',
     'evap.staff',
@@ -310,9 +309,9 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 COMPRESS_ENABLED = not DEBUG
 COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
-    ('text/less', 'lessc {infile} {outfile}'),
+    ('text/x-scss', 'node-sass {infile} > {outfile}'),
 )
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.

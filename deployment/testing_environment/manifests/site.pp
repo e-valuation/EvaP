@@ -23,9 +23,9 @@ node default {
         provider => shell,
         command => 'ln -f -s /usr/bin/nodejs /usr/bin/node'
     } ->
-    exec { "install less":
+    exec { "install node-sass":
         provider => shell,
-        command => 'npm install -g less'
+        command => 'npm install -g node-sass'
     }
 
 
