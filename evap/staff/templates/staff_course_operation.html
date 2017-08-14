@@ -7,7 +7,7 @@
     <form id="course-operation-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% for course in courses %}
-            <input type="hidden" name="course_ids" value="{{ course.id }}" />
+            <input type="hidden" name="course" value="{{ course.id }}" />
         {% endfor %}
 
         <table class="table table-striped">

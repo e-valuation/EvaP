@@ -707,7 +707,8 @@ class TestCourseOperationView(ViewTest):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.semester = mommy.make(Semester, pk=1)
 
-    def helper_semester_state_views(self, course, old_state, new_state, operation):
+    def helper_semester_state_views(self, course, old_state, new_state):
+        operation = old_state + "->" + new_state
         page = self.app.get("/staff/semester/1", user="staff")
         form = page.forms["form_" + old_state]
         self.assertIn(course.state, old_state)
@@ -724,45 +725,45 @@ class TestCourseOperationView(ViewTest):
     """
     def test_semester_publish(self):
         course = mommy.make(Course, semester=self.semester, state='reviewed')
-        self.helper_semester_state_views(course, "reviewed", "published", "publish")
+        self.helper_semester_state_views(course, "reviewed", "published")
 
     def test_semester_reset_1(self):
         course = mommy.make(Course, semester=self.semester, state='prepared')
-        self.helper_semester_state_views(course, "prepared", "new", "revertToNew")
+        self.helper_semester_state_views(course, "prepared", "new")
 
     def test_semester_reset_2(self):
         course = mommy.make(Course, semester=self.semester, state='approved')
-        self.helper_semester_state_views(course, "approved", "new", "revertToNew")
+        self.helper_semester_state_views(course, "approved", "new")
 
     def test_semester_approve_1(self):
         course = course = mommy.make(Course, semester=self.semester, state='new')
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
-        self.helper_semester_state_views(course, "new", "approved", "approve")
+        self.helper_semester_state_views(course, "new", "approved")
 
     def test_semester_approve_2(self):
         course = mommy.make(Course, semester=self.semester, state='prepared')
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
-        self.helper_semester_state_views(course, "prepared", "approved", "approve")
+        self.helper_semester_state_views(course, "prepared", "approved")
 
     def test_semester_approve_3(self):
         course = mommy.make(Course, semester=self.semester, state='editor_approved')
         course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
-        self.helper_semester_state_views(course, "editor_approved", "approved", "approve")
+        self.helper_semester_state_views(course, "editor_approved", "approved")
 
     def test_semester_contributor_ready_1(self):
         course = mommy.make(Course, semester=self.semester, state='new')
-        self.helper_semester_state_views(course, "new", "prepared", "prepare")
+        self.helper_semester_state_views(course, "new", "prepared")
 
     def test_semester_contributor_ready_2(self):
         course = mommy.make(Course, semester=self.semester, state='editor_approved')
-        self.helper_semester_state_views(course, "editor_approved", "prepared", "reenableEditorReview")
+        self.helper_semester_state_views(course, "editor_approved", "prepared")
 
     def test_semester_unpublish(self):
         course = mommy.make(Course, semester=self.semester, state='published')
-        self.helper_semester_state_views(course, "published", "reviewed", "unpublish")
+        self.helper_semester_state_views(course, "published", "reviewed")
 
     def test_operation_start_evaluation(self):
-        urloptions = '?course=1&operation=startEvaluation'
+        urloptions = '?course=1&operation=approved->in_evaluation'
         course = mommy.make(Course, state='approved', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
@@ -775,7 +776,7 @@ class TestCourseOperationView(ViewTest):
         self.assertEqual(course.state, 'in_evaluation')
 
     def test_operation_prepare(self):
-        urloptions = '?course=1&operation=prepare'
+        urloptions = '?course=1&operation=new->prepared'
         course = mommy.make(Course, state='new', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')

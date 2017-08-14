@@ -138,51 +138,48 @@ def semester_course_operation(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     operation = request.GET.get('operation')
-    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'startEvaluation', 'publish', 'unpublish']:
-        messages.error(request, _("Unsupported operation: ") + str(operation))
+    if operation not in ['prepared->new', 'approved->new', 'new->prepared', 'new->approved',
+            'prepared->approved', 'editor_approved->approved', 'editor_approved->prepared',
+            'approved->in_evaluation', 'reviewed->published', 'published->reviewed']:
+        raise SuspiciousOperation("Unknown operation: " + operation)
+
+    old_state = operation.split('->')[0]
+    target_state = operation.split('->')[1]
+
+    course_ids = (request.GET if request.method == 'GET' else request.POST).getlist('course')
+    courses = Course.objects.filter(id__in=course_ids)
+
+    if any(course.state != old_state for course in courses):
+        messages.error(request, _("An error occurred. Please try again."))
         return custom_redirect('staff:semester_view', semester_id)
 
     if request.method == 'POST':
-        course_ids = request.POST.getlist('course_ids')
-        courses = Course.objects.filter(id__in=course_ids)
-
-        # If checkbox is not checked, set template to None
+        template = None
         if request.POST.get('send_email') == 'on':
-            template = EmailTemplate(subject=request.POST["email_subject"], body=request.POST["email_body"])
-        else:
-            template = None
+            template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
 
-        if operation == 'revertToNew':
+        if target_state == 'new':
             helper_semester_course_operation_revert(request, courses)
-        elif operation == 'prepare' or operation == 'reenableEditorReview':
+        elif target_state == 'prepared':
             helper_semester_course_operation_prepare(request, courses, template)
-        elif operation == 'approve':
+        elif target_state == 'approved':
             helper_semester_course_operation_approve(request, courses)
-        elif operation == 'startEvaluation':
+        elif target_state == 'in_evaluation':
             helper_semester_course_operation_start(request, courses, template)
-        elif operation == 'publish':
+        elif target_state == 'published':
             helper_semester_course_operation_publish(request, courses, template)
-        elif operation == 'unpublish':
+        elif target_state == 'reviewed':
             helper_semester_course_operation_unpublish(request, courses)
 
         return custom_redirect('staff:semester_view', semester_id)
 
-    course_ids = request.GET.getlist('course')
-    courses = Course.objects.filter(id__in=course_ids)
-
-    # Set new state, and set email template for possible editing.
+    # If necessary, filter courses and set email template for possible editing
     email_template = None
     if courses:
-        current_state_name = STATES_ORDERED[courses[0].state]
-        if operation == 'revertToNew':
-            new_state_name = STATES_ORDERED['new']
-
-        elif operation == 'prepare' or operation == 'reenableEditorReview':
-            new_state_name = STATES_ORDERED['prepared']
+        if target_state == 'prepared':
             email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
 
-        elif operation == 'approve':
-            new_state_name = STATES_ORDERED['approved']
+        elif target_state == 'approved':
             # remove courses without questionnaires on general contribution, warn about courses with missing questionnaires
             courses_with_enough_questionnaires = [course for course in courses if course.general_contribution_has_questionnaires]
             courses_with_missing_questionnaires = [course for course in courses_with_enough_questionnaires if not course.all_contributions_have_questionnaires]
@@ -201,8 +198,7 @@ def semester_course_operation(request, semester_id):
                                            '%(courses)d courses do not have a questionnaire assigned for every contributor. They can be approved anyway.',
                                            len(courses_with_missing_questionnaires)) % {'courses': len(courses_with_missing_questionnaires)})
 
-        elif operation == 'startEvaluation':
-            new_state_name = STATES_ORDERED['in_evaluation']
+        elif target_state == 'in_evaluation':
             # remove courses with vote_end_date in the past
             courses_end_in_future = [course for course in courses if course.vote_end_date >= date.today()]
             difference = len(courses) - len(courses_end_in_future)
@@ -213,12 +209,8 @@ def semester_course_operation(request, semester_id):
                     difference) % {'courses': difference})
             email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
 
-        elif operation == 'publish':
-            new_state_name = STATES_ORDERED['published']
+        elif target_state == 'published':
             email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
-
-        elif operation == 'unpublish':
-            new_state_name = STATES_ORDERED['reviewed']
 
     if not courses:
         messages.warning(request, _("Please select at least one course."))
@@ -228,8 +220,8 @@ def semester_course_operation(request, semester_id):
         semester=semester,
         courses=courses,
         operation=operation,
-        current_state_name=current_state_name,
-        new_state_name=new_state_name,
+        current_state_name=STATES_ORDERED[old_state],
+        new_state_name=STATES_ORDERED[target_state],
         email_template=email_template,
         show_email_checkbox=email_template is not None
     )
