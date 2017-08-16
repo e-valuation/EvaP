@@ -59,7 +59,7 @@ div.container {
 }
 
 .tooltip-inner {
-    max-width: 250px;
+    max-width: 260px;
     text-align: left;
 }
 
@@ -71,6 +71,26 @@ div.container {
 
 .table {
     margin-bottom: 0;
+}
+
+.result-rating-question {
+    width: 60%;
+}
+.result-rating-answer {
+    width: 40%;
+}
+.result-text-question {
+    width: 25%;
+}
+.result-text-answer {
+    width: 75%;
+    ul {
+        margin-bottom: 0;
+    }
+}
+
+.dropdown-toggle::after {
+    vertical-align: 0.2em;
 }
 
 
@@ -326,6 +346,7 @@ select[multiple='multiple'] {
 
 .participants-warning {
     opacity: 0.4;
+    font-weight: normal;
 }
 
 .questionnaire-warning p {
@@ -379,7 +400,7 @@ select[multiple='multiple'] {
 }
 
 .evap-progress-bar-container {
-    padding-right: 40px;
+    padding-right: 44px;
     display: block;
 }
 .evap-progress-bar-back {
@@ -408,7 +429,7 @@ select[multiple='multiple'] {
     color: $black;
     text-align: left;
     float: right;
-    width: 36px;
+    width: 40px;
 }
 .multi-progress-bar .evap-progress-bar-container {
     padding-bottom: 3px;

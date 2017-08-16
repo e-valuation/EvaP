@@ -15,98 +15,104 @@
     <h2>{{ semester.name }}</h2>
     {% for degree, course_data in courses_by_degree.items %}{% with courses=course_data.courses single_results=course_data.single_results %}
         {% if courses or single_results %}
-            <h3>{{ degree }}</h3>
-            {% if courses %}
-                <table class="table table-striped course-table vertically-aligned">
-                    <thead class="nowrap">
-                        <tr>
-                            <th class="col-sm-4">{% trans "Course" %}</th>
-                            <th class="col-sm-1">{% trans "Type" %}</th>
-                            <th class="col-sm-3">{% trans "Responsible" %}</th>
-                            <th class="col-sm-1">{% trans "Average Grade" %}</th>
-                            <th class="col-sm-1">{% trans "Standard Deviation" %}</th>
-                            <th class="col-sm-2">{% trans "Voters" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for course in courses %}
-                        <tr {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}class="preview"{% endif %}>
-                            <td data-order="{{ course.name }}">
-                                {% if course.state == 'in_evaluation' %}
-                                    <span data-toggle="tooltip" data-placement="top" class="fa fa-play-circle-o" title="{% trans 'This course is still in evaluation.' %}"></span>
-                                {% endif %}
-                                {% if course.state == 'evaluated' or course.state == 'reviewed' %}
-                                    <span data-toggle="tooltip" data-placement="top" class="fa fa-pause-circle" title="{% trans 'This course has not been published yet.' %}"></span>
-                                {% endif %}
-                                {% if course|can_user_see_results:request.user %}
-                                    <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
-                                {% else %}
-                                    <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given to publish the results." %}">
-                                        {{ course.name }}
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td>{{ course.type }}</td>
-                            {% with responsible=course.responsible_contributors.0 %}
-                                <td data-order="{{ responsible.last_name }}">
-                                    {% for contributor in course.responsible_contributors %}
-                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
-                            {% endwith %}
-                            {% if course|can_user_see_results:request.user and course.avg_grade %}
-                                <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                                <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
-                            {% else %}
-                                <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title=
-                                    "{% trans "Not enough answers were given to publish the results." %}">
-                                    &mdash;
-                                </div></td>
-                                <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="
-                                    {% trans "Not enough answers were given to publish the results." %}">
-                                    &mdash;
-                                </div></td>
-                            {% endif %}
-                            {% with num_participants=course.num_participants num_voters=course.num_voters %}
-                                <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include "progress_bar.html" with done=num_voters total=num_participants %}</td>
-                            {% endwith %}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-            {% if single_results %}
-                <table class="table table-striped course-table vertically-aligned">
-                    <thead class="nowrap">
-                        <tr>
-                            <th class="col-sm-4">{% trans "Course" %}</th>
-                            <th class="col-sm-1">{% trans "Type" %}</th>
-                            <th class="col-sm-3">{% trans "Responsible" %}</th>
-                            <th class="col-sm-4">{% trans "Result" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for single_result, result in single_results %}
-                        <tr {% if single_result.state != 'published' %}class="preview"{% endif %}>
-                            <td>
-                                {% if single_result.state != 'published' %}
-                                    <span data-toggle="tooltip" data-placement="top" class="fa fa-pause-circle" title="{% trans 'This course has not been published yet.' %}"></span>
-                                {% endif %}
-                                {{ single_result.name }}
-                            </td>
-                            <td>{{ single_result.type }}</td>
-                            {% with responsible=single_result.responsible_contributors.0 %}
-                                <td data-order="{{ responsible.last_name }}">
-                                    {% for contributor in single_result.responsible_contributors %}
-                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}</td>
-                            {% endwith %}
-                            <td data-order="{{ result.average|default:'0' }}">{% include "result_bar.html" with result=result show_grades=True questionnaire_warning=False %}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+            <div class="card{% if not forloop.last %} mb-3{% endif %}">
+                <div class="card-header">
+                    <a class="collapse-toggle" data-toggle="collapse" href="#degree-{{ degree.id }}" aria-expanded="false" aria-controls="degree-{{ degree.id }}">{{ degree }}</a>
+                </div>
+                <div class="card-body collapse show" id="degree-{{ degree.id }}">
+                    {% if courses %}
+                        <table class="table table-striped course-table vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
+                            <thead>
+                                <tr>
+                                    <th style="width: 36%">{% trans "Course" %}</th>
+                                    <th style="width: 8%">{% trans "Type" %}</th>
+                                    <th style="width: 25%">{% trans "Responsible" %}</th>
+                                    <th style="width: 8%" data-toggle="tooltip" data-placement="bottom" title="{% trans 'Average grade' %}">{% trans "Avg." %}</th>
+                                    <th style="width: 8%" data-toggle="tooltip" data-placement="bottom" title="{% trans 'Standard deviation' %}">{% trans "Std. dev." %}</th>
+                                    <th style="width: 15%">{% trans "Voters" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for course in courses %}
+                                <tr {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}class="preview"{% endif %}>
+                                    <td data-order="{{ course.name }}">
+                                        {% if course.state == 'in_evaluation' %}
+                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                        {% endif %}
+                                        {% if course.state == 'evaluated' or course.state == 'reviewed' %}
+                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
+                                        {% endif %}
+                                        {% if course|can_user_see_results:request.user %}
+                                            <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
+                                        {% else %}
+                                            <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given to publish the results." %}">
+                                                {{ course.name }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ course.type }}</td>
+                                    {% with responsible=course.responsible_contributors.0 %}
+                                        <td data-order="{{ responsible.last_name }}">
+                                            {% for contributor in course.responsible_contributors %}
+                                                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    {% endwith %}
+                                    {% if course|can_user_see_results:request.user and course.avg_grade %}
+                                        <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
+                                        <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
+                                    {% else %}
+                                        <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title=
+                                            "{% trans "Not enough answers were given to publish the results." %}">
+                                            &mdash;
+                                        </div></td>
+                                        <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="
+                                            {% trans "Not enough answers were given to publish the results." %}">
+                                            &mdash;
+                                        </div></td>
+                                    {% endif %}
+                                    {% with num_participants=course.num_participants num_voters=course.num_voters %}
+                                        <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include "progress_bar.html" with done=num_voters total=num_participants %}</td>
+                                    {% endwith %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    {% if single_results %}
+                        <table class="table table-striped course-table vertically-aligned">
+                            <thead class="nowrap">
+                                <tr>
+                                    <th style="width: 36%">{% trans "Course" %}</th>
+                                    <th style="width: 8%">{% trans "Type" %}</th>
+                                    <th style="width: 25%">{% trans "Responsible" %}</th>
+                                    <th style="width: 31%">{% trans "Result" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for single_result, result in single_results %}
+                                <tr {% if single_result.state != 'published' %}class="preview"{% endif %}>
+                                    <td>
+                                        {% if single_result.state != 'published' %}
+                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
+                                        {% endif %}
+                                        {{ single_result.name }}
+                                    </td>
+                                    <td>{{ single_result.type }}</td>
+                                    {% with responsible=single_result.responsible_contributors.0 %}
+                                        <td data-order="{{ responsible.last_name }}">
+                                            {% for contributor in single_result.responsible_contributors %}
+                                                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}</td>
+                                    {% endwith %}
+                                    <td data-order="{{ result.average|default:'0' }}">{% include "result_bar.html" with result=result show_grades=True questionnaire_warning=False %}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
         {% endif %}
     {% endwith %}{% endfor %}
 {% endblock %}
