@@ -26,6 +26,18 @@ GRADE_NAMES = {
     6: _("no answer"),
 }
 
+POSITIVE_YES_NO_NAMES = {
+    1: _("Yes"),
+    5: _("No"),
+    6: _("no answer"),
+}
+
+NEGATIVE_YES_NO_NAMES = {
+    1: _("No"),
+    5: _("Yes"),
+    6: _("no answer"),
+}
+
 # the names used for contributors and staff
 STATES_ORDERED = OrderedDict((
     ('new', _('new')),

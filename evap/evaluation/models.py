@@ -610,6 +610,8 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         ("T", _("Text Question")),
         ("L", _("Likert Question")),
         ("G", _("Grade Question")),
+        ("P", _("Positive Yes-No Question")),
+        ("N", _("Negative Yes-No Question")),
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
@@ -629,9 +631,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     def answer_class(self):
         if self.is_text_question:
             return TextAnswer
-        elif self.is_likert_question:
-            return RatingAnswerCounter
-        elif self.is_grade_question:
+        elif self.is_rating_question:
             return RatingAnswerCounter
         else:
             raise Exception("Unknown answer type: %r" % self.type)
@@ -649,8 +649,20 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         return self.type == "G"
 
     @property
+    def is_positive_yes_no_question(self):
+        return self.type == "P"
+
+    @property
+    def is_negative_yes_no_question(self):
+        return self.type == "N"
+
+    @property
+    def is_yes_no_question(self):
+        return self.is_positive_yes_no_question or self.is_negative_yes_no_question
+
+    @property
     def is_rating_question(self):
-        return self.is_grade_question or self.is_likert_question
+        return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
 
 
 class Answer(models.Model):

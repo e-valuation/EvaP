@@ -1,5 +1,5 @@
 from django.template import Library
-from evap.evaluation.tools import LIKERT_NAMES, STATE_DESCRIPTIONS, STATES_ORDERED, STUDENT_STATES_ORDERED
+from evap.evaluation.tools import POSITIVE_YES_NO_NAMES, NEGATIVE_YES_NO_NAMES, LIKERT_NAMES, STATE_DESCRIPTIONS, STATES_ORDERED, STUDENT_STATES_ORDERED
 from evap.rewards.tools import can_user_use_reward_points
 
 register = Library()
@@ -41,9 +41,16 @@ def percentage_value(fraction, population):
         return None
 
 
-@register.filter(name='likertname')
-def likertname(grade):
-    return LIKERT_NAMES.get(grade)
+@register.filter(name='get_answer_name')
+def get_answer_name(question, grade):
+    if question.is_likert_question:
+        return LIKERT_NAMES.get(grade)
+    elif question.is_positive_yes_no_question:
+        return POSITIVE_YES_NO_NAMES.get(grade)
+    elif question.is_negative_yes_no_question:
+        return NEGATIVE_YES_NO_NAMES.get(grade)
+    else:
+        return grade
 
 
 @register.filter(name='statename')
