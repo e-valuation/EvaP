@@ -2,34 +2,40 @@
     {% trans title %}
 </div>
 <div class="card-body">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th class="col-sm-2">{% trans "Event date" %}</th>
-                <th class="col-sm-2">{% trans "Redemption end date" %}</th>
-                <th class="col-sm-3">{% trans "Event name" %}</th>
-                <th class="col-sm-1">{% trans "Redemptions" %}</th>
-                <th class="col-sm-4">{% trans "Actions" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in events %}
-                <tr id="event-row-{{ event.id }}">
-                    <td>{{ event.date }}</td>
-                    <td>{{ event.redeem_end_date }}</td>
-                    <td>{{ event.name }}</td>
-                    <td><span class="fa fa-user"></span> {{ event.redemptions_by_user|length }}
-                    <td>
-                        <a href="{% url "rewards:reward_point_redemption_event_export" event.id %}" class="btn btn-sm btn-default">{% trans "Export Redemptions" %}</a>
-                        <a href="{% url "rewards:reward_point_redemption_event_edit" event.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
-                        {% if event.can_delete %}
-                            <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
-                        {% else %}
-                            <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This event cannot be deleted because some users already redeemed points for it." %}"><a class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
-                        {% endif %}
-                    </td>
+    {% if events %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th style="width: 20%">{% trans "Event date" %}</th>
+                    <th style="width: 20%">{% trans "Redemption end date" %}</th>
+                    <th style="width: 30%">{% trans "Event name" %}</th>
+                    <th style="width: 15%">{% trans "Redemptions" %}</th>
+                    <th style="width: 15%">{% trans "Actions" %}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr id="event-row-{{ event.id }}">
+                        <td>{{ event.date }}</td>
+                        <td>{{ event.redeem_end_date }}</td>
+                        <td>{{ event.name }}</td>
+                        <td><span class="fa fa-user"></span> {{ event.redemptions_by_user|length }}
+                        <td>
+                            <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fa fa-download" /></a>
+                            <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil" /></a>
+                            {% if event.can_delete %}
+                                <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"></a>
+                            {% else %}
+                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% trans 'This event cannot be deleted because some users already redeemed points for it.' %}">
+                                    <a class="btn btn-sm btn-danger disabled"><span class="fa fa-trash" /></a>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <i>{% trans "No events exist." %}</i>
+    {% endif %}
 </div>
