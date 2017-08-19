@@ -585,3 +585,16 @@ table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_des
     padding-right: 0;
     padding-left: 20px;
 }
+
+
+/* datetimepicker adjustments */
+.bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {
+    width: 33em;
+    .datepicker {
+        flex: 0 0 60%;
+        max-width: 60%;
+    }
+    .timepicker {
+        flex: 0 0 40%;
+    }
+}

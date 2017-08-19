@@ -159,15 +159,27 @@
     apply_select2_disabled($('select[disabled]').not('.form-template select'));
 
     // run the bootstrap datepicker plugin
-    $("input[name*='end_date']:not([readonly='True'])").datetimepicker({
+    $("input[name$='date']:not([readonly='True'])").datetimepicker({
         locale: "{{ LANGUAGE_CODE }}",
         format: "YYYY-MM-DD",
-        sideBySide: true
+        sideBySide: true,
+        icons: {
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            next: "fa fa-chevron-right",
+            previous: "fa fa-chevron-left"
+        }
     });
-    $("input[name*='start_date']:not([readonly='True'])").datetimepicker({
+    $("input[name$='datetime']:not([readonly='True'])").datetimepicker({
         locale: "{{ LANGUAGE_CODE }}",
         format: "YYYY-MM-DD HH:mm",
-        sideBySide: true
+        sideBySide: true,
+        icons: {
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            next: "fa fa-chevron-right",
+            previous: "fa fa-chevron-left"
+        }
     });
 
     // scroll content to show below navbar
