@@ -44,7 +44,7 @@ div.container {
 .btn-light:active, .btn-light.active, .show > .btn-light.dropdown-toggle {
     border-color: $dark-gray;
 }
-a.btn:not([href]):not(.disabled) {
+a:not([href]):not(.disabled) {
     cursor: pointer;
 }
 a.btn:not([href]):not(.disabled).btn-primary {
@@ -181,7 +181,11 @@ a.btn:not([href]):not(.disabled).btn-dark {
 }
 
 .close {
-    line-height: 0.8;
+    line-height: 0.5;
+    .fa {
+        line-height: 1.4;
+        font-size: 1rem;
+    }
 }
 
 
