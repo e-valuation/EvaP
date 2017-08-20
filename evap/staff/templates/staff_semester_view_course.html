@@ -123,7 +123,7 @@
             <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
         {% endif %}
         {% if request.user.is_staff and course.can_staff_delete %}
-            <a onclick="show_delete_course_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="fa fa-trash" aria-hidden="true"></span></a>
+            <a onclick="show_deleteCourseModal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="fa fa-trash" aria-hidden="true"></span></a>
         {% endif %}
         {% if state == 'published' %}
             <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Results" %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>

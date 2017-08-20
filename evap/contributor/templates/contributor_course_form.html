@@ -32,7 +32,7 @@
                     <button name="operation" value="preview" type="submit" class="btn btn-primary">{% trans "Preview"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit" />
-                    <a onclick="show_approve_course_modal(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
+                    <a onclick="show_approveCourseModal(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-secondary">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>
             </div>
@@ -40,18 +40,18 @@
     </form>
 
     {% if preview_html %}
-        <div class="modal fade" id="preview_modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document" style="width:1100px">
+        <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Preview</h4>
+                        <h5 class="modal-title" id="previewModalLabel">{% trans 'Preview' %}</h5>
                         <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times"></span></a>
                     </div>
                     <div class="modal-body">
                         {{ preview_html|safe|escape }}
                     </div>
                     <div class="modal-footer">
-                        <a role="button" class="btn btn-primary" data-dismiss="modal">{% trans "Close" %}</a>
+                        <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Close" %}</a>
                     </div>
                 </div>
             </div>
@@ -64,9 +64,9 @@
     {% trans "Approve course" as title %}
     {% trans "Do you want to approve this course? This will allow the student representatives to proceed with the preparation, but you won't be able to make any further changes." as question %}
     {% trans "Approve course" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="approve_course_modal" title=title question=question action_text=action_text btn_type="primary" %}
+    {% include "confirmation_modal.html" with modal_id="approveCourseModal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
-        function approve_course_modal_action(data_id) {
+        function approveCourseModal_action(data_id) {
             $('#course-form').append('<input type="hidden" name="operation" value="approve">');
             $('#course-form').submit();
         };
@@ -78,7 +78,7 @@
 
     {% if preview_html %}
         <script type="text/javascript">
-            $('#preview_modal').modal();
+            $('#previewModal').modal();
         </script>
     {% endif %}
 {% endblock %}

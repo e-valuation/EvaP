@@ -71,8 +71,8 @@
         {% endif %}
     </span>
     {% if user.is_authenticated %}
-        <span class="feedback-button" id="feedback-button">
-            <a class="btn btn-sm btn-primary" data-toggle="modal" data-target="#feedback-modal" id="feedback-button-content">
+        <span class="feedback-button" id="feedbackButton">
+            <a class="btn btn-sm btn-primary" data-toggle="modal" data-target="#feedbackModal" id="feedbackButtonContent">
                 {% trans "Problems/Feedback" %}
             </a>
         </span>
@@ -80,14 +80,14 @@
 </div>
 
 {% if user.is_authenticated %}
-    <div id="feedback-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedback-div">
-        <div class="modal-dialog modal-lg">
+    <div id="feedbackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">{% trans "Feedback" %}</h4>
+                    <h5 class="modal-title" id="feedbackModalLabel">{% trans "Feedback" %}</h5>
                     <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times"></span></a>
                 </div>
-                <form id="feedback-form">
+                <form id="feedbackForm">
                     <div class="modal-body">
                         {% trans "You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP." %}
                         <br /><br />
@@ -99,8 +99,8 @@
                         <textarea class="form-control" id="message-text" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                     <div class="modal-footer">
-                        <a role="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</a>
-                        <button type="submit" id="feedback-submit-button" class="btn btn-primary">{% trans "Send" %}</button>
+                        <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Cancel" %}</a>
+                        <button type="submit" id="feedbackSubmitButton" class="btn btn-primary">{% trans "Send" %}</button>
                     </div>
                 </form>
             </div>
@@ -206,18 +206,18 @@
     }, true);
 
     // feedback form submission
-    $('#feedback-form').on('submit', function(event){
+    $('#feedbackForm').on('submit', function(event){
         event.preventDefault();
 
         message = $('#message-text').val();
 
-        $('#feedback-modal').modal('hide');
+        $('#feedbackModal').modal('hide');
 
         if (message.trim() == "")
             return;
 
-        var feedbackButton = $('#feedback-button');
-        var feedbackButtonContent = $('#feedback-button-content');
+        var feedbackButton = $('#feedbackButton');
+        var feedbackButtonContent = $('#feedbackButtonContent');
         var originalText = feedbackButtonContent.text();
         feedbackButtonContent.text("Sending...");
 

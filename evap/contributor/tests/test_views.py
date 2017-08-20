@@ -132,12 +132,12 @@ class TestContributorCourseEditView(ViewTest):
         form["vote_end_date"] = "2098-01-01"
 
         response = form.submit(name="operation", value="preview")
-        self.assertNotIn("preview_modal", response)
+        self.assertNotIn("previewModal", response)
         self.assertIn("The preview could not be rendered", response)
 
         form["vote_start_datetime"] = "2098-01-01 11:43:12"
         form["vote_end_date"] = "2099-01-01"
 
         response = form.submit(name="operation", value="preview")
-        self.assertIn("preview_modal", response)
+        self.assertIn("previewModal", response)
         self.assertNotIn("The preview could not be rendered", response)

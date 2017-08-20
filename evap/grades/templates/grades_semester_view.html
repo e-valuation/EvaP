@@ -61,7 +61,7 @@
                                         {% if semester.is_archived %}
                                             <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded.' %}"></span>
                                         {% else %}
-                                            <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');">
+                                            <a href="#" onclick="show_confirmLateruploadModal({{ course.id }}, '{{ course.name|escapejs }}');">
                                                 <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                             </a>
                                         {% endif %}
@@ -70,7 +70,7 @@
                                 <td class="text-right" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fa fa-times" /></a>
+                                            <a onclick="show_confirmNouploadModal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fa fa-times"></span></a>
                                             {% if semester.is_archived %}
                                                 <a class="btn btn-sm btn-dark disabled"><span class="fa fa-upload"></span></a>
                                             {% else %}
@@ -103,9 +103,9 @@
     {% trans "Have final grades been submitted?" as title %}
     {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
     {% trans "Confirm" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="confirm_noupload_modal" title=title question=question action_text=action_text btn_type="primary" %}
+    {% include "confirmation_modal.html" with modal_id="confirmNouploadModal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
-        function confirm_noupload_modal_action(data_id) {
+        function confirmNouploadModal_action(data_id) {
             $.ajax({
                 type: "POST",
                 url: "{% url "grades:toggle_no_grades" %}",
@@ -118,10 +118,10 @@
     {% trans "Will final grades be uploaded?" as title %}
     {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
     {% trans "Confirm" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="confirm_laterupload_modal" title=title question=question action_text=action_text btn_type="primary" %}
+    {% include "confirmation_modal.html" with modal_id="confirmLateruploadModal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
-        function confirm_laterupload_modal_action(data_id) {
-            confirm_noupload_modal_action(data_id);
+        function confirmLateruploadModal_action(data_id) {
+            confirmNouploadModal_action(data_id);
         };
     </script>
 {% endblock %}

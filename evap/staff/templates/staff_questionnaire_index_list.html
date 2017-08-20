@@ -32,7 +32,7 @@
                             <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Preview" %}</a>
                             <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Copy" %}</a>
                             {% if questionnaire.can_staff_delete %}
-                                <a onclick="show_delete_questionnaire_modal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+                                <a onclick="show_deleteQuestionnaireModal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% else %}
                                 <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This questionnaire cannot be deleted because it is already in use." %}"><a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
                             {% endif %}
