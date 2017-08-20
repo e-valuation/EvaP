@@ -22,7 +22,7 @@
                             {% endfor %}
                             <div class="form-submit">
                                 <div class="ml-auto col-sm-8">
-                                    <input class="btn btn-primary" type="submit" value="{% trans "Login" %}">
+                                    <button type="submit" class="btn btn-primary">{% trans "Login" %}</button>
                                 </div>
                             </div>
                         </form>
@@ -42,7 +42,7 @@
                             {% include "bootstrap_form_field.html" with field=new_key_form.email wide=True %}
                             <div class="form-submit">
                                 <div class="ml-auto col-sm-8">
-                                    <input class="btn btn-default" type="submit" value="{% trans "Request login URL" %}">
+                                    <button type="submit" class="btn btn-secondary">{% trans "Request login URL" %}</button>
                                 </div>
                             </div>
                         </form>

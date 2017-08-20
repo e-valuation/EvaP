@@ -41,10 +41,7 @@
                             {% if form.instance.can_staff_delete %}
                                 {{ form.DELETE }}
                             {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"
-                                title="{% trans "This degree cannot be deleted because it is used for at least one course." %}">
-                                    {% trans "remove" %}
-                                </div>
+                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'This degree cannot be deleted because it is used for at least one course.' %}"><a role="button" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
                             {% endif %}
                         </td>
                     </tr>
@@ -53,7 +50,7 @@
         </table>
         <div class="form-group well">
             <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save degrees" %}" class="btn btn-primary"/>
+                <button type="submit" class="btn btn-primary">{% trans "Save degrees" %}</button>
             </div>
         </div>
     </form>
@@ -68,9 +65,7 @@
             name_en = $(row.find('input[id$=-name_en]')).val();
             return name_de || name_en
         };
-        row_added = function(row) {
-            row.find('a.btn-default').remove();
-        };
+        row_added = function(row) { };
         make_form_sortable("degree_table", "form", row_changed, row_added, "", true, false);
     </script>
 {% endblock %}

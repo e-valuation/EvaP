@@ -32,11 +32,95 @@ div.container {
 .btn-light {
     border-color: $medium-gray;
 }
-.btn-light.active {
-    border-color: $medium-gray;
+.btn-light.active, .btn-light:active {
+    border-color: $dark-gray;
 }
-.btn-light.disabled {
+.btn-light:hover {
+    border-color: $dark-gray;
+}
+.btn-light:focus, .btn-light.focus {
+    box-shadow: 0 0 0 3px rgba($light-gray, 0.5);
+}
+.btn-light:active, .btn-light.active, .show > .btn-light.dropdown-toggle {
+    border-color: $dark-gray;
+}
+a.btn:not([href]):not(.disabled) {
+    cursor: pointer;
+}
+a.btn:not([href]):not(.disabled).btn-primary {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-secondary {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-success {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-danger {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-warning {
+    color: $black;
+}
+a.btn:not([href]):not(.disabled).btn-info {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-light {
+    color: $black;
+}
+a.btn:not([href]):not(.disabled).btn-dark {
+    color: $white;
+}
+.btn.disabled {
+    border-width: 1px;
+    opacity: 0.45;
+}
+.btn.disabled.btn-primary {
+    background-color: $evap-light-blue;
+    border-color: $evap-dark-blue;
+    color: $evap-dark-blue;
+}
+.btn.disabled.btn-secondary {
+    background-color: $light-gray;
+    border-color: $dark-gray;
+    color: $dark-gray;
+}
+.btn.disabled.btn-success {
+    background-color: $evap-light-green;
+    border-color: $evap-green;
+    color: $evap-green;
+}
+.btn.disabled.btn-danger {
+    background-color: $evap-light-red;
+    border-color: $evap-red;
+    color: $evap-red;
+}
+.btn.disabled.btn-warning {
+    background-color: $evap-light-yellow;
+    border-color: $evap-dark-yellow;
+    color: $evap-dark-yellow;
+}
+.btn.disabled.btn-info {
+    background-color: lighten($evap-light-blue, 5%);
+    border-color: darken($evap-light-blue, 20%);
+    color: darken($evap-light-blue, 20%);
+}
+.btn.disabled.btn-light {
+    background-color: $lighter-gray;
+    border-color: $medium-gray;
+    color: $medium-gray;
+}
+.btn.disabled.btn-dark {
+    background-color: $dark-gray;
+    border-color: $darker-gray;
+    color: $white;
+}
+.btn-switch-label.disabled {
+    opacity: 1;
+}
+.btn-light.btn-switch-label.disabled {
     border-color: $light-gray;
+    opacity: 1;
 }
 
 .card-header {
@@ -91,6 +175,13 @@ div.container {
 
 .dropdown-toggle::after {
     vertical-align: 0.2em;
+}
+.dropdown-item.active, .dropdown-item:active {
+    background-color: $darker-gray;
+}
+
+.close {
+    line-height: 0.8;
 }
 
 

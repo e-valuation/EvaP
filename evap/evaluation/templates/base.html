@@ -43,7 +43,7 @@
 
     {% for message in messages %}
     <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+        <a role="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</a>
         {{ message }}
     </div>
     {% endfor %}
@@ -72,9 +72,9 @@
     </span>
     {% if user.is_authenticated %}
         <span class="feedback-button" id="feedback-button">
-            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#feedback-modal">
+            <a class="btn btn-sm btn-primary" data-toggle="modal" data-target="#feedback-modal" id="feedback-button-content">
                 {% trans "Problems/Feedback" %}
-            </button>
+            </a>
         </span>
     {% endif %}
 </div>
@@ -84,7 +84,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
                     <h4 class="modal-title">{% trans "Feedback" %}</h4>
                 </div>
                 <form id="feedback-form">
@@ -99,8 +99,8 @@
                         <textarea class="form-control" id="message-text" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Cancel" %}</button>
-                        <input id="feedback-submit-button" type="submit" class="btn btn-primary" value="{% trans "Send" %}">
+                        <a role="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</a>
+                        <button type="submit" id="feedback-submit-button" class="btn btn-primary">{% trans "Send" %}</button>
                     </div>
                 </form>
             </div>
@@ -216,25 +216,26 @@
         if (message.trim() == "")
             return;
 
-        var feedbackButton = $('#feedback-button button');
-        var originalText = feedbackButton.html();
-        feedbackButton.html("Sending...")
+        var feedbackButton = $('#feedback-button');
+        var feedbackButtonContent = $('#feedback-button-content');
+        var originalText = feedbackButtonContent.text();
+        feedbackButtonContent.text("Sending...");
 
         $.ajax({
             url : "/feedback/send",
             type : "POST",
             data : { message: message },
             success : function(json) {
-                feedbackButton.html('{% trans "Message sent!" %}');
-                $('#message-text').val("")
+                feedbackButtonContent.text('{% trans "Message sent!" %}');
+                $('#message-text').val("");
                 setTimeout(function(){
-                    feedbackButton.html(originalText);
+                    feedbackButtonContent.text(originalText);
                 }, 3000);
             },
             error : function(json) {
-                feedbackButton.html('{% trans "Sending failed, sorry!" %}');
+                feedbackButtonContent.text('{% trans "Sending failed, sorry!" %}');
                 setTimeout(function(){
-                    feedbackButton.html(originalText);
+                    feedbackButtonContent.text(originalText);
                 }, 3000);
             }
         });

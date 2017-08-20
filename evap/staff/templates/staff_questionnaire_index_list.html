@@ -26,11 +26,11 @@
                         </td>
                         <td style="text-align: right;">
                             {% if not questionnaire.obsolete %}
-                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Create new Version" %}</a>
+                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Create new Version" %}</a>
                             {% endif %}
-                            <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Edit" %}</a>
-                            <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                            <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-default">{% trans "Copy" %}</a>
+                            <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Edit" %}</a>
+                            <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Preview" %}</a>
+                            <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Copy" %}</a>
                             {% if questionnaire.can_staff_delete %}
                                 <a onclick="show_delete_questionnaire_modal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
                             {% else %}

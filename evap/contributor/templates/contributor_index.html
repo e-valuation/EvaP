@@ -9,7 +9,7 @@
         <b>{% trans "Delegates" %}</b><br />
         {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
         {% if user.is_editor %}
-            {% blocktrans %}You can assign your own delegates on your settings page.{% endblocktrans %} <a href="{% url "contributor:settings_edit" %}" class="btn btn-xs btn-default">{% trans "Edit settings" %}</a><br />
+            {% blocktrans %}You can assign your own delegates on your settings page.{% endblocktrans %} <a href="{% url "contributor:settings_edit" %}" class="btn btn-sm btn-secondary">{% trans "Edit settings" %}</a><br />
         {% endif %}
         {% if delegated_courses %}
             {% blocktrans %}Courses from lecturers who set you as a delegate are marked with a label below.{% endblocktrans %}<br />
@@ -70,14 +70,14 @@
                                     {% if course.state == 'prepared' %}
                                         <a href="{% url "contributor:course_edit" course.id %}" class="btn btn-sm btn-primary">{% trans "Edit" %}</a>
                                     {% elif course.state == 'editor_approved' or course.state == 'approved' %}
-                                        <a href="{% url "contributor:course_view" course.id %}" class="btn btn-sm btn-default">{% trans "View" %}</a>
+                                        <a href="{% url "contributor:course_view" course.id %}" class="btn btn-sm btn-secondary">{% trans "View" %}</a>
                                     {% endif %}
                                 {% endif %}
                                 {% if course.state != 'published' %}
-                                    <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-default">{% trans "Preview" %}</a>
-                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-default disabled">{% trans "Results" %}</a></div>
+                                    <a href="{% url "contributor:course_preview" course.id %}" class="btn btn-sm btn-secondary">{% trans "Preview" %}</a>
+                                    <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "The results are not yet available. You will receive an email once they are published." %}"><a class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
                                 {% else %}
-                                    <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default">{% trans "Results" %}</a>
+                                    <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-secondary">{% trans "Results" %}</a>
                                 {% endif %}
                             </td>
                         </tr>

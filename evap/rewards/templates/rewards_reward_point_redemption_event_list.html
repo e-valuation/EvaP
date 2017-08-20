@@ -24,7 +24,7 @@
                             <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fa fa-download" /></a>
                             <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil" /></a>
                             {% if event.can_delete %}
-                                <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"></a>
+                                <a onclick="show_delete_event_modal({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash" /></a>
                             {% else %}
                                 <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% trans 'This event cannot be deleted because some users already redeemed points for it.' %}">
                                     <a class="btn btn-sm btn-danger disabled"><span class="fa fa-trash" /></a>

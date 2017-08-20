@@ -81,7 +81,7 @@
                                             <a class="btn btn-sm btn-light" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}" role="button">{{ course.grade_documents.all.first.description }}</a>
                                         {% elif course.grade_documents.count > 1 and can_download_grades %}
                                             <div class="btn-group" role="group">
-                                                <button id="btnDownload{{ course.id }}" type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Grades" %}</button>
+                                                <a id="btnDownload{{ course.id }}" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Grades" %}</a>
                                                 <div class="dropdown-menu" aria-labelledby="btnDownload{{ course.id }}">
                                                     {% for grade_document in course.grade_documents.all %}
                                                         <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
@@ -90,8 +90,8 @@
                                             </div>
                                         {% elif course.grades_activated and course.is_graded and can_download_grades %}
                                             {% if course.state == 'evaluated' or course.state == 'reviewed' %}
-                                                <div class="btn-group" role="group" data-toggle="tooltip" data-placement="left" title="{% trans 'No grades have been uploaded yet.' %}">
-                                                    <button type="button" class="btn btn-sm btn-light disabled">{% trans "Grades" %}</button>
+                                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'No grades have been uploaded yet.' %}">
+                                                    <a role="button" class="btn btn-sm btn-light disabled">{% trans "Grades" %}</a>
                                                 </div>
                                             {% endif %}
                                         {% endif %}
@@ -99,7 +99,7 @@
                                             {% if course.can_publish_grades %}
                                                 <a class="btn btn-sm btn-secondary" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
                                             {% else %}
-                                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
+                                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
                                             {% endif %}
                                         {% endif %}
                                     </td>

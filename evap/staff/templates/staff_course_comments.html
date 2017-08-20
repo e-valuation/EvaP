@@ -13,7 +13,7 @@
     {% if filter_comments %}
         <a href="{% url "staff:course_comments" semester.id course.id %}?filter_comments=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
     {% else %}
-        <a href="{% url "staff:course_comments" semester.id course.id %}?filter_comments=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
+        <a href="{% url "staff:course_comments" semester.id course.id %}?filter_comments=true" class="pull-right btn btn-sm btn-secondary">{% trans "Hide reviewed comments" %}</a>
     {% endif %}
     <h2>{{ course.name }} ({{ course.semester.name }})</h2>
 

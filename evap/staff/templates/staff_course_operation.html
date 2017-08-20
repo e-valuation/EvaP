@@ -44,8 +44,8 @@
     <input type="hidden", name="operation", value="{{ operation }}">
 
         <div class="well submit-area text-center">
-            <input type="submit" class="btn btn-primary" value="{% trans "Confirm" %}" />
-            <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
+            <button type="submit" class="btn btn-primary">{% trans "Confirm" %}</button>
+            <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
         </div>
     </form>
 {% endblock %}

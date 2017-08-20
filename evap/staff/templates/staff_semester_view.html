@@ -13,9 +13,9 @@
         {{ semester.name }}
         {% if request.user.is_staff %}
             &nbsp;
-            <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
-            <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
-            <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+            <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-sm btn-secondary">{% trans "Edit" %}</a>
+            <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+            <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
         {% endif %}
     </h3>
 
@@ -68,25 +68,22 @@
         </div>
         <div class="card-body">
             <div class="button-menu">
-                <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
+                <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-secondary {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
                 &nbsp;
-                <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Todo" %}</a>
+                <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-secondary {{ disable_if_archived }}">{% trans "Todo" %}</a>
                 &nbsp;
-                <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
+                <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-secondary">{% trans "Lottery" %}</a>
+                &nbsp;
                 <div class="btn-group">
-                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Reward points active" %}</a>
-                    <div class="btn-group btn-toggle">
-                        <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
-                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
-                    </div>
+                    <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans "Reward points active" %}</a>
+                    <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                    <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
                 </div>
                 &nbsp;
                 <div class="btn-group">
-                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Grades downloadable" %}</a>
-                    <div class="btn-group btn-toggle">
-                        <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
-                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
-                    </div>
+                    <a href="" class="btn btn-sm btn-light btn-switch-label disabled">{% trans "Grades downloadable" %}</a>
+                    <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                    <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
                 </div>
             </div>
         </div>
@@ -99,7 +96,7 @@
             {% if request.user.is_staff %}
             &nbsp;
             <div class="btn-group">
-                <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
+                <a role="button" class="btn btn-sm btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                     <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create course" %}</a></li>
                     <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create single result" %}</a></li>
@@ -108,7 +105,7 @@
             </div>
             &nbsp;
             <div class="btn-group">
-                <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></button>
+                <a role="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                     <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
                     <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
@@ -143,7 +140,7 @@
 
                             {% if request.user.is_staff %}
                             {% if state == 'new' or state == 'prepared' or state == 'editor_approved'  or state == 'approved' or state == 'reviewed' or state == 'published' %}
-                                <button type="button" class="btn btn-default" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</button>
+                                <a role="button" class="btn btn-secondary" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</a>
                             {% endif %}
                             {% ifequal state "new" %}
                                 <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
@@ -265,7 +262,7 @@
             if ($(this).find('.btn-primary').size()>0) {
                 $(this).find('.btn').toggleClass('btn-primary');
             }
-            $(this).find('.btn').toggleClass('btn-default');
+            $(this).find('.btn').toggleClass('btn-secondary');
         });
 
         if (localStorage['collapse_overview'] === 'true') {

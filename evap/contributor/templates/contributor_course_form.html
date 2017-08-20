@@ -29,12 +29,12 @@
             <div class="card-body">
                 {% if editable %}
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
-                    <button name="operation" value="preview" type="submit" onclick="preventAccidentalClosing = false;" class="btn btn-primary">{% trans "Preview"%}</button>
+                    <button name="operation" value="preview" type="submit" class="btn btn-primary">{% trans "Preview"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit" />
-                    <button onclick="show_approve_course_modal(0, '');" type="button" class="btn btn-success">{% trans "Save and approve"%}</button>
+                    <a onclick="show_approve_course_modal(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
                 {% endif %}
-                <a href="{% url "contributor:index" %}" class="btn btn-default">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>
+                <a href="{% url "contributor:index" %}" class="btn btn-secondary">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>
             </div>
         </div>
     </form>
@@ -44,14 +44,14 @@
             <div class="modal-dialog modal-lg" role="document" style="width:1100px">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
                         <h4 class="modal-title">Preview</h4>
                     </div>
                     <div class="modal-body">
                         {{ preview_html|safe|escape }}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Close" %}</button>
+                        <a role="button" class="btn btn-primary" data-dismiss="modal">{% trans "Close" %}</a>
                     </div>
                 </div>
             </div>

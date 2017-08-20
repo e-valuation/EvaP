@@ -2,14 +2,14 @@
 
 {% for message in success_messages %}
     <div class="alert alert-success alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+        <a role="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</a>
         {{ message }}
     </div>
 {% endfor %}
 
 {% for error in errors %}
     <div class="alert alert-danger alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+        <a role="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</a>
         {{ error }}
     </div>
 {% endfor %}
@@ -24,7 +24,7 @@
                 <div class="card-body">
                     {% for warning in warninglist %}
                         <div class="alert alert-warning alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+                            <a role="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</a>
                             {{ warning }}
                         </div>
                     {% endfor %}

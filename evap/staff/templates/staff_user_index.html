@@ -8,14 +8,14 @@
 {% block content %}
     {{ block.super }}
     <div>
-        <a href="{% url "staff:user_import" %}" class="btn btn-sm btn-default">{% trans "Import users" %}</a>
-        <a href="{% url "staff:user_merge_selection" %}" class="btn btn-sm btn-default">{% trans "Merge users" %}</a>
-        <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-default">{% trans "Bulk delete users" %}</a>
+        <a href="{% url "staff:user_import" %}" class="btn btn-sm btn-secondary">{% trans "Import users" %}</a>
+        <a href="{% url "staff:user_merge_selection" %}" class="btn btn-sm btn-secondary">{% trans "Merge users" %}</a>
+        <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-secondary">{% trans "Bulk delete users" %}</a>
         <a href="{% url "staff:user_create" %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
     {% if filter_users %}
         <a href="{% url "staff:user_index" %}?filter_users=false" class="btn btn-sm btn-primary">{% trans "Show inactive users" %}</a>
     {% else %}
-        <a href="{% url "staff:user_index" %}?filter_users=true" class="btn btn-sm btn-default">{% trans "Hide inactive users" %}</a>
+        <a href="{% url "staff:user_index" %}?filter_users=true" class="btn btn-sm btn-secondary">{% trans "Hide inactive users" %}</a>
     {% endif %}
     </div>
 
@@ -36,7 +36,7 @@
                 <td>{{ user.username }}</td>
                 <td>{% include "staff_user_labels.html" with user=user %}</td>
                 <td>
-                    <a href="{% url "staff:user_edit" user.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
+                    <a href="{% url "staff:user_edit" user.id %}" class="btn btn-secondary btn-sm">{% trans "Edit" %}</a>
                     {% if user.can_staff_delete %}
                         <a class="btn btn-danger btn-sm" onclick="show_delete_modal({{ user.id }}, '{{ user.full_name|escapejs }}');">{% trans "Delete" %}</a>
                     {% else %}

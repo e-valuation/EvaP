@@ -18,12 +18,12 @@
                             <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
                                 <div class="btn-group" data-toggle="buttons">
                                     {% for choice in field %}
-                                        <label class="btn btn-sm btn-default {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
+                                        <label class="btn btn-sm btn-secondary {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
                                             <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
                                             {{ choice.choice_label }} {{ choice.id }}
                                         </label>
                                     {% endfor %}
-                                </div> <input name="export" type="submit" value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
+                                </div> <button name="export" type="submit" class="btn btn-sm btn-primary">{% trans "Show Recipients" %}</button>
                             </div>
                         </div>
                     {% else %}
@@ -33,7 +33,7 @@
             </div>
         </fieldset>
         <div class="well submit-area text-center">
-            <input name="send" type="submit" value="{% trans "Send email" %}" class="btn btn-primary"/>
+            <button name="send" type="submit" class="btn btn-primary">{% trans "Send email" %}</button>
         </div>
     </form>
 {% endblock %}

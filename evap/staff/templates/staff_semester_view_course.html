@@ -103,7 +103,7 @@
             <span>{{ course.num_participants }}</span>
         </p>
         {% if request.user.is_staff and not info_only %}
-            <a href="{% url "staff:course_person_import" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Add contributors or participants" %}"><span class="fa fa-plus" aria-hidden="true"></span></a>
+            <a href="{% url "staff:course_person_import" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Add contributors or participants" %}"><span class="fa fa-plus" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}
@@ -111,22 +111,22 @@
     <td style="width: 12%">
 
         {% if request.user.is_staff %}
-            <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="fa fa-envelope" aria-hidden="true"></span></a>
+            <a href="{% url "staff:course_email" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Send email" %}"><span class="fa fa-envelope" aria-hidden="true"></span></a>
         {% endif %}
 
         {% if request.user.is_staff %}
         {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
-            <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview" %}"><span class="fa fa-eye" aria-hidden="true"></span></a>
+            <a href="{% url "staff:course_preview" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Preview" %}"><span class="fa fa-eye" aria-hidden="true"></span></a>
         {% endif %}
         {% endif %}
         {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' %}
-            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
+            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Preview results" %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
         {% endif %}
         {% if request.user.is_staff and course.can_staff_delete %}
             <a onclick="show_delete_course_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans "Delete" %}"><span class="fa fa-trash" aria-hidden="true"></span></a>
         {% endif %}
         {% if state == 'published' %}
-            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="{% trans "Results" %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
+            <a href="{% url "results:course_detail" semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans "Results" %}"><span class="fa fa-bar-chart" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}

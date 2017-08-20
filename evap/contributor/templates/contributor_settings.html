@@ -108,7 +108,7 @@
         {{ form.cc_users.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
 
         <div class="well submit-area text-center">
-            <input type="submit" value="{% trans "Save changes" %}" class="btn btn-primary"/>
+            <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
         </div>
     </form>
 {% endblock %}

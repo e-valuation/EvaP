@@ -27,23 +27,25 @@
         {% endif %}
         <div class="d-flex">
             <h2 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h2>
-            <div class="d-print-none">
-                {% trans "View as" %}:&nbsp;
-                <div class="btn-group">
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-info{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows all results available for you.' %}">
-                        {% trans "Myself" %}
+
+
+            <div class="btn-group mb-auto d-print-none">
+                <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans "View as" %}</a>
+                <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows all results available for you.' %}">
+                    {% trans "Myself" %}
+                </a>
+                {% if not sufficient_votes_warning and course.is_private %}
+                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows results available for the participants.' %}">
+                        {% trans "Participant" %}
                     </a>
-                    {% if not sufficient_votes_warning and course.is_private %}
-                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-info{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows results available for the participants.' %}">
-                            {% trans "Participant" %}
-                        </a>
-                    {% elif not sufficient_votes_warning %}
-                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-info{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows results available for everyone logged in.' %}">
-                            {% trans "Public" %}
-                        </a>
-                    {% endif %}
-                </div>
+                {% elif not sufficient_votes_warning %}
+                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows results available for everyone logged in.' %}">
+                        {% trans "Public" %}
+                    </a>
+                {% endif %}
             </div>
+
+
         </div>
     {% endif %}
 
@@ -51,10 +53,10 @@
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans "Overview" %}</div>
             {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
-                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}" role="button">{{ course.grade_documents.all.first.description }}</a>
+                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}">{{ course.grade_documents.all.first.description }}</a>
             {% elif course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
-                    <button id="btnDownload" type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Grades" %}</button>
+                    <a id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Grades" %}</a>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
                         {% for grade_document in course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
