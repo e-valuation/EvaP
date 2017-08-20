@@ -31,7 +31,7 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
                     <button name="operation" value="preview" type="submit" class="btn btn-primary">{% trans "Preview"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
-                    <button style="display: none" name="operation" value="approve" type="submit" />
+                    <button style="display: none" name="operation" value="approve" type="submit"></button>
                     <a onclick="show_approveCourseModal(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-secondary">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>

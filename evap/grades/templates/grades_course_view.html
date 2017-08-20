@@ -27,9 +27,9 @@
                                 <td>{{ grade_document.get_type_display }}</td>
                                 <td>{{ grade_document.last_modified_time }}, {% trans "by" %} {{ grade_document.last_modified_user }}</td>
                                 <td>
-                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fa fa-download" /></a>
+                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fa fa-download"></span></a>
                                     {% if is_grade_publisher %}
-                                        <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil" /></a>
+                                        <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil"></span></a>
                                         <a role="button" onclick="show_deleteGradedocumentModal({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash"></span></a>
                                     {% endif %}
                                 </td>

@@ -37,7 +37,7 @@
                                     {% else %}
                                         <a href="{% url "grades:course_view" semester.id course.id %}">{{ course.name }}</a>
                                     {% endif %}
-                                    <br/>
+                                    <br />
                                     {% for degree in course.degrees.all %}
                                         <span class="badge badge-primary">{{ degree }}</span>
                                     {% endfor %}
@@ -83,7 +83,7 @@
                                                 </div>
                                             {% endif %}
                                         {% else %}
-                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fa fa-pencil" /></a>
+                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fa fa-pencil"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
