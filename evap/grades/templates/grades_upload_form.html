@@ -10,7 +10,7 @@
         </div>
     {% endif %}
 
-    <h3>{% if final_grades %}
+    <h3 class="mb-3">{% if final_grades %}
         {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
     {% else %}
         {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
@@ -20,7 +20,7 @@
         {% include "bootstrap_form.html" with form=form %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <input type="submit" value="{% trans "Upload grades" %}" class="btn btn-primary"/>
+                <button type="submit" class="btn btn-primary">{% trans "Upload grades" %}</button>
             </div>
         </div>
     </form>

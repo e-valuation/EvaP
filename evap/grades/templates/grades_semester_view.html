@@ -20,19 +20,24 @@
                 <table class="table table-striped grade-course-table vertically-aligned">
                     <thead>
                         <tr>
-                            <th class="col-sm-5">{% trans "Name" %}</th>
-                            <th class="col-sm-3">{% trans "Responsible" %}</th>
-                            <th class="col-sm-1">{% trans "Evaluation completed" %}</th>
-                            <th class="col-sm-1">{% trans "Midterm grade documents" %}</th>
-                            <th class="col-sm-1">{% trans "Final grade documents" %}</th>
-                            <th class="col-sm-1 text-right" data-orderable="false">{% trans "Actions" %}</th>
+                            <th style="width: 35%">{% trans "Name" %}</th>
+                            <th style="width: 20%">{% trans "Responsible" %}</th>
+                            <th style="width: 10%">{% trans "Evaluation completed" %}</th>
+                            <th style="width: 10%">{% trans "Midterm grade documents" %}</th>
+                            <th style="width: 10%">{% trans "Final grade documents" %}</th>
+                            <th style="width: 15%" class="text-right" data-orderable="false">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
                                 <td>
-                                    <a href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>{{ course.name }}</a><br/>
+                                    {% if semester.is_archived %}
+                                        {{ course.name }}
+                                    {% else %}
+                                        <a href="{% url "grades:course_view" semester.id course.id %}">{{ course.name }}</a>
+                                    {% endif %}
+                                    <br/>
                                     {% for degree in course.degrees.all %}
                                         <span class="badge badge-primary">{{ degree }}</span>
                                     {% endfor %}
@@ -53,36 +58,32 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fa fa-file-o"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                        <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" {{ disable_if_archived }}>
-                                            <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans "Grade documents for this course will not be uploaded. Click to change." %}"></span>
-                                        </a>
+                                        {% if semester.is_archived %}
+                                            <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded.' %}"></span>
+                                        {% else %}
+                                            <a href="#" onclick="show_confirm_laterupload_modal({{ course.id }}, '{{ course.name|escapejs }}');">
+                                                <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                                 <td class="text-right" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <span data-toggle="tooltip" data-placement="top" title="{% trans "Confirm that final grades have been submitted but will not be uploaded" %}">
-                                                <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-default" {{ disable_if_archived }}>
-                                                    <span class="fa fa-times"></span>
-                                                </a>
-                                            </span>
-                                            <div data-toggle="tooltip" data-placement="top" title="{% trans "Upload grades" %}">
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" {{ disable_if_archived }}>
-                                                        <span class="fa fa-upload"></span>
-                                                    </button>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li><a href="{% url "grades:upload_grades" semester.id course.id %}">{% trans "Midterm grades" %}</a></li>
-                                                        <li><a href="{% url "grades:upload_grades" semester.id course.id %}?final=true">{% trans "Final grades" %}</a></li>
-                                                    </ul>
+                                            <a onclick="show_confirm_noupload_modal({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fa fa-times" /></a>
+                                            {% if semester.is_archived %}
+                                                <a class="btn btn-sm btn-dark disabled"><span class="fa fa-upload"></span></a>
+                                            {% else %}
+                                                <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
+                                                    <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-upload"></span></a>
+                                                    <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
+                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans "Midterm grades" %}</a>
+                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans "Final grades" %}</a>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            {% endif %}
                                         {% else %}
-                                            <span data-toggle="tooltip" data-placement="top" title="{% trans "Change grade document" %}">
-                                                <a class="btn btn-sm btn-default" href="{% url "grades:course_view" semester.id course.id %}" {{ disable_if_archived }}>
-                                                    <span class="fa fa-pencil"></span>
-                                                </a>
-                                            </span>
+                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fa fa-pencil" /></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>

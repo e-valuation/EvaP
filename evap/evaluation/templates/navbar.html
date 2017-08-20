@@ -21,7 +21,6 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Publish grades" %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarPublishDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans "Overview" %}</a>
                             <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans "Semesters" %}</a>
                             {% for semester in last_five_semesters %}
                                 <a class="dropdown-item menu-indent" href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a>

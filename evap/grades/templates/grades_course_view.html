@@ -3,9 +3,9 @@
 {% block content %}
     {{ block.super }}
 
-    <h3>{{ course.name }} ({{ semester.name }})</h3>
+    <h3 class="mb-3">{{ course.name }} ({{ semester.name }})</h3>
 
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header">
             {% trans "Uploaded grade documents" %}
         </div>
@@ -14,10 +14,10 @@
                 <table class="table table-striped vertically-aligned">
                     <thead>
                         <tr>
-                            <th class="col-sm-4">{% trans "Description" %}</th>
-                            <th class="col-sm-2">{% trans "Type" %}</th>
-                            <th class="col-sm-3">{% trans "Last edited" %}</th>
-                            <th class="col-sm-3"></th>
+                            <th style="width: 40%">{% trans "Description" %}</th>
+                            <th style="width: 20%">{% trans "Type" %}</th>
+                            <th style="width: 25%">{% trans "Last edited" %}</th>
+                            <th style="width: 15%">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,10 +27,10 @@
                                 <td>{{ grade_document.get_type_display }}</td>
                                 <td>{{ grade_document.last_modified_time }}, {% trans "by" %} {{ grade_document.last_modified_user }}</td>
                                 <td>
-                                    <a href="{% url "grades:download_grades" grade_document.id %}" class="btn btn-sm btn-default">{% trans "Download" %}</a>
+                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fa fa-download" /></a>
                                     {% if is_grade_publisher %}
-                                        <a href="{% url "grades:edit_grades" semester.id course.id grade_document.id %}" class="btn btn-sm btn-default" {{ disable_if_archived }}>{% trans "Edit" %}</a>
-                                        <a onclick="show_delete_gradedocument_modal({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" {{ disable_if_archived }}>{% trans "Delete" %}</a>
+                                        <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil" /></a>
+                                        <a role="button" onclick="show_delete_gradedocument_modal({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash" /></a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -43,8 +43,8 @@
         </div>
     </div>
     {% if is_grade_publisher %}
-        <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new midterm grades" %}</a>
-        <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Upload new final grades" %}</a>
+        <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-dark {{ disable_if_archived }}">{% trans "Upload new midterm grades" %}</a>
+        <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-dark {{ disable_if_archived }}">{% trans "Upload new final grades" %}</a>
     {% endif %}
 {% endblock %}
 
