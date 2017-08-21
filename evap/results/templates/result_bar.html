@@ -6,7 +6,7 @@
     <div data-toggle="tooltip" data-placement="left"
         title="{% if questionnaire_warning or result.warning %}{% trans "Only a few participants answered this question." %}</br></br>{% endif %}
         {% for answer, count in result.counts.items %}
-            {% if result.question.is_likert_question %}{{ answer|likertname }}{% else %}{{ answer }}{% endif %}: {{ count }}/{{ result.total_count }} ({{ count|percentage_one_decimal:result.total_count }}){% if not forloop.last %}</br>{% endif %}
+            {{ result.question|get_answer_name:answer }}: {{ count }}/{{ result.total_count }} ({{ count|percentage_one_decimal:result.total_count }}){% if not forloop.last %}</br>{% endif %}
         {% endfor %}">
 
         <div class="grade-bg-result-bar-count text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}">
@@ -14,7 +14,11 @@
         </div>
 
         <div class="grade-bg-result-bar text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="background-color: {{ result.average|gradecolor }}">
-            {{ result.average|floatformat:1 }}
+            {% if result.question.is_yes_no_question %}
+                {{ result.approval_count|percentage:result.total_count }}
+            {% else %}
+                {{ result.average|floatformat:1 }}
+            {% endif %}
         </div>
 
         <div class="distribution-bar">
