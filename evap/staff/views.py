@@ -817,10 +817,26 @@ def course_preview(request, semester_id, course_id):
 
 @staff_required
 def questionnaire_index(request):
+    filter_arg = request.GET.get('filter', None)
+    if filter_arg is None:  # if no parameter is given take session value
+        filter_arg = request.session.get('filter_questionnaires', False)  # defaults to False if no session value exists
+    else:
+        filter_arg = {'true': True, 'false': False}.get(filter_arg.lower())  # convert parameter to boolean
+
+    request.session['filter_questionnaires'] = filter_arg  # store value for session
+
     questionnaires = Questionnaire.objects.all()
+    if filter_arg:
+        questionnaires = questionnaires.filter(obsolete=False)
+
     course_questionnaires = questionnaires.filter(is_for_contributors=False)
     contributor_questionnaires = questionnaires.filter(is_for_contributors=True)
-    template_data = dict(course_questionnaires=course_questionnaires, contributor_questionnaires=contributor_questionnaires)
+
+    template_data = dict(
+        course_questionnaires=course_questionnaires,
+        contributor_questionnaires=contributor_questionnaires,
+        filter_arg=filter_arg,
+    )
     return render(request, "staff_questionnaire_index.html", template_data)
 
 
