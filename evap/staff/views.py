@@ -28,8 +28,8 @@ from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
                               CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
-                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
-                              SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
+                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, RemindResponsibleForm,
+                              SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
                               get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file,
@@ -479,6 +479,23 @@ def semester_todo(request, semester_id):
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_todo.html", template_data)
+
+
+@staff_required
+def send_reminder(request, semester_id, responsible_id):
+    responsible = get_object_or_404(UserProfile, id=responsible_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    form = RemindResponsibleForm(request.POST or None, responsible=responsible)
+
+    courses = Course.objects.filter(state='prepared', contributions__responsible=True, contributions__contributor=responsible.pk)
+
+    if form.is_valid():
+        form.send(request, courses)
+        messages.success(request, _("Successfully sent reminder to {}.").format(responsible.full_name))
+        return custom_redirect('staff:semester_todo', semester_id)
+    else:
+        return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
 
 
 @require_POST

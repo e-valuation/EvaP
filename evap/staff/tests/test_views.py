@@ -454,6 +454,29 @@ class TestSemesterTodoView(ViewTest):
         self.assertContains(response, 'name_to_find')
 
 
+class TestSendReminderView(ViewTest):
+    url = '/staff/semester/1/responsible/3/send_reminder'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.semester = mommy.make(Semester, pk=1)
+        course = mommy.make(Course, semester=cls.semester, state='prepared', pk=3)
+        responsible = mommy.make(UserProfile, email='a.b@example.com')
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_form(self):
+        page = self.app.get(self.url, user='staff')
+
+        form = page.forms["send-reminder-form"]
+        form["body"] = "uiae"
+        form.submit()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("uiae", mail.outbox[0].body)
+
+
 class TestSemesterImportView(ViewTest):
     url = "/staff/semester/1/import"
     test_users = ["staff"]
