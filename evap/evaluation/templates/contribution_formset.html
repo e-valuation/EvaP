@@ -53,11 +53,13 @@
                         {% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-info-sign" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
                         {{ form.label.errors }} {{ form.label }}
                     </td>
-                    {% if editable %}
-                        <td>
+                    <td>
+                    {% if editable%}
+                        {% if staff or form.responsibility.value != "RESPONSIBLE" %}
                             {{ form.DELETE }}
-                        </td>
+                        {% endif %}
                     {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
