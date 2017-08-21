@@ -10,15 +10,17 @@
 {% block content %}
     <h1>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h1>
 
-    <div id="accordion" role="tablist" aria-multiselectable="true">
+    <div id="accordion" role="tablist">
         {% for section in sections %}
             <h2 id="{{ section.id }}-s">{{ section.title }}</h2>
             {% for question in section.questions.all %}
-                <div class="card">
-                    <div class="card-header" role="tab" id="{{ question.id }}-q">
-                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}" aria-expanded="true" aria-controls="collapse-{{ question.id }}">{{ question.question }}</a>
+                <div class="card{% if not forloop.last %} mb-1{% else %} mb-3{% endif %}">
+                    <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
+                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
+                            {{ question.question }}
+                        </a>
                     </div>
-                    <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q">
+                    <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
                         <div class="card-body">
                             {{ question.answer|safe }}
                         </div>
@@ -27,14 +29,10 @@
             {% endfor %}
         {% endfor %}
     </div>
-
-    <br />
 {% endblock %}
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        $(".panel-collapse").removeClass("in");
-        $(".accordion-toggle").addClass("collapsed");
         var anchor = window.location.hash.replace("#", "").split('-');
         id = anchor[0];
         type = 'q';
@@ -42,7 +40,7 @@
             type = anchor[1];
 
         if(type == "q" && id != ""){
-            $("#" + id).collapse('show');
+            $("#collapse-" + id).collapse('show');
             window.history.pushState('', id, '/faq#' + id + '-q');
         }
 

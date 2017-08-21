@@ -188,6 +188,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
     }
 }
 
+.card-body ul {
+    margin-bottom: 0;
+}
+
 
 /* evap print styling */
 @media print {
