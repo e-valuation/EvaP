@@ -33,14 +33,10 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
-                              get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file)
+                              get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file,
+                              raise_permission_denied_if_archived, get_parameter_from_url_or_session)
 from evap.student.forms import QuestionsForm
 from evap.student.views import vote_preview
-
-
-def raise_permission_denied_if_archived(archiveable):
-    if archiveable.is_archived:
-        raise PermissionDenied
 
 
 @staff_required
@@ -729,14 +725,8 @@ def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    filter_arg = request.GET.get('filter', None)
-    if filter_arg is None:  # if no parameter is given take session value
-        filter_arg = request.session.get('filter_comments', False)  # defaults to False if no session value exists
-    else:
-        filter_arg = {'true': True, 'false': False}.get(filter_arg.lower())  # convert parameter to boolean
-    request.session['filter_comments'] = filter_arg  # store value for session
-
-    filter_states = [TextAnswer.NOT_REVIEWED] if filter_arg else None
+    filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
+    filter_states = [TextAnswer.NOT_REVIEWED] if filter_comments else None
 
     course_sections = []
     contributor_sections = []
@@ -751,7 +741,8 @@ def course_comments(request, semester_id, course_id):
         section_list = course_sections if contribution.is_general else contributor_sections
         section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter_arg=filter_arg)
+    template_data = dict(semester=semester, course=course, course_sections=course_sections,
+            contributor_sections=contributor_sections, filter_comments=filter_comments)
     return render(request, "staff_course_comments.html", template_data)
 
 
@@ -817,16 +808,10 @@ def course_preview(request, semester_id, course_id):
 
 @staff_required
 def questionnaire_index(request):
-    filter_arg = request.GET.get('filter', None)
-    if filter_arg is None:  # if no parameter is given take session value
-        filter_arg = request.session.get('filter_questionnaires', False)  # defaults to False if no session value exists
-    else:
-        filter_arg = {'true': True, 'false': False}.get(filter_arg.lower())  # convert parameter to boolean
-
-    request.session['filter_questionnaires'] = filter_arg  # store value for session
+    filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
 
     questionnaires = Questionnaire.objects.all()
-    if filter_arg:
+    if filter_questionnaires:
         questionnaires = questionnaires.filter(obsolete=False)
 
     course_questionnaires = questionnaires.filter(is_for_contributors=False)
@@ -835,7 +820,7 @@ def questionnaire_index(request):
     template_data = dict(
         course_questionnaires=course_questionnaires,
         contributor_questionnaires=contributor_questionnaires,
-        filter_arg=filter_arg,
+        filter_questionnaires=filter_questionnaires,
     )
     return render(request, "staff_questionnaire_index.html", template_data)
 
@@ -1086,14 +1071,9 @@ def course_type_merge(request, main_type_id, other_type_id):
 
 @staff_required
 def user_index(request):
-    filter_arg = request.GET.get('filter', None)
-    if filter_arg is None:  # if no parameter is given take session value
-        filter_arg = request.session.get('filter_users', True)  # defaults to True if no session value exists
-    else:
-        filter_arg = {'true': True, 'false': False}.get(filter_arg.lower())  # convert parameter to boolean
-    request.session['filter_users'] = filter_arg  # store value for session
+    filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
-    if filter_arg:
+    if filter_users:
         users = UserProfile.objects.exclude_inactive_users()
     else:
         users = UserProfile.objects.all()
@@ -1108,7 +1088,7 @@ def user_index(request):
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
         .prefetch_related('contributions', 'courses_participating_in', 'courses_participating_in__semester', 'represented_users', 'ccing_users'))
 
-    return render(request, "staff_user_index.html", dict(users=users, filter_arg=filter_arg))
+    return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
 
 @staff_required
