@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.db import transaction
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -16,6 +16,21 @@ from django.utils.safestring import mark_safe
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
 from evap.results.tools import calculate_results
+
+
+def get_parameter_from_url_or_session(request, parameter):
+    result = request.GET.get(parameter, None)
+    if result is None:  # if no parameter is given take session value
+        result = request.session.get(parameter, False)  # defaults to False if no session value exists
+    else:
+        result = {'true': True, 'false': False}.get(result.lower())  # convert parameter to boolean
+    request.session[parameter] = result  # store value for session
+    return result
+
+
+def raise_permission_denied_if_archived(archiveable):
+    if archiveable.is_archived:
+        raise PermissionDenied
 
 
 def forward_messages(request, success_messages, warnings):

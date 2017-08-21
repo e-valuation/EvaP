@@ -4,7 +4,13 @@
     {{ block.super }}
     <p>
         <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
+    {% if filter_questionnaires %}
+        <a href="{% url "staff:questionnaire_index" %}?filter_questionnaires=false" class="pull-right btn btn-sm btn-primary">{% trans "Show obsolete questionnaires" %}</a>
+    {% else %}
+        <a href="{% url "staff:questionnaire_index" %}?filter_questionnaires=true" class="pull-right btn btn-sm btn-default">{% trans "Hide obsolete questionnaires" %}</a>
+    {% endif %}
     </p>
+
     {% if course_questionnaires or contributor_questionnaires %}
         {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline="Course questionnaires" %}
         {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline="Contributor questionnaires" %}
