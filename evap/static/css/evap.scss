@@ -192,6 +192,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
     margin-bottom: 0;
 }
 
+button {
+    cursor: pointer;
+}
+
 
 /* evap print styling */
 @media print {
@@ -624,6 +628,10 @@ span.line {
     max-width: 1120px;
 }
 
+.fa-card-header {
+    line-height: 1.5;
+}
+
 
 /* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
 .bs-callout {
@@ -667,6 +675,10 @@ span.line {
     .select2-selection__arrow {
         top: 6px;
     }
+}
+
+.form-control.select2-hidden-accessible {
+    width: 1px;
 }
 
 

@@ -10,16 +10,16 @@
     <h2>{% trans "Settings" %}</h2>
 
     <div class="card mb-3">
-        <div class="card-header">
-            {% trans "Personal information" %}
-            <span class="fa fa-info-circle" data-toggle="tooltip" data-placement="left"
+        <div class="card-header d-flex">
+            <span class="mr-auto">{% trans "Personal information" %}</span>
+            <span class="fa fa-info-circle fa-card-header" data-toggle="tooltip" data-placement="left"
             title="{% trans 'To change any of these settings, please contact the student representatives.' %}"></span>
         </div>
         <div class="card-body">
             <table class="table table-striped vertically-aligned">
                 <tr>
-                    <td class="col-sm-2"><strong>{% trans "Username" %}</strong></td>
-                    <td class="col-sm-10">{{ form.instance.username }}</td>
+                    <td style="width: 20%"><strong>{% trans "Username" %}</strong></td>
+                    <td style="width: 80%">{{ form.instance.username }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Title" %}</strong></td>
@@ -44,17 +44,17 @@
     <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
         {% csrf_token %}
         {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header d-flex">
                 <div class="mr-auto">{% trans "Delegates and CC users" %}</div>
-                <div class="fa fa-info-circle" data-toggle="tooltip" data-placement="left"
+                <div class="fa fa-info-circle fa-card-header" data-toggle="tooltip" data-placement="left"
                     title="{% blocktrans %}You can only change your own delegates. To become a delegate of another person this person has to add you.
                     Please contact the student representatives to change the CC settings.{% endblocktrans %}">
                 </div>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-6">
                         <div class="card card-outline-primary">
                             <div class="card-header">
                                 {% trans "Own delegates" %}
@@ -65,7 +65,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-6">
                         <div class="card">
                             <div class="card-header">
                                 {% trans "You are a delegate of" %}
@@ -79,7 +79,7 @@
                 </div>
                 <br />
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-6">
                         <div class="card">
                             <div class="card-header">
                                 {% trans "Emails sent to you will be CC'ed to" %}
@@ -90,7 +90,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-6">
                         <div class="card">
                             <div class="card-header">
                                 {% trans "Emails sent to these users will be CC'ed to you" %}
@@ -107,8 +107,10 @@
 
         {{ form.cc_users.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
 
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}
