@@ -18,7 +18,7 @@
                             <div class="panel-heading"> {% trans "From Excel file" %} </div>
                             <div class="panel-body">
                                 <p>
-                                {% trans "Upload Excel file with participant data" %} (<a href="download_sample_xls/sample_user.xls">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
+                                {% trans "Upload Excel file with participant data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
                                 </p>
                                 {% csrf_token %}
                                 {% bootstrap_form participant_excel_form layout='vertical' %}
@@ -67,7 +67,7 @@
                             <div class="panel-heading"> {% trans "From Excel file" %} </div>
                             <div class="panel-body">
                                 <p>
-                                {% trans "Upload Excel file with contributor data" %} (<a href="download_sample_xls/sample_user.xls">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
+                                {% trans "Upload Excel file with contributor data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}
                                 </p>
                                 {% csrf_token %}
                                 {% bootstrap_form contributor_excel_form layout='vertical' %}
