@@ -63,6 +63,115 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
+    def test_editors_cannot_degrade_responsibles(self):
+        course = mommy.make(Course)
+        user = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True,
+                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+
+        data = {
+            "contributions-TOTAL_FORMS": "1",
+            "contributions-INITIAL_FORMS": "1",
+            "contributions-MIN_NUM_FORMS": "0",
+            "contributions-MAX_NUM_FORMS": "1000",
+            "contributions-0-course": "{}".format(course.pk),
+            "contributions-0-order": "1",
+            "contributions-0-id": "{}".format(contribution.pk),
+            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-0-questionnaires": "{}".format(questionnaire.pk),
+            "contributions-0-responsibility": "EDITOR",
+            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-label": "",
+            "contributions-0-DELETE": "",
+        }
+
+        formset = InlineContributionFormset(data, instance=course, can_edit_responsibles=False, form_kwargs={'course': course})
+
+        self.assertFalse(formset.is_valid())
+
+    def test_editors_cannot_elevate_editors(self):
+        course = mommy.make(Course)
+        user = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution = mommy.make(Contribution, course=course, contributor=user, responsible=False, can_edit=True)
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+
+        data = {
+            "contributions-TOTAL_FORMS": "1",
+            "contributions-INITIAL_FORMS": "1",
+            "contributions-MIN_NUM_FORMS": "0",
+            "contributions-MAX_NUM_FORMS": "1000",
+            "contributions-0-course": "{}".format(course.pk),
+            "contributions-0-order": "1",
+            "contributions-0-id": "{}".format(contribution.pk),
+            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-0-questionnaires": "{}".format(questionnaire.pk),
+            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-label": "",
+            "contributions-0-DELETE": "",
+        }
+
+        formset = InlineContributionFormset(data, instance=course, can_edit_responsibles=False, form_kwargs={'course': course})
+
+        self.assertFalse(formset.is_valid())
+
+    def test_editors_cannot_delete_responsibles(self):
+        course = mommy.make(Course)
+        user = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True,
+                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+
+        data = {
+            "contributions-TOTAL_FORMS": "1",
+            "contributions-INITIAL_FORMS": "1",
+            "contributions-MIN_NUM_FORMS": "0",
+            "contributions-MAX_NUM_FORMS": "1000",
+            "contributions-0-course": "{}".format(course.pk),
+            "contributions-0-order": "1",
+            "contributions-0-id": "{}".format(contribution.pk),
+            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-0-questionnaires": "{}".format(questionnaire.pk),
+            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-label": "",
+            "contributions-0-DELETE": "1",
+        }
+
+        formset = InlineContributionFormset(data, instance=course, can_edit_responsibles=False, form_kwargs={'course': course})
+
+        self.assertFalse(formset.is_valid())
+
+    def test_editors_cannot_add_responsibles(self):
+        course = mommy.make(Course)
+        user = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+
+        data = {
+            "contributions-TOTAL_FORMS": "1",
+            "contributions-INITIAL_FORMS": "0",
+            "contributions-MIN_NUM_FORMS": "0",
+            "contributions-MAX_NUM_FORMS": "1000",
+            "contributions-0-course": "{}".format(course.pk),
+            "contributions-0-order": "1",
+            "contributions-0-id": "",
+            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-0-questionnaires": "{}".format(questionnaire.pk),
+            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-label": "",
+            "contributions-0-DELETE": "1",
+        }
+
+        formset = InlineContributionFormset(data, instance=course, can_edit_responsibles=False, form_kwargs={'course': course})
+
+        self.assertFalse(formset.is_valid())
+
 
 class ContributionFormsetWebTests(WebTest):
     csrf_checks = False
