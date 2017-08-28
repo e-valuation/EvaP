@@ -71,8 +71,12 @@ class CourseForm(forms.ModelForm):
 
 class EditorContributionForm(ContributionForm):
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
+
+        if self.instance.responsible:
+            self.fields['responsibility'].disabled = True
+            self.fields['contributor'].disabled = True
+            self.fields['comment_visibility'].disabled = True
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
             (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()

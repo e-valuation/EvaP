@@ -1,7 +1,7 @@
 {% load evaluation_filters %}
 
 <label class="btn btn-sm btn-option
-    {% if formelement.field.disabled %} disabled{% endif %}
+    {% if formelement.field.disabled or disabled %} disabled{% endif %}
     {% if formelement.value == choice.data.value %} active{% endif %}
     {% if formelement.errors %} choice-error{% endif %}"
     name="{{ choice.data.name }}" data-toggle="tooltip" data-placement="top" title="{{ tooltip }}">

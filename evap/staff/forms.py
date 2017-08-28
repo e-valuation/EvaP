@@ -391,10 +391,11 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, can_change_responsible=True, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
+        self.can_change_responsible = can_change_responsible
 
     def handle_deleted_and_added_contributions(self):
         """
@@ -461,7 +462,7 @@ class ContributionFormSet(AtLeastOneFormSet):
         super().clean()
 
         found_contributor = set()
-        count_responsible = 0
+        responsible_users = []
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
                 continue
@@ -474,10 +475,13 @@ class ContributionFormSet(AtLeastOneFormSet):
                 found_contributor.add(contributor)
 
             if form.cleaned_data.get('responsibility') == 'RESPONSIBLE':
-                count_responsible += 1
+                responsible_users.append(form.cleaned_data.get('contributor'))
 
-        if count_responsible < 1:
+        if len(responsible_users) < 1:
             raise forms.ValidationError(_('No responsible contributors found.'))
+
+        if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
+            raise ValidationError(_("You are not allowed to change responsible contributors"))
 
 
 class QuestionForm(forms.ModelForm):
