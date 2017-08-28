@@ -391,11 +391,11 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, data=None, can_edit_responsibles=True, *args, **kwargs):
+    def __init__(self, data=None, can_change_responsible=True, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
-        self.can_edit_responsibles = can_edit_responsibles
+        self.can_change_responsible = can_change_responsible
 
     def handle_deleted_and_added_contributions(self):
         """
@@ -480,15 +480,8 @@ class ContributionFormSet(AtLeastOneFormSet):
         if len(responsible_users) < 1:
             raise forms.ValidationError(_('No responsible contributors found.'))
 
-        if not self.can_edit_responsibles:
-            old_responsibles = list(self.instance.responsible_contributors)
-
-            if len(old_responsibles) != len(responsible_users):
-                raise ValidationError(_("You are not allowed to change responsible contributors"))
-
-            for old_responsible in old_responsibles:
-                if old_responsible not in responsible_users:
-                    raise ValidationError(_("You are not allowed to change responsible contributors"))
+        if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
+            raise ValidationError(_("You are not allowed to change responsible contributors"))
 
 
 class QuestionForm(forms.ModelForm):

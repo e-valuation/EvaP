@@ -101,7 +101,7 @@ def course_edit(request, course_id):
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
     course_form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, can_edit_responsibles=False, form_kwargs={'course': course})
+    formset = InlineContributionFormset(request.POST or None, instance=course, can_change_responsible=False, form_kwargs={'course': course})
 
     forms_are_valid = course_form.is_valid() and formset.is_valid()
 
