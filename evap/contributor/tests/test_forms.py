@@ -80,17 +80,15 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-id": "{}".format(contribution.pk),
             "contributions-0-contributor": "{}".format(user.pk),
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSIBLE",
+            "contributions-0-responsibility": "EDITOR",
             "contributions-0-comment_visibility": "OWN",
             "contributions-0-label": "",
             "contributions-0-DELETE": "",
         }
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
-        self.assertTrue(formset.is_valid())
-
-        data["contributions-0-responsibility"] = "EDITOR"
-        formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
-        self.assertTrue(formset.is_valid())
+        # Django guarantees that disabled fields can not be manipulated by the client
+        # see https://docs.djangoproject.com/en/1.11/ref/forms/fields/#disabled
+        # the form is still valid though.
         self.assertTrue(formset.forms[0].fields["responsibility"].disabled)
 
     def test_editors_cannot_elevate_editors(self):
