@@ -2,20 +2,22 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
-    <li class="breadcrumb-item">{% trans "Merge users" %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Merge users' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <p>
-        {% trans "Select the users you want to merge." %}
-    </p>
+    <h2>{% trans 'Merge users' %}</h2>
+
+    <p>{% trans "Select the users you want to merge." %}</p>
     <form method="POST" class="form-horizontal">
-       {% csrf_token %}
-       {% include "bootstrap_form.html" with form=form %}
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
+        {% csrf_token %}
+        {% include "bootstrap_form.html" with form=form %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

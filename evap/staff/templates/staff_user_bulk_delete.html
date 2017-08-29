@@ -1,16 +1,22 @@
 {% extends "staff_base.html" %}
 
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Bulk deletion' %}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
-    <p>
-        {% trans "Upload a text file containing one username per line. All users that are not in this file which can be deleted will then be deleted." %}
-    </p>
+    <h2>{% trans 'Bulk delete users' %}</h2>
+
+    <p>{% trans "Upload a text file containing one username per line. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive." %}</p>
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% include "bootstrap_form.html" with form=form %}
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
-                <button name="operation" value="test" type="submit" class="btn btn-primary">{% trans "Test" %}</button>
+                <button name="operation" value="test" type="submit" class="btn btn-light">{% trans "Test" %}</button>
                 <button name="operation" value="bulk_delete" type="submit" class="btn btn-danger">{% trans "Bulk Delete" %}</button>
             </div>
         </div>

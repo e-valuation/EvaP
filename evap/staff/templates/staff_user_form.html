@@ -2,7 +2,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
     {% if form.instance.id %}
         <li class="breadcrumb-item">{{ form.instance.full_name }}</li>
     {% endif %}
@@ -10,7 +10,9 @@
 
 {% block content %}
     {{ block.super }}
-    <div>
+    <h2>{% if form.instance.id %}{% trans 'Edit user' %}{% else %}{% trans 'Create user' %}{% endif %}</h2>
+
+    <div class="ml-auto col-sm-9 mb-3">
         {% include "staff_user_labels.html" with user=form.instance %}
     </div>
 

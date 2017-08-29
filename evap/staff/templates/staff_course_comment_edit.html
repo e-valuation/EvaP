@@ -12,8 +12,10 @@
     <form id="comment-edit-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% include "bootstrap_form.html" with form=form %}
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Save comment" %}</button>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Save comment" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

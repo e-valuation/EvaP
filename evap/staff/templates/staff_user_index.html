@@ -7,26 +7,31 @@
 
 {% block content %}
     {{ block.super }}
-    <div>
-        <a href="{% url "staff:user_import" %}" class="btn btn-sm btn-secondary">{% trans "Import users" %}</a>
-        <a href="{% url "staff:user_merge_selection" %}" class="btn btn-sm btn-secondary">{% trans "Merge users" %}</a>
-        <a href="{% url "staff:user_bulk_delete" %}" class="btn btn-sm btn-secondary">{% trans "Bulk delete users" %}</a>
-        <a href="{% url "staff:user_create" %}" class="btn btn-sm btn-success">{% trans "Create new user" %}</a>
-    {% if filter_users %}
-        <a href="{% url "staff:user_index" %}?filter_users=false" class="btn btn-sm btn-primary">{% trans "Show inactive users" %}</a>
-    {% else %}
-        <a href="{% url "staff:user_index" %}?filter_users=true" class="btn btn-sm btn-secondary">{% trans "Hide inactive users" %}</a>
-    {% endif %}
+    <div class="d-flex mb-3">
+        <div class="mr-auto">
+            <a href="{% url 'staff:user_import' %}" class="btn btn-sm btn-light">{% trans 'Import users' %}</a>
+            <a href="{% url 'staff:user_merge_selection' %}" class="btn btn-sm btn-light">{% trans 'Merge users' %}</a>
+            <a href="{% url 'staff:user_bulk_delete' %}" class="btn btn-sm btn-light">{% trans 'Bulk delete users' %}</a>
+            <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark">{% trans 'Create new user' %}</a>
+        </div>
+        <div class="btn-group mb-auto d-print-none">
+            <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans 'Inactive users' %}</a>
+            <a href="{% url 'staff:user_index' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
+                {% trans 'Show' %}
+            </a>
+            <a href="{% url 'staff:user_index' %}?filter_users=true" role="button" class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">
+                {% trans 'Hide' %}
+            </a>
+        </div>
     </div>
 
-
-    <table class="table table-striped user-table" data-ordering="false">
+    <table class="table table-striped vertically-aligned user-table" data-ordering="false">
         <thead>
             <tr>
-                <th class="col-sm-3">{% trans "Name" %}</th>
-                <th class="col-sm-3">{% trans "Username" %}</th>
-                <th class="col-sm-4">{% trans "Information" %}</th>
-                <th class="col-sm-2">{% trans "Actions" %}</th>
+                <th style="width: 25%">{% trans 'Name' %}</th>
+                <th style="width: 25%">{% trans 'Username' %}</th>
+                <th style="width: 40%">{% trans 'Information' %}</th>
+                <th style="width: 10%">{% trans 'Actions' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -36,15 +41,15 @@
                 <td>{{ user.username }}</td>
                 <td>{% include "staff_user_labels.html" with user=user %}</td>
                 <td>
-                    <a href="{% url "staff:user_edit" user.id %}" class="btn btn-secondary btn-sm">{% trans "Edit" %}</a>
+                    <a href="{% url "staff:user_edit" user.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
                     {% if user.can_staff_delete %}
-                        <a class="btn btn-danger btn-sm" onclick="show_deleteModal({{ user.id }}, '{{ user.full_name|escapejs }}');">{% trans "Delete" %}</a>
+                        <a class="btn btn-danger btn-sm" onclick="show_deleteModal({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fa fa-trash"></span></a>
                     {% else %}
                         <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
                             title="{% blocktrans %}This user contributes to a course (or is a delegate or CC user of
                             such a person), participates in a course that hasn't been archived yet or has special
                             rights and as such cannot be deleted.{% endblocktrans %}">
-                            <a class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a>
+                            <a class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
                         </div>
                     {% endif %}
                 </td>

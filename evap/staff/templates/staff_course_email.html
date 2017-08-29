@@ -16,14 +16,15 @@
                         <div class="form-group d-flex">
                             {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
                             <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
-                                <div class="btn-group" data-toggle="buttons">
+                                <div class="btn-group mb-1" data-toggle="buttons">
                                     {% for choice in field %}
-                                        <label class="btn btn-sm btn-secondary {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
+                                        <label class="btn btn-sm btn-light {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
                                             <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
                                             {{ choice.choice_label }} {{ choice.id }}
                                         </label>
                                     {% endfor %}
-                                </div> <button name="export" type="submit" class="btn btn-sm btn-primary">{% trans "Show Recipients" %}</button>
+                                </div>
+                                <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% trans "Show Recipients" %}</button>
                             </div>
                         </div>
                     {% else %}
@@ -32,8 +33,10 @@
                 {% endfor %}
             </div>
         </fieldset>
-        <div class="well submit-area text-center">
-            <button name="send" type="submit" class="btn btn-primary">{% trans "Send email" %}</button>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button name="send" type="submit" class="btn btn-primary">{% trans "Send email" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

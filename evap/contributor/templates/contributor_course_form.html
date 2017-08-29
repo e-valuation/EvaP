@@ -9,6 +9,11 @@
 
 {% block content %}
     {{ block.super }}
+
+    <div class="bs-callout bs-callout-info small">
+        {% trans "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page." %}
+    </div>
+
     <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
         {% csrf_token %}
 

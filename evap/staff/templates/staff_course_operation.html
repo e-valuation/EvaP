@@ -10,7 +10,7 @@
             <input type="hidden" name="course" value="{{ course.id }}" />
         {% endfor %}
 
-        <table class="table table-striped">
+        <table class="table table-striped mb-3">
             <tbody>
             {% for course in courses %}
                 <tr>
@@ -29,11 +29,11 @@
             </div>
             <fieldset id="email_form">
                 <div class="email-form">
-                    <div class="form-row">
+                    <div class="form-group d-flex">
                         <div class="form-label">Email subject</div>
                         <div class="form-field"><input class="form-control" name="email_subject" type="text" value="{{ email_template.subject}}" /></div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-group d-flex">
                         <div class="form-label">Email body</div>
                         <div class="form-field"><textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea></div>
                     </div>
@@ -41,11 +41,13 @@
             </fieldset>
         </div>
         {% endif %}
-    <input type="hidden", name="operation", value="{{ operation }}">
+        <input type="hidden", name="operation", value="{{ operation }}">
 
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Confirm" %}</button>
-            <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+        <div class="card card-submit-area card-submit-area-2 text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Confirm" %}</button>
+                <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-light">{% trans "Cancel" %}</a>
+            </div>
         </div>
     </form>
 {% endblock %}

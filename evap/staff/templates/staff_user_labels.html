@@ -17,7 +17,7 @@
         <span class="badge badge-warning">{% trans "External" %}</span>
     {% endif %}
     {% if not user.is_active %}
-        <span class="label label-default">{% trans "Inactive" %}</span>
+        <span class="badge badge-danger">{% trans "Inactive" %}</span>
     {% endif %}
     {% if user.login_key %}
         <span class="badge badge-secondary">{% trans "Login Key" %}</span>

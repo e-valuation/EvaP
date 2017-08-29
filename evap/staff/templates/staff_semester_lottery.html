@@ -1,5 +1,10 @@
 {% extends "staff_semester_base.html" %}
 
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans "Lottery" %}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     {% if not form.is_valid %}
@@ -31,8 +36,6 @@
             <li>None</li>
         {% endfor %}
     </ul>
-    <p>
-        {% blocktrans %}{{ eligible|length }} users were eligible for the lottery.{% endblocktrans %}
-    </p>
+    <p>{{ eligible|length }} {% trans 'users were eligible for the lottery.' %}</p>
     {% endif %}
 {% endblock %}

@@ -1,10 +1,15 @@
 {% extends "staff_semester_base.html" %}
 
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Assign questionnaires' %}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
-    <p>
-        {% trans "Select the questionnaires which shall be assigned each of these course types and the responsible contributors. This will only change courses in the state 'new'. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed." %}
-    </p>
+    <h2>{% trans 'Assign questionnaires' %}</h2>
+
+    <p>{% trans "Select the questionnaires which shall be assigned each of these course types and the responsible contributors. This will only change courses in the state 'new'. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed." %}</p>
     <form id="questionnaire-assign-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <fieldset>

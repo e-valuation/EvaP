@@ -13,14 +13,14 @@
             <legend>{% trans "Questions" %}</legend>
             {{ formset.management_form }}
             {% include "bootstrap_form_errors.html" with errors=formset.non_form_errors %}
-            <table id="question_table" class="table">
+            <table id="question_table" class="table vertically-aligned mb-3">
                 <thead>
                     <tr>
                         <th></th>
-                        <th class="col-sm-4">{% trans "Question text (German)" %}</th>
-                        <th class="col-sm-4">{% trans "Question text (English)" %}</th>
-                        <th class="col-sm-3">{% trans "Question type" %}</th>
-                        <th class="col-sm-1"></th>
+                        <th style="width: 37%">{% trans "Question text (German)" %}</th>
+                        <th style="width: 37%">{% trans "Question text (English)" %}</th>
+                        <th style="width: 20%">{% trans "Question type" %}</th>
+                        <th style="width: 6%"></th>
                     </tr>
                 </thead>
                 <tbody>

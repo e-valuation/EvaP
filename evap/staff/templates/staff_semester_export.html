@@ -21,8 +21,8 @@
         <table id="exportsheets-table" class="table">
             <thead>
                 <tr>
-                    <th class="col-sm-11">{% trans "Course types" %}</th>
-                    <th class="col-sm-1"></th>
+                    <th style="width: 90%">{% trans "Course types" %}</th>
+                    <th style="width: 10%"></th>
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +32,16 @@
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                        <td>{% include "bootstrap_form_field_widget.html" with field=form.selected_course_types %}</td>
+                        <td>
+                            <ul class="inputs-list">
+                                {% for choice in form.selected_course_types %}
+                                    <li><div class="checkbox"><label>
+                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.selected %} checked{% endif %}/>
+                                        {{ choice.choice_label}}
+                                    </label></div></li>
+                                {% endfor %}
+                            </ul>
+                        </td>
                         <td>{{ form.DELETE }}</td>
                     </tr>
                 {% endfor %}
@@ -48,8 +57,10 @@
             </label>
         </div>
 
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Export" %}</button>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary form-submit-btn">{% trans "Export" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

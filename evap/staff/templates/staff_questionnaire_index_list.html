@@ -1,15 +1,15 @@
 {% if questionnaires %}
-    <div class="card">
+    <div class="card {{ extra_classes }}">
         <div class="card-header">
             {% trans headline %}
         </div>
         <div class="card-body">
-            <table class="table table-striped questionnaire-table">
+            <table class="table table-striped vertically-aligned questionnaire-table">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th class="col-sm-*">{% trans "Questionnaire" %}</th>
-                        <th class="col-sm-*" style="text-align: right;">{% trans "Actions" %}</th>
+                        <th class="movable"></th>
+                        <th style="width: 80%">{% trans 'Questionnaire' %}</th>
+                        <th style="width: 20%">{% trans 'Actions' %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,15 +26,15 @@
                         </td>
                         <td style="text-align: right;">
                             {% if not questionnaire.obsolete %}
-                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Create new Version" %}</a>
+                                <a href="{% url "staff:questionnaire_new_version" questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Make obsolete and create new version' %}"><span class="fa fa-clock-o"></span></a>
                             {% endif %}
-                            <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Edit" %}</a>
-                            <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Preview" %}</a>
-                            <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-secondary">{% trans "Copy" %}</a>
+                            <a href="{% url "staff:questionnaire_edit" questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil"></span></a>
+                            <a href="{% url "staff:questionnaire_copy" questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="fa fa-clone"></span></a>
+                            <a href="{% url "staff:questionnaire_view" questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fa fa-eye"></span></a>
                             {% if questionnaire.can_staff_delete %}
-                                <a onclick="show_deleteQuestionnaireModal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+                                <a onclick="show_deleteQuestionnaireModal({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash"></span></a>
                             {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip" title="{% trans "This questionnaire cannot be deleted because it is already in use." %}"><a href="#" class="btn btn-sm btn-danger disabled">{% trans "Delete" %}</a></div>
+                                <div data-toggle="tooltip" data-placement="top" class="disabled-tooltip" title="{% trans "This questionnaire cannot be deleted because it is already in use." %}"><a href="#" class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a></div>
                             {% endif %}
                         </td>
                     </tr>

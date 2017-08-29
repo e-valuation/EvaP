@@ -620,8 +620,8 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
     questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
-    text_de = models.TextField(verbose_name=_("question text (german)"))
-    text_en = models.TextField(verbose_name=_("question text (english)"))
+    text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
+    text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     text = Translate
@@ -762,8 +762,8 @@ class FaqSection(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
-    title_de = models.TextField(verbose_name=_("section title (german)"))
-    title_en = models.TextField(verbose_name=_("section title (english)"))
+    title_de = models.CharField(max_length=255, verbose_name=_("section title (german)"))
+    title_en = models.CharField(max_length=255, verbose_name=_("section title (english)"))
     title = Translate
 
     class Meta:
@@ -779,8 +779,8 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
 
-    question_de = models.TextField(verbose_name=_("question (german)"))
-    question_en = models.TextField(verbose_name=_("question (english)"))
+    question_de = models.CharField(max_length=1024, verbose_name=_("question (german)"))
+    question_en = models.CharField(max_length=1024, verbose_name=_("question (english)"))
     question = Translate
 
     answer_de = models.TextField(verbose_name=_("answer (german)"))
