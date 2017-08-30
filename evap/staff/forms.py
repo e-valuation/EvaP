@@ -581,10 +581,6 @@ class UserMergeSelectionForm(forms.Form):
     other_user = UserModelChoiceField(UserProfile.objects.all())
 
 
-class LotteryForm(forms.Form):
-    number_of_winners = forms.IntegerField(label=_("Number of Winners"), initial=3)
-
-
 class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate

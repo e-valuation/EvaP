@@ -405,16 +405,6 @@ class TestSemesterDeleteView(ViewTest):
         self.assertFalse(Semester.objects.filter(pk=1).exists())
 
 
-class TestSemesterLotteryView(ViewTest):
-    url = '/staff/semester/1/lottery'
-    test_users = ['staff']
-
-    @classmethod
-    def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(Semester, pk=1)
-
-
 class TestSemesterAssignView(ViewTest):
     url = '/staff/semester/1/assign'
     test_users = ['staff']
