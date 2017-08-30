@@ -25,11 +25,11 @@
             <tbody>
             {% for form in formset %}
                 <tr class="sortable">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
                     <td class="movable">
                         <span class="movable-icon fa fa-arrows-v"></span>
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
                     </td>
                     <td>
                         {% include "bootstrap_form_field_widget.html" with field=form.question_de %}

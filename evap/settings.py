@@ -221,6 +221,8 @@ TEMPLATES = [
     },
 ]
 
+# This allows to redefine form widget templates used by Django when generating forms.
+# The templates are located in evaluation/templates/django/forms/widgets and add the "form-control" class for correct bootstrap styling.
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 AUTHENTICATION_BACKENDS = [

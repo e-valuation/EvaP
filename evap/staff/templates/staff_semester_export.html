@@ -33,14 +33,7 @@
                             {{ field }}
                         {% endfor %}
                         <td>
-                            <ul class="inputs-list">
-                                {% for choice in form.selected_course_types %}
-                                    <li><div class="checkbox"><label>
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.selected %} checked{% endif %}/>
-                                        {{ choice.choice_label}}
-                                    </label></div></li>
-                                {% endfor %}
-                            </ul>
+                            {% include "multiple_checkbox_widget.html" with field=form.selected_course_types %}
                         </td>
                         <td>{{ form.DELETE }}</td>
                     </tr>

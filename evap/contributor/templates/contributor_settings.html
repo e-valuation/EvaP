@@ -71,7 +71,6 @@
                                 {% trans "You are a delegate of" %}
                             </div>
                             <div class="card-body">
-                                {% include "bootstrap_form_errors.html" with errors=form.delegate_of.errors %}
                                 {{ form.delegate_of }}
                             </div>
                         </div>
@@ -85,7 +84,6 @@
                                 {% trans "Emails sent to you will be CC'ed to" %}
                             </div>
                             <div class="card-body">
-                                {% include "bootstrap_form_errors.html" with errors=form.cc_users.errors %}
                                 {{ form.cc_users }}
                             </div>
                         </div>
@@ -96,7 +94,6 @@
                                 {% trans "Emails sent to these users will be CC'ed to you" %}
                             </div>
                             <div class="card-body">
-                                {% include "bootstrap_form_errors.html" with errors=form.cc_user_of.errors %}
                                 {{ form.cc_user_of }}
                             </div>
                         </div>

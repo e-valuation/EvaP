@@ -5,6 +5,8 @@
     <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
     {% if form.instance.id %}
         <li class="breadcrumb-item">{{ form.instance.full_name }}</li>
+    {% else %}
+        <li class="breadcrumb-item">{% trans 'Create user' %}</li>
     {% endif %}
 {% endblock %}
 

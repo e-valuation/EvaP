@@ -28,24 +28,24 @@
         <div class="d-flex">
             <h2 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h2>
 
-
             <div class="btn-group mb-auto d-print-none">
                 <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans "View as" %}</a>
-                <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows all results available for you.' %}">
+                <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                    title="{% trans 'Shows all results available for you.' %}">
                     {% trans "Myself" %}
                 </a>
                 {% if not sufficient_votes_warning and course.is_private %}
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows results available for the participants.' %}">
+                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                        title="{% trans 'Shows results available for the participants.' %}">
                         {% trans "Participant" %}
                     </a>
                 {% elif not sufficient_votes_warning %}
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Shows results available for everyone logged in.' %}">
+                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                        title="{% trans 'Shows results available for everyone logged in.' %}">
                         {% trans "Public" %}
                     </a>
                 {% endif %}
             </div>
-
-
         </div>
     {% endif %}
 
@@ -129,7 +129,12 @@
                         {% if contributor_data.total_votes == 0 %}
                             <div class="card-header d-flex">
                                 <div class="mr-auto">
-                                    <a class="collapse-toggle" data-toggle="collapse" href="#contributor-{{ contributor.id }}"" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">{{ contributor.full_name }}{% if contributor_data.sections.0.label %} &ndash; <i>{{ contributor_data.sections.0.label }}</i>{% endif %}</a>
+                                    <a class="collapse-toggle" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
+                                        {{ contributor.full_name }}
+                                        {% if contributor_data.sections.0.label %}
+                                            &ndash; <i>{{ contributor_data.sections.0.label }}</i>
+                                        {% endif %}
+                                    </a>
                                 </div>
                                 <div class="participants-warning">
                                     <span class="fa fa-info-circle"></span>
@@ -138,7 +143,12 @@
                             </div>
                         {% else %}
                             <div class="card-header">
-                                <a class="collapse-toggle" data-toggle="collapse" href="#contributor-{{ contributor.id }}"" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">{{ contributor.full_name }}{% if contributor_data.sections.0.label %} &ndash; <i>{{ contributor_data.sections.0.label }}</i>{% endif %}</a>
+                                <a class="collapse-toggle" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
+                                    {{ contributor.full_name }}
+                                    {% if contributor_data.sections.0.label %}
+                                        &ndash; <i>{{ contributor_data.sections.0.label }}</i>
+                                    {% endif %}
+                                </a>
                             </div>
                         {% endif %}
                         <div class="card-body collapse{% if contributor_data.total_votes > 0 %} show{% endif %}" id="contributor-{{ contributor.id }}">

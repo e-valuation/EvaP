@@ -53,7 +53,9 @@
                                     <span class="badge badge-primary">{{ degree }}</span>
                                 {% endfor %}
                                 <span class="badge badge-secondary">{{ course.type }}</span>
-                                {% if course in delegated_courses %}<span class="badge badge-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>{% endif %}
+                                {% if course in delegated_courses %}
+                                    <span class="badge badge-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>
+                                {% endif %}
                             </td>
                             <td>
                                 <span data-toggle="tooltip" data-placement="left" title="{{ course.state|statedescription }}">{{ course.state|statename }}</span>
@@ -71,7 +73,7 @@
                             <td class="text-right">
                                 {% if course|is_user_editor_or_delegate:user %}
                                     {% if course.state == 'prepared' %}
-                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fa fa-pencil"></span></a>
+                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fa fa-pencil"></span></a>
                                     {% elif course.state == 'editor_approved' or course.state == 'approved' %}
                                         <a href="{% url 'contributor:course_view' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'You already approved the course, the edit form will be disabled.' %}"><span class="fa fa-pencil"></span></a>
                                     {% endif %}

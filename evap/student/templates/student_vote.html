@@ -83,7 +83,8 @@
                 {% else %}
                     <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans "Submit questionnaire" %}</button>
                     <p id="submit-error-warning" style="display: none">
-                        <span class="fa fa-exclamation-triangle"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
+                        <span class="fa fa-exclamation-triangle"></span>
+                        {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
                     </p>
                 {% endif %}
             </div>
@@ -150,7 +151,6 @@
                     error: function(data) {
                         // show a warning if the post isn't successful
                         document.getElementById('submit-error-warning').style.display = 'block';
-                        submitButton.effect("highlight", {color:"#eb595a"}, 2000);
                         submitButton.text(originalText);
                         submitButton.prop('disabled', false);
                     }

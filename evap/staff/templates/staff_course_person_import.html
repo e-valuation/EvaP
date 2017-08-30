@@ -10,12 +10,12 @@
     <div class="row mb-3">
         <div class="col">
             <form id="participant-import-form" method="POST" enctype="multipart/form-data" class="form-vertical">
+                {% csrf_token %}
                 <div class="card">
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans "Import Participants" %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans "From Excel file" %}</h6>
                         <p class="card-text">{% trans "Upload Excel file with participant data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}</p>
-                        {% csrf_token %}
                         {% include "bootstrap_form.html" with form=participant_excel_form %}
                     </div>
                     <div class="card-footer text-center">
@@ -32,12 +32,12 @@
         </div>
         <div class="col">
             <form id="participant-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical">
+                {% csrf_token %}
                 <div class="card">
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans "Copy Participants" %}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">{% trans "From other course" %}</h6>
                         <p class="card-text">{% trans "Copy participants from another course." %}</p>
-                        {% csrf_token %}
                         {% include "bootstrap_form.html" with form=participant_copy_form %}
                     </div>
                     <div class="card-footer text-center">
@@ -51,12 +51,12 @@
     <div class="row">
         <div class="col">
             <form id="contributor-import-form" method="POST" enctype="multipart/form-data" class="form-vertical">
+                {% csrf_token %}
                 <div class="card">
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans "Import Contributors" %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans "From Excel file" %}</h6>
                         <p class="card-text">{% trans "Upload Excel file with contributor data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}</p>
-                        {% csrf_token %}
                         {% include "bootstrap_form.html" with form=contributor_excel_form %}
                     </div>
                     <div class="card-footer text-center">
@@ -73,12 +73,12 @@
         </div>
         <div class="col">
             <form id="contributor-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical">
+                {% csrf_token %}
                 <div class="card">
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans "Copy Contributors" %}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">{% trans "From other course" %}</h6>
                         <p class="card-text">{% trans "Copy contributors from another course." %}</p>
-                        {% csrf_token %}
                         {% include "bootstrap_form.html" with form=contributor_copy_form %}
                     </div>
                     <div class="card-footer text-center">

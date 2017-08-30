@@ -88,24 +88,24 @@
         <div class="card-header d-flex">
             {% trans "Courses" %}
             {% if request.user.is_staff %}
-            &nbsp;
-            <div class="btn-group" role="group">
-                <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Create/Import" %}</a>
-                <div class="dropdown-menu" aria-labelledby="btnAdd">
-                    <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create course' %}</a>
-                    <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create single result' %}</a>
-                    <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}" {{ disable_if_archived }}>{% trans 'Import courses' %}</a>
+                &nbsp;
+                <div class="btn-group" role="group">
+                    <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Create/Import" %}</a>
+                    <div class="dropdown-menu" aria-labelledby="btnAdd">
+                        <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create course' %}</a>
+                        <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create single result' %}</a>
+                        <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}" {{ disable_if_archived }}>{% trans 'Import courses' %}</a>
+                    </div>
                 </div>
-            </div>
-            &nbsp;
-            <div class="btn-group" role="group">
-                <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Export" %}</a>
-                <div class="dropdown-menu" aria-labelledby="btnExport">
-                    <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
-                    <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data'%}</a>
-                    <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
+                &nbsp;
+                <div class="btn-group" role="group">
+                    <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Export" %}</a>
+                    <div class="dropdown-menu" aria-labelledby="btnExport">
+                        <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
+                        <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data'%}</a>
+                        <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
+                    </div>
                 </div>
-            </div>
             {% endif %}
         </div>
         <div class="card-body">
@@ -212,7 +212,7 @@
                 url: "{% url "staff:course_delete" %}",
                 data: {"course_id": data_id},
                 success: function(){ $('#course-row-'+data_id).hide('slow', function(){ $('#course-row-'+data_id).remove(); }); },
-                error: function(){ $('#course-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>

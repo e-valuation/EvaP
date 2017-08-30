@@ -61,7 +61,7 @@
                 url: "{% url "grades:delete_grades" %}",
                 data: {"grade_document_id": data_id},
                 success: function(){ $('#grade_document-row-'+data_id).hide('slow', function(){ $('#grade_document-row-'+data_id).remove(); }); },
-                error: function(){ $('#grade_document-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>

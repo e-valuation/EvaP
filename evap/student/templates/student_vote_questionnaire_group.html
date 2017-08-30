@@ -15,7 +15,8 @@
                     {% else %}
                         <td class="vote-question vote-question-text">
                     {% endif %}
-                    {{ field.label }}</td>
+                    {{ field.label }}
+                    </td>
                     {% if field|is_choice_field %}
                         <td>
                             <div class="vote-inputs btn-group" data-toggle="buttons"{% if preview %} disabled{% endif %}>
