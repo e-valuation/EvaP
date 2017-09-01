@@ -26,25 +26,27 @@
             </div>
         {% endif %}
         <div class="d-flex">
-            <h2 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h2>
+            <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
 
-            <div class="btn-group mb-auto d-print-none">
-                <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans "View as" %}</a>
-                <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+            <div class="btn-switch my-auto d-print-none">
+                <div class="btn-switch-label">{% trans "View as" %}</div>
+                <div class="btn-group">
+                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans "Myself" %}
-                </a>
-                {% if not sufficient_votes_warning and course.is_private %}
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
-                        title="{% trans 'Shows results available for the participants.' %}">
-                        {% trans "Participant" %}
                     </a>
-                {% elif not sufficient_votes_warning %}
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
-                        title="{% trans 'Shows results available for everyone logged in.' %}">
-                        {% trans "Public" %}
-                    </a>
-                {% endif %}
+                    {% if not sufficient_votes_warning and course.is_private %}
+                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                            title="{% trans 'Shows results available for the participants.' %}">
+                            {% trans "Participant" %}
+                        </a>
+                    {% elif not sufficient_votes_warning %}
+                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                            title="{% trans 'Shows results available for everyone logged in.' %}">
+                            {% trans "Public" %}
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     {% endif %}

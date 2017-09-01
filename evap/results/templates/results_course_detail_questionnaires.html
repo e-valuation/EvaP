@@ -14,8 +14,8 @@
         {% for result in section.results %}
             {% if result.question.is_rating_question %}
                 <tr class="no-break d-flex">
-                    <td class="result-rating-question">{{ result.question.text }}</td>
-                    <td class="result-rating-answer">
+                    <td class="result-rating-question my-auto">{{ result.question.text }}</td>
+                    <td class="result-rating-answer my-auto">
                         {% include "result_bar.html" with result=result show_grades=show_grades questionnaire_warning=section.questionnaire_warning %}
                     </td>
                 </tr>

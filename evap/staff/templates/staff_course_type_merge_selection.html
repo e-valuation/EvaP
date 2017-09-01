@@ -8,12 +8,12 @@
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans "Merge course types" %}</h2>
+    <h3>{% trans "Merge course types" %}</h3>
 
     <p>{% trans "Select the course types you want to merge." %}</p>
     <form id="course-type-merge-selection-form" method="POST" class="form-horizontal">
-       {% csrf_token %}
-       {% include "bootstrap_form.html" with form=form %}
+        {% csrf_token %}
+        {% include "bootstrap_form.html" with form=form %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans 'Show merge info' %}</button>

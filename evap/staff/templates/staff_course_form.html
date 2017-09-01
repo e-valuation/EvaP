@@ -2,6 +2,13 @@
 
 {% block content %}
     {{ block.super }}
+    <h3>
+        {% if form.instance.id %}
+            {{ course.name }} ({{ course.semester.name }})
+        {% else %}
+            {% trans 'Create course' %}
+        {% endif %}
+    </h3>
     <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
         {% csrf_token %}
 

@@ -8,7 +8,7 @@
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans 'Bulk delete users' %}</h2>
+    <h3>{% trans 'Bulk delete users' %}</h3>
 
     <p>{% trans "Upload a text file containing one username per line. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive." %}</p>
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">

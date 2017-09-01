@@ -11,15 +11,17 @@
     {{ block.super }}
 
     <div class="d-flex">
-        <h2 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h2>
-        <div class="btn-group mb-auto d-print-none">
-            <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans "Reviewed comments" %}</a>
-            <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=false" role="button" class="btn btn-sm btn-light{% if not filter_comments %} active{% endif %}">
-                {% trans "Show" %}
-            </a>
-            <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=true" role="button" class="btn btn-sm btn-light{% if filter_comments %} active{% endif %}">
-                {% trans "Hide" %}
-            </a>
+        <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
+        <div class="btn-switch my-auto d-print-none">
+            <div class="btn-switch-label">{% trans "Reviewed comments" %}</div>
+            <div class="btn-group">
+                <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=false" role="button" class="btn btn-sm btn-light{% if not filter_comments %} active{% endif %}">
+                    {% trans "Show" %}
+                </a>
+                <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=true" role="button" class="btn btn-sm btn-light{% if filter_comments %} active{% endif %}">
+                    {% trans "Hide" %}
+                </a>
+            </div>
         </div>
     </div>
 

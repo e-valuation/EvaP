@@ -2,6 +2,13 @@
 
 {% block content %}
     {{ block.super }}
+    <h3>
+        {% if form.instance.id %}
+            {{ course.name }} ({{ course.semester.name }})
+        {% else %}
+            {% trans 'Create single result' %}
+        {% endif %}
+    </h3>
     <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
         {% include "bootstrap_form.html" with form=form %}
@@ -9,7 +16,7 @@
         {% if form.instance.can_staff_edit %}
             <div class="card card-submit-area text-center mb-3">
                 <div class="card-body">
-                    <button type="submit" class="btn btn-primary">{% trans "Save course" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Save single result" %}</button>
                 </div>
             </div>
         {% endif %}

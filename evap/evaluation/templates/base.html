@@ -38,7 +38,7 @@
 
 <div class="container">
     {% if user.is_staff or user.is_grade_publisher %}
-        <ol class="breadcrumb">
+        <ol class="breadcrumb mb-4">
             {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
         </ol>
     {% endif %}

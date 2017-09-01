@@ -14,7 +14,7 @@
         <span class="badge badge-info">{% trans "Responsible" %}</span>
     {% endif %}
     {% if user.is_external %}
-        <span class="badge badge-warning">{% trans "External" %}</span>
+        <span class="badge badge-dark">{% trans "External" %}</span>
     {% endif %}
     {% if not user.is_active %}
         <span class="badge badge-danger">{% trans "Inactive" %}</span>

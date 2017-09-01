@@ -8,13 +8,13 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h1>
+    <h3 class="mb-4">{% trans "These are the Frequently Asked Questions (FAQs)" %}</h3>
 
     <div id="accordion" role="tablist">
         {% for section in sections %}
-            <h2 id="{{ section.id }}-s">{{ section.title }}</h2>
+            <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div class="card{% if not forloop.last %} mb-1{% else %} mb-3{% endif %}">
+                <div class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
                     <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
                         <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
                             {{ question.question }}

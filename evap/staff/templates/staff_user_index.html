@@ -14,14 +14,16 @@
             <a href="{% url 'staff:user_bulk_delete' %}" class="btn btn-sm btn-light">{% trans 'Bulk delete users' %}</a>
             <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark">{% trans 'Create new user' %}</a>
         </div>
-        <div class="btn-group mb-auto d-print-none">
-            <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans 'Inactive users' %}</a>
-            <a href="{% url 'staff:user_index' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
-                {% trans 'Show' %}
-            </a>
-            <a href="{% url 'staff:user_index' %}?filter_users=true" role="button" class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">
-                {% trans 'Hide' %}
-            </a>
+        <div class="btn-switch">
+            <div class="btn-switch-label">{% trans 'Inactive users' %}</div>
+            <div class="btn-group">
+                <a href="{% url 'staff:user_index' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
+                    {% trans 'Show' %}
+                </a>
+                <a href="{% url 'staff:user_index' %}?filter_users=true" role="button" class="btn btn-sm btn-light{% if filter_users %} active{% endif %}">
+                    {% trans 'Hide' %}
+                </a>
+            </div>
         </div>
     </div>
 

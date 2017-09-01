@@ -24,7 +24,7 @@
         <div class="card-header">
             <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans "Overview" %}</a>
         </div>
-        <div class="card-body collapse" id="overviewCard">
+        <div class="card-body collapse show" id="overviewCard">
             <table class="table">
                 <thead>
                     <tr>
@@ -69,16 +69,20 @@
             &nbsp;
             <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}">{% trans "Todo" %}</a>
             &nbsp;
-            <div class="btn-group">
-                <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans "Reward points active" %}</a>
-                <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
-                <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
+            <div class="btn-switch">
+                <div class="btn-switch-label">{% trans "Reward points active" %}</div>
+                <div class="btn-group icon-buttons">
+                    <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                    <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
+                </div>
             </div>
             &nbsp;
-            <div class="btn-group">
-                <a href="" class="btn btn-sm btn-light btn-switch-label disabled">{% trans "Grades downloadable" %}</a>
-                <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
-                <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
+            <div class="btn-switch">
+                <div class="btn-switch-label">{% trans "Grades downloadable" %}</div>
+                <div class="btn-group icon-buttons">
+                    <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                    <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
+                </div>
             </div>
         </div>
     </div>
@@ -120,7 +124,7 @@
                 {% for state, courses in courses_by_state %}
                     <div id="tab{{ forloop.counter }}" class="tab-pane">
                         <form id="form_{{ state }}" method="GET" action="{% url "staff:semester_course_operation" semester.id %}">
-                            <table class="table table-striped vertically-aligned mb-3">
+                            <table class="table table-striped table-narrow vertically-aligned mb-3">
                                 <tbody>
                                 {% for course in courses %}
                                     <tr id="course-row-{{ course.id }}">

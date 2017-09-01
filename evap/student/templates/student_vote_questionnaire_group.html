@@ -1,29 +1,29 @@
 {% load evaluation_filters %}
 
 {% for form in questionnaire_group %}
-    <h4 class="card-title">{{ form.caption }}</h4>
+    <h4{% if not forloop.first %} class="mt-3"{% endif %}>{{ form.caption }}</h4>
     {% if form.teaser %}
         <p>{{ form.teaser }}</p>
     {% endif %}
     {{ form.non_field_errors }}
-    <table class="table table-striped vertically-aligned">
+    <table class="table table-striped">
         <tbody>
             {% for field in form %}
                 <tr class="vote-row d-flex">
                     {% if field|is_choice_field %}
-                        <td class="vote-question vote-question-choice{% if field.errors %} choice-error{% endif %}" name="{{ field.name }}">
+                        <td class="vote-question vote-question-choice my-auto{% if field.errors %} choice-error{% endif %}" name="{{ field.name }}">
                     {% else %}
                         <td class="vote-question vote-question-text">
                     {% endif %}
                     {{ field.label }}
                     </td>
                     {% if field|is_choice_field %}
-                        <td>
+                        <td class="vote-answer-buttons my-auto">
                             <div class="vote-inputs btn-group" data-toggle="buttons"{% if preview %} disabled{% endif %}>
                             {% for choice in field %}
                                 <label class="btn btn-sm btn-light vote-btn vote-btn-{{ choice.data.value }} d-flex{% if field.value == choice.data.value %} active{% endif %}{% if field.errors %} choice-error{% endif %}" name="{{ choice.data.name }}"{% if not preview %} onclick="selectedAnswer('{{ choice.data.name }}');"{% endif %}>
                                     <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off" {% if field.value == choice.data.value %}checked{% endif %} />
-                                    <span class="m-auto">{{ choice.choice_label }} {{ choice.id }}</span>
+                                    <span class="m-auto vote-btn-text">{{ choice.choice_label }} {{ choice.id }}</span>
                                 </label>
                             {% endfor %}
                             </div>

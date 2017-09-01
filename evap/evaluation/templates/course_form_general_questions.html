@@ -1,5 +1,5 @@
 <fieldset>
-    {% if course_form.instance.id %}<legend>{{ course.name }} ({{ course.semester.name }})</legend>{% endif %}
+    <legend>{% trans 'Course data' %}</legend>
     {% for field in course_form %}
         {% if field == course_form.general_questions %}
             <div class="form-group d-flex">

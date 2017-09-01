@@ -595,7 +595,7 @@ def helper_single_result_edit(request, semester, course):
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
     else:
-        return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
+        return render(request, "staff_single_result_form.html", dict(course=course, semester=semester, form=form))
 
 
 @require_POST

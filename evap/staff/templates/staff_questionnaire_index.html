@@ -4,14 +4,16 @@
     {{ block.super }}
     <div class="d-flex mb-3">
         <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark mr-auto">{% trans 'Create new questionnaire' %}</a>
-        <div class="btn-group">
-            <a class="btn btn-sm btn-light btn-switch-label disabled">{% trans 'Obsolete questionnaires' %}</a>
-            <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
+        <div class="btn-switch">
+            <div class="btn-switch-label">{% trans 'Obsolete questionnaires' %}</div>
+            <div class="btn-group">
+                <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
                 {% trans 'Show' %}
-            </a>
-            <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
-                {% trans 'Hide' %}
-            </a>
+                </a>
+                <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
+                    {% trans 'Hide' %}
+                </a>
+            </div>
         </div>
     </div>
 
