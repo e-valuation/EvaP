@@ -478,6 +478,14 @@ select[multiple='multiple'] {
     min-width: 190px;
 }
 
+.jumbotron {
+    background-color: darken($lighter-gray, 4%);
+}
+
+.login-button {
+    min-width: 250px;
+}
+
 .collapse-toggle {
     color: $darker-gray;
 }
