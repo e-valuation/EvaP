@@ -3,10 +3,8 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution
+from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
 from evap.evaluation.tests.tools import WebTest, ViewTest
-
-import pdb
 
 
 class TestStudentIndexView(ViewTest):
@@ -24,11 +22,13 @@ class TestVoteView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.voting_user = mommy.make(UserProfile, username="lazy.student")
+        cls.voting_user1 = mommy.make(UserProfile, username="lazy.student")
+        cls.voting_user2 = mommy.make(UserProfile, username="sleepy.student")
         cls.contributor1 = mommy.make(UserProfile, username="first.contributor")
         cls.contributor2 = mommy.make(UserProfile, username="second.contributor")
 
-        cls.course = mommy.make(Course, pk=5, participants=[cls.voting_user, cls.contributor1], state="in_evaluation", name_en="TestCourse")
+        cls.course = mommy.make(Course, pk=5, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1],
+                                state="in_evaluation", name_en="TestCourse")
 
         cls.general_questionnaire = mommy.make(Questionnaire, name_en="GeneralQuestionnaire")
         cls.contributor_questionnaire = mommy.make(Questionnaire, name_en="ContributorQuestionnaire")
@@ -48,11 +48,11 @@ class TestVoteView(WebTest):
 
     def fill_incomplete_form(self, form):
         form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_text_question)] = "some text"
+        form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_grade_question)] = 3
         form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_likert_question)] = 1
-        form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_grade_question)] = 6
 
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)] = "some other text"
-        form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 1
+        form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 4
 
         form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)] = "some more text"
 
@@ -66,43 +66,63 @@ class TestVoteView(WebTest):
             displayed if not all rating questions have been answered and that all
             given answers stay selected/filled.
         """
-        page = self.get_assert_200(self.vote_url(), user="lazy.student")
+        page = self.get_assert_200(self.vote_url(), user=self.voting_user1.username)
         form = page.forms["student-vote-form"]
         self.fill_incomplete_form(form)
         response = form.submit()
 
         self.assertIn("vote for all rating questions", response)
 
-        #Check existing answers
         form = page.forms["student-vote-form"]
         self.assertEqual(form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_text_question)].value,
                          "some text")
         self.assertEqual(form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_likert_question)].value,
                          "1")
         self.assertEqual(form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_grade_question)].value,
-                         "6")
+                         "3")
 
         self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)].value,
                          "some other text")
         self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)].value,
-                         "1")
+                         "4")
 
         self.assertEqual(form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)].value,
                          "some more text")
 
-        form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_likert_question)] = 3  # give missing answer
-        form.submit()
-
-        self.get_assert_403(self.vote_url(), user="lazy.student")
-
-
-    def test_user_cannot_vote_multiple_times(self):
-        page = self.get_assert_200(self.vote_url(), user="lazy.student")
+    def test_answer(self):
+        page = self.get_assert_200(self.vote_url(), user=self.voting_user1.username)
         form = page.forms["student-vote-form"]
         self.fill_complete_form(form)
         form.submit()
 
-        page = self.get_assert_403(self.vote_url(), user="lazy.student")
+        page = self.get_assert_200(self.vote_url(), user=self.voting_user2.username)
+        form = page.forms["student-vote-form"]
+        self.fill_complete_form(form)
+        form.submit()
+
+        self.assertEqual(len(TextAnswer.objects.all()), 6)
+        self.assertEqual(len(RatingAnswerCounter.objects.all()), 4)
+
+        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.general_likert_question).count(), 1)
+        self.assertEqual(RatingAnswerCounter.objects.get(question=self.general_likert_question).answer, 1)
+
+        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.general_grade_question).count(), 1)
+        self.assertEqual(RatingAnswerCounter.objects.get(question=self.general_grade_question).answer, 3)
+
+        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question).count(), 2)
+        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question)[0].answer, 4)
+        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question)[1].answer, 2)
+
+        self.assertEqual(TextAnswer.objects.filter(question=self.general_text_question).count(), 2)
+        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question).count(), 4)
+
+    def test_user_cannot_vote_multiple_times(self):
+        page = self.get_assert_200(self.vote_url(), user=self.voting_user1.username)
+        form = page.forms["student-vote-form"]
+        self.fill_complete_form(form)
+        form.submit()
+
+        self.get_assert_403(self.vote_url(), user=self.voting_user1.username)
 
     def test_user_cannot_vote_for_themselves(self):
         def get_vote_page(user):
@@ -113,7 +133,7 @@ class TestVoteView(WebTest):
         for contributor, _, _, _ in response.context['contributor_form_groups']:
             self.assertNotEqual(contributor, self.contributor1, "Contributor should not see the questionnaire about themselves")
 
-        response = get_vote_page(self.voting_user)
+        response = get_vote_page(self.voting_user1)
         self.assertTrue(any(contributor == self.contributor1 for contributor, _, _, _ in response.context['contributor_form_groups']),
             "Regular students should see the questionnaire about a contributor")
 
