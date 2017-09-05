@@ -2,12 +2,24 @@
 
 {% block content %}
     {{ block.super }}
-    <p>
-        <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-success">{% trans "Create new questionnaire" %}</a>
-    </p>
+    <div class="d-flex mb-3">
+        <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark mr-auto">{% trans 'Create new questionnaire' %}</a>
+        <div class="btn-switch">
+            <div class="btn-switch-label">{% trans 'Obsolete questionnaires' %}</div>
+            <div class="btn-group">
+                <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
+                {% trans 'Show' %}
+                </a>
+                <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
+                    {% trans 'Hide' %}
+                </a>
+            </div>
+        </div>
+    </div>
+
     {% if course_questionnaires or contributor_questionnaires %}
-        {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline="Course questionnaires" %}
-        {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline="Contributor questionnaires" %}
+        {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline="Course questionnaires" extra_classes="mb-3" %}
+        {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline="Contributor questionnaires" extra_classes="" %}
     {% else %}
         <p>
             {% trans "There are no questionnaires yet." %}
@@ -20,15 +32,15 @@
     {% trans "Delete questionnaire" as title %}
     {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
     {% trans "Delete questionnaire" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="delete_questionnaire_modal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% include "confirmation_modal.html" with modal_id="deleteQuestionnaireModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function delete_questionnaire_modal_action(data_id) {
+        function deleteQuestionnaireModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:questionnaire_delete" %}",
-                data: {"questionnaire_id": data_id},
-                success: function(){ $('#questionnaire-row-'+data_id).hide('slow', function(){ $('#questionnaire-row-'+data_id).remove(); }); },
-                error: function(){ $('#questionnaire-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+                data: {"questionnaire_id": dataId},
+                success: function(){ $('#questionnaire-row-'+dataId).hide('slow', function(){ $('#questionnaire-row-'+dataId).remove(); }); },
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>
@@ -38,7 +50,7 @@
     <script type="text/javascript">
 
     $('.questionnaire-table tbody').sortable({
-        handle: ".glyphicon-move",
+        handle: ".fa-arrows-v",
         draggable: ".sortable",
         onUpdate: function( event ) {
             // update indices of all questionnaires in the table

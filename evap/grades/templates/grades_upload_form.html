@@ -1,7 +1,5 @@
 {% extends "grades_course_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
 
@@ -12,17 +10,19 @@
         </div>
     {% endif %}
 
-    <h3>{% if final_grades %}
-        {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
-    {% else %}
-        {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
-    {% endif %}</h3>
+    <h3 class="mb-3">
+        {% if final_grades %}
+            {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
+        {% else %}
+            {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
+        {% endif %}
+    </h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
         {% csrf_token %}
-        {% bootstrap_form form layout='horizontal' %}
-        <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
-                <input type="submit" value="{% trans "Upload grades" %}" class="btn btn-primary"/>
+        {% include "bootstrap_form.html" with form=form %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Upload grades" %}</button>
             </div>
         </div>
     </form>

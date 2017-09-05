@@ -1,25 +1,24 @@
 {% extends "staff_course_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
+    <h3>
+        {% if form.instance.id %}
+            {{ course.name }} ({{ course.semester.name }})
+        {% else %}
+            {% trans 'Create single result' %}
+        {% endif %}
+    </h3>
     <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
-        {% bootstrap_form form layout='horizontal' %}
+        {% include "bootstrap_form.html" with form=form %}
 
         {% if form.instance.can_staff_edit %}
-            <div class="form-group well">
-                <div class="col-sm-offset-2 col-sm-6">
-                    <input type="submit" value="{% trans "Save course" %}" class="btn btn-primary" onclick="preventAccidentalClosing = false;"/>
+            <div class="card card-submit-area text-center mb-3">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary">{% trans "Save single result" %}</button>
                 </div>
             </div>
         {% endif %}
     </form>
-{% endblock %}
-
-{% block additional_javascript %}
-    {% if form.instance.can_staff_edit %}
-        <script type="text/javascript"> preventAccidentalClosing = true; </script>
-    {% endif %}
 {% endblock %}

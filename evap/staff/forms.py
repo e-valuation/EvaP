@@ -42,7 +42,7 @@ class ImportForm(forms.Form):
 
 
 class UserImportForm(forms.Form):
-    excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+    excel_file = forms.FileField(label=_("Excel file"), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,7 +54,7 @@ class UserImportForm(forms.Form):
 
 
 class CourseParticipantCopyForm(forms.Form):
-    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
+    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Course"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,8 +89,6 @@ class DegreeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
 
     class Meta:
@@ -104,12 +102,6 @@ class DegreeForm(forms.ModelForm):
 
 
 class CourseTypeForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
-
     class Meta:
         model = CourseType
         fields = "__all__"
@@ -160,6 +152,8 @@ class CourseForm(forms.ModelForm):
         self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
+        self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
+
         if self.instance.general_contribution:
             self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
@@ -173,6 +167,18 @@ class CourseForm(forms.ModelForm):
         if not self.instance.can_staff_edit:
             # form is used as read-only course view
             disable_all_fields(self)
+
+    def validate_unique(self):
+        super().validate_unique()
+        # name_xy and semester are unique together. This will be treated as a non-field-error since two
+        # fields are involved. Since we only show the name_xy field to the user, assign that error to this
+        # field. This hack is not documented, so it might be broken when you are reading this.
+        for e in self.non_field_errors().as_data():
+            if e.code == "unique_together" and "unique_check" in e.params:
+                if "semester" in e.params["unique_check"]:
+                    # The order of the fields is probably determined by the unique_together constraints in the Course class.
+                    name_field = e.params["unique_check"][1]
+                    self.add_error(name_field, e)
 
     def clean(self):
         super().clean()
@@ -195,7 +201,7 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.all())
+    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.exclude_inactive_users())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
@@ -263,6 +269,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
+    contributor = forms.ModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -281,17 +288,14 @@ class ContributionForm(forms.ModelForm):
             'contributor': UserModelChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, course=None, **kwargs):
+        self.course = course
         # work around https://code.djangoproject.com/ticket/25880
-        self.course = kwargs.pop('course', None)
         if self.course is None:
             assert 'instance' in kwargs
             self.course = kwargs['instance'].course
 
         super().__init__(*args, **kwargs)
-
-        self.fields['contributor'].widget.attrs['class'] = 'form-control'
-        self.fields['label'].widget.attrs['class'] = 'form-control'
 
         if self.instance.responsible:
             self.fields['responsibility'].initial = Contribution.IS_RESPONSIBLE
@@ -330,13 +334,12 @@ class CourseEmailForm(forms.Form):
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance')
-        self.export = kwargs.pop('export', False)
-        self.template = EmailTemplate()
+    def __init__(self, *args, course, export=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['subject'].required = not self.export
-        self.fields['body'].required = not self.export
+        self.template = EmailTemplate()
+        self.course = course
+        self.fields['subject'].required = not export
+        self.fields['body'].required = not export
 
     def clean(self):
         self.recipient_groups = self.cleaned_data.get('recipients')
@@ -347,13 +350,13 @@ class CourseEmailForm(forms.Form):
         return self.cleaned_data
 
     def email_addresses(self):
-        recipients = self.template.recipient_list_for_course(self.instance, self.recipient_groups, filter_users_in_cc=False)
+        recipients = self.template.recipient_list_for_course(self.course, self.recipient_groups, filter_users_in_cc=False)
         return set(user.email for user in recipients if user.email)
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.instance], self.recipient_groups, use_cc=True, request=request)
+        EmailTemplate.send_to_users_in_courses(self.template, [self.course], self.recipient_groups, use_cc=True, request=request)
 
 
 class QuestionnaireForm(forms.ModelForm):
@@ -377,10 +380,11 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, can_change_responsible=True, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
+        self.can_change_responsible = can_change_responsible
 
     def handle_deleted_and_added_contributions(self):
         """
@@ -447,7 +451,7 @@ class ContributionFormSet(AtLeastOneFormSet):
         super().clean()
 
         found_contributor = set()
-        count_responsible = 0
+        responsible_users = []
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
                 continue
@@ -460,10 +464,13 @@ class ContributionFormSet(AtLeastOneFormSet):
                 found_contributor.add(contributor)
 
             if form.cleaned_data.get('responsibility') == 'RESPONSIBLE':
-                count_responsible += 1
+                responsible_users.append(form.cleaned_data.get('contributor'))
 
-        if count_responsible < 1:
+        if len(responsible_users) < 1:
             raise forms.ValidationError(_('No responsible contributors found.'))
+
+        if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
+            raise ValidationError(_("You are not allowed to change responsible contributors"))
 
 
 class QuestionForm(forms.ModelForm):
@@ -474,14 +481,10 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["order"].widget = forms.HiddenInput()
-        self.fields['text_de'].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields['text_en'].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields['type'].widget.attrs['class'] = 'form-control'
 
 
 class QuestionnairesAssignForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        course_types = kwargs.pop('course_types')
+    def __init__(self, *args, course_types, **kwargs):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
@@ -494,6 +497,7 @@ class UserForm(forms.ModelForm):
     is_staff = forms.BooleanField(required=False, label=_("Staff user"))
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
+    is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
     courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
 
     class Meta:
@@ -515,6 +519,7 @@ class UserForm(forms.ModelForm):
             self.fields['is_staff'].initial = self.instance.is_staff
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
+            self.fields['is_inactive'].initial = not self.instance.is_active
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -566,14 +571,14 @@ class UserForm(forms.ModelForm):
         else:
             self.instance.groups.remove(reviewer_group)
 
+        self.instance.is_active = not self.cleaned_data.get('is_inactive')
+
+        self.instance.save()
+
 
 class UserMergeSelectionForm(forms.Form):
     main_user = UserModelChoiceField(UserProfile.objects.all())
     other_user = UserModelChoiceField(UserProfile.objects.all())
-
-
-class LotteryForm(forms.Form):
-    number_of_winners = forms.IntegerField(label=_("Number of Winners"), initial=3)
 
 
 class EmailTemplateForm(forms.ModelForm):
@@ -586,8 +591,6 @@ class FaqSectionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["title_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["title_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
 
     class Meta:
@@ -599,10 +602,6 @@ class FaqQuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["question_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["question_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["answer_de"].widget.attrs['class'] = 'form-control'
-        self.fields["answer_en"].widget.attrs['class'] = 'form-control'
         self.fields["order"].widget = forms.HiddenInput()
 
     class Meta:

@@ -1,6 +1,5 @@
 import csv
 from datetime import datetime, date
-import random
 from xlrd import open_workbook as open_workbook
 from xlutils.copy import copy as copy_workbook
 from collections import OrderedDict, defaultdict
@@ -29,18 +28,14 @@ from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
                               CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
-                              FaqSectionForm, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
+                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
                               SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
-                              get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file)
+                              get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file,
+                              raise_permission_denied_if_archived, get_parameter_from_url_or_session)
 from evap.student.forms import QuestionsForm
 from evap.student.views import vote_preview
-
-
-def raise_permission_denied_if_archived(archiveable):
-    if archiveable.is_archived:
-        raise PermissionDenied
 
 
 @staff_required
@@ -138,51 +133,48 @@ def semester_course_operation(request, semester_id):
     raise_permission_denied_if_archived(semester)
 
     operation = request.GET.get('operation')
-    if operation not in ['revertToNew', 'prepare', 'reenableEditorReview', 'approve', 'startEvaluation', 'publish', 'unpublish']:
-        messages.error(request, _("Unsupported operation: ") + str(operation))
+    if operation not in ['prepared->new', 'approved->new', 'new->prepared', 'new->approved',
+            'prepared->approved', 'editor_approved->approved', 'editor_approved->prepared',
+            'approved->in_evaluation', 'reviewed->published', 'published->reviewed']:
+        raise SuspiciousOperation("Unknown operation: " + operation)
+
+    old_state = operation.split('->')[0]
+    target_state = operation.split('->')[1]
+
+    course_ids = (request.GET if request.method == 'GET' else request.POST).getlist('course')
+    courses = Course.objects.filter(id__in=course_ids)
+
+    if any(course.state != old_state for course in courses):
+        messages.error(request, _("An error occurred. Please try again."))
         return custom_redirect('staff:semester_view', semester_id)
 
     if request.method == 'POST':
-        course_ids = request.POST.getlist('course_ids')
-        courses = Course.objects.filter(id__in=course_ids)
-
-        # If checkbox is not checked, set template to None
+        template = None
         if request.POST.get('send_email') == 'on':
-            template = EmailTemplate(subject=request.POST["email_subject"], body=request.POST["email_body"])
-        else:
-            template = None
+            template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
 
-        if operation == 'revertToNew':
+        if target_state == 'new':
             helper_semester_course_operation_revert(request, courses)
-        elif operation == 'prepare' or operation == 'reenableEditorReview':
+        elif target_state == 'prepared':
             helper_semester_course_operation_prepare(request, courses, template)
-        elif operation == 'approve':
+        elif target_state == 'approved':
             helper_semester_course_operation_approve(request, courses)
-        elif operation == 'startEvaluation':
+        elif target_state == 'in_evaluation':
             helper_semester_course_operation_start(request, courses, template)
-        elif operation == 'publish':
+        elif target_state == 'published':
             helper_semester_course_operation_publish(request, courses, template)
-        elif operation == 'unpublish':
+        elif target_state == 'reviewed':
             helper_semester_course_operation_unpublish(request, courses)
 
         return custom_redirect('staff:semester_view', semester_id)
 
-    course_ids = request.GET.getlist('course')
-    courses = Course.objects.filter(id__in=course_ids)
-
-    # Set new state, and set email template for possible editing.
+    # If necessary, filter courses and set email template for possible editing
     email_template = None
     if courses:
-        current_state_name = STATES_ORDERED[courses[0].state]
-        if operation == 'revertToNew':
-            new_state_name = STATES_ORDERED['new']
-
-        elif operation == 'prepare' or operation == 'reenableEditorReview':
-            new_state_name = STATES_ORDERED['prepared']
+        if target_state == 'prepared':
             email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
 
-        elif operation == 'approve':
-            new_state_name = STATES_ORDERED['approved']
+        elif target_state == 'approved':
             # remove courses without questionnaires on general contribution, warn about courses with missing questionnaires
             courses_with_enough_questionnaires = [course for course in courses if course.general_contribution_has_questionnaires]
             courses_with_missing_questionnaires = [course for course in courses_with_enough_questionnaires if not course.all_contributions_have_questionnaires]
@@ -201,8 +193,7 @@ def semester_course_operation(request, semester_id):
                                            '%(courses)d courses do not have a questionnaire assigned for every contributor. They can be approved anyway.',
                                            len(courses_with_missing_questionnaires)) % {'courses': len(courses_with_missing_questionnaires)})
 
-        elif operation == 'startEvaluation':
-            new_state_name = STATES_ORDERED['in_evaluation']
+        elif target_state == 'in_evaluation':
             # remove courses with vote_end_date in the past
             courses_end_in_future = [course for course in courses if course.vote_end_date >= date.today()]
             difference = len(courses) - len(courses_end_in_future)
@@ -213,12 +204,8 @@ def semester_course_operation(request, semester_id):
                     difference) % {'courses': difference})
             email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
 
-        elif operation == 'publish':
-            new_state_name = STATES_ORDERED['published']
+        elif target_state == 'published':
             email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
-
-        elif operation == 'unpublish':
-            new_state_name = STATES_ORDERED['reviewed']
 
     if not courses:
         messages.warning(request, _("Please select at least one course."))
@@ -228,8 +215,8 @@ def semester_course_operation(request, semester_id):
         semester=semester,
         courses=courses,
         operation=operation,
-        current_state_name=current_state_name,
-        new_state_name=new_state_name,
+        current_state_name=STATES_ORDERED[old_state],
+        new_state_name=STATES_ORDERED[target_state],
         email_template=email_template,
         show_email_checkbox=email_template is not None
     )
@@ -477,33 +464,6 @@ def semester_questionnaire_assign(request, semester_id):
 
 
 @staff_required
-def semester_lottery(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-
-    form = LotteryForm(request.POST or None)
-
-    if form.is_valid():
-        eligible = []
-
-        # find all users who have voted on all of their courses
-        for user in UserProfile.objects.all():
-            courses = user.courses_participating_in.filter(semester=semester, state__in=['in_evaluation', 'evaluated', 'reviewed', 'published'])
-            if not courses.exists():
-                # user was not participating in any course in this semester
-                continue
-            if not courses.exclude(voters=user).exists():
-                eligible.append(user)
-
-        winners = random.sample(eligible, min([form.cleaned_data['number_of_winners'], len(eligible)]))
-    else:
-        eligible = None
-        winners = None
-
-    template_data = dict(semester=semester, form=form, eligible=eligible, winners=winners)
-    return render(request, "staff_semester_lottery.html", template_data)
-
-
-@staff_required
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -635,7 +595,7 @@ def helper_single_result_edit(request, semester, course):
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
     else:
-        return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
+        return render(request, "staff_single_result_form.html", dict(course=course, semester=semester, form=form))
 
 
 @require_POST
@@ -656,10 +616,11 @@ def course_delete(request):
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
-    form = CourseEmailForm(request.POST or None, instance=course, export='export' in request.POST)
+    export = 'export' in request.POST
+    form = CourseEmailForm(request.POST or None, course=course, export=export)
 
     if form.is_valid():
-        if form.export:
+        if export:
             email_addresses = '; '.join(form.email_addresses())
             messages.info(request, _('Recipients: ') + '\n' + email_addresses)
             return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
@@ -736,14 +697,8 @@ def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    filter = request.GET.get('filter', None)
-    if filter is None:  # if no parameter is given take session value
-        filter = request.session.get('filter_comments', False)  # defaults to False if no session value exists
-    else:
-        filter = {'true': True, 'false': False}.get(filter.lower())  # convert parameter to boolean
-    request.session['filter_comments'] = filter  # store value for session
-
-    filter_states = [TextAnswer.NOT_REVIEWED] if filter else None
+    filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
+    filter_states = [TextAnswer.NOT_REVIEWED] if filter_comments else None
 
     course_sections = []
     contributor_sections = []
@@ -758,7 +713,8 @@ def course_comments(request, semester_id, course_id):
         section_list = course_sections if contribution.is_general else contributor_sections
         section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, course_sections=course_sections, contributor_sections=contributor_sections, filter=filter)
+    template_data = dict(semester=semester, course=course, course_sections=course_sections,
+            contributor_sections=contributor_sections, filter_comments=filter_comments)
     return render(request, "staff_course_comments.html", template_data)
 
 
@@ -824,10 +780,20 @@ def course_preview(request, semester_id, course_id):
 
 @staff_required
 def questionnaire_index(request):
+    filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
+
     questionnaires = Questionnaire.objects.all()
+    if filter_questionnaires:
+        questionnaires = questionnaires.filter(obsolete=False)
+
     course_questionnaires = questionnaires.filter(is_for_contributors=False)
     contributor_questionnaires = questionnaires.filter(is_for_contributors=True)
-    template_data = dict(course_questionnaires=course_questionnaires, contributor_questionnaires=contributor_questionnaires)
+
+    template_data = dict(
+        course_questionnaires=course_questionnaires,
+        contributor_questionnaires=contributor_questionnaires,
+        filter_questionnaires=filter_questionnaires,
+    )
     return render(request, "staff_questionnaire_index.html", template_data)
 
 
@@ -1077,7 +1043,14 @@ def course_type_merge(request, main_type_id, other_type_id):
 
 @staff_required
 def user_index(request):
-    users = (UserProfile.objects.all()
+    filter_users = get_parameter_from_url_or_session(request, "filter_users")
+
+    if filter_users:
+        users = UserProfile.objects.exclude_inactive_users()
+    else:
+        users = UserProfile.objects.all()
+
+    users = (users
         # the following six annotations basically add two bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
@@ -1087,7 +1060,7 @@ def user_index(request):
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
         .prefetch_related('contributions', 'courses_participating_in', 'courses_participating_in__semester', 'represented_users', 'ccing_users'))
 
-    return render(request, "staff_user_index.html", dict(users=users))
+    return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
 
 @staff_required

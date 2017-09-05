@@ -4,12 +4,12 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Export" %}</li>
+    <li class="breadcrumb-item">{% trans "Export" %}</li>
 {% endblock %}
 
 {{% block content %}
     {{ block.super }}
-    <h2>{% trans "Export" %} {{ semester.name }}</h2>
+    <h3>{% trans "Export" %} {{ semester.name }}</h3>
 
     <p>{% trans "Select the course types you want to export. Add multiple lines to create an export file with multiple sheets." %}</p>
 
@@ -21,20 +21,20 @@
         <table id="exportsheets-table" class="table">
             <thead>
                 <tr>
-                    <th class="col-sm-11">{% trans "Course types" %}</th>
-                    <th class="col-sm-1"></th>
+                    <th style="width: 90%">{% trans "Course types" %}</th>
+                    <th style="width: 10%"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for form in formset %}
-                    {% if form.non_field_errors %}
-                        <tr><td colspan=100>{{ form.non_field_errors }}</td></tr>
-                    {% endif %}
+                    {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
                     <tr class="exportsheet sortable">
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                        <td><div class="checkbox">{{ form.selected_course_types.errors }} {{ form.selected_course_types }}</div></td>
+                        <td>
+                            {% include "multiple_checkbox_widget.html" with field=form.selected_course_types %}
+                        </td>
                         <td>{{ form.DELETE }}</td>
                     </tr>
                 {% endfor %}
@@ -50,8 +50,10 @@
             </label>
         </div>
 
-        <div class="well submit-area text-center">
-            <input type="submit" value="{% trans "Export" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary form-submit-btn">{% trans "Export" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}
@@ -60,11 +62,11 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        row_changed = function(row) {
+        rowChanged = function(row) {
             id = row.find("input[id$=-id]").val();
             return id;
         };
-        row_added = function(row) { };
-        make_form_sortable("exportsheets-table", "form", row_changed, row_added, "", false, false);
+        rowAdded = function(row) { };
+        makeFormSortable("exportsheets-table", "form", rowChanged, rowAdded, "", false, false);
     </script>
 {% endblock %}

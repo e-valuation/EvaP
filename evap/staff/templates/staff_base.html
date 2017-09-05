@@ -5,8 +5,8 @@
 {% block breadcrumb %}
     {{ block.super }}
     {% if disable_breadcrumb_staff %}
-        <li>{% trans "Manage" %}</li>
+        <li class="breadcrumb-item">{% trans "Manage" %}</li>
     {% else %}
-        <li><a href="{% url "staff:index" %}">{% trans "Manage" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url "staff:index" %}">{% trans "Manage" %}</a></li>
     {% endif %}
 {% endblock %}

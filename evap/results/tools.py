@@ -24,6 +24,7 @@ GRADE_COLORS = {
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
 RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
+YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning', 'approval_count'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 
 
@@ -79,10 +80,15 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def get_counts(answer_counters):
+def get_counts(question, answer_counters):
     counts = OrderedDict()
+
+    possible_answers = range(1, 6)
+    if question.is_yes_no_question:
+        possible_answers = [1, 5]
+
     # ensure ordering of answers
-    for answer in range(1, 6):
+    for answer in possible_answers:
         counts[answer] = 0
 
     for answer_counter in answer_counters:
@@ -132,10 +138,17 @@ def _calculate_results_impl(course):
                 total_count = len(answers)
                 average = avg(answers) if total_count > 0 else None
                 deviation = pstdev(answers, average) if total_count > 0 else None
-                counts = get_counts(answer_counters)
+                counts = get_counts(question, answer_counters)
                 warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
 
-                results.append(RatingResult(question, total_count, average, deviation, counts, warning))
+                if question.is_yes_no_question:
+                    if question.is_positive_yes_no_question:
+                        approval_count = counts[1]
+                    else:
+                        approval_count = counts[5]
+                    results.append(YesNoResult(question, total_count, average, deviation, counts, warning, approval_count))
+                else:
+                    results.append(RatingResult(question, total_count, average, deviation, counts, warning))
 
             elif question.is_text_question:
                 allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]

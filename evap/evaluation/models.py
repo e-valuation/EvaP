@@ -86,6 +86,10 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def active_semester(cls):
         return cls.objects.order_by("created_at").last()
 
+    @property
+    def is_active_semester(self):
+        return self == Semester.active_semester()
+
 
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     """A named collection of questions."""
@@ -264,10 +268,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return not self.open_textanswer_set.exists()
 
     @property
-    def is_not_fully_reviewed(self):
-        return self.open_textanswer_set.exists()
-
-    @property
     def vote_end_datetime(self):
         # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + EVALUATION_END_OFFSET_HOURS)
@@ -330,10 +330,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
-    def can_staff_approve(self):
-        return self.state in ['new', 'prepared', 'editor_approved']
-
-    @property
     def can_publish_grades(self):
         from evap.results.tools import get_sum_of_answer_counters
         if self.is_single_result:
@@ -377,7 +373,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def single_result_created(self):
         pass
 
-    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: self.is_not_fully_reviewed])
+    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: not self.is_fully_reviewed])
     def reopen_review(self):
         pass
 
@@ -431,37 +427,18 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
             return True
-        else:
-            represented_users = user.represented_users.all()
-            if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
-                return True
-
-        return False
-
-    def is_user_responsible_or_delegate(self, user):
-        if self.contributions.filter(responsible=True, contributor=user).exists():
+        represented_users = user.represented_users.all()
+        if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
             return True
-        else:
-            represented_users = user.represented_users.all()
-            if self.contributions.filter(responsible=True, contributor__in=represented_users).exists():
-                return True
-
         return False
-
-    def is_user_contributor(self, user):
-        return self.contributions.filter(contributor=user).exists()
 
     def is_user_contributor_or_delegate(self, user):
-        if self.is_user_contributor(user):
+        if self.contributions.filter(contributor=user).exists():
             return True
-        else:
-            represented_users = user.represented_users.all()
-            if self.contributions.filter(contributor__in=represented_users).exists():
-                return True
+        represented_users = user.represented_users.all()
+        if self.contributions.filter(contributor__in=represented_users).exists():
+            return True
         return False
-
-    def is_user_editor(self, user):
-        return self.contributions.filter(contributor=user, can_edit=True).exists()
 
     def warnings(self):
         result = []
@@ -549,7 +526,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             try:
                 if course.state == "approved" and course.vote_start_datetime <= datetime.now():
                     course.evaluation_begin()
-                    course.last_modified_user = UserProfile.cronjob_user()
+                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
                 elif course.state == "in_evaluation" and datetime.now() >= course.vote_end_datetime:
@@ -559,7 +536,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
-                    course.last_modified_user = UserProfile.cronjob_user()
+                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
@@ -637,12 +614,14 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         ("T", _("Text Question")),
         ("L", _("Likert Question")),
         ("G", _("Grade Question")),
+        ("P", _("Positive Yes-No Question")),
+        ("N", _("Negative Yes-No Question")),
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
     questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
-    text_de = models.TextField(verbose_name=_("question text (german)"))
-    text_en = models.TextField(verbose_name=_("question text (english)"))
+    text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
+    text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     text = Translate
@@ -656,9 +635,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     def answer_class(self):
         if self.is_text_question:
             return TextAnswer
-        elif self.is_likert_question:
-            return RatingAnswerCounter
-        elif self.is_grade_question:
+        elif self.is_rating_question:
             return RatingAnswerCounter
         else:
             raise Exception("Unknown answer type: %r" % self.type)
@@ -676,8 +653,20 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         return self.type == "G"
 
     @property
+    def is_positive_yes_no_question(self):
+        return self.type == "P"
+
+    @property
+    def is_negative_yes_no_question(self):
+        return self.type == "N"
+
+    @property
+    def is_yes_no_question(self):
+        return self.is_positive_yes_no_question or self.is_negative_yes_no_question
+
+    @property
     def is_rating_question(self):
-        return self.is_grade_question or self.is_likert_question
+        return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
 
 
 class Answer(models.Model):
@@ -735,10 +724,6 @@ class TextAnswer(Answer):
         verbose_name_plural = _("text answers")
 
     @property
-    def is_reviewed(self):
-        return self.state != self.NOT_REVIEWED
-
-    @property
     def is_hidden(self):
         return self.state == self.HIDDEN
 
@@ -777,8 +762,8 @@ class FaqSection(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
-    title_de = models.TextField(verbose_name=_("section title (german)"))
-    title_en = models.TextField(verbose_name=_("section title (english)"))
+    title_de = models.CharField(max_length=255, verbose_name=_("section title (german)"))
+    title_en = models.CharField(max_length=255, verbose_name=_("section title (english)"))
     title = Translate
 
     class Meta:
@@ -794,8 +779,8 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
 
-    question_de = models.TextField(verbose_name=_("question (german)"))
-    question_en = models.TextField(verbose_name=_("question (english)"))
+    question_de = models.CharField(max_length=1024, verbose_name=_("question (german)"))
+    question_en = models.CharField(max_length=1024, verbose_name=_("question (english)"))
     question = Translate
 
     answer_de = models.TextField(verbose_name=_("answer (german)"))
@@ -812,8 +797,11 @@ class UserProfileManager(BaseUserManager):
     def get_queryset(self):
         return super().get_queryset().exclude(username=UserProfile.CRONJOB_USER_USERNAME)
 
-    def with_cronjob_user(self):
-        return super().get_queryset()
+    def cronjob_user(self):
+        return super().get_queryset().get(username=UserProfile.CRONJOB_USER_USERNAME)
+
+    def exclude_inactive_users(self):
+        return self.get_queryset().exclude(is_active=False)
 
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
@@ -867,6 +855,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
 
+    is_active = models.BooleanField(default=True, verbose_name=_("active"))
+
     class Meta:
         ordering = ('last_name', 'first_name', 'username')
         verbose_name = _('user')
@@ -909,10 +899,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.full_name
 
-    @property
-    def is_active(self):
-        return True
-
     @cached_property
     def is_staff(self):
         return self.groups.filter(name='Staff').exists()
@@ -927,16 +913,20 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     CRONJOB_USER_USERNAME = "cronjob"
 
-    @classmethod
-    def cronjob_user(cls):
-        return cls.objects.with_cronjob_user().get(username=cls.CRONJOB_USER_USERNAME)
+    @property
+    def can_staff_mark_inactive(self):
+        if self.is_reviewer or self.is_grade_publisher or self.is_staff or self.is_superuser:
+            return False
+        if any(not course.is_archived for course in self.courses_participating_in.all()):
+            return False
+        return True
 
     @property
     def can_staff_delete(self):
         states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
         if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
-        if self.is_contributor or self.is_grade_publisher or self.is_staff or self.is_superuser:
+        if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_staff or self.is_superuser:
             return False
         if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False

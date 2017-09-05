@@ -19,7 +19,6 @@ urlpatterns = [
     url(r"^semester/(\d+)/participation_export$", views.semester_participation_export, name="semester_participation_export"),
     url(r"^semester/(\d+)/assign$", views.semester_questionnaire_assign, name="semester_questionnaire_assign"),
     url(r"^semester/(\d+)/todo", views.semester_todo, name="semester_todo"),
-    url(r"^semester/(\d+)/lottery$", views.semester_lottery, name="semester_lottery"),
     url(r"^semester/(\d+)/course/create$", views.course_create, name="course_create"),
     url(r"^semester/(\d+)/course/(\d+)/edit$", views.course_edit, name="course_edit"),
     url(r"^semester/(\d+)/course/(\d+)/email$", views.course_email, name="course_email"),

@@ -4,7 +4,6 @@ import django.views.static
 import django.contrib.auth.views
 
 from django.contrib import admin
-admin.autodiscover()
 
 
 urlpatterns = [

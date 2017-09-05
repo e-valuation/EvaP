@@ -45,7 +45,8 @@ class UserData(CommonEqualityMixin):
                                                                  'first_name': self.first_name,
                                                                  'last_name': self.last_name,
                                                                  'email': self.email,
-                                                                 'title': self.title})
+                                                                 'title': self.title,
+                                                                 'is_active': True})
         if user.needs_login_key:
             user.refresh_login_key()
         return user, created
@@ -105,6 +106,7 @@ class ExcelImporter(object):
     W_EMAIL = 'email'
     W_DUPL = 'duplicate'
     W_GENERAL = 'general'
+    W_INACTIVE = 'inactive'
 
     def __init__(self):
         self.associations = OrderedDict()
@@ -211,6 +213,11 @@ class ExcelImporter(object):
             "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)") +
             "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
+    @staticmethod
+    def _create_user_inactive_warning(user):
+        return mark_safe(_("The following user is currently marked inactive and will be marked active upon importing: ")
+                + ExcelImporter._create_user_string(user))
+
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = _("An existing user has the same first and last name as a new user:")
         for user in users_with_same_names:
@@ -228,10 +235,15 @@ class ExcelImporter(object):
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
                     self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data))
+                if not user.is_active:
+                    self.warnings[self.W_INACTIVE].append(self._create_user_inactive_warning(user))
             except UserProfile.DoesNotExist:
                 pass
 
-            users_same_name = UserProfile.objects.filter(first_name=user_data.first_name, last_name=user_data.last_name).exclude(username=user_data.username).all()
+            users_same_name = (UserProfile.objects
+                .filter(first_name=user_data.first_name, last_name=user_data.last_name)
+                .exclude(username=user_data.username)
+                .all())
             if len(users_same_name) > 0:
                 self._create_user_name_collision_warning(user_data, users_same_name)
 
@@ -311,6 +323,7 @@ class EnrollmentImporter(ExcelImporter):
 
         with transaction.atomic():
             for user_data in self.users.values():
+                # this also marks the users active
                 __, created = user_data.store_in_database()
                 if created:
                     if user_data.is_responsible:
@@ -524,6 +537,7 @@ class PersonImporter:
     def process_file_content(cls, import_type, course, test_run, file_content):
         importer = cls()
 
+        # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
         if import_type == 'participant':
             importer.process_participants(course, test_run, user_list)
@@ -543,12 +557,22 @@ class PersonImporter:
             user_list = list(UserProfile.objects.filter(contributions__course=source_course))
             importer.process_contributors(course, test_run, user_list)
 
+        cls.make_users_active(user_list)
+
         return importer.success_messages, importer.warnings, importer.errors
+
+    @staticmethod
+    def make_users_active(user_list):
+        for user in user_list:
+            if not user.is_active:
+                user.is_active = True
+                user.save()
 
 
 # Dictionary to translate internal keys to UI strings.
 WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: _("Name mismatches"),
+    ExcelImporter.W_INACTIVE: _("Inactive users"),
     ExcelImporter.W_EMAIL: _("Email mismatches"),
     ExcelImporter.W_DUPL: _("Possible duplicates"),
     ExcelImporter.W_GENERAL: _("General warnings"),

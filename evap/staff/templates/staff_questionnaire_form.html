@@ -1,35 +1,31 @@
 {% extends "staff_questionnaire_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
     <form id="questionnaire-form" method="POST" class="form-horizontal select2form">
         {% csrf_token %}
         <fieldset>
             <legend>{% trans "General Options" %}</legend>
-            {% bootstrap_form form layout='horizontal' %}
+            {% include "bootstrap_form.html" with form=form %}
         </fieldset>
 
         <fieldset>
             <legend>{% trans "Questions" %}</legend>
             {{ formset.management_form }}
-            {{ formset.non_form_errors }}
-            <table id="question_table" class="table">
+            {% include "bootstrap_form_errors.html" with errors=formset.non_form_errors %}
+            <table id="question_table" class="table vertically-aligned mb-3">
                 <thead>
                     <tr>
                         <th></th>
-                        <th class="col-sm-4">{% trans "Question text (German)" %}</th>
-                        <th class="col-sm-4">{% trans "Question text (English)" %}</th>
-                        <th class="col-sm-3">{% trans "Question type" %}</th>
-                        <th class="col-sm-1"></th>
+                        <th style="width: 37%">{% trans "Question text (German)" %}</th>
+                        <th style="width: 37%">{% trans "Question text (English)" %}</th>
+                        <th style="width: 20%">{% trans "Question type" %}</th>
+                        <th style="width: 6%"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for form_element in formset %}
-                        {% if form_element.non_field_errors %}
-                            <tr><td colspan=100>{{ form_element.non_field_errors }}</td></tr>
-                        {% endif %}
+                        {% include "bootstrap_form_errors.html" with errors=form_element.non_field_errors %}
 
                         <tr class="select2tr sortable">
                             {% for hidden in form_element.hidden_fields %}
@@ -37,22 +33,22 @@
                             {% endfor %}
                             {% if editable %}
                                 <td class="movable">
-                                    <span class="movable-icon glyphicon glyphicon-move"></span>
+                                    <span class="movable-icon fa fa-arrows-v"></span>
                                 </td>
                             {% else %}
                                 <td></td>
                             {% endif %}
                             {% for field in form_element.visible_fields %}
-                                <td>{{ field.errors }} {{ field }}</td>
+                                <td>{% include "bootstrap_form_field_widget.html" with field=field %}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </fieldset>
-        <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
-                <input type="submit" value="{% trans "Save questionnaire" %}" onclick="preventAccidentalClosing = false;" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Save questionnaire" %}</button>
             </div>
         </div>
     </form>
@@ -63,17 +59,16 @@
     {% if editable %}
         {% include "sortable_form_js.html" %}
         <script type="text/javascript">
-            row_changed = function(row) {
-                name_de = $(row.find('input[id$=-text_de]')).val();
-                name_en = $(row.find('input[id$=-text_en]')).val();
-                return name_de || name_en
+            rowChanged = function(row) {
+                nameDe = $(row.find('input[id$=-text_de]')).val();
+                nameEn = $(row.find('input[id$=-text_en]')).val();
+                return nameDe || nameEn
             };
-            row_added = function(row) {
-                row.find('a.btn-default').remove();
-                apply_select2(row.find("select"));
+            rowAdded = function(row) {
+                row.find('a.btn-secondary').remove();
+                applySelect2(row.find("select"));
             };
-            make_form_sortable("question_table", "question_set", row_changed, row_added, "", true, true);
+            makeFormSortable("question_table", "question_set", rowChanged, rowAdded, "", true, true);
         </script>
     {% endif %}
-    <script type="text/javascript"> preventAccidentalClosing = true; </script>
 {% endblock %}

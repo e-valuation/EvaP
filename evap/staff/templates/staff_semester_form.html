@@ -1,15 +1,13 @@
 {% extends "staff_semester_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
     <form id="semester-form" method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% bootstrap_form form layout='horizontal' %}
-        <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
-                <input type="submit" value="{% trans "Save semester" %}" class="btn btn-primary"/>
+        {% include "bootstrap_form.html" with form=form %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Save semester" %}</button>
             </div>
         </div>
     </form>

@@ -1,0 +1,39 @@
+$evap-green:        #88bf4a;
+$evap-lime:         #bbd154;
+$evap-yellow:       #efe258;
+$evap-orange:       #f29e58;
+$evap-red:          #eb595a;
+
+$evap-dark-green:   darken($evap-green, 20%);
+$evap-dark-lime:    darken($evap-lime, 20%);
+$evap-dark-yellow:  darken($evap-yellow, 20%);
+$evap-dark-orange:  darken($evap-orange, 20%);
+$evap-dark-red:     darken($evap-red, 20%);
+
+$evap-light-green:  lighten($evap-green, 30%);
+$evap-light-lime:   lighten($evap-lime, 30%);
+$evap-light-yellow: lighten($evap-yellow, 30%);
+$evap-light-orange: lighten($evap-orange, 30%);
+$evap-light-red:    lighten($evap-red, 30%);
+
+$evap-dark-blue:    #31708f;
+$evap-light-blue:   #d9edf7;
+
+$white:             #ffffff;
+$lighter-gray:      #f8f9fa;
+$light-gray:        #dee2e6;
+$medium-gray:       #adb5bd;
+$dark-gray:         #868e96;
+$darker-gray:       #495057;
+$black:             #000000;
+
+$theme-colors: (
+    primary: $evap-dark-blue,
+    secondary: $dark-gray,
+    success: $evap-green,
+    info: $evap-light-blue,
+    warning: $evap-yellow,
+    danger: $evap-red,
+    light: $lighter-gray,
+    dark: $darker-gray
+)

@@ -140,6 +140,7 @@ class ExcelExporter(object):
                         values = []
                         deviations = []
                         total_count = 0
+                        approval_count = 0
 
                         for grade_result in qn_results:
                             if grade_result.question.id == question.id:
@@ -147,13 +148,20 @@ class ExcelExporter(object):
                                     values.append(grade_result.average * grade_result.total_count)
                                     deviations.append(grade_result.deviation * grade_result.total_count)
                                     total_count += grade_result.total_count
+                                if grade_result.question.is_yes_no_question:
+                                    approval_count += grade_result.approval_count
                         enough_answers = course.can_publish_grades
                         if values and enough_answers:
                             avg = sum(values) / total_count
-                            writec(self, avg, self.grade_to_style(avg))
-
                             dev = sum(deviations) / total_count
-                            writec(self, dev, self.deviation_to_style(dev))
+
+                            if question.is_yes_no_question:
+                                percent_approval = float(approval_count) / float(total_count) if total_count > 0 else 0
+                                writec(self, "{:.0%}".format(percent_approval), self.grade_to_style(avg))
+                                writec(self, None, "border_right")
+                            else:
+                                writec(self, avg, self.grade_to_style(avg))
+                                writec(self, dev, self.deviation_to_style(dev))
                         else:
                             self.write_two_empty_cells_with_borders()
                 writen(self, None)

@@ -1,29 +1,29 @@
 {% extends "staff_base.html" %}
 
 {% load static %}
-{% load bootstrap3 %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Import users' %}</li>
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
+    <h3>{% trans 'Import users' %}</h3>
 
     {% include "staff_message_rendering_template.html" with errors=errors warnings=warnings success_messages=success_messages %}
 
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
-        <div class="panel panel-info">
-            <div class="panel-heading"> {% trans "User import" %} </div>
-            <div class="panel-body">
-                <p>
-                {% trans "Upload Excel file (" %}<a href="download_sample_xls/sample_user.xls">{% trans "Sample File"%}</a>{% trans "). This will create all containing users." %}
-                </p>
-                {% csrf_token %}
-                {% bootstrap_form excel_form layout='horizontal' %}
-            </div>
-            <div class="panel-footer">
+        {% csrf_token %}
+        <p>{% trans 'Upload Excel file (' %}<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans 'Sample File' %}</a>{% trans '). This will create all contained users.' %}</p>
+        {% include "bootstrap_form.html" with form=excel_form %}
+        <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
+            <div class="card-body">
                 {% if not test_passed %}
                     <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans "Upload and Test" %}</button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-default form-submit-btn">{% trans "Upload and Test" %}</button>
-                    <div class="form-submit-btn-divider"></div>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans "Upload and Test" %}</button>
                     <button name="operation" value="import" type="submit" class="btn btn-primary form-submit-btn">{% trans "Import previously uploaded file" %}</button>
                 {% endif %}
             </div>

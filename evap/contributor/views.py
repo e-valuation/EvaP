@@ -3,6 +3,8 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
+from django.db import IntegrityError, transaction
+
 from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
@@ -25,7 +27,12 @@ def index(request):
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     semesters = Semester.objects.all()
-    semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
+    semester_list = [dict(
+        semester_name=semester.name,
+        id=semester.id,
+        is_active_semester=semester.is_active_semester,
+        courses=[course for course in all_courses if course.semester_id == semester.id]
+    ) for semester in semesters]
 
     template_data = dict(semester_list=semester_list, delegated_courses=delegated_courses)
     return render(request, "contributor_index.html", template_data)
@@ -69,6 +76,22 @@ def course_view(request, course_id):
     return render(request, "contributor_course_form.html", template_data)
 
 
+def render_preview(request, formset, course_form, course):
+    # open transaction to not let any other requests see anything of what we're doing here
+    try:
+        with transaction.atomic():
+            course_form.save(user=request.user)
+            formset.save()
+            request.POST = None  # this prevents errors rendered in the vote form
+
+            preview_response = vote_preview(request, course, for_rendering_in_modal=True).content
+            raise IntegrityError  # rollback transaction to discard the database writes
+    except IntegrityError:
+        pass
+
+    return preview_response
+
+
 @editor_or_delegate_required
 def course_edit(request, course_id):
     user = request.user
@@ -78,21 +101,23 @@ def course_edit(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
         raise PermissionDenied
 
+    post_operation = request.POST.get('operation') if request.POST else None
+    preview = post_operation == 'preview'
+
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
-
     course_form = CourseForm(request.POST or None, instance=course)
-    formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
+    formset = InlineContributionFormset(request.POST or None, instance=course, can_change_responsible=False, form_kwargs={'course': course})
 
-    if course_form.is_valid() and formset.is_valid():
-        operation = request.POST.get('operation')
-        if operation not in ('save', 'approve'):
+    forms_are_valid = course_form.is_valid() and formset.is_valid()
+
+    if forms_are_valid and not preview:
+        if post_operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
         course_form.save(user=user)
         formset.save()
 
-        if operation == 'approve':
-            # approve course
+        if post_operation == 'approve':
             course.editor_approve()
             course.save()
             messages.success(request, _("Successfully updated and approved course."))
@@ -101,10 +126,18 @@ def course_edit(request, course_id):
 
         return redirect('contributor:index')
     else:
-        if course_form.errors or formset.errors:
-            messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
+        preview_html = None
+        if preview and forms_are_valid:
+            preview_html = render_preview(request, formset, course_form, course)
+
+        if not forms_are_valid and (course_form.errors or formset.errors):
+            if preview:
+                messages.error(request, _("The preview could not be rendered. Please resolve the errors shown below."))
+            else:
+                messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
+
         sort_formset(request, formset)
-        template_data = dict(form=course_form, formset=formset, course=course, editable=True,
+        template_data = dict(form=course_form, formset=formset, course=course, editable=True, preview_html=preview_html,
                              responsibles=[contributor.username for contributor in course.responsible_contributors])
         return render(request, "contributor_course_form.html", template_data)
 

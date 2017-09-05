@@ -6,9 +6,9 @@
     {{ block.super }}
     {% if course %}
         {% if disable_breadcrumb_course %}
-            <li>{{ course.name }}</li>
+            <li class="breadcrumb-item">{{ course.name }}</li>
         {% else %}
-            <li><a href="{% url "grades:course_view" semester.id course.id %}">{{ course.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url "grades:course_view" semester.id course.id %}">{{ course.name }}</a></li>
         {% endif %}
     {% endif %}
 {% endblock %}

@@ -45,7 +45,8 @@ class TestIndexView(ViewTest):
         cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
         mommy.make(Course, participants=[cls.student])
         mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
-        mommy.make(RewardPointRedemptionEvent, _quantity=2, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
         response = self.app.get(reverse('rewards:index'), user='student')
@@ -75,6 +76,17 @@ class TestIndexView(ViewTest):
         response = form.submit()
         self.assertContains(response, "event expired already.")
         self.assertEqual(5, reward_points_of_user(self.student))
+
+
+class TestEventsView(ViewTest):
+    url = reverse('rewards:reward_point_redemption_events')
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
 
 
 class TestEventCreateView(ViewTest):
@@ -121,6 +133,17 @@ class TestEventEditView(ViewTest):
         response = form.submit()
         self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
         self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=1).name, 'new name')
+
+
+class TestExportView(ViewTest):
+    url = '/rewards/reward_point_redemption_event/1/export'
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        event = mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemption, value=1, event=event)
 
 
 class TestSemesterActivationView(ViewTest):

@@ -4,24 +4,24 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "evaluation:faq" %}">{% trans "FAQ" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "evaluation:faq" %}">{% trans "FAQ" %}</a></li>
 {% endblock %}
 
 {% block content %}
-    <h1>{% trans "These are the Frequently Asked Questions (FAQs)" %}</h1>
+    <h3 class="mb-4">{% trans "These are the Frequently Asked Questions (FAQs)" %}</h3>
 
-    <div class="panel-group" id="accordion">
+    <div id="accordion" role="tablist">
         {% for section in sections %}
-            <h2 id="{{ section.id }}-s">{{ section.title }}</h2>
+            <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <span class="panel-title" id="{{ question.id }}-q">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ question.id }}">{{ question.question }}</a>
-                        </span>
+                <div class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
+                    <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
+                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
+                            {{ question.question }}
+                        </a>
                     </div>
-                    <div id="{{ question.id }}" class="panel-collapse collapse in">
-                        <div class="panel-body">
+                    <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
+                        <div class="card-body">
                             {{ question.answer|safe }}
                         </div>
                     </div>
@@ -29,14 +29,10 @@
             {% endfor %}
         {% endfor %}
     </div>
-
-    <br />
 {% endblock %}
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        $(".panel-collapse").removeClass("in");
-        $(".accordion-toggle").addClass("collapsed");
         var anchor = window.location.hash.replace("#", "").split('-');
         id = anchor[0];
         type = 'q';
@@ -44,7 +40,7 @@
             type = anchor[1];
 
         if(type == "q" && id != ""){
-            $("#" + id).collapse('show');
+            $("#collapse-" + id).collapse('show');
             window.history.pushState('', id, '/faq#' + id + '-q');
         }
 

@@ -4,8 +4,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
     Contribution, Semester, Degree, EmailTemplate
-from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict, \
-    WebTest
+from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
     CourseEmailForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
@@ -20,12 +19,12 @@ class CourseEmailFormTests(TestCase):
         course = course_with_responsible_and_editor()
         mommy.make(Contribution, course=course)
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
-        form = CourseEmailForm(instance=course, data=data)
+        form = CourseEmailForm(course=course, data=data)
         self.assertTrue(form.is_valid())
         form.send(None)
 
         data = {"body": "wat", "subject": "some subject"}
-        form = CourseEmailForm(instance=course, data=data)
+        form = CourseEmailForm(course=course, data=data)
         self.assertFalse(form.is_valid())
 
 
@@ -466,3 +465,19 @@ class CourseFormTests(TestCase):
 
         # staff: but start date must be < end date
         self.helper_date_validation(CourseForm, "1999-01-01", "1998-01-01", False)
+
+    def test_uniqueness_constraint_error_shown(self):
+        """
+            Tests whether errors being caused by a uniqueness constraint are shown in the form
+        """
+        semester = mommy.make(Semester)
+        course1 = mommy.make(Course, semester=semester)
+        course2 = mommy.make(Course, semester=semester)
+
+        form_data = get_form_data_from_instance(CourseForm, course2)
+        form_data["name_de"] = course1.name_de
+        form = CourseForm(form_data, instance=course2)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('name_de', form.errors)
+        self.assertEqual(form.errors['name_de'], ['Course with this Semester and Name (german) already exists.'])

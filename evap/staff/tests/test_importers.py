@@ -105,6 +105,19 @@ class TestUserImporter(TestCase):
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
+    def test_import_makes_inactive_user_active(self):
+        mommy.make(UserProfile, username="lucilia.manilium", is_active=False)
+
+        __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
+        __, __, warnings_notest, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertEqual(warnings_test, warnings_notest)
+
+        self.assertIn("The following user is currently marked inactive and will be marked active upon importing: "
+            "lucilia.manilium ( None None, )",
+            warnings_test[ExcelImporter.W_INACTIVE])
+
+        self.assertEqual(UserProfile.objects.count(), 2)
+
 
 class TestEnrollmentImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")

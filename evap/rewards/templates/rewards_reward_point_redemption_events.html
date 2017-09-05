@@ -2,22 +2,22 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Reward Point Redemption Events" %}</li>
+    <li class="breadcrumb-item">{% trans "Reward Point Redemption Events" %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
     <p>
-        <a href="{% url "rewards:reward_point_redemption_event_create" %}" class="btn btn-success btn-sm">{% trans "Create new event" %}</a>
+        <a href="{% url "rewards:reward_point_redemption_event_create" %}" class="btn btn-dark btn-sm">{% trans "Create new event" %}</a>
     </p>
 
-    <div class="panel panel-info">
+    <div class="card card-outline-primary mb-3">
         {% trans "Upcoming events" as title %}
         {% include "rewards_reward_point_redemption_event_list.html" with title=title events=upcoming_events %}
     </div>
 
-    <div class="panel panel-default">
+    <div class="card">
         {% trans "Past events" as title %}
         {% include "rewards_reward_point_redemption_event_list.html" with title=title events=past_events %}
     </div>
@@ -28,15 +28,15 @@
     {% trans "Delete event" as title %}
     {% trans 'Do you really want to delete the event <strong id="data-label"></strong>?' as question %}
     {% trans "Delete event" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="delete_event_modal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% include "confirmation_modal.html" with modal_id="deleteEventModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function delete_event_modal_action(data_id) {
+        function deleteEventModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "rewards:reward_point_redemption_event_delete" %}",
-                data: {"event_id": data_id},
-                success: function(){ $('#event-row-'+data_id).hide('slow', function(){ $('#event-row-'+data_id).remove(); }); },
-                error: function(){ $('#event-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+                data: {"event_id": dataId},
+                success: function(){ $('#event-row-'+dataId).hide('slow', function(){ $('#event-row-'+dataId).remove(); }); },
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>
