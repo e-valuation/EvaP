@@ -4,85 +4,85 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
-    <li>{% trans "Merge users" %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Merge users' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans "Merge users" %}</h2>
+    <h3>{% trans 'Merge users' %}</h3>
 
-    <table class="table table-striped">
+    <table class="table table-striped mb-3">
         <thead>
             <tr>
-                <th class="col-sm-3"></th>
-                <th class="col-sm-3">{% trans "Main user" %}</th>
-                <th class="col-sm-3">{% trans "Other user" %}</th>
-                <th class="col-sm-3">{% trans "Merged user" %}</th>
+                <th style="width: 25%"></th>
+                <th style="width: 25%">{% trans 'Main user' %}</th>
+                <th style="width: 25%">{% trans 'Other user' %}</th>
+                <th style="width: 25%">{% trans 'Merged user' %}</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>{% trans "Username" %}</strong></td>
-                <td{% if main_user.username == merged_user.username %} class="info"{% endif %}>{{ main_user.username }}</td>
-                <td{% if other_user.username == merged_user.username %} class="info"{% endif %}>{{ other_user.username }}</td>
-                <td{% if merged_user.username %} class="success"{% endif %}>{{ merged_user.username }}</td>
+                <td{% if main_user.username == merged_user.username %} class="table-info"{% endif %}>{{ main_user.username }}</td>
+                <td{% if other_user.username == merged_user.username %} class="table-info"{% endif %}>{{ other_user.username }}</td>
+                <td{% if merged_user.username %} class="table-success"{% endif %}>{{ merged_user.username }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Title" %}</strong></td>
-                <td{% if main_user.title == merged_user.title %} class="info"{% endif %}>{{ main_user.title }}</td>
-                <td{% if other_user.title == merged_user.title %} class="info"{% endif %}>{{ other_user.title }}</td>
-                <td{% if merged_user.title %} class="success"{% endif %}>{{ merged_user.title }}</td>
+                <td{% if main_user.title == merged_user.title %} class="table-info"{% endif %}>{{ main_user.title }}</td>
+                <td{% if other_user.title == merged_user.title %} class="table-info"{% endif %}>{{ other_user.title }}</td>
+                <td{% if merged_user.title %} class="table-success"{% endif %}>{{ merged_user.title }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "First name" %}</strong></td>
-                <td{% if main_user.first_name == merged_user.first_name %} class="info"{% endif %}>{{ main_user.first_name }}</td>
-                <td{% if other_user.first_name == merged_user.first_name %} class="info"{% endif %}>{{ other_user.first_name }}</td>
-                <td{% if merged_user.first_name %} class="success"{% endif %}>{{ merged_user.first_name }}</td>
+                <td{% if main_user.first_name == merged_user.first_name %} class="table-info"{% endif %}>{{ main_user.first_name }}</td>
+                <td{% if other_user.first_name == merged_user.first_name %} class="table-info"{% endif %}>{{ other_user.first_name }}</td>
+                <td{% if merged_user.first_name %} class="table-success"{% endif %}>{{ merged_user.first_name }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Last name" %}</strong></td>
-                <td{% if main_user.last_name == merged_user.last_name %} class="info"{% endif %}>{{ main_user.last_name }}</td>
-                <td{% if other_user.last_name == merged_user.last_name %} class="info"{% endif %}>{{ other_user.last_name }}</td>
-                <td{% if merged_user.last_name %} class="success"{% endif %}>{{ merged_user.last_name }}</td>
+                <td{% if main_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ main_user.last_name }}</td>
+                <td{% if other_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ other_user.last_name }}</td>
+                <td{% if merged_user.last_name %} class="table-success"{% endif %}>{{ merged_user.last_name }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Email" %}</strong></td>
-                <td{% if main_user.email == merged_user.email %} class="info"{% endif %}>{{ main_user.email }}</td>
-                <td{% if other_user.email == merged_user.email %} class="info"{% endif %}>{{ other_user.email }}</td>
-                <td{% if merged_user.email %} class="success"{% endif %}>{{ merged_user.email }}</td>
+                <td{% if main_user.email == merged_user.email %} class="table-info"{% endif %}>{{ main_user.email }}</td>
+                <td{% if other_user.email == merged_user.email %} class="table-info"{% endif %}>{{ other_user.email }}</td>
+                <td{% if merged_user.email %} class="table-success"{% endif %}>{{ merged_user.email }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Groups" %}</strong></td>
-                <td{% if main_user.groups.all %} class="info"{% endif %}>
+                <td{% if main_user.groups.all %} class="table-info"{% endif %}>
                     {% for group in main_user.groups.all %}
-                        <span class="label label-default">{{ group.name }}</span>
+                        <span class="badge badge-secondary">{{ group.name }}</span>
                     {% endfor %}
                 </td>
-                <td{% if other_user.groups.all %} class="info"{% endif %}>
+                <td{% if other_user.groups.all %} class="table-info"{% endif %}>
                     {% for group in other_user.groups.all %}
-                        <span class="label label-default">{{ group.name }}</span>
+                        <span class="badge badge-secondary">{{ group.name }}</span>
                     {% endfor %}
                 </td>
-                <td{% if merged_user.groups %} class="success"{% endif %}>
+                <td{% if merged_user.groups %} class="table-success"{% endif %}>
                     {% for group in merged_user.groups %}
-                        <span class="label label-default">{{ group }}</span>
+                        <span class="badge badge-secondary">{{ group }}</span>
                     {% endfor %}
                 </td>
             </tr>
             <tr>
                 <td><strong>{% trans "Delegates" %}</strong></td>
-                <td{% if main_user.delegates.all %} class="info"{% endif %}>
+                <td{% if main_user.delegates.all %} class="table-info"{% endif %}>
                     {% for user in main_user.delegates.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if other_user.delegates.all %} class="info"{% endif %}>
+                <td{% if other_user.delegates.all %} class="table-info"{% endif %}>
                     {% for user in other_user.delegates.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if merged_user.delegates %} class="success"{% endif %}>
+                <td{% if merged_user.delegates %} class="table-success"{% endif %}>
                     {% for user in merged_user.delegates %}
                         {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
@@ -90,17 +90,17 @@
             </tr>
             <tr>
                 <td><strong>{% trans "Represented users" %}</strong></td>
-                <td{% if main_user.represented_users.all %} class="info"{% endif %}>
+                <td{% if main_user.represented_users.all %} class="table-info"{% endif %}>
                     {% for user in main_user.represented_users.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if other_user.represented_users.all %} class="info"{% endif %}>
+                <td{% if other_user.represented_users.all %} class="table-info"{% endif %}>
                     {% for user in other_user.represented_users.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if merged_user.represented_users %} class="success"{% endif %}>
+                <td{% if merged_user.represented_users %} class="table-success"{% endif %}>
                     {% for user in merged_user.represented_users %}
                         {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
@@ -108,17 +108,17 @@
             </tr>
             <tr>
                 <td><strong>{% trans "CC users" %}</strong></td>
-                <td{% if main_user.cc_users.all %} class="info"{% endif %}>
+                <td{% if main_user.cc_users.all %} class="table-info"{% endif %}>
                     {% for user in main_user.cc_users.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if other_user.cc_users.all %} class="info"{% endif %}>
+                <td{% if other_user.cc_users.all %} class="table-info"{% endif %}>
                     {% for user in other_user.cc_users.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if merged_user.cc_users %} class="success"{% endif %}>
+                <td{% if merged_user.cc_users %} class="table-success"{% endif %}>
                     {% for user in merged_user.cc_users %}
                         {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
@@ -126,23 +126,23 @@
             </tr>
             <tr>
                 <td><strong>{% trans "CC'ing users" %}</strong></td>
-                <td{% if main_user.ccing_users.all %} class="info"{% endif %}>
+                <td{% if main_user.ccing_users.all %} class="table-info"{% endif %}>
                     {% for user in main_user.ccing_users.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if other_user.ccing_users.all %} class="info"{% endif %}>
+                <td{% if other_user.ccing_users.all %} class="table-info"{% endif %}>
                     {% for user in other_user.ccing_users.all %}
                         {{ user.full_name }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
-                <td{% if merged_user.ccing_users %} class="success"{% endif %}>
+                <td{% if merged_user.ccing_users %} class="table-success"{% endif %}>
                     {% for user in merged_user.ccing_users %}
                         {{ user }}{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 </td>
             </tr>
-            <tr{% if "contributions" in errors %} class="danger"{% endif %}>
+            <tr{% if "contributions" in errors %} class="table-danger"{% endif %}>
                 <td><strong>{% trans "Contributions" %}</strong></td>
                 {% regroup main_user.get_sorted_contributions by course.semester as contribution_list %}
                 <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
@@ -178,7 +178,7 @@
                     {% endfor %}
                 </td>
             </tr>
-            <tr{% if "courses_participating_in" in errors %} class="danger"{% endif %}>
+            <tr{% if "courses_participating_in" in errors %} class="table-danger"{% endif %}>
                 <td><strong>{% trans "Participated in" %}</strong></td>
                 {% regroup main_user.get_sorted_courses_participating_in by semester as participation_list %}
                 <td{% if participation_list|length > 0 %} class="info"{% endif %}>
@@ -214,7 +214,7 @@
                     {% endfor %}
                 </td>
             </tr>
-            <tr{% if "courses_voted_for" in errors %} class="danger"{% endif %}>
+            <tr{% if "courses_voted_for" in errors %} class="table-danger"{% endif %}>
                 <td><strong>{% trans "Voted for" %}</strong></td>
                 {% regroup main_user.get_sorted_courses_voted_for by semester as voting_list %}
                 <td{% if voting_list|length > 0 %} class="info"{% endif %}>
@@ -252,7 +252,7 @@
             </tr>
             <tr>
                 <td><strong>{% trans "Reward points" %}</strong></td>
-                <td{% if main_user.reward_point_grantings.all %} class="info"{% endif %}>
+                <td{% if main_user.reward_point_grantings.all %} class="table-info"{% endif %}>
                     {% if main_user.reward_point_grantings.all %}
                         {% trans "Grantings" %}:
                         <ul>
@@ -270,10 +270,10 @@
                         </ul>
                     {% endif %}
                 </td>
-                <td{% if other_user.reward_point_grantings.all and not "rewards" in warnings %} class="info"
-                {% elif other_user.reward_point_grantings.all and "rewards" in warnings %} class="warning"{% endif %}>
+                <td{% if other_user.reward_point_grantings.all and not "rewards" in warnings %} class="table-info"
+                {% elif other_user.reward_point_grantings.all and "rewards" in warnings %} class="table-warning"{% endif %}>
                     {% if "rewards" in warnings %}
-                        <span class="glyphicon glyphicon-warning-sign"></span> {% trans "The rewards of this user will be deleted and not be merged into the other user." %}<br /><br />
+                        <span class="fa fa-exclamation-triangle"></span> {% trans "The rewards of this user will be deleted and not be merged into the other user." %}<br /><br />
                     {% endif %}
                     {% if other_user.reward_point_grantings.all %}
                         {% trans "Grantings" %}:
@@ -292,7 +292,7 @@
                         </ul>
                     {% endif %}
                 </td>
-                <td{% if merged_user.reward_point_grantings %} class="success"{% endif %}>
+                <td{% if merged_user.reward_point_grantings %} class="table-success"{% endif %}>
                     {% if merged_user.reward_point_grantings.all %}
                         {% trans "Grantings" %}:
                         <ul>
@@ -316,14 +316,16 @@
 
     <form method="POST" class="form-horizontal">
         {% csrf_token %}
-        <div class="well submit-area text-center">
-            {% if errors %}
-                {% trans "The users can't be merged, because either contributions or participations for the same course exist." %}
-            {% elif warnings %}
-                <button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-warning-sign"></span> {% trans "Merge users" %}</button>
-            {% else %}
-                <button type="submit" class="btn btn-primary">{% trans "Merge users" %}</button>
-            {% endif %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                {% if errors %}
+                    {% trans "The users can't be merged, because either contributions or participations for the same course exist." %}
+                {% elif warnings %}
+                    <button type="submit" class="btn btn-warning"><span class="fa fa-exclamation-triangle"></span> {% trans "Merge users" %}</button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">{% trans "Merge users" %}</button>
+                {% endif %}
+            </div>
         </div>
     </form>
 {% endblock %}

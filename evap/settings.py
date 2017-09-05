@@ -176,7 +176,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bootstrap3',
     'compressor',
     'django_extensions',
     'evap.evaluation',
@@ -186,6 +185,7 @@ INSTALLED_APPS = [
     'evap.contributor',
     'evap.rewards',
     'evap.grades',
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -220,6 +220,10 @@ TEMPLATES = [
         },
     },
 ]
+
+# This allows to redefine form widget templates used by Django when generating forms.
+# The templates are located in evaluation/templates/django/forms/widgets and add the "form-control" class for correct bootstrap styling.
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',
@@ -303,19 +307,13 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 ### Other
 
-# django-bootstrap3
-BOOTSTRAP3 = {
-    'horizontal_label_class': 'col-md-2',
-    'horizontal_field_class': 'col-md-6',
-}
-
 # django-compressor settings
 COMPRESS_ENABLED = not DEBUG
 COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
-    ('text/less', 'lessc {infile} {outfile}'),
+    ('text/x-scss', 'node-sass {infile} > {outfile}'),
 )
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/less',)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.

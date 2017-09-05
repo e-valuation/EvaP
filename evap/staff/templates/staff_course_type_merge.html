@@ -4,13 +4,13 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:course_type_index" %}">{% trans "Course types" %}</a></li>
-    <li>{% trans "Merge course types" %}</li>
+    <li class="breadcrumb-item"><a href="{% url "staff:course_type_index" %}">{% trans "Course types" %}</a></li>
+    <li class="breadcrumb-item">{% trans "Merge course types" %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans "Merge course types" %}</h2>
+    <h3>{% trans "Merge course types" %}</h3>
 
     <p>
         {% blocktrans %}The following courses currently have the course type <strong>{{ other_type }}</strong> and will
@@ -26,8 +26,10 @@
 
     <form id="course-type-merge-form" method="POST" class="form-horizontal">
         {% csrf_token %}
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Merge course types" %}</button>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans 'Merge course types' %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

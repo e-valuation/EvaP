@@ -1,17 +1,16 @@
-{% load bootstrap3 %}
-
 <fieldset>
-    <legend>{{ course.name }} ({{ course.semester.name }})</legend>
+    <legend>{% trans 'Course data' %}</legend>
     {% for field in course_form %}
         {% if field == course_form.general_questions %}
-            <div class="form-group">
-                <label class="col-md-2 control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                <div class="col-md-6">
+            <div class="form-group d-flex">
+                {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
+                <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
+                    {% include "bootstrap_form_errors.html" with errors=field.errors %}
                     {% include "questionnaires_widget.html" with field=field %}
                 </div>
             </div>
         {% else %}
-            {% bootstrap_field field layout='horizontal' %}
+            {% include "bootstrap_form_field.html" with field=field %}
         {% endif %}
     {% endfor %}
 </fieldset>

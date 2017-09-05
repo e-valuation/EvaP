@@ -13,30 +13,26 @@
         {{ semester.name }}
         {% if request.user.is_staff %}
             &nbsp;
-            <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-xs btn-default">{% trans "Edit" %}</a>
-            <a onclick="show_delete_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
-            <a onclick="show_archive_semester_modal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-xs btn-danger{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+            <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-sm btn-secondary">{% trans "Edit" %}</a>
+            <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+            <a onclick="archiveSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
         {% endif %}
     </h3>
 
     {% if num_courses > 0 %}
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">
-                <a class="accordion-toggle" data-toggle="collapse" href="#accordion"  onclick="saveCollapseState()">
-                    {% trans "Overview" %}
-                </a>
-            </span>
+    <div class="card mb-3">
+        <div class="card-header">
+            <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans "Overview" %}</a>
         </div>
-        <div class="panel-collapse in" id="accordion">
+        <div class="card-body collapse show" id="overviewCard">
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-3">{% trans "Degree" %}</th>
-                        <th class="col-sm-2">{% trans "Evaluation period" %}</th>
-                        <th class="col-sm-2">{% trans "Evaluated courses" %}</th>
-                        <th class="col-sm-2">{% trans "Reviewed comments" %}</th>
-                        <th class="col-sm-3">{% trans "Participation" %}</th>
+                        <th style="width: 19%">{% trans "Degree" %}</th>
+                        <th style="width: 30%">{% trans "Evaluation period" %}</th>
+                        <th style="width: 17%">{% trans "Evaluated courses" %}</th>
+                        <th style="width: 17%">{% trans "Reviewed comments" %}</th>
+                        <th style="width: 17%">{% trans "Participation" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,68 +60,63 @@
     {% endif %}
 
     {% if request.user.is_staff %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{% trans "Actions" %}</h3>
+    <div class="card mb-3">
+        <div class="card-header">
+            {% trans "Actions" %}
         </div>
-        <div class="panel-body">
-            <div class="button-menu">
-                <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
-                &nbsp;
-                <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-default {{ disable_if_archived }}">{% trans "Todo" %}</a>
-                &nbsp;
-                <a href="{% url "staff:semester_lottery" semester.id %}" class="btn btn-sm btn-default">{% trans "Lottery" %}</a>
-                <div class="btn-group">
-                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Reward points active" %}</a>
-                    <div class="btn-group btn-toggle">
-                        <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if rewards_active %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-                        <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if rewards_active == False %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-                    </div>
+        <div class="card-body">
+            <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
+            &nbsp;
+            <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}">{% trans "Todo" %}</a>
+            &nbsp;
+            <div class="btn-switch">
+                <div class="btn-switch-label">{% trans "Reward points active" %}</div>
+                <div class="btn-group icon-buttons">
+                    <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                    <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
                 </div>
-                &nbsp;
-                <div class="btn-group">
-                    <a href="" class="btn btn-sm btn-default disabled">{% trans "Grades downloadable" %}</a>
-                    <div class="btn-group btn-toggle">
-                        <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-default {% if grades_downloadable %}active{% endif %}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-                        <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-default {% if grades_downloadable == False %}active{% endif %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-                    </div>
+            </div>
+            &nbsp;
+            <div class="btn-switch">
+                <div class="btn-switch-label">{% trans "Grades downloadable" %}</div>
+                <div class="btn-group icon-buttons">
+                    <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                    <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
                 </div>
             </div>
         </div>
     </div>
     {% endif %}
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <div class="panel-title">
-                {% trans "Courses" %}
-                {% if request.user.is_staff %}
+    <div class="card card-outline-primary">
+        <div class="card-header d-flex">
+            {% trans "Courses" %}
+            {% if request.user.is_staff %}
                 &nbsp;
-                <div class="btn-group">
-                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-expanded="false">{% trans "Create/Import" %} <span class="caret"></span></button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="{% url "staff:course_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create course" %}</a></li>
-                        <li><a href="{% url "staff:single_result_create" semester.id %}" {{ disable_if_archived }}>{% trans "Create single result" %}</a></li>
-                        <li><a href="{% url "staff:semester_import" semester.id %}" {{ disable_if_archived }}>{% trans "Import courses" %}</a></li>
-                    </ul>
+                <div class="btn-group" role="group">
+                    <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Create/Import" %}</a>
+                    <div class="dropdown-menu" aria-labelledby="btnAdd">
+                        <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create course' %}</a>
+                        <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create single result' %}</a>
+                        <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}" {{ disable_if_archived }}>{% trans 'Import courses' %}</a>
+                    </div>
                 </div>
                 &nbsp;
-                <div class="btn-group">
-                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">{% trans "Export" %} <span class="caret"></span></button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="{% url "staff:semester_export" semester.id %}">{% trans "Export results" %}</a></li>
-                        <li><a href="{% url "staff:semester_raw_export" semester.id %}">{% trans "Export raw course data" %}</a></li>
-                        <li><a href="{% url "staff:semester_participation_export" semester.id %}">{% trans "Export participation data" %}</a></li>
-                    </ul>
+                <div class="btn-group" role="group">
+                    <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Export" %}</a>
+                    <div class="dropdown-menu" aria-labelledby="btnExport">
+                        <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
+                        <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data'%}</a>
+                        <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
+                    </div>
                 </div>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {% if courses_by_state %}
                 <ul class="nav nav-tabs">
                     {% for state, courses in courses_by_state %}
-                        <li><a href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
                     {% endfor %}
                 </ul>
 
@@ -133,7 +124,7 @@
                 {% for state, courses in courses_by_state %}
                     <div id="tab{{ forloop.counter }}" class="tab-pane">
                         <form id="form_{{ state }}" method="GET" action="{% url "staff:semester_course_operation" semester.id %}">
-                            <table class="table table-striped vertically-aligned">
+                            <table class="table table-striped table-narrow vertically-aligned mb-3">
                                 <tbody>
                                 {% for course in courses %}
                                     <tr id="course-row-{{ course.id }}">
@@ -147,28 +138,28 @@
 
                             {% if request.user.is_staff %}
                             {% if state == 'new' or state == 'prepared' or state == 'editor_approved'  or state == 'approved' or state == 'reviewed' or state == 'published' %}
-                                <button type="button" class="btn btn-default" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</button>
+                                <a role="button" class="btn btn-light" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</a>
                             {% endif %}
                             {% ifequal state "new" %}
-                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
+                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
                             {% endifequal %}
                             {% if state == 'prepared' or state == 'approved' %}
-                                <button name="operation" value="{{state}}->new" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
+                                <button name="operation" value="{{state}}->new" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
                             {% endif %}
                             {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
-                                <button name="operation" value="{{state}}->approved" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
+                                <button name="operation" value="{{state}}->approved" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
                             {% endif %}
                             {% ifequal state "editor_approved" %}
-                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
+                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
                             {% endifequal %}
                             {% ifequal state "approved" %}
-                                <button name="operation" value="{{state}}->in_evaluation" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
+                                <button name="operation" value="{{state}}->in_evaluation" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
                             {% endifequal %}
                             {% ifequal state "reviewed" %}
-                                <button name="operation" value="{{state}}->published" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
+                                <button name="operation" value="{{state}}->published" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
                             {% endifequal %}
                             {% ifequal state "published" %}
-                                <button name="operation" value="{{state}}->reviewed" type="submit" class="btn btn-primary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
+                                <button name="operation" value="{{state}}->reviewed" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
                             {% endifequal %}
                             {% endif %}
                         </form>
@@ -187,13 +178,13 @@
     {% trans "Delete semester" as title %}
     {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>?' as question %}
     {% trans "Delete semester" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="delete_semester_modal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% include "confirmation_modal.html" with modal_id="deleteSemesterModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function delete_semester_modal_action(data_id) {
+        function deleteSemesterModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:semester_delete" %}",
-                data: {"semester_id": data_id},
+                data: {"semester_id": dataId},
                 success: function(){ location.replace("{% url "staff:index" %}"); },
                 error: function(){}
             });
@@ -202,13 +193,13 @@
     {% trans "Archive semester" as title %}
     {% trans 'Do you really want to archive the semester <strong id="data-label"></strong>?' as question %}
     {% trans "Archive semester" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="archive_semester_modal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% include "confirmation_modal.html" with modal_id="archiveSemesterModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function archive_semester_modal_action(data_id) {
+        function archiveSemesterModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:semester_archive" %}",
-                data: {"semester_id": data_id},
+                data: {"semester_id": dataId},
                 success: function(){ location.reload(); },
                 error: function(){}
             });
@@ -217,15 +208,15 @@
     {% trans "Delete course" as title %}
     {% trans 'Do you really want to delete the course <strong id="data-label"></strong>?' as question %}
     {% trans "Delete course" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="delete_course_modal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% include "confirmation_modal.html" with modal_id="deleteCourseModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function delete_course_modal_action(data_id) {
+        function deleteCourseModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:course_delete" %}",
-                data: {"course_id": data_id},
-                success: function(){ $('#course-row-'+data_id).hide('slow', function(){ $('#course-row-'+data_id).remove(); }); },
-                error: function(){ $('#course-row-'+data_id).effect("highlight", {color:"#eb595a"}, 2000); }
+                data: {"course_id": dataId},
+                success: function(){ $('#course-row-'+dataId).hide('slow', function(){ $('#course-row-'+dataId).remove(); }); },
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>
@@ -269,11 +260,14 @@
             if ($(this).find('.btn-primary').size()>0) {
                 $(this).find('.btn').toggleClass('btn-primary');
             }
-            $(this).find('.btn').toggleClass('btn-default');
+            $(this).find('.btn').toggleClass('btn-secondary');
         });
 
-        if (localStorage['collapse_overview'] === 'true') {
-            $('#accordion').collapse()
+        if (localStorage['collapse_overview'] === 'false') {
+            $('#overviewCard').collapse('hide');
+        }
+        else {
+            $('#overviewCard').collapse('show');
         }
 
         function saveCollapseState() {

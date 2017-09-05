@@ -1,7 +1,6 @@
 {% extends "staff_course_base.html" %}
 
 {% load evaluation_filters %}
-{% load bootstrap3 %}
 
 {% block content %}
     {{ block.super }}
@@ -13,31 +12,31 @@
         <fieldset>
             <div class="email-form">
                 {% for field in form %}
-                    <div class="form-row">
-                        {% if field.name == "recipients" %}
-                            <div class="form-group{% if field.errors %} has-error{% endif %}">
-                                <label class="col-md-2 control-label" name="{{ field.name}}">{{ field.label }}</label>
-                                <div class="col-md-10">
-                                    <div class="btn-group" data-toggle="buttons">
-                                        {% for choice in field %}
-                                            <label class="btn btn-sm btn-default control-label {% if choice.data.value in field.value %}active{% endif %}" name="{{ field.name }}">
-                                                <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
-                                                {{ choice.choice_label }} {{ choice.id }}
-                                            </label>
-                                        {% endfor %}
-                                    </div>
-                                    <input name="export" type="submit" formnovalidate value="{% trans "Show Recipients" %}" class="btn btn-sm btn-primary"/>
+                    {% if field.name == "recipients" %}
+                        <div class="form-group d-flex">
+                            {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
+                            <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
+                                <div class="btn-group mb-1" data-toggle="buttons">
+                                    {% for choice in field %}
+                                        <label class="btn btn-sm btn-light {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
+                                            <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
+                                            {{ choice.choice_label }} {{ choice.id }}
+                                        </label>
+                                    {% endfor %}
                                 </div>
+                                <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% trans "Show Recipients" %}</button>
                             </div>
-                        {% else %}
-                            {% bootstrap_field field layout='horizontal' %}
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% else %}
+                        {% include "bootstrap_form_field.html" with field=field %}
+                    {% endif %}
                 {% endfor %}
             </div>
         </fieldset>
-        <div class="well submit-area text-center">
-            <input name="send" type="submit" value="{% trans "Send email" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button name="send" type="submit" class="btn btn-primary">{% trans "Send email" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

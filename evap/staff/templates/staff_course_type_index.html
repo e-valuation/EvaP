@@ -2,26 +2,26 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Course types" %}</li>
+    <li class="breadcrumb-item">{% trans "Course types" %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
-    <div>
-        <a href="{% url "staff:course_type_merge_selection" %}" class="btn btn-sm btn-default">{% trans "Merge course types" %}</a>
+    <div class="mb-3">
+        <a href="{% url "staff:course_type_merge_selection" %}" class="btn btn-sm btn-secondary">{% trans "Merge course types" %}</a>
     </div>
 
     <form id="course-type-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <table id="course_types_table" class="table">
+        <table id="course_types_table" class="table vertically-aligned">
             <thead>
                 <tr>
-                    <th>{% trans "Name (German)" %}</th>
-                    <th>{% trans "Name (English)" %}</th>
-                    <th>{% trans "Actions" %}</th>
+                    <th style="width: 45%">{% trans 'Name (German)' %}</th>
+                    <th style="width: 45%">{% trans 'Name (English)' %}</th>
+                    <th style="width: 10%">{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,19 +31,17 @@
                             {{ hidden }}
                         {% endfor %}
                         <td>
-                            {{ form.name_de.errors }}{{ form.name_de }}
+                            {% include "bootstrap_form_field_widget.html" with field=form.name_de %}
                         </td>
                         <td>
-                            {{ form.name_en.errors }}{{ form.name_en }}
+                            {% include "bootstrap_form_field_widget.html" with field=form.name_en %}
                         </td>
                         <td>
-                            {{ form.DELETE.errors }}
                             {% if form.instance.can_staff_delete %}
-                                {{ form.DELETE }}
+                                {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
                             {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"
-                                title="{% trans "This course type cannot be deleted because it is used for at least one course." %}">
-                                    {% trans "remove" %}
+                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'This course type cannot be deleted because it is used for at least one course.' %}">
+                                    <a role="button" class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
                                 </div>
                             {% endif %}
                         </td>
@@ -51,8 +49,10 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div class="form-group well text-center">
-            <input type="submit" value="{% trans "Save course types" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans 'Save course types' %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}
@@ -61,12 +61,12 @@
     <script type="text/javascript">
         $('#course_types_table tbody tr').formset({
             prefix: 'form',
-            deleteCssClass: 'btn btn-danger btn-sm',
-            deleteText: '{% trans "remove" %}',
+            deleteCssClass: 'btn btn-danger btn-sm fa fa-trash',
+            deleteText: '',
             addText: '{% trans "add another" %}',
             added: function(row){
                 //Remove all error messages
-                row.find(".errorlist,.help-block").remove();
+                row.find(".error-label").remove();
             }
         });
     </script>

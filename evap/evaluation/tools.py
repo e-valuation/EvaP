@@ -9,9 +9,11 @@ from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
 
 LIKERT_NAMES = {
+    # Translators: This includes a non breaking space in German ("Stimme voll~zu")
     1: _("Strongly agree"),
     2: _("Agree"),
-    3: _("Neither agree nor disagree"),
+    3: _("Neutral"),
+    # Translators: This includes a non breaking space in German ("Stimme nicht~zu")
     4: _("Disagree"),
     5: _("Strongly disagree"),
     6: _("no answer"),

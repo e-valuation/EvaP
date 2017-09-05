@@ -1,0 +1,3 @@
+{% for error in errors %}
+       <span class="error-label">{{ error|escape }}</span>{% if not forloop.last %}<br />{% endif %}
+{% endfor %}

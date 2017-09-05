@@ -1,0 +1,4 @@
+{% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+{% for field in form %}
+    {% include "bootstrap_form_field.html" with field=field %}
+{% endfor %}

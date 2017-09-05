@@ -2,7 +2,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "FAQ Sections" %}</li>
+    <li class="breadcrumb-item">{% trans "FAQ Sections" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -12,18 +12,13 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <div class="col-sm-offset-1">
-        <table id="section_table" class="table">
+        <table id="section_table" class="table vertically-aligned">
             <thead>
                 <tr>
-                    <th class="movable">&nbsp;</th>
-                    {% for field in formset.0.visible_fields %}
-                        {% if forloop.last %}
-                            <th>{% trans "Actions" %}</th>
-                        {% else %}
-                            <th>{{ field.label }}</th>
-                        {% endif %}
-                    {% endfor %}
+                    <th class="movable"></th>
+                    <th style="width: 45%">{% trans 'Section title (German)' %}</th>
+                    <th style="width: 45%">{% trans 'Section title (English)' %}</th>
+                    <th style="width: 10%">{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,25 +28,23 @@
                         {{ hidden }}
                     {% endfor %}
                     <td class="movable">
-                        <span class="movable-icon glyphicon glyphicon-move"></span>
+                        <span class="movable-icon fa fa-arrows-v"></span>
                     </td>
-                    {% for field in form.visible_fields %}
-                        <td>
-                            {% if forloop.last and form.instance.id %}
-                                <a href="{% url "staff:faq_section" form.instance.id %}" class="btn btn-default btn-sm">{% trans "Edit" %}</a>
-                            {% endif %}
-                            {{ field.errors }}
-                            {{ field }}
-                        </td>
-                    {% endfor %}
+                    <td>{% include "bootstrap_form_field_widget.html" with field=form.title_de %}</td>
+                    <td>{% include "bootstrap_form_field_widget.html" with field=form.title_en %}</td>
+                    <td class="hide-divs">
+                        {% if form.instance.id %}
+                            <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
+                        {% endif %}
+                        {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-</div>
-        <div class="form-group well">
-            <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save FAQ sections" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Save FAQ sections" %}</button>
             </div>
         </div>
     </form>
@@ -61,14 +54,14 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        row_changed = function(row) {
-            name_de = $(row.find('input[id$=-title_de]')).val();
-            name_en = $(row.find('input[id$=-title_en]')).val();
-            return name_de || name_en
+        rowChanged = function(row) {
+            nameDe = $(row.find('input[id$=-title_de]')).val();
+            nameEn = $(row.find('input[id$=-title_en]')).val();
+            return nameDe || nameEn
         };
-        row_added = function(row) {
-            row.find('a.btn-default').remove();
+        rowAdded = function(row) {
+            row.find('a.btn-secondary').remove();
         };
-        make_form_sortable("section_table", "form", row_changed, row_added, "", true, false);
+        makeFormSortable("section_table", "form", rowChanged, rowAdded, "", true, false);
     </script>
 {% endblock %}

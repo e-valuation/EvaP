@@ -52,7 +52,7 @@ def semester_view(request, semester_id):
     template_data = dict(
         semester=semester,
         courses=courses,
-        disable_if_archived="disabled=disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.is_archived else "",
         disable_breadcrumb_semester=True,
     )
     return render(request, "grades_semester_view.html", template_data)
@@ -62,15 +62,14 @@ def semester_view(request, semester_id):
 def course_view(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
-    is_grade_publisher = request.user.is_grade_publisher
 
     template_data = dict(
         semester=semester,
         course=course,
         grade_documents=course.grade_documents.all(),
-        disable_if_archived="disabled=disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.is_archived else "",
         disable_breadcrumb_course=True,
-        is_grade_publisher=is_grade_publisher,
+        is_grade_publisher=request.user.is_grade_publisher,
     )
     return render(request, "grades_course_view.html", template_data)
 
@@ -110,6 +109,7 @@ def upload_grades(request, semester_id, course_id):
             form=form,
             final_grades=final_grades,
             show_automated_publishing_info=final_grades,
+            is_grade_publisher=request.user.is_grade_publisher,
         )
         return render(request, "grades_upload_form.html", template_data)
 

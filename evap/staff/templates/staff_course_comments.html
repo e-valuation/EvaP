@@ -4,24 +4,32 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Comments" %}</li>
+    <li class="breadcrumb-item">{% trans "Comments" %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
-    {% if filter_comments %}
-        <a href="{% url "staff:course_comments" semester.id course.id %}?filter_comments=false" class="pull-right btn btn-sm btn-primary">{% trans "Show reviewed comments" %}</a>
-    {% else %}
-        <a href="{% url "staff:course_comments" semester.id course.id %}?filter_comments=true" class="pull-right btn btn-sm btn-default">{% trans "Hide reviewed comments" %}</a>
-    {% endif %}
-    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
-
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Comments about the Course" %}</span>
+    <div class="d-flex">
+        <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
+        <div class="btn-switch my-auto d-print-none">
+            <div class="btn-switch-label">{% trans "Reviewed comments" %}</div>
+            <div class="btn-group">
+                <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=false" role="button" class="btn btn-sm btn-light{% if not filter_comments %} active{% endif %}">
+                    {% trans "Show" %}
+                </a>
+                <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=true" role="button" class="btn btn-sm btn-light{% if filter_comments %} active{% endif %}">
+                    {% trans "Hide" %}
+                </a>
+            </div>
         </div>
-        <div class="panel-body">
+    </div>
+
+    <div class="card card-outline-primary mb-3">
+        <div class="card-header">
+            {% trans "Comments about the Course" %}
+        </div>
+        <div class="card-body">
             {% if course_sections %}
                 {% with course_sections as sections %}
                     {% include "staff_course_comments_section.html" %}
@@ -32,11 +40,11 @@
         </div>
     </div>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Comments about the Contributors" %}</span>
+    <div class="card card-outline-primary">
+        <div class="card-header">
+            {% trans "Comments about the Contributors" %}
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
                     {% include "staff_course_comments_section.html" %}
@@ -51,39 +59,22 @@
 {% block additional_javascript %}
     <script type="text/javascript">
         function press(id, action) {
-            originally_selected = $("[id^="+id+"] .active")
             if($("#"+id+"-"+action).hasClass("active")) {
                 action = "unreview";
             }
-            update_state(id, action);
+            updateState(id, action);
             var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
             $.ajax({
                 type: "POST",
                 url: "{% url 'staff:course_comments_update_publish' %}",
                 data: parameters,
-                success: function(){ highlight(id, action); },
-                error: function(){ reactivate_button(id, originally_selected); }
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         }
 
-        function reactivate_button(id, element) {
-            $("#"+id+"-buttons").children().removeClass("active");
-            element.addClass("active");
-            element.effect("highlight", {color:"#eb595a"}, 2000);
-            if (element.length == 0)
-                $("[id^="+id+"] .btn").effect("highlight", {color:"#eb595a"}, 2000);
-        }
-
-        function update_state(id, action) {
+        function updateState(id, action) {
             $("#"+id+"-buttons").children().removeClass("active");
             $("#"+id+"-"+action).addClass("active");
-        }
-
-        function highlight(id, action) {
-            if(action == "unreview")
-                $("[id^="+id+"] .btn").effect("highlight", {color:"#88bf4a"}, 2000);
-            else
-                $("#"+id+"-"+action).effect("highlight", {color:"#88bf4a"}, 2000);
         }
     </script>
 {% endblock %}

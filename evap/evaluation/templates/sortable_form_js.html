@@ -1,9 +1,9 @@
 <script type="text/javascript">
-    function make_form_sortable(table_id, prefix, row_changed, row_added, tolerance, remove_as_button, uses_template) {
+    function makeFormSortable(tableId, prefix, rowChanged, rowAdded, tolerance, removeAsButton, usesTemplate) {
 
-        function apply_ordering() {
+        function applyOrdering() {
             $(document).find('tr').each(function(i) {
-                if (row_changed($(this))) {
+                if (rowChanged($(this))) {
                     $(this).find('input[id$=-order]').val(i);
                 }
                 else {
@@ -14,10 +14,10 @@
             });
         }
 
-        $('#' + table_id + ' tbody tr').formset({
+        $('#' + tableId + ' tbody tr').formset({
             prefix: prefix,
-            deleteCssClass: remove_as_button ? 'btn btn-danger btn-sm' : 'delete-row',
-            deleteText: '{% trans "remove" %}',
+            deleteCssClass: removeAsButton ? 'btn btn-danger btn-sm fa fa-trash' : 'delete-row',
+            deleteText: removeAsButton ? '' : '{% trans "Delete" %}',
             addText: '{% trans "add another" %}',
             added: function(row) {
                 row.find('input[id$=-order]').val(row.parent().children().length);
@@ -44,22 +44,20 @@
                 });
 
                 //Remove all error messages
-                row.find(".errorlist,.help-block").remove();
+                row.find(".error-label").remove();
 
-                row_added(row);
+                rowAdded(row);
             },
-            formTemplate: (uses_template ? ".form-template" : null)
+            formTemplate: (usesTemplate ? ".form-template" : null)
         });
 
-
-        $('#' + table_id + " tbody").sortable({
-            handle: ".glyphicon-move",
+        $('#' + tableId + " tbody").sortable({
+            handle: ".fa-arrows-v",
             draggable: ".sortable"
         });
 
-
         $('form').submit(function() {
-            apply_ordering();
+            applyOrdering();
             return true;
         });
     }

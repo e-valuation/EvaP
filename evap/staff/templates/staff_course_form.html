@@ -1,19 +1,24 @@
 {% extends "staff_course_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block content %}
     {{ block.super }}
+    <h3>
+        {% if form.instance.id %}
+            {{ course.name }} ({{ course.semester.name }})
+        {% else %}
+            {% trans 'Create course' %}
+        {% endif %}
+    </h3>
     <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
         {% csrf_token %}
-        
+
         {% include 'course_form_general_questions.html' with course=course course_form=form %}
 
-        {% include "contribution_formset.html" with formset=formset staff=True editable=editable %}
+        {% include 'contribution_formset.html' with formset=formset staff=True editable=editable %}
 
         {% if editable %}
-        <div class="form-group well">
-            <div class="col-sm-offset-2 col-sm-6">
+        <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">
+            <div class="card-body">
                 {% if state == "in_evaluation" %}
                     <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
                 {% endif %}
@@ -23,9 +28,9 @@
                 {% if state == "new" or state == "prepared" %}
                     <div class="alert alert-warning">{% trans "You are editing a course which has not been approved by the editor yet." %}</div>
                 {% endif %}
-                <button name="operation" value="save" type="submit" class="btn btn-primary" onclick="preventAccidentalClosing = false;">{% trans "Save"%} </button>
+                <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
                 {% if state == "new" or state == "prepared" or state == "editor_approved" %}
-                  <button name="operation" value="approve" type="submit" class="btn btn-success" onclick="preventAccidentalClosing = false;">{% trans "Save and approve"%} </button>
+                  <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve"%}</button>
                 {% endif %}
             </div>
         </div>
@@ -35,7 +40,4 @@
 
 {% block additional_javascript %}
     {% include "evap_course_edit_js.html" %}
-    {% if editable %}
-        <script type="text/javascript"> preventAccidentalClosing = true; </script>
-    {% endif %}
 {% endblock %}

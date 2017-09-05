@@ -42,7 +42,7 @@ class ImportForm(forms.Form):
 
 
 class UserImportForm(forms.Form):
-    excel_file = forms.FileField(label=_("Import from Excel file"), required=False)
+    excel_file = forms.FileField(label=_("Excel file"), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,7 +54,7 @@ class UserImportForm(forms.Form):
 
 
 class CourseParticipantCopyForm(forms.Form):
-    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Copy from Course"))
+    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Course"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,8 +89,6 @@ class DegreeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
 
     class Meta:
@@ -104,12 +102,6 @@ class DegreeForm(forms.ModelForm):
 
 
 class CourseTypeForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["name_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["name_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
-
     class Meta:
         model = CourseType
         fields = "__all__"
@@ -305,9 +297,6 @@ class ContributionForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        self.fields['contributor'].widget.attrs['class'] = 'form-control'
-        self.fields['label'].widget.attrs['class'] = 'form-control'
-
         if self.instance.responsible:
             self.fields['responsibility'].initial = Contribution.IS_RESPONSIBLE
         elif self.instance.can_edit:
@@ -492,9 +481,6 @@ class QuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["order"].widget = forms.HiddenInput()
-        self.fields['text_de'].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields['text_en'].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields['type'].widget.attrs['class'] = 'form-control'
 
 
 class QuestionnairesAssignForm(forms.Form):
@@ -595,10 +581,6 @@ class UserMergeSelectionForm(forms.Form):
     other_user = UserModelChoiceField(UserProfile.objects.all())
 
 
-class LotteryForm(forms.Form):
-    number_of_winners = forms.IntegerField(label=_("Number of Winners"), initial=3)
-
-
 class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
@@ -609,8 +591,6 @@ class FaqSectionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["title_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["title_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
         self.fields["order"].widget = forms.HiddenInput()
 
     class Meta:
@@ -622,10 +602,6 @@ class FaqQuestionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["question_de"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["question_en"].widget = forms.TextInput(attrs={'class': 'form-control'})
-        self.fields["answer_de"].widget.attrs['class'] = 'form-control'
-        self.fields["answer_en"].widget.attrs['class'] = 'form-control'
         self.fields["order"].widget = forms.HiddenInput()
 
     class Meta:

@@ -6,7 +6,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -16,24 +16,24 @@
         {% trans "You will get reward points once you evaluated all your courses in one semester. These points can be redeemed for many events at HPI. You will receive vouchers for food and drinks at the event you selected below. We'll inform you about any upcoming event where you can redeem your reward points." %}
     </div>
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Redeem points" %}</span>
+    <div class="card card-outline-primary mb-3">
+        <div class="card-header">
+            {% trans "Redeem points" %}
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             <p><b>{% trans "Total points available" %}: {{ total_points_available }}</b></p>
             {% if total_points_available > 0 %}
                 {% if events %}
                     <form id="reward-redemption-form" action="#" method="POST" class="form-horizontal multiselect-form">
                         {% csrf_token %}
 
-                        <table class="table table-striped">
+                        <table class="table table-striped vertically-aligned mb-3">
                             <thead>
                                 <tr>
-                                    <th class="col-sm-2">{% trans "Date" %}</th>
-                                    <th class="col-sm-6">{% trans "Event" %}</th>
-                                    <th class="col-sm-2">{% trans "Available until" %}</th>
-                                    <th class="col-sm-2 text-right">{% trans "Redeem points" %}</th>
+                                    <th style="width: 20%">{% trans "Date" %}</th>
+                                    <th style="width: 40%">{% trans "Event" %}</th>
+                                    <th style="width: 20%">{% trans "Available until" %}</th>
+                                    <th style="width: 20%" class="text-right">{% trans "Redeem points" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,7 +53,7 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <input type="submit" class="btn btn-primary pull-right" value="{% trans "Redeem" %}" />
+                        <button type="submit" class="btn btn-primary pull-right">{% trans "Redeem" %}</button>
                     </form>
                 {% else %}
                     <p><i>{% trans "Currently there are no events available for which you can redeem points. We'll send you a message when this changes." %}</i></p>
@@ -64,19 +64,19 @@
         </div>
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Reward points history" %}</span>
+    <div class="card">
+        <div class="card-header">
+            {% trans "Reward points history" %}
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {% if reward_point_actions %}
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th class="col-sm-3">{% trans "Date" %}</th>
-                            <th class="col-sm-7">{% trans "Action" %}</th>
-                            <th class="col-sm-1 text-right">{% trans "Granted points" %}</th>
-                            <th class="col-sm-1 text-right">{% trans "Redeemed points" %}</th>
+                            <th style="width: 20%">{% trans "Date" %}</th>
+                            <th style="width: 40%">{% trans "Action" %}</th>
+                            <th style="width: 20%" class="text-right">{% trans "Granted points" %}</th>
+                            <th style="width: 20%" class="text-right">{% trans "Redeemed points" %}</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -1,5 +1,10 @@
 {% extends "staff_questionnaire_base.html" %}
 
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Preview' %}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
     {% include "student_vote_questionnaire_group.html" with questionnaire_group=forms preview=True %}

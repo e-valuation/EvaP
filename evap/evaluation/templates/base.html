@@ -3,171 +3,91 @@
 {% load cache %}
 {% load compress %}
 {% load evaluation_filters %}
-{% load bootstrap3 %}
-{% load staff_templatetags %}
-{% load grades_templatetags %}
-{% load results_templatetags %}
+{% load navbar_templatetags %}
 
 {% endspaceless %}<!DOCTYPE html>
 <html>
 <head>
     {% block header %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>{% block title %}EvaP{% endblock %}</title>
 
         {% compress css %}
-            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.ui.css" />
-            <link type="text/less" rel="stylesheet" href="{% get_static_prefix %}css/bootstrap.less" />
+            <link rel="stylesheet" href="{% get_static_prefix %}font-awesome/css/font-awesome.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
-            <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap.css" />
-            <link rel="stylesheet" href="{% get_static_prefix %}css/jquery.reject.css" />
+            <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap4.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
-            <link rel="stylesheet" href="{% get_static_prefix %}css/evap.css" />
+            <link type="text/x-scss" rel="stylesheet" href="{% get_static_prefix %}css/evap.scss" />
         {% endcompress %}
-        <link rel="shortcut icon" href="{% get_static_prefix %}images/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png">
     {% endblock %}
 </head>
 <body>
 {% block modals %}
 {% endblock %}
-<div id="wrap">
+
 {% get_current_language as LANGUAGE_CODE %}
 {% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header hidden-print">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#evap-navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/"><img class="navbar-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></a>
-            </div>
+    {% include_navbar user %}
+{% endcache %}
 
-            <div class="collapse navbar-collapse hidden-print" id="evap-navbar-collapse">
-                <ul class="nav navbar-nav">
-                    {% if user.is_authenticated %}
-                        {% if user.is_participant and user.is_contributor_or_delegate %}
-                            <li><a href="{% url "student:index" %}">{% trans "My courses (student)" %}</a></li>
-                            <li><a href="{% url "contributor:index" %}">{% trans "My courses (contributor)" %}</a></li>
-                        {% elif user.is_participant %}
-                            <li><a href="{% url "student:index" %}">{% trans "My courses" %}</a></li>
-                        {% elif user.is_contributor_or_delegate %}
-                            <li><a href="{% url "contributor:index" %}">{% trans "My courses" %}</a></li>
-                        {% endif %}
+<div class="d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
 
-                        {% if user.is_grade_publisher %}
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "grades:index" %}">{% trans "Publish grades" %} <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url "grades:index" %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url "grades:index" %}">{% trans "Semesters" %}</a></li>
-                                    {% include_grades_semester_menu %}
-                                </ul>
-                            </li>
-                        {% endif %}
+<div class="container">
+    {% if user.is_staff or user.is_grade_publisher %}
+        <ol class="breadcrumb mb-4">
+            {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+        </ol>
+    {% endif %}
 
-                        {% if user.is_editor %}
-                            <li><a href="{% url "contributor:settings_edit" %}">{% trans "Settings" %}</a></li>
-                        {% endif %}
-
-                        {% if user|can_user_use_reward_points %}
-                            <li><a href="{% url "rewards:index" %}">{% trans "Rewards" %}</a></li>
-                        {% endif %}
-
-                        {% if user.is_staff %}
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'staff:index' %}">{% trans "Manage" %} <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url 'staff:index' %}">{% trans "Overview" %}</a></li>
-                                    <li><a href="{% url 'staff:index' %}">{% trans "Semesters" %}</a></li>
-                                    {% include_staff_semester_menu indentation=True %}
-                                    <li><a href="{% url 'staff:questionnaire_index' %}">{% trans "Questionnaires" %}</a></li>
-                                    <li><a href="{% url 'staff:user_index' %}">{% trans "Users" %}</a></li>
-                                    <li><a href="{% url 'staff:degree_index' %}">{% trans "Degrees" %}</a></li>
-                                    <li><a href="{% url 'staff:course_type_index' %}">{% trans "Course types" %}</a></li>
-                                    <li><a href="{% url 'rewards:reward_point_redemption_events' %}">{% trans "Reward point redemption events" %}</a></li>
-                                    <li><a href="{% url 'staff:index' %}">{% trans "Templates" %}</a></li>
-                                    <li><a href="{% url 'staff:faq_index' %}">{% trans "FAQ" %}</a></li>
-                                </ul>
-                            </li>
-                        {% elif user.is_reviewer %}
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="">{% trans "Review" %} <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    {% include_staff_semester_menu %}
-                                </ul>
-                            </li>
-                        {% endif %}
-
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="{% url "results:index" %}">{% trans "Results" %} <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                {% include_results_semester_menu %}
-                            </ul>
-                        </li>
-                    {% endif %}
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Language" %} <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><form action="{% url 'evaluation:set_lang' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form><a onclick="$(this).prev('form').submit();" href="#">{% trans "Deutsch" %}</a></li>
-                            <li><form action="{% url 'evaluation:set_lang' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form><a onclick="$(this).prev('form').submit();" href="#">{% trans "English" %}</a></li>
-                        </ul>
-                    </li>
-                    {% if user.is_authenticated %}
-                        <li><a href="{% url "django-auth-logout" %}">{% trans "Logout" %}</a></li>
-                    {% endif %}
-                </ul>
-            </div>
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
+            <a role="button" class="close" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></a>
+            {{ message }}
         </div>
-    </nav>
-    {% endcache %}
+    {% endfor %}
 
-    <div class="visible-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
-
-    <div class="container">
-        {% if user.is_staff or user.is_grade_publisher %}
-            <div class="row">
-                <div class="col-md-12">
-                    <ol class="breadcrumb">
-                        {% block breadcrumb %}<li><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
-                    </ol>
-                </div>
-            </div>
-        {% endif %}
-
-        {% bootstrap_messages %}
-
-        {% block rawcontent %}
-            <div class="row">
-                <div class="col-md-12">
-                    <div>
-                        {% block content %}
-                        {% endblock %}
-                    </div>
-                </div>
-            </div>
-        {% endblock %}
-    </div>
+    {% block content %}
+    {% endblock %}
 </div>
 
+<div class="footer fixed-bottom d-flex d-print-none">
+    <span class="mr-auto">
+        <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
+        &nbsp;&middot;&nbsp;
+        {% if LEGAL_NOTICE_ACTIVE %}
+            <a href="{% url 'evaluation:legal_notice' %}">{% trans "Legal Notice" %}</a>
+            &nbsp;&middot;&nbsp;
+        {% endif %}
+        <a href="{% url 'evaluation:faq' %}">{% trans "FAQ"%}</a>
+        &nbsp;&middot;&nbsp;
+        {% if request.user.is_authenticated %}
+            {% trans "Logged in as" %} {{ request.user.full_name }}
+        {% else %}
+            {% trans "Not logged in" %}
+        {% endif %}
+    </span>
+    {% if user.is_authenticated %}
+        <span class="feedback-button" id="feedbackButton">
+            <a class="btn btn-sm btn-primary" data-toggle="modal" data-target="#feedbackModal" id="feedbackButtonContent">
+                {% trans "Problems/Feedback" %}
+            </a>
+        </span>
+    {% endif %}
+</div>
 
 {% if user.is_authenticated %}
-    <span class="hidden-print" id="feedback-button" data-toggle="tooltip" data-placement="left" title="{% trans "Give us feedback" %}">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedback-modal">
-            <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
-        </button>
-    </span>
-    <div id="feedback-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedback-div">
-        <div class="modal-dialog modal-lg">
+    <div id="feedbackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">{% trans "Feedback" %}</h4>
+                    <h5 class="modal-title" id="feedbackModalLabel">{% trans "Feedback" %}</h5>
+                    <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times"></span></a>
                 </div>
-                <form id="feedback-form">
+                <form id="feedbackForm">
                     <div class="modal-body">
                         {% trans "You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP." %}
                         <br /><br />
@@ -179,8 +99,8 @@
                         <textarea class="form-control" id="message-text" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Cancel" %}</button>
-                        <input id="feedback-submit-button" type="submit" class="btn btn-primary" value="{% trans "Send" %}">
+                        <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Cancel" %}</a>
+                        <button type="submit" id="feedbackSubmitButton" class="btn btn-primary">{% trans "Send" %}</button>
                     </div>
                 </form>
             </div>
@@ -188,172 +108,140 @@
     </div>
 {% endif %}
 
-    <div id="footer">
-        <div class="container">
-            <p class="text-muted">
-                <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
-                &nbsp;&middot;&nbsp;
-                {% if LEGAL_NOTICE_ACTIVE %}
-                    <a href="{% url "evaluation:legal_notice" %}">{% trans "Legal Notice" %}</a>
-                    &nbsp;&middot;&nbsp;
-                {% endif %}
-                <a href="{% url "evaluation:faq" %}">{% trans "FAQ"%}</a>
-                &nbsp;&middot;&nbsp;
-                {% if request.user.is_authenticated %}
-                    {% trans "Logged in as" %} {{ request.user.full_name }}
-                {% else %}
-                    {% trans "Not logged in" %}
-                {% endif %}
-            </p>
-        </div>
-    </div>
+{% compress js %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/popper.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
 
-    {% compress js %}
-        <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
 
-        <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.scrollTo.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.reject.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
+{% endcompress %}
 
-        <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
+<script type="text/javascript">
+    // activate tooltips
+    $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
 
-    {% endcompress %}
+    // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
+    // select2 can't handle already select2'd forms that were copies made by
+    // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
+    var templateForm = $(".select2tr").last().clone();
 
-    <script type="text/javascript">
-        // show browser information
-        $.reject({
-            imagePath: '{% get_static_prefix %}images/browsers/',
-            closeCookie: true,
-            reject: { msie5: true, msie6: true, msie8: true }
-        });
+    // later we use this class to give this to django-dynamic-formsets
+    // as template and to make sure it does not get select2'd
+    templateForm.addClass("form-template").css("display", "none");
+    // for some reason django-dynamic-formsets does not hide the checkbox like it should
+    templateForm.find(':checkbox').last().attr("type", "hidden");
+    // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
+    templateForm.insertAfter($('.select2form'));
 
-        // activate topbar
-        $('#topbar').dropdown();
+    // put this into a function for later re-use
+    applySelect2 = function(elem) {
+        elem.select2({
+            language: "{{ LANGUAGE_CODE }}",
+            placeholder: "{% trans "Please select..." %}",
+            minimumResultsForSearch: 15,});
+    };
+    applySelect2($('select').not('.form-template select').not('[disabled]'));
 
-        // activate tooltips
-        $('body').tooltip({container: 'body', html: 'true', selector: '[data-toggle="tooltip"]', trigger: 'hover'});
+    // don't use the placeholder text on disabled select2 elements
+    applySelect2Disabled = function(elem) {
+        elem.select2();
+    };
+    applySelect2Disabled($('select[disabled]').not('.form-template select'));
 
-        // solve a conflict between jquery UI and bootstrap which made buttons be styled incorrectly
-        if ($.fn.button.noConflict != undefined) {
-            $.fn.button.noConflict();
+    // run the bootstrap datepicker plugin
+    $("input[name$='date']:not([readonly='True'])").datetimepicker({
+        locale: "{{ LANGUAGE_CODE }}",
+        format: "YYYY-MM-DD",
+        sideBySide: true,
+        icons: {
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            next: "fa fa-chevron-right",
+            previous: "fa fa-chevron-left"
         }
+    });
+    $("input[name$='datetime']:not([readonly='True'])").datetimepicker({
+        locale: "{{ LANGUAGE_CODE }}",
+        format: "YYYY-MM-DD HH:mm",
+        sideBySide: true,
+        icons: {
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            next: "fa fa-chevron-right",
+            previous: "fa fa-chevron-left"
+        }
+    });
 
-        // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
-        // select2 can't handle already select2'd forms that were copies made by
-        // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
-        var template_form = $(".select2tr").last().clone();
+    // scroll content to show below navbar
+    var navbarHeight = 50;
+    var shiftWindow = function(){
+        setTimeout(function(){
+            window.scrollBy(0, -navbarHeight);
+        }, 0);
+    };
+    if (location.hash)
+        shiftWindow();
+    window.addEventListener("hashchange", shiftWindow);
 
-        // later we use this class to give this to django-dynamic-formsets
-        // as template and to make sure it does not get select2'd
-        template_form.addClass("form-template").css("display", "none");
-        // for some reason django-dynamic-formsets does not hide the checkbox like it should
-        template_form.find(':checkbox').last().attr("type", "hidden");
-        // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
-        template_form.insertAfter($('.select2form'));
+    // fix scrolling to required field when the browser does form validation
+    // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
+    var delay = 0;
+    var offset = 150;
+    document.addEventListener('invalid', function(e){
+       $(e.target).addClass("invalid");
+       $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
+    }, true);
+    document.addEventListener('change', function(e){
+       $(e.target).removeClass("invalid")
+    }, true);
 
-        // put this into a function for later re-use
-        apply_select2 = function(elem) {
-            elem.select2({
-                language: "{{ LANGUAGE_CODE }}",
-                placeholder: "{% trans "Please select..." %}",
-                minimumResultsForSearch: 15,});
-        };
-        apply_select2($('select').not('.form-template select').not('[disabled]'));
+    // feedback form submission
+    $('#feedbackForm').on('submit', function(event){
+        event.preventDefault();
 
-        // don't use the placeholder text on disabled select2 elements
-        apply_select2_disabled = function(elem) {
-            elem.select2();
-        };
-        apply_select2_disabled($('select[disabled]').not('.form-template select'));
+        message = $('#message-text').val();
 
-        // run the bootstrap datepicker plugin
-        $("input[name*='end_date']:not([readonly='True'])").datetimepicker({
-            locale: "{{ LANGUAGE_CODE }}",
-            format: "YYYY-MM-DD",
-            sideBySide: true
-        });
-        $("input[name*='start_date']:not([readonly='True'])").datetimepicker({
-            locale: "{{ LANGUAGE_CODE }}",
-            format: "YYYY-MM-DD HH:mm",
-            sideBySide: true
-        });
+        $('#feedbackModal').modal('hide');
 
-        // scroll content to show below navbar
-        var navbar_height = 50;
-        var shiftWindow = function(){
-            setTimeout(function(){
-                window.scrollBy(0, -navbar_height);
-            }, 0);
-        };
-        if (location.hash)
-            shiftWindow();
-        window.addEventListener("hashchange", shiftWindow);
+        if (message.trim() == "")
+            return;
 
-        // fix scrolling to required field when the browser does form validation
-        // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
-        var delay = 0;
-        var offset = 150;
-        document.addEventListener('invalid', function(e){
-           $(e.target).addClass("invalid");
-           $('html, body').animate({scrollTop: $($(".invalid")[0]).offset().top - offset }, delay);
-        }, true);
-        document.addEventListener('change', function(e){
-           $(e.target).removeClass("invalid")
-        }, true);
+        var feedbackButton = $('#feedbackButton');
+        var feedbackButtonContent = $('#feedbackButtonContent');
+        var originalText = feedbackButtonContent.text();
+        feedbackButtonContent.text("Sending...");
 
-        // If activated, make the user confirm he wants to leave the page by displaying a popup.
-        var preventAccidentalClosing = false;
-        $(window).bind('beforeunload', function(){
-            if (preventAccidentalClosing) {
-                return "{% trans "Are you sure you want to leave?" %}";
+        $.ajax({
+            url : "/feedback/send",
+            type : "POST",
+            data : { message: message },
+            success : function(json) {
+                feedbackButtonContent.text('{% trans "Message sent!" %}');
+                $('#message-text').val("");
+                setTimeout(function(){
+                    feedbackButtonContent.text(originalText);
+                }, 3000);
+            },
+            error : function(json) {
+                feedbackButtonContent.text('{% trans "Sending failed, sorry!" %}');
+                setTimeout(function(){
+                    feedbackButtonContent.text(originalText);
+                }, 3000);
             }
         });
+    });
+</script>
 
-        // feedback form submission
-        $('#feedback-form').on('submit', function(event){
-            event.preventDefault();
-
-            message = $('#message-text').val();
-
-            $('#feedback-modal').modal('hide');
-
-            if (message.trim() == "")
-                return;
-
-            var feedbackButton = $('#feedback-button button');
-            var originalText = feedbackButton.html();
-            feedbackButton.html("Sending...")
-
-            $.ajax({
-                url : "/feedback/send",
-                type : "POST",
-                data : { message: message },
-                success : function(json) {
-                    feedbackButton.html('{% trans "Message sent!" %}');
-                    $('#message-text').val("")
-                    setTimeout(function(){
-                        feedbackButton.html(originalText);
-                    }, 3000);
-                },
-                error : function(json) {
-                    feedbackButton.html('{% trans "Sending failed, sorry!" %}');
-                    setTimeout(function(){
-                        feedbackButton.html(originalText);
-                    }, 3000);
-                }
-            });
-        });
-    </script>
-
-    {% block additional_javascript %}{% endblock %}
+{% block additional_javascript %}{% endblock %}
 </body>
 </html>

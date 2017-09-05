@@ -27,7 +27,12 @@ def index(request):
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     semesters = Semester.objects.all()
-    semester_list = [dict(semester_name=semester.name, id=semester.id, courses=[course for course in all_courses if course.semester_id == semester.id]) for semester in semesters]
+    semester_list = [dict(
+        semester_name=semester.name,
+        id=semester.id,
+        is_active_semester=semester.is_active_semester,
+        courses=[course for course in all_courses if course.semester_id == semester.id]
+    ) for semester in semesters]
 
     template_data = dict(semester_list=semester_list, delegated_courses=delegated_courses)
     return render(request, "contributor_index.html", template_data)

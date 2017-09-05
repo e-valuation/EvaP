@@ -2,26 +2,24 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Settings" %}</li>
+    <li class="breadcrumb-item">{% trans "Settings" %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h2>{% trans "Settings" %}</h2>
+    <h3>{% trans "Settings" %}</h3>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <span class="panel-title">{% trans "Personal information" %}
-                <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign pull-right"
-                title="{% trans "To change any of these settings, please contact the student representatives." %}">
-                </span>
-            </span>
+    <div class="card mb-3">
+        <div class="card-header d-flex">
+            <span class="mr-auto">{% trans "Personal information" %}</span>
+            <span class="fa fa-info-circle fa-card-header" data-toggle="tooltip" data-placement="left"
+            title="{% trans 'To change any of these settings, please contact the student representatives.' %}"></span>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             <table class="table table-striped vertically-aligned">
                 <tr>
-                    <td class="col-sm-2"><strong>{% trans "Username" %}</strong></td>
-                    <td class="col-sm-10">{{ form.instance.username }}</td>
+                    <td style="width: 20%"><strong>{% trans "Username" %}</strong></td>
+                    <td style="width: 80%">{{ form.instance.username }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Title" %}</strong></td>
@@ -45,36 +43,34 @@
 
     <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.non_field_errors }}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Delegates and CC users" %}
-                    <span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign pull-right"
+        {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+        <div class="card mb-3">
+            <div class="card-header d-flex">
+                <div class="mr-auto">{% trans "Delegates and CC users" %}</div>
+                <div class="fa fa-info-circle fa-card-header" data-toggle="tooltip" data-placement="left"
                     title="{% blocktrans %}You can only change your own delegates. To become a delegate of another person this person has to add you.
                     Please contact the student representatives to change the CC settings.{% endblocktrans %}">
-                    </span>
-                </span>
+                </div>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-6">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "Own delegates" %}</span>
+                    <div class="col-6">
+                        <div class="card card-outline-primary">
+                            <div class="card-header">
+                                {% trans "Own delegates" %}
                             </div>
-                            <div class="panel-body">
-                                {{ form.delegates.errors }}
+                            <div class="card-body">
+                                {% include "bootstrap_form_errors.html" with errors=form.delegates.errors %}
                                 {{ form.delegates }}
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "You are a delegate of" %}</span>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans "You are a delegate of" %}
                             </div>
-                            <div class="panel-body">
-                                {{ form.delegate_of.errors }}
+                            <div class="card-body">
                                 {{ form.delegate_of }}
                             </div>
                         </div>
@@ -82,24 +78,22 @@
                 </div>
                 <br />
                 <div class="row">
-                    <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "Emails sent to you will be CC'ed to" %}</span>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans "Emails sent to you will be CC'ed to" %}
                             </div>
-                            <div class="panel-body">
-                                {{ form.cc_users.errors }}
+                            <div class="card-body">
                                 {{ form.cc_users }}
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <span class="panel-title">{% trans "Emails sent to these users will be CC'ed to you" %}</span>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans "Emails sent to these users will be CC'ed to you" %}
                             </div>
-                            <div class="panel-body">
-                                {{ form.cc_user_of.errors }}
+                            <div class="card-body">
                                 {{ form.cc_user_of }}
                             </div>
                         </div>
@@ -110,8 +104,10 @@
 
         {{ form.cc_users.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
 
-        <div class="well submit-area text-center">
-            <input type="submit" value="{% trans "Save changes" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

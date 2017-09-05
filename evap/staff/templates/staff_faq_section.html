@@ -2,8 +2,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
-    <li>{{ section.title }}</li>
+    <li class="breadcrumb-item"><a href="{% url "staff:faq_index" %}">{% trans "FAQ Sections" %}</a></li>
+    <li class="breadcrumb-item">{{ section.title }}</li>
 {% endblock %}
 
 {% block content %}
@@ -16,32 +16,28 @@
         <table id="question_table" class="table">
             <thead>
                 <tr>
-                    <th></th>
-                    <th>{% trans "Question/Answer (german)" %}</th>
-                    <th>{% trans "Question/Answer (english)" %}</th>
-                    <th>{% trans "Actions" %}</th>
+                    <th class="movable"></th>
+                    <th style="width: 45%">{% trans 'Question/Answer (German)' %}</th>
+                    <th style="width: 45%">{% trans 'Question/Answer (English)' %}</th>
+                    <th style="width: 10%">{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
             {% for form in formset %}
                 <tr class="sortable">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
                     <td class="movable">
-                        <span class="movable-icon glyphicon glyphicon-move"></span>
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
+                        <span class="movable-icon fa fa-arrows-v"></span>
                     </td>
                     <td>
-                        {{ form.question_de.errors }}
-                        {{ form.question_de }}
-                        {{ form.answer_de.errors }}
-                        {{ form.answer_de }}
+                        {% include "bootstrap_form_field_widget.html" with field=form.question_de %}
+                        {% include "bootstrap_form_field_widget.html" with field=form.answer_de %}
                     </td>
                     <td>
-                        {{ form.question_en.errors }}
-                        {{ form.question_en }}
-                        {{ form.answer_en.errors }}
-                        {{ form.answer_en }}
+                        {% include "bootstrap_form_field_widget.html" with field=form.question_en %}
+                        {% include "bootstrap_form_field_widget.html" with field=form.answer_en %}
                     </td>
                     <td>{{ form.DELETE }}</td>
                 </tr>
@@ -51,7 +47,7 @@
 
         <div class="form-group well">
             <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save FAQ section" %}" class="btn btn-primary" onclick="preventAccidentalClosing = false;"/>
+                <button type="submit" class="btn btn-primary">{% trans "Save FAQ section" %}</button>
             </div>
         </div>
     </form>
@@ -61,14 +57,12 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        preventAccidentalClosing = true;
-
-        row_changed = function(row) {
-            q_de = $(row.find('input[id$=-question_de]')).val();
-            q_en = $(row.find('input[id$=-question_en]')).val();
-            return q_de || q_en
+        rowChanged = function(row) {
+            qDe = $(row.find('input[id$=-question_de]')).val();
+            qEn = $(row.find('input[id$=-question_en]')).val();
+            return qDe || qEn
         };
-        row_added = function(row) { };
-        make_form_sortable("question_table", "questions", row_changed, row_added, "", true, false);
+        rowAdded = function(row) { };
+        makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, false);
     </script>
 {% endblock %}

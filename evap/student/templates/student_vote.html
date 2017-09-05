@@ -9,8 +9,8 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
-    <li>{{ course.name }}</li>
+    <li class="breadcrumb-item"><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
+    <li class="breadcrumb-item">{{ course.name }}</li>
 {% endblock %}
 
 {% block content %}
@@ -29,154 +29,152 @@
         </div>
     </small>
     {% endif %}
-    <h2>{{ course.name }} ({{ course.semester.name }})</h2>
+    <h3 class="mb-3">{{ course.name }} ({{ course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <span class="panel-title">{% trans "Questions about the course" %}</span>
+        <div class="card card-outline-primary mb-3">
+            <div class="card-header">
+                {% trans "Questions about the course" %}
             </div>
-            {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
+            <div class="card-body">
+                {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
+            </div>
         </div>
         {% if contributor_form_groups %}
-            <div class="panel-group" id="accordion">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <span class="panel-title">{% trans "Questions about the contributors" %}</span>
-                    </div>
-                    <div class="panel-body">
-                        {% if not preview %}
-                            <div class="bs-callout bs-callout-info">
-                                {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
-                            </div>
-                        {% endif %}
+            <div class="card card-outline-primary mb-3">
+                <div class="card-header">
+                    {% trans "Questions about the contributors" %}
+                </div>
+                <div class="card-body">
+                    {% if not preview %}
+                        <div class="bs-callout bs-callout-info">
+                            {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
+                        </div>
+                    {% endif %}
 
-                        {% for contributor, label, form_group, contributor_has_errors in contributor_form_groups %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <span class="panel-title">
-                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ contributor.id }}">
-                                            {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
-                                        </a>
-                                        <a class="btn btn-default btn-xs pull-right" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
-                                    </span>
-                                </div>
-                                {% if errors_exist == False or contributor_has_errors %}
-                                    <div id="{{ contributor.id }}" class="panel-collapse in">
-                                {% else %}
-                                    <div id="{{ contributor.id }}" class="panel-collapse collapse">
-                                {% endif %}
-                                    {% include "student_vote_questionnaire_group.html" with questionnaire_group=form_group preview=preview %}
-                                    </div>
+                    {% for contributor, label, form_group, contributor_has_errors in contributor_form_groups %}
+                        <div class="card{% if not forloop.last %} mb-3{% endif %}">
+                            <div class="card-header d-flex">
+                                <a class="collapse-toggle mr-auto{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse" href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
+                                    {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
+                                </a>
+                                <a role="button" class="btn btn-light btn-sm{% if preview %} disabled{% endif %}" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
                             </div>
-                        {% endfor %}
-                    </div>
+                            {% if errors_exist == False or contributor_has_errors %}
+                                <div class="card-body collapse show" id="vote-area-{{ contributor.id }}">
+                            {% else %}
+                                <div class="card-body collapse" id="vote-area-{{ contributor.id }}">
+                            {% endif %}
+                                {% include "student_vote_questionnaire_group.html" with questionnaire_group=form_group preview=preview %}
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% endif %}
         {% if not for_rendering_in_modal %}
-        <div class="well submit-area text-center">
-            {% if preview %}
-                <a class="btn btn-default" onclick="preventAccidentalClosing = false" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
-            {% else %}
-                <input id="vote-submit-btn" type="submit" value="{% trans "Submit questionnaire" %}" class="btn btn-success" onclick="preventAccidentalClosing = false;"/>
-                <p id="submit-error-warning" style="display: none">
-                    <span class="glyphicon glyphicon-warning-sign"></span> {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
-                </p>
-            {% endif %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                {% if preview %}
+                    <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                {% else %}
+                    <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans "Submit questionnaire" %}</button>
+                    <p id="submit-error-warning" style="display: none">
+                        <span class="fa fa-exclamation-triangle"></span>
+                        {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
+                    </p>
+                {% endif %}
+            </div>
         </div>
         {% endif %}
     </form>
 {% endblock %}
 
 {% block additional_javascript %}
-    {% compress js %}
-        <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
-    {% endcompress %}
+    {% if not preview %}
+        {% compress js %}
+            <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
+        {% endcompress %}
 
-    <script type="text/javascript">
-        var sisyphus = $("#student-vote-form").sisyphus({
-            locationBased: true,
-            excludeFields: $("input[type=hidden]"), // exclude the csrf token
-            autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
-            onRestore: function () {
-                // update vote button states
-                $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
-                $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
-            }
-        });
-        // save all data after loading the page
-        // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
-        sisyphus.saveAllData();
-
-        var form = $('#student-vote-form');
-
-        // Taken from http://stackoverflow.com/questions/9177252/detecting-a-redirect-in-jquery-ajax
-        // This hacks jQuery to give us this xhr object which is used below
-        var xhr;
-        var _orgAjax = jQuery.ajaxSettings.xhr;
-        jQuery.ajaxSettings.xhr = function () {
-          xhr = _orgAjax();
-          return xhr;
-        };
-
-        form.submit(function (event) {
-            event.preventDefault(); // don't use the default submission
-            var submitButton = $('#vote-submit-btn');
-            var originalText = submitButton.val();
-
-            submitButton.val("Submitting...");
-            submitButton.prop('disabled', true);
-
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function (data, s, req) {
-                    sisyphus.manuallyReleaseData(); // delete the data from local storage
-                    // Manually perform the redirect: first replace content
-                    document.open();
-                    document.write(data);
-                    document.close();
-                    // then set the URL
-                    window.history.pushState('', '', xhr.responseURL);
-                    // scroll to the top of the page
-                    $('html,body').scrollTop(0);
-                },
-                error: function(data) {
-                    // show a warning if the post isn't successful
-                    document.getElementById('submit-error-warning').style.display = 'block';
-                    submitButton.effect("highlight", {color:"#eb595a"}, 2000);
-                    submitButton.val(originalText);
-                    submitButton.prop('disabled', false);
+        <script type="text/javascript">
+            var sisyphus = $("#student-vote-form").sisyphus({
+                locationBased: true,
+                excludeFields: $("input[type=hidden]"), // exclude the csrf token
+                autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
+                onRestore: function () {
+                    // update vote button states
+                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
+                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
                 }
             });
-            return false;
-        });
+            // save all data after loading the page
+            // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
+            sisyphus.saveAllData();
 
-        function markNoAnswerFor(contributorId) {
-            // uncheck all other options and deactivate buttons
-            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
-            $("#" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+            var form = $('#student-vote-form');
 
-            // check "no answer" and activate the button
-            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
-            $("#" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
+            // Taken from http://stackoverflow.com/questions/9177252/detecting-a-redirect-in-jquery-ajax
+            // This hacks jQuery to give us this xhr object which is used below
+            var xhr;
+            var _orgAjax = jQuery.ajaxSettings.xhr;
+            jQuery.ajaxSettings.xhr = function () {
+              xhr = _orgAjax();
+              return xhr;
+            };
 
-            // hide questionnaire for contributor
-            $("#" + contributorId).collapse("hide");
-            $("a[href=#" + contributorId + "]").addClass("collapsed");
+            form.submit(function (event) {
+                event.preventDefault(); // don't use the default submission
+                var submitButton = $('#vote-submit-btn');
+                var originalText = submitButton.text();
 
-            // setting the 'checked' prop does not trigger a change event, so manually save all data here
-            sisyphus.saveAllData()
-        }
-        function selectedAnswer(fieldName) {
-            // remove error highlighting when an answer was selected
-            $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
-        }
-        {% if not preview %}
-            preventAccidentalClosing = true;
-        {% endif %}
-    </script>
+                submitButton.text("Submitting...");
+                submitButton.prop('disabled', true);
+
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function (data, s, req) {
+                        sisyphus.manuallyReleaseData(); // delete the data from local storage
+                        // Manually perform the redirect: first replace content
+                        document.open();
+                        document.write(data);
+                        document.close();
+                        // then set the URL
+                        window.history.pushState('', '', xhr.responseURL);
+                        // scroll to the top of the page
+                        $('html,body').scrollTop(0);
+                    },
+                    error: function(data) {
+                        // show a warning if the post isn't successful
+                        document.getElementById('submit-error-warning').style.display = 'block';
+                        submitButton.text(originalText);
+                        submitButton.prop('disabled', false);
+                    }
+                });
+                return false;
+            });
+
+            function markNoAnswerFor(contributorId) {
+                // uncheck all other options and deactivate buttons
+                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
+                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+
+                // check "no answer" and activate the button
+                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
+                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
+
+                // hide questionnaire for contributor
+                $("#vote-area-" + contributorId).collapse("hide");
+
+                // setting the 'checked' prop does not trigger a change event, so manually save all data here
+                sisyphus.saveAllData()
+            }
+            function selectedAnswer(fieldName) {
+                // remove error highlighting when an answer was selected
+                $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
+            }
+        </script>
+    {% endif %}
 {% endblock %}

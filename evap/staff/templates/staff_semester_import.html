@@ -1,30 +1,30 @@
 {% extends "staff_semester_base.html" %}
 
 {% load static %}
-{% load bootstrap3 %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Import semester data' %}</li>
+{% endblock %}
 
 {% block content %}
     {{ block.super }}
+    <h3>{% trans 'Import semester data' %}</h3>
 
     {% include "staff_message_rendering_template.html" with errors=errors warnings=warnings success_messages=success_messages %}
 
     <form id="semester-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
-        <div class="panel panel-info">
-            <div class="panel-heading"> {% trans "Semester import" %} </div>
-            <div class="panel-body">
-                <p>
-                {% trans "Upload Excel file (" %}<a href="{% url "staff:download_sample_xls" "sample.xls" %}">{% trans "Sample File"%}</a>{% trans "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses." %}
-                </p>
-                {% csrf_token %}
-                {% bootstrap_form excel_form layout='horizontal' %}
-            </div>
-            <div class="panel-footer">
+        <p>{% trans "Upload Excel file (" %}<a href="{% url "staff:download_sample_xls" "sample.xls" %}">{% trans "Sample File"%}</a>{% trans "). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses." %}</p>
+        {% csrf_token %}
+        {% include "bootstrap_form.html" with form=excel_form %}
+
+        <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
+            <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans "Upload and Test" %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Upload and Test' %}</button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-default form-submit-btn">{% trans "Upload and Test" %}</button>
-                    <div class="form-submit-btn-divider"></div>
-                    <button name="operation" value="import" type="submit" class="btn btn-primary form-submit-btn">{% trans "Import previously uploaded file" %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and Test' %}</button>
+                    <button name="operation" value="import" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>

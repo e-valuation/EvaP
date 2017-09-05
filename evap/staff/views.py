@@ -1,6 +1,5 @@
 import csv
 from datetime import datetime, date
-import random
 from xlrd import open_workbook as open_workbook
 from xlutils.copy import copy as copy_workbook
 from collections import OrderedDict, defaultdict
@@ -29,7 +28,7 @@ from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
                               CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
-                              FaqSectionForm, ImportForm, LotteryForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
+                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, SemesterForm,
                               SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
@@ -465,33 +464,6 @@ def semester_questionnaire_assign(request, semester_id):
 
 
 @staff_required
-def semester_lottery(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-
-    form = LotteryForm(request.POST or None)
-
-    if form.is_valid():
-        eligible = []
-
-        # find all users who have voted on all of their courses
-        for user in UserProfile.objects.all():
-            courses = user.courses_participating_in.filter(semester=semester, state__in=['in_evaluation', 'evaluated', 'reviewed', 'published'])
-            if not courses.exists():
-                # user was not participating in any course in this semester
-                continue
-            if not courses.exclude(voters=user).exists():
-                eligible.append(user)
-
-        winners = random.sample(eligible, min([form.cleaned_data['number_of_winners'], len(eligible)]))
-    else:
-        eligible = None
-        winners = None
-
-    template_data = dict(semester=semester, form=form, eligible=eligible, winners=winners)
-    return render(request, "staff_semester_lottery.html", template_data)
-
-
-@staff_required
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -623,7 +595,7 @@ def helper_single_result_edit(request, semester, course):
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
     else:
-        return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
+        return render(request, "staff_single_result_form.html", dict(course=course, semester=semester, form=form))
 
 
 @require_POST

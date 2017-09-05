@@ -3,29 +3,34 @@
 <div class="inline-headers">
     {% if section.questionnaire_warning and not contributor_data.total_votes == 0 %}
         <p class="pull-right participants-warning questionnaire-warning">
-            <span class="glyphicon glyphicon-warning-sign"></span>
+            <span class="fa fa-exclamation-triangle"></span>
             {% trans "Only a few participants answered these questions." %}
         </p>
     {% endif %}
     <h4>{{ section.questionnaire.public_name }}</h4>
 </div>
-<table class="table table-striped">
+<table class="table table-striped{% if not last %} mb-3{% endif %}">
     <tbody>
         {% for result in section.results %}
             {% if result.question.is_rating_question %}
-                <tr class="no-break">
-                    <td colspan="2">{{ result.question.text }}</td>
-                    <td>
+                <tr class="no-break d-flex">
+                    <td class="result-rating-question my-auto">{{ result.question.text }}</td>
+                    <td class="result-rating-answer my-auto">
                         {% include "result_bar.html" with result=result show_grades=show_grades questionnaire_warning=section.questionnaire_warning %}
                     </td>
                 </tr>
             {% elif result.question.is_text_question %}
-                <tr class="text-answer">
-                    <td>{{ result.question.text }}</td>
-                    <td colspan="3">
+                <tr class="text-answer d-flex">
+                    <td class="result-text-question">{{ result.question.text }}</td>
+                    <td class="result-text-answer">
                         <ul>
                         {% for answer in result.answers %}
-                            <li>{% if answer.is_private %}<span data-toggle="tooltip" data-placement="left" class="glyphicon glyphicon-info-sign" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>{% endif %} {{ answer.answer|linebreaksbr }}</li>
+                            <li>
+                                {% if answer.is_private %}
+                                    <span data-toggle="tooltip" data-placement="left" class="fa fa-info-circle" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>
+                                {% endif %}
+                                {{ answer.answer|linebreaksbr }}
+                            </li>
                         {% endfor %}
                         </ul>
                     </td>
@@ -33,12 +38,4 @@
             {% endif %}
         {% endfor %}
     </tbody>
-    <tfoot>
-        {# empty zero-height cells, necessary to make the overlapped colspans work #}
-        <tr>
-            <th class="col-xs-3 no-padding"></th>
-            <th class="col-xs-4 no-padding"></th>
-            <th class="col-xs-5 no-padding"></th>
-        </tr>
-    </tfoot>
 </table>

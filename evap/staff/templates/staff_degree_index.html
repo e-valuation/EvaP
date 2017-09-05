@@ -2,7 +2,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li>{% trans "Degrees" %}</li>
+    <li class="breadcrumb-item">{% trans "Degrees" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -12,38 +12,36 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <table id="degree_table" class="table">
+        <table id="degree_table" class="table vertically-aligned">
             <thead>
                 <tr>
-                    <th class="movable">&nbsp;</th>
-                    {% for field in formset.0.visible_fields %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
+                    <th class="movable"></th>
+                    <th style="width: 45%">{% trans 'Name (German)' %}</th>
+                    <th style="width: 45%">{% trans 'Name (English)' %}</th>
+                    <th style="width: 10%">{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for form in formset %}
                     <tr class="sortable">
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
                         <td class="movable">
-                            {% for hidden in form.hidden_fields %}
-                                {{ hidden }}
-                            {% endfor %}
-                            <span class="movable-icon glyphicon glyphicon-move"></span>
+                            <span class="movable-icon fa fa-arrows-v"></span>
                         </td>
                         <td>
-                            {{ form.name_de.errors }}{{ form.name_de }}
+                            {% include "bootstrap_form_field_widget.html" with field=form.name_de %}
                         </td>
                         <td>
-                            {{ form.name_en.errors }}{{ form.name_en }}
+                            {% include "bootstrap_form_field_widget.html" with field=form.name_en %}
                         </td>
                         <td>
-                            {{ form.DELETE.errors }}
                             {% if form.instance.can_staff_delete %}
-                                {{ form.DELETE }}
+                                {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
                             {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="btn btn-sm btn-danger disabled"
-                                title="{% trans "This degree cannot be deleted because it is used for at least one course." %}">
-                                    {% trans "remove" %}
+                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'This degree cannot be deleted because it is used for at least one course.' %}">
+                                    <a role="button" class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
                                 </div>
                             {% endif %}
                         </td>
@@ -51,9 +49,9 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div class="form-group well">
-            <div class="col-sm-6">
-                <input type="submit" value="{% trans "Save degrees" %}" class="btn btn-primary"/>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans 'Save degrees' %}</button>
             </div>
         </div>
     </form>
@@ -63,14 +61,12 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        row_changed = function(row) {
-            name_de = $(row.find('input[id$=-name_de]')).val();
-            name_en = $(row.find('input[id$=-name_en]')).val();
-            return name_de || name_en
+        rowChanged = function(row) {
+            nameDe = $(row.find('input[id$=-name_de]')).val();
+            nameEn = $(row.find('input[id$=-name_en]')).val();
+            return nameDe || nameEn
         };
-        row_added = function(row) {
-            row.find('a.btn-default').remove();
-        };
-        make_form_sortable("degree_table", "form", row_changed, row_added, "", true, false);
+        rowAdded = function(row) { };
+        makeFormSortable("degree_table", "form", rowChanged, rowAdded, "", true, false);
     </script>
 {% endblock %}

@@ -1,23 +1,23 @@
 {% extends "staff_base.html" %}
 
-{% load bootstrap3 %}
-
 {% block breadcrumb %}
     {{ block.super }}
-    <li><a href="{% url "staff:user_index" %}">{% trans "Users" %}</a></li>
-    <li>{% trans "Merge users" %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Merge users' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <p>
-        {% trans "Select the users you want to merge." %}
-    </p>
+    <h3>{% trans 'Merge users' %}</h3>
+
+    <p>{% trans "Select the users you want to merge." %}</p>
     <form method="POST" class="form-horizontal">
-       {% csrf_token %}
-       {% bootstrap_form form layout='horizontal' %}
-        <div class="well submit-area text-center">
-            <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
+        {% csrf_token %}
+        {% include "bootstrap_form.html" with form=form %}
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
+            </div>
         </div>
     </form>
 {% endblock %}

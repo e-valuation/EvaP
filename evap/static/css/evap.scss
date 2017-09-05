@@ -1,0 +1,825 @@
+@import "evap-variables";
+@import "../bootstrap/scss/bootstrap";
+
+
+/* override bootstrap values */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+}
+
+.navbar {
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.navbar-brand {
+    padding: 0;
+}
+
+.navbar-brand-image {
+    height: 50px;
+}
+
+div.container {
+    padding-top: 80px; /* for navbar */
+    padding-bottom: 55px; /* for footer */
+}
+
+.footer {
+    height: 45px;
+    line-height: 45px;
+    background-color: $light-gray;
+    padding: 0 15px;
+}
+
+.btn-light {
+    border-color: $medium-gray;
+}
+.btn-light:focus, .btn-light.focus {
+    box-shadow: 0 0 0 3px rgba($light-gray, 0.5);
+}
+.btn-light.active, .btn-light:active {
+    border-color: $dark-gray;
+    background-color: $light-gray;
+    box-shadow: inset 0 0 5px $dark-gray;
+}
+.btn-light:hover {
+    border-color: $dark-gray;
+}
+.btn-light:active, .btn-light.active, .show > .btn-light.dropdown-toggle {
+    border-color: $dark-gray;
+}
+a:not([href]):not(.disabled) {
+    cursor: pointer;
+}
+a.btn:not([href]):not(.disabled).btn-primary {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-secondary {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-success {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-danger {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-warning {
+    color: $black;
+}
+a.btn:not([href]):not(.disabled).btn-info {
+    color: $white;
+}
+a.btn:not([href]):not(.disabled).btn-light {
+    color: $black;
+}
+a.btn:not([href]):not(.disabled).btn-dark {
+    color: $white;
+}
+.btn.disabled {
+    border-width: 1px;
+    opacity: 0.45;
+}
+.btn.disabled.btn-primary {
+    background-color: $evap-light-blue;
+    border-color: $evap-dark-blue;
+    color: $evap-dark-blue;
+}
+.btn.disabled.btn-secondary {
+    background-color: $light-gray;
+    border-color: $dark-gray;
+    color: $dark-gray;
+}
+.btn.disabled.btn-success {
+    background-color: $evap-light-green;
+    border-color: $evap-green;
+    color: $evap-green;
+}
+.btn.disabled.btn-danger {
+    background-color: $evap-light-red;
+    border-color: $evap-red;
+    color: $evap-red;
+}
+.btn.disabled.btn-warning {
+    background-color: $evap-light-yellow;
+    border-color: $evap-dark-yellow;
+    color: $evap-dark-yellow;
+}
+.btn.disabled.btn-info {
+    background-color: lighten($evap-light-blue, 5%);
+    border-color: darken($evap-light-blue, 20%);
+    color: darken($evap-light-blue, 20%);
+}
+.btn.disabled.btn-light {
+    background-color: $lighter-gray;
+    border-color: $medium-gray;
+    color: $medium-gray;
+}
+.btn.disabled.btn-dark {
+    background-color: $dark-gray;
+    border-color: $darker-gray;
+    color: $white;
+}
+.btn-switch {
+    display: inline-block;
+    background-color: lighten($light-gray, 2%);
+    border-radius: 0.2rem;
+}
+.btn-switch-label {
+    display: inline-block;
+    font-weight: normal;
+    white-space: nowrap;
+    vertical-align: middle;
+    color: $darker-gray;
+    padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.icon-buttons .btn {
+    min-width: 32px;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.card-outline-primary {
+    border-color: rgba($evap-dark-blue, 0.5);
+}
+.card-outline-primary > .card-header {
+    background-color: $evap-light-blue;
+}
+
+.card-outline-warning {
+    border-color: rgba($evap-yellow, 0.5);
+}
+.card-outline-warning > .card-header {
+    background-color: $evap-light-yellow;
+}
+
+.badge-info, .badge-warning {
+    color: $darker-gray;
+}
+
+.card-header .btn-sm {
+    line-height: 1;
+}
+
+.tooltip-inner {
+    max-width: 260px;
+    text-align: left;
+}
+
+.tooltip-inner ul {
+    margin-left: 10px;
+    margin-top: 10px;
+    padding-left: 10px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+.table-striped tr.d-flex td {
+    border-width: 0;
+}
+
+.result-rating-question {
+    width: 60%;
+}
+.result-rating-answer {
+    width: 40%;
+}
+.result-text-question {
+    width: 25%;
+}
+.result-text-answer {
+    width: 75%;
+    ul {
+        margin-bottom: 0;
+    }
+}
+
+.dropdown-toggle::after {
+    vertical-align: 0.2em;
+}
+.dropdown-item.hover, .dropdown-item:hover {
+    background-color: $light-gray;
+}
+.dropdown-item.active, .dropdown-item:active {
+    background-color: $dark-gray;
+}
+
+.close {
+    line-height: 0.5;
+    .fa {
+        line-height: 1.4;
+        font-size: 1rem;
+    }
+}
+
+.card-body ul {
+    margin-bottom: 0;
+}
+
+button {
+    cursor: pointer;
+}
+
+.hide-divs div {
+    display: none;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: $evap-dark-blue;
+    color: $white;
+}
+.table-secondary,
+.table-secondary > th,
+.table-secondary > td {
+    background-color: $medium-gray;
+    color: $black;
+}
+.table-success,
+.table-success > th,
+.table-success > td {
+    background-color: $evap-green;
+    color: $black;
+}
+.table-info,
+.table-info > th,
+.table-info > td {
+    background-color: $evap-light-blue;
+    color: $black;
+}
+.table-warning,
+.table-warning > th,
+.table-warning > td {
+    background-color: $evap-yellow;
+    color: $black;
+}
+.table-danger,
+.table-danger > th,
+.table-danger > td {
+    background-color: $evap-red;
+    color: $white;
+}
+.table-light,
+.table-light > th,
+.table-light > td {
+    background-color: $light-gray;
+    color: $black;
+}
+.table-dark,
+.table-dark > th,
+.table-dark > td {
+    background-color: $darker-gray;
+    color: $white;
+}
+
+.nav-tabs .nav-item .nav-link {
+    padding: 0.5rem 0.75rem;
+}
+
+
+/* evap print styling */
+@media print {
+    .no-break {
+        page-break-inside: avoid;
+    }
+    body {
+        padding: 0;
+    }
+    div.container {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .print-brand-image {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        height: 40px;
+    }
+    nav, #footer, .breadcrumb, .close {
+        display: none;
+    }
+    td, th, p {
+        font-size: 80%;
+        page-break-after: avoid;
+    }
+    h2 {
+        font-size: 20px;
+        page-break-after: avoid;
+    }
+    h4 {
+        font-size: 12px;
+        page-break-after: avoid;
+    }
+    .grade-bg-result-bar-count {
+        width: 35px;
+    }
+    .grade-bg {
+        width: 30px;
+    }
+    .deviation-bg {
+        width: 30px;
+    }
+    .alert {
+        padding: 5px;
+    }
+}
+
+
+/* evap styling */
+table#question_table textarea {
+    resize: vertical;
+}
+
+ul.inputs-list, .exportsheet ul {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+table.vertically-aligned tr td {
+    vertical-align: middle;
+}
+
+td.vote-question-text {
+    vertical-align: top;
+}
+
+.vote-question-choice {
+    flex-grow: 1;
+    word-break: break-word;
+}
+
+.vote-text-answer {
+    flex-grow: 1;
+}
+
+.vote-bg-1 { background: $evap-green; }
+.vote-bg-2 { background: $evap-lime; }
+.vote-bg-3 { background: $evap-yellow; }
+.vote-bg-4 { background: $evap-orange; }
+.vote-bg-5 { background: $evap-red; }
+
+td.vote-row {
+    width: 100%;
+}
+
+td.vote-question {
+    width: 40%;
+    padding: 0.5rem 0.75rem;
+}
+
+td.vote-question.choice-error {
+    font-weight: bold;
+    color: $evap-dark-red;
+}
+
+.vote-btn {
+    height: 38px;
+    font-size: 10pt;
+    white-space: normal;
+    line-height: 1.1;
+    width: 90px;
+}
+td.vote-answer-buttons {
+    padding: 0.5rem 0.75rem;;
+}
+.vote-btn-text {
+    position: relative;
+    top: -1px;
+}
+
+div.vote-inputs {
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+div.vote-inputs label.choice-error {
+    border-color: $evap-red;
+}
+
+.vote-btn-1 { color: $evap-dark-green; }
+.vote-btn-2 { color: $evap-dark-lime; }
+.vote-btn-3 { color: $evap-dark-yellow; }
+.vote-btn-4 { color: $evap-dark-orange; }
+.vote-btn-5 { color: $evap-dark-red; }
+
+.vote-btn-1.active { color: $black; background-color: $evap-green; }
+.vote-btn-2.active { color: $black; background-color: $evap-lime; }
+.vote-btn-3.active { color: $black; background-color: $evap-yellow; }
+.vote-btn-4.active { color: $black; background-color: $evap-orange; }
+.vote-btn-5.active { color: $black; background-color: $evap-red; }
+
+div.vote-inputs > textarea {
+    width: 100%;
+    height: 100px;
+}
+
+div.preview > textarea {
+    height: 60px;
+}
+
+.distribution-bar {
+    overflow: hidden;
+    white-space: nowrap;
+    border-radius: 3px;
+}
+
+.distribution-bar div {
+    display: inline-block;
+}
+
+.distribution-bar div:last-child { width: 100% !important; }
+
+.grade-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+}
+
+.grade-bg-result-bar {
+    float: right;
+    border-radius: 3px;
+    width: 40px;
+    margin-left: 10px;
+}
+
+.grade-bg-result-bar-count {
+    float: left;
+    border-radius: 3px;
+    width: 50px;
+    margin-right: 20px;
+    background-color: $evap-dark-blue;
+    color: white;
+}
+
+.grade-bg-disabled {
+    background-color: $light-gray;
+}
+
+.deviation-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: $dark-gray;
+}
+
+.deviation-bg-disabled {
+    background-color: $light-gray;
+}
+
+select[multiple='multiple'] {
+    height: 200px;
+}
+
+.error-label {
+    color: $evap-dark-red;
+}
+
+.card-submit-area {
+    background-color: $lighter-gray;
+    border-color: rgba($evap-dark-blue, 0.5);;
+    min-height: 65px;
+}
+
+.card-submit-area input,
+.card-submit-area a,
+.card-submit-area button,
+.card-submit-area-1 input,
+.card-submit-area-1 a,
+.card-submit-area-1 button {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    min-width: 250px;
+}
+.card-submit-area-2 input,
+.card-submit-area-2 a,
+.card-submit-area-2 button {
+    min-width: 230px;
+}
+.card-submit-area-3 input,
+.card-submit-area-3 a,
+.card-submit-area-3 button {
+    min-width: 190px;
+}
+
+.jumbotron {
+    background-color: darken($lighter-gray, 4%);
+}
+
+.login-button {
+    min-width: 250px;
+}
+
+.collapse-toggle {
+    color: $darker-gray;
+}
+.collapse-toggle:before {
+    font-family: "FontAwesome";
+    content: "\f078";
+    float: left;
+    margin-right: 10px;
+}
+.collapse-toggle.collapsed:before {
+    content: "\f054";
+    margin-left: 4px;
+}
+
+.feedback-button {
+    line-height: 40px;
+}
+
+.btn-option {
+    background-color: $white;
+    border-color: $light-gray;
+    color: $black;
+}
+.btn-option.active {
+    background-color: $evap-dark-blue;
+    color: $white;
+}
+.btn-option.disabled {
+    opacity: 0.6;
+}
+
+.participants-warning {
+    opacity: 0.4;
+    font-weight: normal;
+}
+
+.questionnaire-warning p {
+    padding-left: 3px;
+}
+
+.inline-headers span, .inline-headers p {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.button-menu {
+    margin-bottom: 15px;
+}
+
+.email-form .form-row {
+    clear:both;
+}
+
+.email-form .form-label {
+    float:left;
+    width: 15%;
+    padding-top: 7px;
+    padding-right: 15px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.email-form .form-field {
+    float:left;
+    width:85%;
+}
+
+.is-invalid {
+    .form-control {
+        border-color: $evap-dark-red;
+    }
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-red, 0.25);
+    }
+}
+
+.form-label.is-invalid {
+    color: $evap-dark-red;
+}
+
+.form-label {
+    text-align: right;
+    font-weight: bold;
+    padding-top: 0.3rem;
+}
+
+.evap-progress-bar-container {
+    padding-right: 46px;
+    display: block;
+}
+.evap-progress-bar-back {
+    background: $evap-light-blue;
+    border-radius: 3px;
+    width: 100%;
+    position: relative;
+    display: inline-block;
+}
+.evap-progress-bar-front {
+    background: $evap-dark-blue;
+    border-radius: 3px;
+    position: relative;
+    display: inline-block;
+}
+.evap-progress-bar-bartext {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: $white;
+    width: 100%;
+    text-align: center;
+    text-shadow: 0px 0px 4px $evap-dark-blue, 0px 0px 4px $evap-dark-blue, 1px 1px 2px $evap-dark-blue;
+}
+.evap-progress-bar-text {
+    color: $black;
+    text-align: left;
+    float: right;
+    width: 42px;
+}
+.multi-progress-bar .evap-progress-bar-container {
+    padding-bottom: 3px;
+}
+
+.deactivate {
+    opacity: 0.4;
+}
+
+.light-link {
+    opacity: 0.4;
+    color: $black;
+}
+
+.preview {
+    opacity: 0.4;
+}
+
+.comment-link {
+    color: $black;
+}
+.comment-original {
+    color: $medium-gray;
+}
+
+div.disabled-tooltip {
+    display: inline-block;
+}
+
+.grade-course-table tr {
+    height: 57px;
+}
+
+.menu-indent {
+    text-indent: 20px;
+}
+
+.sortable-ghost {
+    background: $lighter-gray;
+}
+
+.table-striped tbody tr.sortable-ghost {
+    background: $light-gray;
+}
+
+.table-narrow td {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+.course-contributor {
+    font-style: italic;
+}
+
+.sortable .movable {
+    width: 10px;
+}
+
+.sortable .movable span.movable-icon {
+    font-size: 16px;
+    top: 8px;
+    cursor:move;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.text-answer li,a {
+    word-wrap: break-word;
+}
+
+.total-stats {
+    font-weight: bold;
+    background-color: $lighter-gray;
+}
+
+.form-submit-btn {
+    min-width: 200px
+}
+
+.form-submit-btn-divider {
+    width: 5px;
+    height:auto;
+    display:inline-block;
+}
+
+span.line {
+    display: inline-block;
+}
+
+.modal-xl {
+    max-width: 1120px;
+}
+
+.fa-card-header {
+    line-height: 1.5;
+}
+
+.import-card .form-group {
+    margin-bottom: 0;
+}
+
+
+/* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
+.bs-callout {
+    margin: 0 0 20px 0;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid $dark-gray;
+}
+.bs-callout h4 {
+    margin-top: 0;
+}
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+.bs-callout code,
+.bs-callout .highlight {
+    background-color: $lighter-gray;
+}
+
+.bs-callout-danger {
+    background-color: $evap-light-red;
+    border-color: $evap-red;
+}
+.bs-callout-warning {
+    background-color: $evap-light-yellow;
+    border-color: $evap-yellow;
+}
+.bs-callout-info {
+    background-color: $evap-light-blue;
+    border-color: $evap-dark-blue;
+}
+
+
+/* select2 adjustments */
+.select2-container--default .select2-selection--single {
+    height: 38px;
+
+    .select2-selection__rendered {
+        padding-top: 4px;
+    }
+
+    .select2-selection__arrow {
+        top: 6px;
+    }
+}
+
+.form-control.select2-hidden-accessible {
+    width: 1px;
+}
+
+
+/* datatable adjustments */
+table.dataTable {
+    border-collapse: collapse !important;
+}
+table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
+    left: 0.2em;
+    bottom: 0.75em;
+    content: "\2193";
+}
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+    left: 0.6em;
+    bottom: 0.75em;
+    content: "\2191";
+}
+table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc, table.dataTable thead>tr>th.sorting, table.dataTable thead>tr>td.sorting_asc, table.dataTable thead>tr>td.sorting_desc, table.dataTable thead>tr>td.sorting {
+    padding-right: 0;
+    padding-left: 20px;
+}
+
+
+/* datetimepicker adjustments */
+.bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {
+    width: 33em;
+    .datepicker {
+        flex: 0 0 60%;
+        max-width: 60%;
+    }
+    .timepicker {
+        flex: 0 0 40%;
+    }
+}
