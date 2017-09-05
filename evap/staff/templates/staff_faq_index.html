@@ -54,14 +54,14 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        row_changed = function(row) {
-            name_de = $(row.find('input[id$=-title_de]')).val();
-            name_en = $(row.find('input[id$=-title_en]')).val();
-            return name_de || name_en
+        rowChanged = function(row) {
+            nameDe = $(row.find('input[id$=-title_de]')).val();
+            nameEn = $(row.find('input[id$=-title_en]')).val();
+            return nameDe || nameEn
         };
-        row_added = function(row) {
+        rowAdded = function(row) {
             row.find('a.btn-secondary').remove();
         };
-        make_form_sortable("section_table", "form", row_changed, row_added, "", true, false);
+        makeFormSortable("section_table", "form", rowChanged, rowAdded, "", true, false);
     </script>
 {% endblock %}

@@ -1,29 +1,29 @@
 {% if editable %}
     {% include "sortable_form_js.html" %}
     <script type="text/javascript">
-        row_changed = function(row) {
+        rowChanged = function(row) {
             name = $(row.find("select[id$=-contributor]")).find(":selected").text();
-            name_changed = name && name != "---------";
-            id_changed = row.find("input[id$=-id]").val();
+            nameChanged = name && name != "---------";
+            idChanged = row.find("input[id$=-id]").val();
 
-            questionnaire_changed = false;
+            questionnaireChanged = false;
             $(row.find("input[name$=-questionnaires]")).each(function () {
                 if(this.checked)
-                    questionnaire_changed = true;
+                    questionnaireChanged = true;
             })
 
-            responsibility_changed = ! row.find("input[id$=-responsibility_0]").parent().hasClass("active");
-            comm_visibility_changed = ! row.find("input[id$=_visibility_0]").parent().hasClass("active");
-            label_changed = row.find("input[id$=-label]").val();
+            responsibilityChanged = ! row.find("input[id$=-responsibility_0]").parent().hasClass("active");
+            commVisibilityChanged = ! row.find("input[id$=_visibility_0]").parent().hasClass("active");
+            labelChanged = row.find("input[id$=-label]").val();
 
-            return id_changed || name_changed || questionnaire_changed || responsibility_changed || comm_visibility_changed || label_changed;
+            return idChanged || nameChanged || questionnaireChanged || responsibilityChanged || commVisibilityChanged || labelChanged;
         };
 
-        row_added = function(row) {
+        rowAdded = function(row) {
             assignClickHandlers();
-            apply_select2(row.find("select"));
+            applySelect2(row.find("select"));
         }
-        make_form_sortable("contribution_table", "contributions", row_changed, row_added, "pointer", false, true);
+        makeFormSortable("contribution_table", "contributions", rowChanged, rowAdded, "pointer", false, true);
     </script>
 {% endif %}
 
@@ -112,7 +112,6 @@
         }
     }
 
-
     assignClickHandlers();
 
     // apply initial settings
@@ -126,5 +125,4 @@
             $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", true);
         }
     }
-
 </script>

@@ -19,11 +19,11 @@
 </div>
 
 <script type="text/javascript">
-    function show_{{ modal_id }}(data_id, data_label) {
-        // call the modal's action function when action button was pressed and give data_id as parameter
-        $('#{{ modal_id }} #btn-action').unbind().click(function(){ {{ modal_id }}_action(data_id); });
-        // put the data_label text in the right place
-        $('#{{ modal_id }} #data-label').text(data_label);
+    function {{ modal_id }}Show(dataId, dataLabel) {
+        // call the modal's action function when action button was pressed and give dataId as parameter
+        $('#{{ modal_id }} #btn-action').unbind().click(function(){ {{ modal_id }}Action(dataId); });
+        // put the dataLabel text in the right place
+        $('#{{ modal_id }} #data-label').text(dataLabel);
         // show modal
         $('#{{ modal_id }}').modal();
     }

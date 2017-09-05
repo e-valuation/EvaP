@@ -37,7 +37,7 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <a onclick="show_approveCourseModal(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
+                    <a onclick="approveCourseModalShow(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
                 {% endif %}
                 <a href="{% url "contributor:index" %}" class="btn btn-light">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>
             </div>
@@ -71,7 +71,7 @@
     {% trans "Approve course" as action_text %}
     {% include "confirmation_modal.html" with modal_id="approveCourseModal" title=title question=question action_text=action_text btn_type="primary" %}
     <script type="text/javascript">
-        function approveCourseModal_action(data_id) {
+        function approveCourseModalAction(dataId) {
             $('#course-form').append('<input type="hidden" name="operation" value="approve">');
             $('#course-form').submit();
         };

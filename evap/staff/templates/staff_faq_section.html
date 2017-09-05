@@ -57,12 +57,12 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        row_changed = function(row) {
-            q_de = $(row.find('input[id$=-question_de]')).val();
-            q_en = $(row.find('input[id$=-question_en]')).val();
-            return q_de || q_en
+        rowChanged = function(row) {
+            qDe = $(row.find('input[id$=-question_de]')).val();
+            qEn = $(row.find('input[id$=-question_en]')).val();
+            return qDe || qEn
         };
-        row_added = function(row) { };
-        make_form_sortable("question_table", "questions", row_changed, row_added, "", true, false);
+        rowAdded = function(row) { };
+        makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, false);
     </script>
 {% endblock %}

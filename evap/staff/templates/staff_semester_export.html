@@ -62,11 +62,11 @@
     {% include "sortable_form_js.html" %}
 
     <script type="text/javascript">
-        row_changed = function(row) {
+        rowChanged = function(row) {
             id = row.find("input[id$=-id]").val();
             return id;
         };
-        row_added = function(row) { };
-        make_form_sortable("exportsheets-table", "form", row_changed, row_added, "", false, false);
+        rowAdded = function(row) { };
+        makeFormSortable("exportsheets-table", "form", rowChanged, rowAdded, "", false, false);
     </script>
 {% endblock %}

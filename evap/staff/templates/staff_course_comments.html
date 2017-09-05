@@ -59,11 +59,10 @@
 {% block additional_javascript %}
     <script type="text/javascript">
         function press(id, action) {
-            originally_selected = $("[id^="+id+"] .active")
             if($("#"+id+"-"+action).hasClass("active")) {
                 action = "unreview";
             }
-            update_state(id, action);
+            updateState(id, action);
             var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
             $.ajax({
                 type: "POST",
@@ -73,7 +72,7 @@
             });
         }
 
-        function update_state(id, action) {
+        function updateState(id, action) {
             $("#"+id+"-buttons").children().removeClass("active");
             $("#"+id+"-"+action).addClass("active");
         }

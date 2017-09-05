@@ -34,12 +34,12 @@
     {% trans "Delete questionnaire" as action_text %}
     {% include "confirmation_modal.html" with modal_id="deleteQuestionnaireModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function deleteQuestionnaireModal_action(data_id) {
+        function deleteQuestionnaireModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:questionnaire_delete" %}",
-                data: {"questionnaire_id": data_id},
-                success: function(){ $('#questionnaire-row-'+data_id).hide('slow', function(){ $('#questionnaire-row-'+data_id).remove(); }); },
+                data: {"questionnaire_id": dataId},
+                success: function(){ $('#questionnaire-row-'+dataId).hide('slow', function(){ $('#questionnaire-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };

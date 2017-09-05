@@ -133,30 +133,30 @@
     // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
     // select2 can't handle already select2'd forms that were copies made by
     // django-dynamic-formsets' "add another" button, so we take a copy of a non-select2'd form here
-    var template_form = $(".select2tr").last().clone();
+    var templateForm = $(".select2tr").last().clone();
 
     // later we use this class to give this to django-dynamic-formsets
     // as template and to make sure it does not get select2'd
-    template_form.addClass("form-template").css("display", "none");
+    templateForm.addClass("form-template").css("display", "none");
     // for some reason django-dynamic-formsets does not hide the checkbox like it should
-    template_form.find(':checkbox').last().attr("type", "hidden");
+    templateForm.find(':checkbox').last().attr("type", "hidden");
     // For some reason, django validates this template if it's part of the form, so we insert the copy outside of the form.
-    template_form.insertAfter($('.select2form'));
+    templateForm.insertAfter($('.select2form'));
 
     // put this into a function for later re-use
-    apply_select2 = function(elem) {
+    applySelect2 = function(elem) {
         elem.select2({
             language: "{{ LANGUAGE_CODE }}",
             placeholder: "{% trans "Please select..." %}",
             minimumResultsForSearch: 15,});
     };
-    apply_select2($('select').not('.form-template select').not('[disabled]'));
+    applySelect2($('select').not('.form-template select').not('[disabled]'));
 
     // don't use the placeholder text on disabled select2 elements
-    apply_select2_disabled = function(elem) {
+    applySelect2Disabled = function(elem) {
         elem.select2();
     };
-    apply_select2_disabled($('select[disabled]').not('.form-template select'));
+    applySelect2Disabled($('select[disabled]').not('.form-template select'));
 
     // run the bootstrap datepicker plugin
     $("input[name$='date']:not([readonly='True'])").datetimepicker({
@@ -183,10 +183,10 @@
     });
 
     // scroll content to show below navbar
-    var navbar_height = 50;
+    var navbarHeight = 50;
     var shiftWindow = function(){
         setTimeout(function(){
-            window.scrollBy(0, -navbar_height);
+            window.scrollBy(0, -navbarHeight);
         }, 0);
     };
     if (location.hash)

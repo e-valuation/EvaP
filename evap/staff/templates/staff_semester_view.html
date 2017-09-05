@@ -14,8 +14,8 @@
         {% if request.user.is_staff %}
             &nbsp;
             <a href="{% url "staff:semester_edit" semester.id %}" class="btn btn-sm btn-secondary">{% trans "Edit" %}</a>
-            <a onclick="show_deleteSemesterModal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
-            <a onclick="show_archiveSemesterModal({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
+            <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans "Delete" %}</a>
+            <a onclick="archiveSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.is_archiveable %} disabled{% endif %}">{% trans "Archive" %}</a>
         {% endif %}
     </h3>
 
@@ -180,11 +180,11 @@
     {% trans "Delete semester" as action_text %}
     {% include "confirmation_modal.html" with modal_id="deleteSemesterModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function deleteSemesterModal_action(data_id) {
+        function deleteSemesterModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:semester_delete" %}",
-                data: {"semester_id": data_id},
+                data: {"semester_id": dataId},
                 success: function(){ location.replace("{% url "staff:index" %}"); },
                 error: function(){}
             });
@@ -195,11 +195,11 @@
     {% trans "Archive semester" as action_text %}
     {% include "confirmation_modal.html" with modal_id="archiveSemesterModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function archiveSemesterModal_action(data_id) {
+        function archiveSemesterModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:semester_archive" %}",
-                data: {"semester_id": data_id},
+                data: {"semester_id": dataId},
                 success: function(){ location.reload(); },
                 error: function(){}
             });
@@ -210,12 +210,12 @@
     {% trans "Delete course" as action_text %}
     {% include "confirmation_modal.html" with modal_id="deleteCourseModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function deleteCourseModal_action(data_id) {
+        function deleteCourseModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "staff:course_delete" %}",
-                data: {"course_id": data_id},
-                success: function(){ $('#course-row-'+data_id).hide('slow', function(){ $('#course-row-'+data_id).remove(); }); },
+                data: {"course_id": dataId},
+                success: function(){ $('#course-row-'+dataId).hide('slow', function(){ $('#course-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };

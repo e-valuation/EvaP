@@ -30,7 +30,7 @@
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fa fa-download"></span></a>
                                     {% if is_grade_publisher %}
                                         <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil"></span></a>
-                                        <a role="button" onclick="show_deleteGradedocumentModal({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash"></span></a>
+                                        <a role="button" onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash"></span></a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -55,12 +55,12 @@
     {% trans "Delete grade document" as action_text %}
     {% include "confirmation_modal.html" with modal_id="deleteGradedocumentModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function deleteGradedocumentModal_action(data_id) {
+        function deleteGradedocumentModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "grades:delete_grades" %}",
-                data: {"grade_document_id": data_id},
-                success: function(){ $('#grade_document-row-'+data_id).hide('slow', function(){ $('#grade_document-row-'+data_id).remove(); }); },
+                data: {"grade_document_id": dataId},
+                success: function(){ $('#grade_document-row-'+dataId).hide('slow', function(){ $('#grade_document-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };

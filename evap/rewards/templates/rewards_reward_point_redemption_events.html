@@ -30,12 +30,12 @@
     {% trans "Delete event" as action_text %}
     {% include "confirmation_modal.html" with modal_id="deleteEventModal" title=title question=question action_text=action_text btn_type="danger" %}
     <script type="text/javascript">
-        function deleteEventModal_action(data_id) {
+        function deleteEventModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url "rewards:reward_point_redemption_event_delete" %}",
-                data: {"event_id": data_id},
-                success: function(){ $('#event-row-'+data_id).hide('slow', function(){ $('#event-row-'+data_id).remove(); }); },
+                data: {"event_id": dataId},
+                success: function(){ $('#event-row-'+dataId).hide('slow', function(){ $('#event-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
