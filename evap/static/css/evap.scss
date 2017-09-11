@@ -501,6 +501,9 @@ div.preview > textarea {
 select[multiple='multiple'] {
     height: 200px;
 }
+select[multiple] {
+    min-height: 40px;
+}
 
 .error-label {
     color: $evap-dark-red;
