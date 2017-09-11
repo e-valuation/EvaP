@@ -11,7 +11,7 @@ from evap.evaluation.models import Course, Semester
 from evap.evaluation.tools import STUDENT_STATES_ORDERED
 
 from evap.student.forms import QuestionsForm
-from evap.student.tools import make_form_identifier
+from evap.student.tools import question_id
 
 
 @participant_required
@@ -96,7 +96,7 @@ def vote(request, course_id):
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
                 for question in questionnaire.question_set.all():
-                    identifier = make_form_identifier(contribution, questionnaire, question)
+                    identifier = question_id(contribution, questionnaire, question)
                     value = questionnaire_form.cleaned_data.get(identifier)
 
                     if question.is_text_question:
