@@ -21,6 +21,11 @@ h1, h2, h3, h4, h5, h6 {
     height: 50px;
 }
 
+.navbar-nav .nav-link {
+    padding-right: .5rem;
+    padding-left: .5rem;
+}
+
 div.container {
     padding-top: 80px; /* for navbar */
     padding-bottom: 55px; /* for footer */
