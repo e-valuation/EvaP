@@ -3,7 +3,6 @@ from django import forms
 from evap.student.tools import make_form_identifier
 from evap.evaluation.tools import LIKERT_NAMES, GRADE_NAMES, POSITIVE_YES_NO_NAMES, NEGATIVE_YES_NO_NAMES
 
-
 LIKERT_CHOICES = [(str(k), v) for k, v in LIKERT_NAMES.items()]
 GRADE_CHOICES = [(str(k), v) for k, v in GRADE_NAMES.items()]
 POSITIVE_YES_NO_CHOICES = [(str(k), v) for k, v in POSITIVE_YES_NO_NAMES.items()]
@@ -50,6 +49,11 @@ class QuestionsForm(forms.Form):
             identifier = make_form_identifier(contribution,
                                               questionnaire,
                                               question)
+
+            identifier = question_id(self.contribution,
+                                     self.questionnaire,
+                                     question)
+
             self.fields[identifier] = field
 
     def caption(self):
