@@ -919,6 +919,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if any(not course.is_archived for course in self.courses_participating_in.all()):
             return False
+        if any(not contribution.course.is_archived for contribution in self.contributions.all()):
+            return False
         return True
 
     @property
