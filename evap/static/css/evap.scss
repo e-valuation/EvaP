@@ -127,7 +127,7 @@ a.btn:not([href]):not(.disabled).btn-dark {
     color: $white;
 }
 .btn-switch {
-    display: inline-block;
+    display: inline-flex;
     background-color: lighten($light-gray, 2%);
     border-radius: 0.2rem;
 }
@@ -319,7 +319,7 @@ button {
         page-break-after: avoid;
     }
     h4 {
-        font-size: 12px;
+        font-size: 14px;
         page-break-after: avoid;
     }
     .grade-bg-result-bar-count {
@@ -333,6 +333,24 @@ button {
     }
     .alert {
         padding: 5px;
+    }
+    .card-header {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+    }
+    .card-body .card-header {
+        font-size: 0.75rem;
+    }
+    .table td {
+        padding: 0.5rem;
+    }
+    .table td, .table th {
+        background-color: transparent !important;
+        padding: 0.5rem;
+    }
+    // always print background graphics in chrome
+    body, span, div, table, tr, tbody, tfoot, td, hr {
+        -webkit-print-color-adjust: exact;
     }
 }
 
