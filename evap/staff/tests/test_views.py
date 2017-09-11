@@ -21,6 +21,7 @@ def helper_delete_all_import_files(user_id):
     for filename in glob.glob(file_filter):
         os.remove(filename)
 
+
 # Staff - Sample Files View
 class TestDownloadSampleXlsView(ViewTest):
     test_users = ['staff']
@@ -188,8 +189,12 @@ class TestUserBulkDeleteView(ViewTest):
     def test_deletes_users(self):
         mommy.make(UserProfile, username='testuser1')
         mommy.make(UserProfile, username='testuser2')
-        contribution = mommy.make(Contribution)
-        mommy.make(UserProfile, username='contributor', contributions=[contribution])
+        contribution1 = mommy.make(Contribution)
+        semester = mommy.make(Semester, is_archived=True)
+        course = mommy.make(Course, semester=semester, _participant_count=0, _voter_count=0)
+        contribution2 = mommy.make(Contribution, course=course)
+        mommy.make(UserProfile, username='contributor1', contributions=[contribution1])
+        mommy.make(UserProfile, username='contributor2', contributions=[contribution2])
 
         page = self.app.get(self.url, user='staff')
         form = page.forms["user-bulk-delete-form"]
@@ -208,8 +213,10 @@ class TestUserBulkDeleteView(ViewTest):
         self.assertFalse(UserProfile.objects.filter(username='testuser2').exists())
         self.assertTrue(UserProfile.objects.filter(username='staff').exists())
 
-        self.assertTrue(UserProfile.objects.filter(username='contributor').exists())
-        self.assertFalse(UserProfile.objects.exclude_inactive_users().filter(username='contributor').exists())
+        self.assertTrue(UserProfile.objects.filter(username='contributor1').exists())
+        self.assertTrue(UserProfile.objects.exclude_inactive_users().filter(username='contributor1').exists())
+        self.assertTrue(UserProfile.objects.filter(username='contributor2').exists())
+        self.assertFalse(UserProfile.objects.exclude_inactive_users().filter(username='contributor2').exists())
 
         self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
         self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
