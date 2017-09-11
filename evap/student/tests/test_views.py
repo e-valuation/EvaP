@@ -7,8 +7,6 @@ from evap.evaluation.models import UserProfile, Course, Questionnaire, Question,
 from evap.evaluation.tests.tools import WebTest, ViewTest
 from evap.student.tools import question_id
 
-import pdb
-
 
 class TestStudentIndexView(ViewTest):
     test_users = ['student']
@@ -22,7 +20,7 @@ class TestStudentIndexView(ViewTest):
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class TestVoteView(ViewTest):
-    url = '/student/vote/'
+    url = '/student/vote/1'
 
     @classmethod
     def setUpTestData(cls):
@@ -31,7 +29,7 @@ class TestVoteView(ViewTest):
         cls.contributor1 = mommy.make(UserProfile)
         cls.contributor2 = mommy.make(UserProfile)
 
-        cls.course = mommy.make(Course, pk=5, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
+        cls.course = mommy.make(Course, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
 
         cls.general_questionnaire = mommy.make(Questionnaire)
         cls.contributor_questionnaire = mommy.make(Questionnaire)
@@ -48,8 +46,6 @@ class TestVoteView(ViewTest):
                                        course=cls.course)
 
         cls.course.general_contribution.questionnaires.set([cls.general_questionnaire])
-
-        cls.url = cls.url + str(cls.course.pk)
 
     def fill_form(self, form, fill_complete):
         form[question_id(self.course.general_contribution, self.general_questionnaire, self.general_text_question)] = "some text"
@@ -72,7 +68,7 @@ class TestVoteView(ViewTest):
         """
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, False)
+        self.fill_form(form, fill_complete=False)
         response = form.submit()
 
         self.assertIn("vote for all rating questions", response)
@@ -90,12 +86,12 @@ class TestVoteView(ViewTest):
     def test_answer(self):
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, True)
+        self.fill_form(form, fill_complete=True)
         form.submit()
 
         page = self.get_assert_200(self.url, user=self.voting_user2.username)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, True)
+        self.fill_form(form, fill_complete=True)
         form.submit()
 
         self.assertEqual(len(TextAnswer.objects.all()), 6)

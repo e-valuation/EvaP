@@ -50,10 +50,6 @@ class QuestionsForm(forms.Form):
                                      questionnaire,
                                      question)
 
-            identifier = question_id(self.contribution,
-                                     self.questionnaire,
-                                     question)
-
             self.fields[identifier] = field
 
     def caption(self):
