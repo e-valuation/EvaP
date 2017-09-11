@@ -28,6 +28,7 @@ urlpatterns = [
     url(r"^semester/(\d+)/course/(\d+)/comment/(\d+)/edit$", views.course_comment_edit, name="course_comment_edit"),
     url(r"^semester/(\d+)/courseoperation$", views.semester_course_operation, name="semester_course_operation"),
     url(r"^semester/(\d+)/singleresult/create$", views.single_result_create, name="single_result_create"),
+    url(r"^semester/(\d+)/responsible/(\d+)/send_reminder", views.send_reminder, name="send_reminder"),
 
     url(r"^semester/delete$", views.semester_delete, name="semester_delete"),
     url(r"^semester/archive$", views.semester_archive, name="semester_archive"),
