@@ -215,7 +215,7 @@ class ExcelImporter(object):
 
     @staticmethod
     def _create_user_inactive_warning(user):
-        return mark_safe(_("The following user is currently marked inactive and will be marked active upon importing: ")
+        return mark_safe(_("The following user is currently marked inactive and will be marked active upon importing:") + " "
                 + ExcelImporter._create_user_string(user))
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):

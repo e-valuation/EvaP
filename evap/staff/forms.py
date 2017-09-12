@@ -497,7 +497,7 @@ class ContributionFormSet(AtLeastOneFormSet):
             raise forms.ValidationError(_('No responsible contributors found.'))
 
         if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
-            raise ValidationError(_("You are not allowed to change responsible contributors"))
+            raise ValidationError(_("You are not allowed to change responsible contributors."))
 
 
 class QuestionForm(forms.ModelForm):
