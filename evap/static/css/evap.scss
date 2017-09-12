@@ -171,6 +171,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
     line-height: 1;
 }
 
+.tooltip.show{
+    opacity: 1;
+}
+
 .tooltip-inner {
     max-width: 260px;
     text-align: left;
