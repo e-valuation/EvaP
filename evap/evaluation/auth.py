@@ -52,6 +52,10 @@ class RequestAuthMiddleware(object):
         # We are seeing this user for the first time in this session, attempt to authenticate the user.
         user = auth.authenticate(request, key=key)
 
+        if user and not user.is_active:
+            messages.error(request, _("Inactive users are not allowed to login."))
+            return
+
         # If we already have an authenticated user don't try to login a new user. Show an error message if another user
         # tries to login with a URL in this situation.
         if request.user.is_authenticated:

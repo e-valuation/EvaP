@@ -359,6 +359,33 @@ class CourseEmailForm(forms.Form):
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], self.recipient_groups, use_cc=True, request=request)
 
 
+class RemindResponsibleForm(forms.Form):
+
+    to = UserModelChoiceField(None, required=False, disabled=True, label=_("To"))
+    cc = UserModelMultipleChoiceField(None, required=False, disabled=True, label=_("CC"))
+    subject = forms.CharField(label=_("Subject"))
+    body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
+
+    def __init__(self, *args, responsible, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['to'].initial = responsible.pk
+        self.fields['to'].queryset = UserProfile.objects.filter(pk=responsible.pk)
+        self.fields['cc'].initial = responsible.cc_users.all() | responsible.delegates.all()
+        self.fields['cc'].queryset = responsible.cc_users.all() | responsible.delegates.all()
+
+        self.template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        self.fields['subject'].initial = self.template.subject
+        self.fields['body'].initial = self.template.body
+
+    def send(self, request, courses):
+        recipient = self.cleaned_data.get('to')
+        self.template.subject = self.cleaned_data.get('subject')
+        self.template.body = self.cleaned_data.get('body')
+        subject_params = {}
+        body_params = {'user': recipient, 'courses': courses}
+        EmailTemplate.send_to_user(recipient, self.template, subject_params, body_params, use_cc=True, request=request)
+
+
 class QuestionnaireForm(forms.ModelForm):
 
     class Meta:
@@ -470,7 +497,7 @@ class ContributionFormSet(AtLeastOneFormSet):
             raise forms.ValidationError(_('No responsible contributors found.'))
 
         if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
-            raise ValidationError(_("You are not allowed to change responsible contributors"))
+            raise ValidationError(_("You are not allowed to change responsible contributors."))
 
 
 class QuestionForm(forms.ModelForm):

@@ -919,6 +919,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if any(not course.is_archived for course in self.courses_participating_in.all()):
             return False
+        if any(not contribution.course.is_archived for contribution in self.contributions.all()):
+            return False
         return True
 
     @property
@@ -1047,6 +1049,7 @@ class EmailTemplate(models.Model):
     body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
 
     EDITOR_REVIEW_NOTICE = "Editor Review Notice"
+    EDITOR_REVIEW_REMINDER = "Editor Review Reminder"
     STUDENT_REMINDER = "Student Reminder"
     PUBLISHING_NOTICE = "Publishing Notice"
     LOGIN_KEY_CREATED = "Login Key Created"
@@ -1096,7 +1099,7 @@ class EmailTemplate(models.Model):
         return recipients
 
     @classmethod
-    def __render_string(cls, text, dictionary):
+    def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     @classmethod
@@ -1141,8 +1144,8 @@ class EmailTemplate(models.Model):
             else:
                 send_separate_login_url = True
 
-        subject = cls.__render_string(template.subject, subject_params)
-        body = cls.__render_string(template.body, body_params)
+        subject = cls.render_string(template.subject, subject_params)
+        body = cls.render_string(template.body, body_params)
 
         mail = EmailMessage(
             subject=subject,

@@ -72,6 +72,9 @@ class NewKeyForm(forms.Form):
         except UserProfile.DoesNotExist:
             raise forms.ValidationError(_("No user with this email address was found. Please make sure to enter the email address already known to the university office."))
 
+        if not user.is_active:
+            raise forms.ValidationError(_("Inactive users cannot request login keys."))
+
         return email
 
     def get_user(self):
