@@ -11,6 +11,7 @@ h1, h2, h3, h4, h5, h6 {
     padding-left: 0;
     padding-top: 0;
     padding-bottom: 0;
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .navbar-brand {
@@ -169,6 +170,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
 
 .card-header .btn-sm {
     line-height: 1;
+}
+
+.tooltip.show {
+    opacity: 1;
 }
 
 .tooltip-inner {
