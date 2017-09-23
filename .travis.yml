@@ -1,8 +1,11 @@
 language: python
 python:
   - "3.4"
+services:
+- postgresql
+before_script:
+  - psql -c 'create database evap;' -U postgres
 install:
-  - npm install -g less
   - pip install -r requirements.txt
   - pip install coveralls
 script:
