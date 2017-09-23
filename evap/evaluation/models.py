@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 import logging
 import random
+import uuid
 
 from django.conf import settings
 from django.contrib import messages
@@ -704,6 +705,8 @@ class TextAnswer(Answer):
     """A free-form text answer to a question (usually a comment about a course
     or a contributor)."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
 
@@ -720,6 +723,8 @@ class TextAnswer(Answer):
     state = models.CharField(max_length=2, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
+        # Prevent ordering by date for privacy reasons
+        ordering = ['id', ]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
 

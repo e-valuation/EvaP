@@ -1198,7 +1198,7 @@ class TestCourseCommentView(ViewTest):
 
 
 class TestCourseCommentEditView(ViewTest):
-    url = '/staff/semester/1/course/1/comment/1/edit'
+    url = '/staff/semester/1/course/1/comment/00000000-0000-0000-0000-000000000001/edit'
     test_users = ['staff']
 
     @classmethod
@@ -1209,7 +1209,7 @@ class TestCourseCommentEditView(ViewTest):
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
-        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk=1)
+        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
     def test_comments_showing_up(self):
         response = self.app.get(self.url, user='staff')
@@ -1219,7 +1219,7 @@ class TestCourseCommentEditView(ViewTest):
         form['reviewed_answer'] = 'edited answer text'
         form.submit()
 
-        answer = TextAnswer.objects.get(pk=1)
+        answer = TextAnswer.objects.get(pk='00000000-0000-0000-0000-000000000001')
         self.assertEqual(answer.reviewed_answer, 'edited answer text')
 
 
