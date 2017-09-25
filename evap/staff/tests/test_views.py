@@ -469,8 +469,8 @@ class TestSendReminderView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.semester = mommy.make(Semester, pk=1)
-        course = mommy.make(Course, semester=cls.semester, state='prepared', pk=3)
-        responsible = mommy.make(UserProfile, email='a.b@example.com')
+        course = mommy.make(Course, semester=cls.semester, state='prepared')
+        responsible = mommy.make(UserProfile, pk=3, email='a.b@example.com')
         mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_form(self):
@@ -784,7 +784,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_start_evaluation(self):
         urloptions = '?course=1&operation=approved->in_evaluation'
-        course = mommy.make(Course, state='approved', semester=self.semester)
+        course = mommy.make(Course, pk=1, state='approved', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -797,7 +797,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_prepare(self):
         urloptions = '?course=1&operation=new->prepared'
-        course = mommy.make(Course, state='new', semester=self.semester)
+        course = mommy.make(Course, pk=1, state='new', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
