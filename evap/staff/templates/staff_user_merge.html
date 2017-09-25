@@ -30,27 +30,27 @@
             </tr>
             <tr>
                 <td><strong>{% trans "Title" %}</strong></td>
-                <td{% if main_user.title == merged_user.title %} class="table-info"{% endif %}>{{ main_user.title }}</td>
-                <td{% if other_user.title == merged_user.title %} class="table-info"{% endif %}>{{ other_user.title }}</td>
-                <td{% if merged_user.title %} class="table-success"{% endif %}>{{ merged_user.title }}</td>
+                <td{% if main_user.title == merged_user.title %} class="table-info"{% endif %}>{{ main_user.title|default_if_none:"" }}</td>
+                <td{% if other_user.title == merged_user.title %} class="table-info"{% endif %}>{{ other_user.title|default_if_none:"" }}</td>
+                <td{% if merged_user.title %} class="table-success"{% endif %}>{{ merged_user.title|default_if_none:"" }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "First name" %}</strong></td>
-                <td{% if main_user.first_name == merged_user.first_name %} class="table-info"{% endif %}>{{ main_user.first_name }}</td>
-                <td{% if other_user.first_name == merged_user.first_name %} class="table-info"{% endif %}>{{ other_user.first_name }}</td>
-                <td{% if merged_user.first_name %} class="table-success"{% endif %}>{{ merged_user.first_name }}</td>
+                <td{% if main_user.first_name == merged_user.first_name %} class="table-info"{% endif %}>{{ main_user.first_name|default_if_none:"" }}</td>
+                <td{% if other_user.first_name == merged_user.first_name %} class="table-info"{% endif %}>{{ other_user.first_name|default_if_none:"" }}</td>
+                <td{% if merged_user.first_name %} class="table-success"{% endif %}>{{ merged_user.first_name|default_if_none:"" }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Last name" %}</strong></td>
-                <td{% if main_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ main_user.last_name }}</td>
-                <td{% if other_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ other_user.last_name }}</td>
-                <td{% if merged_user.last_name %} class="table-success"{% endif %}>{{ merged_user.last_name }}</td>
+                <td{% if main_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ main_user.last_name|default_if_none:"" }}</td>
+                <td{% if other_user.last_name == merged_user.last_name %} class="table-info"{% endif %}>{{ other_user.last_name|default_if_none:"" }}</td>
+                <td{% if merged_user.last_name %} class="table-success"{% endif %}>{{ merged_user.last_name|default_if_none:"" }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Email" %}</strong></td>
-                <td{% if main_user.email == merged_user.email %} class="table-info"{% endif %}>{{ main_user.email }}</td>
-                <td{% if other_user.email == merged_user.email %} class="table-info"{% endif %}>{{ other_user.email }}</td>
-                <td{% if merged_user.email %} class="table-success"{% endif %}>{{ merged_user.email }}</td>
+                <td{% if main_user.email == merged_user.email %} class="table-info"{% endif %}>{{ main_user.email|default_if_none:"" }}</td>
+                <td{% if other_user.email == merged_user.email %} class="table-info"{% endif %}>{{ other_user.email|default_if_none:"" }}</td>
+                <td{% if merged_user.email %} class="table-success"{% endif %}>{{ merged_user.email|default_if_none:"" }}</td>
             </tr>
             <tr>
                 <td><strong>{% trans "Groups" %}</strong></td>
