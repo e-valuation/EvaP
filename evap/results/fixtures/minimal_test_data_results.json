@@ -215,6 +215,61 @@
   }
 },
 {
+  "pk": 11,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_published.",
+    "contribution": 6,
+    "state": "PU"
+  }
+},
+{
+  "pk": 12,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_hidden.",
+    "contribution": 6,
+    "state": "HI"
+  }
+},
+{
+  "pk": 13,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": ".other_responsible_changed_published.",
+    "question": 1,
+    "original_answer": ".other_responsible_orig_published_changed.",
+    "contribution": 6,
+    "state": "PU"
+  }
+},
+{
+  "pk": 14,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_private.",
+    "contribution": 6,
+    "state": "PR"
+  }
+},
+{
+  "pk": 15,
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_notreviewed.",
+    "contribution": 6,
+    "state": "NR"
+  }
+},
+{
   "pk": 2,
   "model": "evaluation.userprofile",
   "fields": {
@@ -334,6 +389,23 @@
   }
 },
 {
+  "pk": 9,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "other_responsible",
+    "first_name": "other_responsible",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:51:39.584",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "other_responsible@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.contribution",
   "fields": {
@@ -400,6 +472,20 @@
       1
     ],
     "can_edit": false,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 1,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
     "comment_visibility": "ALL"
   }
 },
