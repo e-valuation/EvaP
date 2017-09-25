@@ -19,6 +19,8 @@ GRADE_COLORS = {
     5: (235,  89, 90),
 }
 
+COMMENT_STATES_REQUIRED_FOR_VISIBILITY = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
@@ -151,8 +153,7 @@ def _calculate_results_impl(course):
                     results.append(RatingResult(question, total_count, average, deviation, counts, warning))
 
             elif question.is_text_question:
-                allowed_states = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
-                answers = get_textanswers(contribution, question, allowed_states)
+                answers = get_textanswers(contribution, question, COMMENT_STATES_REQUIRED_FOR_VISIBILITY)
                 results.append(TextResult(question=question, answers=answers))
 
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
