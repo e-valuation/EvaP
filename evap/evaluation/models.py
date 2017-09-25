@@ -1004,7 +1004,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def needs_login_key(self):
         return UserProfile.email_needs_login_key(self.email)
 
-    def generate_login_key(self):
+    def ensure_valid_login_key(self):
         if self.login_key and self.login_key_valid_until > date.today():
             return
 
@@ -1141,7 +1141,7 @@ class EmailTemplate(models.Model):
         send_separate_login_url = False
         body_params['login_url'] = ""
         if user.needs_login_key:
-            user.generate_login_key()
+            user.ensure_valid_login_key()
             if not cc_addresses:
                 body_params['login_url'] = user.login_url
             else:

@@ -36,7 +36,7 @@ def index(request):
         if new_key_form.is_valid():
             # user wants a new login key
             profile = new_key_form.get_user()
-            profile.generate_login_key()
+            profile.ensure_valid_login_key()
             profile.save()
 
             EmailTemplate.send_login_url_to_user(new_key_form.get_user())

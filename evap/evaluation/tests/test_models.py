@@ -310,7 +310,7 @@ class TestLoginUrlEmail(TestCase):
     def setUpTestData(cls):
         cls.other_user = mommy.make(UserProfile, email="other@extern.com")
         cls.user = mommy.make(UserProfile, email="extern@extern.com")
-        cls.user.generate_login_key()
+        cls.user.ensure_valid_login_key()
 
         cls.course = mommy.make(Course)
         mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)

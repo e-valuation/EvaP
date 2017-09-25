@@ -13,9 +13,9 @@ class LoginTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.external_user = mommy.make(UserProfile, email="extern@extern.com")
-        cls.external_user.generate_login_key()
+        cls.external_user.ensure_valid_login_key()
         cls.inactive_external_user = mommy.make(UserProfile, email="inactive@extern.com", is_active=False)
-        cls.inactive_external_user.generate_login_key()
+        cls.inactive_external_user.ensure_valid_login_key()
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("results:index")), "/?next=/results/")
@@ -41,10 +41,11 @@ class LoginTests(WebTest):
         self.assertNotContains(page, "Logged in")
 
     def test_login_key_resend_if_still_valid(self):
+        old_key = self.external_user.login_key
         page = self.app.post("/", params={"submit_type": "new_key", "email": self.external_user.email}).follow()
-
         new_key = UserProfile.objects.get(id=self.external_user.id).login_key
-        self.assertEqual(self.external_user.login_key, new_key)
+
+        self.assertEqual(old_key, new_key)
         self.assertEqual(len(mail.outbox), 1)  # a login key was sent
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
 

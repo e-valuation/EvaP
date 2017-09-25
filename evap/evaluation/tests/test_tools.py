@@ -20,7 +20,7 @@ class TestLanguageSignalReceiver(WebTest):
         translation.activate('de')
 
         user = mommy.make(UserProfile, language=None)
-        user.generate_login_key()
+        user.ensure_valid_login_key()
 
         set_or_get_language(None, user, None)
 
@@ -33,7 +33,7 @@ class TestLanguageSignalReceiver(WebTest):
         """
         translation.activate('en')
         user = mommy.make(UserProfile, language='de')
-        user.generate_login_key()
+        user.ensure_valid_login_key()
 
         self.app.get(reverse("results:index") + "?loginkey=%s" % user.login_key)
 

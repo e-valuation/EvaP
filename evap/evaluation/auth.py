@@ -73,7 +73,7 @@ class RequestAuthMiddleware(object):
             user.save()
         elif user:
             # A user exists, but the login key is not valid anymore. Send the user a new one.
-            user.generate_login_key()
+            user.ensure_valid_login_key()
             EmailTemplate.send_login_url_to_user(user)
             messages.warning(request, _("The login URL is not valid anymore. We sent you a new one to your email address."))
         else:
