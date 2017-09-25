@@ -125,11 +125,18 @@ def course_detail(request, semester_id, course_id):
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
     if public_view:
         return False
+
     if user.is_reviewer:
         return True
+
     contributor = text_answer.contribution.contributor
+
     if text_answer.is_private:
         return contributor == user
+
+    if text_answer.contribution.responsible:
+        return contributor == user or user in contributor.delegates.all()
+
     if text_answer.is_published:
         if contributor in represented_users:
             return True
