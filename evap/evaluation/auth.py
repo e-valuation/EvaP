@@ -68,14 +68,14 @@ class RequestAuthMiddleware(object):
             request.user = user
             auth.login(request, user)
             messages.success(request, _("Logged in as %s.") % user.full_name)
-            # Invalidate the login key (set to yesterday).
+            # Invalidate the login key, but keep it stored so we can later identify the user that is trying to login and send a new link
             user.login_key_valid_until = date.today() - timedelta(1)
             user.save()
         elif user:
             # A user exists, but the login key is not valid anymore. Send the user a new one.
-            user.generate_login_key()
+            user.ensure_valid_login_key()
             EmailTemplate.send_login_url_to_user(user)
-            messages.warning(request, _("The login URL was already used. We sent you a new one to your email address."))
+            messages.warning(request, _("The login URL is not valid anymore. We sent you a new one to your email address."))
         else:
             messages.warning(request, _("Invalid login URL. Please request a new one below."))
 
