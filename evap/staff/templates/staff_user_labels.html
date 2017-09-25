@@ -19,9 +19,6 @@
     {% if not user.is_active %}
         <span class="badge badge-danger">{% trans "Inactive" %}</span>
     {% endif %}
-    {% if user.login_key %}
-        <span class="badge badge-secondary">{% trans "Login Key" %}</span>
-    {% endif %}
     {% if not user.email %}
         <span class="badge badge-danger">{% trans "No email" %}</span>
     {% endif %}

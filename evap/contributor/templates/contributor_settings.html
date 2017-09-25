@@ -23,19 +23,19 @@
                 </tr>
                 <tr>
                     <td><strong>{% trans "Title" %}</strong></td>
-                    <td>{{ form.instance.title }}</td>
+                    <td>{{ form.instance.title|default_if_none:"" }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "First name" %}</strong></td>
-                    <td>{{ form.instance.first_name }}</td>
+                    <td>{{ form.instance.first_name|default_if_none:"" }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Last name" %}</strong></td>
-                    <td>{{ form.instance.last_name }}</td>
+                    <td>{{ form.instance.last_name|default_if_none:"" }}</td>
                 </tr>
                 <tr>
                     <td><strong>{% trans "Email" %}</strong></td>
-                    <td>{{ form.instance.email }}</td>
+                    <td>{{ form.instance.email|default_if_none:"" }}</td>
                 </tr>
             </table>
         </div>
