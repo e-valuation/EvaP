@@ -1005,6 +1005,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return UserProfile.email_needs_login_key(self.email)
 
     def generate_login_key(self):
+        if self.login_key and self.login_key_valid_until > date.today():
+            return
+
         while True:
             key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
             if not UserProfile.objects.filter(login_key=key).exists():

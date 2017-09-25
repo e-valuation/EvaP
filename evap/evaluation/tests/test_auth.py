@@ -8,6 +8,7 @@ from evap.evaluation.tests.tools import WebTest
 
 
 class LoginTests(WebTest):
+    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -28,7 +29,7 @@ class LoginTests(WebTest):
         page = self.app.get(reverse("django-auth-logout")).follow()
         self.assertContains(page, 'Not logged in')
         page = self.app.get(reverse("results:index") + "?loginkey=%s" % self.external_user.login_key).follow()
-        self.assertContains(page, 'The login URL was already used')
+        self.assertContains(page, 'The login URL is not valid anymore.')
         self.assertEqual(len(mail.outbox), 1)  # a new login key was sent
         self.external_user.refresh_from_db()
         page = self.app.get(reverse("results:index") + "?loginkey=%s" % self.external_user.login_key)
@@ -38,3 +39,12 @@ class LoginTests(WebTest):
         page = self.app.get(reverse("results:index") + "?loginkey=%s" % self.inactive_external_user.login_key).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
         self.assertNotContains(page, "Logged in")
+
+    def test_login_key_resend_if_still_valid(self):
+        page = self.app.post("/", params={"submit_type": "new_key", "email": self.external_user.email}).follow()
+
+        new_key = UserProfile.objects.get(id=self.external_user.id).login_key
+        self.assertEqual(self.external_user.login_key, new_key)
+        self.assertEqual(len(mail.outbox), 1)  # a login key was sent
+        self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
+
