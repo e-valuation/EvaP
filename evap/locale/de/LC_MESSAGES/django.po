@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-12 10:54+0200\n"
-"PO-Revision-Date: 2017-09-12 10:59+0200\n"
+"POT-Creation-Date: 2017-09-25 20:22+0200\n"
+"PO-Revision-Date: 2017-09-25 20:23+0200\n"
 "Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.3\n"
+"X-Generator: Poedit 2.0.4\n"
 
 #: evap/contributor/forms.py:18 evap/staff/forms.py:129
 #: evap/student/templates/student_vote.html:38
@@ -265,8 +265,9 @@ msgstr ""
 #: evap/results/templates/results_base.html:3
 #: evap/results/templates/results_base.html:7
 #: evap/staff/templates/staff_semester_view_course.html:124
-#: evap/student/templates/student_index.html:100
-#: evap/student/templates/student_index.html:102
+#: evap/student/templates/student_index.html:104
+#: evap/student/templates/student_index.html:106
+#: evap/student/templates/student_index.html:109
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -816,7 +817,7 @@ msgstr "Sprache"
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evap/evaluation/models.py:855 evap/staff/templates/staff_user_labels.html:23
+#: evap/evaluation/models.py:855
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
@@ -1057,8 +1058,8 @@ msgid ""
 "Here you can request a one-time login URL. We will send it to your email "
 "address."
 msgstr ""
-"Hier können Sie einen einmalig gültigen Anmeldelink anfordern. Wir werden "
-"ihn an Ihre E-Mail-Adresse senden."
+"Hier können Sie einen einmalig gültigen Anmeldelink anfordern. Dieser wird "
+"an Ihre E-Mail-Adresse gesendet."
 
 #: evap/evaluation/templates/index.html:44
 msgid "Request login URL"
@@ -1482,7 +1483,7 @@ msgstr ""
 #: evap/grades/templates/grades_course_view.html:64
 #: evap/rewards/templates/rewards_reward_point_redemption_events.html:39
 #: evap/staff/templates/staff_course_comments.html:71
-#: evap/staff/templates/staff_questionnaire_index.html:43
+#: evap/staff/templates/staff_questionnaire_index.html:45
 #: evap/staff/templates/staff_semester_view.html:219
 #: evap/staff/templates/staff_user_index.html:77
 msgid "The server is not responding."
@@ -1711,8 +1712,8 @@ msgid "Public"
 msgstr "Öffentlich"
 
 #: evap/results/templates/results_course_detail.html:61
-#: evap/student/templates/student_index.html:84
-#: evap/student/templates/student_index.html:94
+#: evap/student/templates/student_index.html:87
+#: evap/student/templates/student_index.html:96
 msgid "Grades"
 msgstr "Noten"
 
@@ -2755,16 +2756,24 @@ msgstr "Fragebogen speichern"
 msgid "Obsolete questionnaires"
 msgstr "Obsolete Fragebögen"
 
-#: evap/staff/templates/staff_questionnaire_index.html:25
+#: evap/staff/templates/staff_questionnaire_index.html:21
+msgid "Course questionnaires"
+msgstr "Fragebögen zu Veranstaltungen"
+
+#: evap/staff/templates/staff_questionnaire_index.html:23
+msgid "Contributor questionnaires"
+msgstr "Fragebögen zu Mitwirkenden"
+
+#: evap/staff/templates/staff_questionnaire_index.html:27
 msgid "There are no questionnaires yet."
 msgstr "Es gibt noch keine Fragegruppen."
 
-#: evap/staff/templates/staff_questionnaire_index.html:32
 #: evap/staff/templates/staff_questionnaire_index.html:34
+#: evap/staff/templates/staff_questionnaire_index.html:36
 msgid "Delete questionnaire"
 msgstr "Fragebogen löschen"
 
-#: evap/staff/templates/staff_questionnaire_index.html:33
+#: evap/staff/templates/staff_questionnaire_index.html:35
 msgid ""
 "Do you really want to delete the questionnaire <strong id=\"data-label\"></"
 "strong>?"
@@ -3045,17 +3054,17 @@ msgid "in %(days)s days"
 msgstr "in %(days)s Tagen"
 
 #: evap/staff/templates/staff_semester_view_course.html:52
-#: evap/student/templates/student_index.html:68
+#: evap/student/templates/student_index.html:74
 msgid "ends today"
 msgstr "endet heute"
 
 #: evap/staff/templates/staff_semester_view_course.html:54
-#: evap/student/templates/student_index.html:70
+#: evap/student/templates/student_index.html:76
 msgid "ends tomorrow"
 msgstr "endet morgen"
 
 #: evap/staff/templates/staff_semester_view_course.html:56
-#: evap/student/templates/student_index.html:72
+#: evap/student/templates/student_index.html:78
 #, python-format
 msgid "%(days)s days left"
 msgstr "noch %(days)s Tage"
@@ -3198,7 +3207,7 @@ msgstr "Verwalter"
 msgid "External"
 msgstr "Extern"
 
-#: evap/staff/templates/staff_user_labels.html:26
+#: evap/staff/templates/staff_user_labels.html:23
 msgid "No email"
 msgstr "Keine E-Mail"
 
@@ -3275,11 +3284,10 @@ msgstr "Wähle die Benutzer aus, die zusammengeführt werden sollen."
 #: evap/staff/tools.py:100
 msgid ""
 "The uploaded text file contains {} usernames. {} other users have been found "
-"in the database. {} of those will be deleted. The rest ({}) of those will be "
-"marked inactive."
+"in the database. Of those, {} will be deleted and {} will be marked inactive."
 msgstr ""
 "Die hochgeladene Datei enthält {} Benutzernamen. {} andere Benutzer wurden "
-"in der Datenbank gefunden. {} davon werden gelöscht. Der Rest ({}) wird als "
+"in der Datenbank gefunden. Davon werden {} gelöscht und {} werden als "
 "inaktiv markiert."
 
 #: evap/staff/tools.py:103
@@ -3593,27 +3601,31 @@ msgstr ""
 "anderen Benutzern der Plattform angezeigt, sofern mindestens 20 Prozent der "
 "Teilnehmer abgestimmt haben."
 
-#: evap/student/templates/student_index.html:55
+#: evap/student/templates/student_index.html:61
 msgid "You already evaluated this course."
 msgstr "Du hast diese Veranstaltung schon evaluiert."
 
-#: evap/student/templates/student_index.html:58
+#: evap/student/templates/student_index.html:64
 msgid "You did not evaluate this course."
 msgstr "Du hast diese Veranstaltung nicht evaluiert."
 
-#: evap/student/templates/student_index.html:78
+#: evap/student/templates/student_index.html:95
+msgid "No grades are available yet."
+msgstr "Es sind noch keine Noten verfügbar."
+
+#: evap/student/templates/student_index.html:100
 msgid "Evaluate"
 msgstr "Evaluieren"
 
-#: evap/student/templates/student_index.html:93
-msgid "No grades have been uploaded yet."
-msgstr "Es wurden noch keine Noten hochgeladen."
-
-#: evap/student/templates/student_index.html:102
+#: evap/student/templates/student_index.html:106
 msgid "We did not receive enough votes to publish the results of this course."
 msgstr ""
 "Es gab nicht genügend Teilnehmer, um die Ergebnisse dieser Veranstaltung zu "
 "veröffentlichen."
+
+#: evap/student/templates/student_index.html:109
+msgid "The results are not available yet."
+msgstr "Es sind noch keine Ergebnisse verfügbar."
 
 #: evap/student/templates/student_vote.html:19
 msgid ""

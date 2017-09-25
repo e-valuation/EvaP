@@ -18,8 +18,10 @@
     </div>
 
     {% if course_questionnaires or contributor_questionnaires %}
-        {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline="Course questionnaires" extra_classes="mb-3" %}
-        {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline="Contributor questionnaires" extra_classes="" %}
+        {% trans "Course questionnaires" as headline %}
+        {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline=headline extra_classes="mb-3" %}
+        {% trans "Contributor questionnaires" as headline %}
+        {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline=headline extra_classes="" %}
     {% else %}
         <p>
             {% trans "There are no questionnaires yet." %}
