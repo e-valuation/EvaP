@@ -98,7 +98,7 @@ def bulk_delete_users(request, username_file, test_run):
     users_to_mark_inactive = [u for u in users if u.is_active and not u.can_staff_delete and u.can_staff_mark_inactive]
 
     messages.info(request, _('The uploaded text file contains {} usernames. {} other users have been found in the database. '
-                           '{} of those will be deleted, {} of those will be marked inactive.')
+                           'Of those, {} will be deleted and {} will be marked inactive.')
                   .format(len(usernames), len(users), len(deletable_users), len(users_to_mark_inactive)))
     messages.info(request, mark_safe(_('Users to be deleted are:<br />{}')
                   .format('<br />'.join([u.username for u in deletable_users]))))
