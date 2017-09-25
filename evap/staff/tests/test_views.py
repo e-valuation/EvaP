@@ -469,8 +469,8 @@ class TestSendReminderView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.semester = mommy.make(Semester, pk=1)
-        course = mommy.make(Course, semester=cls.semester, state='prepared', pk=3)
-        responsible = mommy.make(UserProfile, email='a.b@example.com')
+        course = mommy.make(Course, semester=cls.semester, state='prepared')
+        responsible = mommy.make(UserProfile, pk=3, email='a.b@example.com')
         mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_form(self):
@@ -784,7 +784,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_start_evaluation(self):
         urloptions = '?course=1&operation=approved->in_evaluation'
-        course = mommy.make(Course, state='approved', semester=self.semester)
+        course = mommy.make(Course, pk=1, state='approved', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -797,7 +797,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_prepare(self):
         urloptions = '?course=1&operation=new->prepared'
-        course = mommy.make(Course, state='new', semester=self.semester)
+        course = mommy.make(Course, pk=1, state='new', semester=self.semester)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -1198,7 +1198,7 @@ class TestCourseCommentView(ViewTest):
 
 
 class TestCourseCommentEditView(ViewTest):
-    url = '/staff/semester/1/course/1/comment/1/edit'
+    url = '/staff/semester/1/course/1/comment/00000000-0000-0000-0000-000000000001/edit'
     test_users = ['staff']
 
     @classmethod
@@ -1209,7 +1209,7 @@ class TestCourseCommentEditView(ViewTest):
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
-        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk=1)
+        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
     def test_comments_showing_up(self):
         response = self.app.get(self.url, user='staff')
@@ -1219,7 +1219,7 @@ class TestCourseCommentEditView(ViewTest):
         form['reviewed_answer'] = 'edited answer text'
         form.submit()
 
-        answer = TextAnswer.objects.get(pk=1)
+        answer = TextAnswer.objects.get(pk='00000000-0000-0000-0000-000000000001')
         self.assertEqual(answer.reviewed_answer, 'edited answer text')
 
 

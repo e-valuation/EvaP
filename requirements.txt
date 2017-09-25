@@ -2,6 +2,7 @@ django >= 1.11, < 1.12
 xlrd == 1.0.0
 xlwt == 1.2.0
 xlutils == 2.0.0
+psycopg2 == 2.7.3.1
 git+https://github.com/ticosax/django-fsm.git@4720bbeb27467319feff10bb6ddd02e43f876b16
 django-webtest == 1.9.2
 WebTest == 2.0.24

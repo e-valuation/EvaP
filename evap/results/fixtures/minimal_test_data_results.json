@@ -105,7 +105,7 @@
   }
 },
 {
-  "pk": 1,
+  "pk": "00000000-0000-0000-0000-000000000001",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -116,7 +116,7 @@
   }
 },
 {
-  "pk": 2,
+  "pk": "00000000-0000-0000-0000-000000000002",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -127,7 +127,7 @@
   }
 },
 {
-  "pk": 3,
+  "pk": "00000000-0000-0000-0000-000000000003",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": ".course_changed_published.",
@@ -138,7 +138,7 @@
   }
 },
 {
-  "pk": 4,
+  "pk": "00000000-0000-0000-0000-000000000004",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -149,7 +149,7 @@
   }
 },
 {
-  "pk": 5,
+  "pk": "00000000-0000-0000-0000-000000000005",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -160,7 +160,7 @@
   }
 },
 {
-  "pk": 6,
+  "pk": "00000000-0000-0000-0000-000000000006",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": ".responsible_changed_published.",
@@ -171,7 +171,7 @@
   }
 },
 {
-  "pk": 7,
+  "pk": "00000000-0000-0000-0000-000000000007",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -182,7 +182,7 @@
   }
 },
 {
-  "pk": 8,
+  "pk": "00000000-0000-0000-0000-000000000008",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -193,7 +193,7 @@
   }
 },
 {
-  "pk": 9,
+  "pk": "00000000-0000-0000-0000-000000000009",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -204,7 +204,7 @@
   }
 },
 {
-  "pk": 10,
+  "pk": "00000000-0000-0000-0000-000000000010",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -215,7 +215,7 @@
   }
 },
 {
-  "pk": 11,
+  "pk": "00000000-0000-0000-0000-000000000011",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -226,7 +226,7 @@
   }
 },
 {
-  "pk": 12,
+  "pk": "00000000-0000-0000-0000-000000000012",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -237,7 +237,7 @@
   }
 },
 {
-  "pk": 13,
+  "pk": "00000000-0000-0000-0000-000000000013",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": ".other_responsible_changed_published.",
@@ -248,7 +248,7 @@
   }
 },
 {
-  "pk": 14,
+  "pk": "00000000-0000-0000-0000-000000000014",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -259,7 +259,7 @@
   }
 },
 {
-  "pk": 15,
+  "pk": "00000000-0000-0000-0000-000000000015",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
