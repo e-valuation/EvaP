@@ -2,8 +2,9 @@ License
 =======
 
 The software is licensed under the MIT license. The source code includes other
-components in whole or in part; namely jQuery, jQuery UI, jQuery UI Multiselect
-and jQuery Formset. These components are used under the MIT resp. BSD licenses.
+components in whole or in part; namely Bootstrap Datepicker, DataTables, Font
+Awesome, jQuery, jQuery Formset, Moment, Popper, Select2, Sisyphus, Sortable.
+These components are used under the MIT resp. SIL OFL licenses.
 
 The source repository may include logos, names or other trademarks of the
 Hasso Plattner Institute, the Fachschaftsrat IT-Systems Engineering or other
@@ -12,8 +13,9 @@ not touched by the software license.
 
 ::
 
-  EvaP - Evaluation Platform
-  Copyright (C) 2011-2016 by Michael Grünewald, Stefan Richter, Johannes Linke and Johannes Wolf
+  EvaP – Evaluation Platform
+  Copyright (C) 2011-2017 by Michael Grünewald, Stefan Richter, Johannes Linke,
+  and Johannes Wolf
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -32,3 +34,4 @@ not touched by the software license.
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
+  
