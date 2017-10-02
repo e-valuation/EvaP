@@ -1,0 +1,70 @@
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
+                <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times"></span></a>
+            </div>
+            <form id="{{ modal_id }}Form">
+                <div class="modal-body">
+                    {{ teaser }}
+                    <br /><br />
+                    <div class="form-group">
+                        <label for="sender-name" class="control-label">{% trans "User" %}:</label>
+                        <input type="text" class="form-control" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}">
+                    </div>
+                    <label for="message-text" class="control-label">{% trans "Message" %}:</label>
+                    <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Cancel" %}</a>
+                    <button id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans "Send Message" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function {{ modal_id }}Show() {
+        $('#{{ modal_id }}ActionButton').unbind().click(function(){ {{ modal_id }}Action(); });
+        $('#{{ modal_id }}').modal();
+    }
+    function {{ modal_id }}Action() {
+        var actionButton = $('#{{ modal_id }}ActionButton');
+        actionButton.prop('disabled', true);
+        event.preventDefault();
+
+        message = $('#{{ modal_id }}MessageText').val();
+
+        if (message.trim() == "") {
+            $('#{{ modal_id }}').modal('hide');
+            actionButton.prop('disabled', false);
+            return;
+        }
+
+        var originalText = actionButton.text();
+
+        $.ajax({
+            url : "/contact",
+            type : "POST",
+            data : { message: message, title: "{{ title }}" },
+            success : function(json) {
+                $('#{{ modal_id }}').modal('hide');
+                $('#successMessageModal').modal('show');
+                $('#{{ modal_id }}MessageText').val("");
+                setTimeout(function(){
+                    $('#successMessageModal').modal('hide');
+                    actionButton.prop('disabled', false);
+                }, 3000);
+            },
+            error : function(json) {
+                actionButton.text('{% trans "Sending failed, sorry!" %}');
+                setTimeout(function(){
+                    actionButton.text(originalText);
+                    actionButton.prop('disabled', false);
+                }, 4000);
+            }
+        });
+    }
+</script>
