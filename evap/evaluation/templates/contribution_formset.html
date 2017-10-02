@@ -1,7 +1,16 @@
 {% load evaluation_filters %}
 
 <fieldset>
-    <legend>{% trans "Contributors" %}</legend>
+    <div class="d-flex">
+        <legend class="mr-auto">{% trans "Contributors" %}</legend>
+        {% if not staff %}
+            <div>
+                <a role="button" class="btn btn-sm btn-light" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
+                    {% trans "Request creation of new account" %}
+                </a>
+            </div>
+        {% endif %}
+    </div>
     {{ formset.management_form }}
     {% include "bootstrap_form_errors.html" with errors=formset.non_form_errors %}
 
