@@ -63,6 +63,7 @@ def vote(request, course_id):
     if not course.can_user_vote(request.user):
         raise PermissionDenied
 
+    
     # prevent a user from voting on themselves.
     contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
     form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
@@ -80,7 +81,11 @@ def vote(request, course_id):
             contributor_form_groups=contributor_form_groups,
             course=course,
             participants_warning=course.num_participants <= 5,
-            preview=False)
+            preview=False,
+            vote_end_datetime=course.vote_end_datetime,
+            hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
+            minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
+            ends_soon=course.ends_soon())
         return render(request, "student_vote.html", template_data)
 
     # all forms are valid, begin vote operation
