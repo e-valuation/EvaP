@@ -27,18 +27,6 @@
 </head>
 <body>
 {% block modals %}
-    <div class="modal fade" id="successMessageModal" tabindex="-1" role="dialog" aria-labelledby="successMessageModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="successMessageModalLabel">{% trans "Message sent" %}</h5>
-                </div>
-                <div class="modal-body">
-                    {% trans "Your message was successfully sent." %}
-                </div>
-            </div>
-        </div>
-    </div>
     {% if user.is_authenticated %}
         {% trans "Feedback" as title %}
         {% trans "You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP." as teaser %}

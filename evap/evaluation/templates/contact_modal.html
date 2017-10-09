@@ -1,3 +1,16 @@
+<div class="modal fade" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successMessageModalLabel_{{ modal_id }}">{% trans "Message sent" %}</h5>
+            </div>
+            <div class="modal-body">
+                {% trans "Your message was successfully sent." %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -10,8 +23,10 @@
                     {{ teaser }}
                     <br /><br />
                     <div class="form-group">
-                        <label for="sender-name" class="control-label">{% trans "User" %}:</label>
-                        <input type="text" class="form-control" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}">
+                        <label for="{{ modal_id }}SenderName" class="control-label">{% trans "Sender" %}:</label>
+                        <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}">
+                        <label for="{{ modal_id }}Subject" class="control-label">{% trans "Subject" %}:</label>
+                        <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}">
                     </div>
                     <label for="message-text" class="control-label">{% trans "Message" %}:</label>
                     <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
