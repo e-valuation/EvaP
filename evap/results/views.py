@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
-from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY
+from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY
 
 
 @internal_required
@@ -78,6 +78,18 @@ def course_detail(request, semester_id, course_id):
             else:
                 results.append(result)
         section.results[:] = results
+
+    # filter empty headings
+    for section in sections:
+        filtered_results = []
+        for index in range(len(section.results)):
+            result = section.results[index]
+            # filter out if there are no more questions or the next question is also a heading question
+            if isinstance(result, HeadingResult):
+                if index == len(section.results) - 1 or isinstance(section.results[index + 1], HeadingResult):
+                    continue
+            filtered_results.append(result)
+        section.results[:] = filtered_results
 
     # remove empty sections
     sections = [section for section in sections if section.results]

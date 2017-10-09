@@ -110,6 +110,8 @@ def vote(request, course_id):
                                 contribution=contribution,
                                 question=question,
                                 answer=value)
+                    elif question.is_heading_question:
+                        pass  # ignore these
                     else:
                         if value != 6:
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)

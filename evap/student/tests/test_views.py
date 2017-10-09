@@ -34,8 +34,10 @@ class TestVoteView(ViewTest):
         cls.general_questionnaire = mommy.make(Questionnaire)
         cls.contributor_questionnaire = mommy.make(Questionnaire)
 
+        cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, type="H")
         cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, type="T")
         cls.contributor_likert_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, type="L")
+        cls.general_heading_question = mommy.make(Question, questionnaire=cls.general_questionnaire, type="H")
         cls.general_text_question = mommy.make(Question, questionnaire=cls.general_questionnaire, type="T")
         cls.general_likert_question = mommy.make(Question, questionnaire=cls.general_questionnaire, type="L")
         cls.general_grade_question = mommy.make(Question, questionnaire=cls.general_questionnaire, type="G")

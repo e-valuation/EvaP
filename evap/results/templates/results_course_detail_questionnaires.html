@@ -12,7 +12,14 @@
 <table class="table table-striped{% if not last %} mb-3{% endif %}">
     <tbody>
         {% for result in section.results %}
-            {% if result.question.is_rating_question %}
+            {% if result.question.is_heading_question %}
+                {# We want to start a new section here, so we close the table, render the heading and reopen the table #}
+                </tbody>
+                </table>
+                <h5{% if not forloop.first %} class="mt-3"{% endif %}>{{ result.question.text }}</h5>
+                <table class="table table-striped{% if not last %} mb-3{% endif %}">
+                <tbody>
+            {% elif result.question.is_rating_question %}
                 <tr class="no-break d-flex">
                     <td class="result-rating-question my-auto">{{ result.question.text }}</td>
                     <td class="result-rating-answer my-auto">

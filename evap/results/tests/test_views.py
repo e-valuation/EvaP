@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from model_mommy import mommy
 
-from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree
+from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
 from evap.evaluation.tests.tools import ViewTest
 
 
@@ -51,6 +51,25 @@ class TestResultsSemesterCourseDetailView(ViewTest):
 
         mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
+
+    def test_heading_question_filtering(self):
+        contributor = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire)
+
+        heading_question_0 = mommy.make(Question, type="H", questionnaire=questionnaire, order=0)
+        heading_question_1 = mommy.make(Question, type="H", questionnaire=questionnaire, order=1)
+        likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
+        heading_question_2 = mommy.make(Question, type="H", questionnaire=questionnaire, order=3)
+
+        contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
+        mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
+
+        page = self.app.get("/results/semester/2/course/21", user='evap')
+
+        self.assertNotIn(heading_question_0.text, page)
+        self.assertIn(heading_question_1.text, page)
+        self.assertIn(likert_question.text, page)
+        self.assertNotIn(heading_question_2.text, page)
 
     def test_single_result_course(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)

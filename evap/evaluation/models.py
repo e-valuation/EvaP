@@ -628,6 +628,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         ("G", _("Grade Question")),
         ("P", _("Positive Yes-No Question")),
         ("N", _("Negative Yes-No Question")),
+        ("H", _("Heading")),
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
@@ -679,6 +680,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_rating_question(self):
         return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
+
+    @property
+    def is_heading_question(self):
+        return self.type == "H"
 
 
 class Answer(models.Model):

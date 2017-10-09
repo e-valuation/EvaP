@@ -9,6 +9,14 @@ POSITIVE_YES_NO_CHOICES = [(str(k), v) for k, v in POSITIVE_YES_NO_NAMES.items()
 NEGATIVE_YES_NO_CHOICES = [(str(k), v) for k, v in NEGATIVE_YES_NO_NAMES.items()]
 
 
+class HeadingField(forms.Field):
+    """ Pseudo field used to store and display headings inside a QuestionsForm.
+    Does not handle any kind of input."""
+
+    def __init__(self, label):
+        super().__init__(label=label, required=False)
+
+
 class QuestionsForm(forms.Form):
     """Dynamic form class that adds one field per question.
 
@@ -45,6 +53,8 @@ class QuestionsForm(forms.Form):
                                                choices=NEGATIVE_YES_NO_CHOICES,
                                                coerce=int,
                                                **field_args)
+            elif question.is_heading_question:
+                field = HeadingField(label=question.text)
 
             identifier = question_id(contribution,
                                      questionnaire,
