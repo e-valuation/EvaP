@@ -33,4 +33,7 @@ class Command(BaseCommand):
         self.stdout.write('Executing "python manage.py load_testdata"')
         call_command("loaddata", "test_data")
 
+        self.stdout.write('Executing "python manage.py refresh_results_cache"')
+        call_command("refresh_results_cache")
+
         self.stdout.write('Done.')
