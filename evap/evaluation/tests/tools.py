@@ -55,7 +55,7 @@ class WebTest(DjangoWebTest):
 
     def get_submit_assert_200(self, url, user):
         response = self.get_assert_200(url, user)
-        response = response.forms[2].submit("")
+        response = response.forms[3].submit("")
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 

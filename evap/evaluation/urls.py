@@ -10,5 +10,5 @@ urlpatterns = [
     url(r"^faq$", views.faq, name="faq"),
     url(r"^set_lang", views.set_lang, name="set_lang"),
     url(r"^legal_notice$", views.legal_notice, name="legal_notice"),
-    url(r"feedback/send$", views.feedback_send, name="feedback_send"),
+    url(r"contact$", views.contact, name="contact"),
 ]

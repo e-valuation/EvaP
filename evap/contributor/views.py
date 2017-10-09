@@ -47,9 +47,14 @@ def settings_edit(request):
         form.save()
 
         messages.success(request, _("Successfully updated your settings."))
-        return redirect('contributor:index')
+        return redirect('contributor:settings_edit')
     else:
-        return render(request, "contributor_settings.html", dict(form=form))
+        return render(request, "contributor_settings.html", dict(
+            form=form,
+            delegate_of=user.represented_users.all(),
+            cc_users=user.cc_users.all(),
+            ccing_users=user.ccing_users.all(),
+        ))
 
 
 @editor_or_delegate_required

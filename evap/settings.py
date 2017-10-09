@@ -109,8 +109,7 @@ CACHES = {
     }
 }
 
-# Config for feedback links
-FEEDBACK_EMAIL = "webmaster@localhost"
+CONTACT_EMAIL = "webmaster@localhost"
 TRACKER_URL = "https://github.com/fsr-itse/EvaP"
 
 # Config for mail system
