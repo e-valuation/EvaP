@@ -89,7 +89,7 @@ SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',  # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.postgresql',  # postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'evap',  # Or path to database file if using sqlite3.
         'USER': 'postgres',                              # Not used with sqlite3.
         'PASSWORD': '',                          # Not used with sqlite3.

@@ -3,9 +3,9 @@ stage { 'pre':
 }
 
 node default {
-    # update apt
-    class { 'apt':
-        stage    => pre
+    exec { 'apt-get update':
+        provider => shell,
+        command  => 'apt-get update'
     }
 
     # general packages
@@ -15,7 +15,8 @@ node default {
     # python packages
     package { ['python3', 'python3-dev', 'python3-pip', 'libxslt1-dev', 'zlib1g-dev', 'gettext', 'libpq-dev']:
         ensure => installed,
-    } ->
+    }
+    ->
     package { ['nodejs', 'npm']:
         ensure => installed,
     } ->
@@ -51,12 +52,7 @@ node default {
         user           => 'vagrant',
         provider       => shell,
         command        => 'pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements-dev.txt'
-    } -> exec { 'install-psycopg2':
-       provider    => shell,
-       command     => 'pip3 --log-file /tmp/pip.log install --user psycopg2==2.7.1',
-       user        => 'vagrant'
     } -> class { 'evap':
-        db_connector   => 'postgresql_psycopg2'
     }
 
     # apache environment
