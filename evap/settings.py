@@ -310,7 +310,7 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 COMPRESS_ENABLED = not DEBUG
 COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'node-sass {infile} > {outfile}'),
+    ('text/x-scss', 'sass {infile} {outfile}'),
 )
 COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 

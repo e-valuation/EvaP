@@ -2,7 +2,17 @@ stage { 'pre':
     before => Stage['main'],
 }
 
+
 node default {
+    # needed for ruby2.4
+    exec { 'apt-get install software-properties-common':
+        provider => shell,
+        command  => 'apt-get update && apt-get install -y software-properties-common'
+    } ->
+    exec { 'apt-add-repository':
+        provider => shell,
+        command  => 'apt-add-repository -y ppa:brightbox/ruby-ng && apt-get update'
+    } ->
     exec { 'apt-get update':
         provider => shell,
         command  => 'apt-get update'
@@ -17,16 +27,12 @@ node default {
         ensure => installed,
     }
     ->
-    package { ['nodejs', 'npm']:
+    package { ['ruby2.4', 'ruby2.4-dev']:
         ensure => installed,
     } ->
-    exec { "node-symlink":
+    exec { "install sass":
         provider => shell,
-        command => 'ln -f -s /usr/bin/nodejs /usr/bin/node'
-    } ->
-    exec { "install node-sass":
-        provider => shell,
-        command => 'npm install -g node-sass'
+        command => 'gem install sass'
     }
 
 
