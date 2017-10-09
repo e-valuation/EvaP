@@ -10,7 +10,13 @@
                     {% endif %}
                     <ul>
                         {% for question in questionnaire.question_set.all %}
-                            <li>{{ question.text }}</li>
+                            {% if question.is_heading_question %}
+                                </ul>
+                                {{ question.text }}
+                                <ul>
+                            {% else %}
+                                <li>{{ question.text }}</li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                     {% endspaceless %}">

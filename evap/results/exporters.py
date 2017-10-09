@@ -39,6 +39,7 @@ class ExcelExporter(object):
             'course':        xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium'),
             'total_voters':  xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
             'bold':          xlwt.easyxf('font: bold on'),
+            'italic':        xlwt.easyxf('font: italic on'),
             'border_left':   xlwt.easyxf('borders: left medium'),
             'border_right':  xlwt.easyxf('borders: right medium'),
             'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
@@ -76,6 +77,22 @@ class ExcelExporter(object):
         if total:
             style_name += "_total"
         return style_name
+
+    def filter_text_and_heading_questions(self, questions):
+        # remove text questions:
+        questions = [question for question in questions if not question.is_text_question]
+
+        # remove heading questions if they have no "content" below them
+        filtered_questions = []
+        for index in range(len(questions)):
+            question = questions[index]
+            if question.is_heading_question:
+                # filter out if there are no more questions or the next question is also a heading question
+                if index == len(questions) - 1 or questions[index + 1].is_heading_question:
+                    continue
+            filtered_questions.append(question)
+
+        return filtered_questions
 
     def export(self, response, course_types_list, include_not_enough_answers=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
@@ -126,14 +143,16 @@ class ExcelExporter(object):
                 for course, results in courses_with_results:
                     self.write_two_empty_cells_with_borders()
 
-                for question in questionnaire.question_set.all():
-                    if question.is_text_question:
-                        continue
+                filtered_questions = self.filter_text_and_heading_questions(questionnaire.question_set.all())
 
-                    writen(self, question.text)
+                for question in filtered_questions:
+                    if question.is_heading_question:
+                        writen(self, question.text, "italic")
+                    else:
+                        writen(self, question.text)
 
                     for course, results in courses_with_results:
-                        if questionnaire.id not in results:
+                        if questionnaire.id not in results or question.is_heading_question:
                             self.write_two_empty_cells_with_borders()
                             continue
                         qn_results = results[questionnaire.id]

@@ -89,6 +89,11 @@ def is_choice_field(field):
 
 
 @register.filter
+def is_heading_field(field):
+    return field.field.__class__.__name__ == "HeadingField"
+
+
+@register.filter
 def is_user_editor_or_delegate(course, user):
     return course.is_user_editor_or_delegate(user)
 
