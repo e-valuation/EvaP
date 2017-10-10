@@ -272,7 +272,7 @@ USERNAME_REPLACEMENTS = [
 # Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
 EVALUATION_END_OFFSET_HOURS = 3
 
-# Amount of hours in wich participant will be warned
+# Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
 ### Static files (CSS, JavaScript, Images)

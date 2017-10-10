@@ -85,7 +85,7 @@ def vote(request, course_id):
             vote_end_datetime=course.vote_end_datetime,
             hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
             minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
-            ends_soon=course.ends_soon())
+            evaluation_ends_soon=course.evaluation_ends_soon())
         return render(request, "student_vote.html", template_data)
 
     # all forms are valid, begin vote operation

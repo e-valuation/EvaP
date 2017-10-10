@@ -54,7 +54,7 @@ class TestCourses(TestCase):
     def test_in_evaluation_to_published(self):
         # Course is "fully reviewed" and not graded, thus gets published immediately.
         course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                             vote_end_date=date.today() - timedelta(days=1),
+                            vote_end_date=date.today() - timedelta(days=1),
                             is_graded=False)
 
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
@@ -71,7 +71,7 @@ class TestCourses(TestCase):
                             vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
 
         Course.update_courses()
-        self.assertTrue(course.ends_soon())
+        self.assertTrue(course.evaluation_ends_soon())
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_evaluation_doesnt_end_soon(self):
