@@ -38,18 +38,10 @@ Contributing
 We'd love to see contributions, feel free to fork! You should probably branch off ``master``, the branch ``release`` is used for stable revisions.
 
 
-Mailinglist
------------
-
-We have a mailinglist called evap-dev@lists.myhpi.de.
-
-You can add yourself to the list at http://lists.myhpi.de/HQowKfvd70oVOTPEWG2UhB0OO0rfo8Z.
-
-
 License
 -------
 
-See `LICENSE.rst <LICENSE.rst>`_.
+MIT, see `LICENSE.rst <LICENSE.rst>`_.
 
 
 
