@@ -53,8 +53,9 @@ class TestReloadTestdataCommand(TestCase):
         mock_call_command.assert_any_call('migrate')
         mock_call_command.assert_any_call('createcachetable')
         mock_call_command.assert_any_call('loaddata', 'test_data')
+        mock_call_command.assert_any_call('refresh_results_cache')
 
-        self.assertEqual(mock_call_command.call_count, 4)
+        self.assertEqual(mock_call_command.call_count, 5)
 
 
 class TestRefreshResultsCacheCommand(TestCase):
