@@ -12,26 +12,22 @@ For the documentation, please see our `wiki <https://github.com/fsr-itse/EvaP/wi
 
 Installation
 ------------
-The vagrant setup is shown here. For manual installation instructions and production deployment please see the `wiki page on installation <https://github.com/fsr-itse/EvaP/wiki/Installation>`_.
+The easiest setup using Vagrant_ and VirtualBox_ is shown here. For manual installation instructions and production deployment please see the `wiki page on installation <https://github.com/fsr-itse/EvaP/wiki/Installation>`_.
 
-(0) Checkout EvaP and its submodules::
+(0) Install git_, Vagrant_ and VirtualBox_
 
-        git clone --recurse-submodules git@github.com:fsr-itse/EvaP.git
+(1) Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
-(1) After installing Vagrant_, run in your EvaP root directory::
+(2) Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server::
 
+        git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
+        cd EvaP
         vagrant up
         vagrant ssh
         ./manage.py run
 
-(2) Open your browser::
+(3) Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
 
-        http://localhost:8000/
-
-(3) Log in with the following credentials::
-
-        username: evap
-        password: evap
 
 That's it!
 
@@ -60,7 +56,6 @@ See `LICENSE.rst <LICENSE.rst>`_.
 .. |build| image:: https://travis-ci.org/fsr-itse/EvaP.svg
         :alt: Build Status
         :target: https://travis-ci.org/fsr-itse/EvaP
-.. _Vagrant: http://www.vagrantup.com/
 .. |dependencies| image:: https://gemnasium.com/fsr-itse/EvaP.svg
         :alt: Dependency Status
         :target: https://gemnasium.com/fsr-itse/EvaP
@@ -70,3 +65,6 @@ See `LICENSE.rst <LICENSE.rst>`_.
 .. |coveralls| image:: https://coveralls.io/repos/github/fsr-itse/EvaP/badge.svg?branch=master
         :alt: Code Coverage
         :target: https://coveralls.io/github/fsr-itse/EvaP?branch=master
+.. _Vagrant: https://www.vagrantup.com/downloads.html
+.. _VirtualBox: https://www.virtualbox.org/wiki/Downloads
+.. _git: https://git-scm.com/downloads
