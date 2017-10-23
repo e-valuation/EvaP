@@ -58,7 +58,10 @@ def course_detail(request, semester_id, course_id):
 
     sections = calculate_results(course)
 
-    public_view = request.GET.get('public_view') != 'false'  # if parameter is not given, show public view.
+    if request.user.is_staff or request.user.is_reviewer:
+        public_view = request.GET.get('public_view') != 'false'  # if parameter is not given, show public view.
+    else:
+        public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
 
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
