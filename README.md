@@ -9,12 +9,12 @@
 
 EvaP is the course evaluation system used internally at Hasso Plattner Institute.
 
-For the documentation, please see our [wiki](https://github.com/fsr-itse/EvaP/wiki>).
+For the documentation, please see our [wiki](https://github.com/fsr-itse/EvaP/wiki).
 
 
 ## Installation
 
-The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/fsr-itse/EvaP/wiki/Installation>).
+The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/fsr-itse/EvaP/wiki/Installation).
 
 0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
