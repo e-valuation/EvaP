@@ -36,7 +36,7 @@ def index(request):
         if new_key_form.is_valid():
             # user wants a new login key
             profile = new_key_form.get_user()
-            profile.generate_login_key()
+            profile.ensure_valid_login_key()
             profile.save()
 
             EmailTemplate.send_login_url_to_user(new_key_form.get_user())
@@ -109,21 +109,21 @@ def legal_notice(request):
 
 @require_POST
 @login_required
-def feedback_send(request):
-    sender_email = request.user.email
+def contact(request):
     message = request.POST.get("message")
-    subject = "Feedback from {}".format(sender_email)
+    title = request.POST.get("title")
+    subject = "[EvaP] Message from {}".format(request.user.username)
 
     if message:
         mail = EmailMessage(
             subject=subject,
-            body=message,
-            to=[settings.FEEDBACK_EMAIL])
+            body="{}\n{} ({})\n\n{}".format(title, request.user.username, request.user.email, message),
+            to=[settings.CONTACT_EMAIL])
         try:
             mail.send()
-            logger.info('Sent feedback email: \n{}\n'.format(mail.message()))
+            logger.info('Sent contact email: \n{}\n'.format(mail.message()))
         except Exception:
-            logger.exception('An exception occurred when sending the following feedback email:\n{}\n'.format(mail.message()))
+            logger.exception('An exception occurred when sending the following contact email:\n{}\n'.format(mail.message()))
             raise
 
     return HttpResponse()

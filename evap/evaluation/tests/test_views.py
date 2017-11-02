@@ -49,7 +49,7 @@ class TestFAQView(ViewTest):
     test_users = ['']
 
 
-class TestSendFeedbackView(ViewTest):
+class TestContactEmail(ViewTest):
     csrf_checks = False
 
     @classmethod
@@ -57,7 +57,7 @@ class TestSendFeedbackView(ViewTest):
         mommy.make(UserProfile, username='evap')
 
     def test_sends_mail(self):
-        self.app.post('/feedback/send', params={'message': 'feedback message', 'sender_email': 'unique@mail.de'}, user='evap')
+        self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user='evap')
         self.assertEqual(len(mail.outbox), 1)
 
 

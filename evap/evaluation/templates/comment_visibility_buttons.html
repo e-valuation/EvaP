@@ -1,7 +1,7 @@
 <div class="btn-group" data-toggle="buttons">
     {% for choice in form.comment_visibility %}
         {% if choice.data.value == "ALL" %}
-            {% trans "Will see all comments about the course and about all contributors." as tooltip %}
+            {% trans "Will see all comments about the course and about all non-responsible contributors." as tooltip %}
         {% elif choice.data.value == "COURSE" %}
             {% trans "Will see own comments and comments about the course." as tooltip %}
         {% elif choice.data.value == "OWN" %}

@@ -9,105 +9,97 @@
     {{ block.super }}
     <h3>{% trans "Settings" %}</h3>
 
-    <div class="card mb-3">
-        <div class="card-header d-flex">
-            <span class="mr-auto">{% trans "Personal information" %}</span>
-            <span class="fa fa-info-circle fa-card-header" data-toggle="tooltip" data-placement="left"
-            title="{% trans 'To change any of these settings, please contact the student representatives.' %}"></span>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped vertically-aligned">
-                <tr>
-                    <td style="width: 20%"><strong>{% trans "Username" %}</strong></td>
-                    <td style="width: 80%">{{ form.instance.username }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{% trans "Title" %}</strong></td>
-                    <td>{{ form.instance.title }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{% trans "First name" %}</strong></td>
-                    <td>{{ form.instance.first_name }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{% trans "Last name" %}</strong></td>
-                    <td>{{ form.instance.last_name }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{% trans "Email" %}</strong></td>
-                    <td>{{ form.instance.email }}</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
-        <div class="card mb-3">
-            <div class="card-header d-flex">
-                <div class="mr-auto">{% trans "Delegates and CC users" %}</div>
-                <div class="fa fa-info-circle fa-card-header" data-toggle="tooltip" data-placement="left"
-                    title="{% blocktrans %}You can only change your own delegates. To become a delegate of another person this person has to add you.
-                    Please contact the student representatives to change the CC settings.{% endblocktrans %}">
+    <div class="row mb-3">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
+                    <table class="table table-striped vertically-aligned">
+                        <tr>
+                            <td class="col-6"><strong>{% trans "Username" %}</strong></td>
+                            <td class="col-6">{{ form.instance.username }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{% trans "Title" %}</strong></td>
+                            <td>{{ form.instance.title|default_if_none:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{% trans "First name" %}</strong></td>
+                            <td>{{ form.instance.first_name|default_if_none:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{% trans "Last name" %}</strong></td>
+                            <td>{{ form.instance.last_name|default_if_none:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{% trans "Email" %}</strong></td>
+                            <td>{{ form.instance.email|default_if_none:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>{% trans "CC all my emails to" %}</strong></td>
+                            <td>
+                                {% for cc_user in cc_users %}
+                                    {{ cc_user.full_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>{% trans "You receive CC'ed emails for" %}</strong></td>
+                            <td>
+                                {% for ccing_user in ccing_users %}
+                                    {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card-footer text-center">
+                    <a role="button" class="btn btn-light" onclick="changeRequestModalShow();" id="changeRequestModalButton">
+                        {% trans "Request changes" %}
+                    </a>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="card card-outline-primary">
-                            <div class="card-header">
-                                {% trans "Own delegates" %}
-                            </div>
-                            <div class="card-body">
+        </div>
+        <div class="col-6">
+            <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">{% trans 'Delegates' %}</h4>
+                        <p class="mb-3">
+                            {% trans 'Your delegates will receive all your emails in CC and will be able to prepare courses and see results on your behalf.' %}
+                        </p>
+                        <table class="table vertically-aligned">
+                            <tr>
+                                <td>
+                                <strong>{% trans "Your delegates" %}</strong><br />
                                 {% include "bootstrap_form_errors.html" with errors=form.delegates.errors %}
                                 {{ form.delegates }}
-                            </div>
-                        </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>{% trans "You are a delegate of" %}</strong><br />
+                                    {% for delegate in delegate_of %}
+                                        {{ delegate.full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    <div class="col-6">
-                        <div class="card">
-                            <div class="card-header">
-                                {% trans "You are a delegate of" %}
-                            </div>
-                            <div class="card-body">
-                                {{ form.delegate_of }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <br />
-                <div class="row">
-                    <div class="col-6">
-                        <div class="card">
-                            <div class="card-header">
-                                {% trans "Emails sent to you will be CC'ed to" %}
-                            </div>
-                            <div class="card-body">
-                                {{ form.cc_users }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="card">
-                            <div class="card-header">
-                                {% trans "Emails sent to these users will be CC'ed to you" %}
-                            </div>
-                            <div class="card-body">
-                                {{ form.cc_user_of }}
-                            </div>
-                        </div>
+                    <div class="card-footer text-center">
+                        <button type="submit" class="btn btn-primary">{% trans "Save delegates" %}</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
+    </div>
+{% endblock %}
 
-        {{ form.cc_users.as_hidden }} {# disabled elements are not sent in the post and select2 doesn't work with readonly #}
-
-        <div class="card card-submit-area text-center mb-3">
-            <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
-            </div>
-        </div>
-    </form>
+{% block modals %}
+    {{ block.super }}
+    {% trans "Request user setting changes" as title %}
+    {% trans "Please tell us which of your settings we should change." as teaser %}
+    {% include "contact_modal.html" with modal_id="changeRequestModal" user=request.user title=title teaser=teaser %}
 {% endblock %}

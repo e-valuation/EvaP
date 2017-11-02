@@ -74,11 +74,12 @@
             </div>
         {% endif %}
         {% if not for_rendering_in_modal %}
-        <div class="card card-submit-area text-center mb-3">
+        <div class="card card-submit-area {% if not preview %}card-submit-area-2 {% endif %}text-center mb-3">
             <div class="card-body">
                 {% if preview %}
                     <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
                 {% else %}
+                    <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light">{% trans "Presave in Browser" %}</a>
                     <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans "Submit questionnaire" %}</button>
                     <p id="submit-error-warning" style="display: none">
                         <span class="fa fa-exclamation-triangle"></span>
@@ -169,11 +170,23 @@
                 $("#vote-area-" + contributorId).collapse("hide");
 
                 // setting the 'checked' prop does not trigger a change event, so manually save all data here
-                sisyphus.saveAllData()
+                sisyphus.saveAllData();
             }
             function selectedAnswer(fieldName) {
                 // remove error highlighting when an answer was selected
                 $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
+            }
+            
+            var presaveButton = $("#presave-btn");
+            var originalPresaveText = presaveButton.text();
+            function presave() {
+                sisyphus.saveAllData();
+                presaveButton.text("{% trans 'Saving...' %}");
+                presaveButton.addClass("disabled");
+                setTimeout(function() {
+                    presaveButton.text(originalPresaveText);
+                    presaveButton.removeClass("disabled");
+                }, 1000);
             }
         </script>
     {% endif %}

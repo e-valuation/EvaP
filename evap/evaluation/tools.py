@@ -54,13 +54,13 @@ STATES_ORDERED = OrderedDict((
 
 # the descriptions used in tooltips for contributors
 STATE_DESCRIPTIONS = OrderedDict((
-    ('new', _('The course was newly created and will be prepared by the student representatives.')),
-    ('prepared', _('The course was prepared by the student representatives and is now available for editing to the responsible person.')),
-    ('editor_approved', _('The course was approved by a lecturer and will now be checked by the student representatives.')),
+    ('new', _('The course was newly created and will be prepared by the evaluation team.')),
+    ('prepared', _('The course was prepared by the evaluation team and is now available for editing to the responsible person.')),
+    ('editor_approved', _('The course was approved by a lecturer and will now be checked by the evaluation team.')),
     ('approved', _('All preparations are finished. The evaluation will begin once the defined start date is reached.')),
     ('in_evaluation', _('The course is currently in evaluation until the defined end date is reached.')),
-    ('evaluated', _('The course was fully evaluated and will now be reviewed by the student representatives.')),
-    ('reviewed', _('The course was fully evaluated and reviewed by the student representatives. You will receive an email when its results are published.')),
+    ('evaluated', _('The course was fully evaluated and will now be reviewed by the evaluation team.')),
+    ('reviewed', _('The course was fully evaluated and reviewed by the evaluation team. You will receive an email when its results are published.')),
     ('published', _('The results for this course have been published.'))
 ))
 

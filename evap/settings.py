@@ -89,9 +89,9 @@ SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, 'database.sqlite3'),  # Or path to database file if using sqlite3.
-        'USER': '',                              # Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql',  # postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'evap',  # Or path to database file if using sqlite3.
+        'USER': 'postgres',                              # Not used with sqlite3.
         'PASSWORD': '',                          # Not used with sqlite3.
         'HOST': '',                              # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                              # Set to empty string for default. Not used with sqlite3.
@@ -109,8 +109,7 @@ CACHES = {
     }
 }
 
-# Config for feedback links
-FEEDBACK_EMAIL = "webmaster@localhost"
+CONTACT_EMAIL = "webmaster@localhost"
 TRACKER_URL = "https://github.com/fsr-itse/EvaP"
 
 # Config for mail system
@@ -311,7 +310,7 @@ SENDFILE_BACKEND = 'sendfile.backends.simple'
 COMPRESS_ENABLED = not DEBUG
 COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'node-sass {infile} > {outfile}'),
+    ('text/x-scss', 'sass {infile} {outfile}'),
 )
 COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
@@ -326,7 +325,6 @@ TESTING = 'test' in sys.argv
 
 # speed up tests
 if TESTING:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}  # use sqlite to speed tests up
     COMPRESS_PRECOMPILERS = ()  # disable django-compressor
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
 

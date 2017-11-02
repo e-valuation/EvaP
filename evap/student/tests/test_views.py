@@ -104,24 +104,20 @@ class TestVoteView(ViewTest):
         self.assertEqual(RatingAnswerCounter.objects.get(question=self.general_grade_question).answer, 3)
 
         self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question).count(), 2)
-        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question)[0].answer, 4)
-        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question)[1].answer, 2)
-        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question)[0].contribution, self.contribution1)
-        self.assertEqual(RatingAnswerCounter.objects.filter(question=self.contributor_likert_question)[1].contribution, self.contribution2)
+        self.assertEqual(RatingAnswerCounter.objects.get(question=self.contributor_likert_question, contribution=self.contribution1).answer, 4)
+        self.assertEqual(RatingAnswerCounter.objects.get(question=self.contributor_likert_question, contribution=self.contribution2).answer, 2)
 
         self.assertEqual(TextAnswer.objects.filter(question=self.general_text_question).count(), 2)
         self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question).count(), 4)
 
         self.assertEqual(TextAnswer.objects.filter(question=self.general_text_question)[0].contribution, self.course.general_contribution)
         self.assertEqual(TextAnswer.objects.filter(question=self.general_text_question)[1].contribution, self.course.general_contribution)
-        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question)[0].contribution, self.contribution1)
-        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question)[1].contribution, self.contribution2)
-        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question)[2].contribution, self.contribution1)
-        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question)[3].contribution, self.contribution2)
+        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question).count(), 4)
+        self.assertEqual(TextAnswer.objects.filter(question=self.general_text_question).count(), 2)
 
-        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question)[0].answer, "some other text")
-        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question)[1].answer, "some more text")
-        self.assertEqual(TextAnswer.objects.filter(question=self.general_text_question)[0].answer, "some text")
+        self.assertEqual(list(TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution1).values_list('original_answer', flat=True)), ["some other text"]*2)
+        self.assertEqual(list(TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution2).values_list('original_answer', flat=True)), ["some more text"]*2)
+        self.assertEqual(list(TextAnswer.objects.filter(question=self.general_text_question, contribution=self.course.general_contribution).values_list('original_answer', flat=True)), ["some text"]*2)
 
 
     def test_user_cannot_vote_multiple_times(self):

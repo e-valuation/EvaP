@@ -83,35 +83,17 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegatesForm(forms.ModelForm):
-    delegate_of = UserModelMultipleChoiceField(None, required=False, disabled=True)
-    cc_user_of = UserModelMultipleChoiceField(None, required=False, disabled=True)
-
     class Meta:
         model = UserProfile
-        fields = ('delegates', 'cc_users',)
+        fields = ('delegates',)
         field_classes = {
             'delegates': UserModelMultipleChoiceField,
-            'cc_users': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['cc_users'].disabled = True
-
         self.fields['delegates'].queryset = UserProfile.objects.exclude_inactive_users()
-
-        represented_users = self.instance.represented_users.all()
-        self.fields['delegate_of'].queryset = represented_users
-        self.fields['delegate_of'].initial = represented_users
-        # work around https://code.djangoproject.com/ticket/25980
-        self.fields['delegate_of'].initial = list(represented_users.values_list('pk', flat=True))
-
-        ccing_users = self.instance.ccing_users.all()
-        self.fields['cc_user_of'].queryset = ccing_users
-        self.fields['cc_user_of'].initial = ccing_users
-        # work around https://code.djangoproject.com/ticket/25980
-        self.fields['cc_user_of'].initial = list(ccing_users.values_list('pk', flat=True))
 
     def save(self, *args, **kw):
         super().save(*args, **kw)

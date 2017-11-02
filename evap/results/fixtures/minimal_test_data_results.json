@@ -105,7 +105,7 @@
   }
 },
 {
-  "pk": 1,
+  "pk": "00000000-0000-0000-0000-000000000001",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -116,7 +116,7 @@
   }
 },
 {
-  "pk": 2,
+  "pk": "00000000-0000-0000-0000-000000000002",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -127,7 +127,7 @@
   }
 },
 {
-  "pk": 3,
+  "pk": "00000000-0000-0000-0000-000000000003",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": ".course_changed_published.",
@@ -138,7 +138,7 @@
   }
 },
 {
-  "pk": 4,
+  "pk": "00000000-0000-0000-0000-000000000004",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -149,7 +149,7 @@
   }
 },
 {
-  "pk": 5,
+  "pk": "00000000-0000-0000-0000-000000000005",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -160,7 +160,7 @@
   }
 },
 {
-  "pk": 6,
+  "pk": "00000000-0000-0000-0000-000000000006",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": ".responsible_changed_published.",
@@ -171,7 +171,7 @@
   }
 },
 {
-  "pk": 7,
+  "pk": "00000000-0000-0000-0000-000000000007",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -182,7 +182,7 @@
   }
 },
 {
-  "pk": 8,
+  "pk": "00000000-0000-0000-0000-000000000008",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -193,7 +193,7 @@
   }
 },
 {
-  "pk": 9,
+  "pk": "00000000-0000-0000-0000-000000000009",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -204,7 +204,7 @@
   }
 },
 {
-  "pk": 10,
+  "pk": "00000000-0000-0000-0000-000000000010",
   "model": "evaluation.textanswer",
   "fields": {
     "reviewed_answer": null,
@@ -212,6 +212,61 @@
     "original_answer": ".contributor_orig_private.",
     "contribution": 3,
     "state": "PR"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000011",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_published.",
+    "contribution": 6,
+    "state": "PU"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000012",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_hidden.",
+    "contribution": 6,
+    "state": "HI"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000013",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": ".other_responsible_changed_published.",
+    "question": 1,
+    "original_answer": ".other_responsible_orig_published_changed.",
+    "contribution": 6,
+    "state": "PU"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000014",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_private.",
+    "contribution": 6,
+    "state": "PR"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000015",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "reviewed_answer": null,
+    "question": 1,
+    "original_answer": ".other_responsible_orig_notreviewed.",
+    "contribution": 6,
+    "state": "NR"
   }
 },
 {
@@ -334,6 +389,23 @@
   }
 },
 {
+  "pk": 9,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "other_responsible",
+    "first_name": "other_responsible",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:51:39.584",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "other_responsible@example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.contribution",
   "fields": {
@@ -400,6 +472,20 @@
       1
     ],
     "can_edit": false,
+    "comment_visibility": "ALL"
+  }
+},
+{
+  "pk": 6,
+  "model": "evaluation.contribution",
+  "fields": {
+    "contributor": 9,
+    "course": 1,
+    "responsible": true,
+    "questionnaires": [
+      1
+    ],
+    "can_edit": true,
     "comment_visibility": "ALL"
   }
 },

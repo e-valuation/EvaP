@@ -11,6 +11,7 @@ h1, h2, h3, h4, h5, h6 {
     padding-left: 0;
     padding-top: 0;
     padding-bottom: 0;
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .navbar-brand {
@@ -169,6 +170,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
 
 .card-header .btn-sm {
     line-height: 1;
+}
+
+.tooltip.show {
+    opacity: 1;
 }
 
 .tooltip-inner {
@@ -631,8 +636,10 @@ select[multiple] {
 }
 
 .evap-progress-bar-container {
-    padding-right: 46px;
+    padding-right: 4px;
     display: block;
+    min-width: 55px;
+    flex-grow: 1;
 }
 .evap-progress-bar-back {
     background: $evap-light-blue;
@@ -658,9 +665,8 @@ select[multiple] {
 }
 .evap-progress-bar-text {
     color: $black;
-    text-align: left;
-    float: right;
-    width: 42px;
+    text-align: right;
+    min-width: 31px;
 }
 .multi-progress-bar .evap-progress-bar-container {
     padding-bottom: 3px;
