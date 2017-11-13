@@ -20,7 +20,7 @@ from django_fsm.signals import post_transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.tools import date_to_datetime
-from evap.settings import EVALUATION_END_OFFSET_HOURS
+from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD
 
 logger = logging.getLogger(__name__)
 
@@ -262,7 +262,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
 
-        assert self.vote_end_date >= self.vote_end_date
+        assert self.vote_end_date >= self.vote_start_datetime.date()
 
     @property
     def is_fully_reviewed(self):
@@ -420,6 +420,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def days_left_for_evaluation(self):
         return (self.vote_end_date - date.today()).days
+
+    @property
+    def time_left_for_evaluation(self):
+        return self.vote_end_datetime - datetime.now()
+
+    def evaluation_ends_soon(self):
+        return self.time_left_for_evaluation.total_seconds() < EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
     def days_until_evaluation(self):
