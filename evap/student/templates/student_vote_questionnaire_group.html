@@ -1,9 +1,9 @@
 {% load evaluation_filters %}
 
 {% for form in questionnaire_group %}
-    <h4{% if not forloop.first %} class="mt-3"{% endif %}>{{ form.caption }}</h4>
-    {% if form.teaser %}
-        <p>{{ form.teaser }}</p>
+    <h4{% if not forloop.first %} class="mt-3"{% endif %}>{{ form.questionnaire.public_name }}</h4>
+    {% if form.questionnaire.teaser %}
+        <p>{{ form.questionnaire.teaser }}</p>
     {% endif %}
     {{ form.non_field_errors }}
     <table class="table table-striped">
