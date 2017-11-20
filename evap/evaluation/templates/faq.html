@@ -14,7 +14,7 @@
         {% for section in sections %}
             <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
+                <div id="card-{{ question.id }}" class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
                     <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
                         <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
                             {{ question.question }}
@@ -33,19 +33,23 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        var anchor = window.location.hash.replace("#", "").split('-');
-        id = anchor[0];
-        type = 'q';
+        const anchor = window.location.hash.replace("#", "").split('-');
+        const id = anchor[0];
+        var type = 'q';
+
         if(anchor.length > 1)
             type = anchor[1];
 
         if(type == "q" && id != ""){
-            $("#collapse-" + id).collapse('show');
+            const collapse = $("#collapse-" + id);
             window.history.pushState('', id, '/faq#' + id + '-q');
+            collapse.collapse('show');
+            collapse.on('shown.bs.collapse', function () {
+                $("#card-" + id)[0].scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            });
         }
-
-        setTimeout(function() {
-            window.scrollBy(0,-65);
-        }, 100);
     </script>
 {% endblock %}
