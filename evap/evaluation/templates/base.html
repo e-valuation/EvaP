@@ -158,17 +158,6 @@
         }
     });
 
-    // scroll content to show below navbar
-    var navbarHeight = 50;
-    var shiftWindow = function(){
-        setTimeout(function(){
-            window.scrollBy(0, -navbarHeight);
-        }, 0);
-    };
-    if (location.hash)
-        shiftWindow();
-    window.addEventListener("hashchange", shiftWindow);
-
     // fix scrolling to required field when the browser does form validation
     // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
     var delay = 0;
