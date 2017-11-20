@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import date, datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_mommy import mommy
@@ -126,8 +126,8 @@ class TestEnrollmentImporter(TestCase):
 
     def test_valid_file_import(self):
         semester = mommy.make(Semester)
-        vote_start_date = datetime(2017, 1, 10)
-        vote_end_date = datetime(2017, 3, 10)
+        vote_start_datetime = datetime(2017, 1, 10)
+        vote_end_date = date(2017, 3, 10)
         mommy.make(CourseType, name_de="Seminar")
         mommy.make(CourseType, name_de="Vorlesung")
 
@@ -141,7 +141,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, vote_start_date, vote_end_date, test_run=False)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, vote_start_datetime, vote_end_date, test_run=False)
         self.assertIn("Successfully created 23 course(s), 6 student(s) and 17 contributor(s):", "".join(success_messages))
         self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
         self.assertEqual(errors, [])

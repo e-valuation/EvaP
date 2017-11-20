@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, date
 from unittest.mock import patch, Mock
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django.core.cache import cache
 from django.core import mail
@@ -10,9 +11,10 @@ from model_mommy import mommy
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile)
 from evap.results.tools import calculate_average_grades_and_deviation
+from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD
 
 
-@override_settings(EVALUATION_END_OFFSET=0)
+@override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestCourses(TestCase):
 
     def test_approved_to_in_evaluation(self):
@@ -29,7 +31,8 @@ class TestCourses(TestCase):
         self.assertEqual(course.state, 'in_evaluation')
 
     def test_in_evaluation_to_evaluated(self):
-        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1))
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+                            vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.models.Course.is_fully_reviewed') as mock:
             mock.__get__ = Mock(return_value=False)
@@ -40,7 +43,8 @@ class TestCourses(TestCase):
 
     def test_in_evaluation_to_reviewed(self):
         # Course is "fully reviewed" as no open text_answers are present by default,
-        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1))
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+                            vote_end_date=date.today() - timedelta(days=1))
 
         Course.update_courses()
 
@@ -49,7 +53,8 @@ class TestCourses(TestCase):
 
     def test_in_evaluation_to_published(self):
         # Course is "fully reviewed" and not graded, thus gets published immediately.
-        course = mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1),
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+                            vote_end_date=date.today() - timedelta(days=1),
                             is_graded=False)
 
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
@@ -60,11 +65,26 @@ class TestCourses(TestCase):
         course = Course.objects.get(pk=course.pk)
         self.assertEqual(course.state, 'published')
 
+    @override_settings(EVALUATION_END_WARNING_PERIOD=24)
+    def test_evaluation_ends_soon(self):
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
+
+        Course.update_courses()
+        self.assertTrue(course.evaluation_ends_soon())
+
+    @override_settings(EVALUATION_END_WARNING_PERIOD=24)
+    def test_evaluation_doesnt_end_soon(self):
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=5), 
+                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)        
+
     def test_evaluation_ended(self):
         # Course is out of evaluation period.
-        mommy.make(Course, state='in_evaluation', vote_end_date=date.today() - timedelta(days=1), is_graded=False)
+        mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+                   vote_end_date=date.today() - timedelta(days=1), is_graded=False)
         # This course is not.
-        mommy.make(Course, state='in_evaluation', vote_end_date=date.today(), is_graded=False)
+        mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+                   vote_end_date=date.today(), is_graded=False)
 
         with patch('evap.evaluation.models.Course.evaluation_end') as mock:
             Course.update_courses()
