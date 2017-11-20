@@ -334,11 +334,11 @@ if TESTING:
 
 # Django debug toolbar settings
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
-    DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ['debug_toolbar']
     MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
     def show_toolbar(request):
         return True
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+        'JQUERY_URL': '',
     }
