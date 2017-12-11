@@ -757,17 +757,17 @@ class TestCourseOperationView(ViewTest):
 
     def test_semester_approve_1(self):
         course = course = mommy.make(Course, semester=self.semester, state='new')
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
         self.helper_semester_state_views(course, "new", "approved")
 
     def test_semester_approve_2(self):
         course = mommy.make(Course, semester=self.semester, state='prepared')
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
         self.helper_semester_state_views(course, "prepared", "approved")
 
     def test_semester_approve_3(self):
         course = mommy.make(Course, semester=self.semester, state='editor_approved')
-        course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
         self.helper_semester_state_views(course, "editor_approved", "approved")
 
     def test_semester_contributor_ready_1(self):
@@ -901,7 +901,7 @@ class TestCourseEditView(ViewTest):
         degree = mommy.make(Degree)
         cls.course = mommy.make(Course, semester=semester, pk=1, degrees=[degree])
         mommy.make(Questionnaire, question_set=[mommy.make(Question)])
-        cls.course.general_contribution.questionnaires = [mommy.make(Questionnaire)]
+        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # This is necessary so that the call to is_single_result does not fail.
         responsible = mommy.make(UserProfile)
