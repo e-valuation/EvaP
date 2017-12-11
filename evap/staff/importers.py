@@ -209,20 +209,21 @@ class ExcelImporter(object):
 
     @staticmethod
     def _create_user_data_mismatch_warning(user, user_data, test_run):
-        msg = "The existing user would be overwritten with the following data:" \
-            if test_run \
-            else "The existing user was overwritten with the following data:"
+        if test_run:
+            msg = "The existing user would be overwritten with the following data:"
+        else:
+            msg = "The existing user was overwritten with the following data:"
         return (mark_safe(_(msg) +
             "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)") +
             "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
     @staticmethod
     def _create_user_inactive_warning(user, test_run):
-        msg = "The following user is currently marked inactive and will be marked active upon importing:" \
-            if test_run \
-            else "The following user was previously marked inactive and is now marked active upon importing:"
-        return mark_safe(_(msg) + " "
-                + ExcelImporter._create_user_string(user))
+        if test_run:
+            msg = "The following user is currently marked inactive and will be marked active upon importing:"
+        else:
+            msg = "The following user was previously marked inactive and is now marked active upon importing:"
+        return mark_safe(_(msg) + " " + ExcelImporter._create_user_string(user))
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = _("An existing user has the same first and last name as a new user:")
