@@ -1,5 +1,6 @@
 {% extends "contributor_base.html" %}
 
+{% load results_templatetags %}
 {% load evaluation_filters %}
 
 {% block content %}
@@ -84,6 +85,9 @@
                                         <a role="button" class="btn btn-sm btn-secondary disabled"><span class="fa fa-bar-chart"></span></a>
                                     </div>
                                 {% else %}
+                                    {% if course.avg_grade %}
+                                        <div class="grade-bg text-center vertically-aligned" style="background-color: {{ course.avg_grade|gradecolor }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Average grade' %}">{{ course.avg_grade|floatformat:1 }}</div>
+                                    {% endif %}
                                     <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fa fa-bar-chart"></span></a>
                                 {% endif %}
                             </td>
