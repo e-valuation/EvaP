@@ -37,7 +37,8 @@
         const id = anchor[0];
         const type = anchor[1];
 
-        if(type == "q" && id != ""){
+        if(type == "q"){
+			// open collapsed answer and scroll into center
             const answer_div = $("#"+id+"-a");
             window.history.pushState('', id, '/faq#' + id + '-q');
             answer_div.collapse('show');
@@ -47,6 +48,11 @@
                     block: "center"
                 });
             });
-        }
+		} else if(type == "s") {
+			// scroll section heading below navbar
+			setTimeout(function(){
+				window.scrollBy(0, -50);
+			}, 0);
+		}
     </script>
 {% endblock %}
