@@ -35,17 +35,17 @@ class TestDownloadSampleXlsView(ViewTest):
     def test_sample_file_correctness(self):
         page = self.app.get(self.url, user='staff')
 
-        found_institution_domain = False
+        found_institution_domains = 0
         book = xlrd.open_workbook(file_contents=page.body)
         for sheet in book.sheets():
             for row in sheet.get_rows():
                 for cell in row:
                     value = cell.value
                     self.assertNotIn(self.email_placeholder, value)
-                    if settings.INSTITUTION_EMAIL_DOMAINS[0] in value:
-                        found_institution_domain = True
+                    if "@" + settings.INSTITUTION_EMAIL_DOMAINS[0] in value:
+                        found_institution_domains += 1
 
-        self.assertTrue(found_institution_domain)
+        self.assertEqual(found_institution_domains, 2)
 
 
 # Staff - Root View
