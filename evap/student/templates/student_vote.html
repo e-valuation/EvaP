@@ -22,7 +22,7 @@
         <div class="bs-callout bs-callout-warning">{% blocktrans %}This course has only a small number of participants. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
     {% endif %}
     {% if evaluation_ends_soon %}
-        <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{hours_left_for_evaluation}} hours and {{minutes_left_for_evaluation}} minutes ({{vote_end_datetime}}).{% endblocktrans %}</div>
+        <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{hours_left_for_evaluation}} hours and {{minutes_left_for_evaluation}} minutes ({{vote_end_datetime}}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>
@@ -179,7 +179,7 @@
                 // remove error highlighting when an answer was selected
                 $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
             }
-            
+
             var presaveButton = $("#presave-btn");
             var originalPresaveText = presaveButton.text();
             function presave() {
