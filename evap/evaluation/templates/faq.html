@@ -16,7 +16,7 @@
             {% for question in section.questions.all %}
                 <div id="{{ question.id }}-card" class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
                     <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
-                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
+                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#{{ question.id }}-a" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
                             {{ question.question }}
                         </a>
                     </div>
