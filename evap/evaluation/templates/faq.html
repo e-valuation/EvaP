@@ -14,13 +14,13 @@
         {% for section in sections %}
             <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div id="card-{{ question.id }}" class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
+                <div id="{{ question.id }}-card" class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
                     <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
                         <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
                             {{ question.question }}
                         </a>
                     </div>
-                    <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
+                    <div id="{{ question.id }}-a" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
                         <div class="card-body">
                             {{ question.answer|safe }}
                         </div>
@@ -38,11 +38,11 @@
         const type = anchor[1];
 
         if(type == "q" && id != ""){
-            const collapse = $("#collapse-" + id);
+            const answer_div = $("#"+id+"-a");
             window.history.pushState('', id, '/faq#' + id + '-q');
-            collapse.collapse('show');
-            collapse.on('shown.bs.collapse', function () {
-                $("#card-" + id)[0].scrollIntoView({
+            answer_div.collapse('show');
+            answer_div.on('shown.bs.collapse', function () {
+                $("#"+id+"-card")[0].scrollIntoView({
                     behavior: "smooth",
                     block: "center"
                 });
