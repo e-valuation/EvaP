@@ -14,13 +14,13 @@
         {% for section in sections %}
             <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
+                <div id="{{ question.id }}-card" class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
                     <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
-                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse-{{ question.id }}" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
+                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#{{ question.id }}-a" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
                             {{ question.question }}
                         </a>
                     </div>
-                    <div id="collapse-{{ question.id }}" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
+                    <div id="{{ question.id }}-a" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
                         <div class="card-body">
                             {{ question.answer|safe }}
                         </div>
@@ -33,19 +33,26 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        var anchor = window.location.hash.replace("#", "").split('-');
-        id = anchor[0];
-        type = 'q';
-        if(anchor.length > 1)
-            type = anchor[1];
+        const anchor = window.location.hash.replace("#", "").split('-');
+        const id = anchor[0];
+        const type = anchor[1];
 
-        if(type == "q" && id != ""){
-            $("#collapse-" + id).collapse('show');
+        if(type == "q"){
+			// open collapsed answer and scroll into center
+            const answer_div = $("#"+id+"-a");
             window.history.pushState('', id, '/faq#' + id + '-q');
-        }
-
-        setTimeout(function() {
-            window.scrollBy(0,-65);
-        }, 100);
+            answer_div.collapse('show');
+            answer_div.on('shown.bs.collapse', function () {
+                $("#"+id+"-card")[0].scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            });
+		} else if(type == "s") {
+			// scroll section heading below navbar
+			setTimeout(function(){
+				window.scrollBy(0, -50);
+			}, 0);
+		}
     </script>
 {% endblock %}
