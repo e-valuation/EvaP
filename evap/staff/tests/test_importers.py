@@ -76,12 +76,16 @@ class TestUserImporter(TestCase):
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertEqual(warnings_test, warnings_no_test)
         self.assertIn("The existing user would be overwritten with the following data:<br>"
+                      " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+                      " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
+                      warnings_test[ExcelImporter.W_EMAIL])
+
+        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertIn("The existing user was overwritten with the following data:<br>"
                 " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
-                warnings_test[ExcelImporter.W_EMAIL])
+                warnings_no_test[ExcelImporter.W_EMAIL])
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
@@ -109,12 +113,14 @@ class TestUserImporter(TestCase):
         mommy.make(UserProfile, username="lucilia.manilium", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        __, __, warnings_notest, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertEqual(warnings_test, warnings_notest)
-
         self.assertIn("The following user is currently marked inactive and will be marked active upon importing: "
+                      "lucilia.manilium ( None None, )",
+                      warnings_test[ExcelImporter.W_INACTIVE])
+
+        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertIn("The following user was previously marked inactive and is now marked active upon importing: "
             "lucilia.manilium ( None None, )",
-            warnings_test[ExcelImporter.W_INACTIVE])
+            warnings_no_test[ExcelImporter.W_INACTIVE])
 
         self.assertEqual(UserProfile.objects.count(), 2)
 
