@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from django.core import mail
 from django.contrib.auth.models import Group
@@ -24,14 +24,14 @@ class GradeUploadTests(WebTest):
         cls.course = mommy.make(
             Course,
             name_en="Test",
-            vote_start_datetime=datetime.now() - timedelta(10),
-            vote_end_date=datetime.now() + timedelta(10),
+            vote_start_datetime=datetime.now() - timedelta(days=10),
+            vote_end_date=date.today() + timedelta(days=10),
             participants=[cls.student, cls.student2, cls.student3],
             voters=[cls.student, cls.student2],
         )
-        contribution = Contribution(course=cls.course, contributor=responsible, responsible=True, can_edit=True,
-                                    comment_visibility=Contribution.ALL_COMMENTS)
-        contribution.save()
+        
+        contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True,
+                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])

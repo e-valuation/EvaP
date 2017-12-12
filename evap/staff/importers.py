@@ -208,15 +208,22 @@ class ExcelImporter(object):
         return "{} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email or "")
 
     @staticmethod
-    def _create_user_data_mismatch_warning(user, user_data):
-        return (mark_safe(_("The existing user would be overwritten with the following data:") +
+    def _create_user_data_mismatch_warning(user, user_data, test_run):
+        if test_run:
+            msg = _("The existing user would be overwritten with the following data:")
+        else:
+            msg = _("The existing user was overwritten with the following data:")
+        return (mark_safe(msg +
             "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)") +
             "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
     @staticmethod
-    def _create_user_inactive_warning(user):
-        return mark_safe(_("The following user is currently marked inactive and will be marked active upon importing:") + " "
-                + ExcelImporter._create_user_string(user))
+    def _create_user_inactive_warning(user, test_run):
+        if test_run:
+            msg = _("The following user is currently marked inactive and will be marked active upon importing:")
+        else:
+            msg = _("The following user was previously marked inactive and is now marked active upon importing:")
+        return mark_safe((msg) + " " + ExcelImporter._create_user_string(user))
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = _("An existing user has the same first and last name as a new user:")
@@ -225,18 +232,18 @@ class ExcelImporter(object):
         warningstring += "<br> - " + self._create_user_string(user_data) + _(" (new)")
         self.warnings[self.W_DUPL].append(mark_safe(warningstring))
 
-    def check_user_data_sanity(self):
+    def check_user_data_sanity(self, test_run):
         for user_data in self.users.values():
             try:
                 user = UserProfile.objects.get(username=user_data.username)
                 if user.email != user_data.email:
-                    self.warnings[self.W_EMAIL].append(self._create_user_data_mismatch_warning(user, user_data))
+                    self.warnings[self.W_EMAIL].append(self._create_user_data_mismatch_warning(user, user_data, test_run))
                 if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data))
+                    self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data, test_run))
                 if not user.is_active:
-                    self.warnings[self.W_INACTIVE].append(self._create_user_inactive_warning(user))
+                    self.warnings[self.W_INACTIVE].append(self._create_user_inactive_warning(user, test_run))
             except UserProfile.DoesNotExist:
                 pass
 
@@ -376,7 +383,7 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_user_data_correctness()
             importer.check_course_data_correctness(semester)
             importer.check_enrollment_data_sanity()
-            importer.check_user_data_sanity()
+            importer.check_user_data_sanity(test_run)
 
             if importer.errors:
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
@@ -467,7 +474,7 @@ class UserImporter(ExcelImporter):
             importer.consolidate_user_data()
             importer.generate_external_usernames_if_external()
             importer.check_user_data_correctness()
-            importer.check_user_data_sanity()
+            importer.check_user_data_sanity(test_run)
 
             if importer.errors:
                 importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))

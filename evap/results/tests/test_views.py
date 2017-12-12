@@ -57,6 +57,16 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         user = 'evap'
         self.get_assert_200(url, user)
 
+    def test_default_view_is_public(self):
+        url = '/results/semester/%s' % (self.semester.id)
+        page_without_get_parameter = self.app.get(url, user='evap')
+        url = '/results/semester/%s?public_view=true' % (self.semester.id)
+        page_with_get_parameter = self.app.get(url, user='evap')
+        url = '/results/semester/%s?public_view=asdf' % (self.semester.id)
+        page_with_random_get_parameter = self.app.get(url, user='evap')
+        self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
+        self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
+
     def test_wrong_state(self):
         course = mommy.make(Course, state='reviewed', semester=self.semester)
         url = '/results/semester/%s/course/%s' % (self.semester.id, course.id)

@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import date, datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_mommy import mommy
@@ -76,12 +76,16 @@ class TestUserImporter(TestCase):
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertEqual(warnings_test, warnings_no_test)
         self.assertIn("The existing user would be overwritten with the following data:<br>"
+                      " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+                      " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
+                      warnings_test[ExcelImporter.W_EMAIL])
+
+        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertIn("The existing user was overwritten with the following data:<br>"
                 " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
-                warnings_test[ExcelImporter.W_EMAIL])
+                warnings_no_test[ExcelImporter.W_EMAIL])
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
@@ -109,12 +113,14 @@ class TestUserImporter(TestCase):
         mommy.make(UserProfile, username="lucilia.manilium", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        __, __, warnings_notest, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertEqual(warnings_test, warnings_notest)
-
         self.assertIn("The following user is currently marked inactive and will be marked active upon importing: "
+                      "lucilia.manilium ( None None, )",
+                      warnings_test[ExcelImporter.W_INACTIVE])
+
+        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertIn("The following user was previously marked inactive and is now marked active upon importing: "
             "lucilia.manilium ( None None, )",
-            warnings_test[ExcelImporter.W_INACTIVE])
+            warnings_no_test[ExcelImporter.W_INACTIVE])
 
         self.assertEqual(UserProfile.objects.count(), 2)
 
@@ -126,8 +132,8 @@ class TestEnrollmentImporter(TestCase):
 
     def test_valid_file_import(self):
         semester = mommy.make(Semester)
-        vote_start_date = datetime(2017, 1, 10)
-        vote_end_date = datetime(2017, 3, 10)
+        vote_start_datetime = datetime(2017, 1, 10)
+        vote_end_date = date(2017, 3, 10)
         mommy.make(CourseType, name_de="Seminar")
         mommy.make(CourseType, name_de="Vorlesung")
 
@@ -141,7 +147,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, vote_start_date, vote_end_date, test_run=False)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, vote_start_datetime, vote_end_date, test_run=False)
         self.assertIn("Successfully created 23 course(s), 6 student(s) and 17 contributor(s):", "".join(success_messages))
         self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
         self.assertEqual(errors, [])
