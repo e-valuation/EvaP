@@ -22,6 +22,8 @@
         rowAdded = function(row) {
             assignClickHandlers();
             applySelect2(row.find("select"));
+            // activate tooltips again, so that tooltips on new elements work
+            $('#contribution_table [data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
         }
         makeFormSortable("contribution_table", "contributions", rowChanged, rowAdded, "pointer", false, true);
     </script>
