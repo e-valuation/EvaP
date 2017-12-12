@@ -22,6 +22,7 @@
         rowAdded = function(row) {
             assignClickHandlers();
             applySelect2(row.find("select"));
+            activateTooltips('#contribution_table');
         }
         makeFormSortable("contribution_table", "contributions", rowChanged, rowAdded, "pointer", false, true);
     </script>
