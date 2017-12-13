@@ -422,8 +422,10 @@ class ContributionFormSet(AtLeastOneFormSet):
         for form_with_errors in self.forms:
             if not form_with_errors.errors:
                 continue
+            if 'contributor' not in form_with_errors.cleaned_data:
+                continue
             for deleted_form in self.forms:
-                if not deleted_form.cleaned_data or not deleted_form.cleaned_data.get('DELETE'):
+                if not deleted_form.cleaned_data or 'contributor' not in deleted_form.cleaned_data or not deleted_form.cleaned_data.get('DELETE'):
                     continue
                 if not deleted_form.cleaned_data['contributor'] == form_with_errors.cleaned_data['contributor']:
                     continue
