@@ -230,6 +230,48 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
+    def test_deleted_empty_contribution_does_not_crash(self):
+        """
+            When removing the empty extra contribution formset, validating the form should not crash.
+            Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.
+            Regression test for #1057
+        """
+        course = mommy.make(Course)
+        user1 = mommy.make(UserProfile)
+        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+
+        contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+
+        data = to_querydict({
+            'contributions-TOTAL_FORMS': 2,
+            'contributions-INITIAL_FORMS': 0,
+            'contributions-MAX_NUM_FORMS': 5,
+            'contributions-0-course': course.pk,
+            'contributions-0-questionnaires': questionnaire.pk,
+            'contributions-0-order': 0,
+            'contributions-0-responsibility': "RESPONSIBLE",
+            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-contributor': user1.pk,
+            'contributions-1-course': course.pk,
+            'contributions-1-questionnaires': "",
+            'contributions-1-order': -1,
+            'contributions-1-responsibility': "CONTRIBUTOR",
+            'contributions-1-comment_visibility': "OWN",
+            'contributions-1-contributor': "",
+        })
+
+        # delete extra formset
+        data['contributions-1-DELETE'] = 'on'
+        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        formset.is_valid()
+        data['contributions-1-DELETE'] = ''
+
+        # delete first, change data in extra formset
+        data['contributions-0-DELETE'] = 'on'
+        data['contributions-1-responsibility'] = 'RESPONSIBLE'
+        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        formset.is_valid()
+
     def test_take_deleted_contributions_into_account(self):
         """
             Tests whether contributions marked for deletion are properly taken into account
@@ -364,7 +406,7 @@ class ContributionFormset775RegressionTests(TestCase):
         # make sure nothing crashes when an extra form is present.
         self.data['contributions-0-contributor'] = self.user2.pk
         self.data['contributions-1-contributor'] = self.user1.pk
-        self.data['contributions-2-TOTAL_FORMS'] = 3
+        self.data['contributions-TOTAL_FORMS'] = 3
         self.data['contributions-2-id'] = ""
         self.data['contributions-2-order'] = -1
         self.data['contributions-2-responsibility'] = "CONTRIBUTOR"
