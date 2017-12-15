@@ -490,6 +490,10 @@ div.preview > textarea {
     background-color: $light-gray;
 }
 
+.grade-bg.vertically-aligned {
+    vertical-align: middle;
+}
+
 .deviation-bg {
     display: inline-block;
     border-radius: 3px;
