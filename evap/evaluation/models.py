@@ -883,16 +883,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
-    # needed e.g. for compatibility with contrib.auth.admin
-    def get_full_name(self):
-        return self.full_name
-
-    # needed e.g. for compatibility with contrib.auth.admin
-    def get_short_name(self):
-        if self.first_name:
-            return self.first_name
-        return self.username
-
     @property
     def full_name(self):
         if self.last_name:
