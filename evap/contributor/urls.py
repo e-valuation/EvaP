@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 
 from evap.contributor import views
 
@@ -6,9 +6,9 @@ from evap.contributor import views
 app_name = "contributor"
 
 urlpatterns = [
-    url(r"^$", views.index, name="index"),
-    url(r"^settings$", views.settings_edit, name="settings_edit"),
-    url(r"^course/(\d+)$", views.course_view, name="course_view"),
-    url(r"^course/(\d+)/edit$", views.course_edit, name="course_edit"),
-    url(r"^course/(\d+)/preview$", views.course_preview, name="course_preview"),
+    path("", views.index, name="index"),
+    path("settings", views.settings_edit, name="settings_edit"),
+    path("course/<int:course_id>", views.course_view, name="course_view"),
+    path("course/<int:course_id>/edit", views.course_edit, name="course_edit"),
+    path("course/<int:course_id>/preview", views.course_preview, name="course_preview"),
 ]

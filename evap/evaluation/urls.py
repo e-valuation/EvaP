@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 
 from evap.evaluation import views
 
@@ -6,9 +6,9 @@ from evap.evaluation import views
 app_name = "evaluation"
 
 urlpatterns = [
-    url(r"^$", views.index, name="index"),
-    url(r"^faq$", views.faq, name="faq"),
-    url(r"^set_lang", views.set_lang, name="set_lang"),
-    url(r"^legal_notice$", views.legal_notice, name="legal_notice"),
-    url(r"contact$", views.contact, name="contact"),
+    path("", views.index, name="index"),
+    path("faq", views.faq, name="faq"),
+    path("set_lang", views.set_lang, name="set_lang"),
+    path("legal_notice", views.legal_notice, name="legal_notice"),
+    path("contact", views.contact, name="contact"),
 ]

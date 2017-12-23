@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 
 from evap.results import views
 
@@ -6,7 +6,7 @@ from evap.results import views
 app_name = "results"
 
 urlpatterns = [
-    url(r"^$", views.index, name="index"),
-    url(r"semester/(\d+)$", views.semester_detail, name="semester_detail"),
-    url(r"semester/(\d+)/course/(\d+)$", views.course_detail, name="course_detail"),
+    path("", views.index, name="index"),
+    path("semester/<int:semester_id>", views.semester_detail, name="semester_detail"),
+    path("semester/<int:semester_id>/course/<int:course_id>", views.course_detail, name="course_detail"),
 ]
