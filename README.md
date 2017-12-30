@@ -7,7 +7,7 @@
 
 ## What is EvaP?
 
-EvaP is the course evaluation system used internally at Hasso Plattner Institute.
+EvaP is the course evaluation system used internally at Hasso Plattner Institute at the University of Potsdam.
 
 For the documentation, please see our [wiki](https://github.com/fsr-itse/EvaP/wiki).
 
@@ -20,7 +20,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
-2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server::
+2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
 
         git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
         cd EvaP
@@ -42,3 +42,8 @@ We'd love to see contributions, feel free to fork! You should probably branch of
 ## License
 
 MIT, see [LICENSE.md](LICENSE.md).
+
+
+## Supported Browsers
+
+The platform is only tested in Mozilla Firefox and Google Chrome. Other browsers might not render all pages correctly.
