@@ -12,7 +12,7 @@ not touched by the software license.
 
 ```
 EvaP – Evaluation Platform
-Copyright (C) 2011-2017 by Michael Grünewald, Stefan Richter, Johannes Linke,
+Copyright (C) 2011-2018 by Michael Grünewald, Stefan Richter, Johannes Linke,
 and Johannes Wolf
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
