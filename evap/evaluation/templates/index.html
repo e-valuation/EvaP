@@ -42,12 +42,37 @@
                         {% include 'bootstrap_form_field.html' with field=new_key_form.email wide=True %}
                         <div class="text-center">
                             <button type="submit" class="btn btn-dark login-button">{% trans 'Request login URL' %}</button>
+                            <button type="button" class="btn btn-light" data-toggle="modal" data-target="#loginProblemsModal">
+                                {% trans "Help" %}
+                            </button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    <div class="modal fade" id="loginProblemsModal" tabindex="-1" role="dialog" aria-labelledby="loginProblemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginProblemsModalLabel">{% trans "Login problems" %}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="fa fa-times"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% trans "You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL here. If you encounter any problems with your login, please let us know by answering to the evaluation email you received." %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block additional_javascript %}
