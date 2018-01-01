@@ -19,7 +19,7 @@ from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
-from evap.evaluation.tools import date_to_datetime
+from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
 from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD
 
 logger = logging.getLogger(__name__)
@@ -1127,7 +1127,7 @@ class EmailTemplate(models.Model):
 
         for user, courses in user_course_map.items():
             subject_params = {}
-            body_params = {'user': user, 'courses': courses}
+            body_params = {'user': user, 'courses': courses, 'due_courses': get_due_courses_for_user(user)}
             cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
