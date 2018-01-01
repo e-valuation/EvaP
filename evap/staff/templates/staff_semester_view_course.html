@@ -40,7 +40,9 @@
 
     {% if state == 'approved' %}
         <br>
-        {% if course.days_until_evaluation <= 1 %}
+        {% if course.days_until_evaluation <= 0 %}
+            <span class="badge badge-danger">{% trans "starts today" %}</span>
+        {% elif course.days_until_evaluation == 1 %}
             <span class="badge badge-danger">{% trans "starts tomorrow" %}</span>
         {% elif course.days_until_evaluation <= 7 %}
             <span class="badge badge-secondary">{% blocktrans with days=course.days_until_evaluation %}in {{ days }} days{% endblocktrans %}</span>
