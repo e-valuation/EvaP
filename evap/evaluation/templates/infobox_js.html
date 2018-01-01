@@ -1,0 +1,29 @@
+<script type="text/javascript">
+    // close the infobox and save state
+    $("#{{ id }} .infobox-close").click(function(e){
+        $("#{{ id }}").addClass("closing");
+        setTimeout(function(){
+            $("#{{ id }}").addClass("closed");
+            $("#{{ id }}").removeClass("closing");
+        }, 2000);
+        e.stopPropagation();  // prevent immediate reopening
+        localStorage['infobox_{{ id }}'] = 'hide';
+    });
+
+    // open the infobox and save state
+    $("#{{ id }}").click(function(){
+        if($("#{{ id }}").hasClass("closed")){
+            $("#{{ id }}").removeClass("closed");
+            $("#{{ id }}").addClass("opening");
+            setTimeout(function(){
+                $("#{{ id }}").removeClass("opening");
+            }, 2000);
+            localStorage['infobox_{{ id }}'] = 'show';
+        }
+    });
+
+    // set infobox to hidden if user closed it before
+    if (localStorage['infobox_{{ id }}'] === 'hide') {
+        $("#{{ id }}").addClass("closed");
+    }
+</script>
