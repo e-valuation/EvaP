@@ -40,7 +40,7 @@
                     {{ semester.semester_name }}
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-striped vertically-aligned">
+                    <table class="table table-hover-evap vertically-aligned">
                         <thead>
                             <tr>
                                 <th style="width: 40%">{% trans "Name" %}</th>
@@ -51,16 +51,10 @@
                         </thead>
                         <tbody>
                             {% for course in semester.courses %}
-                                <tr>
+                                <tr {% if course.state == 'in_evaluation' and course not in voted_courses %}class="hover-vote" data-url="{% url 'student:vote' course.id %}"{% elif course.state == 'published' and course.can_publish_grades %}class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"{% else %}class="nohover"{% endif %}>
                                     <td>
                                         <div>
-                                            {% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                                <a href="{% url 'student:vote' course.id %}">{{ course.name }}</a>
-                                            {% elif course.state == 'published' and course.can_publish_grades %}
-                                                <a href="{% url 'results:course_detail' semester.id course.id %}">{{ course.name }}</a>
-                                            {% else %}
-                                                {{ course.name }}
-                                            {% endif %}
+                                            {{ course.name }}
                                         </div>
                                         <span class="badge badge-secondary">{{ course.type }}</span>
                                         {% if course in voted_courses %}
@@ -104,11 +98,11 @@
                                             </div>
                                         {% endif %}
                                         {% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                            <a class="btn btn-sm btn-primary" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
+                                            <a class="btn btn-sm btn-primary btn-vote" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                         {% if course.state == 'published' %}
                                             {% if course.can_publish_grades %}
-                                                <a class="btn btn-sm btn-secondary" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
+                                                <a class="btn btn-sm btn-secondary btn-results" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
                                             {% else %}
                                                 <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
                                             {% endif %}
