@@ -49,6 +49,8 @@
                 </div>
             </div>
         </div>
+    {% else %}
+        <h3>{{ course.name }} ({{ course.semester.name }})</h3>
     {% endif %}
 
     <div class="card card-outline-primary mb-3">
