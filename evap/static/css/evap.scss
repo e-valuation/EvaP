@@ -725,13 +725,15 @@ div.disabled-tooltip {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;
 }
-.table-hover-evap tbody tr.hover-vote:hover {
+.table-hover-evap tbody tr.hover-vote:hover,
+.table-hover-evap tbody tr.hover-edit:hover {
     background-color: $evap-light-blue;
 }
 tr.hover-results:hover .btn-results {
     box-shadow: 0 0 0 3px rgba($dark-gray, .5);
 }
-tr.hover-vote:hover .btn-vote {
+tr.hover-vote:hover .btn-vote,
+tr.hover-edit:hover .btn-edit {
     box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
 }
 
