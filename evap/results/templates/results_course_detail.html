@@ -133,7 +133,7 @@
                         {% if contributor_data.total_votes == 0 %}
                             <div class="card-header d-flex">
                                 <div class="mr-auto">
-                                    <a class="collapse-toggle" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
+                                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
                                         {{ contributor.full_name }}
                                         {% if contributor_data.sections.0.label %}
                                             &ndash; <i>{{ contributor_data.sections.0.label }}</i>
