@@ -171,6 +171,13 @@
     document.addEventListener('change', function(e){
        $(e.target).removeClass("invalid")
     }, true);
+
+    // activate clickable hover tables
+    $(".table-hover-evap tr:not(.nohover)").click(function(e){
+        if(!$(e.target).is("a")){  // apply to everything but anchors
+            window.location = $(this).closest("[data-url]").data('url');
+        }
+    });
 </script>
 
 {% block additional_javascript %}{% endblock %}

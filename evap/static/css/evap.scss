@@ -721,6 +721,11 @@ div.disabled-tooltip {
     padding-bottom: 0.4rem;
 }
 
+.table-hover-evap tbody tr:hover:not(.nohover) {
+    background-color: rgba(0, 0, 0, 0.075);
+    cursor: pointer;
+}
+
 .course-contributor {
     font-style: italic;
 }
