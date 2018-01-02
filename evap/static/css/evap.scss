@@ -301,6 +301,7 @@ button {
     }
     body {
         padding: 0;
+        background: none;
     }
     div.container {
         padding-left: 0px;
@@ -361,6 +362,12 @@ button {
 
 
 /* evap styling */
+body {
+    background-image: url("../images/triangles_gray.svg");
+    background-size: cover;
+    background-attachment: fixed;
+}
+
 table#question_table textarea {
     resize: vertical;
 }
@@ -545,8 +552,12 @@ select[multiple] {
     min-width: 190px;
 }
 
-.jumbotron {
-    background-color: darken($lighter-gray, 4%);
+.jumbotron-evap {
+    background-image: url("../images/triangles_color.svg");
+    background-size: cover;
+}
+.jumbotron-evap div .card {
+    background-color: $lighter-gray;
 }
 
 .login-button {
