@@ -135267,9 +135267,7 @@
     "comment_visibility": "OWN",
     "label": null,
     "order": -1,
-    "questionnaires": [
-      110
-    ]
+    "questionnaires": []
   }
 },
 {
@@ -135299,9 +135297,7 @@
     "comment_visibility": "OWN",
     "label": null,
     "order": -1,
-    "questionnaires": [
-      110
-    ]
+    "questionnaires": []
   }
 },
 {
