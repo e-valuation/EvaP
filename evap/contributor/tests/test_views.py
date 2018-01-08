@@ -1,7 +1,7 @@
 from model_mommy import mommy
 
 from evap.evaluation.models import Course, UserProfile
-from evap.evaluation.tests.tools import ViewTest, course_with_responsible_and_editor
+from evap.evaluation.tests.tools import ViewTest, create_course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
 
@@ -12,7 +12,7 @@ class TestContributorView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        create_course_with_responsible_and_editor()
 
 
 class TestContributorSettingsView(ViewTest):
@@ -21,7 +21,7 @@ class TestContributorSettingsView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor()
+        create_course_with_responsible_and_editor()
 
     def test_save_settings(self):
         user = mommy.make(UserProfile)
@@ -39,7 +39,7 @@ class TestContributorCourseView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
     
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
@@ -53,7 +53,7 @@ class TestContributorCourseView(ViewTest):
         self.course.editor_approve()
         self.course.save()
         page = self.app.get(self.url, user='editor')
-        self.assertContains(page, " You cannot edit this course because it already has been approved")
+        self.assertContains(page, "You cannot edit this course because it has already been approved")
 
 
 class TestContributorCoursePreviewView(ViewTest):
@@ -62,7 +62,7 @@ class TestContributorCoursePreviewView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
@@ -79,7 +79,7 @@ class TestContributorCourseEditView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
