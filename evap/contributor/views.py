@@ -71,7 +71,7 @@ def course_view(request, course_id):
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    if (course.is_user_editor_or_delegate(user) and course.state in ['approved']):
+    if course.is_user_editor_or_delegate(user):
         messages.info(request, _('You cannot edit this course because it already has been approved.'))
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)

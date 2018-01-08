@@ -39,12 +39,21 @@ class TestContributorCourseView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
-
+        course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+    
+    def setUp(self):
+        self.course = Course.objects.get(pk=TESTING_COURSE_ID)
+    
     def test_wrong_state(self):
         self.course.revert_to_new()
         self.course.save()
         self.get_assert_403(self.url, 'responsible')
+ 
+    def test_information_message(self):
+        self.course.editor_approve()
+        self.course.save()
+        page = self.app.get(self.url, user='editor')
+        self.assertContains(page, " You cannot edit this course because it already has been approved")
 
 
 class TestContributorCoursePreviewView(ViewTest):
