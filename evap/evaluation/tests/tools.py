@@ -75,7 +75,7 @@ def get_form_data_from_instance(FormClass, instance):
     return {field.html_name: field.value() for field in form}
 
 
-def course_with_responsible_and_editor(course_id=None):
+def create_course_with_responsible_and_editor(course_id=None):
     contributor = mommy.make(UserProfile, username='responsible')
     editor = mommy.make(UserProfile, username='editor')
 
