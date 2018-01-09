@@ -34,7 +34,8 @@
                             </thead>
                             <tbody>
                             {% for course in courses %}
-                                <tr class="{% if not course|can_user_see_results:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}" {% if course|can_user_see_results:request.user %} data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
+                                <tr class="{% if not course|can_user_see_results:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+                                {% if course|can_user_see_results:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
                                             <span data-toggle="tooltip" data-placement="top" class="fa fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
@@ -45,7 +46,7 @@
                                         {% if course.state == 'published' and not course|can_publish_grades %}
                                             <span data-toggle="tooltip" data-placement="top" class="fa fa-lock" title="{% trans 'Not enough answers were given to publish the results.' %}"></span>
                                         {% endif %}
-                                        {{ course.name }}
+                                        <span class="course-name">{{ course.name }}</span>
                                     </td>
                                     <td>{{ course.type }}</td>
                                     <td data-order="{{ course.responsible_contributors.0.last_name }}">

@@ -724,6 +724,9 @@ div.disabled-tooltip {
 .table-hover-evap tbody tr:hover:not(.nohover) {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;
+    td span.course-name {
+        text-decoration: underline;
+    }
 }
 .table-hover-evap tbody tr.hover-vote:hover,
 .table-hover-evap tbody tr.hover-edit:hover {

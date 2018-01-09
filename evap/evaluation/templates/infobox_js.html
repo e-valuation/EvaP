@@ -13,8 +13,8 @@
     // open the infobox and save state
     $("#{{ id }}").click(function(){
         if($("#{{ id }}").hasClass("closed")){
-            $("#{{ id }}").removeClass("closed");
             $("#{{ id }}").addClass("opening");
+            $("#{{ id }}").removeClass("closed");
             setTimeout(function(){
                 $("#{{ id }}").removeClass("opening");
             }, 2000);
