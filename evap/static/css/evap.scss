@@ -808,6 +808,10 @@ span.line {
     margin-bottom: 0;
 }
 
+.card-body .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
 
 /* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
 .bs-callout {

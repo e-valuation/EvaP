@@ -12,36 +12,40 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <table id="section_table" class="table vertically-aligned">
-            <thead>
-                <tr>
-                    <th class="movable"></th>
-                    <th style="width: 45%">{% trans 'Section title (German)' %}</th>
-                    <th style="width: 45%">{% trans 'Section title (English)' %}</th>
-                    <th style="width: 10%">{% trans 'Actions' %}</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for form in formset %}
-                <tr class="sortable">
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
+        <div class="card mb-3">
+            <div class="card-body">
+                <table id="section_table" class="table vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th class="movable"></th>
+                            <th style="width: 45%">{% trans 'Section title (German)' %}</th>
+                            <th style="width: 45%">{% trans 'Section title (English)' %}</th>
+                            <th style="width: 10%">{% trans 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in formset %}
+                        <tr class="sortable">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <td class="movable">
+                                <span class="movable-icon fa fa-arrows-v"></span>
+                            </td>
+                            <td>{% include "bootstrap_form_field_widget.html" with field=form.title_de %}</td>
+                            <td>{% include "bootstrap_form_field_widget.html" with field=form.title_en %}</td>
+                            <td class="hide-divs">
+                                {% if form.instance.id %}
+                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
+                                {% endif %}
+                                {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
+                            </td>
+                        </tr>
                     {% endfor %}
-                    <td class="movable">
-                        <span class="movable-icon fa fa-arrows-v"></span>
-                    </td>
-                    <td>{% include "bootstrap_form_field_widget.html" with field=form.title_de %}</td>
-                    <td>{% include "bootstrap_form_field_widget.html" with field=form.title_en %}</td>
-                    <td class="hide-divs">
-                        {% if form.instance.id %}
-                            <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
-                        {% endif %}
-                        {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans "Save FAQ sections" %}</button>

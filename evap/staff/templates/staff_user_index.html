@@ -27,38 +27,42 @@
         </div>
     </div>
 
-    <table class="table table-striped vertically-aligned user-table" data-ordering="false">
-        <thead>
-            <tr>
-                <th style="width: 25%">{% trans 'Name' %}</th>
-                <th style="width: 25%">{% trans 'Username' %}</th>
-                <th style="width: 40%">{% trans 'Information' %}</th>
-                <th style="width: 10%">{% trans 'Actions' %}</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr id="user-row-{{ user.id }}">
-                <td>{{ user.full_name }}</td>
-                <td>{{ user.username }}</td>
-                <td>{% include "staff_user_labels.html" with user=user %}</td>
-                <td>
-                    <a href="{% url "staff:user_edit" user.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
-                    {% if user.can_staff_delete %}
-                        <a class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fa fa-trash"></span></a>
-                    {% else %}
-                        <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
-                            title="{% blocktrans %}This user contributes to a course (or is a delegate or CC user of
-                            such a person), participates in a course that hasn't been archived yet or has special
-                            rights and as such cannot be deleted.{% endblocktrans %}">
-                            <a class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
-                        </div>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="card mb-3">
+        <div class="card-body">
+            <table class="table table-striped vertically-aligned user-table" data-ordering="false">
+                <thead>
+                    <tr>
+                        <th style="width: 25%">{% trans 'Name' %}</th>
+                        <th style="width: 25%">{% trans 'Username' %}</th>
+                        <th style="width: 40%">{% trans 'Information' %}</th>
+                        <th style="width: 10%">{% trans 'Actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr id="user-row-{{ user.id }}">
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{% include "staff_user_labels.html" with user=user %}</td>
+                        <td>
+                            <a href="{% url "staff:user_edit" user.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
+                            {% if user.can_staff_delete %}
+                                <a class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fa fa-trash"></span></a>
+                            {% else %}
+                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
+                                    title="{% blocktrans %}This user contributes to a course (or is a delegate or CC user of
+                                    such a person), participates in a course that hasn't been archived yet or has special
+                                    rights and as such cannot be deleted.{% endblocktrans %}">
+                                    <a class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}
 
 {% block modals %}

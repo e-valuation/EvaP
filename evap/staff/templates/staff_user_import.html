@@ -16,8 +16,12 @@
 
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         {% csrf_token %}
-        <p>{% trans 'Upload Excel file (' %}<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans 'Sample File' %}</a>{% trans '). This will create all contained users.' %}</p>
-        {% include "bootstrap_form.html" with form=excel_form %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% trans 'Upload Excel file (' %}<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans 'Sample File' %}</a>{% trans '). This will create all contained users.' %}</p>
+                {% include "bootstrap_form.html" with form=excel_form %}
+            </div>
+        </div>
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}

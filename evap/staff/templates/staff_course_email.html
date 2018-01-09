@@ -9,30 +9,34 @@
     {% endif %}
     <form id="course-email-form" method="POST" class="form-horizontal">
         {% csrf_token %}
-        <fieldset>
-            <div class="email-form">
-                {% for field in form %}
-                    {% if field.name == "recipients" %}
-                        <div class="form-group d-flex">
-                            {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
-                            <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
-                                <div class="btn-group mb-1" data-toggle="buttons">
-                                    {% for choice in field %}
-                                        <label class="btn btn-sm btn-light {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
-                                            <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
-                                            {{ choice.choice_label }} {{ choice.id }}
-                                        </label>
-                                    {% endfor %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <fieldset>
+                    <div class="email-form">
+                        {% for field in form %}
+                            {% if field.name == "recipients" %}
+                                <div class="form-group d-flex">
+                                    {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
+                                    <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
+                                        <div class="btn-group mb-1" data-toggle="buttons">
+                                            {% for choice in field %}
+                                                <label class="btn btn-sm btn-light {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
+                                                    <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
+                                                    {{ choice.choice_label }} {{ choice.id }}
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                        <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% trans "Show Recipients" %}</button>
+                                    </div>
                                 </div>
-                                <button name="export" type="submit" formnovalidate class="btn btn-sm btn-secondary">{% trans "Show Recipients" %}</button>
-                            </div>
-                        </div>
-                    {% else %}
-                        {% include "bootstrap_form_field.html" with field=field %}
-                    {% endif %}
-                {% endfor %}
+                            {% else %}
+                                {% include "bootstrap_form_field.html" with field=field %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
             </div>
-        </fieldset>
+        </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 <button name="send" type="submit" class="btn btn-primary">{% trans "Send email" %}</button>

@@ -10,10 +10,14 @@
     {{ block.super }}
     <h3>{% trans 'Bulk delete users' %}</h3>
 
-    <p>{% trans "Upload a text file containing one username per line. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive." %}</p>
     <form id="user-bulk-delete-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% include "bootstrap_form.html" with form=form %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% trans "Upload a text file containing one username per line. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive." %}</p>
+                {% include "bootstrap_form.html" with form=form %}
+            </div>
+        </div>
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
                 <button name="operation" value="test" type="submit" class="btn btn-light">{% trans "Test" %}</button>
