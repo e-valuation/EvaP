@@ -1,15 +1,3 @@
-[submodule "puppetlabs-concat"]
-	path = deployment/testing_environment/modules/concat
-    url = https://github.com/puppetlabs/puppetlabs-concat.git
-[submodule "puppetlabs-stdlib"]
-	path = deployment/testing_environment/modules/stdlib
-    url = https://github.com/puppetlabs/puppetlabs-stdlib.git
-[submodule "puppetlabs-apache"]
-	path = deployment/testing_environment/modules/apache
-    url = https://github.com/puppetlabs/puppetlabs-apache.git
-[submodule "puppetlabs-postgresql"]
-	path = deployment/testing_environment/modules/postgresql
-    url = https://github.com/puppetlabs/puppetlabs-postgresql.git
 [submodule "evap/static/bootstrap"]
 	path = evap/static/bootstrap
 	url = https://github.com/twbs/bootstrap.git
