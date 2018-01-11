@@ -41,7 +41,7 @@ from evap.student.views import vote_preview
 @staff_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
-                         templates=EmailTemplate.objects.all(),
+                         templates=EmailTemplate.objects.all().order_by("id"),
                          sections=FaqSection.objects.all(),
                          disable_breadcrumb_staff=True)
     return render(request, "staff_index.html", template_data)

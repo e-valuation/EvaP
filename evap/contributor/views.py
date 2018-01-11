@@ -9,6 +9,7 @@ from evap.contributor.forms import CourseForm, DelegatesForm, EditorContribution
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
+from evap.results.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import vote_preview
 
@@ -25,6 +26,10 @@ def index(request):
 
     all_courses = list(own_courses) + list(delegated_courses)
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
+
+    for course in all_courses:
+        if course.state == 'published':
+            course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     semesters = Semester.objects.all()
     semester_list = [dict(
@@ -65,6 +70,9 @@ def course_view(request, course_id):
     # check rights
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
+
+    if course.is_user_editor_or_delegate(user):
+        messages.info(request, _('You cannot edit this course because it has already been approved.'))
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 

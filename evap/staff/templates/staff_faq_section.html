@@ -13,40 +13,43 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <table id="question_table" class="table">
-            <thead>
-                <tr>
-                    <th class="movable"></th>
-                    <th style="width: 45%">{% trans 'Question/Answer (German)' %}</th>
-                    <th style="width: 45%">{% trans 'Question/Answer (English)' %}</th>
-                    <th style="width: 10%">{% trans 'Actions' %}</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for form in formset %}
-                <tr class="sortable">
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
+        <div class="card mb-3">
+            <div class="card-body">
+                <table id="question_table" class="table">
+                    <thead>
+                        <tr>
+                            <th class="movable"></th>
+                            <th style="width: 45%">{% trans 'Question/Answer (German)' %}</th>
+                            <th style="width: 45%">{% trans 'Question/Answer (English)' %}</th>
+                            <th style="width: 10%">{% trans 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in formset %}
+                        <tr class="sortable">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <td class="movable">
+                                <span class="movable-icon fa fa-arrows-v"></span>
+                            </td>
+                            <td>
+                                {% include "bootstrap_form_field_widget.html" with field=form.question_de %}
+                                {% include "bootstrap_form_field_widget.html" with field=form.answer_de %}
+                            </td>
+                            <td>
+                                {% include "bootstrap_form_field_widget.html" with field=form.question_en %}
+                                {% include "bootstrap_form_field_widget.html" with field=form.answer_en %}
+                            </td>
+                            <td>{{ form.DELETE }}</td>
+                        </tr>
                     {% endfor %}
-                    <td class="movable">
-                        <span class="movable-icon fa fa-arrows-v"></span>
-                    </td>
-                    <td>
-                        {% include "bootstrap_form_field_widget.html" with field=form.question_de %}
-                        {% include "bootstrap_form_field_widget.html" with field=form.answer_de %}
-                    </td>
-                    <td>
-                        {% include "bootstrap_form_field_widget.html" with field=form.question_en %}
-                        {% include "bootstrap_form_field_widget.html" with field=form.answer_en %}
-                    </td>
-                    <td>{{ form.DELETE }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="form-group well">
-            <div class="col-sm-6">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans "Save FAQ section" %}</button>
             </div>
         </div>

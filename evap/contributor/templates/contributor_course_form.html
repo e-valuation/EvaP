@@ -17,26 +17,37 @@
     <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
         {% csrf_token %}
 
-        {% include 'course_form_general_questions.html' with course=course course_form=form %}
-
-        {% include 'contribution_formset.html' with formset=formset staff=False editable=editable%}
-
-        <fieldset>
-            <div class="d-flex">
-                <legend class="mr-auto">{% trans "Students" %}</legend>
-                <div>
-                    <a role="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
-                        {% trans "Request changes" %}
-                    </a>
-                </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'course_form_general_questions.html' with course=course course_form=form %}
             </div>
-            <p>{% trans "These students should be participating in your course. Please let us know if this data is not correct." %}</p>
-            <ul>
-                {% for p in course.participants.all|dictsort:"last_name" %}
-                    <li>{{ p.full_name }}</li>
-                {% endfor %}
-            </ul>
-        </fieldset>
+        </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'contribution_formset.html' with formset=formset staff=False editable=editable%}
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <fieldset>
+                    <div class="d-flex">
+                        <h5 class="card-title mr-auto">{% trans "Students" %}</h5>
+                        <div>
+                            <a role="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
+                                {% trans "Request changes" %}
+                            </a>
+                        </div>
+                    </div>
+                    <p>{% trans "These students should be participating in your course. Please let us know if this data is not correct." %}</p>
+                    <ul>
+                        {% for p in course.participants.all|dictsort:"last_name" %}
+                            <li>{{ p.full_name }}</li>
+                        {% endfor %}
+                    </ul>
+                </fieldset>
+            </div>
+        </div>
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}

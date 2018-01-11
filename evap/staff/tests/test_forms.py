@@ -4,7 +4,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
     Contribution, Semester, Degree, EmailTemplate
-from evap.evaluation.tests.tools import get_form_data_from_instance, course_with_responsible_and_editor, to_querydict
+from evap.evaluation.tests.tools import get_form_data_from_instance, create_course_with_responsible_and_editor, to_querydict
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
     CourseEmailForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
@@ -16,7 +16,7 @@ class CourseEmailFormTests(TestCase):
         """
             Tests the CourseEmailForm with one valid and one invalid input dataset.
         """
-        course = course_with_responsible_and_editor()
+        course = create_course_with_responsible_and_editor()
         mommy.make(Contribution, course=course)
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
         form = CourseEmailForm(course=course, data=data)
