@@ -1,5 +1,6 @@
 from collections import OrderedDict, defaultdict
-from datetime import datetime
+import datetime
+import operator
 
 from django.conf import settings
 from django.contrib.auth import user_logged_in
@@ -132,7 +133,7 @@ def course_types_in_semester(semester):
 
 
 def date_to_datetime(date):
-    return datetime(year=date.year, month=date.month, day=date.day)
+    return datetime.datetime(year=date.year, month=date.month, day=date.day)
 
 
 @receiver(user_logged_in)
@@ -143,3 +144,14 @@ def set_or_get_language(sender, user, request, **kwargs):
     else:
         user.language = get_language()
         user.save()
+
+
+def get_due_courses_for_user(user):
+    from evap.evaluation.models import Course
+    due_courses = dict()
+    for course in Course.objects.filter(participants=user, state='in_evaluation').exclude(voters=user):
+        due_courses[course] = (course.vote_end_date - datetime.date.today()).days
+
+    # Sort courses by number of days left for evaluation and bring them to following format:
+    # [(course, due_in_days), ...]
+    return sorted(due_courses.items(), key=operator.itemgetter(1))

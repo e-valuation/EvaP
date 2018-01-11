@@ -12,18 +12,25 @@
 {% block content %}
     {{ block.super }}
 
-    <div class="bs-callout bs-callout-info small">
-        <b>{% trans "Anonymity" %}</b><br />
-        {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
-        <em>{% trans "More details:" %} <a href="/faq#21-q">{% trans "FAQ/Anonymity" %}</a></em><br />
-        <br />
-        <b>{% trans "References to other answers" %}</b><br />
-        {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
-        <em>{% trans "More details:" %} <a href="/faq#24-q">{% trans "FAQ/Reference" %}</a></em><br />
-        <br />
-        <b>{% trans "Evaluation Results" %}</b><br />
-        {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
-        <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+    <div id="participantInfobox" class="infobox">
+        <div class="infobox-header d-flex">
+            <span class="fa fa-info-circle infobox-icon"></span>
+            <span class="infobox-title">{% trans "Information about the evaluation" %}</span>
+            <a role="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close"><span class="fa fa-times"></span></a>
+        </div>
+        <div class="infobox-content">
+            <b>{% trans "Anonymity" %}</b><br />
+            {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
+            <em>{% trans "More details:" %} <a href="/faq#21-q">{% trans "FAQ/Anonymity" %}</a></em><br />
+            <br />
+            <b>{% trans "References to other answers" %}</b><br />
+            {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
+            <em>{% trans "More details:" %} <a href="/faq#24-q">{% trans "FAQ/Reference" %}</a></em><br />
+            <br />
+            <b>{% trans "Evaluation Results" %}</b><br />
+            {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+            <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+        </div>
     </div>
 
     {% for semester in semester_list %}
@@ -33,7 +40,7 @@
                     {{ semester.semester_name }}
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-striped vertically-aligned">
+                    <table class="table table-hover-evap vertically-aligned">
                         <thead>
                             <tr>
                                 <th style="width: 40%">{% trans "Name" %}</th>
@@ -44,16 +51,16 @@
                         </thead>
                         <tbody>
                             {% for course in semester.courses %}
-                                <tr>
+                                <tr {% if course.state == 'in_evaluation' and course not in voted_courses %}
+                                        class="hover-vote" data-url="{% url 'student:vote' course.id %}"
+                                    {% elif course.state == 'published' and course.can_publish_grades %}
+                                        class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
+                                    {% else %}
+                                        class="nohover"
+                                    {% endif %}>
                                     <td>
                                         <div>
-                                            {% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                                <a href="{% url 'student:vote' course.id %}">{{ course.name }}</a>
-                                            {% elif course.state == 'published' and course.can_publish_grades %}
-                                                <a href="{% url 'results:course_detail' semester.id course.id %}">{{ course.name }}</a>
-                                            {% else %}
-                                                {{ course.name }}
-                                            {% endif %}
+                                            {{ course.name }}
                                         </div>
                                         <span class="badge badge-secondary">{{ course.type }}</span>
                                         {% if course in voted_courses %}
@@ -97,11 +104,11 @@
                                             </div>
                                         {% endif %}
                                         {% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                            <a class="btn btn-sm btn-primary" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
+                                            <a class="btn btn-sm btn-primary btn-vote" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
                                         {% endif %}
                                         {% if course.state == 'published' %}
                                             {% if course.can_publish_grades %}
-                                                <a class="btn btn-sm btn-secondary" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
+                                                <a class="btn btn-sm btn-secondary btn-results" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
                                             {% else %}
                                                 <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
                                             {% endif %}
@@ -117,4 +124,8 @@
             </div>
         {% endif %}
     {% endfor %}
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include "infobox_js.html" with id="participantInfobox" %}
 {% endblock %}

@@ -1,5 +1,4 @@
 import datetime
-import operator
 import logging
 
 from django.core.management.base import BaseCommand
@@ -7,6 +6,7 @@ from django.conf import settings
 
 from evap.evaluation.models import Course, EmailTemplate
 from evap.evaluation.management.commands.tools import log_exceptions
+from evap.evaluation.tools import get_due_courses_for_user
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +28,8 @@ class Command(BaseCommand):
             recipients.update(course.due_participants)
 
         for recipient in recipients:
-            due_courses = dict()
-            for course in Course.objects.filter(participants=recipient, state='in_evaluation').exclude(voters=recipient):
-                due_courses[course] = (course.vote_end_date - datetime.date.today()).days
-            first_due_in_days = min(due_courses.values())
-
-            # Sort courses by number of days left for evaluation and bring them to following format:
-            # [(course, due_in_days), ...]
-            due_courses = sorted(due_courses.items(), key=operator.itemgetter(1))
+            due_courses = get_due_courses_for_user(recipient)
+            first_due_in_days = due_courses[0][1]  # entry 0 is first due course, entry 1 in tuple is number of days
 
             EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_courses=due_courses)
         logger.info("send_reminders finished.")
