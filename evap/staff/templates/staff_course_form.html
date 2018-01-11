@@ -12,9 +12,16 @@
     <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
         {% csrf_token %}
 
-        {% include 'course_form_general_questions.html' with course=course course_form=form %}
-
-        {% include 'contribution_formset.html' with formset=formset staff=True editable=editable %}
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'course_form_general_questions.html' with course=course course_form=form %}
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'contribution_formset.html' with formset=formset staff=True editable=editable %}
+            </div>
+        </div>
 
         {% if editable %}
         <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">

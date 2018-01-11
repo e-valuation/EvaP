@@ -9,5 +9,9 @@
 
 {% block content %}
     <h1>{% trans "Legal Notice" %}</h1>
-    {% if LEGAL_NOTICE_ACTIVE %}{% include "legal_notice_text.html" %}{% endif %}
+    <div class="card">
+        <div class="card-body">
+            {% if LEGAL_NOTICE_ACTIVE %}{% include "legal_notice_text.html" %}{% endif %}
+        </div>
+    </div>
 {% endblock %}

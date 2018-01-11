@@ -2,43 +2,51 @@
 
 {% block content %}
     {{ block.super }}
-    <p>{% blocktrans %}Do you want to change the states of the following courses from <strong>{{ current_state_name }}</strong> to <strong>{{ new_state_name }}</strong>?{% endblocktrans %}</p>
 
     <form id="course-operation-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         {% for course in courses %}
             <input type="hidden" name="course" value="{{ course.id }}" />
         {% endfor %}
-
-        <table class="table table-striped mb-3">
-            <tbody>
-            {% for course in courses %}
-                <tr>
-                    {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=True %}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if show_email_checkbox %}
-
-        <div class="form-group">
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" name="send_email" checked onclick="$('#email_form').toggle();"> {% trans "Send email notifications" %}
-                </label>
+        
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% blocktrans %}Do you want to change the states of the following courses from <strong>{{ current_state_name }}</strong> to <strong>{{ new_state_name }}</strong>?{% endblocktrans %}</p>
+                <table class="table table-striped">
+                    <tbody>
+                    {% for course in courses %}
+                        <tr>
+                            {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=True %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <fieldset id="email_form">
-                <div class="email-form">
-                    <div class="form-group d-flex">
-                        <div class="form-label">Email subject</div>
-                        <div class="form-field"><input class="form-control" name="email_subject" type="text" value="{{ email_template.subject}}" /></div>
+        </div>
+
+        {% if show_email_checkbox %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="send_email" checked onclick="$('#email_form').toggle();"> {% trans "Send email notifications" %}
+                        </label>
                     </div>
-                    <div class="form-group d-flex">
-                        <div class="form-label">Email body</div>
-                        <div class="form-field"><textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea></div>
-                    </div>
+                    <fieldset id="email_form">
+                        <div class="email-form">
+                            <div class="form-group d-flex">
+                                <div class="form-label">Email subject</div>
+                                <div class="form-field"><input class="form-control" name="email_subject" type="text" value="{{ email_template.subject}}" /></div>
+                            </div>
+                            <div class="form-group d-flex">
+                                <div class="form-label">Email body</div>
+                                <div class="form-field"><textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea></div>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-            </fieldset>
+            </div>
         </div>
         {% endif %}
         <input type="hidden", name="operation", value="{{ operation }}">
