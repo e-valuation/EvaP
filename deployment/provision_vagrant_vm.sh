@@ -19,7 +19,7 @@ sudo -u postgres createdb -O evap evap
 # setup apache
 apt-get -q install -y apache2 libapache2-mod-wsgi-py3
 a2enmod expires
-cp /vagrant/deployment/apache.conf /etc/apache2/sites-available/evap.conf
+cp /vagrant/deployment/apache.template.conf /etc/apache2/sites-available/evap.conf
 a2ensite evap.conf
 a2dissite 000-default.conf
 # this comments in some line in some apache config file to fix the locale.
@@ -32,16 +32,19 @@ systemctl reload apache2
 echo "alias python=python3" >> /home/vagrant/.bashrc
 alias "sudo=\'sudo \'" >> /home/vagrant/.bashrc
 
-# auto cd into /vagrant
+# auto cd into /vagrant on login
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
 # install requirements
 sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements.txt
 sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements-dev.txt
 
+# deploy localsettings and insert random key
+cp /vagrant/deployment/localsettings.template.py /vagrant/evap/localsettings.py
+sed -i -e "s/\${SECRET_KEY}/`sudo head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32`/" /vagrant/evap/localsettings.py
+
 # setup evap
 cd /vagrant
-cp /vagrant/deployment/localsettings.py /vagrant/evap/localsettings.py
 git submodule update --init
 sudo -H -u vagrant python3 manage.py migrate --noinput
 sudo -H -u vagrant python3 manage.py collectstatic --noinput
