@@ -11,7 +11,7 @@ class TestResultsView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='evap')
+        mommy.make(UserProfile, username='evap', email="evap@institution.example.com")
 
 
 class TestResultsSemesterDetailView(ViewTest):
@@ -20,7 +20,7 @@ class TestResultsSemesterDetailView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='evap')
+        mommy.make(UserProfile, username='evap', email="evap@institution.example.com")
 
         cls.semester = mommy.make(Semester, id=1)
 
@@ -35,7 +35,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
 
-        mommy.make(UserProfile, username='evap', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='evap', groups=[Group.objects.get(name='Staff')], email="evap@institution.example.com")
         contributor = UserProfile.objects.get(username="contributor")
         responsible = UserProfile.objects.get(username="responsible")
         # contributor = mommy.make(UserProfile, username='contributor')  # Add again when fixtures are removed
@@ -79,7 +79,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         other_responsible = UserProfile.objects.get(username="other_responsible")
         test1 = mommy.make(UserProfile, username="test1")
         test2 = mommy.make(UserProfile, username="test2")
-        mommy.make(UserProfile, username="random")
+        mommy.make(UserProfile, username="random", email="random@institution.example.com")
         degree = mommy.make(Degree)
         private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, test1, test2], voters=[test1, test2], degrees=[degree])
         mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
