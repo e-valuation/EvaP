@@ -74,6 +74,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
 
     def test_private_course(self):
         student = UserProfile.objects.get(username="student")
+        student_external = UserProfile.objects.get(username="student_external")
         contributor = UserProfile.objects.get(username="contributor")
         responsible = UserProfile.objects.get(username="responsible")
         other_responsible = UserProfile.objects.get(username="other_responsible")
@@ -81,7 +82,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         test2 = mommy.make(UserProfile, username="test2")
         mommy.make(UserProfile, username="random", email="random@institution.example.com")
         degree = mommy.make(Degree)
-        private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, test1, test2], voters=[test1, test2], degrees=[degree])
+        private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
         mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
@@ -99,6 +100,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertIn(private_course.name, page)
         page = self.app.get(url, user='evap')
         self.assertIn(private_course.name, page)
+        self.get_assert_403(url, 'student_external')  # external users can't see results semester view
 
         url = '/results/semester/%s/course/%s' % (self.semester.id, private_course.id)
         self.get_assert_403(url, "random")
@@ -107,6 +109,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.get_assert_200(url, "other_responsible")
         self.get_assert_200(url, "contributor")
         self.get_assert_200(url, "evap")
+        self.get_assert_200(url, "student_external")  # this external user participates in the course and can see the results
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/course/1", user='responsible')
@@ -275,3 +278,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertNotIn(".other_responsible_changed_published.", page)
         self.assertNotIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_student_external(self):
+        # the external user does not participate in or contribute to the course and therefore can't see the results
+        self.get_assert_403("/results/semester/1/course/1", 'student_external')

@@ -406,6 +406,23 @@
   }
 },
 {
+  "pk": 10,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "student_external",
+    "first_name": "student_external",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:46.611",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "student_external@external.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
   "pk": 1,
   "model": "evaluation.contribution",
   "fields": {
