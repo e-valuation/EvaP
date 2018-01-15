@@ -5,17 +5,18 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
+from evap.evaluation.auth import internal_required
 from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY
 
 
-@login_required
+@internal_required
 def index(request):
     semesters = Semester.get_all_with_published_courses()
 
     return render(request, "results_index.html", dict(semesters=semesters))
 
 
-@login_required
+@internal_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if request.user.is_reviewer:
