@@ -16,14 +16,14 @@ class TestGrantRewardPoints(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
-        cls.course = mommy.make(Course, pk=1, state='in_evaluation', participants=[cls.student])
+        cls.course = mommy.make(Course, state='in_evaluation', participants=[cls.student])
 
         questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, questionnaire=questionnaire, type="G")
         cls.course.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
-        response = self.app.get(reverse("student:vote", args=[1]), user="student")
+        response = self.app.get(reverse("student:vote", args=[self.course.pk]), user="student")
 
         self.form = response.forms["student-vote-form"]
         for key in self.form.fields.keys():

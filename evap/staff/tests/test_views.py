@@ -397,19 +397,19 @@ class TestSemesterDeleteView(ViewTest):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
     def test_failure(self):
-        semester = mommy.make(Semester, pk=1)
+        semester = mommy.make(Semester)
         mommy.make(Course, semester=semester, state='in_evaluation', voters=[mommy.make(UserProfile)])
         self.assertFalse(semester.can_staff_delete)
-        response = self.app.post(self.url, params={'semester_id': 1}, user='staff', expect_errors=True)
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='staff', expect_errors=True)
         self.assertEqual(response.status_code, 400)
-        self.assertTrue(Semester.objects.filter(pk=1).exists())
+        self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
 
     def test_success(self):
-        semester = mommy.make(Semester, pk=1)
+        semester = mommy.make(Semester)
         self.assertTrue(semester.can_staff_delete)
-        response = self.app.post(self.url, params={'semester_id': 1}, user='staff')
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='staff')
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(Semester.objects.filter(pk=1).exists())
+        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
 
 class TestSemesterAssignView(ViewTest):
@@ -783,8 +783,8 @@ class TestCourseOperationView(ViewTest):
         self.helper_semester_state_views(course, "published", "reviewed")
 
     def test_operation_start_evaluation(self):
-        urloptions = '?course=1&operation=approved->in_evaluation'
-        course = mommy.make(Course, pk=1, state='approved', semester=self.semester)
+        course = mommy.make(Course, state='approved', semester=self.semester)
+        urloptions = '?course={}&operation=approved->in_evaluation'.format(course.pk)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -796,8 +796,8 @@ class TestCourseOperationView(ViewTest):
         self.assertEqual(course.state, 'in_evaluation')
 
     def test_operation_prepare(self):
-        urloptions = '?course=1&operation=new->prepared'
-        course = mommy.make(Course, pk=1, state='new', semester=self.semester)
+        course = mommy.make(Course, state='new', semester=self.semester)
+        urloptions = '?course={}&operation=new->prepared'.format(course.pk)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -817,7 +817,7 @@ class TestSingleResultCreateView(ViewTest):
     def setUpTestData(cls):
         cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
-        mommy.make(CourseType, pk=1)
+        cls.course_type = mommy.make(CourseType)
 
     def test_single_result_create(self):
         """
@@ -827,7 +827,7 @@ class TestSingleResultCreateView(ViewTest):
         form = response.forms["single-result-form"]
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
-        form["type"] = 1
+        form["type"] = self.course_type.pk
         form["degrees"] = ["1"]
         form["event_date"] = "2014-01-01"
         form["answer_1"] = 6
@@ -852,9 +852,9 @@ class TestCourseCreateView(ViewTest):
     def setUpTestData(cls):
         cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
-        mommy.make(CourseType, pk=1)
-        mommy.make(Questionnaire, pk=1, is_for_contributors=False)
-        mommy.make(Questionnaire, pk=2, is_for_contributors=True)
+        cls.course_type = mommy.make(CourseType)
+        cls.q1 = mommy.make(Questionnaire, is_for_contributors=False)
+        cls.q2 = mommy.make(Questionnaire, is_for_contributors=True)
 
     def test_course_create(self):
         """
@@ -864,18 +864,18 @@ class TestCourseCreateView(ViewTest):
         form = response.forms["course-form"]
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
-        form["type"] = 1
+        form["type"] = self.course_type.pk
         form["degrees"] = ["1"]
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
-        form["general_questions"] = ["1"]
+        form["general_questions"] = [self.q1.pk]
 
         form['contributions-TOTAL_FORMS'] = 1
         form['contributions-INITIAL_FORMS'] = 0
         form['contributions-MAX_NUM_FORMS'] = 5
         form['contributions-0-course'] = ''
         form['contributions-0-contributor'] = self.staff_user.pk
-        form['contributions-0-questionnaires'] = [2]
+        form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
         form['contributions-0-responsibility'] = "RESPONSIBLE"
         form['contributions-0-comment_visibility'] = "ALL"
@@ -1376,24 +1376,24 @@ class TestQuestionnaireDeletionView(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        questionnaire1 = mommy.make(Questionnaire, pk=1)
-        mommy.make(Questionnaire, pk=2)
-        mommy.make(Contribution, questionnaires=[questionnaire1])
+        cls.q1 = mommy.make(Questionnaire)
+        cls.q2 = mommy.make(Questionnaire)
+        mommy.make(Contribution, questionnaires=[cls.q1])
 
     def test_questionnaire_deletion(self):
         """
             Tries to delete two questionnaires via the respective post request,
             only the second attempt should succeed.
         """
-        self.assertFalse(Questionnaire.objects.get(pk=1).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": 1}, user="staff", expect_errors=True)
+        self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_staff_delete)
+        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": self.q1.pk}, user="staff", expect_errors=True)
         self.assertEqual(response.status_code, 400)
-        self.assertTrue(Questionnaire.objects.filter(pk=1).exists())
+        self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
 
-        self.assertTrue(Questionnaire.objects.get(pk=2).can_staff_delete)
-        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": 2}, user="staff")
+        self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_staff_delete)
+        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": self.q2.pk}, user="staff")
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(Questionnaire.objects.filter(pk=2).exists())
+        self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
 
 
 # Staff Course Types Views
@@ -1432,14 +1432,14 @@ class TestCourseTypeMergeSelectionView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.main_type = mommy.make(CourseType, pk=1, name_en="A course type")
-        cls.other_type = mommy.make(CourseType, pk=2, name_en="Obsolete course type")
+        cls.main_type = mommy.make(CourseType, name_en="A course type")
+        cls.other_type = mommy.make(CourseType, name_en="Obsolete course type")
 
     def test_same_course_fails(self):
         page = self.get_assert_200(self.url, user="staff")
         form = page.forms["course-type-merge-selection-form"]
-        form["main_type"] = 1
-        form["other_type"] = 1
+        form["main_type"] = self.main_type.pk
+        form["other_type"] = self.main_type.pk
         response = form.submit()
         self.assertIn("You must select two different course types", str(response))
 
@@ -1476,11 +1476,11 @@ class TestCourseCommentsUpdatePublishView(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
-        mommy.make(Course, pk=1)
+        cls.course = mommy.make(Course)
 
     def helper(self, old_state, expected_new_state, action):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post(self.url, params={"id": textanswer.id, "action": action, "course_id": 1}, user="staff.user")
+        response = self.app.post(self.url, params={"id": textanswer.id, "action": action, "course_id": self.course.pk}, user="staff.user")
         self.assertEqual(response.status_code, 200)
         textanswer.refresh_from_db()
         self.assertEqual(textanswer.state, expected_new_state)
