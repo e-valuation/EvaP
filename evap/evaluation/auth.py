@@ -118,6 +118,15 @@ def user_passes_test(test_func):
     return decorator
 
 
+def internal_required(view_func):
+    """
+    Decorator for views that checks that the user is logged in and not an external user
+    """
+    def check_user(user):
+        return not user.is_external
+    return user_passes_test(check_user)(view_func)
+
+
 def staff_required(view_func):
     """
     Decorator for views that checks that the user is logged in and a staff member

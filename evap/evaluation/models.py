@@ -299,7 +299,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return True
         if self.is_user_contributor_or_delegate(user):
             return True
-        if self.is_private and user not in self.participants.all():
+        if user in self.participants.all():
+            return True
+        if self.is_private:
+            return False
+        if user.is_external:
             return False
         return True
 
