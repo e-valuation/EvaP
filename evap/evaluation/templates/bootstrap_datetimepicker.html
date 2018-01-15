@@ -3,15 +3,12 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% compress js %}
-
-    <script type="text/javascript"  src="{% get_static_prefix %}js/moment.min.js" ></script>
-    <script type="text/javascript"  src="{% get_static_prefix %}js/locale/moment_de.js" ></script>
-    <script type="text/javascript"  src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js" ></script>
-
+    <script type="text/javascript"src="{% get_static_prefix %}js/moment.min.js" ></script>
+    <script type="text/javascript"src="{% get_static_prefix %}js/locale/moment_de.js" ></script>
+    <script type="text/javascript"src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js" ></script>
 {% endcompress %}
 
 <script type="text/javascript">
-    
     // run the bootstrap datepicker plugin
     $("input[name$='date']:not([readonly='True'])").datetimepicker({
         locale: "{{ LANGUAGE_CODE }}",
@@ -37,4 +34,3 @@
     });
 
 </script>
-    
