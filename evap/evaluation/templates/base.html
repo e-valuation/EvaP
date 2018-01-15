@@ -144,6 +144,13 @@
     document.addEventListener('change', function(e){
        $(e.target).removeClass("invalid")
     }, true);
+
+    // activate clickable hover tables
+    $(".table-hover-evap tr:not(.nohover)").click(function(e){
+        if(!$(e.target).is("a") && !$(e.target).hasClass("disabled-tooltip")){  // apply to everything but anchors and disabled buttons
+            window.location = $(this).closest("[data-url]").data('url');
+        }
+    });
 </script>
 
 {% block additional_javascript %}{% endblock %}

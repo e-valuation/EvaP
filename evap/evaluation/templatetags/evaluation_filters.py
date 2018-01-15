@@ -73,6 +73,11 @@ def can_user_see_results(course, user):
     return course.can_user_see_results(user)
 
 
+@register.filter(name='can_publish_grades')
+def can_publish_grades(course):
+    return course.can_publish_grades
+
+
 @register.filter(name='can_user_use_reward_points')
 def can_use_reward_points(user):
     return can_user_use_reward_points(user)

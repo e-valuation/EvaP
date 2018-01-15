@@ -11,45 +11,50 @@
     {{ block.super }}
     <h3>{% trans "Export" %} {{ semester.name }}</h3>
 
-    <p>{% trans "Select the course types you want to export. Add multiple lines to create an export file with multiple sheets." %}</p>
-
     <form id="semester-export-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
 
         {{ formset.management_form }}
 
-        <table id="exportsheets-table" class="table">
-            <thead>
-                <tr>
-                    <th style="width: 90%">{% trans "Course types" %}</th>
-                    <th style="width: 10%"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for form in formset %}
-                    {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
-                    <tr class="exportsheet sortable">
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% trans "Select the course types you want to export. Add multiple lines to create an export file with multiple sheets." %}</p>
+                <table id="exportsheets-table" class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 90%">{% trans "Course types" %}</th>
+                            <th style="width: 10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                            {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+                            <tr class="exportsheet sortable">
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                                <td>
+                                    {% include "multiple_checkbox_widget.html" with field=form.selected_course_types %}
+                                </td>
+                                <td>{{ form.DELETE }}</td>
+                            </tr>
                         {% endfor %}
-                        <td>
-                            {% include "multiple_checkbox_widget.html" with field=form.selected_course_types %}
-                        </td>
-                        <td>{{ form.DELETE }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="include_unpublished"> {% trans "Include courses from states 'evaluated' and 'reviewed' in the export" %}
-            </label><br />
-            <label>
-                <input type="checkbox" name="include_not_enough_answers"> {% trans "Include courses where not enough answers were given in the export" %}
-            </label>
+                    </tbody>
+                </table>
+            </div>
         </div>
-
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="include_unpublished"> {% trans "Include courses from states 'evaluated' and 'reviewed' in the export" %}
+                    </label><br />
+                    <label>
+                        <input type="checkbox" name="include_not_enough_answers"> {% trans "Include courses where not enough answers were given in the export" %}
+                    </label>
+                </div>
+            </div>
+        </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary form-submit-btn">{% trans "Export" %}</button>

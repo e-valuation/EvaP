@@ -16,7 +16,7 @@
                         <h4 class="card-title">{% trans "Import Participants" %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans "From Excel file" %}</h6>
                         <p class="card-text">{% trans "Upload Excel file with participant data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}</p>
-                        {% include "bootstrap_form.html" with form=participant_excel_form %}
+                        {% include "bootstrap_form.html" with form=participant_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not participant_test_passed %}
@@ -38,7 +38,7 @@
                         <h4 class="card-title">{% trans "Copy Participants" %}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">{% trans "From other course" %}</h6>
                         <p class="card-text">{% trans "Copy participants from another course." %}</p>
-                        {% include "bootstrap_form.html" with form=participant_copy_form %}
+                        {% include "bootstrap_form.html" with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="copy-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans "Copy participants" %}</button>
@@ -57,7 +57,7 @@
                         <h4 class="card-title">{% trans "Import Contributors" %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans "From Excel file" %}</h6>
                         <p class="card-text">{% trans "Upload Excel file with contributor data" %} (<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans "Sample File"%}</a>). {% trans "This will create all containing users." %}</p>
-                        {% include "bootstrap_form.html" with form=contributor_excel_form %}
+                        {% include "bootstrap_form.html" with form=contributor_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not contributor_test_passed %}
@@ -79,7 +79,7 @@
                         <h4 class="card-title">{% trans "Copy Contributors" %}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">{% trans "From other course" %}</h6>
                         <p class="card-text">{% trans "Copy contributors from another course." %}</p>
-                        {% include "bootstrap_form.html" with form=contributor_copy_form %}
+                        {% include "bootstrap_form.html" with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="copy-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans "Copy Contributors" %}</button>

@@ -21,7 +21,7 @@
                 </div>
                 <div class="card-body collapse show" id="degree-{{ degree.id }}">
                     {% if courses %}
-                        <table class="table table-striped course-table vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
+                        <table class="table table-hover-evap course-table vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
                             <thead>
                                 <tr>
                                     <th style="width: 36%">{% trans "Course" %}</th>
@@ -34,7 +34,8 @@
                             </thead>
                             <tbody>
                             {% for course in courses %}
-                                <tr {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}class="preview"{% endif %}>
+                                <tr class="{% if not course|can_user_see_results:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+                                {% if course|can_user_see_results:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
                                             <span data-toggle="tooltip" data-placement="top" class="fa fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
@@ -42,13 +43,10 @@
                                         {% if course.state == 'evaluated' or course.state == 'reviewed' %}
                                             <span data-toggle="tooltip" data-placement="top" class="fa fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
                                         {% endif %}
-                                        {% if course|can_user_see_results:request.user %}
-                                            <a href="{% url "results:course_detail" semester.id course.id %}">{{ course.name }}</a>
-                                        {% else %}
-                                            <span data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given to publish the results." %}">
-                                                {{ course.name }}
-                                            </span>
+                                        {% if course.state == 'published' and not course|can_publish_grades %}
+                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-lock" title="{% trans 'Not enough answers were given to publish the results.' %}"></span>
                                         {% endif %}
+                                        <span class="course-name">{{ course.name }}</span>
                                     </td>
                                     <td>{{ course.type }}</td>
                                     <td data-order="{{ course.responsible_contributors.0.last_name }}">
@@ -60,12 +58,10 @@
                                         <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                                         <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
                                     {% else %}
-                                        <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title=
-                                            "{% trans "Not enough answers were given to publish the results." %}">
+                                        <td class="text-center"><div class="grade-bg grade-bg-disabled">
                                             &mdash;
                                         </div></td>
-                                        <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="
-                                            {% trans "Not enough answers were given to publish the results." %}">
+                                        <td class="text-center"><div class="deviation-bg deviation-bg-disabled">
                                             &mdash;
                                         </div></td>
                                     {% endif %}
@@ -78,7 +74,7 @@
                         </table>
                     {% endif %}
                     {% if single_results %}
-                        <table class="table table-striped course-table vertically-aligned">
+                        <table class="table course-table vertically-aligned">
                             <thead class="nowrap">
                                 <tr>
                                     <th style="width: 36%">{% trans "Course" %}</th>

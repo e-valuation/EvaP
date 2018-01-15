@@ -12,13 +12,17 @@
     {{ block.super }}
     <form id="send-reminder-form" method="POST" class="form-horizontal">
         {% csrf_token %}
-        <fieldset>
-            <div class="email-form">
-                {% for field in form %}
-                    {% include "bootstrap_form_field.html" with field=field %}
-                {% endfor %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <fieldset>
+                    <div class="email-form">
+                        {% for field in form %}
+                            {% include "bootstrap_form_field.html" with field=field %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
             </div>
-        </fieldset>
+        </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">{% trans "Send email" %}</button>

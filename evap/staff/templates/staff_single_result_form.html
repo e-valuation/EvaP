@@ -11,7 +11,11 @@
     </h3>
     <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
-        {% include "bootstrap_form.html" with form=form %}
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include "bootstrap_form.html" with form=form %}
+            </div>
+        </div>
 
         {% if form.instance.can_staff_edit %}
             <div class="card card-submit-area text-center mb-3">
