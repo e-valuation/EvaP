@@ -10,11 +10,6 @@
                 "evap/static/js",
                 "evap/static/bootstrap",
                 "htmlcov",
-                "deployment/testing_environment/modules/apache",
-                "deployment/testing_environment/modules/apt",
-                "deployment/testing_environment/modules/concat",
-                "deployment/testing_environment/modules/postgresql",
-                "deployment/testing_environment/modules/stdlib",
             ],
             "file_exclude_patterns":
             [
