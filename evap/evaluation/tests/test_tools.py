@@ -19,7 +19,7 @@ class TestLanguageSignalReceiver(WebTest):
         """
         translation.activate('de')
 
-        user = mommy.make(UserProfile, language=None)
+        user = mommy.make(UserProfile, language=None, email="user@institution.example.com")
         user.ensure_valid_login_key()
 
         set_or_get_language(None, user, None)
@@ -32,7 +32,7 @@ class TestLanguageSignalReceiver(WebTest):
         Activate 'en' as langauge and check, that user does not get this langauge as he has one.
         """
         translation.activate('en')
-        user = mommy.make(UserProfile, language='de')
+        user = mommy.make(UserProfile, language='de', email="user@institution.example.com")
         user.ensure_valid_login_key()
 
         self.app.get(reverse("results:index") + "?loginkey=%s" % user.login_key)

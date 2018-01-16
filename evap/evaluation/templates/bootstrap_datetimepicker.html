@@ -1,0 +1,35 @@
+{% load compress %}
+{% load static %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% compress js %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/moment.min.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/locale/moment_de.js"></script>
+    <script type="text/javascript" src="{% get_static_prefix %}js/bootstrap-datetimepicker.min.js"></script>
+{% endcompress %}
+
+<script type="text/javascript">
+    // run the bootstrap datepicker plugin
+    $("input[name$='date']:not([readonly='True'])").datetimepicker({
+        locale: "{{ LANGUAGE_CODE }}",
+        format: "YYYY-MM-DD",
+        sideBySide: true,
+        icons: {
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            next: "fa fa-chevron-right",
+            previous: "fa fa-chevron-left"
+        }
+    });
+    $("input[name$='datetime']:not([readonly='True'])").datetimepicker({
+        locale: "{{ LANGUAGE_CODE }}",
+        format: "YYYY-MM-DD HH:mm",
+        sideBySide: true,
+        icons: {
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            next: "fa fa-chevron-right",
+            previous: "fa fa-chevron-left"
+        }
+    });
+</script>

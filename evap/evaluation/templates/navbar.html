@@ -70,14 +70,16 @@
                         </div>
                     </li>
                 {% endif %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'results:index' %}" id="navbarResultsDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Results" %}</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarResultsDropdownMenuLink">
-                        {% for semester in result_semesters %}
-                            <a class="dropdown-item" href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
+                {% if not user.is_external %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'results:index' %}" id="navbarResultsDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Results" %}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarResultsDropdownMenuLink">
+                            {% for semester in result_semesters %}
+                                <a class="dropdown-item" href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% endif %}
             {% endif %}
         </ul>
         <ul class="navbar-nav">
