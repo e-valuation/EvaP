@@ -12,19 +12,20 @@ from model_mommy import mommy
 from evap.evaluation.models import Semester, UserProfile, CourseType
 from evap.evaluation.tests.tools import WebTest
 
+from django.urls import reverse
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class SampleXlsTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(Semester, pk=1)
+        cls.semester = mommy.make(Semester)
         mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
         mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
         mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
 
     def test_sample_xls(self):
-        page = self.app.get("/staff/semester/1/import", user='user')
+        page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user='user')
 
         original_user_count = UserProfile.objects.count()
 

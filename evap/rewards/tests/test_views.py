@@ -20,19 +20,19 @@ class TestEventDeleteView(ViewTest):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
     def test_deletion_success(self):
-        mommy.make(RewardPointRedemptionEvent, pk=1)
-        response = self.app.post(self.url, params={'event_id': 1}, user='staff')
+        event = mommy.make(RewardPointRedemptionEvent)
+        response = self.app.post(self.url, params={'event_id': event.pk}, user='staff')
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=1).exists())
+        self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
     def test_deletion_failure(self):
         """ try to delete event that can not be deleted, because people already redeemed points """
-        event = mommy.make(RewardPointRedemptionEvent, pk=1)
+        event = mommy.make(RewardPointRedemptionEvent)
         mommy.make(RewardPointRedemption, value=1, event=event)
 
-        response = self.app.post(self.url, params={'event_id': 1}, user='staff', expect_errors=True)
+        response = self.app.post(self.url, params={'event_id': event.pk}, user='staff', expect_errors=True)
         self.assertEqual(response.status_code, 400)
-        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=1).exists())
+        self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
 
 class TestIndexView(ViewTest):
@@ -85,8 +85,8 @@ class TestEventsView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
-        mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
+        mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
 class TestEventCreateView(ViewTest):
@@ -121,7 +121,7 @@ class TestEventEditView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(RewardPointRedemptionEvent, pk=1, name='old name')
+        cls.event = mommy.make(RewardPointRedemptionEvent, pk=1, name='old name')
 
     def test_edit_redemption_event(self):
         """ submits a newly created redemption event and checks that the event has been created """
@@ -132,7 +132,7 @@ class TestEventEditView(ViewTest):
 
         response = form.submit()
         self.assertRedirects(response, reverse('rewards:reward_point_redemption_events'))
-        self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=1).name, 'new name')
+        self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name, 'new name')
 
 
 class TestExportView(ViewTest):
