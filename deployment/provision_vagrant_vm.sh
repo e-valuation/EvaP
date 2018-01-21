@@ -34,8 +34,7 @@ echo "alias python=python3" >> /home/vagrant/.bashrc
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
 # install requirements
-sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements.txt
-sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements-dev.txt
+sudo -H -u vagrant pip3 install --user -r /vagrant/requirements-dev.txt
 
 # deploy localsettings and insert random key
 cp /vagrant/deployment/localsettings.template.py /vagrant/evap/localsettings.py
