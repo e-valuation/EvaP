@@ -28,9 +28,8 @@ a2dissite 000-default.conf
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 systemctl reload apache2
 
-# alias python -> python3, the sudo thing makes "sudo python foo" work
+# alias python -> python3
 echo "alias python=python3" >> /home/vagrant/.bashrc
-alias "sudo=\'sudo \'" >> /home/vagrant/.bashrc
 
 # auto cd into /vagrant on login
 echo "cd /vagrant" >> /home/vagrant/.bashrc
