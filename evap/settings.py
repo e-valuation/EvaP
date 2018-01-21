@@ -78,9 +78,6 @@ ADMINS = [
     # ('Your Name', 'your_email@example.com'),
 ]
 
-# These are listed for easier development. Remove them in production environments.
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
-
 # The page URL that is used in email templates.
 PAGE_URL = "localhost:8000"
 
