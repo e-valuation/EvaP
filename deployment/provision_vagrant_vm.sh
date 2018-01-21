@@ -5,10 +5,9 @@ apt-get -q update
 apt-get -q install -y python3-dev python3-pip gettext
 
 # install sass
-apt-add-repository -y ppa:brightbox/ruby-ng
-apt-get -q update
-apt-get -q install -y ruby2.4 ruby2.4-dev
-gem install sass
+apt-get -q install -y sassc
+# stay compatible to previous installations with sass
+ln -s /usr/bin/sassc /usr/bin/sass
 
 # setup postgres
 apt-get -q install -y postgresql
@@ -28,16 +27,14 @@ a2dissite 000-default.conf
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 systemctl reload apache2
 
-# alias python -> python3, the sudo thing makes "sudo python foo" work
+# alias python -> python3
 echo "alias python=python3" >> /home/vagrant/.bashrc
-alias "sudo=\'sudo \'" >> /home/vagrant/.bashrc
 
 # auto cd into /vagrant on login
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
 # install requirements
-sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements.txt
-sudo -H -u vagrant pip3 --log-file /tmp/pip.log install --user -r /vagrant/requirements-dev.txt
+sudo -H -u vagrant pip3 install --user -r /vagrant/requirements-dev.txt
 
 # deploy localsettings and insert random key
 cp /vagrant/deployment/localsettings.template.py /vagrant/evap/localsettings.py

@@ -51,9 +51,3 @@ class QuestionsForm(forms.Form):
                                      question)
 
             self.fields[identifier] = field
-
-    def caption(self):
-        return self.questionnaire.public_name
-
-    def teaser(self):
-        return self.questionnaire.teaser
