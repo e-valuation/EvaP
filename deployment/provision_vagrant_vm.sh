@@ -5,10 +5,9 @@ apt-get -q update
 apt-get -q install -y python3-dev python3-pip gettext
 
 # install sass
-apt-add-repository -y ppa:brightbox/ruby-ng
-apt-get -q update
-apt-get -q install -y ruby2.4 ruby2.4-dev
-gem install sass
+apt-get -q install -y sassc
+# stay compatible to previous installations with sass
+ln -s /usr/bin/sassc /usr/bin/sass
 
 # setup postgres
 apt-get -q install -y postgresql
