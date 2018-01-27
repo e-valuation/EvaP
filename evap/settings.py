@@ -205,7 +205,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
-                "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
@@ -295,9 +294,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
-
-# URL that handles the media served from MEDIA_ROOT.
-MEDIA_URL = '/media/'
 
 # the backend used for downloading attachments
 # see https://github.com/johnsensible/django-sendfile for further information
