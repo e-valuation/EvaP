@@ -352,14 +352,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_see_course(self, user):
         if user.is_reviewer:
             return True
-        if self.is_user_contributor_or_delegate(user):
-            return True
-        if user in self.participants.all():
-            return True
-        if self.is_private:
-            return False
-        if user.is_external:
-            return False
+        if self.is_private or user.is_external:
+            return self.is_user_contributor_or_delegate(user) or self.participants.filter(pk=user.pk).exists()
         return True
 
     def can_user_see_results_page(self, user):
@@ -369,13 +363,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return True
         if self.state != 'published':
             return False
-        if self.is_user_contributor_or_delegate(user):
-            return True
-        if not self.can_publish_rating_results:
-            return False
-        if self.semester.results_are_archived:
-            return False
-        return self.can_user_see_course(user)
+        if not self.can_publish_rating_results or self.semester.results_are_archived or not self.can_user_see_course(user):
+            return self.is_user_contributor_or_delegate(user)
+        return True
 
     @property
     def is_single_result(self):
@@ -512,20 +502,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return days_left
 
     def is_user_editor_or_delegate(self, user):
-        if self.contributions.filter(can_edit=True, contributor=user).exists():
-            return True
-        represented_users = user.represented_users.all()
-        if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
-            return True
-        return False
+        return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all()), can_edit=True).exists()
 
     def is_user_contributor_or_delegate(self, user):
-        if self.contributions.filter(contributor=user).exists():
-            return True
-        represented_users = user.represented_users.all()
-        if self.contributions.filter(contributor__in=represented_users).exists():
-            return True
-        return False
+        # early out that saves database hits since is_contributor_or_delegate is a cached_property
+        if not user.is_contributor_or_delegate:
+            return False
+        return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all())).exists()
 
     @property
     def textanswer_set(self):
@@ -663,7 +646,7 @@ class Contribution(models.Model):
 
     @property
     def is_general(self):
-        return self.contributor is None
+        return self.contributor_id is None
 
 
 class Question(models.Model, metaclass=LocalizeModelBase):
@@ -1031,7 +1014,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_editor_or_delegate(self):
         return self.is_editor or self.is_delegate
 
-    @property
+    @cached_property
     def is_contributor_or_delegate(self):
         return self.is_contributor or self.is_delegate
 
