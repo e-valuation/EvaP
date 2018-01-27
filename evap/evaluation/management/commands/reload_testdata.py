@@ -22,7 +22,7 @@ class Command(BaseCommand):
             self.stdout.write("")
 
         self.stdout.write('Executing "python manage.py reset_db"')
-        call_command("reset_db", user='evap', interactive=False)
+        call_command("reset_db", interactive=False)
 
         self.stdout.write('Executing "python manage.py migrate"')
         call_command("migrate")

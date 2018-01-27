@@ -1077,7 +1077,7 @@ def user_index(request):
         users = UserProfile.objects.all()
 
     users = (users
-        # the following six annotations basically add two bools indicating whether each user is part of a group or not.
+        # the following six annotations basically add three bools indicating whether each user is part of a group or not.
         .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
         .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
         .annotate(reviewer_group_count=Sum(Case(When(groups__name="Reviewer", then=1), output_field=IntegerField())))

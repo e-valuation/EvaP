@@ -6,7 +6,7 @@ from django.core.management import execute_from_command_line
 
 class Command(BaseCommand):
     args = ''
-    help = 'Execute "runserver 0.0.0.0:80"'
+    help = 'Execute "runserver 0.0.0.0:8000"'
 
     def handle(self, *args, **options):
         self.stdout.write('Executing "manage.py runserver 0.0.0.0:8000"')
