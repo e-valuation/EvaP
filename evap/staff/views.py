@@ -22,6 +22,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, sort_formset
 from evap.grades.tools import are_grades_activated
+from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import CommentSection, TextResult, calculate_average_grades_and_deviation, get_textanswers
 from evap.rewards.models import RewardPointGranting
@@ -48,21 +49,35 @@ def index(request):
 
 
 def get_courses_with_prefetched_data(semester):
-    courses = semester.course_set.prefetch_related(
-        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
-        Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
-        "degrees")
+    courses = (semester.course_set
+        .select_related('type')
+        .prefetch_related(
+            Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
+            Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
+            "degrees"
+        ).annotate(
+            num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
+            num_textanswers=Count("contributions__textanswer_set", distinct=True),
+            num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
+            midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+            final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+        )
+    )
+
+    # these could be done with an annotation like this:
+    # num_voters_annotated=Count("voters", distinct=True), or more completely
+    # courses.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
+    # but that was prohibitively slow.
     participant_counts = semester.course_set.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
     voter_counts = semester.course_set.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
-    textanswer_counts = semester.course_set.annotate(num_textanswers=Count("contributions__textanswer_set")).values_list("num_textanswers", flat=True)
 
-    for course, participant_count, voter_count, textanswer_count in zip(courses, participant_counts, voter_counts, textanswer_counts):
+    for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
         course.general_contribution = course.general_contribution[0]
         course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
-        course.num_textanswers = textanswer_count
         if course._participant_count is None:
-            course.num_voters = voter_count
             course.num_participants = participant_count
+            course.num_voters = voter_count
+
     return courses
 
 
