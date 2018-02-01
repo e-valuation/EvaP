@@ -19,7 +19,7 @@
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
     {% if participants_warning %}
-        <div class="bs-callout bs-callout-warning">{% blocktrans %}This course has only a small number of participants. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
+        <div class="bs-callout bs-callout-warning">{% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who wrote a comment and who voted for a specific answer. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
     {% endif %}
     {% if evaluation_ends_soon %}
         <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{hours_left_for_evaluation}} hours and {{minutes_left_for_evaluation}} minutes ({{vote_end_datetime}}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
