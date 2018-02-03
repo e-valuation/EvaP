@@ -30,7 +30,7 @@ class TestContributorSettingsView(ViewTest):
         form["delegates"] = [user.pk]
         form.submit()
 
-        self.assertEquals(list(UserProfile.objects.get(username='responsible').delegates.all()), [user])
+        self.assertEqual(list(UserProfile.objects.get(username='responsible').delegates.all()), [user])
 
 
 class TestContributorCourseView(ViewTest):

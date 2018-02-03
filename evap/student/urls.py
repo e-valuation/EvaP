@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 
 from evap.student import views
 
@@ -6,6 +6,6 @@ from evap.student import views
 app_name = "student"
 
 urlpatterns = [
-    url(r"^$", views.index, name="index"),
-    url(r"^vote/(?P<course_id>\d+)$", views.vote, name="vote"),
+    path("", views.index, name="index"),
+    path("vote/<int:course_id>", views.vote, name="vote"),
 ]

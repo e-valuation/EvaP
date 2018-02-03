@@ -92,7 +92,7 @@ def delete_navbar_cache():
 
 
 def bulk_delete_users(request, username_file, test_run):
-    usernames = [u.strip() for u in username_file.readlines()]
+    usernames = [u.decode().strip() for u in username_file.readlines()]
     users = UserProfile.objects.exclude(username__in=usernames)
     deletable_users = [u for u in users if u.can_staff_delete]
     users_to_mark_inactive = [u for u in users if u.is_active and not u.can_staff_delete and u.can_staff_mark_inactive]

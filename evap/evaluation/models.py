@@ -12,7 +12,7 @@ from django.db import models, transaction
 from django.db.models import Count, Q
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
-from django.template.base import TemplateEncodingError, TemplateSyntaxError
+from django.template.base import TemplateSyntaxError
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
@@ -883,16 +883,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
-    # needed e.g. for compatibility with contrib.auth.admin
-    def get_full_name(self):
-        return self.full_name
-
-    # needed e.g. for compatibility with contrib.auth.admin
-    def get_short_name(self):
-        if self.first_name:
-            return self.first_name
-        return self.username
-
     @property
     def full_name(self):
         if self.last_name:
@@ -1057,7 +1047,7 @@ def validate_template(value):
     Django Template."""
     try:
         Template(value)
-    except (TemplateSyntaxError, TemplateEncodingError) as e:
+    except TemplateSyntaxError as e:
         raise ValidationError(str(e))
 
 
