@@ -146,10 +146,16 @@
     }, true);
 
     // activate clickable hover tables
-    $(".table-hover-evap tbody tr:not(.nohover)").click(function(e){
-        if(!$(e.target).is("a") && !$(e.target).hasClass("disabled-tooltip")){  // apply to everything but anchors and disabled buttons
-            window.location = $(this).closest("[data-url]").data('url');
-        }
+    $(".table-hover-evap tbody tr:not(.nohover) td:not(.noanchor)").wrapInner(function() {
+        var url = $(this).closest("[data-url]").data('url');
+        if (url) { return "<a href='" + url + "'></a>"; }
+        else { return ""; }
+    });
+    $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseenter(function(){
+        $(this).closest("tr").addClass("hoverpause");
+    });
+    $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseleave(function(){
+        $(this).closest("tr").removeClass("hoverpause");
     });
 </script>
 
