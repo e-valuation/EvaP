@@ -736,22 +736,33 @@ div.disabled-tooltip {
     padding-bottom: 0.4rem;
 }
 
-.table-hover-evap tbody tr:hover:not(.nohover) {
+.table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;
     td span.course-name {
         text-decoration: underline;
     }
 }
-.table-hover-evap tbody tr.hover-vote:hover,
-.table-hover-evap tbody tr.hover-edit:hover {
+.table-hover-evap tbody tr.hover-vote:hover:not(.hoverpause),
+.table-hover-evap tbody tr.hover-edit:hover:not(.hoverpause) {
     background-color: $evap-light-blue;
 }
-tr.hover-results:hover .btn-results {
+.table-hover-evap tbody tr td {
+    overflow: hidden;
+}
+.table-hover-evap tbody tr td a:not(.btn) {
+    color: $black;
+    text-decoration: none;
+    // the following values are necessary to make the a element fill the complete table cell
+    display: block;
+    margin: -10em;
+    padding: 10em;
+}
+tr.hover-results:hover:not(.hoverpause) .btn-results {
     box-shadow: 0 0 0 3px rgba($dark-gray, .5);
 }
-tr.hover-vote:hover .btn-vote,
-tr.hover-edit:hover .btn-edit {
+tr.hover-vote:hover:not(.hoverpause) .btn-vote,
+tr.hover-edit:hover:not(.hoverpause) .btn-edit {
     box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
 }
 

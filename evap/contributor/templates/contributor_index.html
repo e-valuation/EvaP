@@ -78,10 +78,10 @@
                                     {% if course.is_single_result %}&mdash;{% else %}<span class="fa fa-user"></span> {{ course.num_participants }}{% endif %}
                                 {% endif %}
                             </td>
-                            <td class="text-right">
+                            <td class="text-right noanchor">
                                 {% if course|is_user_editor_or_delegate:user %}
                                     {% if course.state == 'prepared' %}
-                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary btn-edit" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fa fa-pencil"></span></a>
+                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary btn-edit btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fa fa-pencil"></span></a>
                                     {% elif course.state == 'editor_approved' or course.state == 'approved' %}
                                         <a href="{% url 'contributor:course_view' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'You already approved the course, the edit form will be disabled.' %}"><span class="fa fa-pencil"></span></a>
                                     {% endif %}
@@ -95,7 +95,7 @@
                                     {% if course.avg_grade %}
                                         <div class="grade-bg text-center vertically-aligned" style="background-color: {{ course.avg_grade|gradecolor }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Average grade' %}">{{ course.avg_grade|floatformat:1 }}</div>
                                     {% endif %}
-                                    <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary btn-results" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fa fa-bar-chart"></span></a>
+                                    <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary btn-results btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fa fa-bar-chart"></span></a>
                                 {% endif %}
                             </td>
                         </tr>
