@@ -38,13 +38,13 @@
 
 {% get_current_language as LANGUAGE_CODE %}
 {% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
-    {% include_navbar user %}
+    {% include_navbar user LANGUAGE_CODE %}
 {% endcache %}
 
 
 <div class="d-none d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" /></div>
 
-<div class="container">
+<div class="container mb-4">
     {% if user.is_staff or user.is_grade_publisher %}
         <ol class="breadcrumb mb-4">
             {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans 'EvaP' %}</a></li>{% endblock %}
@@ -62,30 +62,7 @@
     {% endblock %}
 </div>
 
-<div class="footer fixed-bottom d-flex d-print-none">
-    <span class="mr-auto">
-        <a href="{{ TRACKER_URL }}" target="_blank">{% trans 'EvaP evaluation platform' %}</a>
-        &nbsp;&middot;&nbsp;
-        {% if LEGAL_NOTICE_ACTIVE %}
-            <a href="{% url 'evaluation:legal_notice' %}">{% trans 'Legal Notice' %}</a>
-            &nbsp;&middot;&nbsp;
-        {% endif %}
-        <a href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a>
-        &nbsp;&middot;&nbsp;
-        {% if request.user.is_authenticated %}
-            {% trans 'Logged in as' %} {{ request.user.full_name }}
-        {% else %}
-            {% trans 'Not logged in' %}
-        {% endif %}
-    </span>
-    {% if user.is_authenticated %}
-        <span class="feedback-button" id="feedbackButton">
-            <a class="btn btn-sm btn-primary" onclick="feedbackModalShow();" id="feedbackModalButton">
-                {% trans 'Problems/Feedback' %}
-            </a>
-        </span>
-    {% endif %}
-</div>
+{% include 'footer.html' %}
 
 {% compress js %}
     <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
@@ -160,6 +137,16 @@
     $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseleave(function(){
         $(this).closest("tr").removeClass("hoverpause");
     });
+
+    function setLanguage(language) {
+        $.ajax({
+            type: "POST",
+            url: "{% url 'evaluation:set_lang' %}",
+            data: {"language": language},
+            success: function(){ location.reload(); },
+            error: function(){}
+        });
+    };
 </script>
 
 {% block additional_javascript %}{% endblock %}

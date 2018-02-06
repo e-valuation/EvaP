@@ -107,7 +107,6 @@ CACHES = {
 }
 
 CONTACT_EMAIL = "webmaster@localhost"
-TRACKER_URL = "https://github.com/fsr-itse/EvaP"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -209,7 +208,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
                 "evap.context_processors.legal_notice_active",
-                "evap.context_processors.tracker_url",
             ],
             'builtins': ['django.templatetags.i18n'],
         },
