@@ -46,7 +46,7 @@
                             <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans "Overview" %}</a>
                             <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans "Semesters" %}</a>
                             {% for semester in last_five_semesters %}
-                                <a class="dropdown-item menu-indent" href="{% url 'staff:semester_view' semester.id %}#tab1">{{ semester.name }}</a>
+                                <a class="dropdown-item menu-indent" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                             {% if user.is_grade_publisher %}
                                 <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans "Publish grades" %}</a>
@@ -65,7 +65,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarReviewDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Review" %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarReviewDropdownMenuLink">
                             {% for semester in last_five_semesters %}
-                                <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}#tab1">{{ semester.name }}</a>
+                                <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                         </div>
                     </li>

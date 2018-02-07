@@ -701,12 +701,11 @@ class TestCourseOperationView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
 
     def helper_semester_state_views(self, course, old_state, new_state):
-        operation = old_state + "->" + new_state
         page = self.app.get("/staff/semester/1", user="staff")
-        form = page.forms["form_" + old_state]
+        form = page.forms["course_operation_form"]
         self.assertIn(course.state, old_state)
         form['course'] = course.pk
-        response = form.submit('operation', value=operation)
+        response = form.submit('target_state', value=new_state)
 
         form = response.forms["course-operation-form"]
         response = form.submit()
@@ -728,21 +727,6 @@ class TestCourseOperationView(ViewTest):
         course = mommy.make(Course, semester=self.semester, state='approved')
         self.helper_semester_state_views(course, "approved", "new")
 
-    def test_semester_approve_1(self):
-        course = course = mommy.make(Course, semester=self.semester, state='new')
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        self.helper_semester_state_views(course, "new", "approved")
-
-    def test_semester_approve_2(self):
-        course = mommy.make(Course, semester=self.semester, state='prepared')
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        self.helper_semester_state_views(course, "prepared", "approved")
-
-    def test_semester_approve_3(self):
-        course = mommy.make(Course, semester=self.semester, state='editor_approved')
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        self.helper_semester_state_views(course, "editor_approved", "approved")
-
     def test_semester_contributor_ready_1(self):
         course = mommy.make(Course, semester=self.semester, state='new')
         self.helper_semester_state_views(course, "new", "prepared")
@@ -757,7 +741,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_start_evaluation(self):
         course = mommy.make(Course, state='approved', semester=self.semester)
-        urloptions = '?course={}&operation=approved->in_evaluation'.format(course.pk)
+        urloptions = '?course={}&target_state=in_evaluation'.format(course.pk)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -770,7 +754,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_prepare(self):
         course = mommy.make(Course, state='new', semester=self.semester)
-        urloptions = '?course={}&operation=new->prepared'.format(course.pk)
+        urloptions = '?course={}&target_state=prepared'.format(course.pk)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))

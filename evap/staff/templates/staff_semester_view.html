@@ -1,4 +1,4 @@
-{% extends "staff_semester_base.html" %}
+{% extends 'staff_semester_base.html' %}
 
 {% load evaluation_filters %}
 
@@ -110,62 +110,75 @@
             {% endif %}
         </div>
         <div class="card-body">
-            {% if courses_by_state %}
-                <ul class="nav nav-tabs">
-                    {% for state, courses in courses_by_state %}
-                        <li class="nav-item"><a class="nav-link" href="#tab{{ forloop.counter }}" data-tab="{{ forloop.counter }}" data-toggle="tab">{{ state|statename }} ({{ courses|length }})</a></li>
+            <form id="course_operation_form" method="GET" action="{% url 'staff:semester_course_operation' semester.id %}">
+                <table id="course-table" class="table table-striped table-narrow vertically-aligned">
+                    <thead>
+                        <tr>
+                            <th data-orderable="false"></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>{% trans 'Course' %}</th>
+                            <th>{% trans 'Evaluation period' %}</th>
+                            <th data-orderable="false"></th>
+                            <th data-orderable="false"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for course in courses %}
+                        <tr id="course-row-{{ course.id }}">
+                            {% include 'staff_semester_view_course.html' with semester=semester course=course info_only=False %}
+                        </tr>
+                    {% empty %}
+                        <tr><td><i>{% trans 'There are no courses in this semester.' %}</i><td></tr>
                     {% endfor %}
-                </ul>
+                    </tbody>
+                </table>
 
-                <div class="tab-content">
-                {% for state, courses in courses_by_state %}
-                    <div id="tab{{ forloop.counter }}" class="tab-pane">
-                        <form id="form_{{ state }}" method="GET" action="{% url "staff:semester_course_operation" semester.id %}">
-                            <table class="table table-striped table-narrow vertically-aligned mb-3">
-                                <tbody>
-                                {% for course in courses %}
-                                    <tr id="course-row-{{ course.id }}">
-                                        {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=False %}
-                                    </tr>
-                                {% empty %}
-                                    <tr><td><i>{% trans "There are no courses in this state." %}</i><td></tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-
-                            {% if request.user.is_staff %}
-                            {% if state == 'new' or state == 'prepared' or state == 'editor_approved'  or state == 'approved' or state == 'reviewed' or state == 'published' %}
-                                <a role="button" class="btn btn-light" {{ disable_if_archived }} onclick="$('#form_{{ state }} :checkbox').prop('checked', true);">{% trans "Select all" %}</a>
-                            {% endif %}
-                            {% ifequal state "new" %}
-                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Enable courses for editor review" %}</button>
-                            {% endifequal %}
-                            {% if state == 'prepared' or state == 'approved' %}
-                                <button name="operation" value="{{state}}->new" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Revert courses to new" %}</button>
-                            {% endif %}
-                            {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
-                                <button name="operation" value="{{state}}->approved" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Approve courses" %}</button>
-                            {% endif %}
-                            {% ifequal state "editor_approved" %}
-                                <button name="operation" value="{{state}}->prepared" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Re-enable courses for editor review" %}</button>
-                            {% endifequal %}
-                            {% ifequal state "approved" %}
-                                <button name="operation" value="{{state}}->in_evaluation" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Start evaluation now" %}</button>
-                            {% endifequal %}
-                            {% ifequal state "reviewed" %}
-                                <button name="operation" value="{{state}}->published" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Publish courses" %}</button>
-                            {% endifequal %}
-                            {% ifequal state "published" %}
-                                <button name="operation" value="{{state}}->reviewed" type="submit" class="btn btn-secondary" {{ disable_if_archived }}>{% trans "Unpublish" %}</button>
-                            {% endifequal %}
-                            {% endif %}
-                        </form>
+                {% if request.user.is_staff and not semester.is_archived %}
+                    <div class="my-2">
+                        <a role="button" class="btn btn-sm btn-secondary"
+                            onclick="$('#course_operation_form td').prev().find(':checkbox').prop('checked', true);">
+                            {% trans 'Select all' %}
+                        </a>
+                        <a role="button" class="btn btn-sm btn-secondary"
+                            onclick="$('#course_operation_form :checkbox').prop('checked', false);">{% trans 'Select none' %}
+                        </a>
                     </div>
-                {% endfor %}
-                </div>
-            {% else %}
-                <p>{% trans "There are no courses for this semester yet." %}</p>
-            {% endif %}
+                    <div>
+                        <button name="target_state" value="prepared" type="submit" class="btn btn-sm btn-light"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Courses in preparation or approved by editors' %}">
+                            <span class="fa fa-circle icon-yellow"></span>
+                            <span class="fa fa-check-square-o icon-yellow"></span>
+                            {% trans 'Ask for editor review' %}
+                        </button>
+                        <button name="target_state" value="new" type="submit" class="btn btn-sm btn-light"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Courses awaiting editor review, approved by editor or approved by staff' %}">
+                            <span class="fa fa-square-o icon-gray"></span>
+                            <span class="fa fa-check-square-o icon-yellow"></span>
+                            <span class="fa fa-check-square-o icon-green"></span>
+                            {% trans 'Revert to preparation' %}
+                        </button>
+                        <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Courses waiting for evaluation period to start' %}">
+                            <span class="fa fa-pause icon-gray"></span>
+                            {% trans 'Start evaluation' %}
+                        </button>
+                        <button name="target_state" value="published" type="submit" class="btn btn-sm btn-light"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished courses' %}">
+                            <span class="fa fa-bar-chart icon-yellow"></span>
+                            <span class="fa fa-bar-chart icon-red"></span>
+                            {% trans 'Publish' %}
+                        </button>
+                        <button name="target_state" value="reviewed" type="submit" class="btn btn-sm btn-light"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Published courses' %}">
+                            <span class="fa fa-bar-chart icon-green"></span>
+                            {% trans 'Unpublish' %}
+                        </button>
+                    </div>
+                {% endif %}
+            </form>
         </div>
     </div>
 {% endblock %}
@@ -221,36 +234,6 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        var defaultTab = "#tab1";
-
-        // The selected tab can change in three ways:
-        // 1. The page is opened
-        //    Select the tab given in the url, or select the previously selected tab, or default to tab 1
-        var storedHash = localStorage.getItem('evap.staff_semester_view.last_tab');
-        var hash = window.location.hash || storedHash || defaultTab;
-        //    Don't add a new history item, but replace the current one by appending the selected tab
-        $('ul.nav a[href="' + hash + '"]').tab('show');
-        history.replaceState(null, null, hash);
-
-        // 2. The user clicks on a tab link
-        $('.nav-tabs a').click(function (e) {
-          $(this).tab('show');
-          //  Add a new history item
-          history.pushState(null, null, this.hash);
-        });
-
-        // 3. The user navigates back
-        $(window).on("popstate", function() {
-            var hash = window.location.hash || defaultTab;
-            $('ul.nav a[href="' + hash + '"]').tab('show');
-        });
-
-        // This event captures all three occasions of changing the selected tab
-        // and persists the newly selected tab into localStorage
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            localStorage.setItem('evap.staff_semester_view.last_tab', this.hash);
-        });
-
         $('.btn-toggle').click(function() {
             $(this).find('.btn').toggleClass('active');
 
@@ -271,5 +254,89 @@
             var state = window.localStorage['collapse_overview'] === 'true';
             localStorage['collapse_overview'] = (!state).toString();
         }
+
+        $(window).bind("pageshow", function () {
+            $('#course_operation_form :checkbox').prop('checked', false); // prevent wrong autofills
+        });
+    </script>
+
+
+    {% get_current_language as LANGUAGE_CODE %}
+    {% load static %}
+    {% load compress %}
+
+    {% compress js %}
+        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap4.min.js"></script>
+    {% endcompress %}
+
+    <script type="text/javascript">
+        $.fn.dataTable.ext.search.push(
+            // return true for each line that should be visible after filtering
+            // inspired by https://datatables.net/examples/plug-ins/range_filtering.html
+            function( settings, data, dataIndex ) {
+                if ($("[data-filter].active").length > 0) {
+                    // check whether any icon row contains the data-filter value of the active button
+                    return data.slice(1,5).some(str => str.includes($("[data-filter].active")[0].dataset.filter));
+                }
+                return true;
+            }
+        );
+
+        $(document).ready(function() {
+            var table = $('#course-table').DataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                },
+                "order": [[5, "asc"]],
+                "dom": '<"filter-toolbar">frt',
+                fnInitComplete: function() {
+                    $("div.filter-toolbar").html(
+                        `<div class="btn-switch">
+                            <div class="btn-switch-label">{% trans 'Filter' %}</div>
+                            <div class="btn-group icon-buttons">
+                                <a role="button" class="btn btn-sm btn-light fa fa-circle icon-yellow" data-filter="fa-circle icon-yellow"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-square-o icon-gray" data-filter="fa-square-o icon-gray"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-check-square-o icon-yellow" data-filter="fa-check-square-o icon-yellow"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-check-square-o icon-green" data-filter="fa-check-square-o icon-green"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}"></a>
+                                <a role="button" class="ml-2 btn btn-sm btn-light fa fa-pause icon-gray" data-filter="fa-pause icon-gray"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-play icon-gray" data-filter="fa-play icon-gray"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-stop icon-green" data-filter="fa-stop icon-green"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}"></a>
+                                <a role="button" class="ml-2 btn btn-sm btn-light fa fa-comment icon-gray" data-filter="fa-comment icon-gray"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-comment icon-yellow" data-filter="fa-comment icon-yellow"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-comment icon-green" data-filter="fa-comment icon-green"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}"></a>
+                                <a role="button" class="ml-2 btn btn-sm btn-light fa fa-bar-chart icon-gray" data-filter="fa-bar-chart icon-gray"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-bar-chart icon-red" data-filter="fa-bar-chart icon-red"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-bar-chart icon-yellow" data-filter="fa-bar-chart icon-yellow"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}"></a>
+                                <a role="button" class="btn btn-sm btn-light fa fa-bar-chart icon-green" data-filter="fa-bar-chart icon-green"
+                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}"></a>
+                            </div>
+                        </div>`
+                    );
+                    $('[data-filter]').click( function(e) {
+                        $(e.target).toggleClass("active");
+                        $("[data-filter].active").not(e.target).removeClass("active");
+                        table.draw();
+                    } );
+                    activateTooltips('.filter-toolbar');
+                },
+            });
+        });
     </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% load evaluation_filters %}
 
-<div class="d-flex">
+<div class="d-flex{% if warning %} evap-progress-bar-warning{% endif %}">
     <span class="evap-progress-bar-container">
         {% spaceless %}
             <span class="evap-progress-bar-back">
