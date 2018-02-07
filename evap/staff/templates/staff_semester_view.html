@@ -21,8 +21,29 @@
 
     {% if num_courses > 0 %}
     <div class="card mb-3">
-        <div class="card-header">
+        <div class="card-header d-flex">
             <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans "Overview" %}</a>
+            {% if request.user.is_staff %}
+                <div class="ml-auto">
+                    {% if not semester.is_archived %}
+                        <a href="{% url 'staff:semester_todo' semester.id %}" class="btn btn-sm btn-light">{% trans 'Todo' %}</a>
+                    {% endif %}
+                    <div class="btn-switch ml-2">
+                        <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
+                        <div class="btn-group icon-buttons">
+                            <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
+                        </div>
+                    </div>
+                    <div class="btn-switch ml-2">
+                        <div class="btn-switch-label">{% trans 'Grades downloadable' %}</div>
+                        <div class="btn-group icon-buttons">
+                            <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
+                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
         <div class="card-body collapse show" id="overviewCard">
             <table class="table">
@@ -59,56 +80,32 @@
     </div>
     {% endif %}
 
-    {% if request.user.is_staff %}
-    <div class="card mb-3">
-        <div class="card-header">
-            {% trans "Actions" %}
-        </div>
-        <div class="card-body">
-            <a href="{% url "staff:semester_questionnaire_assign" semester.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}">{% trans "Assign Questionnaires" %}</a>
-            &nbsp;
-            <a href="{% url "staff:semester_todo" semester.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}">{% trans "Todo" %}</a>
-            &nbsp;
-            <div class="btn-switch">
-                <div class="btn-switch-label">{% trans "Reward points active" %}</div>
-                <div class="btn-group icon-buttons">
-                    <a href="{% url "rewards:semester_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
-                    <a href="{% url "rewards:semester_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
-                </div>
-            </div>
-            &nbsp;
-            <div class="btn-switch">
-                <div class="btn-switch-label">{% trans "Grades downloadable" %}</div>
-                <div class="btn-group icon-buttons">
-                    <a href="{% url "grades:semester_grade_activation" semester.id "on" %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fa fa-check" aria-hidden="true"></span></a>
-                    <a href="{% url "grades:semester_grade_activation" semester.id "off" %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fa fa-times" aria-hidden="true"></span></a>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <div class="card card-outline-primary">
         <div class="card-header d-flex">
             {% trans "Courses" %}
             {% if request.user.is_staff %}
-                &nbsp;
-                <div class="btn-group" role="group">
-                    <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle {{ disable_if_archived }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Create/Import" %}</a>
-                    <div class="dropdown-menu" aria-labelledby="btnAdd">
-                        <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create course' %}</a>
-                        <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}" {{ disable_if_archived }}>{% trans 'Create single result' %}</a>
-                        <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}" {{ disable_if_archived }}>{% trans 'Import courses' %}</a>
+                <div class="ml-auto">
+                    {% if not semester.is_archived %}
+                        <div class="btn-group" role="group">
+                            <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Create/Import' %}</a>
+                            <div class="dropdown-menu" aria-labelledby="btnAdd">
+                                <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}">{% trans 'Create course' %}</a>
+                                <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}">{% trans 'Create single result' %}</a>
+                                <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}">{% trans 'Import courses' %}</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="btn-group ml-2" role="group">
+                        <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</a>
+                        <div class="dropdown-menu" aria-labelledby="btnExport">
+                            <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data'%}</a>
+                            <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
+                        </div>
                     </div>
-                </div>
-                &nbsp;
-                <div class="btn-group" role="group">
-                    <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Export" %}</a>
-                    <div class="dropdown-menu" aria-labelledby="btnExport">
-                        <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
-                        <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data'%}</a>
-                        <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
-                    </div>
+                    {% if not semester.is_archived %}
+                        <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Assign questionnaires' %}</a>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
