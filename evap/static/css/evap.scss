@@ -370,6 +370,7 @@ body {
     background-image: url("../images/triangles_gray.svg");
     background-size: cover;
     background-attachment: fixed;
+    overflow-y: scroll !important;
 }
 
 table#question_table textarea {
