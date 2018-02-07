@@ -579,8 +579,10 @@ def helper_course_edit(request, semester, course):
 
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
-        form.save(user=request.user)
-        formset.save()
+        if form.has_changed():
+            form.save(user=request.user)
+        if formset.has_changed():
+            formset.save()
 
         if operation == 'approve':
             # approve course
