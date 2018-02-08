@@ -53,7 +53,8 @@
 
         $('#' + tableId + " tbody").sortable({
             handle: ".fa-arrows-v",
-            draggable: ".sortable"
+            draggable: ".sortable",
+            scrollSensitivity: 70
         });
 
         $('form').submit(function() {
