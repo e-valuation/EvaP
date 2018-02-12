@@ -624,33 +624,6 @@ class TestSemesterExportView(ViewTest):
         cls.course_type = mommy.make(CourseType)
         cls.course = mommy.make(Course, type=cls.course_type, semester=cls.semester)
 
-    def test_view_excel_file_sorted(self):
-        course1 = mommy.make(Course, state='published', type=self.course_type,
-                             name_de='A - Course1', name_en='B - Course1', semester=self.semester)
-
-        course2 = mommy.make(Course, state='published', type=self.course_type,
-                             name_de='B - Course2', name_en='A - Course2', semester=self.semester)
-
-        mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-
-        page = self.app.get(self.url, user='staff')
-        form = page.forms["semester-export-form"]
-        form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
-        form.set('include_not_enough_answers', 'on')
-
-        response_de = form.submit(extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'})
-        response_en = form.submit(extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'})
-
-        # Load responses as Excel files and check for correct sorting
-        workbook = xlrd.open_workbook(file_contents=response_de.content)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course1")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B - Course2")
-
-        workbook = xlrd.open_workbook(file_contents=response_en.content)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course2")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B - Course1")
-
     def test_view_downloads_excel_file(self):
         page = self.app.get(self.url, user='staff')
         form = page.forms["semester-export-form"]
