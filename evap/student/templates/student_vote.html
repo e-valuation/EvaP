@@ -106,6 +106,7 @@
                 locationBased: true,
                 excludeFields: $("input[type=hidden]"), // exclude the csrf token
                 autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
+                customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
                     // update vote button states
                     $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
