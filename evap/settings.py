@@ -401,3 +401,6 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
         'JQUERY_URL': '',
     }
+
+DROPOUT_QUESTIONNAIRE_NAME_EN = 'Dropout questionnaire'
+DROPOUT_QUESTIONNAIRE_NAME_DE = 'Abbruch-Fragebogen'

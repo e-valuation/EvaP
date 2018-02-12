@@ -20,7 +20,9 @@
 {% block content %}
     {{ block.super }}
     {% if errors_exist %}
-        <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
+        <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions.
+            You can also click on "I can't give feedback" to skip the questions about a single
+            person.{% endblocktrans %}</div>
     {% endif %}
     {% if course.is_midterm_evaluation %}
         <div class="bs-callout bs-callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
@@ -30,11 +32,11 @@
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>
-        <div class="bs-callout bs-callout-info">
-            <b>{% trans 'Questionnaire Preview' %}</b><br />
-            {% blocktrans %}This is a preview of the questionnaire for the course. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
-        </div>
-    </small>
+            <div class="bs-callout bs-callout-info">
+                <b>{% trans 'Questionnaire Preview' %}</b><br />
+                {% blocktrans %}This is a preview of the questionnaire for the course. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            </div>
+        </small>
     {% endif %}
     <h3 class="mb-3">{{ course.name }} ({{ course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
@@ -63,6 +65,28 @@
             </div>
         {% endif %}
 
+        {% if not preview %}
+            <div class="card card-submit-area text-center mb-3" id="droppedButtonCard" {% if dropped %}style="display:none"{% endif %}>
+                <div class="card-body">
+                    <a role="button" class="btn btn-light" id="droppedButton">
+                        {% trans "I dropped this course" %}
+                    </a>
+                </div>
+            </div>
+
+            <div class="card card-outline-primary mb-3" id="droppedCard"
+                 {% if not dropped %}style="display:none;"{% endif %}>
+                <div class="card-header">
+                    {% trans "Questions about your Dropout" %}
+                    <a role="button" class="btn btn-light btn-sm" id="cancelDropoutButton" style="float:right;">
+                        {% trans "I did not drop this course" %}</a>
+                </div>
+                <div class="card-body">
+                    {% include "student_vote_questionnaire_group.html" with questionnaire_group=dropout_form_group preview=preview %}
+                </div>
+            </div>
+        {% endif %}
+
         {% if course_form_group_top %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
@@ -73,6 +97,7 @@
                 </div>
             </div>
         {% endif %}
+
         {% if contributor_form_groups %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
@@ -213,8 +238,8 @@
             var xhr;
             var _orgAjax = jQuery.ajaxSettings.xhr;
             jQuery.ajaxSettings.xhr = function () {
-              xhr = _orgAjax();
-              return xhr;
+                xhr = _orgAjax();
+                return xhr;
             };
 
             form.submit(function (event) {
@@ -243,7 +268,7 @@
                             $('html,body').scrollTop(0);
                         }
                     },
-                    error: function(data) {
+                    error: function (data) {
                         // show a warning if the post isn't successful
                         document.getElementById('submit-error-warning').style.display = 'block';
                         submitButton.text(originalText);
@@ -252,6 +277,34 @@
                 });
                 return false;
             });
+
+            function markNoAnswerAndKeepAnswersFor(contributorId) {
+                rows = $("#vote-area-" + contributorId + " tr");
+                for (i = 0; i < rows.length; i++) {
+                    row = $(rows[i]);
+                    vote_inputs = row.find(".vote-inputs [type=radio]");
+
+                    if (!vote_inputs.parent().hasClass("active")) {
+                        row.find("[value=6]").prop('checked', true);
+                        row.find("[value=6]").parent().addClass("active");
+                        sisyphus.saveAllData();
+                    }
+                }
+            }
+
+            function markNoAnswerAndKeepAnswersForAll() {
+                rows = $("#vote-area-general").find(".vote-row");
+                for (i = 0; i < rows.length; i++) {
+                    row = $(rows[i]);
+                    vote_inputs = row.find(".vote-inputs [type=radio]");
+
+                    if (!vote_inputs.parent().hasClass("active")) {
+                        row.find("[value=6]").prop('checked', true);
+                        row.find("[value=6]").parent().addClass("active");
+                        sisyphus.saveAllData();
+                    }
+                }
+            }
 
             function markNoAnswerFor(contributorId) {
                 // uncheck all other options and deactivate buttons
@@ -263,15 +316,20 @@
                 $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
 
                 // hide questionnaire for contributor
-                $("#vote-area-" + contributorId).collapse("hide");
+                if (contributorId != "general") {
+                    $("#vote-area-" + contributorId).collapse("hide");
+                    console.log("vote-area-" + contributorId);
+                }
 
                 // setting the 'checked' prop does not trigger a change event, so manually save all data here
                 sisyphus.saveAllData();
             }
+
             function selectedAnswer(fieldName) {
                 // remove error highlighting when an answer was selected
                 $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
             }
+
 
             var presaveButton = $("#presave-btn");
             var originalPresaveText = presaveButton.text();
@@ -297,6 +355,30 @@
             function textResultsPublishConfirmationBottomChanged() {
                 $("#text_results_publish_confirmation_top").prop('checked', $("#text_results_publish_confirmation_bottom").prop('checked'));
             }
+
+            $("#droppedButton").on("click", function (event) {
+                $("#droppedCard").toggle("show");
+                $("#droppedButtonCard").toggle("show");
+
+
+                markNoAnswerAndKeepAnswersForAll();
+
+                var contributorIds = [
+                {% for contributor, __ , __ , __ in contributor_form_groups %}
+                    {{ contributor.id }},
+                {% endfor %}
+                ];
+
+                for(var i = 0; i <  contributorIds.length; i++) {
+                    markNoAnswerFor(contributorIds[i])
+                }
+            });
+
+
+            $("#cancelDropoutButton").on("click", function (event) {
+                $("#droppedCard").toggle("show");
+                $("#droppedButtonCard").toggle("show");
+            });
         </script>
     {% endif %}
 {% endblock %}

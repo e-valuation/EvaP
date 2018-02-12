@@ -577,7 +577,8 @@ def course_create(request, semester_id):
     course = Course(semester=semester)
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
-    form = CourseForm(request.POST or None, instance=course)
+    dropout_questionnaire = Questionnaire.objects.get(name_en=settings.DROPOUT_QUESTIONNAIRE_NAME_EN)
+    form = CourseForm(request.POST or None, instance=course, initial={"general_questions": [dropout_questionnaire.pk]})
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     if form.is_valid() and formset.is_valid():

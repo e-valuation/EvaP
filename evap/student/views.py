@@ -10,10 +10,12 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Course, Semester
+
+from evap.evaluation.models import Course, Semester, Questionnaire
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
+from evap import settings
 
 from evap.results.tools import calculate_average_distribution, distribution_to_grade
 
@@ -113,6 +115,38 @@ def vote(request, course_id):
     form_groups, rendered_page = get_valid_form_groups_or_render_vote_page(request, course, preview=False)
     if rendered_page is not None:
         return rendered_page
+
+    # prevent a user from voting on themselves.
+    contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
+    form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
+
+    if not all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
+        errors_exist = any(helper_has_errors(form_group) for form_group in form_groups.values())
+
+        course_form_group = form_groups.pop(course.general_contribution)
+
+        contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
+
+        dropout_form_group = [QuestionsForm(request.POST or None, contribution=course.general_contribution,
+                                            questionnaire=Questionnaire.objects.get(name_en=settings.DROPOUT_QUESTIONNAIRE_NAME_EN))]
+
+        template_data = dict(
+            errors_exist=errors_exist,
+            course_form_group=course_form_group,
+            contributor_form_groups=contributor_form_groups,
+            dropout_form_group=dropout_form_group,
+            course=course,
+            participants_warning=course.num_participants <= 5,
+            preview=False,
+            vote_end_datetime=course.vote_end_datetime,
+            hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
+            minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
+            success_magic_string=SUCCESS_MAGIC_STRING,
+            success_redirect_url=reverse('student:index'),
+            evaluation_ends_soon=course.evaluation_ends_soon(),
+            dropped=False)
+
+        return render(request, "student_vote.html", template_data)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
