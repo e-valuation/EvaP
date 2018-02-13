@@ -1,4 +1,4 @@
-{% extends "staff_semester_base.html" %}
+{% extends 'staff_semester_base.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -8,15 +8,15 @@
         {% for course in courses %}
             <input type="hidden" name="course" value="{{ course.id }}" />
         {% endfor %}
-        
+
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% blocktrans %}Do you want to change the states of the following courses from <strong>{{ current_state_name }}</strong> to <strong>{{ new_state_name }}</strong>?{% endblocktrans %}</p>
-                <table class="table table-striped">
+                <p>{{ confirmation_message }}</p>
+                <table class="table table-striped vertically-aligned">
                     <tbody>
                     {% for course in courses %}
                         <tr>
-                            {% include "staff_semester_view_course.html" with semester=semester course=course disable_if_archived=disable_if_archived info_only=True %}
+                            {% include 'staff_semester_view_course.html' with semester=semester course=course info_only=True %}
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -49,7 +49,7 @@
             </div>
         </div>
         {% endif %}
-        <input type="hidden", name="operation", value="{{ operation }}">
+        <input type="hidden", name="target_state", value="{{ target_state }}">
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">

@@ -421,6 +421,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def responsible_contributors(self):
         return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).order_by('contributions__order')
 
+    @cached_property
+    def num_contributors(self):
+        return UserProfile.objects.filter(contributions__course=self).count()
+
     @property
     def days_left_for_evaluation(self):
         return (self.vote_end_date - date.today()).days
@@ -451,18 +455,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if self.contributions.filter(contributor__in=represented_users).exists():
             return True
         return False
-
-    def warnings(self):
-        result = []
-        if self.state in ['new', 'prepared', 'editor_approved'] and not self.all_contributions_have_questionnaires:
-            if not self.general_contribution_has_questionnaires:
-                result.append(_("Course has no questionnaires"))
-            else:
-                result.append(_("Not all contributors have questionnaires"))
-
-        if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
-            result.append(_("Not enough participants to publish results"))
-        return result
 
     @property
     def textanswer_set(self):

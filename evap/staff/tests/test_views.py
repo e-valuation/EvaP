@@ -701,12 +701,11 @@ class TestCourseOperationView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
 
     def helper_semester_state_views(self, course, old_state, new_state):
-        operation = old_state + "->" + new_state
         page = self.app.get("/staff/semester/1", user="staff")
-        form = page.forms["form_" + old_state]
+        form = page.forms["course_operation_form"]
         self.assertIn(course.state, old_state)
         form['course'] = course.pk
-        response = form.submit('operation', value=operation)
+        response = form.submit('target_state', value=new_state)
 
         form = response.forms["course-operation-form"]
         response = form.submit()
@@ -728,21 +727,6 @@ class TestCourseOperationView(ViewTest):
         course = mommy.make(Course, semester=self.semester, state='approved')
         self.helper_semester_state_views(course, "approved", "new")
 
-    def test_semester_approve_1(self):
-        course = course = mommy.make(Course, semester=self.semester, state='new')
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        self.helper_semester_state_views(course, "new", "approved")
-
-    def test_semester_approve_2(self):
-        course = mommy.make(Course, semester=self.semester, state='prepared')
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        self.helper_semester_state_views(course, "prepared", "approved")
-
-    def test_semester_approve_3(self):
-        course = mommy.make(Course, semester=self.semester, state='editor_approved')
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        self.helper_semester_state_views(course, "editor_approved", "approved")
-
     def test_semester_contributor_ready_1(self):
         course = mommy.make(Course, semester=self.semester, state='new')
         self.helper_semester_state_views(course, "new", "prepared")
@@ -757,7 +741,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_start_evaluation(self):
         course = mommy.make(Course, state='approved', semester=self.semester)
-        urloptions = '?course={}&operation=approved->in_evaluation'.format(course.pk)
+        urloptions = '?course={}&target_state=in_evaluation'.format(course.pk)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -770,7 +754,7 @@ class TestCourseOperationView(ViewTest):
 
     def test_operation_prepare(self):
         course = mommy.make(Course, state='new', semester=self.semester)
-        urloptions = '?course={}&operation=new->prepared'.format(course.pk)
+        urloptions = '?course={}&target_state=prepared'.format(course.pk)
 
         response = self.app.get(self.url + urloptions, user='staff')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "staff"'.format(self.url))
@@ -869,10 +853,11 @@ class TestCourseEditView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         semester = mommy.make(Semester, pk=1)
         degree = mommy.make(Degree)
-        cls.course = mommy.make(Course, semester=semester, pk=1, degrees=[degree])
+        cls.course = mommy.make(Course, semester=semester, pk=1, degrees=[degree], last_modified_user=cls.user,
+            vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
         mommy.make(Questionnaire, question_set=[mommy.make(Question)])
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
@@ -900,6 +885,50 @@ class TestCourseEditView(ViewTest):
         page = form.submit("operation", value="save")
 
         self.assertIn("No responsible contributors found", page)
+
+    def test_last_modified_user(self):
+        """
+            Tests whether the button "Save and approve" does only change the
+            last_modified_user if changes were made.
+        """
+        test_user = mommy.make(UserProfile, username='approve_test_user', groups=[Group.objects.get(name='Staff')])
+
+        old_name_de = self.course.name_de
+        old_vote_start_datetime = self.course.vote_start_datetime
+        old_vote_end_date = self.course.vote_end_date
+        old_last_modified_user = self.course.last_modified_user
+        old_state = self.course.state
+        self.assertEqual(old_last_modified_user.username, self.user.username)
+        self.assertEqual(old_state, "new")
+
+        page = self.get_assert_200('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username)
+        form = page.forms["course-form"]
+        # approve without changes
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user, old_last_modified_user)  # the last_modified_user should not have changed
+        self.assertEqual(self.course.state, "approved")
+        self.assertEqual(self.course.name_de, old_name_de)
+        self.assertEqual(self.course.vote_start_datetime, old_vote_start_datetime)
+        self.assertEqual(self.course.vote_end_date, old_vote_end_date)
+
+        self.course.revert_to_new()
+        self.course.save()
+        self.assertEqual(self.course.state, "new")
+
+        page = self.get_assert_200('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username)
+        form = page.forms["course-form"]
+        form["name_de"] = "Test name"
+        # approve after changes
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user, test_user)  # the last_modified_user should have changed
+        self.assertEqual(self.course.state, "approved")
+        self.assertEqual(self.course.name_de, "Test name")  # the name should have changed
+        self.assertEqual(self.course.vote_start_datetime, old_vote_start_datetime)
+        self.assertEqual(self.course.vote_end_date, old_vote_end_date)
 
 
 class TestSingleResultEditView(ViewTest):
