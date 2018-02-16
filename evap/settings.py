@@ -208,6 +208,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
                 "evap.context_processors.legal_notice_active",
+                "evap.context_processors.slogan"
             ],
             'builtins': ['django.templatetags.i18n'],
         },
@@ -297,6 +298,32 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 # see https://github.com/johnsensible/django-sendfile for further information
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
+
+### Slogans
+SLOGANS_DE = [
+    "Evaluierungen verlässlich ausführen und präsentieren",
+    "Entscheidungsgrundlage zur Verbesserung akademischer Programme",
+    "Ein voll atemberaubendes Projekt",
+    "Evaluierungs-Vereinfachung aus Potsdam",
+    "Elegante Verwaltung automatisierter Performancemessungen",
+    "Effektive Vermeidung von anstrengendem Papierkram",
+    "Einfach Verantwortlichen Abstimmungsergebnisse präsentieren",
+    "Ein Vorzeigeprojekt auf Python-Basis",
+    "Erleichtert Verfolgung aufgetretener Probleme",
+    "Entwickelt von arbeitsamen Personen",
+]
+SLOGANS_EN = [
+    "Extremely valuable automated processing",
+    "Exploring various answers professionally",
+    "Encourages values and perfection",
+    "Enables virtuously adressed petitions",
+    "Evades very annoying paperwork",
+    "Engineered voluntarily and passionately",
+    "Elegant valiantly administered platform",
+    "Efficient voting and processing",
+    "Everyone values awesome products",
+    "Enhances vibrant academic programs",
+]
 
 ### Other
 
