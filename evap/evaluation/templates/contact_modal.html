@@ -25,11 +25,15 @@
                     <div class="form-group">
                         <label for="{{ modal_id }}SenderName" class="control-label">{% trans "Sender" %}:</label>
                         <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}">
+                    </div>
+                    <div class="form-group">
                         <label for="{{ modal_id }}Subject" class="control-label">{% trans "Subject" %}:</label>
                         <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}">
                     </div>
-                    <label for="message-text" class="control-label">{% trans "Message" %}:</label>
-                    <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">{% trans "Message" %}:</label>
+                        <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Cancel" %}</a>

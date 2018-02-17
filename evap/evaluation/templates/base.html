@@ -39,7 +39,8 @@
     {% include_navbar user %}
 {% endcache %}
 
-<div class="d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
+
+<div class="d-none d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
 
 <div class="container">
     {% if user.is_staff or user.is_grade_publisher %}

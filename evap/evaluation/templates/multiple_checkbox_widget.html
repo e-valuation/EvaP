@@ -1,8 +1,10 @@
 <ul class="inputs-list">
     {% for choice in field %}
-        <li><div class="checkbox"><label>
-            <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.selected %} checked{% endif %}/>
-            {{ choice.choice_label}}
-        </label></div></li>
+        <li class="form-check">
+            <input class="form-check-input" id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.selected %} checked{% endif %}/>
+            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                {{ choice.choice_label}}
+            </label>
+        </li>
     {% endfor %}
 </ul>
