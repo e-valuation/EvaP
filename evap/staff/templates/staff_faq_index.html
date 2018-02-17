@@ -30,13 +30,13 @@
                                 {{ hidden }}
                             {% endfor %}
                             <td class="movable">
-                                <span class="movable-icon fa fa-arrows-v"></span>
+                                <span class="movable-icon fas fa-arrows-alt-v"></span>
                             </td>
                             <td>{% include "bootstrap_form_field_widget.html" with field=form.title_de %}</td>
                             <td>{% include "bootstrap_form_field_widget.html" with field=form.title_en %}</td>
                             <td class="hide-divs">
                                 {% if form.instance.id %}
-                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
+                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                                 {% endif %}
                                 {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
                             </td>

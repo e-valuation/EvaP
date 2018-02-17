@@ -39,6 +39,12 @@ div.container {
     padding: 0 15px;
 }
 
+.btn.fas {
+    font-weight: 900;
+}
+.btn.far {
+    font-weight: 400;
+}
 .btn-light {
     border-color: $medium-gray;
 }
@@ -227,7 +233,7 @@ a.btn:not([href]):not(.disabled).btn-dark {
 
 .close {
     line-height: 0.5;
-    .fa {
+    .fas {
         line-height: 1.4;
         font-size: 1rem;
     }
@@ -589,7 +595,7 @@ select[multiple] {
     color: $darker-gray;
 }
 .collapse-toggle:before {
-    font-family: "FontAwesome";
+    font-family: "Font Awesome\ 5 Free";
     content: "\f078";
     float: left;
     margin-right: 10px;

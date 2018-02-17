@@ -10,7 +10,7 @@
         {% endfor %}">
 
         <div class="grade-bg-result-bar-count text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}">
-            <span class="fa fa-user small"></span> {{ result.total_count }}
+            <span class="fas fa-user small"></span> {{ result.total_count }}
         </div>
 
         <div class="grade-bg-result-bar text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="background-color: {{ result.average|gradecolor }}">
