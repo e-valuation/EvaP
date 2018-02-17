@@ -70,10 +70,10 @@
             data : { message: message, title: "{{ title }}" },
             success : function(json) {
                 $('#{{ modal_id }}').modal('hide');
-                $('#successMessageModal').modal('show');
+                $('#successMessageModal_{{ modal_id }}').modal('show');
                 $('#{{ modal_id }}MessageText').val("");
                 setTimeout(function(){
-                    $('#successMessageModal').modal('hide');
+                    $('#successMessageModal_{{ modal_id }}').modal('hide');
                     actionButton.prop('disabled', false);
                 }, 3000);
             },
