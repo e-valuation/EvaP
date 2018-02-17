@@ -615,6 +615,12 @@ select[multiple] {
 .btn-option.disabled {
     opacity: 0.6;
 }
+.btn-option:hover:not(.disabled) {
+    background-color: $light-gray;
+}
+.btn-option.active:hover:not(.disabled) {
+    background-color: darken($evap-dark-blue, 10%);
+}
 
 .participants-warning {
     opacity: 0.4;
