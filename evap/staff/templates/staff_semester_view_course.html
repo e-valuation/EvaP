@@ -55,7 +55,7 @@
 <td style="width: {% if info_only %}51%{% else %}42%{% endif %}" data-order="{{ course.name }}">
     <div>
     {% if not info_only and request.user.is_staff %}
-        <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a>
+        <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}
     {% endif %}
@@ -79,17 +79,17 @@
     {% endfor %}
     <span class="badge badge-secondary">{{ course.type }}</span>
     {% if course.is_single_result %}
-        <span class="badge badge-success">{% trans "Single result" %}</span>
+        <span class="badge badge-success">{% trans 'Single result' %}</span>
     {% else %}
-        <span class="badge badge-info">{% if course.is_graded %}{% trans "graded" %}{% else %}{% trans "not graded" %}{% endif %}</span>
-        <span class="badge badge-info">{% if course.is_private %}{% trans "private" %}{% endif %}</span>
+        <span class="badge badge-info">{% if course.is_graded %}{% trans 'graded' %}{% else %}{% trans 'not graded' %}{% endif %}</span>
+        <span class="badge badge-info">{% if course.is_private %}{% trans 'private' %}{% endif %}</span>
     {% endif %}
 
     {% if state == 'new' or state == 'prepared' or state == 'editor_approved' and not course.all_contributions_have_questionnaires %}
         {% if not course.general_contribution_has_questionnaires %}
-            <span class="badge badge-warning">{% trans "Course has no questionnaires" %}</span>
+            <span class="badge badge-warning">{% trans 'Course has no questionnaires' %}</span>
         {% else %}
-            <span class="badge badge-warning">{% trans "Not all contributors have questionnaires" %}</span>
+            <span class="badge badge-warning">{% trans 'Not all contributors have questionnaires' %}</span>
         {% endif %}
     {% endif %}
 </td>
@@ -177,9 +177,9 @@
                     </a>
                 {% endif %}
                 {% if course.final_grade_documents %}
-                    <span class="fas fa-check" data-toggle="tooltip" data-placement="top" title="{% trans "Final grades have been uploaded" %}"></span>
+                    <span class="fas fa-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Final grades have been uploaded' %}"></span>
                 {% elif course.gets_no_grade_documents %}
-                    <span class="fas fa-check" data-toggle="tooltip" data-placement="top" title="{% trans "It was confirmed that final grades have been submitted" %}"></span>
+                    <span class="fas fa-check" data-toggle="tooltip" data-placement="top" title="{% trans 'It was confirmed that final grades have been submitted' %}"></span>
                 {% endif %}
             {% endif %}
         </td>

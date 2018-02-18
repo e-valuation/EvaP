@@ -1,4 +1,4 @@
-{% extends "staff_questionnaire_base.html" %}
+{% extends 'staff_questionnaire_base.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -18,28 +18,28 @@
     </div>
 
     {% if course_questionnaires or contributor_questionnaires %}
-        {% trans "Course questionnaires" as headline %}
-        {% include "staff_questionnaire_index_list.html" with questionnaires=course_questionnaires headline=headline extra_classes="mb-3" %}
-        {% trans "Contributor questionnaires" as headline %}
-        {% include "staff_questionnaire_index_list.html" with questionnaires=contributor_questionnaires headline=headline extra_classes="" %}
+        {% trans 'Course questionnaires' as headline %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=course_questionnaires headline=headline extra_classes='mb-3' %}
+        {% trans 'Contributor questionnaires' as headline %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='' %}
     {% else %}
         <p>
-            {% trans "There are no questionnaires yet." %}
+            {% trans 'There are no questionnaires yet.' %}
         </p>
     {% endif %}
 {% endblock %}
 
 {% block modals %}
     {{ block.super }}
-    {% trans "Delete questionnaire" as title %}
+    {% trans 'Delete questionnaire' as title %}
     {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
-    {% trans "Delete questionnaire" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="deleteQuestionnaireModal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% trans 'Delete questionnaire' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteQuestionnaireModalAction(dataId) {
             $.ajax({
                 type: "POST",
-                url: "{% url "staff:questionnaire_delete" %}",
+                url: "{% url 'staff:questionnaire_delete' %}",
                 data: {"questionnaire_id": dataId},
                 success: function(){ $('#questionnaire-row-'+dataId).hide('slow', function(){ $('#questionnaire-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
@@ -63,7 +63,7 @@
                 var questionnaire = $(questionnaires[i]);
                 updatedIndices[questionnaire.attr('data-id')] = i;
             }
-            $.post('{% url "staff:questionnaire_update_indices" %}', updatedIndices);
+            $.post("{% url 'staff:questionnaire_update_indices' %}", updatedIndices);
         }
     });
     </script>

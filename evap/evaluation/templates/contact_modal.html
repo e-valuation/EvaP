@@ -2,10 +2,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="successMessageModalLabel_{{ modal_id }}">{% trans "Message sent" %}</h5>
+                <h5 class="modal-title" id="successMessageModalLabel_{{ modal_id }}">{% trans 'Message sent' %}</h5>
             </div>
             <div class="modal-body">
-                {% trans "Your message was successfully sent." %}
+                {% trans 'Your message was successfully sent.' %}
             </div>
         </div>
     </div>
@@ -23,21 +23,21 @@
                     {{ teaser }}
                     <br /><br />
                     <div class="form-group">
-                        <label for="{{ modal_id }}SenderName" class="control-label">{% trans "Sender" %}:</label>
+                        <label for="{{ modal_id }}SenderName" class="control-label">{% trans 'Sender' %}:</label>
                         <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}">
                     </div>
                     <div class="form-group">
-                        <label for="{{ modal_id }}Subject" class="control-label">{% trans "Subject" %}:</label>
+                        <label for="{{ modal_id }}Subject" class="control-label">{% trans 'Subject' %}:</label>
                         <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}">
                     </div>
                     <div class="form-group">
-                        <label for="message-text" class="control-label">{% trans "Message" %}:</label>
+                        <label for="message-text" class="control-label">{% trans 'Message' %}:</label>
                         <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Cancel" %}</a>
-                    <button id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans "Send Message" %}</button>
+                    <a role="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</a>
+                    <button id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans 'Send Message' %}</button>
                 </div>
             </form>
         </div>
@@ -78,7 +78,7 @@
                 }, 3000);
             },
             error : function(json) {
-                actionButton.text('{% trans "Sending failed, sorry!" %}');
+                actionButton.text('{% trans 'Sending failed, sorry!' %}');
                 setTimeout(function(){
                     actionButton.text(originalText);
                     actionButton.prop('disabled', false);

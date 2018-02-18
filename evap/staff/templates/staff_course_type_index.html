@@ -1,15 +1,15 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Course types" %}</li>
+    <li class="breadcrumb-item">{% trans 'Course types' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
     <div class="mb-3">
-        <a href="{% url "staff:course_type_merge_selection" %}" class="btn btn-sm btn-secondary">{% trans "Merge course types" %}</a>
+        <a href="{% url 'staff:course_type_merge_selection' %}" class="btn btn-sm btn-secondary">{% trans 'Merge course types' %}</a>
     </div>
 
     <form id="course-type-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
@@ -33,14 +33,14 @@
                                     {{ hidden }}
                                 {% endfor %}
                                 <td>
-                                    {% include "bootstrap_form_field_widget.html" with field=form.name_de %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
                                 </td>
                                 <td>
-                                    {% include "bootstrap_form_field_widget.html" with field=form.name_en %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_en %}
                                 </td>
                                 <td>
                                     {% if form.instance.can_staff_delete %}
-                                        {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
+                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
                                     {% else %}
                                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'This course type cannot be deleted because it is used for at least one course.' %}">
                                             <a role="button" class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a>
@@ -64,10 +64,10 @@
 {% block additional_javascript %}
     <script type="text/javascript">
         $('#course_types_table tbody tr').formset({
-            prefix: 'form',
-            deleteCssClass: 'btn btn-danger btn-sm fas fa-trash',
-            deleteText: '',
-            addText: '{% trans "add another" %}',
+            prefix: "form",
+            deleteCssClass: "btn btn-danger btn-sm fas fa-trash",
+            deleteText: "",
+            addText: "{% trans 'add another' %}",
             added: function(row){
                 //Remove all error messages
                 row.find(".error-label").remove();

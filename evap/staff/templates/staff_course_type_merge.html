@@ -1,16 +1,16 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% load evaluation_filters %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url "staff:course_type_index" %}">{% trans "Course types" %}</a></li>
-    <li class="breadcrumb-item">{% trans "Merge course types" %}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:course_type_index' %}">{% trans 'Course types' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Merge course types' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans "Merge course types" %}</h3>
+    <h3>{% trans 'Merge course types' %}</h3>
 
     <div class="card mb-3">
         <div class="card-body">

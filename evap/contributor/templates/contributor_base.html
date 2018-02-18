@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}{% trans "Your EvaP" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
     {% if form %}
-        <li class="breadcrumb-item"><a href="{% url "contributor:index" %}">{% trans "Contributor" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'contributor:index' %}">{% trans 'Contributor' %}</a></li>
     {% else %}
-        <li class="breadcrumb-item">{% trans "Contributor" %}</li>
+        <li class="breadcrumb-item">{% trans 'Contributor' %}</li>
     {% endif %}
 {% endblock %}

@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% load evaluation_filters %}
 
-{% block title %}{% trans "Evaluation" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Evaluation" %}</li>
+    <li class="breadcrumb-item">{% trans 'Evaluation' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -15,21 +15,21 @@
     <div id="participantInfobox" class="infobox">
         <div class="infobox-header d-flex">
             <span class="fas fa-info-circle infobox-icon"></span>
-            <span class="infobox-title">{% trans "Information about the evaluation" %}</span>
+            <span class="infobox-title">{% trans 'Information about the evaluation' %}</span>
             <a role="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
         </div>
         <div class="infobox-content">
-            <b>{% trans "Anonymity" %}</b><br />
+            <b>{% trans 'Anonymity' %}</b><br />
             {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#21-q">{% trans "FAQ/Anonymity" %}</a></em><br />
+            <em>{% trans 'More details:' %} <a href="/faq#21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />
             <br />
-            <b>{% trans "References to other answers" %}</b><br />
+            <b>{% trans 'References to other answers' %}</b><br />
             {% blocktrans %}Lecturers can't see completed questionnaires as a whole. If you would write "see above", the lecturer can't find the respective answer.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#24-q">{% trans "FAQ/Reference" %}</a></em><br />
+            <em>{% trans 'More details:' %} <a href="/faq#24-q">{% trans 'FAQ/Reference' %}</a></em><br />
             <br />
-            <b>{% trans "Evaluation Results" %}</b><br />
+            <b>{% trans 'Evaluation Results' %}</b><br />
             {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+            <em>{% trans 'More details:' %} <a href="/faq#3-s">{% trans 'FAQ/Results' %}</a></em>
         </div>
     </div>
 
@@ -43,9 +43,9 @@
                     <table class="table table-hover-evap vertically-aligned">
                         <thead>
                             <tr>
-                                <th style="width: 40%">{% trans "Name" %}</th>
-                                <th style="width: 12%">{% trans "State" %}</th>
-                                <th style="width: 25%">{% trans "Evaluation Period" %}</th>
+                                <th style="width: 40%">{% trans 'Name' %}</th>
+                                <th style="width: 12%">{% trans 'State' %}</th>
+                                <th style="width: 25%">{% trans 'Evaluation Period' %}</th>
                                 <th style="width: 23%"></th>
                             </tr>
                         </thead>
@@ -78,9 +78,9 @@
                                         <span class="line">{{ course.vote_start_datetime }} &ndash;</span> <span class="line">{{ course.vote_end_date }}</span>
                                         {% if course.state == 'in_evaluation' and course in due_courses %}
                                             {% if course.days_left_for_evaluation <= 0 %}
-                                                <span class="badge badge-danger">{% trans "ends today" %}</span>
+                                                <span class="badge badge-danger">{% trans 'ends today' %}</span>
                                             {% elif course.days_left_for_evaluation == 1 %}
-                                                <span class="badge badge-danger">{% trans "ends tomorrow" %}</span>
+                                                <span class="badge badge-danger">{% trans 'ends tomorrow' %}</span>
                                             {% elif course.days_left_for_evaluation < 5 %}
                                                 <span class="badge badge-secondary">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
                                             {% endif %}
@@ -91,7 +91,7 @@
                                             <a class="btn btn-sm btn-light" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}" role="button">{{ course.grade_documents.all.first.description }}</a>
                                         {% elif course.grade_documents.count > 1 and can_download_grades %}
                                             <div class="btn-group" role="group">
-                                                <a id="btnDownload{{ course.id }}" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Grades" %}</a>
+                                                <a id="btnDownload{{ course.id }}" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
                                                 <div class="dropdown-menu" aria-labelledby="btnDownload{{ course.id }}">
                                                     {% for grade_document in course.grade_documents.all %}
                                                         <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
@@ -100,20 +100,20 @@
                                             </div>
                                         {% elif course.grades_activated and course.is_graded and can_download_grades %}
                                             <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'No grades are available yet.' %}">
-                                                <a role="button" class="btn btn-sm btn-light disabled">{% trans "Grades" %}</a>
+                                                <a role="button" class="btn btn-sm btn-light disabled">{% trans 'Grades' %}</a>
                                             </div>
                                         {% endif %}
                                         {% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                            <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans "Evaluate" %}</a>
+                                            <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans 'Evaluate' %}</a>
                                         {% endif %}
                                         {% if course.state == 'published' %}
                                             {% if course.can_publish_grades %}
-                                                <a class="btn btn-sm btn-secondary btn-results btn-row-hover" href="{% url 'results:course_detail' semester.id course.id %}">{% trans "Results" %}</a>
+                                                <a class="btn btn-sm btn-secondary btn-results btn-row-hover" href="{% url 'results:course_detail' semester.id course.id %}">{% trans 'Results' %}</a>
                                             {% else %}
-                                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
+                                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans 'Results' %}</a></div>
                                             {% endif %}
                                         {% elif course.state == 'inEvaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
-                                            <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'The results are not available yet.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans "Results" %}</a></div>
+                                            <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'The results are not available yet.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans 'Results' %}</a></div>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -127,5 +127,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "infobox_js.html" with id="participantInfobox" %}
+    {% include 'infobox_js.html' with id='participantInfobox' %}
 {% endblock %}

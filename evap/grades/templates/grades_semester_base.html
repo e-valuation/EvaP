@@ -1,4 +1,4 @@
-{% extends "grades_base.html" %}
+{% extends 'grades_base.html' %}
 
 {% load evaluation_filters %}
 
@@ -10,7 +10,7 @@
         {% if disable_breadcrumb_semester or not is_grade_publisher %}
             <li class="breadcrumb-item">{{ semester.name }}</li>
         {% else %}
-            <li class="breadcrumb-item"><a href="{% url "grades:semester_view" semester.id %}">{{ semester.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a></li>
         {% endif %}
     {% endif %}
 {% endblock %}

@@ -1,8 +1,8 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Users" %}</li>
+    <li class="breadcrumb-item">{% trans 'Users' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -43,9 +43,9 @@
                     <tr id="user-row-{{ user.id }}">
                         <td>{{ user.full_name }}</td>
                         <td>{{ user.username }}</td>
-                        <td>{% include "staff_user_labels.html" with user=user %}</td>
+                        <td>{% include 'staff_user_labels.html' with user=user %}</td>
                         <td>
-                            <a href="{% url "staff:user_edit" user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
+                            <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                             {% if user.can_staff_delete %}
                                 <a class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fas fa-trash"></span></a>
                             {% else %}
@@ -67,15 +67,15 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans "Delete user" as title %}
+    {% trans 'Delete user' as title %}
     {% trans 'Do you really want to delete the user <strong id="data-label"></strong>?' as question %}
-    {% trans "Delete user" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="deleteModal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% trans 'Delete user' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteModalAction(dataId) {
             $.ajax({
                 type: "POST",
-                url: "{% url "staff:user_delete" %}",
+                url: "{% url 'staff:user_delete' %}",
                 data: {"user_id": dataId},
                 success: function(){ $('#user-row-'+dataId).hide('slow', function(){ $('#user-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
@@ -85,5 +85,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "datatables.html" with table_selector='.user-table' %}
+    {% include 'datatables.html' with table_selector='.user-table' %}
 {% endblock %}

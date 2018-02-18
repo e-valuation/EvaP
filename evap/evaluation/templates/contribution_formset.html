@@ -2,32 +2,32 @@
 
 <fieldset>
     <div class="d-flex mb-2">
-        <h5 class="card-title mr-auto">{% trans "Contributors" %}</h5>
+        <h5 class="card-title mr-auto">{% trans 'Contributors' %}</h5>
         {% if not staff %}
             <div>
                 <a role="button" class="btn btn-sm btn-light" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
-                    {% trans "Request creation of new account" %}
+                    {% trans 'Request creation of new account' %}
                 </a>
             </div>
         {% endif %}
     </div>
     {{ formset.management_form }}
-    {% include "bootstrap_form_errors.html" with errors=formset.non_form_errors %}
+    {% include 'bootstrap_form_errors.html' with errors=formset.non_form_errors %}
 
     <table id="contribution_table" class="table">
         <thead>
             <tr>
                 <th></th>
-                <th style="width: 30%">{% trans "Contributor" %}</th>
-                <th style="width: 30%">{% trans "Questionnaires" %}</th>
-                <th style="width: 30%">{% trans "Options" %}</th>
+                <th style="width: 30%">{% trans 'Contributor' %}</th>
+                <th style="width: 30%">{% trans 'Questionnaires' %}</th>
+                <th style="width: 30%">{% trans 'Options' %}</th>
                 <th style="width: 10%"></th>
             </tr>
         </thead>
         <tbody>
             {% for form in formset %}
-                {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
                 <tr class="contribution select2tr {% if editable %} sortable{% endif %}">
+                {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
@@ -36,33 +36,33 @@
                     </td>
 
                     <td>
-                        {% include "bootstrap_form_errors.html" with errors=form.contributor.errors %}
+                        {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
                         {{ form.contributor }}
                         <div class="form-check mt-2">
-                            <label class="form-check-label" for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% trans "Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments." %}">
+                            <label class="form-check-label" for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments.{% endblocktrans %}">
                                 {{ form.does_not_contribute }}
                                 {{ form.does_not_contribute.label }}
                             </label>
                         </div>
-                        {% include "bootstrap_form_errors.html" with errors=form.does_not_contribute.errors %}
+                        {% include 'bootstrap_form_errors.html' with errors=form.does_not_contribute.errors %}
                     </td>
                     <td>
-                        {% include "questionnaires_widget.html" with field=form.questionnaires %}
+                        {% include 'questionnaires_widget.html' with field=form.questionnaires %}
                     </td>
                     <td>
-                        {% trans "Responsibility" %}:<br />
-                        {% include "responsibility_buttons.html" with form=form can_change_responsible=staff %}
+                        {% trans 'Responsibility' %}:<br />
+                        {% include 'responsibility_buttons.html' with form=form can_change_responsible=staff %}
                         <br /><br />
-                        {% trans "Comment visibility" %}:<br />
-                        {% include "comment_visibility_buttons.html" with form=form %}
+                        {% trans 'Comment visibility' %}:<br />
+                        {% include 'comment_visibility_buttons.html' with form=form %}
                         <br /><br />
-                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="fas fa-info-circle" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}: <span data-toggle="tooltip" data-placement="right" class="fas fa-info-circle" title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}"></span><br />
                         {{ form.label }}
-                        {% include "bootstrap_form_errors.html" with errors=form.label.errors %}
+                        {% include 'bootstrap_form_errors.html' with errors=form.label.errors %}
                     </td>
                     <td>
                     {% if editable%}
-                        {% if staff or form.responsibility.value != "RESPONSIBLE" %}
+                        {% if staff or form.responsibility.value != 'RESPONSIBLE' %}
                             {{ form.DELETE }}
                         {% endif %}
                     {% endif %}

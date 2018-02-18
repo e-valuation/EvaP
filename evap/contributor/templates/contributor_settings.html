@@ -1,13 +1,13 @@
-{% extends "contributor_base.html" %}
+{% extends 'contributor_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Settings" %}</li>
+    <li class="breadcrumb-item">{% trans 'Settings' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans "Settings" %}</h3>
+    <h3>{% trans 'Settings' %}</h3>
 
     <div class="row mb-3">
         <div class="col-6">
@@ -16,27 +16,27 @@
                     <h4 class="card-title mb-4">{% trans 'Personal information' %}</h4>
                     <table class="table table-striped vertically-aligned">
                         <tr>
-                            <td class="col-6"><strong>{% trans "Username" %}</strong></td>
+                            <td class="col-6"><strong>{% trans 'Username' %}</strong></td>
                             <td class="col-6">{{ form.instance.username }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans "Title" %}</strong></td>
+                            <td><strong>{% trans 'Title' %}</strong></td>
                             <td>{{ form.instance.title|default_if_none:"" }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans "First name" %}</strong></td>
+                            <td><strong>{% trans 'First name' %}</strong></td>
                             <td>{{ form.instance.first_name|default_if_none:"" }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans "Last name" %}</strong></td>
+                            <td><strong>{% trans 'Last name' %}</strong></td>
                             <td>{{ form.instance.last_name|default_if_none:"" }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans "Email" %}</strong></td>
+                            <td><strong>{% trans 'Email' %}</strong></td>
                             <td>{{ form.instance.email|default_if_none:"" }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans "CC all my emails to" %}</strong></td>
+                            <td><strong>{% trans 'CC all my emails to' %}</strong></td>
                             <td>
                                 {% for cc_user in cc_users %}
                                     {{ cc_user.full_name }}{% if not forloop.last %}, {% endif %}
@@ -44,7 +44,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{% trans "You receive CC'ed emails for" %}</strong></td>
+                            <td><strong>{% blocktrans %}You receive CC'ed emails for{% endblocktrans %}</strong></td>
                             <td>
                                 {% for ccing_user in ccing_users %}
                                     {{ ccing_user.full_name }}{% if not forloop.last %}, {% endif %}
@@ -55,7 +55,7 @@
                 </div>
                 <div class="card-footer text-center">
                     <a role="button" class="btn btn-light" onclick="changeRequestModalShow();" id="changeRequestModalButton">
-                        {% trans "Request changes" %}
+                        {% trans 'Request changes' %}
                     </a>
                 </div>
             </div>
@@ -63,7 +63,7 @@
         <div class="col-6">
             <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+                {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">{% trans 'Delegates' %}</h4>
@@ -73,14 +73,14 @@
                         <table class="table vertically-aligned">
                             <tr>
                                 <td>
-                                <strong>{% trans "Your delegates" %}</strong><br />
-                                {% include "bootstrap_form_errors.html" with errors=form.delegates.errors %}
+                                <strong>{% trans 'Your delegates' %}</strong><br />
+                                {% include 'bootstrap_form_errors.html' with errors=form.delegates.errors %}
                                 {{ form.delegates }}
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>{% trans "You are a delegate of" %}</strong><br />
+                                    <strong>{% trans 'You are a delegate of' %}</strong><br />
                                     {% for delegate in delegate_of %}
                                         {{ delegate.full_name }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -89,7 +89,7 @@
                         </table>
                     </div>
                     <div class="card-footer text-center">
-                        <button type="submit" class="btn btn-primary">{% trans "Save delegates" %}</button>
+                        <button type="submit" class="btn btn-primary">{% trans 'Save delegates' %}</button>
                     </div>
                 </div>
             </form>
@@ -99,7 +99,7 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans "Request user setting changes" as title %}
-    {% trans "Please tell us which of your settings we should change." as teaser %}
-    {% include "contact_modal.html" with modal_id="changeRequestModal" user=request.user title=title teaser=teaser %}
+    {% trans 'Request user setting changes' as title %}
+    {% trans 'Please tell us which of your settings we should change.' as teaser %}
+    {% include 'contact_modal.html' with modal_id='changeRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}

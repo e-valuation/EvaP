@@ -1,24 +1,24 @@
-{% extends "staff_course_base.html" %}
+{% extends 'staff_course_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url "staff:course_comments" semester.id course.id %}#{{ text_answer.id }}">{% trans "Comments" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:course_comments' semester.id course.id %}#{{ text_answer.id }}">{% trans 'Comments' %}</a></li>
     <li class="breadcrumb-item">{{ text_answer.id }}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans "Comment" %}</h3>
+    <h3>{% trans 'Comment' %}</h3>
     <form id="comment-edit-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                {% include "bootstrap_form.html" with form=form %}
+                {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Save comment" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Save comment' %}</button>
             </div>
         </div>
     </form>

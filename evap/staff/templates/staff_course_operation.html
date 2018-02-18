@@ -29,7 +29,7 @@
             <div class="card-body">
                 <div class="form-check mb-2">
                     <input class="form-check-input" id="send_email" type="checkbox" name="send_email" checked onclick="$('#email_form').toggle();">
-                    <label class="form-check-label" for="send_email">{% trans "Send email notifications" %}</label>
+                    <label class="form-check-label" for="send_email">{% trans 'Send email notifications' %}</label>
                 </div>
                 <div class="email-form" id="email_form">
                     <div class="form-group d-flex">
@@ -48,8 +48,8 @@
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Confirm" %}</button>
-                <a href="{% url "staff:semester_view" semester.id %}" class="btn btn-light">{% trans "Cancel" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans 'Confirm' %}</button>
+                <a href="{% url 'staff:semester_view' semester.id %}" class="btn btn-light">{% trans 'Cancel' %}</a>
             </div>
         </div>
     </form>
