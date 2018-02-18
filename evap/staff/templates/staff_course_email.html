@@ -20,8 +20,8 @@
                                     <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
                                         <div class="btn-group btn-group-toggle mb-1" data-toggle="buttons">
                                             {% for choice in field %}
-                                                <label class="btn btn-sm btn-light {% if choice.data.value in field.value %}active{% endif %} {% if field.errors %}error-label{% endif %}" name="{{ field.name }}">
-                                                    <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off" {% if choice.data.value in field.value %}checked{% endif %} />
+                                                <label class="btn btn-sm btn-light{% if choice.data.value in field.value %} active{% endif %}{% if field.errors %} error-label{% endif %}" name="{{ field.name }}">
+                                                    <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.value in field.value %} checked{% endif %} />
                                                     {{ choice.choice_label }} {{ choice.id }}
                                                 </label>
                                             {% endfor %}

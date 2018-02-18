@@ -85,7 +85,7 @@
                             </thead>
                             <tbody>
                             {% for single_result, result in single_results %}
-                                <tr {% if single_result.state != 'published' %}class="preview"{% endif %}>
+                                <tr{% if single_result.state != 'published' %} class="preview"{% endif %}>
                                     <td>
                                         {% if single_result.state != 'published' %}
                                             <span data-toggle="tooltip" data-placement="top" class="fas fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>

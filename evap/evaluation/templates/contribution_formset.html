@@ -26,8 +26,8 @@
         </thead>
         <tbody>
             {% for form in formset %}
-                <tr class="contribution select2tr {% if editable %} sortable{% endif %}">
                 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
+                <tr class="contribution select2tr{% if editable %} sortable{% endif %}">
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
@@ -61,7 +61,7 @@
                         {% include 'bootstrap_form_errors.html' with errors=form.label.errors %}
                     </td>
                     <td>
-                    {% if editable%}
+                    {% if editable %}
                         {% if staff or form.responsibility.value != 'RESPONSIBLE' %}
                             {{ form.DELETE }}
                         {% endif %}

@@ -31,15 +31,15 @@
                     <div class="btn-switch ml-2">
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-group icon-buttons">
-                            <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light {% if rewards_active %}active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light {% if rewards_active == False %}active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
+                            <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
+                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if rewards_active == False %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                     <div class="btn-switch ml-2">
                         <div class="btn-switch-label">{% trans 'Grades downloadable' %}</div>
                         <div class="btn-group icon-buttons">
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light {% if grades_downloadable %}active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light {% if grades_downloadable == False %}active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
+                            <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if grades_downloadable %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
+                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if grades_downloadable == False %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                 </thead>
                 <tbody>
                     {% for degree, stats in degree_stats.items %}
-                    <tr {% if degree == 'total' %} class="total-stats" {% endif %}>
+                    <tr{% if degree == 'total' %} class="total-stats"{% endif %}>
                         <td>
                             {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
                         </td>
@@ -99,7 +99,7 @@
                         <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</a>
                         <div class="dropdown-menu" aria-labelledby="btnExport">
                             <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data'%}</a>
+                            <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
                         </div>
                     </div>

@@ -51,7 +51,7 @@
                         </thead>
                         <tbody>
                             {% for course in semester.courses %}
-                                <tr {% if course.state == 'in_evaluation' and course not in voted_courses %}
+                                <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
                                     {% elif course.state == 'published' and course.can_publish_grades %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
