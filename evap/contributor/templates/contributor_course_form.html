@@ -90,7 +90,7 @@
     {% include 'confirmation_modal.html' with modal_id='approveCourseModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function approveCourseModalAction(dataId) {
-            $('#course-form').append('<input type="hidden" name="operation" value="approve">');
+            $('#course-form').append('<input type="hidden" name="operation" value="approve" />');
             $('#course-form').submit();
         };
     </script>

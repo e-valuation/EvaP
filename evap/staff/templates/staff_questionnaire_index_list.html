@@ -18,7 +18,7 @@
                         <td class="movable"><span class="movable-icon fas fa-arrows-alt-v"></span></td>
                         <td>
                             <strong>{{ questionnaire.name }}</strong>
-                            <br>
+                            <br />
                             {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                             {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
                             {% if questionnaire.obsolete %}<span class="badge badge-warning">{% trans 'obsolete' %}</span>{% endif %}
