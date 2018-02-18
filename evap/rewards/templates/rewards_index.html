@@ -43,9 +43,9 @@
                                         <td>{{ event.name }}</td>
                                         <td>{{ event.redeem_end_date }}</td>
                                         <td class="text-right">
-                                            <select class="form-control pull-right" id="id_points-{{event.id}}" name="points-{{event.id}}" style="width:5em">
+                                            <select class="form-control pull-right" id="id_points-{{ event.id }}" name="points-{{ event.id }}" style="width:5em">
                                                 {% for p in point_selection %}
-                                                    <option value="{{p}}">{{p}}</option>
+                                                    <option value="{{ p }}">{{ p }}</option>
                                                 {% endfor %}
                                             </select>
                                         </td>

@@ -21,7 +21,7 @@
             <input class="form-check-input" id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
                 autocomplete="off" {% if choice.data.selected  %}checked {% endif %}{% if field.field.disabled %}disabled {% endif %}/>
             <label class="form-check-label" for="{{ choice.id_for_label }}">
-                {{ choice.choice_label}}
+                {{ choice.choice_label }}
             </label>
         </li>
     {% endfor %}

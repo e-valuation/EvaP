@@ -10,7 +10,7 @@
     <li class="breadcrumb-item">{{ semester.name }}</li>
 {% endblock %}
 
-{{% block content %}
+{% block content %}
     {{ block.super }}
     <h3>{{ semester.name }}</h3>
     {% for degree, course_data in courses_by_degree.items %}{% with courses=course_data.courses single_results=course_data.single_results %}
