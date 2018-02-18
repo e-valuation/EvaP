@@ -48,21 +48,21 @@
                                         {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </td>
-                                <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="fa fa-check"></span>{% endif %}
+                                <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="fas fa-check"></span>{% endif %}
                                 <td class="text-center">
                                     {% if num_midterm_grades > 0 %}
-                                        <span class="fa fa-file-o"></span> {{ num_midterm_grades }}
+                                        <span class="fas fa-file"></span> {{ num_midterm_grades }}
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
                                     {% if num_final_grades > 0 %}
-                                        <span class="fa fa-file-o"></span> {{ num_final_grades }}
+                                        <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
                                         {% if semester.is_archived %}
-                                            <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded.' %}"></span>
+                                            <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded.' %}"></span>
                                         {% else %}
                                             <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
-                                                <span class="fa fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                                <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                             </a>
                                         {% endif %}
                                     {% endif %}
@@ -70,12 +70,12 @@
                                 <td class="text-right" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <a onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fa fa-times"></span></a>
+                                            <a onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fas fa-times"></span></a>
                                             {% if semester.is_archived %}
-                                                <a class="btn btn-sm btn-dark disabled"><span class="fa fa-upload"></span></a>
+                                                <a class="btn btn-sm btn-dark disabled"><span class="fas fa-upload"></span></a>
                                             {% else %}
                                                 <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
-                                                    <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-upload"></span></a>
+                                                    <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
                                                     <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
                                                         <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans "Midterm grades" %}</a>
                                                         <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans "Final grades" %}</a>
@@ -83,7 +83,7 @@
                                                 </div>
                                             {% endif %}
                                         {% else %}
-                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fa fa-pencil"></span></a>
+                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil-alt"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>

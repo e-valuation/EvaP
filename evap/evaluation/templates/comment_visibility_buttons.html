@@ -1,4 +1,4 @@
-<div class="btn-group" data-toggle="buttons">
+<div class="btn-group btn-group-toggle" data-toggle="buttons">
     {% for choice in form.comment_visibility %}
         {% if choice.data.value == "ALL" %}
             {% trans "Will see all comments about the course and about all non-responsible contributors." as tooltip %}

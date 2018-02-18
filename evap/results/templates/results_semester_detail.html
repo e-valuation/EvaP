@@ -38,13 +38,13 @@
                                 {% if course|can_user_see_results:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
                                         {% endif %}
                                         {% if course.state == 'evaluated' or course.state == 'reviewed' %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
                                         {% endif %}
                                         {% if course.state == 'published' and not course|can_publish_grades %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-lock" title="{% trans 'Not enough answers were given to publish the results.' %}"></span>
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Not enough answers were given to publish the results.' %}"></span>
                                         {% endif %}
                                         <span class="course-name">{{ course.name }}</span>
                                     </td>
@@ -88,7 +88,7 @@
                                 <tr {% if single_result.state != 'published' %}class="preview"{% endif %}>
                                     <td>
                                         {% if single_result.state != 'published' %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fa fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
                                         {% endif %}
                                         {{ single_result.name }}
                                     </td>

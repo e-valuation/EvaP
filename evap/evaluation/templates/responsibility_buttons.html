@@ -1,6 +1,6 @@
 {% load evaluation_filters %}
 
-<div class="btn-group" data-toggle="buttons">
+<div class="btn-group btn-group-toggle" data-toggle="buttons">
     {% for choice in form.responsibility %}
         {% if choice.data.value == "RESPONSIBLE" %}
             {% trans "Name will be shown next to course. Able to see all comments about the contributors of this course. This can only be set by the evaluation team." as tooltip %}

@@ -32,14 +32,14 @@
                         {{ field }}
                     {% endfor %}
                     <td class="movable">
-                        {% if editable %}<span class="movable-icon fa fa-arrows-v"></span>{% endif %}
+                        {% if editable %}<span class="movable-icon fas fa-arrows-alt-v"></span>{% endif %}
                     </td>
 
                     <td>
                         {% include "bootstrap_form_errors.html" with errors=form.contributor.errors %}
                         {{ form.contributor }}
-                        <div class="checkbox mt-2">
-                            <label for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% trans "Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments." %}">
+                        <div class="form-check mt-2">
+                            <label class="form-check-label" for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% trans "Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments." %}">
                                 {{ form.does_not_contribute }}
                                 {{ form.does_not_contribute.label}}
                             </label>
@@ -56,7 +56,7 @@
                         {% trans "Comment visibility" %}:<br />
                         {% include "comment_visibility_buttons.html" with form=form %}
                         <br /><br />
-                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="fa fa-info-circle" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
+                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans "Label" %}: <span data-toggle="tooltip" data-placement="right" class="fas fa-info-circle" title="{% trans "This text will be shown next to the contributor's name in the questionnaire." %}"></span><br />
                         {{ form.label }}
                         {% include "bootstrap_form_errors.html" with errors=form.label.errors %}
                     </td>
