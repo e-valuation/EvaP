@@ -1,10 +1,10 @@
-{% extends "staff_semester_base.html" %}
+{% extends 'staff_semester_base.html' %}
 
 {% load evaluation_filters %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Todo" %}</li>
+    <li class="breadcrumb-item">{% trans 'Todo' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -14,15 +14,15 @@
         <div class="card{% if not forloop.last %} mb-3{% endif %}">
             <div class="card-header d-flex">
                 <span class="pl-1 mr-auto">
-                    <a href="{% url "staff:user_edit" responsible.id %}">{{ responsible.full_name }}</a>, {% trans "Delegate" %}:
+                    <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% trans 'Delegate' %}:
                     {% for delegate in delegates %}
-                        <a href="{% url "staff:user_edit" delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
+                        <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
                     {% empty %}
                         &mdash;
                     {% endfor %}
                 </span>
                 <div>
-                    <a href="{% url "staff:send_reminder" semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans "Send Reminder" %}</a>
+                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans 'Send Reminder' %}</a>
                 </div>
             </div>
             <div class="card-body">
@@ -37,9 +37,9 @@
                     </thead>
                     <tbody>
                         {% for course in courses %}
-                            <tr {% if course.state != "prepared" %}class="deactivate"{%  endif %}>
+                            <tr{% if course.state != 'prepared' %} class="deactivate"{% endif %}>
                                 <th scope="row">
-                                    <a href="{% url "staff:course_edit" semester.id course.id %}">{{ course.name }}</a><br />
+                                    <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a><br />
                                     {% for degree in course.degrees.all %}
                                         <span class="badge badge-primary">{{ degree }}</span>
                                     {% endfor %}

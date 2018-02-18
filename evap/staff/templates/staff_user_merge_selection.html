@@ -1,4 +1,4 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
@@ -14,13 +14,13 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans "Select the users you want to merge." %}</p>
-                {% include "bootstrap_form.html" with form=form %}
+                <p>{% trans 'Select the users you want to merge.' %}</p>
+                {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Show merge info" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Show merge info' %}</button>
             </div>
         </div>
     </form>

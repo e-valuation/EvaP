@@ -1,17 +1,17 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}{% trans "Legal Notice" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans 'Legal Notice' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Legal Notice" %}</li>
+    <li class="breadcrumb-item">{% trans 'Legal Notice' %}</li>
 {% endblock %}
 
 {% block content %}
-    <h1>{% trans "Legal Notice" %}</h1>
+    <h1>{% trans 'Legal Notice' %}</h1>
     <div class="card">
         <div class="card-body">
-            {% if LEGAL_NOTICE_ACTIVE %}{% include "legal_notice_text.html" %}{% endif %}
+            {% if LEGAL_NOTICE_ACTIVE %}{% include 'legal_notice_text.html' %}{% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,10 +1,10 @@
-{% extends "grades_semester_base.html" %}
+{% extends 'grades_semester_base.html' %}
 
 {% block content %}
     {{ block.super }}
 
     {% if semester.is_archived %}
-        <p class="bs-callout bs-callout-info"> {% trans "This semester is archived." %} </p>
+        <p class="bs-callout bs-callout-info">{% trans 'This semester is archived.' %}</p>
     {% endif %}
 
     <h3>
@@ -13,19 +13,19 @@
 
     <div class="card">
         <div class="card-header">
-            {% trans "Courses" %}
+            {% trans 'Courses' %}
         </div>
         <div class="card-body">
             {% if courses %}
                 <table class="table table-striped grade-course-table vertically-aligned">
                     <thead>
                         <tr>
-                            <th style="width: 35%">{% trans "Name" %}</th>
-                            <th style="width: 20%">{% trans "Responsible" %}</th>
-                            <th style="width: 10%">{% trans "Evaluation completed" %}</th>
-                            <th style="width: 10%">{% trans "Midterm grade documents" %}</th>
-                            <th style="width: 10%">{% trans "Final grade documents" %}</th>
-                            <th style="width: 15%" class="text-right" data-orderable="false">{% trans "Actions" %}</th>
+                            <th style="width: 35%">{% trans 'Name' %}</th>
+                            <th style="width: 20%">{% trans 'Responsible' %}</th>
+                            <th style="width: 10%">{% trans 'Evaluation completed' %}</th>
+                            <th style="width: 10%">{% trans 'Midterm grade documents' %}</th>
+                            <th style="width: 10%">{% trans 'Final grade documents' %}</th>
+                            <th style="width: 15%" class="text-right" data-orderable="false">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,7 +35,7 @@
                                     {% if semester.is_archived %}
                                         {{ course.name }}
                                     {% else %}
-                                        <a href="{% url "grades:course_view" semester.id course.id %}">{{ course.name }}</a>
+                                        <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     {% endif %}
                                     <br />
                                     {% for degree in course.degrees.all %}
@@ -48,7 +48,7 @@
                                         {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </td>
-                                <td class="text-center">{% if course.state == "evaluationFinished" or course.state == "reviewed" or course.state == "published" %}<span class="fas fa-check"></span>{% endif %}
+                                <td class="text-center">{% if course.state == 'evaluationFinished' or course.state == 'reviewed' or course.state == 'published' %}<span class="fas fa-check"></span>{% endif %}
                                 <td class="text-center">
                                     {% if num_midterm_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_midterm_grades }}
@@ -77,8 +77,8 @@
                                                 <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
                                                     <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
                                                     <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
-                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans "Midterm grades" %}</a>
-                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans "Final grades" %}</a>
+                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans 'Midterm grades' %}</a>
+                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans 'Final grades' %}</a>
                                                     </div>
                                                 </div>
                                             {% endif %}
@@ -92,7 +92,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <i>{% trans "No courses have been created yet" %}</i>
+                <i>{% trans 'No courses have been created yet' %}</i>
             {% endif %}
         </div>
     </div>
@@ -100,10 +100,10 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans "Have final grades been submitted?" as title %}
+    {% trans 'Have final grades been submitted?' as title %}
     {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
-    {% trans "Confirm" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="confirmNouploadModal" title=title question=question action_text=action_text btn_type="primary" %}
+    {% trans 'Confirm' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function confirmNouploadModalAction(dataId) {
             $.ajax({
@@ -115,10 +115,10 @@
             });
         };
     </script>
-    {% trans "Will final grades be uploaded?" as title %}
+    {% trans 'Will final grades be uploaded?' as title %}
     {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
-    {% trans "Confirm" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="confirmLateruploadModal" title=title question=question action_text=action_text btn_type="primary" %}
+    {% trans 'Confirm' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='confirmLateruploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function confirmLateruploadModalAction(dataId) {
             confirmNouploadModalAction(dataId);
@@ -127,5 +127,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "datatables.html" with table_selector='.grade-course-table' %}
+    {% include 'datatables.html' with table_selector='.grade-course-table' %}
 {% endblock %}

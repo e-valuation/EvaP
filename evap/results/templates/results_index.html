@@ -1,19 +1,19 @@
-{% extends "results_base.html" %}
+{% extends 'results_base.html' %}
 
 {% block content %}
     {{ block.super }}
 
-    <h3>{% trans "Semesters" %}</h3>
+    <h3>{% trans 'Semesters' %}</h3>
     <div class="card mb-3">
         <div class="card-body">
             {% if semesters %}
                 <ul>
                     {% for semester in semesters %}
-                        <li><a href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a></li>
+                        <li><a href="{% url 'results:semester_detail' semester.id %}">{{ semester.name }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
-                {% trans "No results available yet" %}
+                {% trans 'No results available yet' %}
             {% endif %}
         </div>
     </div>

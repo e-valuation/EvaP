@@ -30,7 +30,7 @@
                                 <div class="vote-inputs btn-group btn-group-toggle" data-toggle="buttons"{% if preview %} disabled{% endif %}>
                                 {% for choice in field %}
                                     <label class="btn btn-sm vote-btn vote-btn-{{ choice.data.value }} d-flex{% if field.value == choice.data.value %} active{% endif %}{% if field.errors %} choice-error{% endif %}" name="{{ choice.data.name }}"{% if not preview %} onclick="selectedAnswer('{{ choice.data.name }}');"{% endif %}>
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off" {% if field.value == choice.data.value %}checked{% endif %} />
+                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off"{% if field.value == choice.data.value %} checked{% endif %} />
                                         <span class="m-auto vote-btn-text">{{ choice.choice_label }} {{ choice.id }}</span>
                                     </label>
                                 {% endfor %}

@@ -1,4 +1,4 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
@@ -19,28 +19,28 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="ml-auto col-sm-9 mb-3">
-                    {% include "staff_user_labels.html" with user=form.instance %}
-                </div>        
-                {% include "bootstrap_form.html" with form=form %}
+                    {% include 'staff_user_labels.html' with user=form.instance %}
+                </div>
+                {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>
 
         {% if form.instance.pk %}
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans "Represented Users" %}</h5>
-                    {% include "user_list_with_links.html" with users=form.instance.represented_users.all %}
+                    <h5 class="card-title">{% trans 'Represented Users' %}</h5>
+                    {% include 'user_list_with_links.html' with users=form.instance.represented_users.all %}
                 </div>
             </div>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans "CC-User for" %}</h5>
-                    {% include "user_list_with_links.html" with users=form.instance.ccing_users.all %}
+                    <h5 class="card-title">{% trans 'CC-User for' %}</h5>
+                    {% include 'user_list_with_links.html' with users=form.instance.ccing_users.all %}
                 </div>
             </div>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans "Courses contributing to (active semester)" %}</h5>
+                    <h5 class="card-title">{% trans 'Courses contributing to (active semester)' %}</h5>
                     {% if courses_contributing_to %}
                         <ul>
                             {% for course in courses_contributing_to %}
@@ -49,7 +49,7 @@
                         </ul>
                     {% else %}
                         <p>
-                            <i>{% trans "No courses" %}</i>
+                            <i>{% trans 'No courses' %}</i>
                         </p>
                     {% endif %}
                 </div>
@@ -57,7 +57,7 @@
         {% endif %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Save user" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Save user' %}</button>
             </div>
         </div>
     </form>

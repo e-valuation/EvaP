@@ -1,4 +1,4 @@
-{% extends "contributor_base.html" %}
+{% extends 'contributor_base.html' %}
 
 {% load evaluation_filters %}
 
@@ -11,7 +11,7 @@
     {{ block.super }}
 
     <div class="bs-callout bs-callout-info small">
-        {% trans "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page." %}
+        {% blocktrans %}Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.{% endblocktrans %}
     </div>
 
     <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
@@ -24,7 +24,7 @@
         </div>
         <div class="card mb-3">
             <div class="card-body">
-                {% include 'contribution_formset.html' with formset=formset staff=False editable=editable%}
+                {% include 'contribution_formset.html' with formset=formset staff=False editable=editable %}
             </div>
         </div>
 
@@ -32,16 +32,16 @@
             <div class="card-body">
                 <fieldset>
                     <div class="d-flex">
-                        <h5 class="card-title mr-auto">{% trans "Students" %}</h5>
+                        <h5 class="card-title mr-auto">{% trans 'Students' %}</h5>
                         <div>
                             <a role="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
-                                {% trans "Request changes" %}
+                                {% trans 'Request changes' %}
                             </a>
                         </div>
                     </div>
-                    <p>{% trans "These students should be participating in your course. Please let us know if this data is not correct." %}</p>
+                    <p>{% trans 'These students should be participating in your course. Please let us know if this data is not correct.' %}</p>
                     <ul>
-                        {% for p in course.participants.all|dictsort:"last_name" %}
+                        {% for p in course.participants.all|dictsort:'last_name' %}
                             <li>{{ p.full_name }}</li>
                         {% endfor %}
                     </ul>
@@ -51,13 +51,13 @@
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}
-                    <button name="operation" value="preview" type="submit" class="btn btn-light">{% trans "Preview"%}</button>
-                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save"%}</button>
+                    <button name="operation" value="preview" type="submit" class="btn btn-light">{% trans 'Preview' %}</button>
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <a onclick="approveCourseModalShow(0, '');" role="button" class="btn btn-success">{% trans "Save and approve"%}</a>
+                    <a onclick="approveCourseModalShow(0, '');" role="button" class="btn btn-success">{% trans 'Save and approve' %}</a>
                 {% endif %}
-                <a href="{% url "contributor:index" %}" class="btn btn-light">{% if edit %} {% trans "Cancel" %} {% else %} {% trans "Back" %} {% endif %}</a>
+                <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
             </div>
         </div>
     </form>
@@ -74,7 +74,7 @@
                         {{ preview_html|safe }}
                     </div>
                     <div class="modal-footer">
-                        <a role="button" class="btn btn-light" data-dismiss="modal">{% trans "Close" %}</a>
+                        <a role="button" class="btn btn-light" data-dismiss="modal">{% trans 'Close' %}</a>
                     </div>
                 </div>
             </div>
@@ -84,26 +84,26 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans "Approve course" as title %}
-    {% trans "Do you want to approve this course? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes." as question %}
-    {% trans "Approve course" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="approveCourseModal" title=title question=question action_text=action_text btn_type="primary" %}
+    {% trans 'Approve course' as title %}
+    {% blocktrans asvar question%}Do you want to approve this course? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.{% endblocktrans %}
+    {% trans 'Approve course' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='approveCourseModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function approveCourseModalAction(dataId) {
-            $('#course-form').append('<input type="hidden" name="operation" value="approve">');
+            $('#course-form').append('<input type="hidden" name="operation" value="approve" />');
             $('#course-form').submit();
         };
     </script>
     {% blocktrans asvar title %}Request participant changes for {{ course }}{% endblocktrans %}
-    {% trans "Please tell us what changes to the participants list we should make." as teaser %}
-    {% include "contact_modal.html" with modal_id="changeParticipantRequestModal" user=request.user title=title teaser=teaser %}
-    {% trans "Request account creation" as title %}
-    {% trans "Please tell us which new account we should create. We need the name and email for all new accounts." as teaser %}
-    {% include "contact_modal.html" with modal_id="createAccountRequestModal" user=request.user title=title teaser=teaser %}
+    {% trans 'Please tell us what changes to the participants list we should make.' as teaser %}
+    {% include 'contact_modal.html' with modal_id='changeParticipantRequestModal' user=request.user title=title teaser=teaser %}
+    {% trans 'Request account creation' as title %}
+    {% trans 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
+    {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "evap_course_edit_js.html" %}
+    {% include 'evap_course_edit_js.html' %}
 
     {% if preview_html %}
         <script type="text/javascript">

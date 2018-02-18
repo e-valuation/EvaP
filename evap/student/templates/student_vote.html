@@ -1,15 +1,15 @@
-{% extends for_rendering_in_modal|yesno:"base_empty.html,base.html" %}
+{% extends for_rendering_in_modal|yesno:'base_empty.html,base.html' %}
 
 
 {% load static %}
 {% load evaluation_filters %}
 {% load compress %}
 
-{% block title %}{{ course.name }} - {% trans "Evaluation" %} - {{ block.super }}{% endblock %}
+{% block title %}{{ course.name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url "student:index" %}">{% trans "Evaluation" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'student:index' %}">{% trans 'Evaluation' %}</a></li>
     <li class="breadcrumb-item">{{ course.name }}</li>
 {% endblock %}
 
@@ -22,12 +22,12 @@
         <div class="bs-callout bs-callout-warning">{% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who wrote a comment and who voted for a specific answer. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
     {% endif %}
     {% if evaluation_ends_soon %}
-        <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{hours_left_for_evaluation}} hours and {{minutes_left_for_evaluation}} minutes ({{vote_end_datetime}}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
+        <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>
         <div class="bs-callout bs-callout-info">
-            <b>{% trans "Questionnaire Preview" %}</b><br />
+            <b>{% trans 'Questionnaire Preview' %}</b><br />
             {% blocktrans %}This is a preview of the questionnaire for the course. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
         </div>
     </small>
@@ -38,16 +38,16 @@
 
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
-                {% trans "Questions about the course" %}
+                {% trans 'Questions about the course' %}
             </div>
             <div class="card-body">
-                {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group preview=preview %}
+                {% include 'student_vote_questionnaire_group.html' with questionnaire_group=course_form_group preview=preview %}
             </div>
         </div>
         {% if contributor_form_groups %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
-                    {% trans "Questions about the contributors" %}
+                    {% trans 'Questions about the contributors' %}
                 </div>
                 <div class="card-body">
                     {% if not preview %}
@@ -62,14 +62,14 @@
                                 <a class="collapse-toggle mr-auto{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse" href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
                                     {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
                                 </a>
-                                <a role="button" class="btn btn-light btn-sm{% if preview %} disabled{% endif %}" onclick="markNoAnswerFor({{ contributor.id }});">{% trans "I can't give feedback about this contributor" %}</a>
+                                <a role="button" class="btn btn-light btn-sm{% if preview %} disabled{% endif %}" onclick="markNoAnswerFor({{ contributor.id }});">{% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}</a>
                             </div>
                             {% if errors_exist == False or contributor_has_errors %}
                                 <div class="card-body collapse show" id="vote-area-{{ contributor.id }}">
                             {% else %}
                                 <div class="card-body collapse" id="vote-area-{{ contributor.id }}">
                             {% endif %}
-                                {% include "student_vote_questionnaire_group.html" with questionnaire_group=form_group preview=preview %}
+                                {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview %}
                             </div>
                         </div>
                     {% endfor %}
@@ -77,16 +77,16 @@
             </div>
         {% endif %}
         {% if not for_rendering_in_modal %}
-        <div class="card card-submit-area {% if not preview %}card-submit-area-2 {% endif %}text-center mb-3">
+        <div class="card card-submit-area{% if not preview %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if preview %}
-                    <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+                    <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                 {% else %}
-                    <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans "After saving, the evaluation can be continued later using this device and browser." %}">{% trans "Presave in Browser" %}</a>
-                    <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans "Submit questionnaire" %}</button>
+                    <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</a>
+                    <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                     <p id="submit-error-warning" style="display: none">
                         <span class="fas fa-exclamation-triangle"></span>
-                        {% trans "The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire." %}
+                        {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                     </p>
                 {% endif %}
             </div>

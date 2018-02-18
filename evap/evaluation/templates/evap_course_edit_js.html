@@ -1,5 +1,5 @@
 {% if editable %}
-    {% include "sortable_form_js.html" %}
+    {% include 'sortable_form_js.html' %}
     <script type="text/javascript">
         rowChanged = function(row) {
             name = $(row.find("select[id$=-contributor]")).find(":selected").text();
@@ -129,5 +129,5 @@
 </script>
 
 {% block additional_javascript %}
-{% include "bootstrap_datetimepicker.html" %}
+{% include 'bootstrap_datetimepicker.html' %}
 {% endblock %}

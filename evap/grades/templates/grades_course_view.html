@@ -1,4 +1,4 @@
-{% extends "grades_course_base.html" %}
+{% extends 'grades_course_base.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -7,17 +7,17 @@
 
     <div class="card mb-3">
         <div class="card-header">
-            {% trans "Uploaded grade documents" %}
+            {% trans 'Uploaded grade documents' %}
         </div>
         <div class="card-body">
             {% if grade_documents %}
                 <table class="table table-striped vertically-aligned">
                     <thead>
                         <tr>
-                            <th style="width: 40%">{% trans "Description" %}</th>
-                            <th style="width: 20%">{% trans "Type" %}</th>
-                            <th style="width: 25%">{% trans "Last edited" %}</th>
-                            <th style="width: 15%">{% trans "Actions" %}</th>
+                            <th style="width: 40%">{% trans 'Description' %}</th>
+                            <th style="width: 20%">{% trans 'Type' %}</th>
+                            <th style="width: 25%">{% trans 'Last edited' %}</th>
+                            <th style="width: 15%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -25,7 +25,7 @@
                             <tr id="grade_document-row-{{ grade_document.id }}">
                                 <td>{{ grade_document.description }}</td>
                                 <td>{{ grade_document.get_type_display }}</td>
-                                <td>{{ grade_document.last_modified_time }}, {% trans "by" %} {{ grade_document.last_modified_user }}</td>
+                                <td>{{ grade_document.last_modified_time }}, {% trans 'by' %} {{ grade_document.last_modified_user }}</td>
                                 <td>
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if is_grade_publisher %}
@@ -38,27 +38,27 @@
                     </tbody>
                 </table>
             {% else %}
-                <i>{% trans "No grade documents have been uploaded yet" %}</i>
+                <i>{% trans 'No grade documents have been uploaded yet' %}</i>
             {% endif %}
         </div>
     </div>
     {% if is_grade_publisher %}
-        <a href="{% url "grades:upload_grades" semester.id course.id %}" class="btn btn-dark {{ disable_if_archived }}">{% trans "Upload new midterm grades" %}</a>
-        <a href="{% url "grades:upload_grades" semester.id course.id %}?final=true" class="btn btn-dark {{ disable_if_archived }}">{% trans "Upload new final grades" %}</a>
+        <a href="{% url 'grades:upload_grades' semester.id course.id %}" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new midterm grades' %}</a>
+        <a href="{% url 'grades:upload_grades' semester.id course.id %}?final=true" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new final grades' %}</a>
     {% endif %}
 {% endblock %}
 
 {% block modals %}
     {{ block.super }}
-    {% trans "Delete grade document" as title %}
+    {% trans 'Delete grade document' as title %}
     {% trans 'Do you really want to delete the grade document <strong id="data-label"></strong>?' as question %}
-    {% trans "Delete grade document" as action_text %}
-    {% include "confirmation_modal.html" with modal_id="deleteGradedocumentModal" title=title question=question action_text=action_text btn_type="danger" %}
+    {% trans 'Delete grade document' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='deleteGradedocumentModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteGradedocumentModalAction(dataId) {
             $.ajax({
                 type: "POST",
-                url: "{% url "grades:delete_grades" %}",
+                url: "{% url 'grades:delete_grades' %}",
                 data: {"grade_document_id": dataId},
                 success: function(){ $('#grade_document-row-'+dataId).hide('slow', function(){ $('#grade_document-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }

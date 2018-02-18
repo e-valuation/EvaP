@@ -3,11 +3,11 @@
 {% else %}
     <div class="form-group d-flex">
         {% if wide %}
-            {% include "bootstrap_form_field_label.html" with field=field class="col-md-4" %}
-            {% include "bootstrap_form_field_widget.html" with field=field class="col-md-8" %}
+            {% include 'bootstrap_form_field_label.html' with field=field class='col-md-4' %}
+            {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-8' %}
         {% else %}
-            {% include "bootstrap_form_field_label.html" with field=field class="col-md-3" %}
-            {% include "bootstrap_form_field_widget.html" with field=field class="col-md-7" %}
+            {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3' %}
+            {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-7' %}
         {% endif %}
     </div>
 {% endif %}
