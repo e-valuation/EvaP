@@ -94,7 +94,7 @@
             $('#course-form').submit();
         };
     </script>
-    {% blocktrans asvar title %}Request participant changes for {{ course }}{% endblocktrans %}
+    {% blocktrans asvar title with course_name=course.name|safe %}Request participant changes for {{ course_name }}{% endblocktrans %}
     {% trans 'Please tell us what changes to the participants list we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeParticipantRequestModal' user=request.user title=title teaser=teaser %}
     {% trans 'Request account creation' as title %}

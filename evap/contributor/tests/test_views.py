@@ -150,3 +150,19 @@ class TestContributorCourseEditView(ViewTest):
         response = form.submit(name="operation", value="preview")
         self.assertIn("previewModal", response)
         self.assertNotIn("The preview could not be rendered", response)
+
+    def test_contact_modal_escape(self):
+        """
+            Asserts that the course title is correctly escaped in the contact modal.
+            Regression test for #1060
+        """
+        self.course.name_en = "Adam & Eve"
+        self.course.save()
+        page = self.get_assert_200(self.url, user="responsible")
+
+        self.assertIn("changeParticipantRequestModalLabel", page)
+
+        self.assertNotIn("Adam &amp;amp; Eve", page)
+        self.assertIn("Adam &amp; Eve", page)
+        self.assertNotIn("Adam & Eve", page)
+
