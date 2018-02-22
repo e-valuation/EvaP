@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
-from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY
+from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, \
+    HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
 
 
 @internal_required
@@ -64,8 +65,14 @@ def course_detail(request, semester_id, course_id):
     else:
         public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
 
+    # If grades are not published, there is no public view
+    if not course.can_publish_grades:
+        public_view = False
+
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
+
+    show_grades = request.user.is_reviewer or course.can_publish_grades
 
     # filter text answers
     for section in sections:
@@ -106,11 +113,13 @@ def course_detail(request, semester_id, course_id):
             contributor_sections.setdefault(section.contributor,
                                             {'total_votes': 0, 'sections': []})['sections'].append(section)
 
-            # Sum up all Sections for this contributor.
-            # If section is not a RatingResult:
-            # Add 1 as we assume it is a TextResult or something similar that should be displayed.
-            contributor_sections[section.contributor]['total_votes'] +=\
-                sum([s.total_count if isinstance(s, RatingResult) else 1 for s in section.results])
+            for result in section.results:
+                if isinstance(result, TextResult):
+                    contributor_sections[section.contributor]['total_votes'] += 1
+                elif isinstance(result, RatingResult) or isinstance(result, YesNoResult):
+                    # Only count rating results if we show the grades.
+                    if show_grades:
+                        contributor_sections[section.contributor]['total_votes'] += result.total_count
 
     # Show a warning if course is still in evaluation (for reviewer preview).
     evaluation_warning = course.state != 'published'
@@ -119,8 +128,6 @@ def course_detail(request, semester_id, course_id):
     # but it can still be "published" e.g. to show the comment results to contributors.
     # Users who can open the results page see a warning message in this case.
     sufficient_votes_warning = not course.can_publish_grades
-
-    show_grades = request.user.is_reviewer or course.can_publish_grades
 
     course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 

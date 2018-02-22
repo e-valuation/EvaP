@@ -35,15 +35,26 @@
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Myself' %}
                     </a>
-                    {% if not sufficient_votes_warning and course.is_private %}
+                    {% if sufficient_votes_warning %}
+                        <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
+                            <a href="#" role="button" class="btn btn-sm btn-light disabled">
+                                {% if course.is_private %}
+                                    {% trans 'Participant' %}
+                                {% else %}
+                                    {% trans 'Public' %}
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% else %}
                         <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
-                            title="{% trans 'Shows results available for the participants.' %}">
-                            {% trans 'Participant' %}
-                        </a>
-                    {% elif not sufficient_votes_warning %}
-                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
-                            title="{% trans 'Shows results available for everyone logged in.' %}">
-                            {% trans 'Public' %}
+                           title="
+                        {% if course.is_private %}
+                            {% trans 'Shows results available for the participants.' %}">
+                                {% trans 'Participant' %}
+                        {% else %}
+                            {% trans 'Shows results available for everyone logged in.' %}">
+                                {% trans 'Public' %}
+                        {% endif %}
                         </a>
                     {% endif %}
                 </div>
