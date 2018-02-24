@@ -64,25 +64,7 @@ def index(request):
         # check for redirect variable
         redirect_to = request.GET.get("next", None)
         if redirect_to is not None:
-            if redirect_to.startswith("/staff/"):
-                if request.user.is_reviewer:
-                    return redirect(redirect_to)
-            elif redirect_to.startswith("/grades/"):
-                if request.user.is_grade_publisher:
-                    return redirect(redirect_to)
-            elif redirect_to.startswith("/contributor/"):
-                if user.is_contributor:
-                    return redirect(redirect_to)
-            elif redirect_to.startswith("/student/"):
-                if user.is_participant:
-                    return redirect(redirect_to)
-            else:
-                try:
-                    resolve(redirect_to)
-                except Resolver404:
-                    pass
-                else:
-                    return redirect(redirect_to)
+            return redirect(redirect_to)
 
         # redirect user to appropriate start page
         if request.user.is_reviewer:
