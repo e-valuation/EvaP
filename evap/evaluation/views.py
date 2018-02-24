@@ -85,6 +85,8 @@ def index(request):
                     return redirect(redirect_to)
 
         # redirect user to appropriate start page
+        if request.user.is_reviewer:
+            return redirect('staff:semester_view', Semester.active_semester().id)
         if request.user.is_staff:
             return redirect('staff:index')
         elif request.user.is_grade_publisher:
@@ -93,8 +95,6 @@ def index(request):
             return redirect('student:index')
         elif user.is_contributor_or_delegate:
             return redirect('contributor:index')
-        elif user.is_participant:
-            return redirect('student:index')
         else:
             return redirect('results:index')
 
