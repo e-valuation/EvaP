@@ -6,6 +6,7 @@ from model_mommy import mommy
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
 from evap.evaluation.tests.tools import WebTest, ViewTest
 from evap.student.tools import question_id
+from evap.student.views import SUCCESS_MAGIC_STRING
 
 
 class TestStudentIndexView(ViewTest):
@@ -73,6 +74,7 @@ class TestVoteView(ViewTest):
         self.fill_form(form, fill_complete=False)
         response = form.submit()
 
+        self.assertEqual(response.status_code, 200)
         self.assertIn("vote for all rating questions", response)
 
         form = page.forms["student-vote-form"]
@@ -89,12 +91,14 @@ class TestVoteView(ViewTest):
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_complete=True)
-        form.submit()
+        response = form.submit()
+        self.assertIn(SUCCESS_MAGIC_STRING, response)
 
         page = self.get_assert_200(self.url, user=self.voting_user2.username)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_complete=True)
-        form.submit()
+        response = form.submit()
+        self.assertIn(SUCCESS_MAGIC_STRING, response)
 
         self.assertEqual(len(TextAnswer.objects.all()), 6)
         self.assertEqual(len(RatingAnswerCounter.objects.all()), 4)
@@ -139,3 +143,13 @@ class TestVoteView(ViewTest):
         response = self.get_assert_200(self.url, user=self.voting_user1)
         self.assertTrue(any(contributor == self.contributor1 for contributor, _, _, _ in response.context['contributor_form_groups']),
             "Regular students should see the questionnaire about a contributor")
+
+    def test_user_logged_out(self):
+        page = self.get_assert_200(self.url, user=self.voting_user1.username)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form, fill_complete=True)
+        page = self.get_assert_302(reverse("django-auth-logout"), user=self.voting_user1.username)
+        response = form.submit()
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn(SUCCESS_MAGIC_STRING, response)
+

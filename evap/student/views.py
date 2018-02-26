@@ -15,6 +15,7 @@ from evap.evaluation.tools import STUDENT_STATES_ORDERED
 from evap.student.forms import QuestionsForm
 from evap.student.tools import question_id
 
+SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
 @participant_required
 def index(request):
@@ -60,7 +61,6 @@ def vote_preview(request, course, for_rendering_in_modal=False):
 
 @participant_required
 def vote(request, course_id):
-    SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
