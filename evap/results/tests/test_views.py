@@ -16,17 +16,6 @@ class TestResultsView(ViewTest):
         mommy.make(UserProfile, username='staff', email="staff@institution.example.com")
 
 
-class TestResultsSemesterDetailView(ViewTest):
-    url = '/results/semester/1'
-    test_users = ['staff']
-
-    @classmethod
-    def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', email="staff@institution.example.com")
-
-        cls.semester = mommy.make(Semester, id=1)
-
-
 class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -233,7 +222,7 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
 
-        url = '/results/semester/%s' % (semester.id)
+        url = '/results/'
         self.assertNotIn(private_course.name, self.app.get(url, user='random'))
         self.assertIn(private_course.name, self.app.get(url, user='student'))
         self.assertIn(private_course.name, self.app.get(url, user='responsible'))
@@ -505,7 +494,7 @@ class TestArchivedResults(WebTest):
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
 
     def test_unarchived_results(self):
-        url = '/results/semester/%s' % (self.semester.id)
+        url = '/results/'
         self.assertIn(self.course.name, self.app.get(url, user='student'))
         self.assertIn(self.course.name, self.app.get(url, user='responsible'))
         self.assertIn(self.course.name, self.app.get(url, user='contributor'))
@@ -521,13 +510,6 @@ class TestArchivedResults(WebTest):
 
     def test_archived_results(self):
         self.semester.archive_results()
-
-        url = '/results/semester/%s' % (self.semester.id)
-        self.app.get(url, user='student', status=403)
-        self.app.get(url, user='responsible', status=403)
-        self.app.get(url, user='contributor', status=403)
-        self.app.get(url, user='staff', status=403)
-        self.app.get(url, user='student_external', status=403)
 
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
         self.app.get(url, user='student', status=403)

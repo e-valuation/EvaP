@@ -1,22 +1,84 @@
 {% extends 'base.html' %}
 
+{% load results_templatetags %}
+{% load evaluation_filters %}
+
 {% block title %}{% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
+    <h3>{% trans 'Evaluation results' %}</h3>
 
-    <h3>{% trans 'Semesters' %}</h3>
-    <div class="card mb-3">
+    <div class="card">
         <div class="card-body">
-            {% if semesters %}
-                <ul>
-                    {% for semester in semesters %}
-                        <li><a href="{% url 'results:semester_detail' semester.id %}">{{ semester.name }}</a></li>
+            {% if courses %}
+                <table class="table table-hover-evap course-table vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%">{% trans 'Course' %}</th>
+                            <th style="width: 10%">{% trans 'Semester' %}</th>
+                            <th style="width: 22%">{% trans 'Responsible' %}</th>
+                            <th style="width: 13%">{% trans 'Voters' %}</th>
+                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for course in courses %}
+                        <tr class="results-hover {% if not course|can_user_see_results_page:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+                                {% if course|can_user_see_results_page:request.user %}data-url="{% url 'results:course_detail' course.semester.id course.id %}"{% endif %}>
+                            <td data-order="{{ course.name }}">
+                                {% if course.state == 'in_evaluation' %}
+                                    <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                {% elif course.state == 'evaluated' %}
+                                    <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                                {% elif course.state == 'reviewed' %}
+                                    {% if course.is_single_result or course.final_grade_documents or course.gets_no_grade_documents or not course.is_graded %}
+                                        <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although they probably could be' %}"></span>
+                                    {% else %}
+                                        <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                                    {% endif %}
+                                {% endif %}
+                                {% if course.is_private %}
+                                    <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Private course' %}"></span>
+                                {% endif %}
+                                <span class="course-name">{{ course.name }}</span>
+                                <div>
+                                    {% for degree in course.degrees.all %}
+                                        <span class="badge badge-primary">{{ degree }}</span>
+                                    {% endfor %}
+                                    <span class="badge badge-secondary">{{ course.type }}</span>
+                                    {% if course.is_single_result %}
+                                        <span class="badge badge-success">{% trans 'Single result' %}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td data-order="{{ course.semester.id }}" class="text-center semester-short-name">
+                                {{ course.semester.short_name }}
+                            </td>
+                            <td data-order="{{ course.responsible_contributors.0.last_name }}">
+                                {% for contributor in course.responsible_contributors %}
+                                    {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% with num_participants=course.num_participants num_voters=course.num_voters %}
+                                {% if course.is_single_result %}
+                                    <td class="text-center" data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}"><span class="fas fa-user"></span>&nbsp;{{ num_participants }}</td>
+                                {% else %}
+                                    <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>
+                                {% endif %}
+                            {% endwith %}
+                            <td data-order="{{ course.avg_grade }}">
+                                {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+                            </td>
+                        </tr>
                     {% endfor %}
-                </ul>
-            {% else %}
-                {% trans 'No results available yet' %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include 'datatables.html' with table_selector='.course-table' %}
 {% endblock %}

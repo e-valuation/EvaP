@@ -1033,6 +1033,12 @@ a.no-underline:hover {
     text-decoration: none;
 }
 
+/* Results index page */
+// make the line always break between semester and year (e.g., "WT<break>17/18" and "ST<break>18")
+.semester-short-name {
+    word-spacing: 30000px;
+}
+
 
 /* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
 .bs-callout {

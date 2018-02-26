@@ -1,4 +1,4 @@
-from collections import OrderedDict, namedtuple, defaultdict
+from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
-from evap.evaluation.models import Semester, Degree, Contribution
+from evap.evaluation.models import Semester, Degree, Contribution, Course
 from evap.evaluation.auth import internal_required
 from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
     TextAnswer, TextResult, HeadingResult
@@ -16,21 +16,11 @@ from evap.results.tools import collect_results, calculate_average_distribution, 
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
 
-    return render(request, "results_index.html", dict(semesters=semesters))
-
-
-@internal_required
-def semester_detail(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-
-    if semester.results_are_archived:
-        raise PermissionDenied
-
     visible_states = ['published']
     if request.user.is_reviewer:
         visible_states += ['in_evaluation', 'evaluated', 'reviewed']
 
-    courses = semester.course_set.filter(state__in=visible_states).prefetch_related("degrees")
+    courses = Course.objects.filter(state__in=visible_states, semester__in=semesters).prefetch_related("degrees")
 
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
@@ -38,22 +28,8 @@ def semester_detail(request, semester_id):
         course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
 
-    CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
-
-    courses_by_degree = OrderedDict()
-    for degree in Degree.objects.all():
-        courses_by_degree[degree] = CourseTuple([], [])
-    for course in courses:
-        if course.is_single_result:
-            for degree in course.degrees.all():
-                question_result = collect_results(course).questionnaire_results[0].question_results[0]
-                courses_by_degree[degree].single_results.append((course, question_result))
-        else:
-            for degree in course.degrees.all():
-                courses_by_degree[degree].courses.append(course)
-
-    template_data = dict(semester=semester, courses_by_degree=courses_by_degree)
-    return render(request, "results_semester_detail.html", template_data)
+    template_data = dict(courses=courses)
+    return render(request, "results_index.html", template_data)
 
 
 @login_required

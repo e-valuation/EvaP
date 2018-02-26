@@ -33,14 +33,7 @@
                     </li>
                 {% endif %}
                 {% if not user.is_external %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'results:index' %}" id="navbarResultsDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Results' %}</a>
-                        <div class="dropdown-menu" aria-labelledby="navbarResultsDropdownMenuLink">
-                            {% for semester in published_result_semesters %}
-                                <a class="dropdown-item" href="{% url 'results:semester_detail' semester.id %}">{{ semester.name }}</a>
-                            {% endfor %}
-                        </div>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'results:index' %}">{% trans 'Results' %}</a></li>
                 {% endif %}
                 {% if user.is_staff %}
                     <li class="nav-item dropdown">
