@@ -181,11 +181,12 @@ class ContributionFormsetTests(TestCase):
         data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = questionnaire.pk
         data['contributions-1-order'] = 1
+        data['contributions-1-comment_visibility'] = "ALL"
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
         data['contributions-1-contributor'] = user2.pk
         data['contributions-1-responsibility'] = "RESPONSIBLE"
-        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
+        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
 
     def test_dont_validate_deleted_contributions(self):
         """
@@ -200,18 +201,18 @@ class ContributionFormsetTests(TestCase):
 
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        # Here we have two responsibles (one of them deleted), and a deleted contributor with no questionnaires.
+        # Here we have two responsibles (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
+
         data = to_querydict({
             'contributions-TOTAL_FORMS': 3,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-course': course.pk,
-            'contributions-0-questionnaires': questionnaire.pk,
+            'contributions-0-questionnaires': "",
             'contributions-0-order': 0,
             'contributions-0-responsibility': "RESPONSIBLE",
             'contributions-0-comment_visibility': "ALL",
             'contributions-0-contributor': user1.pk,
-            'contributions-0-DELETE': 'on',
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
@@ -224,9 +225,16 @@ class ContributionFormsetTests(TestCase):
             'contributions-2-responsibility': "CONTRIBUTOR",
             'contributions-2-comment_visibility': "OWN",
             'contributions-2-contributor': user2.pk,
-            'contributions-2-DELETE': 'on',
         })
 
+        # Without deletion, this form should be invalid
+        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        self.assertFalse(formset.is_valid())
+
+        data['contributions-0-DELETE'] = 'on'
+        data['contributions-2-DELETE'] = 'on'
+
+        # With deletion, it should be valid
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 

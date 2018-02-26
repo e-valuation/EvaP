@@ -1,4 +1,4 @@
-{% extends "contributor_base.html" %}
+{% extends 'contributor_base.html' %}
 
 {% load results_templatetags %}
 {% load evaluation_filters %}
@@ -8,12 +8,12 @@
 
     <div id="contributorInfobox" class="infobox">
         <div class="infobox-header d-flex">
-            <span class="fa fa-info-circle infobox-icon"></span>
-            <span class="infobox-title">{% trans "Information for contributors" %}</span>
-            <a role="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close"><span class="fa fa-times"></span></a>
+            <span class="fas fa-info-circle infobox-icon"></span>
+            <span class="infobox-title">{% trans 'Information for contributors' %}</span>
+            <a role="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
         </div>
         <div class="infobox-content">
-            <b>{% trans "Delegates" %}</b><br />
+            <b>{% trans 'Delegates' %}</b><br />
             {% blocktrans %}Lecturers can assign delegates to help them with the preparation of the evaluation.{% endblocktrans %}
             {% if user.is_editor %}
                 <a href="{% url 'contributor:settings_edit' %}">{% blocktrans %}You can assign your own delegates on your settings page.{% endblocktrans %}</a><br />
@@ -21,15 +21,15 @@
             {% if delegated_courses %}
                 {% blocktrans %}Courses from lecturers who set you as a delegate are marked with a label below.{% endblocktrans %}<br />
             {% endif %}
-            <em>{% trans "More details:" %} <a href="/faq#15-q">{% trans "FAQ/Delegates" %}</a></em><br />
+            <em>{% trans 'More details:' %} <a href="/faq#15-q">{% trans 'FAQ/Delegates' %}</a></em><br />
             <br />
-            <b>{% trans "States of the courses" %}</b><br />
+            <b>{% trans 'States of the courses' %}</b><br />
             {% blocktrans %}You can only edit courses which are in the state "prepared". After you approved a course it will automatically change to the state "lecturer approved" and your preparation is finished.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#18-q">{% trans "FAQ/States" %}</a></em><br />
+            <em>{% trans 'More details:' %} <a href="/faq#18-q">{% trans 'FAQ/States' %}</a></em><br />
             <br />
-            <b>{% trans "Evaluation Results" %}</b><br />
+            <b>{% trans 'Evaluation Results' %}</b><br />
             {% blocktrans %}The student's comments will be shown to the people who were evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
-            <em>{% trans "More details:" %} <a href="/faq#3-s">{% trans "FAQ/Results" %}</a></em>
+            <em>{% trans 'More details:' %} <a href="/faq#3-s">{% trans 'FAQ/Results' %}</a></em>
         </div>
     </div>
 
@@ -43,10 +43,10 @@
                 <table class="table table-hover-evap vertically-aligned">
                     <thead>
                     <tr>
-                        <th style="width: 35%">{% trans "Name" %}</th>
-                        <th style="width: 15%">{% trans "State" %}</th>
-                        <th style="width: 17%">{% trans "Evaluation Period" %}</th>
-                        <th style="width: 18%">{% trans "Participants" %}</th>
+                        <th style="width: 35%">{% trans 'Name' %}</th>
+                        <th style="width: 15%">{% trans 'State' %}</th>
+                        <th style="width: 17%">{% trans 'Evaluation Period' %}</th>
+                        <th style="width: 18%">{% trans 'Participants' %}</th>
                         <th style="width: 15%"></th>
                     </tr>
                     </thead>
@@ -62,7 +62,7 @@
                                 {% endfor %}
                                 <span class="badge badge-secondary">{{ course.type }}</span>
                                 {% if course in delegated_courses %}
-                                    <span class="badge badge-info" data-toggle="tooltip" data-placement="right" title="{% trans "You are seeing this course because you are a delegate of a lecturer who can edit the course." %}">{% trans "Delegate" %}</span>
+                                    <span class="badge badge-info" data-toggle="tooltip" data-placement="right" title="{% trans 'You are seeing this course because you are a delegate of a lecturer who can edit the course.' %}">{% trans 'Delegate' %}</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -73,29 +73,29 @@
                             </td>
                             <td>
                                 {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
-                                    {% include "progress_bar.html" with done=course.num_voters total=course.num_participants icon="user" %}
+                                    {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants icon='user' %}
                                 {% else %}
-                                    {% if course.is_single_result %}&mdash;{% else %}<span class="fa fa-user"></span> {{ course.num_participants }}{% endif %}
+                                    {% if course.is_single_result %}&mdash;{% else %}<span class="fas fa-user"></span> {{ course.num_participants }}{% endif %}
                                 {% endif %}
                             </td>
                             <td class="text-right noanchor">
                                 {% if course|is_user_editor_or_delegate:user %}
                                     {% if course.state == 'prepared' %}
-                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary btn-edit btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fa fa-pencil"></span></a>
+                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary btn-edit btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fas fa-pencil-alt"></span></a>
                                     {% elif course.state == 'editor_approved' or course.state == 'approved' %}
-                                        <a href="{% url 'contributor:course_view' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'You already approved the course, the edit form will be disabled.' %}"><span class="fa fa-pencil"></span></a>
+                                        <a href="{% url 'contributor:course_view' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'You already approved the course, the edit form will be disabled.' %}"><span class="fas fa-pencil-alt"></span></a>
                                     {% endif %}
                                 {% endif %}
                                 {% if course.state != 'published' %}
-                                    <a href="{% url 'contributor:course_preview' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fa fa-eye"></span></a>
+                                    <a href="{% url 'contributor:course_preview' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
                                     <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% trans 'The results are not yet available. You will receive an email once they are published.' %}">
-                                        <a role="button" class="btn btn-sm btn-secondary disabled"><span class="fa fa-bar-chart"></span></a>
+                                        <a role="button" class="btn btn-sm btn-secondary disabled"><span class="fas fa-chart-bar"></span></a>
                                     </div>
                                 {% else %}
                                     {% if course.avg_grade %}
                                         <div class="grade-bg text-center vertically-aligned" style="background-color: {{ course.avg_grade|gradecolor }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Average grade' %}">{{ course.avg_grade|floatformat:1 }}</div>
                                     {% endif %}
-                                    <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary btn-results btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fa fa-bar-chart"></span></a>
+                                    <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary btn-results btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fas fa-chart-bar"></span></a>
                                 {% endif %}
                             </td>
                         </tr>
@@ -109,5 +109,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "infobox_js.html" with id="contributorInfobox" %}
+    {% include 'infobox_js.html' with id='contributorInfobox' %}
 {% endblock %}

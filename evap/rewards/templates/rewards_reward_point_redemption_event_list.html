@@ -6,11 +6,11 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th style="width: 20%">{% trans "Event date" %}</th>
-                    <th style="width: 20%">{% trans "Redemption end date" %}</th>
-                    <th style="width: 30%">{% trans "Event name" %}</th>
-                    <th style="width: 15%">{% trans "Redemptions" %}</th>
-                    <th style="width: 15%">{% trans "Actions" %}</th>
+                    <th style="width: 20%">{% trans 'Event date' %}</th>
+                    <th style="width: 20%">{% trans 'Redemption end date' %}</th>
+                    <th style="width: 30%">{% trans 'Event name' %}</th>
+                    <th style="width: 15%">{% trans 'Redemptions' %}</th>
+                    <th style="width: 15%">{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,15 +19,15 @@
                         <td>{{ event.date }}</td>
                         <td>{{ event.redeem_end_date }}</td>
                         <td>{{ event.name }}</td>
-                        <td><span class="fa fa-user"></span> {{ event.redemptions_by_user|length }}
+                        <td><span class="fas fa-user"></span> {{ event.redemptions_by_user|length }}
                         <td>
-                            <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fa fa-download"></span></a>
-                            <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fa fa-pencil"></span></a>
+                            <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fas fa-download"></span></a>
+                            <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                             {% if event.can_delete %}
-                                <a onclick="deleteEventModalShow({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fa fa-trash"></span></a>
+                                <a onclick="deleteEventModalShow({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
                             {% else %}
                                 <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% trans 'This event cannot be deleted because some users already redeemed points for it.' %}">
-                                    <a class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
+                                    <a class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a>
                                 </div>
                             {% endif %}
                         </td>
@@ -36,6 +36,6 @@
             </tbody>
         </table>
     {% else %}
-        <i>{% trans "No events exist." %}</i>
+        <i>{% trans 'No events exist.' %}</i>
     {% endif %}
 </div>

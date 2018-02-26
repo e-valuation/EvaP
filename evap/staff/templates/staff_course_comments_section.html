@@ -3,7 +3,7 @@
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
     <div class="card{% if not forloop.last %} mb-3{% endif %}">
         <div class="card-header">
-            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans "responsible" %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}
+            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}
         </div>
         <div class="card-body">
             {% for result in results %}
@@ -11,8 +11,8 @@
                 <table class="table table-striped{% if not forloop.last %} mb-4{% endif %}">
                     <thead>
                         <tr>
-                            <th style="width: 85%">{% trans "Comment" %}</th>
-                            <th style="width: 15%">{% trans "Publish" %}</th>
+                            <th style="width: 85%">{% trans 'Comment' %}</th>
+                            <th style="width: 15%">{% trans 'Publish' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -20,17 +20,17 @@
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
                                     {% if answer.reviewed_answer %}
-                                        <a class="comment-link" href="{% url "staff:course_comment_edit" semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
+                                        <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
                                         <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
                                     {% else %}
-                                        <a class="comment-link" href="{% url "staff:course_comment_edit" semester.id course.id answer.id %}">{{ answer.original_answer|linebreaksbr }}</a>
+                                        <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.original_answer|linebreaksbr }}</a>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div id="{{ answer.id }}-buttons" class="btn-group">
-                                        <a id="{{ answer.id }}-publish" onclick="press('{{ answer.id }}', 'publish');" class="btn btn-sm btn-light{% if answer.is_published %} active{% endif %}">{% trans "yes" %}</a>
-                                        {% if contributor %}<a id="{{ answer.id }}-make_private" onclick="press('{{ answer.id }}', 'make_private');" class="btn btn-sm btn-light{% if answer.is_private %} active{% endif %}">{% trans "private" %}</a>{% endif %}
-                                        <a id="{{ answer.id }}-hide" onclick="press('{{ answer.id }}', 'hide');" class="btn btn-sm btn-light{% if answer.is_hidden %} active{% endif %}">{% trans "no" %}</a>
+                                        <a id="{{ answer.id }}-publish" onclick="press('{{ answer.id }}', 'publish');" class="btn btn-sm btn-light{% if answer.is_published %} active{% endif %}">{% trans 'yes' %}</a>
+                                        {% if contributor %}<a id="{{ answer.id }}-make_private" onclick="press('{{ answer.id }}', 'make_private');" class="btn btn-sm btn-light{% if answer.is_private %} active{% endif %}">{% trans 'private' %}</a>{% endif %}
+                                        <a id="{{ answer.id }}-hide" onclick="press('{{ answer.id }}', 'hide');" class="btn btn-sm btn-light{% if answer.is_hidden %} active{% endif %}">{% trans 'no' %}</a>
                                     </div>
                                 </td>
                             </tr>

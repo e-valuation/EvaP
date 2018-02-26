@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}
     400 - {{ block.super }}
@@ -10,5 +10,5 @@
 
 {% block content %}
     {{ block.super }}
-    <strong>{% trans "Something seems to be broken here." %}</strong>
+    <strong>{% trans 'Something seems to be broken here.' %}</strong>
 {% endblock %}

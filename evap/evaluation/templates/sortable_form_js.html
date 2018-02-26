@@ -16,9 +16,9 @@
 
         $('#' + tableId + ' tbody tr').formset({
             prefix: prefix,
-            deleteCssClass: removeAsButton ? 'btn btn-danger btn-sm fa fa-trash' : 'delete-row',
-            deleteText: removeAsButton ? '' : '{% trans "Delete" %}',
-            addText: '{% trans "add another" %}',
+            deleteCssClass: removeAsButton ? 'btn btn-danger btn-sm fas fa-trash' : 'delete-row',
+            deleteText: removeAsButton ? '' : '{% trans 'Delete' %}',
+            addText: '{% trans 'add another' %}',
             added: function(row) {
                 row.find('input[id$=-order]').val(row.parent().children().length);
 

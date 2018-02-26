@@ -1,4 +1,4 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% load static %}
 
@@ -12,23 +12,23 @@
     {{ block.super }}
     <h3>{% trans 'Import users' %}</h3>
 
-    {% include "staff_message_rendering_template.html" with errors=errors warnings=warnings success_messages=success_messages %}
+    {% include 'staff_message_rendering_template.html' with errors=errors warnings=warnings success_messages=success_messages %}
 
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Upload Excel file (' %}<a href="{% url "staff:download_sample_xls" "sample_user.xls" %}">{% trans 'Sample File' %}</a>{% trans '). This will create all contained users.' %}</p>
-                {% include "bootstrap_form.html" with form=excel_form %}
+                <p>{% trans 'Upload Excel file (' %}<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'Sample File' %}</a>{% trans '). This will create all contained users.' %}</p>
+                {% include 'bootstrap_form.html' with form=excel_form %}
             </div>
         </div>
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans "Upload and Test" %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Upload and Test' %}</button>
                 {% else %}
-                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans "Upload and Test" %}</button>
-                    <button name="operation" value="import" type="submit" class="btn btn-primary form-submit-btn">{% trans "Import previously uploaded file" %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and Test' %}</button>
+                    <button name="operation" value="import" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>

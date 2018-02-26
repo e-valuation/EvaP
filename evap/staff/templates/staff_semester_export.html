@@ -1,15 +1,15 @@
-{% extends "staff_semester_base.html" %}
+{% extends 'staff_semester_base.html' %}
 
 {% load evaluation_filters %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Export" %}</li>
+    <li class="breadcrumb-item">{% trans 'Export' %}</li>
 {% endblock %}
 
-{{% block content %}
+{% block content %}
     {{ block.super }}
-    <h3>{% trans "Export" %} {{ semester.name }}</h3>
+    <h3>{% trans 'Export' %} {{ semester.name }}</h3>
 
     <form id="semester-export-form" method="POST" class="form-horizontal multiselect-form">
         {% csrf_token %}
@@ -18,23 +18,23 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans "Select the course types you want to export. Add multiple lines to create an export file with multiple sheets." %}</p>
+                <p>{% trans 'Select the course types you want to export. Add multiple lines to create an export file with multiple sheets.' %}</p>
                 <table id="exportsheets-table" class="table">
                     <thead>
                         <tr>
-                            <th style="width: 90%">{% trans "Course types" %}</th>
+                            <th style="width: 90%">{% trans 'Course types' %}</th>
                             <th style="width: 10%"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for form in formset %}
-                            {% include "bootstrap_form_errors.html" with errors=form.non_field_errors %}
+                            {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                             <tr class="exportsheet sortable">
                                 {% for field in form.hidden_fields %}
                                     {{ field }}
                                 {% endfor %}
                                 <td>
-                                    {% include "multiple_checkbox_widget.html" with field=form.selected_course_types %}
+                                    {% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}
                                 </td>
                                 <td>{{ form.DELETE }}</td>
                             </tr>
@@ -45,26 +45,30 @@
         </div>
         <div class="card mb-3">
             <div class="card-body">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="include_unpublished"> {% trans "Include courses from states 'evaluated' and 'reviewed' in the export" %}
-                    </label><br />
-                    <label>
-                        <input type="checkbox" name="include_not_enough_answers"> {% trans "Include courses where not enough answers were given in the export" %}
+                <div class="form-check">
+                    <input class="form-check-input" id="include_unpublished" type="checkbox" name="include_unpublished" />
+                    <label class="form-check-label" for="include_unpublished">
+                        {% blocktrans %}Include courses from states "evaluated" and "reviewed" in the export{% endblocktrans %}
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" id="include_not_enough_answers" type="checkbox" name="include_not_enough_answers" />
+                    <label class="form-check-label" for="include_not_enough_answers">
+                        {% trans 'Include courses where not enough answers were given in the export' %}
                     </label>
                 </div>
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary form-submit-btn">{% trans "Export" %}</button>
+                <button type="submit" class="btn btn-primary form-submit-btn">{% trans 'Export' %}</button>
             </div>
         </div>
     </form>
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "sortable_form_js.html" %}
+    {% include 'sortable_form_js.html' %}
 
     <script type="text/javascript">
         rowChanged = function(row) {

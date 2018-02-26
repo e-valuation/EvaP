@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}{% trans "Manage" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans 'Manage' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
     {% if disable_breadcrumb_staff %}
-        <li class="breadcrumb-item">{% trans "Manage" %}</li>
+        <li class="breadcrumb-item">{% trans 'Manage' %}</li>
     {% else %}
-        <li class="breadcrumb-item"><a href="{% url "staff:index" %}">{% trans "Manage" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'staff:index' %}">{% trans 'Manage' %}</a></li>
     {% endif %}
 {% endblock %}

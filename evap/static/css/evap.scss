@@ -39,6 +39,12 @@ div.container {
     padding: 0 15px;
 }
 
+.btn.fas {
+    font-weight: 900;
+}
+.btn.far {
+    font-weight: 400;
+}
 .btn-light {
     border-color: $medium-gray;
 }
@@ -54,6 +60,10 @@ div.container {
     border-color: $dark-gray;
 }
 .btn-light:active, .btn-light.active, .show > .btn-light.dropdown-toggle {
+    border-color: $dark-gray;
+}
+.btn-light:not(:disabled):not(.disabled):active,
+.btn-light:not(:disabled):not(.disabled).active {
     border-color: $dark-gray;
 }
 a:not([href]):not(.disabled) {
@@ -223,7 +233,7 @@ a.btn:not([href]):not(.disabled).btn-dark {
 
 .close {
     line-height: 0.5;
-    .fa {
+    .fas {
         line-height: 1.4;
         font-size: 1rem;
     }
@@ -426,6 +436,15 @@ td.vote-question.choice-error {
     white-space: normal;
     line-height: 1.1;
     width: 90px;
+    border-color: $medium-gray;
+    background-color: $lighter-gray;
+}
+.vote-btn.active {
+    color: $black;
+    box-shadow: inset 0 0 5px $dark-gray;
+}
+.vote-btn:hover {
+    background-color: lighten($light-gray, 5%);
 }
 td.vote-answer-buttons {
     padding: 0.5rem 0.75rem;;
@@ -449,12 +468,14 @@ div.vote-inputs label.choice-error {
 .vote-btn-3 { color: $evap-dark-yellow; }
 .vote-btn-4 { color: $evap-dark-orange; }
 .vote-btn-5 { color: $evap-dark-red; }
+.vote-btn-6 { color: $darker-gray; }
 
-.vote-btn-1.active { color: $black; background-color: $evap-green; }
-.vote-btn-2.active { color: $black; background-color: $evap-lime; }
-.vote-btn-3.active { color: $black; background-color: $evap-yellow; }
-.vote-btn-4.active { color: $black; background-color: $evap-orange; }
-.vote-btn-5.active { color: $black; background-color: $evap-red; }
+.vote-btn-1.active { background-color: $evap-green; }
+.vote-btn-2.active { background-color: $evap-lime; }
+.vote-btn-3.active { background-color: $evap-yellow; }
+.vote-btn-4.active { background-color: $evap-orange; }
+.vote-btn-5.active { background-color: $evap-red; }
+.vote-btn-6.active { background-color: $light-gray; }
 
 div.vote-inputs > textarea {
     width: 100%;
@@ -574,7 +595,7 @@ select[multiple] {
     color: $darker-gray;
 }
 .collapse-toggle:before {
-    font-family: "FontAwesome";
+    font-family: "Font Awesome\ 5 Free";
     content: "\f078";
     float: left;
     margin-right: 10px;
@@ -599,6 +620,12 @@ select[multiple] {
 }
 .btn-option.disabled {
     opacity: 0.6;
+}
+.btn-option:hover:not(.disabled) {
+    background-color: $light-gray;
+}
+.btn-option.active:hover:not(.disabled) {
+    background-color: darken($evap-dark-blue, 10%);
 }
 
 .participants-warning {

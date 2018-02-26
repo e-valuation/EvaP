@@ -1,4 +1,4 @@
-{% extends "staff_course_base.html" %}
+{% extends 'staff_course_base.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -26,18 +26,18 @@
         {% if editable %}
         <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
-                {% if state == "in_evaluation" %}
-                    <div class="alert alert-warning">{% trans "You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes." %}</div>
+                {% if state == 'in_evaluation' %}
+                    <div class="alert alert-warning">{% trans 'You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes.' %}</div>
                 {% endif %}
-                {% if state == "evaluated" or state == "reviewed" %}
-                    <div class="alert alert-warning">{% trans "You are editing a course, for which the evaluation already finished. Please be careful to not destroy any results." %}</div>
+                {% if state == 'evaluated' or state == 'reviewed' %}
+                    <div class="alert alert-warning">{% trans 'You are editing a course, for which the evaluation already finished. Please be careful to not destroy any results.' %}</div>
                 {% endif %}
-                {% if state == "new" or state == "prepared" %}
-                    <div class="alert alert-warning">{% trans "You are editing a course which has not been approved by the editor yet." %}</div>
+                {% if state == 'new' or state == 'prepared' %}
+                    <div class="alert alert-warning">{% trans 'You are editing a course which has not been approved by the editor yet.' %}</div>
                 {% endif %}
-                <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-                {% if state == "new" or state == "prepared" or state == "editor_approved" %}
-                    <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans "Save and approve" %}</button>
+                <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
+                    <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans 'Save and approve' %}</button>
                 {% endif %}
             </div>
         </div>
@@ -46,5 +46,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "evap_course_edit_js.html" %}
+    {% include 'evap_course_edit_js.html' %}
 {% endblock %}

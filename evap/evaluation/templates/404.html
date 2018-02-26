@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}
     404 - {{ block.super }}
@@ -10,5 +10,5 @@
 
 {% block content %}
     {{ block.super }}
-    <strong>{% trans "The page you're looking for seems to be missing." %}</strong>
+    <strong>{% trans 'The page you are looking for seems to be missing.' %}</strong>
 {% endblock %}
