@@ -92,13 +92,13 @@ class TestVoteView(ViewTest):
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_complete=True)
         response = form.submit()
-        self.assertIn(SUCCESS_MAGIC_STRING, response)
+        self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
         page = self.get_assert_200(self.url, user=self.voting_user2.username)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_complete=True)
         response = form.submit()
-        self.assertIn(SUCCESS_MAGIC_STRING, response)
+        self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
         self.assertEqual(len(TextAnswer.objects.all()), 6)
         self.assertEqual(len(RatingAnswerCounter.objects.all()), 4)
