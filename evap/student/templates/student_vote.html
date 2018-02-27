@@ -141,15 +141,18 @@
                     url: form.attr('action'),
                     data: form.serialize(),
                     success: function (data, s, req) {
-                        sisyphus.manuallyReleaseData(); // delete the data from local storage
-                        // Manually perform the redirect: first replace content
-                        document.open();
-                        document.write(data);
-                        document.close();
-                        // then set the URL
-                        window.history.pushState('', '', xhr.responseURL);
-                        // scroll to the top of the page
-                        $('html,body').scrollTop(0);
+                        if(data === "{{ success_magic_string }}") {
+                            sisyphus.manuallyReleaseData();
+                            window.location.replace("{{ success_redirect_url }}");
+                        } else {
+                            // Manually perform the page load: first replace content
+                            document.open();
+                            document.write(data);
+                            document.close();
+                            // then set URL (e.g. logout redirect)
+                            window.history.pushState('', '', xhr.responseURL);
+                            $('html,body').scrollTop(0);
+                        }
                     },
                     error: function(data) {
                         // show a warning if the post isn't successful

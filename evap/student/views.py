@@ -3,7 +3,9 @@ from collections import OrderedDict
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
@@ -13,6 +15,7 @@ from evap.evaluation.tools import STUDENT_STATES_ORDERED
 from evap.student.forms import QuestionsForm
 from evap.student.tools import question_id
 
+SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
 @participant_required
 def index(request):
@@ -58,12 +61,11 @@ def vote_preview(request, course, for_rendering_in_modal=False):
 
 @participant_required
 def vote(request, course_id):
-    # retrieve course and make sure that the user is allowed to vote
+
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
         raise PermissionDenied
 
-    
     # prevent a user from voting on themselves.
     contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
     form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
@@ -85,6 +87,8 @@ def vote(request, course_id):
             vote_end_datetime=course.vote_end_datetime,
             hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
             minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
+            success_magic_string=SUCCESS_MAGIC_STRING,
+            success_redirect_url=reverse('student:index'),
             evaluation_ends_soon=course.evaluation_ends_soon())
         return render(request, "student_vote.html", template_data)
 
@@ -121,7 +125,7 @@ def vote(request, course_id):
         course.course_evaluated.send(sender=Course, request=request, semester=course.semester)
 
     messages.success(request, _("Your vote was recorded."))
-    return redirect('student:index')
+    return HttpResponse(SUCCESS_MAGIC_STRING)
 
 
 def helper_create_voting_form_groups(request, contributions):
