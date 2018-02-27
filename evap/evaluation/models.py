@@ -37,6 +37,10 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
     name = Translate
 
+    short_name_de = models.CharField(max_length=20, unique=True, verbose_name=_("short name (german)"))
+    short_name_en = models.CharField(max_length=20, unique=True, verbose_name=_("short name (english)"))
+    short_name = Translate
+
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
     results_are_archived = models.BooleanField(default=False, verbose_name=_("results are archived"))

@@ -29,6 +29,8 @@
   "fields": {
     "name_de": "Wintersemester 2012/2013",
     "name_en": "Winter term 2012/2013",
+    "short_name_de": "WS 12/13",
+    "short_name_en": "WT 12/13",
     "participations_are_archived": true,
     "grade_documents_are_deleted": true,
     "results_are_archived": true,
@@ -41,6 +43,8 @@
   "fields": {
     "name_de": "Sommersemester 2013",
     "name_en": "Summer term 2013",
+    "short_name_de": "SS 13",
+    "short_name_en": "ST 13",
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
@@ -53,6 +57,8 @@
   "fields": {
     "name_de": "Wintersemester 2013/2014",
     "name_en": "Winter term 2013/2014",
+    "short_name_de": "WS 13/14",
+    "short_name_en": "WT 13/14",
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
@@ -65,6 +71,8 @@
   "fields": {
     "name_de": "Sommersemester 2014",
     "name_en": "Summer term 2014",
+    "short_name_de": "SS 14",
+    "short_name_en": "ST 14",
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,

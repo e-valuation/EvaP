@@ -378,15 +378,19 @@ class TestSemesterCreateView(ViewTest):
 
     def test_create(self):
         name_de = 'name_de'
+        short_name_de = 'short_name_de'
         name_en = 'name_en'
+        short_name_en = 'short_name_en'
 
         response = self.app.get(self.url, user='staff')
         form = response.forms['semester-form']
         form['name_de'] = name_de
+        form['short_name_de'] = short_name_de
         form['name_en'] = name_en
+        form['short_name_en'] = short_name_en
         form.submit()
 
-        self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en).count(), 1)
+        self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en, short_name_de=short_name_de, short_name_en=short_name_en).count(), 1)
 
 
 class TestSemesterEditView(ViewTest):
