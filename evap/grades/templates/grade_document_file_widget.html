@@ -1,0 +1,6 @@
+{# based on django/forms/widgets/clearable_file_input.html #}
+{% if widget.is_initial %}
+    {{ widget.initial_text }}: <a href="{% url 'grades:download_grades' widget.value.instance.id %}">{{ widget.value.instance.filename }}</a>
+    <br /> {{ widget.input_text }}:
+{% endif %}
+<input type="{{ widget.type }}" name="{{ widget.name }}" {% include 'django/forms/widgets/attrs.html' %} />

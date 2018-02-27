@@ -1,10 +1,10 @@
-{% extends "staff_course_base.html" %}
+{% extends 'staff_course_base.html' %}
 
 {% load evaluation_filters %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Comments" %}</li>
+    <li class="breadcrumb-item">{% trans 'Comments' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -13,13 +13,13 @@
     <div class="d-flex">
         <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
         <div class="btn-switch my-auto d-print-none">
-            <div class="btn-switch-label">{% trans "Reviewed comments" %}</div>
+            <div class="btn-switch-label">{% trans 'Reviewed comments' %}</div>
             <div class="btn-group">
                 <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=false" role="button" class="btn btn-sm btn-light{% if not filter_comments %} active{% endif %}">
-                    {% trans "Show" %}
+                    {% trans 'Show' %}
                 </a>
                 <a href="{% url 'staff:course_comments' semester.id course.id %}?filter_comments=true" role="button" class="btn btn-sm btn-light{% if filter_comments %} active{% endif %}">
-                    {% trans "Hide" %}
+                    {% trans 'Hide' %}
                 </a>
             </div>
         </div>
@@ -27,30 +27,30 @@
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header">
-            {% trans "Comments about the Course" %}
+            {% trans 'Comments about the Course' %}
         </div>
         <div class="card-body">
             {% if course_sections %}
                 {% with course_sections as sections %}
-                    {% include "staff_course_comments_section.html" %}
+                    {% include 'staff_course_comments_section.html' %}
                 {% endwith %}
             {% else %}
-                <i>{% trans "No comments" %}</i>
+                <i>{% trans 'No comments' %}</i>
             {% endif %}
         </div>
     </div>
 
     <div class="card card-outline-primary">
         <div class="card-header">
-            {% trans "Comments about the Contributors" %}
+            {% trans 'Comments about the Contributors' %}
         </div>
         <div class="card-body">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
-                    {% include "staff_course_comments_section.html" %}
+                    {% include 'staff_course_comments_section.html' %}
                 {% endwith %}
             {% else %}
-                <i>{% trans "No comments" %}</i>
+                <i>{% trans 'No comments' %}</i>
             {% endif %}
         </div>
     </div>

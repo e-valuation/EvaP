@@ -31,7 +31,7 @@ class TestCourses(TestCase):
         self.assertEqual(course.state, 'in_evaluation')
 
     def test_in_evaluation_to_evaluated(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.models.Course.is_fully_reviewed') as mock:
@@ -43,7 +43,7 @@ class TestCourses(TestCase):
 
     def test_in_evaluation_to_reviewed(self):
         # Course is "fully reviewed" as no open text_answers are present by default,
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
         Course.update_courses()
@@ -67,7 +67,7 @@ class TestCourses(TestCase):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_evaluation_ends_soon(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
 
         Course.update_courses()
@@ -75,15 +75,15 @@ class TestCourses(TestCase):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_evaluation_doesnt_end_soon(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=5), 
-                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)        
+        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=5),
+                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
 
     def test_evaluation_ended(self):
         # Course is out of evaluation period.
-        mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+        mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                    vote_end_date=date.today() - timedelta(days=1), is_graded=False)
         # This course is not.
-        mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2), 
+        mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                    vote_end_date=date.today(), is_graded=False)
 
         with patch('evap.evaluation.models.Course.evaluation_end') as mock:
@@ -239,7 +239,7 @@ class ArchivingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
-        cls.course = mommy.make(Course, pk=7, state="published", semester=cls.semester)
+        cls.course = mommy.make(Course, state="published", semester=cls.semester)
 
         users = mommy.make(UserProfile, _quantity=3)
         cls.course.participants.set(users)

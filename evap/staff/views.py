@@ -75,11 +75,6 @@ def semester_view(request, semester_id):
     courses = get_courses_with_prefetched_data(semester)
     courses = sorted(courses, key=lambda cr: cr.name)
 
-    courses_by_state = []
-    for state in STATES_ORDERED.keys():
-        this_courses = [course for course in courses if course.state == state]
-        courses_by_state.append((state, this_courses))
-
     # semester statistics (per degree)
     class Stats:
         def __init__(self):
@@ -116,9 +111,8 @@ def semester_view(request, semester_id):
 
     template_data = dict(
         semester=semester,
-        courses_by_state=courses_by_state,
+        courses=courses,
         disable_breadcrumb_semester=True,
-        disable_if_archived="disabled" if semester.is_archived else "",
         rewards_active=rewards_active,
         grades_downloadable=grades_downloadable,
         num_courses=len(courses),
@@ -132,21 +126,12 @@ def semester_course_operation(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     raise_permission_denied_if_archived(semester)
 
-    operation = request.GET.get('operation')
-    if operation not in ['prepared->new', 'approved->new', 'new->prepared', 'new->approved',
-            'prepared->approved', 'editor_approved->approved', 'editor_approved->prepared',
-            'approved->in_evaluation', 'reviewed->published', 'published->reviewed']:
-        raise SuspiciousOperation("Unknown operation: " + operation)
-
-    old_state = operation.split('->')[0]
-    target_state = operation.split('->')[1]
+    target_state = request.GET.get('target_state')
+    if target_state not in ['new', 'prepared', 'in_evaluation', 'reviewed', 'published']:
+        raise SuspiciousOperation("Unknown target state: " + target_state)
 
     course_ids = (request.GET if request.method == 'GET' else request.POST).getlist('course')
     courses = Course.objects.filter(id__in=course_ids)
-
-    if any(course.state != old_state for course in courses):
-        messages.error(request, _("An error occurred. Please try again."))
-        return custom_redirect('staff:semester_view', semester_id)
 
     if request.method == 'POST':
         template = None
@@ -157,55 +142,71 @@ def semester_course_operation(request, semester_id):
             helper_semester_course_operation_revert(request, courses)
         elif target_state == 'prepared':
             helper_semester_course_operation_prepare(request, courses, template)
-        elif target_state == 'approved':
-            helper_semester_course_operation_approve(request, courses)
         elif target_state == 'in_evaluation':
             helper_semester_course_operation_start(request, courses, template)
-        elif target_state == 'published':
-            helper_semester_course_operation_publish(request, courses, template)
         elif target_state == 'reviewed':
             helper_semester_course_operation_unpublish(request, courses)
+        elif target_state == 'published':
+            helper_semester_course_operation_publish(request, courses, template)
+
 
         return custom_redirect('staff:semester_view', semester_id)
 
     # If necessary, filter courses and set email template for possible editing
     email_template = None
     if courses:
-        if target_state == 'prepared':
-            email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
-
-        elif target_state == 'approved':
-            # remove courses without questionnaires on general contribution, warn about courses with missing questionnaires
-            courses_with_enough_questionnaires = [course for course in courses if course.general_contribution_has_questionnaires]
-            courses_with_missing_questionnaires = [course for course in courses_with_enough_questionnaires if not course.all_contributions_have_questionnaires]
-
-            difference = len(courses) - len(courses_with_enough_questionnaires)
+        if target_state == 'new':
+            revertible_courses = [course for course in courses if course.state in ['prepared', 'editor_approved', 'approved']]
+            difference = len(courses) - len(revertible_courses)
             if difference:
-                courses = courses_with_enough_questionnaires
-                messages.warning(request,
-                                 ungettext('%(courses)d course can not be approved, because it has not enough questionnaires assigned. It was removed from the selection.',
-                                           '%(courses)d courses can not be approved, because they have not enough questionnaires assigned. They were removed from the selection.',
-                                           difference) % {'courses': difference})
+                courses = revertible_courses
+                messages.warning(request, ungettext("%(courses)d course can not be reverted, because its evaluation already started. It was removed from the selection.",
+                    "%(courses)d courses can not be reverted, because their evaluations already started. They were removed from the selection.",
+                    difference) % {'courses': difference})
+            confirmation_message = _("Do you want to revert the following courses to preparation?")
 
-            if courses_with_missing_questionnaires:
-                messages.warning(request,
-                                 ungettext('%(courses)d course does not have a questionnaire assigned for every contributor. It can be approved anyway.',
-                                           '%(courses)d courses do not have a questionnaire assigned for every contributor. They can be approved anyway.',
-                                           len(courses_with_missing_questionnaires)) % {'courses': len(courses_with_missing_questionnaires)})
+        elif target_state == 'prepared':
+            reviewable_courses = [course for course in courses if course.state in ['new', 'editor_approved']]
+            difference = len(courses) - len(reviewable_courses)
+            if difference:
+                courses = reviewable_courses
+                messages.warning(request, ungettext("%(courses)d course can not be sent to editor review, because it was already approved by a staff member or is currently under review. It was removed from the selection.",
+                    "%(courses)d courses can not be sent to editor review, because they were already approved by a staff member or are currently under review. They were removed from the selection.",
+                    difference) % {'courses': difference})
+            email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
+            confirmation_message = _("Do you want to send the following courses to editor review?")
 
         elif target_state == 'in_evaluation':
-            # remove courses with vote_end_date in the past
-            courses_end_in_future = [course for course in courses if course.vote_end_date >= date.today()]
-            difference = len(courses) - len(courses_end_in_future)
+            courses_ready_for_evaluation = [course for course in courses if course.state == 'approved' and course.vote_end_date >= date.today()]
+            difference = len(courses) - len(courses_ready_for_evaluation)
             if difference:
-                courses = courses_end_in_future
-                messages.warning(request, ungettext("%(courses)d course can not be approved, because it's evaluation end date lies in the past. It was removed from the selection.",
-                    "%(courses)d courses can not be approved, because their evaluation end dates lie in the past. They were removed from the selection.",
+                courses = courses_ready_for_evaluation
+                messages.warning(request, ungettext("The evaluation for %(courses)d course can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
+                    "The evaluation for %(courses)d courses can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
                     difference) % {'courses': difference})
             email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
+            confirmation_message = _("Do you want to immediately start the evaluation for the following courses?")
+
+        elif target_state == 'reviewed':
+            unpublishable_courses = [course for course in courses if course.state == 'published']
+            difference = len(courses) - len(unpublishable_courses)
+            if difference:
+                courses = unpublishable_courses
+                messages.warning(request, ungettext("%(courses)d course can not be unpublished, because it's results have not been published. It was removed from the selection.",
+                    "%(courses)d courses can not be unpublished because their results have not been published. They were removed from the selection.",
+                    difference) % {'courses': difference})
+            confirmation_message = _("Do you want to unpublish the following courses?")
 
         elif target_state == 'published':
+            publishable_courses = [course for course in courses if course.state == 'reviewed']
+            difference = len(courses) - len(publishable_courses)
+            if difference:
+                courses = publishable_courses
+                messages.warning(request, ungettext("%(courses)d course can not be published, because its evaluation is not finished or not all of its text answers have been reviewed. It was removed from the selection.",
+                    "%(courses)d courses can not be published, because their evaluations are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
+                    difference) % {'courses': difference})
             email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+            confirmation_message = _("Do you want to publish the following courses?")
 
     if not courses:
         messages.warning(request, _("Please select at least one course."))
@@ -214,9 +215,8 @@ def semester_course_operation(request, semester_id):
     template_data = dict(
         semester=semester,
         courses=courses,
-        operation=operation,
-        current_state_name=STATES_ORDERED[old_state],
-        new_state_name=STATES_ORDERED[target_state],
+        target_state=target_state,
+        confirmation_message=confirmation_message,
         email_template=email_template,
         show_email_checkbox=email_template is not None
     )
@@ -228,8 +228,8 @@ def helper_semester_course_operation_revert(request, courses):
     for course in courses:
         course.revert_to_new()
         course.save()
-    messages.success(request, ungettext("Successfully reverted %(courses)d course to new.",
-        "Successfully reverted %(courses)d courses to new.", len(courses)) % {'courses': len(courses)})
+    messages.success(request, ungettext("Successfully reverted %(courses)d course to in preparation.",
+        "Successfully reverted %(courses)d courses to in preparation.", len(courses)) % {'courses': len(courses)})
 
 
 def helper_semester_course_operation_prepare(request, courses, template):
@@ -240,14 +240,6 @@ def helper_semester_course_operation_prepare(request, courses, template):
         "Successfully enabled %(courses)d courses for editor review.", len(courses)) % {'courses': len(courses)})
     if template:
         EmailTemplate.send_to_users_in_courses(template, courses, [EmailTemplate.EDITORS], use_cc=True, request=request)
-
-
-def helper_semester_course_operation_approve(request, courses):
-    for course in courses:
-        course.staff_approve()
-        course.save()
-    messages.success(request, ungettext("Successfully approved %(courses)d course.",
-        "Successfully approved %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
 
 def helper_semester_course_operation_start(request, courses, template):
@@ -579,8 +571,10 @@ def helper_course_edit(request, semester, course):
 
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
-        form.save(user=request.user)
-        formset.save()
+        if form.has_changed():
+            form.save(user=request.user)
+        if formset.has_changed():
+            formset.save()
 
         if operation == 'approve':
             # approve course
@@ -787,7 +781,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     return render(request, "staff_course_comment_edit.html", template_data)
 
 
-@staff_required
+@reviewer_required
 def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)

@@ -1,11 +1,11 @@
-{% extends "grades_course_base.html" %}
+{% extends 'grades_course_base.html' %}
 
 {% block content %}
     {{ block.super }}
 
     {% if show_automated_publishing_info %}
         <div class="bs-callout bs-callout-info">
-            <b>{% trans "Automated publishing" %}</b><br />
+            <b>{% trans 'Automated publishing' %}</b><br />
             {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation for this course has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
         </div>
     {% endif %}
@@ -21,12 +21,12 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                {% include "bootstrap_form.html" with form=form %}
+                {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Upload grades" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Upload grades' %}</button>
             </div>
         </div>
     </form>

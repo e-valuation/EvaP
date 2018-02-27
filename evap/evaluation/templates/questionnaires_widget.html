@@ -2,23 +2,27 @@
 
 <ul class="inputs-list">
     {% for choice, questionnaire in field|zip:field.field.queryset %}
-        <li>
-            <div class="checkbox">
-                <label data-toggle="tooltip" data-placement="left" title="{% spaceless %}
-                    {% if questionnaire.description %}
-                        {{ questionnaire.description }}<br />
+        <li class="form-check" data-toggle="tooltip" data-placement="left" title="{% spaceless %}
+            {% if questionnaire.description %}
+                {{ questionnaire.description }}<br />
+            {% endif %}
+            <ul>
+                {% for question in questionnaire.question_set.all %}
+                    {% if question.is_heading_question %}
+                        </ul>
+                        {{ question.text }}
+                        <ul>
+                    {% else %}
+                        <li>{{ question.text }}</li>
                     {% endif %}
-                    <ul>
-                        {% for question in questionnaire.question_set.all %}
-                            <li>{{ question.text }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endspaceless %}">
-                    <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
-                    autocomplete="off" {% if choice.data.selected  %}checked {% endif %}{% if field.field.disabled %}disabled {% endif %}/>
-                    {{ choice.choice_label}}
-                </label>
-            </div>
+                {% endfor %}
+            </ul>
+            {% endspaceless %}">
+            <input class="form-check-input" id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
+                autocomplete="off"{% if choice.data.selected %} checked{% endif %}{% if field.field.disabled %} disabled{% endif %} />
+            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                {{ choice.choice_label }}
+            </label>
         </li>
     {% endfor %}
 </ul>

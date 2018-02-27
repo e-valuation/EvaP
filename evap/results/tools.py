@@ -28,6 +28,7 @@ CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', '
 RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
 YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning', 'approval_count'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
+HeadingResult = namedtuple('HeadingResult', ('question'))
 
 
 def avg(iterable):
@@ -155,6 +156,9 @@ def _calculate_results_impl(course):
             elif question.is_text_question:
                 answers = get_textanswers(contribution, question, COMMENT_STATES_REQUIRED_FOR_VISIBILITY)
                 results.append(TextResult(question=question, answers=answers))
+
+            elif question.is_heading_question:
+                results.append(HeadingResult(question=question))
 
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 

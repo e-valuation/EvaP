@@ -10,6 +10,16 @@ def zip_lists(a, b):
     return zip(a, b)
 
 
+@register.filter(name='ordering_index')
+def ordering_index(course):
+    if course.state in ['new', 'prepared', 'editor_approved', 'approved']:
+        return course.days_until_evaluation
+    elif course.state == "in_evaluation":
+        return 100000 + course.days_left_for_evaluation
+    else:
+        return 200000 + course.days_left_for_evaluation
+
+
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/
 @register.filter(name='percentage')
 def percentage(fraction, population):
@@ -86,6 +96,11 @@ def can_use_reward_points(user):
 @register.filter
 def is_choice_field(field):
     return field.field.__class__.__name__ == "TypedChoiceField"
+
+
+@register.filter
+def is_heading_field(field):
+    return field.field.__class__.__name__ == "HeadingField"
 
 
 @register.filter

@@ -78,9 +78,6 @@ ADMINS = [
     # ('Your Name', 'your_email@example.com'),
 ]
 
-# These are listed for easier development. Remove them in production environments.
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
-
 # The page URL that is used in email templates.
 PAGE_URL = "localhost:8000"
 
@@ -208,7 +205,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
-                "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
@@ -299,9 +295,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
-# URL that handles the media served from MEDIA_ROOT.
-MEDIA_URL = '/media/'
-
 # the backend used for downloading attachments
 # see https://github.com/johnsensible/django-sendfile for further information
 SENDFILE_BACKEND = 'sendfile.backends.simple'
@@ -334,11 +327,11 @@ if TESTING:
 
 # Django debug toolbar settings
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
-    DEBUG_TOOLBAR_PATCH_SETTINGS = False
     INSTALLED_APPS += ['debug_toolbar']
     MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
     def show_toolbar(request):
         return True
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+        'JQUERY_URL': '',
     }

@@ -1,70 +1,70 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block content %}
     <div class="row">
         <div class="col-3">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Semesters" %}</h4>
+                    <h4 class="card-title">{% trans 'Semesters' %}</h4>
                     {% if semesters %}
                         <ul>
                         {% for semester in semesters %}
-                            <li><a href="{% url "staff:semester_view" semester.id %}#tab1">{{ semester.name }}</a></li>
+                            <li><a href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a></li>
                         {% endfor %}
                         </ul>
                     {% else %}
-                        {% trans "There are no semesters yet." %}
+                        {% trans 'There are no semesters yet.' %}
                     {% endif %}
-                    <a href="{% url "staff:semester_create" %}" class="btn btn-sm btn-dark mt-2">{% trans "Create new semester" %}</a>
+                    <a href="{% url 'staff:semester_create' %}" class="btn btn-sm btn-dark mt-2">{% trans 'Create new semester' %}</a>
                 </div>
             </div>
         </div>
         <div class="col-3">
             <div class="card mb-3">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Questionnaires" %}</h4>
+                    <h4 class="card-title">{% trans 'Questionnaires' %}</h4>
                     <ul>
-                        <li><a href="{% url "staff:questionnaire_index" %}">{% trans "All questionnaires" %}</a></li>
+                        <li><a href="{% url 'staff:questionnaire_index' %}">{% trans 'All questionnaires' %}</a></li>
                     </ul>
-                    <a href="{% url "staff:questionnaire_create" %}" class="btn btn-sm btn-dark mt-2">{% trans "Create new questionnaire" %}</a>
+                    <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark mt-2">{% trans 'Create new questionnaire' %}</a>
                 </div>
             </div>
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Users" %}</h4>
+                    <h4 class="card-title">{% trans 'Users' %}</h4>
                     <ul>
-                        <li><a href="{% url "staff:user_index" %}">{% trans "All users" %}</a></li>
-                        <li><a href="{% url "staff:user_import" %}">{% trans "Import users" %}</a></li>
-                        <li><a href="{% url "staff:user_merge_selection" %}">{% trans "Merge users" %}</a></li>
-                        <li><a href="{% url "staff:user_bulk_delete" %}">{% trans "Delete users" %}</a></li>
+                        <li><a href="{% url 'staff:user_index' %}">{% trans 'All users' %}</a></li>
+                        <li><a href="{% url 'staff:user_import' %}">{% trans 'Import users' %}</a></li>
+                        <li><a href="{% url 'staff:user_merge_selection' %}">{% trans 'Merge users' %}</a></li>
+                        <li><a href="{% url 'staff:user_bulk_delete' %}">{% trans 'Delete users' %}</a></li>
                     </ul>
-                    <a href="{% url "staff:user_create" %}" class="btn btn-sm btn-dark mt-2">{% trans "Create new user" %}</a>
+                    <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark mt-2">{% trans 'Create new user' %}</a>
                 </div>
             </div>
         </div>
         <div class="col-3">
             <div class="card mb-3">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Degrees" %}</h4>
+                    <h4 class="card-title">{% trans 'Degrees' %}</h4>
                     <ul>
-                        <li><a href="{% url "staff:degree_index" %}">{% trans "All degrees" %}</a></li>
+                        <li><a href="{% url 'staff:degree_index' %}">{% trans 'All degrees' %}</a></li>
                     </ul>
                 </div>
             </div>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Course types" %}</h4>
+                    <h4 class="card-title">{% trans 'Course types' %}</h4>
                     <ul>
-                        <li><a href="{% url "staff:course_type_index" %}">{% trans "All course types" %}</a></li>
-                        <li><a href="{% url "staff:course_type_merge_selection" %}">{% trans "Merge course types" %}</a></li>
+                        <li><a href="{% url 'staff:course_type_index' %}">{% trans 'All course types' %}</a></li>
+                        <li><a href="{% url 'staff:course_type_merge_selection' %}">{% trans 'Merge course types' %}</a></li>
                     </ul>
                 </div>
             </div>
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Reward Points" %}</h4>
+                    <h4 class="card-title">{% trans 'Reward Points' %}</h4>
                     <ul>
-                        <li><a href="{% url "rewards:reward_point_redemption_events" %}">{% trans "Reward point redemption events" %}</a></li>
+                        <li><a href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward point redemption events' %}</a></li>
                     </ul>
                 </div>
             </div>
@@ -72,19 +72,19 @@
         <div class="col-3">
             <div class="card mb-3">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "Templates" %}</h4>
+                    <h4 class="card-title">{% trans 'Templates' %}</h4>
                     <ul>
                         {% for template in templates %}
-                            <li><a href="{% url "staff:template_edit" template.id %}">{{ template.name }}</a></li>
+                            <li><a href="{% url 'staff:template_edit' template.id %}">{{ template.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">{% trans "FAQ" %}</h4>
+                    <h4 class="card-title">{% trans 'FAQ' %}</h4>
                     <ul>
-                        <li><a href="{% url "staff:faq_index" %}">{% trans "All Sections" %}</a></li>
+                        <li><a href="{% url 'staff:faq_index' %}">{% trans 'All Sections' %}</a></li>
                     </ul>
                 </div>
             </div>

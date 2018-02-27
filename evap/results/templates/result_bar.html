@@ -4,16 +4,16 @@
 {% if show_grades and result.total_count > 0 %}
     {% spaceless %}
     <div data-toggle="tooltip" data-placement="left"
-        title="{% if questionnaire_warning or result.warning %}{% trans "Only a few participants answered this question." %}</br></br>{% endif %}
+        title="{% if questionnaire_warning or result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
         {% for answer, count in result.counts.items %}
             {{ result.question|get_answer_name:answer }}: {{ count }}/{{ result.total_count }} ({{ count|percentage_one_decimal:result.total_count }}){% if not forloop.last %}</br>{% endif %}
         {% endfor %}">
 
-        <div class="grade-bg-result-bar-count text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}">
-            <span class="fa fa-user small"></span> {{ result.total_count }}
+        <div class="grade-bg-result-bar-count text-center{% if questionnaire_warning or result.warning %} participants-warning{% endif %}">
+            <span class="fas fa-user small"></span> {{ result.total_count }}
         </div>
 
-        <div class="grade-bg-result-bar text-center {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="background-color: {{ result.average|gradecolor }}">
+        <div class="grade-bg-result-bar text-center{% if questionnaire_warning or result.warning %} participants-warning{% endif %}" style="background-color: {{ result.average|gradecolor }}">
             {% if result.question.is_yes_no_question %}
                 {{ result.approval_count|percentage:result.total_count }}
             {% else %}
@@ -24,12 +24,12 @@
         <div class="distribution-bar">
             {% for answer, count in result.counts.items %}
                 {% if count != 0 %}
-                    <div class="vote-bg-{{ answer }} {% if questionnaire_warning or result.warning %}participants-warning{% endif %}" style="width: {% widthratio count result.total_count 100 %}%;">&nbsp;</div>
+                    <div class="vote-bg-{{ answer }}{% if questionnaire_warning or result.warning %} participants-warning{% endif %}" style="width: {% widthratio count result.total_count 100 %}%;">&nbsp;</div>
                 {% endif %}
             {% endfor %}
         </div>
     </div>
     {% endspaceless %}
 {% else %}
-    <div class="grade-bg-result-bar grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans "Not enough answers were given." %}">&mdash;</div>
+    <div class="grade-bg-result-bar grade-bg-disabled text-center" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">&mdash;</div>
 {% endif %}

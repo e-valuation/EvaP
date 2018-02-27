@@ -3,8 +3,8 @@
 <div class="inline-headers">
     {% if section.questionnaire_warning and not contributor_data.total_votes == 0 %}
         <p class="pull-right participants-warning questionnaire-warning">
-            <span class="fa fa-exclamation-triangle"></span>
-            {% trans "Only a few participants answered these questions." %}
+            <span class="fas fa-exclamation-triangle"></span>
+            {% trans 'Only a few participants answered these questions.' %}
         </p>
     {% endif %}
     <h4>{{ section.questionnaire.public_name }}</h4>
@@ -12,11 +12,18 @@
 <table class="table table-striped{% if not last %} mb-3{% endif %}">
     <tbody>
         {% for result in section.results %}
-            {% if result.question.is_rating_question %}
+            {% if result.question.is_heading_question %}
+                {# We want to start a new section here, so we close the table, render the heading and reopen the table #}
+                </tbody>
+                </table>
+                <h5{% if not forloop.first %} class="mt-3"{% endif %}>{{ result.question.text }}</h5>
+                <table class="table table-striped{% if not last %} mb-3{% endif %}">
+                <tbody>
+            {% elif result.question.is_rating_question %}
                 <tr class="no-break d-flex">
                     <td class="result-rating-question my-auto">{{ result.question.text }}</td>
                     <td class="result-rating-answer my-auto">
-                        {% include "result_bar.html" with result=result show_grades=show_grades questionnaire_warning=section.questionnaire_warning %}
+                        {% include 'result_bar.html' with result=result show_grades=show_grades questionnaire_warning=section.questionnaire_warning %}
                     </td>
                 </tr>
             {% elif result.question.is_text_question %}
@@ -27,7 +34,7 @@
                         {% for answer in result.answers %}
                             <li>
                                 {% if answer.is_private %}
-                                    <span data-toggle="tooltip" data-placement="left" class="fa fa-info-circle" title="{% trans "This answer is only visible to you. Other contributors and your delegates can not see it." %}"></span>
+                                    <span data-toggle="tooltip" data-placement="left" class="fas fa-info-circle" title="{% trans 'This answer is only visible to you. Other contributors and your delegates can not see it.' %}"></span>
                                 {% endif %}
                                 {{ answer.answer|linebreaksbr }}
                             </li>

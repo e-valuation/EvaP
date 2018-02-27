@@ -5,6 +5,10 @@ from django.core.exceptions import ValidationError
 from evap.grades.models import GradeDocument
 
 
+class GradeDocumentFileWidget(forms.widgets.ClearableFileInput):
+    template_name = 'grade_document_file_widget.html'
+
+
 class GradeDocumentForm(forms.ModelForm):
     # see CourseForm (staff/forms.py) for details, why the following two fields are needed
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
@@ -13,6 +17,7 @@ class GradeDocumentForm(forms.ModelForm):
     class Meta:
         model = GradeDocument
         fields = ('description_de', 'description_en', 'file', 'last_modified_time_2', 'last_modified_user_2')
+        widgets = {'file': GradeDocumentFileWidget()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

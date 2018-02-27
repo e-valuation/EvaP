@@ -2,7 +2,7 @@
 {% load evaluation_filters %}
 
 <nav class="navbar navbar-dark bg-dark fixed-top {% if user.is_staff %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} d-print-none">
-    <a class="navbar-brand" href="/"><img class="navbar-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></a>
+    <a class="navbar-brand" href="/"><img class="navbar-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" /></a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -11,22 +11,22 @@
             {% if user.is_authenticated %}
                 {% if user.is_participant and user.is_contributor_or_delegate %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'student:index' %}" id="navbarCoursesDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "My courses" %}</a>
+                        <a class="nav-link dropdown-toggle" href="{% url 'student:index' %}" id="navbarCoursesDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'My courses' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarCoursesDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'student:index' %}">{% trans "Participant" %}</a>
-                            <a class="dropdown-item" href="{% url 'contributor:index' %}">{% trans "Contributor" %}</a>
+                            <a class="dropdown-item" href="{% url 'student:index' %}">{% trans 'Participant' %}</a>
+                            <a class="dropdown-item" href="{% url 'contributor:index' %}">{% trans 'Contributor' %}</a>
                         </div>
                     </li>
                 {% elif user.is_participant %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'student:index' %}">{% trans "My courses" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'student:index' %}">{% trans 'My courses' %}</a></li>
                 {% elif user.is_contributor_or_delegate %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:index' %}">{% trans "My courses" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:index' %}">{% trans 'My courses' %}</a></li>
                 {% endif %}
                 {% if user.is_grade_publisher and not user.is_staff %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Publish grades" %}</a>
+                        <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Publish grades' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarPublishDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans "Semesters" %}</a>
+                            <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Semesters' %}</a>
                             {% for semester in last_five_semesters %}
                                 <a class="dropdown-item menu-indent" href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
@@ -34,48 +34,48 @@
                     </li>
                 {% endif %}
                 {% if user.is_editor %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:settings_edit' %}">{% trans "Settings" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:settings_edit' %}">{% trans 'Settings' %}</a></li>
                 {% endif %}
                 {% if user|can_user_use_reward_points %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'rewards:index' %}">{% trans "Rewards" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'rewards:index' %}">{% trans 'Rewards' %}</a></li>
                 {% endif %}
                 {% if user.is_staff %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'staff:index' %}" id="navbarStaffDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Manage" %}</a>
+                        <a class="nav-link dropdown-toggle" href="{% url 'staff:index' %}" id="navbarStaffDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Manage' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarStaffDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans "Overview" %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans "Semesters" %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Overview' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Semesters' %}</a>
                             {% for semester in last_five_semesters %}
-                                <a class="dropdown-item menu-indent" href="{% url 'staff:semester_view' semester.id %}#tab1">{{ semester.name }}</a>
+                                <a class="dropdown-item menu-indent" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                             {% if user.is_grade_publisher %}
-                                <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans "Publish grades" %}</a>
+                                <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Publish grades' %}</a>
                             {% endif %}
-                            <a class="dropdown-item" href="{% url 'staff:questionnaire_index' %}">{% trans "Questionnaires" %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:user_index' %}">{% trans "Users" %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:degree_index' %}">{% trans "Degrees" %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:course_type_index' %}">{% trans "Course types" %}</a>
-                            <a class="dropdown-item" href="{% url 'rewards:reward_point_redemption_events' %}">{% trans "Reward point redemption events" %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans "Templates" %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:faq_index' %}">{% trans "FAQ" %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:questionnaire_index' %}">{% trans 'Questionnaires' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:degree_index' %}">{% trans 'Degrees' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:course_type_index' %}">{% trans 'Course types' %}</a>
+                            <a class="dropdown-item" href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward point redemption events' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Templates' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:faq_index' %}">{% trans 'FAQ' %}</a>
                         </div>
                     </li>
                 {% elif user.is_reviewer %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarReviewDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Review" %}</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarReviewDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Review' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarReviewDropdownMenuLink">
                             {% for semester in last_five_semesters %}
-                                <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}#tab1">{{ semester.name }}</a>
+                                <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                         </div>
                     </li>
                 {% endif %}
                 {% if not user.is_external %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'results:index' %}" id="navbarResultsDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Results" %}</a>
+                        <a class="nav-link dropdown-toggle" href="{% url 'results:index' %}" id="navbarResultsDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Results' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarResultsDropdownMenuLink">
                             {% for semester in result_semesters %}
-                                <a class="dropdown-item" href="{% url "results:semester_detail" semester.id %}">{{ semester.name }}</a>
+                                <a class="dropdown-item" href="{% url 'results:semester_detail' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                         </div>
                     </li>
@@ -84,16 +84,16 @@
         </ul>
         <ul class="navbar-nav">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarLanguageDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "Language" %}</a>
+                <a class="nav-link dropdown-toggle" href="#" id="navbarLanguageDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Language' %}</a>
                 <div class="dropdown-menu"  aria-labelledby="navbarLanguageDropdownMenuLink">
                     <form action="{% url 'evaluation:set_lang' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="de" /></form>
-                    <a class="dropdown-item" onclick="$(this).prev('form').submit();" href="#">{% trans "Deutsch" %}</a>
+                    <a class="dropdown-item" onclick="$(this).prev('form').submit();" href="#">{% trans 'Deutsch' %}</a>
                     <form action="{% url 'evaluation:set_lang' %}" method="post">{% csrf_token %}<input name="language" type="hidden" value="en" /></form>
-                    <a class="dropdown-item" onclick="$(this).prev('form').submit();" href="#">{% trans "English" %}</a>
+                    <a class="dropdown-item" onclick="$(this).prev('form').submit();" href="#">{% trans 'English' %}</a>
                 </div>
             </li>
             {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'django-auth-logout' %}">{% trans "Logout" %}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'django-auth-logout' %}">{% trans 'Logout' %}</a></li>
             {% endif %}
         </ul>
     </div>

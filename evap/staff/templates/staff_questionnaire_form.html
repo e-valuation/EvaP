@@ -1,4 +1,4 @@
-{% extends "staff_questionnaire_base.html" %}
+{% extends 'staff_questionnaire_base.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -7,8 +7,8 @@
         <fieldset>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans "General Options" %}</h5>
-                    {% include "bootstrap_form.html" with form=form %}
+                    <h5 class="card-title">{% trans 'General Options' %}</h5>
+                    {% include 'bootstrap_form.html' with form=form %}
                 </div>
             </div>
         </fieldset>
@@ -16,22 +16,22 @@
         <fieldset>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{% trans "Questions" %}</h5>
+                    <h5 class="card-title">{% trans 'Questions' %}</h5>
                     {{ formset.management_form }}
-                    {% include "bootstrap_form_errors.html" with errors=formset.non_form_errors %}
+                    {% include 'bootstrap_form_errors.html' with errors=formset.non_form_errors %}
                     <table id="question_table" class="table vertically-aligned mb-3">
                         <thead>
                             <tr>
                                 <th></th>
-                                <th style="width: 37%">{% trans "Question text (German)" %}</th>
-                                <th style="width: 37%">{% trans "Question text (English)" %}</th>
-                                <th style="width: 20%">{% trans "Question type" %}</th>
+                                <th style="width: 37%">{% trans 'Question text (German)' %}</th>
+                                <th style="width: 37%">{% trans 'Question text (English)' %}</th>
+                                <th style="width: 20%">{% trans 'Question type' %}</th>
                                 <th style="width: 6%"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for form_element in formset %}
-                                {% include "bootstrap_form_errors.html" with errors=form_element.non_field_errors %}
+                                {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
 
                                 <tr class="select2tr sortable">
                                     {% for hidden in form_element.hidden_fields %}
@@ -39,13 +39,13 @@
                                     {% endfor %}
                                     {% if editable %}
                                         <td class="movable">
-                                            <span class="movable-icon fa fa-arrows-v"></span>
+                                            <span class="movable-icon fas fa-arrows-alt-v"></span>
                                         </td>
                                     {% else %}
                                         <td></td>
                                     {% endif %}
                                     {% for field in form_element.visible_fields %}
-                                        <td>{% include "bootstrap_form_field_widget.html" with field=field %}</td>
+                                        <td>{% include 'bootstrap_form_field_widget.html' with field=field %}</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -56,7 +56,7 @@
         </fieldset>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Save questionnaire" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Save questionnaire' %}</button>
             </div>
         </div>
     </form>
@@ -65,7 +65,7 @@
 
 {% block additional_javascript %}
     {% if editable %}
-        {% include "sortable_form_js.html" %}
+        {% include 'sortable_form_js.html' %}
         <script type="text/javascript">
             rowChanged = function(row) {
                 nameDe = $(row.find('input[id$=-text_de]')).val();

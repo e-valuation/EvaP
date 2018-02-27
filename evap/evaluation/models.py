@@ -12,7 +12,7 @@ from django.db import models, transaction
 from django.db.models import Count, Q
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
-from django.template.base import TemplateEncodingError, TemplateSyntaxError
+from django.template.base import TemplateSyntaxError
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
@@ -421,6 +421,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def responsible_contributors(self):
         return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).order_by('contributions__order')
 
+    @cached_property
+    def num_contributors(self):
+        return UserProfile.objects.filter(contributions__course=self).count()
+
     @property
     def days_left_for_evaluation(self):
         return (self.vote_end_date - date.today()).days
@@ -451,18 +455,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if self.contributions.filter(contributor__in=represented_users).exists():
             return True
         return False
-
-    def warnings(self):
-        result = []
-        if self.state in ['new', 'prepared', 'editor_approved'] and not self.all_contributions_have_questionnaires:
-            if not self.general_contribution_has_questionnaires:
-                result.append(_("Course has no questionnaires"))
-            else:
-                result.append(_("Not all contributors have questionnaires"))
-
-        if self.state in ['in_evaluation', 'evaluated', 'reviewed', 'published'] and not self.can_publish_grades:
-            result.append(_("Not enough participants to publish results"))
-        return result
 
     @property
     def textanswer_set(self):
@@ -628,6 +620,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         ("G", _("Grade Question")),
         ("P", _("Positive Yes-No Question")),
         ("N", _("Negative Yes-No Question")),
+        ("H", _("Heading")),
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
@@ -679,6 +672,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_rating_question(self):
         return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
+
+    @property
+    def is_heading_question(self):
+        return self.type == "H"
 
 
 class Answer(models.Model):
@@ -883,16 +880,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
-    # needed e.g. for compatibility with contrib.auth.admin
-    def get_full_name(self):
-        return self.full_name
-
-    # needed e.g. for compatibility with contrib.auth.admin
-    def get_short_name(self):
-        if self.first_name:
-            return self.first_name
-        return self.username
-
     @property
     def full_name(self):
         if self.last_name:
@@ -931,7 +918,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_staff_mark_inactive(self):
-        if self.is_reviewer or self.is_grade_publisher or self.is_staff or self.is_superuser:
+        if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not course.is_archived for course in self.courses_participating_in.all()):
             return False
@@ -944,7 +931,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
         if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
             return False
-        if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_staff or self.is_superuser:
+        if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False
@@ -1057,7 +1044,7 @@ def validate_template(value):
     Django Template."""
     try:
         Template(value)
-    except (TemplateSyntaxError, TemplateEncodingError) as e:
+    except TemplateSyntaxError as e:
         raise ValidationError(str(e))
 
 

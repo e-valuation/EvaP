@@ -1,8 +1,8 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "FAQ Sections" %}</li>
+    <li class="breadcrumb-item">{% trans 'FAQ Sections' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -30,15 +30,15 @@
                                 {{ hidden }}
                             {% endfor %}
                             <td class="movable">
-                                <span class="movable-icon fa fa-arrows-v"></span>
+                                <span class="movable-icon fas fa-arrows-alt-v"></span>
                             </td>
-                            <td>{% include "bootstrap_form_field_widget.html" with field=form.title_de %}</td>
-                            <td>{% include "bootstrap_form_field_widget.html" with field=form.title_en %}</td>
+                            <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_de %}</td>
+                            <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_en %}</td>
                             <td class="hide-divs">
                                 {% if form.instance.id %}
-                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fa fa-pencil"></span></a>
+                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                                 {% endif %}
-                                {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
+                                {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -48,14 +48,14 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans "Save FAQ sections" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Save FAQ sections' %}</button>
             </div>
         </div>
     </form>
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "sortable_form_js.html" %}
+    {% include 'sortable_form_js.html' %}
 
     <script type="text/javascript">
         rowChanged = function(row) {

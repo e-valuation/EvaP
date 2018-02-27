@@ -113424,8 +113424,8 @@
   "model": "evaluation.userprofile",
   "pk": 815,
   "fields": {
-    "password": "pbkdf2_sha256$36000$IIaHFkrNESzH$FTSOLOXfvXd63zpvsYntM70DCwQW/n3GaMDpuJEZb/8=",
-    "last_login": "2017-08-21T17:53:42.515",
+    "password": "pbkdf2_sha256$100000$85ZeSerVM5mq$dt/svaAHtppUjGUjKMmmJCDCwJj8QxR0NyBdtJJCSak=",
+    "last_login": "2017-12-23T18:11:19.328",
     "is_superuser": true,
     "username": "evap",
     "email": "evap@institution.example.com",
@@ -113438,7 +113438,7 @@
     "is_active": true,
     "groups": [
       1,
-      2
+      3
     ],
     "user_permissions": [],
     "delegates": [],
@@ -124344,8 +124344,8 @@
   "model": "evaluation.userprofile",
   "pk": 2370,
   "fields": {
-    "password": "pbkdf2_sha256$20000$TIRGcFTX5kJM$zojYDtI/9gE/AOKxNYtGYm5lkoy0N+lTTv3JoEtsMQw=",
-    "last_login": "2015-11-08T17:18:43.852",
+    "password": "pbkdf2_sha256$100000$OqMHXWeUCCnd$0/jerl1QOWflFRxWyz1LNdEQBEZrYkLEUOQsspUB/70=",
+    "last_login": "2017-12-23T18:14:16.042",
     "is_superuser": false,
     "username": "grader",
     "email": "grader@institution.example.com",
@@ -124357,7 +124357,7 @@
     "login_key_valid_until": null,
     "is_active": true,
     "groups": [
-      2
+      3
     ],
     "user_permissions": [],
     "delegates": [],
@@ -126334,6 +126334,14 @@
     "description_en": "Midterm grades",
     "last_modified_time": "2016-02-01T21:56:14.374",
     "last_modified_user": 2370
+  }
+},
+{
+  "model": "grades.semestergradedownloadactivation",
+  "pk": 1,
+  "fields": {
+    "semester": 21,
+    "is_active": true
   }
 },
 {

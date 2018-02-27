@@ -39,6 +39,12 @@ div.container {
     padding: 0 15px;
 }
 
+.btn.fas {
+    font-weight: 900;
+}
+.btn.far {
+    font-weight: 400;
+}
 .btn-light {
     border-color: $medium-gray;
 }
@@ -54,6 +60,10 @@ div.container {
     border-color: $dark-gray;
 }
 .btn-light:active, .btn-light.active, .show > .btn-light.dropdown-toggle {
+    border-color: $dark-gray;
+}
+.btn-light:not(:disabled):not(.disabled):active,
+.btn-light:not(:disabled):not(.disabled).active {
     border-color: $dark-gray;
 }
 a:not([href]):not(.disabled) {
@@ -168,7 +178,8 @@ a.btn:not([href]):not(.disabled).btn-dark {
     color: $darker-gray;
 }
 
-.card-header .btn-sm {
+.card-header .btn-sm,
+.card-header .btn-switch {
     line-height: 1;
 }
 
@@ -222,7 +233,7 @@ a.btn:not([href]):not(.disabled).btn-dark {
 
 .close {
     line-height: 0.5;
-    .fa {
+    .fas {
         line-height: 1.4;
         font-size: 1rem;
     }
@@ -370,6 +381,7 @@ body {
     background-image: url("../images/triangles_gray.svg");
     background-size: cover;
     background-attachment: fixed;
+    overflow-y: scroll !important;
 }
 
 table#question_table textarea {
@@ -424,6 +436,15 @@ td.vote-question.choice-error {
     white-space: normal;
     line-height: 1.1;
     width: 90px;
+    border-color: $medium-gray;
+    background-color: $lighter-gray;
+}
+.vote-btn.active {
+    color: $black;
+    box-shadow: inset 0 0 5px $dark-gray;
+}
+.vote-btn:hover {
+    background-color: lighten($light-gray, 5%);
 }
 td.vote-answer-buttons {
     padding: 0.5rem 0.75rem;;
@@ -447,12 +468,14 @@ div.vote-inputs label.choice-error {
 .vote-btn-3 { color: $evap-dark-yellow; }
 .vote-btn-4 { color: $evap-dark-orange; }
 .vote-btn-5 { color: $evap-dark-red; }
+.vote-btn-6 { color: $darker-gray; }
 
-.vote-btn-1.active { color: $black; background-color: $evap-green; }
-.vote-btn-2.active { color: $black; background-color: $evap-lime; }
-.vote-btn-3.active { color: $black; background-color: $evap-yellow; }
-.vote-btn-4.active { color: $black; background-color: $evap-orange; }
-.vote-btn-5.active { color: $black; background-color: $evap-red; }
+.vote-btn-1.active { background-color: $evap-green; }
+.vote-btn-2.active { background-color: $evap-lime; }
+.vote-btn-3.active { background-color: $evap-yellow; }
+.vote-btn-4.active { background-color: $evap-orange; }
+.vote-btn-5.active { background-color: $evap-red; }
+.vote-btn-6.active { background-color: $light-gray; }
 
 div.vote-inputs > textarea {
     width: 100%;
@@ -572,7 +595,7 @@ select[multiple] {
     color: $darker-gray;
 }
 .collapse-toggle:before {
-    font-family: "FontAwesome";
+    font-family: "Font Awesome\ 5 Free";
     content: "\f078";
     float: left;
     margin-right: 10px;
@@ -597,6 +620,12 @@ select[multiple] {
 }
 .btn-option.disabled {
     opacity: 0.6;
+}
+.btn-option:hover:not(.disabled) {
+    background-color: $light-gray;
+}
+.btn-option.active:hover:not(.disabled) {
+    background-color: darken($evap-dark-blue, 10%);
 }
 
 .participants-warning {
@@ -687,6 +716,18 @@ select[multiple] {
     text-align: right;
     min-width: 31px;
 }
+.evap-progress-bar-warning {
+    .evap-progress-bar-back {
+        background: $evap-yellow;
+    }
+    .evap-progress-bar-front {
+        background: $evap-dark-yellow;
+    }
+    .evap-progress-bar-bartext {
+        color: $black;
+        text-shadow: 0px 0px 4px $evap-dark-yellow, 0px 0px 4px $evap-dark-yellow, 1px 1px 2px $evap-dark-yellow;
+    }
+}
 .multi-progress-bar .evap-progress-bar-container {
     padding-bottom: 3px;
 }
@@ -736,22 +777,33 @@ div.disabled-tooltip {
     padding-bottom: 0.4rem;
 }
 
-.table-hover-evap tbody tr:hover:not(.nohover) {
+.table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;
     td span.course-name {
         text-decoration: underline;
     }
 }
-.table-hover-evap tbody tr.hover-vote:hover,
-.table-hover-evap tbody tr.hover-edit:hover {
+.table-hover-evap tbody tr.hover-vote:hover:not(.hoverpause),
+.table-hover-evap tbody tr.hover-edit:hover:not(.hoverpause) {
     background-color: $evap-light-blue;
 }
-tr.hover-results:hover .btn-results {
+.table-hover-evap tbody tr td {
+    overflow: hidden;
+}
+.table-hover-evap tbody tr td a:not(.btn) {
+    color: $black;
+    text-decoration: none;
+    // the following values are necessary to make the a element fill the complete table cell
+    display: block;
+    margin: -10em;
+    padding: 10em;
+}
+tr.hover-results:hover:not(.hoverpause) .btn-results {
     box-shadow: 0 0 0 3px rgba($dark-gray, .5);
 }
-tr.hover-vote:hover .btn-vote,
-tr.hover-edit:hover .btn-edit {
+tr.hover-vote:hover:not(.hoverpause) .btn-vote,
+tr.hover-edit:hover:not(.hoverpause) .btn-edit {
     box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
 }
 
@@ -771,10 +823,6 @@ tr.hover-edit:hover .btn-edit {
 
 .nowrap {
     white-space: nowrap;
-}
-
-.no-padding {
-    padding: 0;
 }
 
 .text-answer li,a {
@@ -814,6 +862,28 @@ span.line {
 
 .card-body .form-group:last-of-type {
     margin-bottom: 0;
+}
+
+.icon-gray {
+    color: $medium-gray !important;
+}
+.icon-red {
+    color: $evap-red !important;
+}
+.icon-yellow {
+    color: $evap-dark-yellow !important;
+}
+.icon-green {
+    color: $evap-green !important;
+}
+td.icon {
+    padding: 0 !important;
+    text-align: center;
+    min-width: 20px;
+}
+
+a.no-underline:hover {
+    text-decoration: none;
 }
 
 
@@ -954,6 +1024,9 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
 table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc, table.dataTable thead>tr>th.sorting, table.dataTable thead>tr>td.sorting_asc, table.dataTable thead>tr>td.sorting_desc, table.dataTable thead>tr>td.sorting {
     padding-right: 0;
     padding-left: 20px;
+}
+.filter-toolbar {
+    float: left;
 }
 
 

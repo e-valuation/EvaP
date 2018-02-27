@@ -97,7 +97,7 @@ def render_preview(request, formset, course_form, course):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = vote_preview(request, course, for_rendering_in_modal=True).content
+            preview_response = vote_preview(request, course, for_rendering_in_modal=True).content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass

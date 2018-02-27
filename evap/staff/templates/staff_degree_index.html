@@ -1,8 +1,8 @@
-{% extends "staff_base.html" %}
+{% extends 'staff_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans "Degrees" %}</li>
+    <li class="breadcrumb-item">{% trans 'Degrees' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -30,20 +30,20 @@
                                     {{ hidden }}
                                 {% endfor %}
                                 <td class="movable">
-                                    <span class="movable-icon fa fa-arrows-v"></span>
+                                    <span class="movable-icon fas fa-arrows-alt-v"></span>
                                 </td>
                                 <td>
-                                    {% include "bootstrap_form_field_widget.html" with field=form.name_de %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
                                 </td>
                                 <td>
-                                    {% include "bootstrap_form_field_widget.html" with field=form.name_en %}
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.name_en %}
                                 </td>
                                 <td>
                                     {% if form.instance.can_staff_delete %}
-                                        {% include "bootstrap_form_field_widget.html" with field=form.DELETE %}
+                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
                                     {% else %}
                                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'This degree cannot be deleted because it is used for at least one course.' %}">
-                                            <a role="button" class="btn btn-sm btn-danger disabled"><span class="fa fa-trash"></span></a>
+                                            <a role="button" class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a>
                                         </div>
                                     {% endif %}
                                 </td>
@@ -62,7 +62,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include "sortable_form_js.html" %}
+    {% include 'sortable_form_js.html' %}
 
     <script type="text/javascript">
         rowChanged = function(row) {

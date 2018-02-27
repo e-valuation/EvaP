@@ -9,28 +9,30 @@
 <html>
 <head>
     {% block header %}
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <title>{% block title %}EvaP{% endblock %}</title>
 
         {% compress css %}
-            <link rel="stylesheet" href="{% get_static_prefix %}font-awesome/css/font-awesome.min.css" />
+            <link rel="stylesheet" href="{% get_static_prefix %}font-awesome/css/fontawesome.min.css" />
+            <link rel="stylesheet" href="{% get_static_prefix %}font-awesome/css/fa-solid.min.css" />
+            <link rel="stylesheet" href="{% get_static_prefix %}font-awesome/css/fa-regular.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/dataTables.bootstrap4.min.css" />
             <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
             <link type="text/x-scss" rel="stylesheet" href="{% get_static_prefix %}css/evap.scss" />
         {% endcompress %}
-        <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png">
+        <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png" />
     {% endblock %}
 </head>
 <body>
 {% block modals %}
     {% if user.is_authenticated %}
-        {% trans "Feedback" as title %}
-        {% trans "You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP." as teaser %}
-        {% include "contact_modal.html" with modal_id="feedbackModal" user=request.user title=title teaser=teaser %}
+        {% trans 'Feedback' as title %}
+        {% trans 'You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP.' as teaser %}
+        {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
     {% endif %}
 {% endblock %}
 
@@ -39,18 +41,19 @@
     {% include_navbar user %}
 {% endcache %}
 
-<div class="d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans "Evaluation Platform" %}"></div>
+
+<div class="d-none d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" /></div>
 
 <div class="container">
     {% if user.is_staff or user.is_grade_publisher %}
         <ol class="breadcrumb mb-4">
-            {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans "EvaP" %}</a></li>{% endblock %}
+            {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans 'EvaP' %}</a></li>{% endblock %}
         </ol>
     {% endif %}
 
     {% for message in messages %}
         <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
-            <a role="button" class="close" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></a>
+            <a role="button" class="close" data-dismiss="alert" aria-hidden="true"><span class="fas fa-times"></span></a>
             {{ message }}
         </div>
     {% endfor %}
@@ -61,24 +64,24 @@
 
 <div class="footer fixed-bottom d-flex d-print-none">
     <span class="mr-auto">
-        <a href="{{ TRACKER_URL }}" target="_blank">{% trans "EvaP evaluation platform" %}</a>
+        <a href="{{ TRACKER_URL }}" target="_blank">{% trans 'EvaP evaluation platform' %}</a>
         &nbsp;&middot;&nbsp;
         {% if LEGAL_NOTICE_ACTIVE %}
-            <a href="{% url 'evaluation:legal_notice' %}">{% trans "Legal Notice" %}</a>
+            <a href="{% url 'evaluation:legal_notice' %}">{% trans 'Legal Notice' %}</a>
             &nbsp;&middot;&nbsp;
         {% endif %}
-        <a href="{% url 'evaluation:faq' %}">{% trans "FAQ"%}</a>
+        <a href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a>
         &nbsp;&middot;&nbsp;
         {% if request.user.is_authenticated %}
-            {% trans "Logged in as" %} {{ request.user.full_name }}
+            {% trans 'Logged in as' %} {{ request.user.full_name }}
         {% else %}
-            {% trans "Not logged in" %}
+            {% trans 'Not logged in' %}
         {% endif %}
     </span>
     {% if user.is_authenticated %}
         <span class="feedback-button" id="feedbackButton">
             <a class="btn btn-sm btn-primary" onclick="feedbackModalShow();" id="feedbackModalButton">
-                {% trans "Problems/Feedback" %}
+                {% trans 'Problems/Feedback' %}
             </a>
         </span>
     {% endif %}
@@ -122,7 +125,7 @@
     applySelect2 = function(elem) {
         elem.select2({
             language: "{{ LANGUAGE_CODE }}",
-            placeholder: "{% trans "Please select..." %}",
+            placeholder: "{% trans 'Please select...' %}",
             minimumResultsForSearch: 15,});
     };
     applySelect2($('select').not('.form-template select').not('[disabled]'));
@@ -146,10 +149,16 @@
     }, true);
 
     // activate clickable hover tables
-    $(".table-hover-evap tbody tr:not(.nohover)").click(function(e){
-        if(!$(e.target).is("a") && !$(e.target).hasClass("disabled-tooltip")){  // apply to everything but anchors and disabled buttons
-            window.location = $(this).closest("[data-url]").data('url');
-        }
+    $(".table-hover-evap tbody tr:not(.nohover) td:not(.noanchor)").wrapInner(function() {
+        var url = $(this).closest("[data-url]").data('url');
+        if (url) { return "<a href='" + url + "'></a>"; }
+        else { return ""; }
+    });
+    $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseenter(function(){
+        $(this).closest("tr").addClass("hoverpause");
+    });
+    $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseleave(function(){
+        $(this).closest("tr").removeClass("hoverpause");
     });
 </script>
 
