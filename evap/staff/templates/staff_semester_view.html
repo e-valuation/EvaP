@@ -377,7 +377,17 @@
                         button.toggleClass("active");
                         $("[data-filter].active").not(button).removeClass("active");
                         table.draw();
+
+                        // store which button was selected
+                        localStorage.removeItem('course-filter_{{ semester.id }}');
+                        if($("[data-filter].active").length) {
+                            localStorage['course-filter_{{ semester.id }}'] = $("[data-filter].active")[0].dataset.filter;
+                        }
                     });
+
+                    // activate previously stored active button after page reload
+                    $('#course-filter-buttons [data-filter="' + localStorage['course-filter_{{ semester.id }}'] + '"]').addClass("active");
+                    table.draw();
                 }
             });
         });
