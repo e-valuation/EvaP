@@ -152,6 +152,21 @@ a.btn:not([href]):not(.disabled).btn-dark {
     font-size: 0.875rem;
 }
 
+.badge-btn {
+    margin-left: 0.3rem;
+    color: $darker-gray;
+    background-color: $light-gray;
+}
+.btn-light.active .badge-btn {
+    color: $lighter-gray;
+    background-color: $dark-gray;
+}
+.badge-btn-zero {
+    margin-left: 0.3rem;
+    color: $medium-gray;
+    background-color: $white;
+}
+
 .icon-buttons .btn {
     min-width: 32px;
 }
