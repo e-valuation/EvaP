@@ -20,10 +20,12 @@ def index(request):
 @internal_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+
+    visible_states = ['published']
     if request.user.is_reviewer:
-        courses = list(semester.course_set.filter(state__in=["in_evaluation", "evaluated", "reviewed", "published"]).prefetch_related("degrees"))
-    else:
-        courses = list(semester.course_set.filter(state="published").prefetch_related("degrees"))
+        visible_states += ['in_evaluation', 'evaluated', 'reviewed']
+
+    courses = semester.course_set.filter(state__in=visible_states).prefetch_related("degrees")
 
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
