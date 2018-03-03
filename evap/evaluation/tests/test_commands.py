@@ -49,7 +49,7 @@ class TestReloadTestdataCommand(TestCase):
 
         management.call_command('reload_testdata', stdout=StringIO())
 
-        mock_call_command.assert_any_call('reset_db', user='evap', interactive=False)
+        mock_call_command.assert_any_call('reset_db', interactive=False)
         mock_call_command.assert_any_call('migrate')
         mock_call_command.assert_any_call('createcachetable')
         mock_call_command.assert_any_call('loaddata', 'test_data')

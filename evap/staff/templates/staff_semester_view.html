@@ -110,6 +110,73 @@
             {% endif %}
         </div>
         <div class="card-body">
+            <div class="btn-switch mb-2" id="course-filter-buttons">
+                <div class="btn-switch-label my-auto">{% trans 'Filter' %}</div>
+                <div class="btn-group icon-buttons">
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
+                        <span class="fas fa-circle icon-yellow"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-square icon-gray"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}">
+                        <span class="far fa-square icon-gray"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-yellow"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}">
+                        <span class="far fa-check-square icon-yellow"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-green"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}">
+                        <span class="far fa-check-square icon-green"></span>
+                    </a>
+                </div>
+                <div class="btn-group icon-buttons ml-2">
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
+                        <span class="fas fa-pause icon-gray"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-play icon-gray"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}">
+                        <span class="fas fa-play icon-gray"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-stop icon-green"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}">
+                        <span class="fas fa-stop icon-green"></span>
+                    </a>
+                </div>
+                <div class="btn-group icon-buttons ml-2">
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
+                        <span class="fas fa-comment icon-gray"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-yellow"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
+                        <span class="fas fa-comment icon-yellow"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-green"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}">
+                        <span class="fas fa-comment icon-green"></span>
+                    </a>
+                </div>
+                <div class="btn-group icon-buttons ml-2">
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
+                        <span class="fas fa-chart-bar icon-gray"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-red"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
+                        <span class="fas fa-chart-bar icon-red"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-yellow"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}">
+                        <span class="fas fa-chart-bar icon-yellow"></span>
+                    </a>
+                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-green"
+                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}">
+                        <span class="fas fa-chart-bar icon-green"></span>
+                    </a>
+                </div>
+            </div>
             <form id="course_operation_form" method="GET" action="{% url 'staff:semester_course_operation' semester.id %}">
                 <table id="course-table" class="table table-striped table-narrow vertically-aligned">
                     <thead>
@@ -292,50 +359,36 @@
                     "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
                 },
                 "order": [[5, "asc"]],
-                "dom": '<"filter-toolbar">frt',
+                "dom": 'frt',
                 fnInitComplete: function() {
-                    $("div.filter-toolbar").html(
-                        `<div class="btn-switch">
-                            <div class="btn-switch-label">{% trans 'Filter' %}</div>
-                            <div class="btn-group icon-buttons">
-                                <a role="button" class="btn btn-sm btn-light fas fa-circle icon-yellow" data-filter="fa-circle icon-yellow"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light far fa-square icon-gray" data-filter="fa-square icon-gray"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light far fa-check-square icon-yellow" data-filter="fa-check-square icon-yellow"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light far fa-check-square icon-green" data-filter="fa-check-square icon-green"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}"></a>
-                                <a role="button" class="ml-2 btn btn-sm btn-light fas fa-pause icon-gray" data-filter="fa-pause icon-gray"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-play icon-gray" data-filter="fa-play icon-gray"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-stop icon-green" data-filter="fa-stop icon-green"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}"></a>
-                                <a role="button" class="ml-2 btn btn-sm btn-light fas fa-comment icon-gray" data-filter="fa-comment icon-gray"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-comment icon-yellow" data-filter="fa-comment icon-yellow"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-comment icon-green" data-filter="fa-comment icon-green"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}"></a>
-                                <a role="button" class="ml-2 btn btn-sm btn-light fas fa-chart-bar icon-gray" data-filter="fa-chart-bar icon-gray"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-chart-bar icon-red" data-filter="fa-chart-bar icon-red"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-chart-bar icon-yellow" data-filter="fa-chart-bar icon-yellow"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}"></a>
-                                <a role="button" class="btn btn-sm btn-light fas fa-chart-bar icon-green" data-filter="fa-chart-bar icon-green"
-                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}"></a>
-                            </div>
-                        </div>`
-                    );
-                    $('[data-filter]').click( function(e) {
-                        $(e.target).toggleClass("active");
-                        $("[data-filter].active").not(e.target).removeClass("active");
+                    // add counts to each filter button
+                    $("#course-filter-buttons [data-filter]").each(function(i, obj) {
+                        var iconCount = 0;
+                        [1,2,3,4].forEach(i => {
+                            iconCount += table.column(i).data().filter((value, index) => value.includes(obj.dataset.filter)).count();
+                        });
+                        $(`<span class="badge badge-pill ${iconCount == 0 ? 'badge-btn-zero' : 'badge-btn'}">${iconCount}</span>`).appendTo(obj);
+                    });
+
+                    // add click events for filter buttons
+                    $('#course-filter-buttons [data-filter]').click(function(e) {
+                        // toggle active states and refresh table
+                        var button = $(e.target).closest("a");
+                        button.toggleClass("active");
+                        $("[data-filter].active").not(button).removeClass("active");
                         table.draw();
-                    } );
-                    activateTooltips('.filter-toolbar');
-                },
+
+                        // store which button was selected
+                        localStorage.removeItem('course-filter_{{ semester.id }}');
+                        if($("[data-filter].active").length) {
+                            localStorage['course-filter_{{ semester.id }}'] = $("[data-filter].active")[0].dataset.filter;
+                        }
+                    });
+
+                    // activate previously stored active button after page reload
+                    $('#course-filter-buttons [data-filter="' + localStorage['course-filter_{{ semester.id }}'] + '"]').addClass("active");
+                    table.draw();
+                }
             });
         });
     </script>

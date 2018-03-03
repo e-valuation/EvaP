@@ -596,11 +596,6 @@ class Contribution(models.Model):
         )
         ordering = ['order', ]
 
-    def clean(self):
-        # responsible contributors can always edit
-        if self.responsible:
-            self.can_edit = True
-
     def save(self, *args, **kw):
         super().save(*args, **kw)
         if self.responsible and not self.course.is_single_result:

@@ -168,15 +168,15 @@
                 {% if info_only or not request.user.is_staff %}
                     <span data-toggle="tooltip" data-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
-                        {% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
+                        {% blocktrans with midterm=course.midterm_grade_documents_count final=course.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </span>
                 {% else %}
                     <a href="{% url 'grades:course_view' semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
-                        {% blocktrans with midterm=course.midterm_grade_documents.count final=course.final_grade_documents.count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
+                        {% blocktrans with midterm=course.midterm_grade_documents_count final=course.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
                     </a>
                 {% endif %}
-                {% if course.final_grade_documents %}
+                {% if course.final_grade_documents_count %}
                     <span class="fas fa-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Final grades have been uploaded' %}"></span>
                 {% elif course.gets_no_grade_documents %}
                     <span class="fas fa-check" data-toggle="tooltip" data-placement="top" title="{% trans 'It was confirmed that final grades have been submitted' %}"></span>
