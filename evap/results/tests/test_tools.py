@@ -21,6 +21,13 @@ class TestCalculateResults(TestCase):
 
         self.assertIsNotNone(cache.get(get_results_cache_key(course)))
 
+    def test_cache_unpublished_course(self):
+        course = mommy.make(Course, state='published')
+        calculate_results(course)
+        course.unpublish()
+
+        self.assertIsNone(cache.get(get_results_cache_key(course)))
+
     def test_calculation_results(self):
         contributor1 = mommy.make(UserProfile)
         student = mommy.make(UserProfile)
