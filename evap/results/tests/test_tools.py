@@ -7,7 +7,7 @@ from django.test import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_answers, get_answers_from_answer_counters, calculate_average_grades_and_deviation, calculate_results
+from evap.results.tools import get_answers, get_answers_from_answer_counters, get_results_cache_key, calculate_average_grades_and_deviation, calculate_results
 from evap.staff.tools import merge_users
 
 
@@ -15,11 +15,11 @@ class TestCalculateResults(TestCase):
     def test_caches_published_course(self):
         course = mommy.make(Course, state='published')
 
-        self.assertIsNone(cache.get('evap.staff.results.tools.calculate_results-{:d}'.format(course.id)))
+        self.assertIsNone(cache.get(get_results_cache_key(course)))
 
         calculate_results(course)
 
-        self.assertIsNotNone(cache.get('evap.staff.results.tools.calculate_results-{:d}'.format(course.id)))
+        self.assertIsNotNone(cache.get(get_results_cache_key(course)))
 
     def test_calculation_results(self):
         contributor1 = mommy.make(UserProfile)

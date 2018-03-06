@@ -99,11 +99,15 @@ def get_counts(question, answer_counters):
     return counts
 
 
+def get_results_cache_key(course):
+    return 'evap.staff.results.tools.calculate_results-{:d}'.format(course.id)
+
+
 def calculate_results(course, force_recalculation=False):
     if course.state != "published":
         return _calculate_results_impl(course)
 
-    cache_key = 'evap.staff.results.tools.calculate_results-{:d}'.format(course.id)
+    cache_key = get_results_cache_key(course)
     if force_recalculation:
         cache.delete(cache_key)
     return cache.get_or_set(cache_key, partial(_calculate_results_impl, course), None)
