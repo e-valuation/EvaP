@@ -30,7 +30,7 @@ class GradeUploadTests(WebTest):
             voters=[cls.student, cls.student2],
         )
         
-        contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True,
+        contribution = mommy.make(Contribution, course=cls.course, contributors=[responsible], responsible=True,
                                   can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
@@ -119,7 +119,7 @@ class GradeUploadTests(WebTest):
         course.review_finished()
         course.save()
         self.helper_check_final_grade_upload(
-            course, course.num_participants + course.contributions.exclude(contributor=None).count())
+            course, course.num_participants + course.contributions.exclude(contributors=None).count())
 
         # state: published
         course.publish()
@@ -135,9 +135,10 @@ class GradeUploadTests(WebTest):
             participants=[self.student, self.student2, self.student3],
             voters=[self.student, self.student2]
         )
-        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
+        contribution = Contribution(course=course,
                                     responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
+        contribution.contributors.set([UserProfile.objects.get(username="responsible")])
         contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
 
         course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
@@ -150,7 +151,7 @@ class GradeUploadTests(WebTest):
         self.assertTrue(course.gets_no_grade_documents)
         # course should get published here
         self.assertEqual(course.state, "published")
-        self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
+        self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributors=None).count())
 
         response = self.app.post("/grades/toggle_no_grades", params={"course_id": course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)

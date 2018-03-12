@@ -112,13 +112,13 @@ class TestCourses(TestCase):
         self.assertFalse(course.all_contributions_have_questionnaires)
 
         responsible_contribution = mommy.make(
-                Contribution, course=course, contributor=mommy.make(UserProfile),
+                Contribution, course=course, contributors=[mommy.make(UserProfile)],
                 responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         course = Course.objects.get()
         self.assertFalse(course.general_contribution_has_questionnaires)
         self.assertFalse(course.all_contributions_have_questionnaires)
 
-        general_contribution = mommy.make(Contribution, course=course, contributor=None)
+        general_contribution = mommy.make(Contribution, course=course, contributors=set())
         course = Course.objects.get()
         self.assertFalse(course.general_contribution_has_questionnaires)
         self.assertFalse(course.all_contributions_have_questionnaires)
@@ -142,8 +142,8 @@ class TestCourses(TestCase):
         course = mommy.make(Course)
         responsible1 = mommy.make(UserProfile)
         responsible2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=0)
-        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=1)
+        contribution1 = mommy.make(Contribution, course=course, contributors=[responsible1], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=0)
+        mommy.make(Contribution, course=course, contributors=[responsible2], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=1)
 
         self.assertEqual(list(course.responsible_contributors), [responsible1, responsible2])
 
@@ -157,7 +157,7 @@ class TestCourses(TestCase):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, semester=mommy.make(Semester))
         contribution = mommy.make(Contribution,
-            course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            course=course, contributors=[responsible], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         course.single_result_created()
@@ -216,7 +216,7 @@ class TestUserProfile(TestCase):
         self.assertFalse(user2.can_staff_delete)
 
         contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, contributor=contributor)
+        mommy.make(Contribution, contributors=[contributor])
         self.assertFalse(contributor.can_staff_delete)
 
     def test_inactive_users_hidden(self):
@@ -311,7 +311,7 @@ class ArchivingTests(TestCase):
     def test_archiving_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, state="published")
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = mommy.make(Contribution, course=course, contributors=[responsible], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
         self.assertTrue(course.is_single_result)
 
@@ -333,7 +333,7 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.course = mommy.make(Course)
-        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributors=[cls.user], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 
@@ -388,9 +388,9 @@ class TestEmailRecipientList(TestCase):
         responsible = mommy.make(UserProfile)
         editor = mommy.make(UserProfile)
         contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
-        mommy.make(Contribution, course=course, contributor=contributor)
+        mommy.make(Contribution, course=course, contributors=[responsible], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributors=[editor], can_edit=True)
+        mommy.make(Contribution, course=course, contributors=[contributor])
 
         participant1 = mommy.make(UserProfile, courses_participating_in=[course])
         participant2 = mommy.make(UserProfile, courses_participating_in=[course])
@@ -420,8 +420,8 @@ class TestEmailRecipientList(TestCase):
         contributor1 = mommy.make(UserProfile)
         contributor2 = mommy.make(UserProfile, delegates=[contributor1])
 
-        mommy.make(Contribution, course=course, contributor=contributor1)
-        mommy.make(Contribution, course=course, contributor=contributor2)
+        mommy.make(Contribution, course=course, contributors=[contributor1])
+        mommy.make(Contribution, course=course, contributors=[contributor2])
 
         # no-one should get filtered.
         recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
@@ -432,7 +432,7 @@ class TestEmailRecipientList(TestCase):
         self.assertCountEqual(recipient_list, [contributor2])
 
         contributor3 = mommy.make(UserProfile, delegates=[contributor2])
-        mommy.make(Contribution, course=course, contributor=contributor3)
+        mommy.make(Contribution, course=course, contributors=[contributor3])
 
         # again, no-one should get filtered.
         recipient_list = EmailTemplate.recipient_list_for_course(course, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)

@@ -17,8 +17,8 @@ class LoginTests(WebTest):
         cls.inactive_external_user = mommy.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
         course = mommy.make(Course, state='published')
-        mommy.make(Contribution, course=course, contributor=cls.external_user, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=course, contributor=cls.inactive_external_user, can_edit=True, responsible=False, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributors=[cls.external_user], can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributors=[cls.inactive_external_user], can_edit=True, responsible=False, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")

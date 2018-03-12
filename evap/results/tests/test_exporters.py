@@ -34,7 +34,7 @@ class TestExporters(TestCase):
         likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
         mommy.make(Question, type="H", questionnaire=questionnaire, order=3)
 
-        contribution = mommy.make(Contribution, course=course, questionnaires=[questionnaire], contributor=contributor)
+        contribution = mommy.make(Contribution, course=course, questionnaires=[questionnaire], contributors=[contributor])
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()

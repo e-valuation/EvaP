@@ -28,7 +28,7 @@ class TestCalculateResults(TestCase):
         course = mommy.make(Course, state='published', participants=[student, contributor1])
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type="G")
-        contribution1 = mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, contributors=[contributor1], course=course, questionnaires=[questionnaire])
 
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=1, count=5)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=2, count=15)
@@ -55,7 +55,7 @@ class TestCalculateResults(TestCase):
         course = mommy.make(Course, state='published', participants=[student])
         questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, questionnaire=questionnaire, type="G")
-        mommy.make(Contribution, contributor=contributor, course=course, questionnaires=[questionnaire])
+        mommy.make(Contribution, contributors=[contributor], course=course, questionnaires=[questionnaire])
 
         calculate_results(course)
 
@@ -64,7 +64,11 @@ class TestCalculateResults(TestCase):
         results = calculate_results(course)
 
         for section in results:
-            self.assertTrue(Contribution.objects.filter(course=course, contributor=section.contributor).exists())
+            # Chaining is needed to check for all contributors
+            contributions = Contribution.objects.filter(course=course)
+            for contributor in section.contributors:
+                contributions = contributions.filter(contributors=contributor)
+            self.assertTrue(contributions.exists())
 
     def test_answer_counting(self):
         contributor1 = mommy.make(UserProfile)
@@ -75,9 +79,9 @@ class TestCalculateResults(TestCase):
         questionnaire = mommy.make(Questionnaire)
         question1 = mommy.make(Question, questionnaire=questionnaire, type="G")
         question2 = mommy.make(Question, questionnaire=questionnaire, type="G")
-        contribution1 = mommy.make(Contribution, contributor=contributor1, course=course1, questionnaires=[questionnaire])
-        contribution2 = mommy.make(Contribution, contributor=contributor1, questionnaires=[questionnaire])
-        contribution3 = mommy.make(Contribution, contributor=contributor2, course=course1, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, contributors=[contributor1], course=course1, questionnaires=[questionnaire])
+        contribution2 = mommy.make(Contribution, contributors=[contributor1], questionnaires=[questionnaire])
+        contribution3 = mommy.make(Contribution, contributors=[contributor2], course=course1, questionnaires=[questionnaire])
 
         rating_answer_counters = []
         rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=question1, contribution=contribution1, answer=1, count=1))
@@ -105,9 +109,9 @@ class TestCalculateResults(TestCase):
         questionnaire = mommy.make(Questionnaire)
         question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
         question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")
-        general_contribution = mommy.make(Contribution, contributor=None, course=course, questionnaires=[questionnaire])
-        contribution1 = mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
-        contribution2 = mommy.make(Contribution, contributor=contributor2, course=course, questionnaires=[questionnaire])
+        general_contribution = mommy.make(Contribution, contributors=set(), course=course, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, contributors=[contributor1], course=course, questionnaires=[questionnaire])
+        contribution2 = mommy.make(Contribution, contributors=[contributor2], course=course, questionnaires=[questionnaire])
 
         mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution2, answer=4, count=2)
@@ -132,9 +136,9 @@ class TestCalculateResults(TestCase):
         questionnaire = mommy.make(Questionnaire)
         question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
         question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")
-        general_contribution = mommy.make(Contribution, contributor=None, course=course, questionnaires=[questionnaire])
-        contribution1 = mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
-        contribution2 = mommy.make(Contribution, contributor=contributor2, course=course, questionnaires=[questionnaire])
+        general_contribution = mommy.make(Contribution, contributors=set(), course=course, questionnaires=[questionnaire])
+        contribution1 = mommy.make(Contribution, contributors=[contributor1], course=course, questionnaires=[questionnaire])
+        contribution2 = mommy.make(Contribution, contributors=[contributor2], course=course, questionnaires=[questionnaire])
 
         mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution1, answer=3, count=1)

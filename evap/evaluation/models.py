@@ -259,7 +259,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
         # make sure there is a general contribution
         if not self.general_contribution:
-            self.contributions.create(contributor=None)
+            self.contributions.create()
             del self.general_contribution  # invalidate cached property
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
@@ -397,7 +397,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @cached_property
     def general_contribution(self):
         try:
-            return self.contributions.get(contributor=None)
+            return self.contributions.get(contributors=None)
         except Contribution.DoesNotExist:
             return None
 
@@ -441,18 +441,18 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return (self.vote_start_datetime.date() - date.today()).days
 
     def is_user_editor_or_delegate(self, user):
-        if self.contributions.filter(can_edit=True, contributor=user).exists():
+        if self.contributions.filter(can_edit=True, contributors=user).exists():
             return True
         represented_users = user.represented_users.all()
-        if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
+        if self.contributions.filter(can_edit=True, contributors__in=represented_users).exists():
             return True
         return False
 
     def is_user_contributor_or_delegate(self, user):
-        if self.contributions.filter(contributor=user).exists():
+        if self.contributions.filter(contributors=user).exists():
             return True
         represented_users = user.represented_users.all()
-        if self.contributions.filter(contributor__in=represented_users).exists():
+        if self.contributions.filter(contributors__in=represented_users).exists():
             return True
         return False
 
@@ -561,7 +561,7 @@ def log_state_transition(sender, **kwargs):
 
 
 class Contribution(models.Model):
-    """A contributor who is assigned to a course and his questionnaires."""
+    """A collection of contributors who are assigned to a course and their questionnaires."""
 
     OWN_COMMENTS = 'OWN'
     COURSE_COMMENTS = 'COURSE'
@@ -581,7 +581,7 @@ class Contribution(models.Model):
     )
 
     course = models.ForeignKey(Course, models.CASCADE, verbose_name=_("course"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
+    contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("contributors"), blank=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
@@ -591,9 +591,10 @@ class Contribution(models.Model):
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
     class Meta:
-        unique_together = (
-            ('course', 'contributor'),
-        )
+        #TODO Check uniqueness
+        #unique_together = (
+        #    ('course', 'contributors'),
+        #)
         ordering = ['order', ]
 
     def save(self, *args, **kw):
@@ -603,7 +604,7 @@ class Contribution(models.Model):
 
     @property
     def is_general(self):
-        return self.contributor is None
+        return self.contributors is None
 
 
 class Question(models.Model, metaclass=LocalizeModelBase):
@@ -951,7 +952,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return True
 
         last_semester_participated = Semester.objects.filter(course__participants=self).order_by("-created_at").first()
-        last_semester_contributed = Semester.objects.filter(course__contributions__contributor=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(course__contributions__contributors=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 

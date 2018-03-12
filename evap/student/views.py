@@ -47,12 +47,12 @@ def vote_preview(request, course, for_rendering_in_modal=False):
     """
     form_groups = helper_create_voting_form_groups(request, course.contributions.all())
     course_form_group = form_groups.pop(course.general_contribution)
-    contributor_form_groups = list((contribution.contributor, contribution.label, form_group, False) for contribution, form_group in form_groups.items())
+    contribution_form_groups = list((contribution, contribution.contributors.all(), form_group, False) for contribution, form_group in form_groups.items())
 
     template_data = dict(
         errors_exist=False,
         course_form_group=course_form_group,
-        contributor_form_groups=contributor_form_groups,
+        contribution_form_groups=contribution_form_groups,
         course=course,
         preview=True,
         for_rendering_in_modal=for_rendering_in_modal)
@@ -67,7 +67,7 @@ def vote(request, course_id):
         raise PermissionDenied
 
     # prevent a user from voting on themselves.
-    contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
+    contributions_to_vote_on = course.contributions.exclude(contributors=request.user).all()
     form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
 
     if not all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
@@ -75,12 +75,12 @@ def vote(request, course_id):
 
         course_form_group = form_groups.pop(course.general_contribution)
 
-        contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
+        contribution_form_groups = list((contribution, contribution.contributors.all(), form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
 
         template_data = dict(
             errors_exist=errors_exist,
             course_form_group=course_form_group,
-            contributor_form_groups=contributor_form_groups,
+            contribution_form_groups=contribution_form_groups,
             course=course,
             participants_warning=course.num_participants <= 5,
             preview=False,

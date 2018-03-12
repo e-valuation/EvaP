@@ -23,8 +23,8 @@ COMMENT_STATES_REQUIRED_FOR_VISIBILITY = [TextAnswer.PRIVATE, TextAnswer.PUBLISH
 
 
 # see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
-CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
+ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributors', 'label', 'results', 'warning'))
+CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributors', 'label', 'is_responsible', 'results'))
 RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
 YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning', 'approval_count'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
@@ -112,11 +112,11 @@ def calculate_results(course, force_recalculation=False):
 def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of single result elements, the average grade and
+    contributors (or None), a list of single result elements, the average grade and
     deviation for that section (or None). The result elements are either
     `RatingResult` or `TextResult` instances."""
 
-    # there will be one section per relevant questionnaire--contributor pair
+    # there will be one section per relevant questionnaire--contributors pair
     sections = []
 
     # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
@@ -162,7 +162,7 @@ def _calculate_results_impl(course):
 
         section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
-        sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
+        sections.append(ResultSection(questionnaire, contribution.contributors.all(), contribution.label, results, section_warning))
 
     return sections
 
@@ -178,16 +178,16 @@ def calculate_average_grades_and_deviation(course):
     dev_generic_grade = []
     dev_contribution_grade = []
 
-    for __, contributor, __, results, __ in calculate_results(course):
+    for __, contributors, __, results, __ in calculate_results(course):
         average_likert = avg([result.average for result in results if result.question.is_likert_question])
         deviation_likert = avg([result.deviation for result in results if result.question.is_likert_question])
         average_grade = avg([result.average for result in results if result.question.is_grade_question])
         deviation_grade = avg([result.deviation for result in results if result.question.is_grade_question])
 
-        (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
-        (dev_contribution_likert if contributor else dev_generic_likert).append(deviation_likert)
-        (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
-        (dev_contribution_grade if contributor else dev_generic_grade).append(deviation_grade)
+        (avg_contribution_likert if contributors else avg_generic_likert).append(average_likert)
+        (dev_contribution_likert if contributors else dev_generic_likert).append(deviation_likert)
+        (avg_contribution_grade if contributors else avg_generic_grade).append(average_grade)
+        (dev_contribution_grade if contributors else dev_generic_grade).append(deviation_grade)
 
     # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
     # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
@@ -207,7 +207,7 @@ def calculate_average_grades_and_deviation(course):
 
 def has_no_rating_answers(course, contributor, questionnaire):
     questions = questionnaire.rating_questions
-    contribution = Contribution.objects.get(course=course, contributor=contributor)
+    contribution = Contribution.objects.get(course=course, contributors__in=contributor)
     return RatingAnswerCounter.objects.filter(question__in=questions, contribution=contribution).count() == 0
 
 
