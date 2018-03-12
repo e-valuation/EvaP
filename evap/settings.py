@@ -105,17 +105,19 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'evap_db_default_cache',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/0',
         'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'MAX_ENTRIES': 1000
         }
     },
     'results': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'evap_db_results_cache',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
         'TIMEOUT': None,  # is always invalidated manually
         'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'MAX_ENTRIES': 100000
         }
     }
@@ -358,6 +360,18 @@ TESTING = 'test' in sys.argv
 if TESTING:
     COMPRESS_PRECOMPILERS = ()  # disable django-compressor
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+    # use the database for caching. it's properly reset between tests in constrast to redis,
+    # and does not change behaviour in contrast to disabling the cache entirely.
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_default',
+        },
+        'results': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_results',
+        },
+    }
 
 
 # Django debug toolbar settings
