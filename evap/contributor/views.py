@@ -19,10 +19,10 @@ def index(request):
     user = request.user
 
     contributor_visible_states = ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
-    own_courses = Course.objects.filter(contributions__contributor=user, state__in=contributor_visible_states)
+    own_courses = Course.objects.filter(contributions__contributors=user, state__in=contributor_visible_states)
 
     represented_users = user.represented_users.all()
-    delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
+    delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributors__in=represented_users, state__in=contributor_visible_states)
 
     all_courses = list(own_courses) + list(delegated_courses)
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))

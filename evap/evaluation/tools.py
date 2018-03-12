@@ -105,13 +105,15 @@ def send_publish_notifications(courses, template=None):
             for participant in course.participants.all():
                 publish_notifications[participant].add(course)
             for contribution in course.contributions.all():
-                if contribution.contributor:
-                    publish_notifications[contribution.contributor].add(course)
+                if contribution.contributors:
+                    for contributor in contribution.contributors.all():
+                        publish_notifications[contributor].add(course)
         # if a course was not published notifications are only sent for contributors who can see comments
         elif len(course.textanswer_set) > 0:
             for textanswer in course.textanswer_set:
-                if textanswer.contribution.contributor:
-                    publish_notifications[textanswer.contribution.contributor].add(course)
+                if textanswer.contribution.contributors:
+                    for contributor in textanswer.contribution.contributors.all():
+                            publish_notifications[contributor].add(course)
 
             for contributor in course.responsible_contributors:
                 publish_notifications[contributor].add(course)

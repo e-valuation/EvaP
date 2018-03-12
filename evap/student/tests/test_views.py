@@ -43,9 +43,9 @@ class TestVoteView(ViewTest):
         cls.general_likert_question = mommy.make(Question, questionnaire=cls.general_questionnaire, type="L")
         cls.general_grade_question = mommy.make(Question, questionnaire=cls.general_questionnaire, type="G")
 
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, questionnaires=[cls.contributor_questionnaire],
+        cls.contribution1 = mommy.make(Contribution, contributors=[cls.contributor1], questionnaires=[cls.contributor_questionnaire],
                                        course=cls.course)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, questionnaires=[cls.contributor_questionnaire],
+        cls.contribution2 = mommy.make(Contribution, contributors=[cls.contributor2], questionnaires=[cls.contributor_questionnaire],
                                        course=cls.course)
 
         cls.course.general_contribution.questionnaires.set([cls.general_questionnaire])
@@ -137,11 +137,11 @@ class TestVoteView(ViewTest):
     def test_user_cannot_vote_for_themselves(self):
         response = self.get_assert_200(self.url, user=self.contributor1)
 
-        for contributor, _, _, _ in response.context['contributor_form_groups']:
-            self.assertNotEqual(contributor, self.contributor1, "Contributor should not see the questionnaire about themselves")
+        for _, contributors, _, _ in response.context['contribution_form_groups']:
+            self.assertNotEqual(contributors.all(), [self.contributor1], "Contributor should not see the questionnaire about themselves")
 
         response = self.get_assert_200(self.url, user=self.voting_user1)
-        self.assertTrue(any(contributor == self.contributor1 for contributor, _, _, _ in response.context['contributor_form_groups']),
+        self.assertTrue(any(contributors.all() == [self.contributor1] for _, contributors, _, _ in response.context['contribution_form_groups']),
             "Regular students should see the questionnaire about a contributor")
 
     def test_user_logged_out(self):

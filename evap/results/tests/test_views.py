@@ -49,8 +49,8 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
         mommy.make(Contribution, course=cls.single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
-        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
+        mommy.make(Contribution, course=cls.course, contributors=[responsible], can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributors=[contributor], can_edit=True)
 
     def test_heading_question_filtering(self):
         contributor = mommy.make(UserProfile)
@@ -61,7 +61,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
         heading_question_2 = mommy.make(Question, type="H", questionnaire=questionnaire, order=3)
 
-        contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
+        contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributors=[contributor])
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         page = self.app.get("/results/semester/2/course/21", user='evap')
@@ -102,9 +102,9 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(UserProfile, username="random", email="random@institution.example.com")
         degree = mommy.make(Degree)
         private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
-        mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
+        mommy.make(Contribution, course=private_course, contributors=[responsible], can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=private_course, contributors=[other_responsible], can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=private_course, contributors=[contributor], can_edit=True)
 
         url = '/results/semester/%s' % (self.semester.id)
         page = self.app.get(url, user='random')

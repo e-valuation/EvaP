@@ -84,8 +84,8 @@ def create_course_with_responsible_and_editor(course_id=None):
     else:
         course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)])
 
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)], comment_visibility=Contribution.ALL_COMMENTS)
-    mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
+    mommy.make(Contribution, course=course, contributors=[contributor], can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)], comment_visibility=Contribution.ALL_COMMENTS)
+    mommy.make(Contribution, course=course, contributors=[editor], can_edit=True, questionnaires=[mommy.make(Questionnaire, is_for_contributors=True)])
     course.general_contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=False)])
 
     return course

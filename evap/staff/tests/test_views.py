@@ -424,10 +424,10 @@ class TestSemesterAssignView(ViewTest):
         seminar_type = mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
         cls.questionnaire = mommy.make(Questionnaire)
         course1 = mommy.make(Course, semester=cls.semester, type=seminar_type)
-        mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course1,
+        mommy.make(Contribution, contributors=[mommy.make(UserProfile)], course=course1,
                    responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         course2 = mommy.make(Course, semester=cls.semester, type=lecture_type)
-        mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course2,
+        mommy.make(Contribution, contributors=[mommy.make(UserProfile)], course=course2,
                    responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_assign_questionnaires(self):
@@ -454,7 +454,7 @@ class TestSemesterTodoView(ViewTest):
     def test_todo(self):
         course = mommy.make(Course, semester=self.semester, state='prepared', name_en='name_to_find', name_de='name_to_find')
         user = mommy.make(UserProfile, username='user_to_find')
-        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributors=[user], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         response = self.app.get(self.url, user='staff')
         self.assertContains(response, 'user_to_find')
@@ -471,7 +471,7 @@ class TestSendReminderView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
         course = mommy.make(Course, semester=cls.semester, state='prepared')
         responsible = mommy.make(UserProfile, pk=3, email='a.b@example.com')
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributors=[responsible], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_form(self):
         page = self.app.get(self.url, user='staff')
@@ -831,7 +831,7 @@ class TestCourseCreateView(ViewTest):
         form['contributions-INITIAL_FORMS'] = 0
         form['contributions-MAX_NUM_FORMS'] = 5
         form['contributions-0-course'] = ''
-        form['contributions-0-contributor'] = self.staff_user.pk
+        form['contributions-0-contributors'] = [self.staff_user.pk]
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
         form['contributions-0-responsibility'] = "RESPONSIBLE"
@@ -863,7 +863,7 @@ class TestCourseEditView(ViewTest):
 
         # This is necessary so that the call to is_single_result does not fail.
         responsible = mommy.make(UserProfile)
-        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contribution = mommy.make(Contribution, course=cls.course, contributors=[responsible], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_edit_course(self):
         user = mommy.make(UserProfile)
@@ -871,7 +871,7 @@ class TestCourseEditView(ViewTest):
 
         # remove responsibility
         form = page.forms["course-form"]
-        form['contributions-0-contributor'] = user.pk
+        form['contributions-0-contributors'] = [user.pk]
         form['contributions-0-responsibility'] = "RESPONSIBLE"
         page = form.submit("operation", value="save")
         self.assertEqual(list(self.course.responsible_contributors), [user])
@@ -942,7 +942,7 @@ class TestSingleResultEditView(ViewTest):
 
         course = mommy.make(Course, semester=semester, pk=1)
         responsible = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True,
+        contribution = mommy.make(Contribution, course=course, contributors=[responsible], responsible=True, can_edit=True,
                                   comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[Questionnaire.single_result_questionnaire()])
 
         question = Questionnaire.single_result_questionnaire().question_set.get()
@@ -1192,7 +1192,7 @@ class TestCourseCommentView(ViewTest):
     def test_comments_showing_up(self):
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
-        contribution = mommy.make(Contribution, course=self.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
+        contribution = mommy.make(Contribution, course=self.course, contributors=[mommy.make(UserProfile)], questionnaires=[questionnaire])
         mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='should show up')
         response = self.app.get(self.url, user='staff')
 
@@ -1210,7 +1210,7 @@ class TestCourseCommentEditView(ViewTest):
         course = mommy.make(Course, semester=semester, pk=1)
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
-        contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
+        contribution = mommy.make(Contribution, course=course, contributors=[mommy.make(UserProfile)], questionnaires=[questionnaire])
         mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
     def test_comments_showing_up(self):

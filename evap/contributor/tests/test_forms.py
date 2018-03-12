@@ -44,7 +44,7 @@ class ContributionFormsetTests(TestCase):
         mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
 
         # just the normal questionnaire should be shown.
-        contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
+        contribution1 = mommy.make(Contribution, course=course, contributors=[mommy.make(UserProfile)], questionnaires=[])
 
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
         formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
@@ -66,7 +66,7 @@ class ContributionFormsetTests(TestCase):
     def test_editors_cannot_degrade_responsibles(self):
         course = mommy.make(Course)
         user = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True,
+        contribution = mommy.make(Contribution, course=course, contributors=[user], responsible=True,
                                   can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
@@ -78,7 +78,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-course": "{}".format(course.pk),
             "contributions-0-order": "1",
             "contributions-0-id": "{}".format(contribution.pk),
-            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-0-contributors": "{}".format(user.pk),
             "contributions-0-does_not_contribute": "on",
             "contributions-0-responsibility": "EDITOR",
             "contributions-0-comment_visibility": "OWN",
@@ -95,8 +95,8 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution1 = mommy.make(Contribution, course=course, contributors=[user1], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution2 = mommy.make(Contribution, course=course, contributors=[user2], responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
@@ -107,7 +107,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-course": "{}".format(course.pk),
             "contributions-0-order": "1",
             "contributions-0-id": "{}".format(contribution1.pk),
-            "contributions-0-contributor": "{}".format(user1.pk),
+            "contributions-0-contributors": "{}".format(user1.pk),
             "contributions-0-does_not_contribute": "on",
             "contributions-0-responsibility": "RESPONSIBLE",
             "contributions-0-comment_visibility": "OWN",
@@ -116,7 +116,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-1-course": "{}".format(course.pk),
             "contributions-1-order": "1",
             "contributions-1-id": "{}".format(contribution2.pk),
-            "contributions-1-contributor": "{}".format(user2.pk),
+            "contributions-1-contributors": "{}".format(user2.pk),
             "contributions-1-does_not_contribute": "on",
             "contributions-1-responsibility": "EDITOR",
             "contributions-1-comment_visibility": "ALL",
@@ -133,7 +133,7 @@ class ContributionFormsetTests(TestCase):
     def test_editors_cannot_delete_responsibles(self):
         course = mommy.make(Course)
         user = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True,
+        contribution = mommy.make(Contribution, course=course, contributors=[user], responsible=True,
                                   can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
@@ -145,9 +145,9 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-course": "{}".format(course.pk),
             "contributions-0-order": "1",
             "contributions-0-id": "{}".format(contribution.pk),
-            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-0-contributors": "{}".format(user.pk),
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-responsibility": "RESPONSIBLE",
             "contributions-0-comment_visibility": "OWN",
             "contributions-0-label": "",
             "contributions-0-DELETE": "",
@@ -163,7 +163,7 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, course=course, contributor=user1, responsible=True,
+        contribution = mommy.make(Contribution, course=course, contributors=[user1], responsible=True,
                                   can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
@@ -176,9 +176,9 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-course": "{}".format(course.pk),
             "contributions-0-order": "1",
             "contributions-0-id": "{}".format(contribution.pk),
-            "contributions-0-contributor": "{}".format(user1.pk),
+            "contributions-0-contributors": "{}".format(user1.pk),
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-responsibility": "RESPONSIBLE",
             "contributions-0-comment_visibility": "OWN",
             "contributions-0-label": "",
         }
@@ -191,9 +191,9 @@ class ContributionFormsetTests(TestCase):
             "contributions-1-course": "{}".format(course.pk),
             "contributions-1-order": "1",
             "contributions-1-id": "",
-            "contributions-1-contributor": "{}".format(user2.pk),
+            "contributions-1-contributors": "{}".format(user2.pk),
             "contributions-1-does_not_contribute": "on",
-            "contributions-1-responsibility": "RESPONSBILE",
+            "contributions-1-responsibility": "RESPONSIBLE",
             "contributions-1-comment_visibility": "OWN",
             "contributions-1-label": "",
         })
@@ -215,8 +215,8 @@ class ContributionFormsetWebTests(WebTest):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=1)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=2)
+        contribution1 = mommy.make(Contribution, course=course, contributors=[user1], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=1)
+        contribution2 = mommy.make(Contribution, course=course, contributors=[user2], responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors
