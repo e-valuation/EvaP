@@ -18,7 +18,7 @@
         <thead>
             <tr>
                 <th></th>
-                <th style="width: 30%">{% trans 'Contributor' %}</th>
+                <th style="width: 30%">{% trans 'Contributor(s)' %}</th>
                 <th style="width: 30%">{% trans 'Questionnaires' %}</th>
                 <th style="width: 30%">{% trans 'Options' %}</th>
                 <th style="width: 10%"></th>
@@ -36,8 +36,8 @@
                     </td>
 
                     <td>
-                        {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
-                        {{ form.contributor }}
+                        {% include 'bootstrap_form_errors.html' with errors=form.contributors.errors %}
+                        {{ form.contributors }}
                         <div class="form-check mt-2">
                             <label class="form-check-label" for="{{ form.does_not_contribute.id_for_label }}" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments.{% endblocktrans %}">
                                 {{ form.does_not_contribute }}

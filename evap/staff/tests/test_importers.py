@@ -209,12 +209,12 @@ class TestPersonImporter(TestCase):
         cls.participant1 = mommy.make(UserProfile)
         cls.course1 = mommy.make(Course, participants=[cls.participant1])
         cls.contributor1 = mommy.make(UserProfile)
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, course=cls.course1)
+        cls.contribution1 = mommy.make(Contribution, contributors=[cls.contributor1], course=cls.course1)
 
         cls.participant2 = mommy.make(UserProfile)
         cls.course2 = mommy.make(Course, participants=[cls.participant2])
         cls.contributor2 = mommy.make(UserProfile)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, course=cls.course2)
+        cls.contribution2 = mommy.make(Contribution, contributors=[cls.contributor2], course=cls.course2)
 
     def test_import_existing_contributor(self):
         self.assertEqual(self.course1.contributions.count(), 2)

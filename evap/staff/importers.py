@@ -96,7 +96,8 @@ class CourseData(CommonEqualityMixin):
         course.save()
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
-        course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = course.contributions.create(course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution.contributors.set([responsible_dbobj])
         for degree_name in self.degree_names:
             course.degrees.add(Degree.objects.get(name_de=degree_name))
 
@@ -518,8 +519,8 @@ class PersonImporter:
         self.success_messages.append(mark_safe(msg))
 
     def process_contributors(self, course, test_run, user_list):
-        already_related_contributions = Contribution.objects.filter(course=course, contributor__in=user_list).all()
-        already_related = [contribution.contributor for contribution in already_related_contributions]
+        already_related_contributions = Contribution.objects.filter(course=course, contributors__in=user_list).all()
+        already_related = [contributor for contribution in already_related_contributions for contributor in contribution.contributors.all()]
         if already_related:
             msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
             msg += create_user_list_string_for_message(already_related)
@@ -532,7 +533,8 @@ class PersonImporter:
         if not test_run:
             for user in users_to_add:
                 order = Contribution.objects.filter(course=course).count()
-                Contribution.objects.create(course=course, contributor=user, order=order)
+                contribution = Contribution.objects.create(course=course, order=order)
+                contribution.contributors.set([user])
             msg = _("{} contributors added to the course {}:").format(len(users_to_add), course.name)
         else:
             msg = _("{} contributors would be added to the course {}:").format(len(users_to_add), course.name)

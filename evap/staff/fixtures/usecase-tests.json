@@ -33,7 +33,7 @@
         "model":"evaluation.userprofile",
         "fields":{
             "username":"contributor_user",
-            "first_name":"Contributor",
+            "first_name":"contributor",
             "last_name":"User"
         }
     },
@@ -147,7 +147,7 @@
         "model": "evaluation.contribution",
         "fields":{
             "course": 1,
-            "contributor": 1,
+            "contributors": [ 1 ],
             "responsible": true,
             "can_edit": true
         }
@@ -157,7 +157,7 @@
         "model": "evaluation.contribution",
         "fields":{
             "course": 1,
-            "contributor": null,
+            "contributors": [ ],
             "responsible": false,
             "can_edit": false
         }
@@ -167,7 +167,7 @@
         "model": "evaluation.contribution",
         "fields":{
             "course": 2,
-            "contributor": 1,
+            "contributors": [ 1 ],
             "responsible": true,
             "can_edit": true
         }
@@ -177,7 +177,7 @@
         "model": "evaluation.contribution",
         "fields":{
             "course": 2,
-            "contributor": null,
+            "contributors": [ ],
             "responsible": false,
             "can_edit": false
         }
@@ -187,7 +187,7 @@
         "model": "evaluation.contribution",
         "fields":{
             "course": 2,
-            "contributor": 4,
+            "contributors": [ 4 ],
             "responsible": false,
             "can_edit": false
         }

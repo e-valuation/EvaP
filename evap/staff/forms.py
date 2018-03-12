@@ -247,7 +247,7 @@ class SingleResultForm(forms.ModelForm):
         single_result_question = single_result_questionnaire.question_set.first()
 
         contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        contribution.contributor = self.cleaned_data['responsible']
+        contribution.contributors.set([self.cleaned_data['responsible']])
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
         contribution.save()
@@ -269,7 +269,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
-    contributor = forms.ModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
+    contributors = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -282,10 +282,10 @@ class ContributionForm(forms.ModelForm):
 
     class Meta:
         model = Contribution
-        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
+        fields = ('course', 'contributors', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
         field_classes = {
-            'contributor': UserModelChoiceField,
+            'contributors': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, course=None, **kwargs):
@@ -410,7 +410,7 @@ class ContributionFormSet(AtLeastOneFormSet):
     def __init__(self, data=None, can_change_responsible=True, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
-        self.queryset = self.instance.contributions.exclude(contributor=None)
+        self.queryset = self.instance.contributions.exclude(contributors=None)
         self.can_change_responsible = can_change_responsible
 
     def handle_deleted_and_added_contributions(self):
@@ -422,12 +422,12 @@ class ContributionFormSet(AtLeastOneFormSet):
         for form_with_errors in self.forms:
             if not form_with_errors.errors:
                 continue
-            if 'contributor' not in form_with_errors.cleaned_data:
+            if 'contributors' not in form_with_errors.cleaned_data:
                 continue
             for deleted_form in self.forms:
-                if not deleted_form.cleaned_data or 'contributor' not in deleted_form.cleaned_data or not deleted_form.cleaned_data.get('DELETE'):
+                if not deleted_form.cleaned_data or 'contributors' not in deleted_form.cleaned_data or not deleted_form.cleaned_data.get('DELETE'):
                     continue
-                if not deleted_form.cleaned_data['contributor'] == form_with_errors.cleaned_data['contributor']:
+                if not deleted_form.cleaned_data['contributors'] == form_with_errors.cleaned_data['contributors']:
                     continue
                 form_with_errors.instance = deleted_form.instance
                 # we modified the form, so we have to force re-validation
@@ -436,8 +436,8 @@ class ContributionFormSet(AtLeastOneFormSet):
     def handle_moved_contributors(self, data, **kwargs):
         """
             Work around https://code.djangoproject.com/ticket/25139
-            Basically, if the user assigns a contributor who already has a contribution to a new contribution,
-            this moves the contributor (and all the data of the new form they got assigned to) back to the original contribution.
+            Basically, if the user assigns contributors who already have a contribution to a new contribution,
+            this moves the contributors (and all the data of the new form they got assigned to) back to the original contribution.
         """
         if data is None or 'instance' not in kwargs:
             return data
@@ -447,12 +447,12 @@ class ContributionFormSet(AtLeastOneFormSet):
         for i in range(0, total_forms):
             prefix = "contributions-" + str(i) + "-"
             current_id = data.get(prefix + 'id', '')
-            contributor = data.get(prefix + 'contributor', '')
-            if contributor == '':
+            contributors = data.get(prefix + 'contributors', '')
+            if contributors == '':
                 continue
-            # find the contribution that the contributor had before the user messed with it
+            # find the contribution that the contributors had before the user messed with it
             try:
-                previous_id = str(Contribution.objects.get(contributor=contributor, course=course).id)
+                previous_id = str(Contribution.objects.get(contributors=contributors, course=course).id)
             except Contribution.DoesNotExist:
                 continue
 
@@ -479,21 +479,21 @@ class ContributionFormSet(AtLeastOneFormSet):
 
         super().clean()
 
-        found_contributor = set()
+        found_contributors = set()
         responsible_users = []
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
                 continue
-            contributor = form.cleaned_data.get('contributor')
-            if contributor is None:
+            contributors = form.cleaned_data.get('contributors')
+            if contributors is None:
                 raise forms.ValidationError(_('Please select the name of each added contributor. Remove empty rows if necessary.'))
-            if contributor and contributor in found_contributor:
+            if contributors and any(contributor in found_contributors for contributor in contributors):
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
-            elif contributor:
-                found_contributor.add(contributor)
+            elif contributors:
+                found_contributors.update(contributors)
 
             if form.cleaned_data.get('responsibility') == 'RESPONSIBLE':
-                responsible_users.append(form.cleaned_data.get('contributor'))
+                responsible_users.extend(form.cleaned_data.get('contributors').all())
 
         if len(responsible_users) < 1:
             raise forms.ValidationError(_('No responsible contributors found.'))

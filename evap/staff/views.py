@@ -52,11 +52,11 @@ def get_courses_with_prefetched_data(semester):
     courses = (semester.course_set
         .select_related('type')
         .prefetch_related(
-            Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
-            Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
+            Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).prefetch_related("contributors"), to_attr="responsible_contributions"),
+            Prefetch("contributions", queryset=Contribution.objects.filter(contributors=None), to_attr="general_contribution"),
             "degrees"
         ).annotate(
-            num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
+            num_contributors=Count("contributions", filter=~Q(contributions__contributors=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
             midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
@@ -73,7 +73,9 @@ def get_courses_with_prefetched_data(semester):
 
     for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
         course.general_contribution = course.general_contribution[0]
-        course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
+        course.responsible_contributors = [contributor for contribution in course.responsible_contributions for contributor in
+                                   contribution.contributors.all()]
+
         if course._participant_count is None:
             course.num_participants = participant_count
             course.num_voters = voter_count
@@ -495,7 +497,7 @@ def send_reminder(request, semester_id, responsible_id):
 
     form = RemindResponsibleForm(request.POST or None, responsible=responsible)
 
-    courses = Course.objects.filter(state='prepared', contributions__responsible=True, contributions__contributor=responsible.pk)
+    courses = Course.objects.filter(state='prepared', contributions__responsible=True, contributions__contributors=responsible.pk)
 
     if form.is_valid():
         form.send(request, courses)
@@ -737,7 +739,7 @@ def course_comments(request, semester_id, course_id):
         if not text_results:
             continue
         section_list = course_sections if contribution.is_general else contributor_sections
-        section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
+        section_list.append(CommentSection(questionnaire, contribution.contributors, contribution.label, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, course_sections=course_sections,
             contributor_sections=contributor_sections, filter_comments=filter_comments)
@@ -828,7 +830,9 @@ def questionnaire_view(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
     # build forms
-    contribution = Contribution(contributor=request.user)
+    contribution = Contribution()
+    contribution.save()
+    contribution.contributors.set([request.user])
     form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
     return render(request, "staff_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire))
@@ -1143,7 +1147,7 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    courses_contributing_to = Course.objects.filter(semester=Semester.active_semester(), contributions__contributor=user)
+    courses_contributing_to = Course.objects.filter(semester=Semester.active_semester(), contributions__contributors=user)
 
     if form.is_valid():
         form.save()

@@ -149,7 +149,7 @@ def merge_users(main_user, other_user, preview=False):
     if main_user.reward_point_grantings.all().exists() and other_user.reward_point_grantings.all().exists():
         warnings.append('rewards')
 
-    merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('course__semester__created_at', 'course__name_de')
+    merged_user['contributions'] = Contribution.objects.filter(contributors__in=[main_user, other_user]).order_by('course__semester__created_at', 'course__name_de')
     merged_user['courses_participating_in'] = Course.objects.filter(participants__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
     merged_user['courses_voted_for'] = Course.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
 
@@ -181,7 +181,7 @@ def merge_users(main_user, other_user, preview=False):
     other_user.reward_point_redemptions.all().delete()
 
     # refresh results cache
-    for course in Course.objects.filter(contributions__contributor=main_user).distinct():
+    for course in Course.objects.filter(contributions__contributors=main_user).distinct():
         calculate_results(course, force_recalculation=True)
 
     # delete other_user

@@ -426,7 +426,7 @@
   "pk": 1,
   "model": "evaluation.contribution",
   "fields": {
-    "contributor": null,
+    "contributors": [ ],
     "course": 1,
     "responsible": false,
     "questionnaires": [
@@ -440,7 +440,7 @@
   "pk": 2,
   "model": "evaluation.contribution",
   "fields": {
-    "contributor": 2,
+    "contributors": [ 2 ],
     "course": 1,
     "responsible": true,
     "questionnaires": [
@@ -454,7 +454,7 @@
   "pk": 3,
   "model": "evaluation.contribution",
   "fields": {
-    "contributor": 6,
+    "contributors": [ 6 ],
     "course": 1,
     "responsible": false,
     "questionnaires": [
@@ -468,7 +468,7 @@
   "pk": 4,
   "model": "evaluation.contribution",
   "fields": {
-    "contributor": 7,
+    "contributors": [ 7 ],
     "course": 1,
     "responsible": false,
     "questionnaires": [
@@ -482,7 +482,7 @@
   "pk": 5,
   "model": "evaluation.contribution",
   "fields": {
-    "contributor": 8,
+    "contributors": [ 8 ],
     "course": 1,
     "responsible": false,
     "questionnaires": [
@@ -496,7 +496,7 @@
   "pk": 6,
   "model": "evaluation.contribution",
   "fields": {
-    "contributor": 9,
+    "contributors": [ 9 ],
     "course": 1,
     "responsible": true,
     "questionnaires": [

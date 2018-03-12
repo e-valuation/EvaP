@@ -109,19 +109,19 @@ def course_detail(request, semester_id, course_id):
     for section in sections:
         if not section.results:
             continue
-        if section.contributor is None:
+        if section.contributors is None:
             course_sections.append(section)
         else:
-            contributor_sections.setdefault(section.contributor,
+            contributor_sections.setdefault(section.contributors,
                                             {'total_votes': 0, 'sections': []})['sections'].append(section)
 
             for result in section.results:
                 if isinstance(result, TextResult):
-                    contributor_sections[section.contributor]['total_votes'] += 1
+                    contributor_sections[section.contributors]['total_votes'] += 1
                 elif isinstance(result, RatingResult) or isinstance(result, YesNoResult):
                     # Only count rating results if we show the grades.
                     if show_grades:
-                        contributor_sections[section.contributor]['total_votes'] += result.total_count
+                        contributor_sections[section.contributors]['total_votes'] += result.total_count
 
     # Show a warning if course is still in evaluation (for reviewer preview).
     evaluation_warning = course.state != 'published'
@@ -155,22 +155,22 @@ def user_can_see_text_answer(user, represented_users, text_answer, public_view=F
     if user.is_reviewer:
         return True
 
-    contributor = text_answer.contribution.contributor
+    contributors = text_answer.contribution.contributors.all()
 
     if text_answer.is_private:
-        return contributor == user
+        return user in contributors
 
     if text_answer.is_published:
         if text_answer.contribution.responsible:
-            return contributor == user or user in contributor.delegates.all()
+            return user in contributors or any(user in contributor.delegates.all() for contributor in contributors)
 
-        if contributor in represented_users:
+        if set(contributors) & set(represented_users):
             return True
         if text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
+                contributors__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
             return True
         if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
+                contributors__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
             return True
 
     return False
