@@ -3,10 +3,10 @@
 Django settings for EvaP project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
+https://docs.djangoproject.com/en/2.0/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
@@ -70,6 +70,13 @@ DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
 DEFAULT_FINAL_GRADES_DESCRIPTION_DE = "Endnoten"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE = "Zwischennoten"
+
+# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
+EVALUATION_END_OFFSET_HOURS = 3
+
+# Amount of hours in which participant will be warned
+EVALUATION_END_WARNING_PERIOD = 5
+
 
 ### Installation specific settings
 
@@ -263,14 +270,9 @@ USERNAME_REPLACEMENTS = [
     ('ß', 'ss'),
 ]
 
-# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
-EVALUATION_END_OFFSET_HOURS = 3
-
-# Amount of hours in which participant will be warned
-EVALUATION_END_WARNING_PERIOD = 5
 
 ### Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
+# https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
 
@@ -287,6 +289,14 @@ STATICFILES_FINDERS = [
 
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
+
+# django-compressor settings
+COMPRESS_ENABLED = not DEBUG
+COMPRESS_OFFLINE = False
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'sass {infile} {outfile}'),
+)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 
 ### User-uploaded files
@@ -326,14 +336,6 @@ SLOGANS_EN = [
 ]
 
 ### Other
-
-# django-compressor settings
-COMPRESS_ENABLED = not DEBUG
-COMPRESS_OFFLINE = False
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile} {outfile}'),
-)
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
