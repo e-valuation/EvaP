@@ -13,6 +13,7 @@ from evap.evaluation.models import Semester, UserProfile, Course, CourseType, Te
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion, \
                                    RatingAnswerCounter
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
+from evap.rewards.models import SemesterActivation
 from evap.staff.tools import generate_import_filename
 
 
@@ -138,6 +139,24 @@ class TestUserEditView(ViewTest):
         form["username"] = "lfo9e7bmxp1xi"
         form.submit()
         self.assertTrue(UserProfile.objects.filter(username='lfo9e7bmxp1xi').exists())
+
+    def test_reward_points_granting_message(self):
+        course = mommy.make(Course)
+        already_evaluated = mommy.make(Course, semester=course.semester)
+        SemesterActivation.objects.create(semester=course.semester, is_active=True)
+        student = mommy.make(UserProfile, email="foo@institution.example.com",
+            courses_participating_in=[course, already_evaluated], courses_voted_for=[already_evaluated])
+
+        page = self.get_assert_200(reverse('staff:user_edit', args=[student.pk]), 'staff')
+        form = page.forms['user-form']
+        form['courses_participating_in'] = [already_evaluated.pk]
+
+        page = form.submit().follow()
+        # fetch the user name, which became lowercased
+        student.refresh_from_db()
+
+        self.assertIn("Successfully updated user.", page)
+        self.assertIn("The removal of courses has granted the user &quot;{}&quot; reward points for the active semester.".format(student.username), page)
 
 
 class TestUserMergeSelectionView(ViewTest):
@@ -885,6 +904,40 @@ class TestCourseEditView(ViewTest):
         page = form.submit("operation", value="save")
 
         self.assertIn("No responsible contributors found", page)
+
+    def test_participant_removal_reward_point_granting_message(self):
+        already_evaluated = mommy.make(Course, semester=self.course.semester)
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        other = mommy.make(UserProfile, courses_participating_in=[self.course])
+        student = mommy.make(UserProfile, email="foo@institution.example.com",
+            courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
+
+        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='staff')
+
+        # remove a single participant
+        form = page.forms['course-form']
+        form['participants'] = [other.pk]
+        page = form.submit('operation', value='save').follow()
+
+        self.assertIn("The removal of participants has granted 1 user reward points: &quot;{}&quot;".format(student.username), page)
+
+    def test_remove_participants(self):
+        already_evaluated = mommy.make(Course, semester=self.course.semester)
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        student = mommy.make(UserProfile, courses_participating_in=[self.course])
+
+        for name in ["a", "b", "c", "d", "e"]:
+            mommy.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
+            courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
+
+        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='staff')
+
+        # remove five participants
+        form = page.forms['course-form']
+        form['participants'] = [student.pk]
+        page = form.submit('operation', value='save').follow()
+
+        self.assertIn("The removal of participants has granted 5 users reward points: &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;.", page)
 
     def test_last_modified_user(self):
         """
