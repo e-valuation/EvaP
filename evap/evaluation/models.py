@@ -111,14 +111,14 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True, null=True)
     teaser = Translate
 
-    index = models.IntegerField(verbose_name=_("ordering index"), default=0)
+    order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
     is_for_contributors = models.BooleanField(verbose_name=_("is for contributors"), default=False)
     staff_only = models.BooleanField(verbose_name=_("display for staff only"), default=False)
     obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
 
     class Meta:
-        ordering = ('is_for_contributors', 'index', 'name_de')
+        ordering = ('is_for_contributors', 'order', 'name_de')
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
@@ -126,10 +126,10 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def __lt__(self, other):
-        return (self.is_for_contributors, self.index) < (other.is_for_contributors, other.index)
+        return (self.is_for_contributors, self.order) < (other.is_for_contributors, other.order)
 
     def __gt__(self, other):
-        return (self.is_for_contributors, self.index) > (other.is_for_contributors, other.index)
+        return (self.is_for_contributors, self.order) > (other.is_for_contributors, other.order)
 
     @property
     def can_staff_edit(self):

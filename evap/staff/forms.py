@@ -391,7 +391,7 @@ class QuestionnaireForm(forms.ModelForm):
     class Meta:
         model = Questionnaire
         exclude = ()
-        widgets = {'index': forms.HiddenInput()}
+        widgets = {'order': forms.HiddenInput()}
 
 
 class AtLeastOneFormSet(BaseInlineFormSet):

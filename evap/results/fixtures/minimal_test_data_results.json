@@ -16,7 +16,7 @@
     "public_name_de": "the person",
     "is_for_contributors": true,
     "teaser_en": "answer questions regarding a person here",
-    "index": 0,
+    "order": 0,
     "teaser_de": "answer questions regarding a person here",
     "public_name_en": "the person",
     "description_en": "person_questionnaire description",
@@ -33,7 +33,7 @@
     "public_name_de": "the course",
     "is_for_contributors": false,
     "teaser_en": "answer questions regarding a course here",
-    "index": 0,
+    "order": 0,
     "teaser_de": "answer questions regarding a course here",
     "public_name_en": "the course",
     "description_en": "course_questionnaire description",
@@ -49,7 +49,7 @@
   "fields":{
     "name_de":"Einzelergebnis",
     "name_en":"Single result",
-    "index": 0,
+    "order": 0,
     "is_for_contributors":true,
     "obsolete":true
   }
