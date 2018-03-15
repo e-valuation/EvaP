@@ -871,7 +871,7 @@ def questionnaire_create(request):
     if form.is_valid() and formset.is_valid():
         new_questionnaire = form.save(commit=False)
         # set index according to existing questionnaires
-        new_questionnaire.index = Questionnaire.objects.all().aggregate(Max('index'))['index__max'] + 1
+        new_questionnaire.order = Questionnaire.objects.all().aggregate(Max('order'))['order__max'] + 1
         new_questionnaire.save()
         form.save_m2m()
 
@@ -1026,9 +1026,9 @@ def questionnaire_delete(request):
 @staff_required
 def questionnaire_update_indices(request):
     updated_indices = request.POST
-    for questionnaire_id, new_index in updated_indices.items():
+    for questionnaire_id, new_order in updated_indices.items():
         questionnaire = Questionnaire.objects.get(pk=questionnaire_id)
-        questionnaire.index = new_index
+        questionnaire.order = new_order
         questionnaire.save()
     return HttpResponse()
 
