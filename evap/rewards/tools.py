@@ -95,15 +95,22 @@ def grant_reward_points_after_evaluate(sender, **kwargs):
 def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs):
     # if users do not need to evaluate a course anymore, they may have earned reward points
     if action == 'post_remove':
+        affected = []
+
         if reverse:
             # a course got removed from a participant
             user = instance
 
             for semester in Semester.objects.filter(course__pk__in=pk_set):
-                grant_reward_points(user, semester)
+                if grant_reward_points(user, semester):
+                    affected = [user]
         else:
             # a participant got removed from a course
             course = instance
 
             for user in UserProfile.objects.filter(pk__in=pk_set):
-                grant_reward_points(user, course.semester)
+                if grant_reward_points(user, course.semester):
+                    affected.append(user)
+
+        if affected:
+            RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, users=affected)

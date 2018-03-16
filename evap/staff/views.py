@@ -7,6 +7,7 @@ from collections import OrderedDict, defaultdict
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.dispatch import receiver
 from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Max, Prefetch, Q, Sum, When
 from django.forms import formset_factory
@@ -569,6 +570,13 @@ def course_edit(request, semester_id, course_id):
 
 @staff_required
 def helper_course_edit(request, semester, course):
+    @receiver(RewardPointGranting.granted_by_removal)
+    def notify_reward_points(users, **kwargs):
+        names = ", ".join('"{}"'.format(user.username) for user in users)
+        messages.info(request, ungettext("The removal of participants has granted {affected} user reward points: {names}.",
+            "The removal of participants has granted {affected} users reward points: {names}.",
+            len(users)).format(affected=len(users), names=names))
+
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
     form = CourseForm(request.POST or None, instance=course)
@@ -1140,6 +1148,10 @@ def user_import(request):
 
 @staff_required
 def user_edit(request, user_id):
+    @receiver(RewardPointGranting.granted_by_removal)
+    def notify_reward_points(users, **kwargs):
+        messages.info(request, _('The removal of courses has granted the user "{}" reward points for the active semester.'.format(users[0].username)))
+
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
