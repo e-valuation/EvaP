@@ -71,28 +71,22 @@ def course_detail(request, semester_id, course_id):
     if not course.can_publish_grades:
         public_view = False
 
-    represented_users = list(request.user.represented_users.all())
-    represented_users.append(request.user)
+    represented_users = list(request.user.represented_users.all()) + [request.user]
 
     show_grades = request.user.is_reviewer or course.can_publish_grades
 
     # filter text answers
     for section in sections:
-        results = []
         for result in section.results:
             if isinstance(result, TextResult):
-                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
-                if answers:
-                    results.append(TextResult(question=result.question, answers=answers))
-            else:
-                results.append(result)
-        section.results[:] = results
+                result.answers[:] = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
+        # remove empty TextResults
+        section.results[:] = [result for result in section.results if not isinstance(result, TextResult) and len(result.answers) == 0]
 
     # filter empty headings
     for section in sections:
         filtered_results = []
-        for index in range(len(section.results)):
-            result = section.results[index]
+        for index, result in enumerate(section.results):
             # filter out if there are no more questions or the next question is also a heading question
             if isinstance(result, HeadingResult):
                 if index == len(section.results) - 1 or isinstance(section.results[index + 1], HeadingResult):
@@ -107,21 +101,15 @@ def course_detail(request, semester_id, course_id):
     course_sections = []
     contributor_sections = OrderedDict()
     for section in sections:
-        if not section.results:
-            continue
         if section.contributor is None:
             course_sections.append(section)
         else:
             contributor_sections.setdefault(section.contributor,
-                                            {'total_votes': 0, 'sections': []})['sections'].append(section)
+                                            {'has_votes': False, 'sections': []})['sections'].append(section)
 
-            for result in section.results:
-                if isinstance(result, TextResult):
-                    contributor_sections[section.contributor]['total_votes'] += 1
-                elif isinstance(result, RatingResult) or isinstance(result, YesNoResult):
-                    # Only count rating results if we show the grades.
-                    if show_grades:
-                        contributor_sections[section.contributor]['total_votes'] += result.total_count
+            if (any(isinstance(result, (RatingResult, YesNoResult)) and show_grades and result.total_count > 0
+                    or isinstance(result, TextResult) for result in section.results)):
+                contributor_sections[section.contributor]['has_votes'] = True
 
     # Show a warning if course is still in evaluation (for reviewer preview).
     evaluation_warning = course.state != 'published'

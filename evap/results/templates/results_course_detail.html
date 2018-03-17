@@ -141,7 +141,7 @@
                 {% for contributor, contributor_data in contributor_sections.items %}
                     <div class="card{% if not forloop.last %} mb-3{% endif %}">
                         {# Logic for collapsing Contributor Sections with no votes. #}
-                        {% if contributor_data.total_votes == 0 %}
+                        {% if not contributor_data.has_votes %}
                             <div class="card-header d-flex">
                                 <div class="mr-auto">
                                     <a class="collapse-toggle collapsed" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
@@ -166,7 +166,7 @@
                                 </a>
                             </div>
                         {% endif %}
-                        <div class="card-body collapse{% if contributor_data.total_votes > 0 %} show{% endif %}" id="contributor-{{ contributor.id }}">
+                        <div class="card-body collapse{% if contributor_data.has_votes %} show{% endif %}" id="contributor-{{ contributor.id }}">
                             {% for section in contributor_data.sections %}
                                 {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
                             {% endfor %}
