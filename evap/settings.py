@@ -109,7 +109,7 @@ CACHES = {
         'LOCATION': 'redis://127.0.0.1:6379/0',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 1000
+            'MAX_ENTRIES': 5000
         }
     },
     'results': {
@@ -249,6 +249,9 @@ WSGI_APPLICATION = 'evap.wsgi.application'
 LOGIN_REDIRECT_URL = '/'
 
 LOGIN_URL = "/"
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 
 ### Internationalization
