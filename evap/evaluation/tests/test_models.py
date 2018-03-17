@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 
 from django.conf import settings
 from django.test import TestCase, override_settings
-from django.core.cache import cache
+from django.core.cache import caches
 from django.core import mail
 
 from model_mommy import mommy
@@ -292,7 +292,7 @@ class ArchivingTests(TestCase):
 
         self.semester.archive()
         self.refresh_course()
-        cache.clear()
+        caches['results'].clear()
 
         self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
 

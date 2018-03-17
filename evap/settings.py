@@ -106,9 +106,17 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'evap_db_cache',
+        'LOCATION': 'evap_db_default_cache',
         'OPTIONS': {
-            'MAX_ENTRIES': 1000  # note that the results alone need one entry per course
+            'MAX_ENTRIES': 1000
+        }
+    },
+    'results': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'evap_db_results_cache',
+        'TIMEOUT': None,  # is always invalidated manually
+        'OPTIONS': {
+            'MAX_ENTRIES': 100000
         }
     }
 }
