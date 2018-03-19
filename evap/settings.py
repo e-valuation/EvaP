@@ -253,6 +253,9 @@ LOGIN_URL = "/"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
+
 
 ### Internationalization
 
