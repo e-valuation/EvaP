@@ -1039,6 +1039,27 @@ a.no-underline:hover {
     word-spacing: 30000px;
 }
 
+.separation-left {
+    border-left: 1px solid $medium-gray;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.clear-filter-button {
+    color: $darker-gray;
+    cursor: pointer;
+}
+.clear-filter-button:hover {
+    color: $dark-gray;
+}
+
+.result-filter-list {
+    max-height: 145px;
+    overflow-y: auto;
+    padding-left: 4px;
+}
 
 /* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
 .bs-callout {
@@ -1263,6 +1284,9 @@ table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_des
 }
 .filter-toolbar {
     float: left;
+}
+.dataTables_wrapper.container-fluid {
+    padding: 0;
 }
 
 

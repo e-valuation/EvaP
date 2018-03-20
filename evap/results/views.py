@@ -21,17 +21,28 @@ def index(request):
         visible_states += ['in_evaluation', 'evaluated', 'reviewed']
 
     courses = Course.objects.filter(state__in=visible_states, semester__in=semesters).prefetch_related("degrees")
-
+    
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
+    degrees = set()
+    course_types = set()
     for course in courses:
         if course.is_single_result:
             course.single_result_rating_result = get_single_result_rating_result(course)
-        else:
+        for degree in course.degrees.all():
+            degrees.add(degree)
+        course_types.add(course.type)
+
             course.distribution = calculate_average_distribution(course)
             course.avg_grade = distribution_to_grade(course.distribution)
 
-    template_data = dict(courses=courses)
+
+    template_data = dict(
+        courses=courses,
+        degrees=sorted(degrees, key=lambda degree: degree.order),
+        course_types=sorted(course_types, key=lambda course_type: course_type.name),
+        semesters=semesters,
+    )
     return render(request, "results_index.html", template_data)
 
 
