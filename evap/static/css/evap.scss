@@ -1004,6 +1004,78 @@ a.no-underline:hover {
 }
 
 
+/* custom checkboxes (based on http://getbootstrap.com/docs/4.0/components/forms/#custom-forms) */
+.form-check-input {
+    position: absolute;
+    z-index: 1;
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    &:checked ~ .form-check-label::after {
+        opacity: 1;
+    }
+    &:checked ~ .form-check-label::before {
+        background-color: $evap-dark-blue;
+    }
+    &:hover ~ .form-check-label::before {
+        background-color: darken($light-gray, 10%);
+    }
+    &:checked:hover ~ .form-check-label::before {
+        background-color: darken($evap-dark-blue, 10%);
+    }
+    &:focus ~ .form-check-label::before {
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.25);
+    }
+    &:disabled {
+        ~ .form-check-label {
+            color: $light-gray;
+            &::before {
+                background-color: $lighter-gray;
+                box-shadow: none;
+            }
+        }
+    }
+}
+// formset delete checkboxes are hidden when replaced with a link and no checkbox should be shown there
+input[type="hidden"] ~ .form-check-label {
+    display: none;
+}
+.form-check-label {
+  margin-bottom: 0;
+  color: $black;
+  transition: color 0.15s ease-in-out;
+  &::before {  // background
+    position: absolute;
+    top: .25rem;
+    left: 0;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+    user-select: none;
+    content: "";
+    border-radius: 0.25rem;
+    background-color: $light-gray;
+    transition: background-color 0.15s ease-in-out;
+  }
+  &::after {  // check icon
+    position: absolute;
+    top: .31rem;
+    left: .2rem;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+    content: "\f00c";
+    font-family: "Font Awesome\ 5 Free";
+    font-size: .6rem;
+    font-weight: 900;
+    color: $white;
+  }
+}
+
+
 /* select2 adjustments */
 .select2-container--default .select2-selection--single {
     height: 38px;

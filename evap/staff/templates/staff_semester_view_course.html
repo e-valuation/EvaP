@@ -6,8 +6,10 @@
 <td>
     {% if request.user.is_staff and not info_only and not semester.is_archived %}
         {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
-            <input type="checkbox" name="course" id="course{{ course.id }}" value="{{ course.id }}" data-toggle="tooltip"
-                data-placement="top" title="{% trans 'Click to select for course operation' %}" />
+            <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Click to select for course operation' %}">
+                <input class="form-check-input" type="checkbox" name="course" id="course{{ course.id }}" value="{{ course.id }}" />
+                <label class="form-check-label" for="course{{ course.id }}"></label>
+            </div>
         {% endif %}
     {% endif %}
 </td>
