@@ -29,13 +29,16 @@ class LoginTests(WebTest):
     def test_login_key_valid_only_once(self):
         page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % self.external_user.login_key)
         self.assertContains(page, self.external_user.full_name)
+
         page = self.app.get(reverse("django-auth-logout")).follow()
         self.assertNotContains(page, 'Logout')
+
         page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % self.external_user.login_key).follow()
         self.assertContains(page, 'The login URL is not valid anymore.')
         self.assertEqual(len(mail.outbox), 1)  # a new login key was sent
-        self.external_user.refresh_from_db()
-        page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % self.external_user.login_key)
+
+        new_key = UserProfile.objects.get(id=self.external_user.id).login_key
+        page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % new_key)
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):

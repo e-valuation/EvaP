@@ -425,7 +425,7 @@ class ContributionFormset775RegressionTests(TestCase):
     def test_swap_contributors_with_extra_form(self):
         # moving a contributor to an extra form should work.
         # first, the second contributor is deleted and removed from self.data
-        self.contribution2.delete()
+        Contribution.objects.get(id=self.contribution2.id).delete()
         self.data['contributions-TOTAL_FORMS'] = 2
         self.data['contributions-INITIAL_FORMS'] = 1
         self.data['contributions-0-contributor'] = self.user2.pk
