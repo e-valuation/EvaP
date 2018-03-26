@@ -250,7 +250,7 @@ class TestUserImportView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+        cls.user = mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
 
     def test_success_handling(self):
         """
@@ -304,6 +304,8 @@ class TestUserImportView(ViewTest):
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
                 " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+
+        helper_delete_all_import_files(self.user.id)
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='staff')
@@ -568,7 +570,7 @@ class TestSemesterImportView(ViewTest):
         self.assertContains(reply, 'The imported data contains two email addresses with the same username')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
-        self.assertNotContains(page, 'Import previously uploaded file')
+        self.assertNotContains(reply, 'Import previously uploaded file')
 
     def test_warning_handling(self):
         """
