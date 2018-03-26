@@ -76,7 +76,7 @@
     "teaser_de": null,
     "teaser_en": null,
     "order": 0,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -94,7 +94,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -112,7 +112,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 3,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -130,7 +130,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -148,7 +148,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 2,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -165,8 +165,8 @@
     "public_name_en": "Miscellaneous",
     "teaser_de": "",
     "teaser_en": "",
-    "order": 19,
-    "is_for_contributors": false,
+    "order": 1,
+    "type": 30,
     "staff_only": false,
     "obsolete": false
   }
@@ -184,7 +184,7 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -202,7 +202,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -220,7 +220,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 4,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -238,7 +238,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -256,7 +256,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 8,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -274,7 +274,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
     "order": 45,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -292,7 +292,7 @@
     "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
     "order": 60,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -310,7 +310,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
     "teaser_en": "Please select \"no answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
     "order": 35,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -328,7 +328,7 @@
     "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
     "order": 60,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -346,7 +346,7 @@
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
     "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here.",
     "order": 9,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -364,7 +364,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 10,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -382,7 +382,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 11,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -400,7 +400,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 12,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -418,7 +418,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 13,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -436,7 +436,7 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -454,7 +454,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 14,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -472,7 +472,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 15,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -490,7 +490,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 16,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -508,7 +508,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 17,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -526,7 +526,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 5,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -544,7 +544,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 6,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -562,7 +562,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 7,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -580,7 +580,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -598,7 +598,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
     "order": 25,
-    "is_for_contributors": true,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -615,8 +615,8 @@
     "public_name_en": "Total grade",
     "teaser_de": "1 ist die beste Note, 5 die schlechteste",
     "teaser_en": "1 is the best grade, 5 the worst",
-    "order": 18,
-    "is_for_contributors": false,
+    "order": 2,
+    "type": 30,
     "staff_only": false,
     "obsolete": false
   }
@@ -634,7 +634,7 @@
     "teaser_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
     "order": 61,
-    "is_for_contributors": false,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }

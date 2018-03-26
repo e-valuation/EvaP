@@ -123,13 +123,13 @@
         </div>
     </div>
 
-    {% if course_sections %}
+    {% if course_sections_top %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Course' %}
             </div>
             <div class="card-body">
-                {% for section in course_sections %}
+                {% for section in course_sections_top %}
                     {% include 'results_course_detail_questionnaires.html' %}
                 {% endfor %}
             </div>
@@ -137,7 +137,7 @@
     {% endif %}
 
     {% if contributor_sections %}
-        <div class="card card-outline-primary">
+        <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Contributors' %}
             </div>
@@ -180,4 +180,18 @@
             </div>
         </div>
     {% endif %}
+
+    {% if course_sections_bottom %}
+        <div class="card card-outline-primary">
+            <div class="card-header">
+                {% trans 'Course' %}
+            </div>
+            <div class="card-body">
+                {% for section in course_sections_bottom %}
+                    {% include 'results_course_detail_questionnaires.html' %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}

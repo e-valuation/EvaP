@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
@@ -16,6 +16,7 @@ from evap.student.forms import QuestionsForm
 from evap.student.tools import question_id
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
+
 
 @participant_required
 def index(request):
@@ -47,11 +48,16 @@ def vote_preview(request, course, for_rendering_in_modal=False):
     """
     form_groups = helper_create_voting_form_groups(request, course.contributions.all())
     course_form_group = form_groups.pop(course.general_contribution)
+
+    course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
+    course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
+
     contributor_form_groups = list((contribution.contributor, contribution.label, form_group, False) for contribution, form_group in form_groups.items())
 
     template_data = dict(
         errors_exist=False,
-        course_form_group=course_form_group,
+        course_form_group_top=course_form_group_top,
+        course_form_group_bottom=course_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
         course=course,
         preview=True,
@@ -75,11 +81,15 @@ def vote(request, course_id):
 
         course_form_group = form_groups.pop(course.general_contribution)
 
+        course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
+        course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
+
         contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
 
         template_data = dict(
             errors_exist=errors_exist,
-            course_form_group=course_form_group,
+            course_form_group_top=course_form_group_top,
+            course_form_group_bottom=course_form_group_bottom,
             contributor_form_groups=contributor_form_groups,
             course=course,
             participants_warning=course.num_participants <= 5,

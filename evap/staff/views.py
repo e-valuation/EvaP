@@ -21,7 +21,7 @@ from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, staff_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
-from evap.evaluation.tools import STATES_ORDERED, questionnaires_and_contributions, send_publish_notifications, sort_formset
+from evap.evaluation.tools import questionnaires_and_contributions, send_publish_notifications, sort_formset
 from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
@@ -833,15 +833,19 @@ def course_preview(request, semester_id, course_id):
 def questionnaire_index(request):
     filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
 
-    questionnaires = Questionnaire.objects.all()
-    if filter_questionnaires:
-        questionnaires = questionnaires.filter(obsolete=False)
+    course_questionnaires = Questionnaire.objects.course_questionnaires()
+    contributor_questionnaires = Questionnaire.objects.contributor_questionnaires()
 
-    course_questionnaires = questionnaires.filter(is_for_contributors=False)
-    contributor_questionnaires = questionnaires.filter(is_for_contributors=True)
+    if filter_questionnaires:
+        course_questionnaires = course_questionnaires.filter(obsolete=False)
+        contributor_questionnaires = contributor_questionnaires.filter(obsolete=False)
+
+    course_questionnaires_top = [questionnaire for questionnaire in course_questionnaires if questionnaire.is_above_contributors]
+    course_questionnaires_bottom = [questionnaire for questionnaire in course_questionnaires if questionnaire.is_below_contributors]
 
     template_data = dict(
-        course_questionnaires=course_questionnaires,
+        course_questionnaires_top=course_questionnaires_top,
+        course_questionnaires_bottom=course_questionnaires_bottom,
         contributor_questionnaires=contributor_questionnaires,
         filter_questionnaires=filter_questionnaires,
     )
@@ -868,12 +872,7 @@ def questionnaire_create(request):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if form.is_valid() and formset.is_valid():
-        new_questionnaire = form.save(commit=False)
-        # set index according to existing questionnaires
-        new_questionnaire.order = Questionnaire.objects.all().aggregate(Max('order'))['order__max'] + 1
-        new_questionnaire.save()
-        form.save_m2m()
-
+        form.save(force_highest_order=True)
         formset.save()
 
         messages.success(request, _("Successfully created questionnaire."))

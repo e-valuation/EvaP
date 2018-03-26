@@ -1,9 +1,11 @@
 {% if questionnaires %}
     <div class="card {{ extra_classes }}">
         <div class="card-header">
-            {% trans headline %}
+            <a class="collapse-toggle" data-toggle="collapse" href="#questionnaires-{{ type }}" aria-expanded="false" aria-controls="questionnaires-{{ type }}">
+                {% trans headline %}
+            </a>
         </div>
-        <div class="card-body">
+        <div class="card-body collapse show" id="questionnaires-{{ type }}">
             <table class="table table-striped vertically-aligned questionnaire-table">
                 <thead>
                     <tr>

@@ -94,14 +94,24 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
 class QuestionnaireManager(Manager):
     def course_questionnaires(self):
-        return super().get_queryset().exclude(is_for_contributors=True)
+        return super().get_queryset().exclude(type=Questionnaire.CONTRIBUTOR)
 
     def contributor_questionnaires(self):
-        return super().get_queryset().filter(is_for_contributors=True)
+        return super().get_queryset().filter(type=Questionnaire.CONTRIBUTOR)
 
 
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     """A named collection of questions."""
+
+    TOP = 10
+    CONTRIBUTOR = 20
+    BOTTOM = 30
+    TYPE_CHOICES = (
+        (TOP, _('Top questionnaire')),
+        (CONTRIBUTOR, _('Contributor questionnaire')),
+        (BOTTOM, _('Bottom questionnaire')),
+    )
+    type = models.IntegerField(choices=TYPE_CHOICES, verbose_name=_('type'), default=TOP)
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
@@ -121,14 +131,13 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
-    is_for_contributors = models.BooleanField(verbose_name=_("is for contributors"), default=False)
     staff_only = models.BooleanField(verbose_name=_("display for staff only"), default=False)
     obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
 
     objects = QuestionnaireManager()
 
     class Meta:
-        ordering = ('is_for_contributors', 'order', 'name_de')
+        ordering = ('type', 'order', 'name_de')
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
@@ -136,10 +145,18 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def __lt__(self, other):
-        return (self.is_for_contributors, self.order) < (other.is_for_contributors, other.order)
+        return (self.type, self.order, self.name_de) < (other.type, other.order, self.name_de)
 
     def __gt__(self, other):
-        return (self.is_for_contributors, self.order) > (other.is_for_contributors, other.order)
+        return (self.type, self.order, self.name_de) > (other.type, other.order, self.name_de)
+
+    @property
+    def is_above_contributors(self):
+        return self.type == self.TOP
+
+    @property
+    def is_below_contributors(self):
+        return self.type == self.BOTTOM
 
     @property
     def can_staff_edit(self):

@@ -156,7 +156,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -197,7 +197,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -246,7 +246,7 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -288,7 +288,7 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True,
                                    comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
@@ -326,9 +326,9 @@ class ContributionFormsetTests(TestCase):
             Regression test for #593.
         """
         course = mommy.make(Course)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
-        questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=False)
+        questionnaire_obsolete = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, staff_only=False)
+        questionnaire_staff_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=True)
 
         # The normal and staff_only questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
@@ -361,7 +361,7 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user1 = mommy.make(UserProfile)
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
-        cls.questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
 
@@ -444,7 +444,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-0-contributor'] = self.user2.pk
         self.data['contributions-1-contributor'] = self.user1.pk
 
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         self.data.appendlist('contributions-0-questionnaires', questionnaire.pk)
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         formset.save()

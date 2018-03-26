@@ -104,13 +104,15 @@ def course_detail(request, semester_id, course_id):
     sections = [section for section in sections if section.results]
 
     # group by contributor
-    course_sections = []
+    course_sections_top = []
+    course_sections_bottom = []
     contributor_sections = OrderedDict()
     for section in sections:
-        if not section.results:
-            continue
         if section.contributor is None:
-            course_sections.append(section)
+            if section.questionnaire.is_below_contributors:
+                course_sections_bottom.append(section)
+            else:
+                course_sections_top.append(section)
         else:
             contributor_sections.setdefault(section.contributor,
                                             {'total_votes': 0, 'sections': []})['sections'].append(section)
@@ -135,7 +137,8 @@ def course_detail(request, semester_id, course_id):
 
     template_data = dict(
             course=course,
-            course_sections=course_sections,
+            course_sections_top=course_sections_top,
+            course_sections_bottom=course_sections_bottom,
             contributor_sections=contributor_sections,
             evaluation_warning=evaluation_warning,
             sufficient_votes_warning=sufficient_votes_warning,

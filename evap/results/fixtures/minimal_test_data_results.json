@@ -14,7 +14,7 @@
   "model": "evaluation.questionnaire",
   "fields": {
     "public_name_de": "the person",
-    "is_for_contributors": true,
+    "type": 20,
     "teaser_en": "answer questions regarding a person here",
     "order": 0,
     "teaser_de": "answer questions regarding a person here",
@@ -31,7 +31,7 @@
   "model": "evaluation.questionnaire",
   "fields": {
     "public_name_de": "the course",
-    "is_for_contributors": false,
+    "type": 10,
     "teaser_en": "answer questions regarding a course here",
     "order": 0,
     "teaser_de": "answer questions regarding a course here",
@@ -50,7 +50,7 @@
     "name_de":"Einzelergebnis",
     "name_en":"Single result",
     "order": 0,
-    "is_for_contributors":true,
+    "type": 20,
     "obsolete":true
   }
 },
