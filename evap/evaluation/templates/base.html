@@ -37,20 +37,23 @@
 {% endblock %}
 
 {% get_current_language as LANGUAGE_CODE %}
-{% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
-    {% include_navbar user LANGUAGE_CODE %}
-{% endcache %}
-
+<div class="fixed-top d-print-none">
+    {% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
+        {% include_navbar user LANGUAGE_CODE %}
+    {% endcache %}
+    {% if user.is_staff or user.is_grade_publisher %}
+        <div>
+            <ul class="breadcrumb">
+                {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans 'EvaP' %}</a></li>{% endblock %}
+            </ul>
+            <span class="breadcrumb-end"></span>
+        </div>
+    {% endif %}
+</div>
 
 <div class="d-none d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" /></div>
 
 <div class="container mb-4">
-    {% if user.is_staff or user.is_grade_publisher %}
-        <ol class="breadcrumb mb-4">
-            {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans 'EvaP' %}</a></li>{% endblock %}
-        </ol>
-    {% endif %}
-
     {% for message in messages %}
         <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
             <a role="button" class="close" data-dismiss="alert" aria-hidden="true"><span class="fas fa-times"></span></a>
