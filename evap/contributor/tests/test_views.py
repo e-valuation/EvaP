@@ -52,8 +52,10 @@ class TestContributorCourseView(ViewTest):
     def test_information_message(self):
         self.course.editor_approve()
         self.course.save()
+
         page = self.app.get(self.url, user='editor')
         self.assertContains(page, "You cannot edit this course because it has already been approved")
+        self.assertNotContains(page, "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.")
 
 
 class TestContributorCoursePreviewView(ViewTest):
@@ -166,3 +168,7 @@ class TestContributorCourseEditView(ViewTest):
         self.assertIn("Adam &amp; Eve", page)
         self.assertNotIn("Adam & Eve", page)
 
+    def test_information_message(self):
+        page = self.app.get(self.url, user='editor')
+        self.assertNotContains(page, "You cannot edit this course because it has already been approved")
+        self.assertContains(page, "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.")
