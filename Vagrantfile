@@ -10,12 +10,13 @@ Vagrant.configure("2") do |config|
   # port forwarding
   config.vm.network :forwarded_port, guest: 8000, host: 8000 # django server
   config.vm.network :forwarded_port, guest: 80, host: 8001 # apache
+  config.vm.network :forwarded_port, guest: 6379, host: 6379 # redis. helpful when developing on windows, for which redis is not available
 
   config.vm.provider :virtualbox do |v, override|
     # disable logfile
     v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
     # show virtualbox gui, uncomment this to debug startup problems
-    #v.gui = true   
+    #v.gui = true
   end
 
   config.vm.provision "shell", path: "deployment/provision_vagrant_vm.sh"

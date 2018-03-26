@@ -3,6 +3,7 @@ xlrd == 1.1.0
 xlwt == 1.3.0
 xlutils == 2.0.0
 psycopg2 == 2.7.3.2
+django-redis == 4.9.0
 django-fsm == 2.6.0
 django-webtest == 1.9.2
 WebTest == 2.0.29

@@ -1,6 +1,6 @@
 
 from django.test.testcases import TestCase
-from django.core.cache import cache
+from django.core.cache import caches
 from django.conf import settings
 from django.test import override_settings
 
@@ -15,18 +15,18 @@ class TestCalculateResults(TestCase):
     def test_caches_published_course(self):
         course = mommy.make(Course, state='published')
 
-        self.assertIsNone(cache.get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
 
         calculate_results(course)
 
-        self.assertIsNotNone(cache.get(get_results_cache_key(course)))
+        self.assertIsNotNone(caches['results'].get(get_results_cache_key(course)))
 
     def test_cache_unpublished_course(self):
         course = mommy.make(Course, state='published')
         calculate_results(course)
         course.unpublish()
 
-        self.assertIsNone(cache.get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
 
     def test_calculation_results(self):
         contributor1 = mommy.make(UserProfile)

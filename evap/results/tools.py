@@ -4,7 +4,7 @@ from math import ceil
 from statistics import pstdev, median
 
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import caches
 from django.db.models import Sum
 
 from evap.evaluation.models import TextAnswer, Contribution, RatingAnswerCounter
@@ -109,8 +109,8 @@ def calculate_results(course, force_recalculation=False):
 
     cache_key = get_results_cache_key(course)
     if force_recalculation:
-        cache.delete(cache_key)
-    return cache.get_or_set(cache_key, partial(_calculate_results_impl, course), None)
+        caches['results'].delete(cache_key)
+    return caches['results'].get_or_set(cache_key, partial(_calculate_results_impl, course))
 
 
 def _calculate_results_impl(course):

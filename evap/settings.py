@@ -3,10 +3,10 @@
 Django settings for EvaP project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
+https://docs.djangoproject.com/en/2.0/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
@@ -71,6 +71,13 @@ DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
 DEFAULT_FINAL_GRADES_DESCRIPTION_DE = "Endnoten"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE = "Zwischennoten"
 
+# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
+EVALUATION_END_OFFSET_HOURS = 3
+
+# Amount of hours in which participant will be warned
+EVALUATION_END_WARNING_PERIOD = 5
+
+
 ### Installation specific settings
 
 # People who get emails on errors.
@@ -98,10 +105,20 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'evap_db_cache',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/0',
         'OPTIONS': {
-            'MAX_ENTRIES': 1000  # note that the results alone need one entry per course
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000
+        }
+    },
+    'results': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'TIMEOUT': None,  # is always invalidated manually
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 100000
         }
     }
 }
@@ -233,6 +250,12 @@ LOGIN_REDIRECT_URL = '/'
 
 LOGIN_URL = "/"
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
+
 
 ### Internationalization
 
@@ -263,14 +286,9 @@ USERNAME_REPLACEMENTS = [
     ('ß', 'ss'),
 ]
 
-# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
-EVALUATION_END_OFFSET_HOURS = 3
-
-# Amount of hours in which participant will be warned
-EVALUATION_END_WARNING_PERIOD = 5
 
 ### Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
+# https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
 
@@ -287,6 +305,14 @@ STATICFILES_FINDERS = [
 
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
+
+# django-compressor settings
+COMPRESS_ENABLED = not DEBUG
+COMPRESS_OFFLINE = False
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'sass {infile} {outfile}'),
+)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 
 ### User-uploaded files
@@ -327,14 +353,6 @@ SLOGANS_EN = [
 
 ### Other
 
-# django-compressor settings
-COMPRESS_ENABLED = not DEBUG
-COMPRESS_OFFLINE = False
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile} {outfile}'),
-)
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
-
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
@@ -348,6 +366,18 @@ TESTING = 'test' in sys.argv
 if TESTING:
     COMPRESS_PRECOMPILERS = ()  # disable django-compressor
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+    # use the database for caching. it's properly reset between tests in constrast to redis,
+    # and does not change behaviour in contrast to disabling the cache entirely.
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_default',
+        },
+        'results': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_results',
+        },
+    }
 
 
 # Django debug toolbar settings

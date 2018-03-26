@@ -6,7 +6,7 @@ import uuid
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
-from django.core.cache import cache
+from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
@@ -390,7 +390,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
         from evap.results.tools import get_results_cache_key
-        cache.delete(get_results_cache_key(self))
+        caches['results'].delete(get_results_cache_key(self))
 
     @property
     def student_state(self):
