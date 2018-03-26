@@ -16,13 +16,13 @@
     {% if evaluation_warning %}
         <div class="alert alert-warning">{% trans 'This is a preview. The course is still in the process of evaluation.' %}</div>
     {% elif sufficient_votes_warning %}
-        <div class="alert alert-warning">{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}</div>
+        <div class="alert alert-warning"><span class="far fa-eye-slash"></span> {% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}</div>
     {% endif %}
 
     {% if reviewer or contributor %}
         {% if course.is_private %}
             <div class="alert alert-info d-print-none">
-                {% trans 'This course is private. Only contributors and participants can see the results.' %}
+                <span class="fas fa-lock"></span> {% trans 'This course is private. Only contributors and participants can see the results.' %}
             </div>
         {% endif %}
         <div class="d-flex">
