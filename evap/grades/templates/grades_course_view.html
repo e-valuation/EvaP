@@ -28,7 +28,7 @@
                                 <td>{{ grade_document.last_modified_time }}, {% trans 'by' %} {{ grade_document.last_modified_user }}</td>
                                 <td>
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
-                                    {% if is_grade_publisher %}
+                                    {% if user.is_grade_publisher %}
                                         <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                                         <a role="button" onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
                                     {% endif %}
@@ -42,7 +42,7 @@
             {% endif %}
         </div>
     </div>
-    {% if is_grade_publisher %}
+    {% if user.is_grade_publisher %}
         <a href="{% url 'grades:upload_grades' semester.id course.id %}" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new midterm grades' %}</a>
         <a href="{% url 'grades:upload_grades' semester.id course.id %}?final=true" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new final grades' %}</a>
     {% endif %}

@@ -1,14 +1,9 @@
-{% extends 'results_base.html' %}
+{% extends 'base.html' %}
 
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
-{% block title %}{{ semester.name }} - {{ block.super }}{% endblock %}
-
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item">{{ semester.name }}</li>
-{% endblock %}
+{% block title %}{{ semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}

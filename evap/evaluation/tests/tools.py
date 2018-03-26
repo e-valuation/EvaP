@@ -47,15 +47,9 @@ class WebTest(DjangoWebTest):
         self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 
-    def get_submit_assert_302(self, url, user, name="", value=""):
-        response = self.get_assert_200(url, user)
-        response = response.forms[2].submit(name=name, value=value)
-        self.assertEqual(response.status_code, 302, 'url "{}" failed with user "{}"'.format(url, user))
-        return response
-
     def get_submit_assert_200(self, url, user):
         response = self.get_assert_200(url, user)
-        response = response.forms[3].submit("")
+        response = response.forms[1].submit("")
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
         return response
 

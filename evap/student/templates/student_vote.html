@@ -7,10 +7,14 @@
 
 {% block title %}{{ course.name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'student:index' %}">{% trans 'Evaluation' %}</a></li>
-    <li class="breadcrumb-item">{{ course.name }}</li>
+{% block breadcrumb_bar %}
+    <div>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">{{ course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ course.name }}</li>
+        </ul>
+        <span class="breadcrumb-end"></span>
+    </div>
 {% endblock %}
 
 {% block content %}

@@ -2,11 +2,6 @@
 
 {% block title %}{% trans 'FAQ' %} - {{ block.super }}{% endblock %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a></li>
-{% endblock %}
-
 {% block content %}
     <h3 class="mb-4">{% trans 'These are the Frequently Asked Questions (FAQs)' %}</h3>
 

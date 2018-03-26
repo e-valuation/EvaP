@@ -1,4 +1,6 @@
-{% extends 'results_base.html' %}
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}

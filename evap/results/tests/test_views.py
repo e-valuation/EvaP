@@ -4,6 +4,8 @@ from model_mommy import mommy
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
 from evap.evaluation.tests.tools import ViewTest
 
+import random
+
 
 class TestResultsView(ViewTest):
     url = '/results/'
@@ -77,11 +79,14 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.get_assert_200(url, user)
 
     def test_default_view_is_public(self):
-        url = '/results/semester/%s' % (self.semester.id)
+        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
+        random.seed(42)  # use explicit seed to always choose the same "random" slogan
         page_without_get_parameter = self.app.get(url, user='evap')
-        url = '/results/semester/%s?public_view=true' % (self.semester.id)
+        url = '/results/semester/%s/course/%s?public_view=true' % (self.semester.id, self.course.id)
+        random.seed(42)
         page_with_get_parameter = self.app.get(url, user='evap')
-        url = '/results/semester/%s?public_view=asdf' % (self.semester.id)
+        url = '/results/semester/%s/course/%s?public_view=asdf' % (self.semester.id, self.course.id)
+        random.seed(42)
         page_with_random_get_parameter = self.app.get(url, user='evap')
         self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
