@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.utils.translation import ugettext_lazy as _
+from django.dispatch import Signal
 from django.db import models
 
 
@@ -45,6 +46,8 @@ class RewardPointGranting(models.Model):
     semester = models.ForeignKey('evaluation.Semester', models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
+
+    granted_by_removal = Signal(providing_args=['users'])
 
 
 class RewardPointRedemption(models.Model):

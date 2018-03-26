@@ -2,12 +2,12 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib import messages
-from django.db import transaction
+from django.db import models, transaction
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
 
-from evap.evaluation.models import Course
+from evap.evaluation.models import Semester, Course, UserProfile
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
                                 SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
@@ -59,30 +59,58 @@ def reward_points_of_user(user):
 def is_semester_activated(semester):
     return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
 
+def grant_reward_points(user, semester):
+    # grant reward points if all conditions are fulfilled
+
+    if not can_user_use_reward_points(user):
+        return False
+    # has the semester been activated for reward points?
+    if not is_semester_activated(semester):
+        return False
+    # does the user have at least one required course in this semester?
+    required_courses = Course.objects.filter(participants=user, semester=semester, is_required_for_reward=True)
+    if not required_courses.exists():
+        return False
+    # does the user not participate in any more required courses in this semester?
+    if required_courses.exclude(voters=user).exists():
+        return False
+    # did the user not already get reward points for this semester?
+    if RewardPointGranting.objects.filter(user_profile=user, semester=semester).exists():
+        return False
+    # grant reward points
+    RewardPointGranting.objects.create(user_profile=user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
+    return True
 
 # Signal handlers
 
 @receiver(Course.course_evaluated)
-def grant_reward_points(sender, **kwargs):
-    # grant reward points if all conditions are fulfilled
-
+def grant_reward_points_after_evaluate(sender, **kwargs):
     request = kwargs['request']
     semester = kwargs['semester']
-    if not can_user_use_reward_points(request.user):
-        return
-    # has the semester been activated for reward points?
-    if not is_semester_activated(semester):
-        return
-    # does the user have at least one required course in this semester?
-    required_courses = Course.objects.filter(participants=request.user, semester=semester, is_required_for_reward=True)
-    if not required_courses.exists():
-        return
-    # does the user not participate in any more required courses in this semester?
-    if required_courses.exclude(voters=request.user).exists():
-        return
-    # did the user not already get reward points for this semester?
-    if RewardPointGranting.objects.filter(user_profile=request.user, semester=semester).exists():
-        return
-    # grant reward points
-    RewardPointGranting.objects.create(user_profile=request.user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
-    messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
+
+    if grant_reward_points(request.user, semester):
+        messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
+
+@receiver(models.signals.m2m_changed, sender=Course.participants.through)
+def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs):
+    # if users do not need to evaluate a course anymore, they may have earned reward points
+    if action == 'post_remove':
+        affected = []
+
+        if reverse:
+            # a course got removed from a participant
+            user = instance
+
+            for semester in Semester.objects.filter(course__pk__in=pk_set):
+                if grant_reward_points(user, semester):
+                    affected = [user]
+        else:
+            # a participant got removed from a course
+            course = instance
+
+            for user in UserProfile.objects.filter(pk__in=pk_set):
+                if grant_reward_points(user, course.semester):
+                    affected.append(user)
+
+        if affected:
+            RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, users=affected)

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.test import TestCase
 from django.urls import reverse
 
 from model_mommy import mommy
@@ -37,7 +38,7 @@ class TestGrantRewardPoints(WebTest):
     def test_everything_works(self):
         SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
         self.form.submit()
-        self.assertEqual(settings.REWARD_POINTS_PER_SEMESTER, reward_points_of_user(self.student))
+        self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
 
     def test_semester_activated_not_all_courses(self):
         SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
@@ -50,3 +51,22 @@ class TestGrantRewardPoints(WebTest):
         mommy.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.course.semester)
         self.form.submit()
         self.assertEqual(0, reward_points_of_user(self.student))
+
+class TestGrantRewardPointsParticipationChange(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.course = mommy.make(Course)
+        already_evaluated = mommy.make(Course, semester=cls.course.semester)
+        SemesterActivation.objects.create(semester=cls.course.semester, is_active=True)
+        cls.student = mommy.make(UserProfile, username="student", email="foo@institution.example.com",
+            courses_participating_in=[cls.course, already_evaluated], courses_voted_for=[already_evaluated])
+
+    def test_participant_removed_from_course(self):
+        self.course.participants.remove(self.student)
+
+        self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
+
+    def test_course_removed_from_participant(self):
+        self.student.courses_participating_in.remove(self.course)
+
+        self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
