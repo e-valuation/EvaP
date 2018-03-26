@@ -4,10 +4,6 @@
     500 - {{ block.super }}
 {% endblock %}
 
-{% block breadcrumb %}
-    500
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
     <strong>{% trans 'Something seems to be broken here. The admins have been notified and will follow up with you.' %}</strong>

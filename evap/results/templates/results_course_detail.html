@@ -1,13 +1,17 @@
-{% extends 'results_base.html' %}
+{% extends 'base.html' %}
 
 {% load results_templatetags %}
 
-{% block title %}{{ course.name }} - {{ course.semester.name }} - {{ block.super }}{% endblock %}
+{% block title %}{{ course.name }} - {{ course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'results:semester_detail' course.semester.id %}">{{ course.semester.name }}</a></li>
-    <li class="breadcrumb-item">{{ course.name }}</li>
+{% block breadcrumb_bar %}
+    <div>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">{{ course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ course.name }}</li>
+        </ul>
+        <span class="breadcrumb-end"></span>
+    </div>
 {% endblock %}
 
 {% block content %}

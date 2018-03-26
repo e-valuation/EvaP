@@ -41,14 +41,9 @@
     {% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
         {% include_navbar user LANGUAGE_CODE %}
     {% endcache %}
-    {% if user.is_staff or user.is_grade_publisher %}
-        <div>
-            <ul class="breadcrumb">
-                {% block breadcrumb %}<li class="breadcrumb-item"><a href="/">{% trans 'EvaP' %}</a></li>{% endblock %}
-            </ul>
-            <span class="breadcrumb-end"></span>
-        </div>
-    {% endif %}
+
+    {% block breadcrumb_bar %}
+    {% endblock %}
 </div>
 
 <div class="d-none d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" /></div>

@@ -4,11 +4,6 @@
 
 {% block title %}{% trans 'Rewards' %} - {{ block.super }}{% endblock %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'rewards:index' %}">{% trans 'Rewards' %}</a></li>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
 
