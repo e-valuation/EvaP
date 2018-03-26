@@ -32,7 +32,7 @@ class GradeUploadTests(WebTest):
         
         contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True,
                                   can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
+        contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
@@ -138,7 +138,7 @@ class GradeUploadTests(WebTest):
         contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
                                     responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.save()
-        contribution.questionnaires.set([mommy.make(Questionnaire, is_for_contributors=True)])
+        contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
         course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 

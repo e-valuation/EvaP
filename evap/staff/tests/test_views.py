@@ -443,7 +443,7 @@ class TestSemesterAssignView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
         lecture_type = mommy.make(CourseType, name_de="Vorlesung", name_en="Lecture")
         seminar_type = mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
-        cls.questionnaire = mommy.make(Questionnaire)
+        cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         course1 = mommy.make(Course, semester=cls.semester, type=seminar_type)
         mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course1,
                    responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
@@ -831,8 +831,8 @@ class TestCourseCreateView(ViewTest):
         cls.staff_user = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType)
-        cls.q1 = mommy.make(Questionnaire, is_for_contributors=False)
-        cls.q2 = mommy.make(Questionnaire, is_for_contributors=True)
+        cls.q1 = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.q2 = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
     def test_course_create(self):
         """
@@ -1341,6 +1341,7 @@ class TestQuestionnaireCreateView(ViewTest):
         questionnaire_form['question_set-0-text_en'] = "Question 1"
         questionnaire_form['question_set-0-type'] = "T"
         questionnaire_form['order'] = 0
+        questionnaire_form['type'] = Questionnaire.TOP
         questionnaire_form.submit().follow()
 
         # retrieve new questionnaire
@@ -1370,8 +1371,9 @@ class TestQuestionnaireIndexView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(Questionnaire, is_for_contributors=True)
-        mommy.make(Questionnaire, is_for_contributors=False)
+        mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
 
 
 class TestQuestionnaireEditView(ViewTest):

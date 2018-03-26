@@ -3,7 +3,7 @@ import logging
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
@@ -387,6 +387,18 @@ class RemindResponsibleForm(forms.Form):
 
 
 class QuestionnaireForm(forms.ModelForm):
+    def save(self, commit=True, force_highest_order=False, *args, **kwargs):
+        # get instance that has all the changes from the form applied, dont write to database
+        questionnaire_instance = super().save(commit=False, *args, **kwargs)
+
+        if force_highest_order or 'type' in self.changed_data:
+            highest_existing_order = Questionnaire.objects.filter(type=questionnaire_instance.type).aggregate(Max('order'))['order__max'] or -1
+            questionnaire_instance.order = highest_existing_order + 1
+
+        if commit:
+            questionnaire_instance.save(*args, **kwargs)
+
+        return questionnaire_instance
 
     class Meta:
         model = Questionnaire

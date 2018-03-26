@@ -32,8 +32,8 @@ class TestVoteView(ViewTest):
 
         cls.course = mommy.make(Course, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
 
-        cls.general_questionnaire = mommy.make(Questionnaire)
-        cls.contributor_questionnaire = mommy.make(Questionnaire)
+        cls.general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, type="H")
         cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, type="T")
