@@ -20,7 +20,8 @@ from evap.staff.views import semester_view as staff_semester_view
 @grade_publisher_required
 def index(request):
     template_data = dict(
-        semesters=Semester.objects.all()
+        semesters=Semester.objects.all(),
+        disable_breadcrumb_grades=True,
     )
     return render(request, "grades_index.html", template_data)
 
@@ -69,7 +70,6 @@ def course_view(request, semester_id, course_id):
         grade_documents=course.grade_documents.all(),
         disable_if_archived="disabled" if semester.is_archived else "",
         disable_breadcrumb_course=True,
-        is_grade_publisher=request.user.is_grade_publisher,
     )
     return render(request, "grades_course_view.html", template_data)
 
@@ -109,7 +109,6 @@ def upload_grades(request, semester_id, course_id):
             form=form,
             final_grades=final_grades,
             show_automated_publishing_info=final_grades,
-            is_grade_publisher=request.user.is_grade_publisher,
         )
         return render(request, "grades_upload_form.html", template_data)
 
