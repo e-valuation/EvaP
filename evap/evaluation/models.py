@@ -820,6 +820,10 @@ class TextAnswer(Answer):
     def is_published(self):
         return self.state == self.PUBLISHED
 
+    @property
+    def is_reviewed(self):
+        return self.state != self.NOT_REVIEWED
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         assert self.answer != self.original_answer
