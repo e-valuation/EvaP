@@ -10,7 +10,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Manager
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
@@ -92,6 +92,14 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
         return self == Semester.active_semester()
 
 
+class QuestionnaireManager(Manager):
+    def course_questionnaires(self):
+        return super().get_queryset().exclude(is_for_contributors=True)
+
+    def contributor_questionnaires(self):
+        return super().get_queryset().filter(is_for_contributors=True)
+
+
 class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     """A named collection of questions."""
 
@@ -116,6 +124,8 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
     is_for_contributors = models.BooleanField(verbose_name=_("is for contributors"), default=False)
     staff_only = models.BooleanField(verbose_name=_("display for staff only"), default=False)
     obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
+
+    objects = QuestionnaireManager()
 
     class Meta:
         ordering = ('is_for_contributors', 'order', 'name_de')

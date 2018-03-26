@@ -166,7 +166,6 @@ def semester_course_operation(request, semester_id):
         elif target_state == 'published':
             helper_semester_course_operation_publish(request, courses, template)
 
-
         return custom_redirect('staff:semester_view', semester_id)
 
     # If necessary, filter courses and set email template for possible editing

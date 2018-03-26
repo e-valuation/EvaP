@@ -124,7 +124,7 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 class CourseForm(forms.ModelForm):
     general_questions = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.filter(is_for_contributors=False, obsolete=False),
+        Questionnaire.objects.course_questionnaires().filter(obsolete=False),
         widget=CheckboxSelectMultiple,
         label=_("Questions about the course")
     )
@@ -149,7 +149,7 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
+        self.fields['general_questions'].queryset = Questionnaire.objects.course_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
@@ -273,7 +273,7 @@ class ContributionForm(forms.ModelForm):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.filter(is_for_contributors=True, obsolete=False),
+        Questionnaire.objects.contributor_questionnaires().filter(obsolete=False),
         required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
@@ -304,7 +304,7 @@ class ContributionForm(forms.ModelForm):
         else:
             self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
 
-        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
+        self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
 
         if self.instance.pk:
@@ -517,8 +517,8 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-        contributor_questionnaires = Questionnaire.objects.filter(obsolete=False, is_for_contributors=True)
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.course_questionnaires().filter(obsolete=False))
+        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
         self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 
 
