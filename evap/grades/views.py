@@ -23,6 +23,7 @@ def index(request):
         semesters=Semester.objects.all(),
         disable_breadcrumb_grades=True,
     )
+
     return render(request, "grades_index.html", template_data)
 
 

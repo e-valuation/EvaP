@@ -66,14 +66,10 @@ def settings_edit(request):
 def course_view(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
-    show_edit_message = True
 
     # check rights
     if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
-
-    if course.is_user_editor_or_delegate(user):
-        show_edit_message = False
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
@@ -85,7 +81,7 @@ def course_view(request, course_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(form=form, formset=formset, course=course, editable=False, show_edit_message=show_edit_message,
+    template_data = dict(form=form, formset=formset, course=course, editable=False, show_edit_message=False,
                         responsibles=[contributor.username for contributor in course.responsible_contributors])
     return render(request, "contributor_course_form.html", template_data)
 
