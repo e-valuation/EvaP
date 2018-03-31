@@ -40,7 +40,8 @@
                         {{ form.contributor }}
                         <div class="form-check mt-2" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if this person does not visibly contribute to the course and if no questions about this person shall be included in the course's questionnaire. This can be used if the person is solely added to receive permissions for editing the course or viewing comments.{% endblocktrans %}">
                             <input class="form-check-input" id="{{ form.does_not_contribute.id_for_label }}" name="{{ form.does_not_contribute.html_name }}"
-                                type="checkbox"{% if form.does_not_contribute.value %} checked{% endif %} />
+                                type="checkbox"{% if form.does_not_contribute.value %} checked{% endif %}
+                                {% if form.does_not_contribute.field.disabled %} disabled{% endif %} />
                             <label class="form-check-label" for="{{ form.does_not_contribute.id_for_label }}">{{ form.does_not_contribute.label }}</label>
                         </div>
                         {% include 'bootstrap_form_errors.html' with errors=form.does_not_contribute.errors %}
