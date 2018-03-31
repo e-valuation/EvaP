@@ -1137,11 +1137,21 @@ a.no-underline:hover {
     }
     &:disabled {
         ~ .form-check-label {
-            color: $light-gray;
+            color: $medium-gray;
             &::before {
                 background-color: $lighter-gray;
+                border: 1px solid $light-gray;
                 box-shadow: none;
             }
+            &::after {
+                color: $medium-gray;
+            }
+        }
+        &:hover ~ .form-check-label::before {
+            background-color: $lighter-gray;
+        }
+        &:checked:hover ~ .form-check-label::before {
+            background-color: $lighter-gray;
         }
     }
 }
@@ -1164,6 +1174,7 @@ input[type="hidden"] ~ .form-check-label {
     user-select: none;
     content: "";
     border-radius: 0.25rem;
+    border: 0;
     background-color: $light-gray;
     transition: background-color 0.15s ease-in-out;
   }
