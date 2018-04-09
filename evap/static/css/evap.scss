@@ -147,6 +147,16 @@ a.btn:not([href]):not(.disabled).btn-dark {
     display: inline-flex;
     background-color: lighten($light-gray, 2%);
     border-radius: 0.2rem;
+    .btn-toolbar {
+        background: $white;
+    }
+    .btn-group {
+        background: lighten($light-gray, 2%);
+        &::before {
+            width: 0.5rem;
+            content: "";
+        }
+    }
 }
 .btn-switch-label {
     display: inline-block;
@@ -452,6 +462,7 @@ body {
 }
 
 .btn-switch-navbar {
+    display: inline-flex;
     background-color: $darker-gray;
     padding: 0.5rem 0.75rem;
     .btn-group {
