@@ -1,7 +1,7 @@
 {% load evaluation_filters %}
 
 <div class="inline-headers">
-    {% if section.questionnaire_warning and not contributor_data.total_votes == 0 %}
+    {% if section.warning and not contributor_data.total_votes == 0 %}
         <p class="pull-right participants-warning questionnaire-warning">
             <span class="fas fa-exclamation-triangle"></span>
             {% trans 'Only a few participants answered these questions.' %}
