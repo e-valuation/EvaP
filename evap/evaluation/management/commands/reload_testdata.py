@@ -27,11 +27,11 @@ class Command(BaseCommand):
         self.stdout.write('Executing "python manage.py migrate"')
         call_command("migrate")
 
-        self.stdout.write('Executing "python manage.py createcachetable"')
-        call_command("createcachetable")
-
         self.stdout.write('Executing "python manage.py load_testdata"')
         call_command("loaddata", "test_data")
+
+        self.stdout.write('Executing "python manage.py clear_cache"')
+        call_command("clear_cache")
 
         self.stdout.write('Executing "python manage.py refresh_results_cache"')
         call_command("refresh_results_cache")

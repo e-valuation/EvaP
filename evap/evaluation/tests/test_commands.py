@@ -51,8 +51,8 @@ class TestReloadTestdataCommand(TestCase):
 
         mock_call_command.assert_any_call('reset_db', interactive=False)
         mock_call_command.assert_any_call('migrate')
-        mock_call_command.assert_any_call('createcachetable')
         mock_call_command.assert_any_call('loaddata', 'test_data')
+        mock_call_command.assert_any_call('clear_cache')
         mock_call_command.assert_any_call('refresh_results_cache')
         mock_call_command.assert_any_call('clear_cache --cache=sessions')
 
