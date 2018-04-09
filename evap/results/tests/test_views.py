@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
-from evap.evaluation.tests.tools import ViewTest
+from evap.evaluation.tests.tools import ViewTest, WebTest
 
 import random
 
@@ -27,9 +27,7 @@ class TestResultsSemesterDetailView(ViewTest):
         cls.semester = mommy.make(Semester, id=1)
 
 
-class TestResultsSemesterCourseDetailViewContributionWarning(ViewTest):
-    url = '/results/semester/3/course/21'
-    test_users = ['contributor']
+class TestResultsViewContributionWarning(WebTest):
 
     @classmethod
     def setUpTestData(cls):
@@ -42,22 +40,20 @@ class TestResultsSemesterCourseDetailViewContributionWarning(ViewTest):
         questionnaire = mommy.make(Questionnaire)
         cls.contribution = mommy.make(Contribution, course=cls.course, questionnaires=[questionnaire], contributor=contributor)
         cls.likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
+        cls.url = '/results/semester/%s/course/%s' % (cls.semester.id, cls.course.id)
 
     def test_many_answers_course_no_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
-        page = self.get_assert_200(url, 'contributor')
+        page = self.get_assert_200(self.url, 'contributor')
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_zero_answers_course_no_warning(self):
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
-        page = self.get_assert_200(url, 'contributor')
+        page = self.get_assert_200(self.url, 'contributor')
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_course_show_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
-        page = self.get_assert_200(url, 'contributor')
+        page = self.get_assert_200(self.url, 'contributor')
         self.assertIn("Only a few participants answered these questions.", page)
 
 
