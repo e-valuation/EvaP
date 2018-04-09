@@ -27,6 +27,40 @@ class TestResultsSemesterDetailView(ViewTest):
         cls.semester = mommy.make(Semester, id=1)
 
 
+class TestResultsSemesterCourseDetailViewContributionWarning(ViewTest):
+    url = '/results/semester/3/course/21'
+    test_users = ['contributor']
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester, id=3)
+        mommy.make(UserProfile, username='contributor', groups=[Group.objects.get(name='Staff')], email="contributor@institution.example.com")
+        contributor = UserProfile.objects.get(username="contributor")
+
+        # Set up a course with one question but no answers
+        cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
+        questionnaire = mommy.make(Questionnaire)
+        cls.contribution = mommy.make(Contribution, course=cls.course, questionnaires=[questionnaire], contributor=contributor)
+        cls.likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
+
+    def test_many_answers_course_no_warning(self):
+        mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
+        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
+        page = self.get_assert_200(url, 'contributor')
+        self.assertNotIn("Only a few participants answered these questions.", page)
+
+    def test_zero_answers_course_no_warning(self):
+        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
+        page = self.get_assert_200(url, 'contributor')
+        self.assertNotIn("Only a few participants answered these questions.", page)
+
+    def test_few_answers_course_show_warning(self):
+        mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
+        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
+        page = self.get_assert_200(url, 'contributor')
+        self.assertIn("Only a few participants answered these questions.", page)
+
+
 class TestResultsSemesterCourseDetailView(ViewTest):
     url = '/results/semester/2/course/21'
     test_users = ['evap', 'contributor', 'responsible']
@@ -54,13 +88,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
 
-    def _create_questionaire_with_answers(self, answer_count=10):
-        questionnaire = mommy.make(Questionnaire)
-        likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
-        contributor = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
-        mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=answer_count)
-
     def test_heading_question_filtering(self):
         contributor = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire)
@@ -79,27 +106,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertIn(heading_question_1.text, page)
         self.assertIn(likert_question.text, page)
         self.assertNotIn(heading_question_2.text, page)
-
-    def test_many_answers_course_no_warning(self):
-        self._create_questionaire_with_answers(answer_count=10)
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
-        user = 'evap'
-        page = self.get_assert_200(url, user)
-        self.assertNotIn("Only a few participants answered these questions.", page)
-
-    def test_zero_answers_course_no_warning(self):
-        self._create_questionaire_with_answers(answer_count=0)
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
-        user = 'evap'
-        page = self.get_assert_200(url, user)
-        self.assertNotIn("Only a few participants answered these questions.", page)
-
-    def test_few_answers_course_show_warning(self):
-        self._create_questionaire_with_answers(answer_count=3)
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
-        user = 'evap'
-        page = self.get_assert_200(url, user)
-        self.assertIn("Only a few participants answered these questions.", page)
 
     def test_single_result_course(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)
